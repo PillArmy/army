@@ -63,7 +63,7 @@ enum AssignOperator {
 
 
     final void appendOperator(final SqlField field, final StringBuilder sqlBuilder, final _SqlContext context) {
-        switch (context.database()) {
+        switch (context.dialectDatabase()) {
             case MySQL:
             case PostgreSQL:
             case SQLite: {
@@ -73,7 +73,7 @@ enum AssignOperator {
             }
             break;
             default:
-                throw _Exceptions.unexpectedEnum(context.database());
+                throw _Exceptions.unexpectedEnum(context.dialectDatabase());
         }
 
     }

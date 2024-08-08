@@ -21,6 +21,7 @@ import io.army.criteria.impl.Postgres;
 import io.army.criteria.impl.SQLs;
 import io.army.example.bank.domain.user.ChinaRegion;
 import io.army.example.bank.domain.user.ChinaRegion_;
+import io.army.mapping.BigDecimalType;
 import io.army.session.SyncLocalSession;
 import io.army.type.SqlRecord;
 import io.army.util.RowMaps;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +59,18 @@ public class QuerySuiteTests extends SessionTestSupport {
         syncSession.queryObject(stmt, constructor)
                 .forEach(c -> LOG.debug("{}", c.getName()));
 
+    }
+
+    @Test
+    public void castTo(final SyncLocalSession session) {
+        final Select stmt;
+        stmt = Postgres.query()
+                .select(ChinaRegion_.population.castTo(BigDecimalType.INSTANCE).as(ChinaRegion_.POPULATION))
+                .from(ChinaRegion_.T, AS, "c")
+                .limit(SQLs::literal, 1)
+                .asQuery();
+
+        session.queryOne(stmt, BigDecimal.class);
     }
 
     @Test

@@ -18,6 +18,7 @@ package io.army.dialect;
 
 import io.army.criteria.*;
 import io.army.criteria.impl.SQLs;
+import io.army.lang.Nullable;
 import io.army.meta.FieldMeta;
 import io.army.meta.TypeMeta;
 import io.army.modelgen._MetaBridge;
@@ -30,7 +31,6 @@ import io.army.stmt.StmtParams;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -105,8 +105,13 @@ abstract class StatementContext implements _StmtContext, StmtParams {
 
 
     @Override
-    public final Database database() {
+    public final Database dialectDatabase() {
         return this.parser.dialectDatabase;
+    }
+
+    @Override
+    public final Database serverDatabase() {
+        return this.parser.serverDatabase;
     }
 
     @Override

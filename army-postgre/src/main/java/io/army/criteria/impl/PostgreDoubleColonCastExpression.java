@@ -58,7 +58,7 @@ final class PostgreDoubleColonCastExpression extends OperationExpression.Operati
 
     @Override
     public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
-        if (context.database() != Database.PostgreSQL) {
+        if (context.dialectDatabase() != Database.PostgreSQL) {
             throw new CriteriaException(String.format("dialect database isn't %s", Database.PostgreSQL));
         }
         final String typeName = this.typeName;

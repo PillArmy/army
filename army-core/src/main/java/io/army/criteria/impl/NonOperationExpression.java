@@ -22,11 +22,12 @@ import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.function.OptionalClauseOperator;
 import io.army.function.TeFunction;
+import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.mapping.NullType;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TypeMeta;
 
-import io.army.lang.Nullable;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -382,6 +383,12 @@ abstract class NonOperationExpression implements ArmyExpression {
 
     @Override
     public final OperationExpression mapTo(TypeMeta typeMeta) {
+        throw unsupportedOperation(this);
+    }
+
+
+    @Override
+    public final Expression castTo(MappingType type) {
         throw unsupportedOperation(this);
     }
 

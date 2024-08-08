@@ -25,6 +25,7 @@ import io.army.dialect._SqlContext;
 import io.army.function.OptionalClauseOperator;
 import io.army.function.TeFunction;
 import io.army.function.TeNamedOperator;
+import io.army.lang.Nullable;
 import io.army.mapping.BooleanType;
 import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
@@ -35,7 +36,6 @@ import io.army.meta.ParentTableMeta;
 import io.army.meta.TypeMeta;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -341,7 +341,15 @@ abstract class OperationExpression extends OperationSQLExpression
         if (typeMeta == null) {
             throw ContextStack.clearStackAndNullPointer();
         }
-        return Expressions.castExp(this, typeMeta);
+        return Expressions.mapExpType(this, typeMeta);
+    }
+
+    @Override
+    public Expression castTo(final @Nullable MappingType type) {
+        if (type == null) {
+            throw ContextStack.clearStackAndNullPointer();
+        }
+        return Expressions.castExpToType(this, type);
     }
 
     @Override

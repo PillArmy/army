@@ -19,10 +19,11 @@ package io.army.criteria;
 import io.army.criteria.impl.SQLs;
 import io.army.function.OptionalClauseOperator;
 import io.army.function.TeFunction;
+import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.TypeMeta;
 
-import io.army.lang.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.function.BiFunction;
@@ -216,6 +217,10 @@ public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpda
     @Override
     Expression mapTo(TypeMeta typeMeta);
 
+    //  TODO 解决子接口问题
+    @Support({PostgreSQL})
+    Expression castTo(MappingType type);
+
 
     /**
      * @return always this
@@ -298,7 +303,7 @@ public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpda
     /**
      * <p>
      * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, IPredicate)} type infer.
+     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, io.army.criteria.impl.SQLs.SymbolSpace, IPredicate)} type infer.
      *
      * <p>
      * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
@@ -318,7 +323,7 @@ public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpda
     /**
      * <p>
      * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, IPredicate)} type infer.
+     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, io.army.criteria.impl.SQLs.SymbolSpace, IPredicate)} type infer.
      *
      * <p>
      * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
@@ -337,7 +342,7 @@ public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpda
     /**
      * <p>
      * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, IPredicate)} type infer.
+     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, io.army.criteria.impl.SQLs.SymbolSpace, IPredicate)} type infer.
      *
      * <p>
      * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
@@ -357,7 +362,7 @@ public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpda
     /**
      * <p>
      * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, IPredicate)} type infer.
+     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, io.army.criteria.impl.SQLs.SymbolSpace, IPredicate)} type infer.
      *
      * <p>
      * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.

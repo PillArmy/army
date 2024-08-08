@@ -23,6 +23,7 @@ import io.army.criteria.impl.inner._SelectionMap;
 import io.army.dialect.DialectParser;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
+import io.army.lang.Nullable;
 import io.army.mapping.TextType;
 import io.army.meta.ChildTableMeta;
 import io.army.meta.FieldMeta;
@@ -31,7 +32,6 @@ import io.army.meta.TableMeta;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.Collections;
 import java.util.List;
 
@@ -361,7 +361,7 @@ abstract class SelectionGroups {
             if (selectionList == null) {
                 throw _Exceptions.castCriteriaApi();
             }
-            switch (context.database()) {
+            switch (context.dialectDatabase()) {
                 case MySQL:
                     this.appendDerivedRowElement(sqlBuilder, context);
                     break;
@@ -375,7 +375,7 @@ abstract class SelectionGroups {
                 case Oracle:
                 case H2:
                 default:
-                    throw _Exceptions.unexpectedEnum(context.database());
+                    throw _Exceptions.unexpectedEnum(context.dialectDatabase());
             }
 
         }

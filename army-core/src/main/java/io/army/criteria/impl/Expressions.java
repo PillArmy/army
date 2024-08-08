@@ -19,6 +19,7 @@ package io.army.criteria.impl;
 import io.army.criteria.*;
 import io.army.criteria.impl.inner._DerivedTable;
 import io.army.dialect.*;
+import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.mapping.array.TextArrayType;
 import io.army.mapping.optional.JsonPathType;
@@ -29,7 +30,6 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BinaryOperator;
@@ -109,8 +109,12 @@ abstract class Expressions {
     }
 
 
-    static OperationExpression castExp(OperationExpression expression, TypeMeta typeMeta) {
-        return new CastExpression(expression, typeMeta);
+    static OperationExpression mapExpType(OperationExpression expression, TypeMeta typeMeta) {
+        return new MappingExpression(expression, typeMeta);
+    }
+
+    static OperationExpression castExpToType(OperationExpression expression, MappingType typeMeta) {
+        return new CastTypeExpression(expression, typeMeta);
     }
 
     static Expression scalarExpression(final SubQuery subQuery) {
@@ -790,8 +794,8 @@ abstract class Expressions {
                 case AT_TIME_ZONE:
                 case DOUBLE_AMP:
                 case POUND: {
-                    if (context.database() != Database.PostgreSQL) {
-                        throw unsupportedOperator(operator, context.database());
+                    if (context.dialectDatabase() != Database.PostgreSQL) {
+                        throw unsupportedOperator(operator, context.dialectDatabase());
                     }
                 }
                 break;
@@ -815,7 +819,7 @@ abstract class Expressions {
             }
 
             //2. append operator
-            if (operator == DualExpOperator.BITWISE_XOR && context.database() == Database.PostgreSQL) {
+            if (operator == DualExpOperator.BITWISE_XOR && context.dialectDatabase() == Database.PostgreSQL) {
                 sqlBuilder.append(" #");
             } else {
                 sqlBuilder.append(operator.spaceOperator);
@@ -965,7 +969,7 @@ abstract class Expressions {
             if (outerParens) {
                 sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
             }
-            sqlBuilder.append(operator.spaceRender(context.database()));
+            sqlBuilder.append(operator.spaceRender(context.dialectDatabase()));
 
             final ArmyExpression operand = this.operand;
             final boolean operandOuterParens = !(operand instanceof ArmySimpleExpression);
@@ -1172,7 +1176,7 @@ abstract class Expressions {
                 sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
             }
 
-            sqlBuilder.append(this.operator.spaceRender(context.database()));
+            sqlBuilder.append(this.operator.spaceRender(context.dialectDatabase()));
 
             final ArmyRightOperand right = this.right;
             if (right instanceof SubQuery) {
@@ -1298,8 +1302,8 @@ abstract class Expressions {
                     break;
                 case SIMILAR_TO:
                 case NOT_SIMILAR_TO: {
-                    if (context.database() != Database.PostgreSQL) {
-                        throw unsupportedOperator(this.operator, context.database());
+                    if (context.dialectDatabase() != Database.PostgreSQL) {
+                        throw unsupportedOperator(this.operator, context.dialectDatabase());
                     }
                 }
                 break;
@@ -1492,14 +1496,14 @@ abstract class Expressions {
     }//BetweenPredicate
 
 
-    private static class CastExpression extends OperationExpression.OperationCompoundExpression {
+    private static class MappingExpression extends OperationExpression.OperationCompoundExpression {
 
         private final ArmyExpression expression;
 
         private final TypeMeta castType;
 
 
-        private CastExpression(OperationExpression expression, TypeMeta castType) {
+        private MappingExpression(OperationExpression expression, TypeMeta castType) {
             this.expression = expression;
             this.castType = castType;
         }
@@ -1526,7 +1530,50 @@ abstract class Expressions {
         }
 
 
-    }//CastExpression
+    } // MappingExpression
+
+
+    private static class CastTypeExpression extends OperationExpression.OperationCompoundExpression {
+
+        private final ArmyExpression expression;
+
+        private final MappingType castType;
+
+
+        private CastTypeExpression(OperationExpression expression, MappingType castType) {
+            this.expression = expression;
+            this.castType = castType;
+        }
+
+        @Override
+        public MappingType typeMeta() {
+            return this.castType;
+        }
+
+        @Override
+        public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
+            if (context.serverDatabase() != Database.PostgreSQL) {
+                String m = String.format("server database %s don't support castTo() method.", context.serverDatabase());
+                throw new CriteriaException(m);
+            }
+            this.expression.appendSql(sqlBuilder, context);
+            sqlBuilder.append("::");
+            context.parser().typeName(this.castType, sqlBuilder);
+        }
+
+
+        @Override
+        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
+            return this.expression.currentLevelContainFieldOf(table);
+        }
+
+        @Override
+        public final String toString() {
+            return this.expression.toString();
+        }
+
+
+    } // CastTypeExpression
 
 
     private static final class SubQueryPredicate extends OperationPredicate.OperationCompoundPredicate {
@@ -2169,7 +2216,7 @@ abstract class Expressions {
 
             this.appendJson(sqlBuilder, context);
 
-            switch (context.database()) {
+            switch (context.dialectDatabase()) {
                 case MySQL: {
                     if (context.dialect().compareWith(MySQLDialect.MySQL80) < 0) {
                         throw dontSupportJsonObjectAttrError(context.dialect());
@@ -2235,7 +2282,7 @@ abstract class Expressions {
 
             this.appendJson(sqlBuilder, context);
 
-            switch (context.database()) {
+            switch (context.dialectDatabase()) {
                 case MySQL: {
                     if (context.dialect().compareWith(MySQLDialect.MySQL80) < 0) {
                         throw dontSupportJsonArrayError(context.dialect());
@@ -2295,7 +2342,7 @@ abstract class Expressions {
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
 
-            switch (context.database()) {
+            switch (context.dialectDatabase()) {
                 case MySQL: {
                     if (((MySQLDialect) context.dialect()).compareWith(MySQLDialect.MySQL80) < 0) {
                         throw dontSupportJsonPathError(context.dialect());
@@ -2476,7 +2523,7 @@ abstract class Expressions {
 
 
             final MappingType castType = ((ArrayConstructor) this).castType;
-            switch (context.database()) {
+            switch (context.dialectDatabase()) {
                 case PostgreSQL: {
                     if (castType != null) {
                         sqlBuilder.append(_Constant.DOUBLE_COLON);
@@ -2490,7 +2537,7 @@ abstract class Expressions {
                 case H2:
                 case MySQL:
                 default: {
-                    String m = String.format("%s don't support array constructor expression.", context.database());
+                    String m = String.format("%s don't support array constructor expression.", context.dialectDatabase());
                     throw new CriteriaException(m);
                 }
 

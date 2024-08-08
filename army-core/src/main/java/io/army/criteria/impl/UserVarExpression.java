@@ -24,6 +24,7 @@ import io.army.criteria.dialect.VarExpression;
 import io.army.dialect.Database;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
 import io.army.meta.ParentTableMeta;
@@ -31,7 +32,6 @@ import io.army.meta.TypeMeta;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.Objects;
 
 final class UserVarExpression extends OperationExpression.OperationDefiniteExpression implements VarExpression {
@@ -154,8 +154,8 @@ final class UserVarExpression extends OperationExpression.OperationDefiniteExpre
 
     @Override
     public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
-        if (context.database() != Database.MySQL) {
-            throw _Exceptions.dontSupportVariableExpression(context.database());
+        if (context.dialectDatabase() != Database.MySQL) {
+            throw _Exceptions.dontSupportVariableExpression(context.dialectDatabase());
         }
         sqlBuilder.append(" @");
 

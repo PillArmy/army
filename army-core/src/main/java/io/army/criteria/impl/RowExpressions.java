@@ -21,6 +21,7 @@ import io.army.criteria.*;
 import io.army.dialect.Database;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
+import io.army.lang.Nullable;
 import io.army.mapping.IntegerType;
 import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
@@ -29,7 +30,6 @@ import io.army.util.ArrayUtils;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -182,7 +182,7 @@ abstract class RowExpressions {
             final int elementItemSize;
             elementItemSize = elementList.size();
             final Database database;
-            database = context.database();
+            database = context.dialectDatabase();
             if (elementItemSize == 0 && database == Database.MySQL) {
                 String m = String.format("error ,%s don't support empty row", database);
                 throw new CriteriaException(m);

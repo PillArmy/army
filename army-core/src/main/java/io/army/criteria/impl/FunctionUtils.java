@@ -21,6 +21,7 @@ import io.army.criteria.impl.inner._SelectionGroup;
 import io.army.criteria.impl.inner._SelfDescribed;
 import io.army.criteria.standard.SQLFunction;
 import io.army.dialect.*;
+import io.army.lang.Nullable;
 import io.army.mapping.IntegerType;
 import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
@@ -31,7 +32,6 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -1151,7 +1151,7 @@ abstract class FunctionUtils {
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
             final Database database;
-            database = context.database();
+            database = context.dialectDatabase();
             switch (database) {
                 case PostgreSQL: {
                     sqlBuilder.append(_Constant.SPACE)

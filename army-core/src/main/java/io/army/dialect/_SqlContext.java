@@ -33,7 +33,9 @@ import io.army.session.SessionSpec;
 public interface _SqlContext extends SqlContextSpec {
 
 
-    Database database();
+    Database dialectDatabase();
+
+    Database serverDatabase();
 
     Dialect dialect();
 
