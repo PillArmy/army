@@ -395,7 +395,9 @@ final class AnnotationHandler {
         final String fieldJavaClassName;
         fieldJavaClassName = field.asType().toString();
         if (!(fieldJavaClassName.equals(Integer.class.getName())
+                || fieldJavaClassName.equals(int.class.getName())
                 || fieldJavaClassName.equals(Long.class.getName())
+                || fieldJavaClassName.equals(long.class.getName())
                 || fieldJavaClassName.equals(BigInteger.class.getName()))) {
             String m;
             m = String.format("Field %s.%s support only below java type:\n%s\n%s\n%s."
@@ -409,7 +411,10 @@ final class AnnotationHandler {
     }
 
     private void assertVisibleField(final String className, final VariableElement field) {
-        if (!field.asType().toString().equals(Boolean.class.getName())) {
+        final String fieldJavaClassName;
+        fieldJavaClassName = field.asType().toString();
+        if (!(fieldJavaClassName.equals(Boolean.class.getName())
+                || fieldJavaClassName.equals(boolean.class.getName()))) {
             String m;
             m = String.format("Field %s.%s support only %s."
                     , className, field.getSimpleName()

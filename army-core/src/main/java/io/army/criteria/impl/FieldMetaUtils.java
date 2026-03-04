@@ -18,6 +18,7 @@ package io.army.criteria.impl;
 
 import io.army.annotation.*;
 import io.army.generator.FieldGenerator;
+import io.army.lang.Nullable;
 import io.army.mapping.CodeEnumType;
 import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
@@ -28,7 +29,6 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.util.Collections;
@@ -106,7 +106,11 @@ abstract class FieldMetaUtils extends TableMetaUtils {
             throw new MetaException(m);
         }
         final Class<?> javaType = field.javaType();
-        if (javaType != Integer.class && javaType != Long.class && javaType != BigInteger.class) {
+        if (javaType != Integer.class
+                && javaType != int.class
+                && javaType != Long.class
+                && javaType != long.class
+                && javaType != BigInteger.class) {
             throw _Exceptions.autoIdErrorJavaType((PrimaryFieldMeta<?>) field);
         }
     }
