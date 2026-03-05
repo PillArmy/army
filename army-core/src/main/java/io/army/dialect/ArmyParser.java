@@ -1869,7 +1869,7 @@ abstract class ArmyParser implements DialectParser {
     protected final void visiblePredicate(final SingleTableMeta<?> table, final @Nullable String safeTableAlias,
                                           final _SqlContext context, final boolean firstPredicate) {
 
-        final FieldMeta<?> field = table.tryGetField(_MetaBridge.VISIBLE);
+        final FieldMeta<?> field = table.tryField(_MetaBridge.VISIBLE);
 
         final Boolean visibleValue;
         visibleValue = context.visible().value;
@@ -1961,7 +1961,7 @@ abstract class ArmyParser implements DialectParser {
 
         // below visible predicate
         final FieldMeta<?> visibleField;
-        visibleField = parentTable.getField(_MetaBridge.VISIBLE);
+        visibleField = parentTable.field(_MetaBridge.VISIBLE);
 
         sqlBuilder.append(_Constant.SPACE_AND_SPACE)
                 .append(safeParentAlias)
@@ -2070,7 +2070,7 @@ abstract class ArmyParser implements DialectParser {
 
         final ParentTableMeta<?> parentTable;
         parentTable = ((ChildTableMeta<?>) childContext.domainTable()).parentMeta();
-        ((DomainDmlStmtContext) childContext).parentColumnFromSubQuery(parentTable.getField(_MetaBridge.VISIBLE));
+        ((DomainDmlStmtContext) childContext).parentColumnFromSubQuery(parentTable.field(_MetaBridge.VISIBLE));
 
         final Boolean visibleValue;
         visibleValue = ((DomainDmlStmtContext) childContext).visible.value;
@@ -2103,7 +2103,7 @@ abstract class ArmyParser implements DialectParser {
         if (((_DmlContext._SetClauseContextSpec) context).isAppendedUpdateTime()) {
             updateTime = null;
         } else {
-            updateTime = table.getField(_MetaBridge.UPDATE_TIME);
+            updateTime = table.field(_MetaBridge.UPDATE_TIME);
 
             final Temporal updateTimeValue;
             updateTimeValue = createUpdateTimeValue(updateTime);
@@ -2131,7 +2131,7 @@ abstract class ArmyParser implements DialectParser {
             }
         }
 
-        if ((version = table.tryGetField(_MetaBridge.VERSION)) == null) {
+        if ((version = table.tryField(_MetaBridge.VERSION)) == null) {
             return;
         }
 
@@ -2784,7 +2784,7 @@ abstract class ArmyParser implements DialectParser {
         parentTable = ((ChildTableMeta<?>) context.targetTable).parentMeta();
 
         if ((visibleValue = context.visible.value) != null
-                && (visibleField = parentTable.tryGetField(_MetaBridge.VISIBLE)) != null) {
+                && (visibleField = parentTable.tryField(_MetaBridge.VISIBLE)) != null) {
             final StringBuilder sqlBuilder = context.sqlBuilder;
             sqlBuilder.append(_Constant.SPACE_AND);
             context.parentColumnFromSubQuery(visibleField);
@@ -3055,7 +3055,7 @@ abstract class ArmyParser implements DialectParser {
         final FieldMeta<?> visibleField;
         final Boolean visibleValue;
         if ((visibleValue = childContext.visible.value) != null
-                && (visibleField = parentTable.tryGetField(_MetaBridge.VISIBLE)) != null) {
+                && (visibleField = parentTable.tryField(_MetaBridge.VISIBLE)) != null) {
             childBuilder.append(_Constant.SPACE_AND);
             childContext.parentColumnFromSubQuery(visibleField);
             childBuilder.append(_Constant.SPACE_EQUAL_SPACE);

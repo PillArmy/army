@@ -384,33 +384,7 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         return this.primaryField;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public final FieldMeta<? super T> version() {
-        final FieldMeta<? super T> field;
-        if (this instanceof ChildTableMeta) {
-            final DefaultTableMeta<? super T> parent;
-            parent = (DefaultTableMeta<? super T>) ((ChildTableMeta<T>) this).parentMeta();
-            field = parent.fieldNameToFields.get(_MetaBridge.VERSION);
-        } else {
-            field = this.fieldNameToFields.get(_MetaBridge.VERSION);
-        }
-        return field;
-    }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public final FieldMeta<? super T> visible() {
-        final FieldMeta<? super T> field;
-        if (this instanceof ChildTableMeta) {
-            final DefaultTableMeta<? super T> parent;
-            parent = (DefaultTableMeta<? super T>) ((ChildTableMeta<T>) this).parentMeta();
-            field = parent.fieldNameToFields.get(_MetaBridge.VISIBLE);
-        } else {
-            field = this.fieldNameToFields.get(_MetaBridge.VISIBLE);
-        }
-        return field;
-    }
 
     @Override
     public final List<IndexMeta<T>> indexList() {
@@ -444,18 +418,18 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
     }
 
     @Override
-    public final FieldMeta<T> getField(final String fieldName) throws IllegalArgumentException {
+    public final FieldMeta<T> field(final String fieldName) throws IllegalArgumentException {
         final FieldMeta<T> fieldMeta;
         fieldMeta = this.fieldNameToFields.get(fieldName);
         if (fieldMeta == null) {
-            String m = String.format("%s's %s[%s] not found", this, FieldMeta.class.getName(), fieldName);
-            throw new IllegalArgumentException(m);
+            throw notFoundField(fieldName);
         }
         return fieldMeta;
     }
 
+
     @Override
-    public final FieldMeta<T> tryGetField(String fieldName) {
+    public final FieldMeta<T> tryField(String fieldName) {
         return this.fieldNameToFields.get(fieldName);
     }
 
@@ -465,9 +439,9 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
     }
 
     @Override
-    public final IndexFieldMeta<T> getIndexField(final String fieldName) {
+    public final IndexFieldMeta<T> indexField(final String fieldName) {
         final FieldMeta<T> fieldMeta;
-        fieldMeta = getField(fieldName);
+        fieldMeta = field(fieldName);
         if (!(fieldMeta instanceof IndexFieldMeta)) {
             String m = String.format("%s's %s[%s] java type not match", this
                     , IndexFieldMeta.class.getName(), fieldName);
@@ -477,9 +451,9 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
     }
 
     @Override
-    public final UniqueFieldMeta<T> getUniqueField(final String fieldName) {
+    public final UniqueFieldMeta<T> uniqueField(final String fieldName) {
         final IndexFieldMeta<T> fieldMeta;
-        fieldMeta = getIndexField(fieldName);
+        fieldMeta = indexField(fieldName);
         if (!(fieldMeta instanceof UniqueFieldMeta)) {
             String m = String.format("%s's %s[%s] java type not match", this
                     , UniqueFieldMeta.class.getName(), fieldName);
@@ -528,10 +502,101 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
                 .append(']').toString();
     }
 
+    @SuppressWarnings("unchecked")
+    @Nullable
+    FieldMeta<? super T> tryGetReservedField(String fieldName) {
+        final FieldMeta<? super T> field;
+        if (this instanceof ChildTableMeta) {
+            final DefaultTableMeta<? super T> parent;
+            parent = (DefaultTableMeta<? super T>) ((ChildTableMeta<T>) this).parentMeta();
+            field = parent.fieldNameToFields.get(fieldName);
+        } else {
+            field = this.fieldNameToFields.get(fieldName);
+        }
+        return field;
+    }
+
+    IllegalArgumentException notFoundField(String fieldName) {
+        String m = String.format("%s's %s[%s] not found", this, FieldMeta.class.getName(), fieldName);
+        return new IllegalArgumentException(m);
+    }
+
 
     /*################################## blow static class ##################################*/
 
-    private static final class DefaultSimpleTable<T> extends DefaultTableMeta<T>
+    private static abstract class DefaultSingleTableMeta<T> extends DefaultTableMeta<T>
+            implements SingleTableMeta<T> {
+
+        private DefaultSingleTableMeta(Class<T> domainClass) {
+            super(domainClass);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public final FieldMeta<T> createTime() {
+            final FieldMeta<?> field;
+            field = tryGetReservedField(_MetaBridge.CREATE_TIME);
+            assert field != null;
+            return (FieldMeta<T>) field;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public final FieldMeta<T> updateTime() {
+            final FieldMeta<?> field;
+            field = tryGetReservedField(_MetaBridge.UPDATE_TIME);
+            if (field == null) {
+                throw notFoundField(_MetaBridge.UPDATE_TIME);
+            }
+            return (FieldMeta<T>) field;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public final FieldMeta<T> version() {
+            final FieldMeta<?> field;
+            field = tryGetReservedField(_MetaBridge.VERSION);
+            if (field == null) {
+                throw notFoundField(_MetaBridge.VERSION);
+            }
+            return (FieldMeta<T>) field;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public final FieldMeta<T> visible() {
+            final FieldMeta<?> field;
+            field = tryGetReservedField(_MetaBridge.VISIBLE);
+            if (field == null) {
+                throw notFoundField(_MetaBridge.VISIBLE);
+            }
+            return (FieldMeta<T>) field;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Nullable
+        @Override
+        public final FieldMeta<T> tryUpdateTime() {
+            return (FieldMeta<T>) tryGetReservedField(_MetaBridge.UPDATE_TIME);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Nullable
+        @Override
+        public final FieldMeta<T> tryVersion() {
+            return (FieldMeta<T>) tryGetReservedField(_MetaBridge.VERSION);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Nullable
+        @Override
+        public final FieldMeta<T> tryVisible() {
+            return (FieldMeta<T>) tryGetReservedField(_MetaBridge.VISIBLE);
+        }
+
+    } // DefaultNonChildTableMeta
+
+    private static final class DefaultSimpleTable<T> extends DefaultSingleTableMeta<T>
             implements SimpleTableMeta<T> {
 
         private DefaultSimpleTable(final Class<T> domainClass) {
@@ -550,7 +615,7 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         }
 
         @Override
-        public FieldMeta<? super T> getComplexFiled(final String filedName) {
+        public FieldMeta<? super T> complexFiled(final String filedName) {
             final FieldMeta<? super T> field;
             field = this.fieldNameToFields.get(filedName);
             if (field == null) {
@@ -560,21 +625,24 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         }
 
         @Override
-        public FieldMeta<? super T> tryGetComplexFiled(String filedName) {
+        public FieldMeta<? super T> tryComplexFiled(String filedName) {
             return this.fieldNameToFields.get(filedName);
         }
+
 
         @Override
         public PrimaryFieldMeta<? super T> nonChildId() {
             return this.primaryField;
         }
 
+        @Nullable
         @Override
         public FieldMeta<? super T> discriminator() {
             // always null
             return null;
         }
 
+        @Nullable
         @Override
         public CodeEnum discriminatorValue() {
             // always null
@@ -584,7 +652,7 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
     }
 
-    private static final class DefaultParentTable<T> extends DefaultTableMeta<T>
+    private static final class DefaultParentTable<T> extends DefaultSingleTableMeta<T>
             implements ParentTableMeta<T> {
 
         private final TableFieldMeta<T> discriminator;
@@ -613,7 +681,7 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         }
 
         @Override
-        public FieldMeta<? super T> getComplexFiled(final String filedName) {
+        public FieldMeta<? super T> complexFiled(final String filedName) {
             final FieldMeta<? super T> field;
             field = this.fieldNameToFields.get(filedName);
             if (field == null) {
@@ -623,7 +691,7 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         }
 
         @Override
-        public FieldMeta<? super T> tryGetComplexFiled(String filedName) {
+        public FieldMeta<? super T> tryComplexFiled(String filedName) {
             return this.fieldNameToFields.get(filedName);
         }
 
@@ -632,7 +700,6 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
             return this.primaryField;
         }
 
-        @NonNull
         @Override
         public FieldMeta<T> discriminator() {
             return this.discriminator;
@@ -665,6 +732,63 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
             this.discriminatorEnum = codeEnum;
         }
 
+
+        @Override
+        public FieldMeta<? super T> createTime() {
+            final FieldMeta<? super T> field;
+            field = tryGetReservedField(_MetaBridge.CREATE_TIME);
+            assert field != null;
+            return field;
+        }
+
+        @Override
+        public FieldMeta<? super T> updateTime() {
+            final FieldMeta<? super T> field;
+            field = tryGetReservedField(_MetaBridge.UPDATE_TIME);
+            if (field == null) {
+                throw notFoundField(_MetaBridge.UPDATE_TIME);
+            }
+            return field;
+        }
+
+        @Override
+        public FieldMeta<? super T> version() {
+            final FieldMeta<? super T> field;
+            field = tryGetReservedField(_MetaBridge.VERSION);
+            if (field == null) {
+                throw notFoundField(_MetaBridge.VERSION);
+            }
+            return field;
+        }
+
+        @Override
+        public FieldMeta<? super T> visible() {
+            final FieldMeta<? super T> field;
+            field = tryGetReservedField(_MetaBridge.VISIBLE);
+            if (field == null) {
+                throw notFoundField(_MetaBridge.VISIBLE);
+            }
+            return field;
+        }
+
+        @Nullable
+        @Override
+        public FieldMeta<? super T> tryUpdateTime() {
+            return tryGetReservedField(_MetaBridge.UPDATE_TIME);
+        }
+
+        @Nullable
+        @Override
+        public FieldMeta<? super T> tryVersion() {
+            return tryGetReservedField(_MetaBridge.VERSION);
+        }
+
+        @Nullable
+        @Override
+        public FieldMeta<? super T> tryVisible() {
+            return tryGetReservedField(_MetaBridge.VISIBLE);
+        }
+
         @Override
         public boolean containComplexField(final String fieldName) {
             return this.fieldNameToFields.containsKey(fieldName) || this.parent.containField(fieldName);
@@ -678,7 +802,7 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         }
 
         @Override
-        public FieldMeta<? super T> getComplexFiled(final String filedName) {
+        public FieldMeta<? super T> complexFiled(final String filedName) {
             FieldMeta<? super T> field;
             field = this.fieldNameToFields.get(filedName);
             if (field == null) {
@@ -691,7 +815,7 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         }
 
         @Override
-        public FieldMeta<? super T> tryGetComplexFiled(String filedName) {
+        public FieldMeta<? super T> tryComplexFiled(String filedName) {
             FieldMeta<? super T> field;
             field = this.fieldNameToFields.get(filedName);
             if (field == null) {

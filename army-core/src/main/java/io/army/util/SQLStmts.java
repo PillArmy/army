@@ -131,7 +131,7 @@ public abstract class SQLStmts {
         if (_MetaBridge.ID.equals(filedName)) {
             uniqueFiled = domainTable.id();
         } else {
-            uniqueFiled = domainTable.getComplexFiled(filedName);
+            uniqueFiled = domainTable.complexFiled(filedName);
             if (!(uniqueFiled instanceof UniqueFieldMeta)) {
                 String m = String.format("%s isn't %s", uniqueFiled, UniqueFieldMeta.class.getName());
                 throw new CriteriaException(m);

@@ -22,6 +22,7 @@ import io.army.criteria.NullMode;
 import io.army.criteria.SqlValueParam;
 import io.army.criteria.impl.inner._Expression;
 import io.army.criteria.impl.inner._Insert;
+import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.session.SessionSpec;
 import io.army.stmt.InsertStmtParams;
@@ -30,7 +31,6 @@ import io.army.struct.CodeEnum;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -359,7 +359,7 @@ final class ValuesInsertContext extends ValuesSyntaxInsertContext implements Ins
         final ValuesRowWrapper wrapper = this.rowWrapper;
         final TableMeta<?> domainTable = wrapper.domainTable;
         final FieldMeta<?> field;
-        field = domainTable.tryGetComplexFiled(name);
+        field = domainTable.tryComplexFiled(name);
         if (field == null) {
             throw _Exceptions.invalidNamedParam(name);
         }

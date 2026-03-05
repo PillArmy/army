@@ -22,13 +22,13 @@ import io.army.criteria.IPredicate;
 import io.army.criteria.Update;
 import io.army.criteria.UpdateStatement;
 import io.army.criteria.impl.SQLs;
+import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.util.ClassUtils;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Collections;
@@ -203,7 +203,7 @@ final class SessionCache implements _SessionCache {
         final Consumer<UpdateStatement._BatchItemPairs<FieldMeta<?>>> pairConsumer = itemPairs -> {
             FieldMeta<?> field;
             for (String fieldName : changedFieldMap.keySet()) {
-                field = table.tryGetComplexFiled(fieldName);
+                field = table.tryComplexFiled(fieldName);
                 if (field == null) {
                     String m = String.format("Unknown field[%s] for %s", fieldName, table);
                     throw new IllegalStateException(m);
@@ -214,7 +214,7 @@ final class SessionCache implements _SessionCache {
 
         final Number versionValue;
         final FieldMeta<?> versionField;
-        versionField = table.version();
+        versionField = table.tryVersion();
         if (versionField == null) {
             versionValue = null;
         } else if ((versionValue = (Number) accessor.get(domain, _MetaBridge.VERSION)) == null) {

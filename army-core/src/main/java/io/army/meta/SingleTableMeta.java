@@ -17,6 +17,7 @@
 package io.army.meta;
 
 
+import io.army.lang.Nullable;
 
 /**
  * <p>
@@ -29,5 +30,44 @@ package io.army.meta;
  * @param <T> domain java type
  */
 public interface SingleTableMeta<T> extends TableMeta<T> {
+
+
+    FieldMeta<T> createTime();
+
+    /**
+     * @throws IllegalArgumentException throw when no this field
+     * @see #tryUpdateTime()
+     */
+    FieldMeta<T> updateTime();
+
+    /**
+     * @throws IllegalArgumentException throw when no this field
+     * @see #tryVersion()
+     */
+    FieldMeta<T> version();
+
+    /**
+     * @throws IllegalArgumentException throw when no this field
+     * @see #tryVisible()
+     */
+    FieldMeta<T> visible();
+
+    /**
+     * @see #updateTime()
+     */
+    @Nullable
+    FieldMeta<T> tryUpdateTime();
+
+    /**
+     * @see #version() v
+     */
+    @Nullable
+    FieldMeta<T> tryVersion();
+
+    /**
+     * @see #visible()
+     */
+    @Nullable
+    FieldMeta<T> tryVisible();
 
 }

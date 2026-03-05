@@ -99,20 +99,20 @@ abstract class FieldValuesGenerators implements FieldValueGenerator {
         if (wrapper.isNullValueParam(nonChild.id())) {
             throw nullValueErrorForMigration(nonChild.id());
         }
-        if (wrapper.isNullValueParam(nonChild.getField(_MetaBridge.CREATE_TIME))) {
-            throw nullValueErrorForMigration(nonChild.getField(_MetaBridge.CREATE_TIME));
+        if (wrapper.isNullValueParam(nonChild.field(_MetaBridge.CREATE_TIME))) {
+            throw nullValueErrorForMigration(nonChild.field(_MetaBridge.CREATE_TIME));
         }
 
         FieldMeta<?> reservedField;
-        if ((reservedField = nonChild.tryGetField(_MetaBridge.UPDATE_TIME)) != null
+        if ((reservedField = nonChild.tryField(_MetaBridge.UPDATE_TIME)) != null
                 && wrapper.isNullValueParam(reservedField)) {
             throw nullValueErrorForMigration(reservedField);
         }
-        if ((reservedField = nonChild.tryGetField(_MetaBridge.VERSION)) != null
+        if ((reservedField = nonChild.tryField(_MetaBridge.VERSION)) != null
                 && wrapper.isNullValueParam(reservedField)) {
             throw nullValueErrorForMigration(reservedField);
         }
-        if ((reservedField = nonChild.tryGetField(_MetaBridge.VISIBLE)) != null
+        if ((reservedField = nonChild.tryField(_MetaBridge.VISIBLE)) != null
                 && wrapper.isNullValueParam(reservedField)) {
             throw nullValueErrorForMigration(reservedField);
         }
@@ -152,7 +152,7 @@ abstract class FieldValuesGenerators implements FieldValueGenerator {
         }
 
         //2. create time
-        field = nonChild.getField(_MetaBridge.CREATE_TIME);
+        field = nonChild.field(_MetaBridge.CREATE_TIME);
         final Temporal now;
         now = wrapper.getCreateTime();
         wrapper.set(field, now);
@@ -160,11 +160,11 @@ abstract class FieldValuesGenerators implements FieldValueGenerator {
         //3. update time
         if (!nonChild.immutable()) {
             //update time java type always same with create time
-            wrapper.set(nonChild.getField(_MetaBridge.UPDATE_TIME), now);
+            wrapper.set(nonChild.field(_MetaBridge.UPDATE_TIME), now);
         }
 
         //4. version
-        field = nonChild.tryGetField(_MetaBridge.VERSION);
+        field = nonChild.tryField(_MetaBridge.VERSION);
         if (field != null) {
             final Class<?> javaType = field.javaType();
             if (javaType == Integer.class) {
@@ -180,7 +180,7 @@ abstract class FieldValuesGenerators implements FieldValueGenerator {
         }
         //5. visible
         if (wrapper.isManageVisible()
-                && (field = nonChild.tryGetField(_MetaBridge.VISIBLE)) != null
+                && (field = nonChild.tryField(_MetaBridge.VISIBLE)) != null
                 && wrapper.isNullValueParam(field)) {
             wrapper.set(field, Boolean.TRUE);
         }

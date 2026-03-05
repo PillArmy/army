@@ -21,6 +21,7 @@ import io.army.criteria.*;
 import io.army.criteria.impl.inner.*;
 import io.army.dialect.Database;
 import io.army.dialect._DialectUtils;
+import io.army.lang.Nullable;
 import io.army.mapping.CodeEnumType;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
@@ -30,7 +31,6 @@ import io.army.util._Assert;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.*;
 import java.util.function.*;
 
@@ -690,7 +690,7 @@ abstract class InsertSupports {
 
             if (!this.migration && insertTable instanceof SingleTableMeta) {
                 for (String reservedField : _MetaBridge.RESERVED_FIELDS) {
-                    field = insertTable.tryGetField(reservedField);
+                    field = insertTable.tryField(reservedField);
                     if (field != null && fieldMap.putIfAbsent(field, Boolean.TRUE) == null) {
                         fieldList.add(field);
                     }

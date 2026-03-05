@@ -20,8 +20,8 @@ import io.army.annotation.Column;
 import io.army.annotation.Index;
 import io.army.annotation.Inheritance;
 import io.army.annotation.Table;
-
 import io.army.lang.Nullable;
+
 import javax.annotation.processing.Filer;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ElementKind;
@@ -156,16 +156,16 @@ final class SourceCodeCreator {
                     .append(FIELD_PREFIX);
             switch (indexModeMap.getOrDefault(fieldName, IndexMode.NONE)) {
                 case NONE:
-                    methodName = "getField";
+                    methodName = "field";
                     metaTypeName = "FieldMeta";
                     break;
                 case GENERIC:
                     metaTypeName = "FieldMeta";
-                    methodName = "getField";
+                    methodName = "field";
 
                     break;
                 case UNIQUE:
-                    methodName = "getUniqueField";
+                    methodName = "uniqueField";
                     metaTypeName = "UniqueFieldMeta";
                     break;
                 case PRIMARY:

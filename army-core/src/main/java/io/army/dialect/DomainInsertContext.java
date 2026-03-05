@@ -25,6 +25,7 @@ import io.army.criteria.LiteralMode;
 import io.army.criteria.NullMode;
 import io.army.criteria.impl.inner._Expression;
 import io.army.criteria.impl.inner._Insert;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.meta.*;
 import io.army.session.SessionSpec;
@@ -34,7 +35,6 @@ import io.army.struct.CodeEnum;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.ObjIntConsumer;
@@ -329,7 +329,7 @@ final class DomainInsertContext extends ValuesSyntaxInsertContext implements Ins
             final DomainWrapper wrapper = this.wrapper;
 
             final FieldMeta<?> field;
-            field = wrapper.domainTable.tryGetComplexFiled(propertyName);
+            field = wrapper.domainTable.tryComplexFiled(propertyName);
             if (field == null) {
                 throw _Exceptions.nonReadableProperty(wrapper.domainTable, propertyName);
             }

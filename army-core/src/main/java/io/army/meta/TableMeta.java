@@ -17,10 +17,10 @@
 package io.army.meta;
 
 import io.army.criteria.TabularItem;
+import io.army.lang.Nullable;
 import io.army.struct.CodeEnum;
 import io.army.util.SQLStmts;
 
-import io.army.lang.Nullable;
 import java.util.List;
 
 /**
@@ -49,14 +49,47 @@ public interface TableMeta<T> extends TabularItem, DatabaseObject {
 
     PrimaryFieldMeta<T> id();
 
-    PrimaryFieldMeta<? super T> nonChildId();
+    FieldMeta<? super T> createTime();
 
+    /**
+     * @throws IllegalArgumentException throw when no this field
+     * @see #tryUpdateTime()
+     */
+    FieldMeta<? super T> updateTime();
 
-    @Nullable
+    /**
+     * @throws IllegalArgumentException throw when no this field
+     * @see #tryVersion()
+     */
     FieldMeta<? super T> version();
 
-    @Nullable
+    /**
+     * @throws IllegalArgumentException throw when no this field
+     * @see #tryVisible()
+     */
     FieldMeta<? super T> visible();
+
+    /**
+     * @see #updateTime()
+     */
+    @Nullable
+    FieldMeta<? super T> tryUpdateTime();
+
+    /**
+     * @see #version() v
+     */
+    @Nullable
+    FieldMeta<? super T> tryVersion();
+
+    /**
+     * @see #visible()
+     */
+    @Nullable
+    FieldMeta<? super T> tryVisible();
+
+
+    PrimaryFieldMeta<? super T> nonChildId();
+
 
     @Nullable
     FieldMeta<? super T> discriminator();
@@ -94,26 +127,26 @@ public interface TableMeta<T> extends TabularItem, DatabaseObject {
     /**
      * @throws IllegalArgumentException when not found matched {@link FieldMeta} for fieldName
      */
-    FieldMeta<T> getField(String fieldName);
+    FieldMeta<T> field(String fieldName);
 
     @Nullable
-    FieldMeta<T> tryGetField(String fieldName);
+    FieldMeta<T> tryField(String fieldName);
 
 
-    FieldMeta<? super T> getComplexFiled(String filedName);
+    FieldMeta<? super T> complexFiled(String filedName);
 
     @Nullable
-    FieldMeta<? super T> tryGetComplexFiled(String filedName);
+    FieldMeta<? super T> tryComplexFiled(String filedName);
 
     /**
      * @throws IllegalArgumentException when not found matched {@link IndexFieldMeta} for fieldName
      */
-    IndexFieldMeta<T> getIndexField(String fieldName);
+    IndexFieldMeta<T> indexField(String fieldName);
 
     /**
      * @throws IllegalArgumentException when not found matched {@link UniqueFieldMeta} for fieldName
      */
-    UniqueFieldMeta<T> getUniqueField(String fieldName);
+    UniqueFieldMeta<T> uniqueField(String fieldName);
 
     List<FieldMeta<?>> fieldChain();
 
