@@ -144,8 +144,7 @@ public final class Snowflake {
         final boolean match;
         if (obj == this) {
             match = true;
-        } else if (obj instanceof Snowflake) {
-            final Snowflake s = (Snowflake) obj;
+        } else if (obj instanceof Snowflake s) {
             match = s.startTime == this.startTime
                     && s.dataCenterId == this.dataCenterId
                     && s.workerId == this.workerId;

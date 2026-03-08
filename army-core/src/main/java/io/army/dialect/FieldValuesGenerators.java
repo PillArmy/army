@@ -167,9 +167,9 @@ abstract class FieldValuesGenerators implements FieldValueGenerator {
         field = nonChild.tryField(_MetaBridge.VERSION);
         if (field != null) {
             final Class<?> javaType = field.javaType();
-            if (javaType == Integer.class) {
+            if (javaType == Integer.class || javaType == int.class) {
                 wrapper.set(field, 0);
-            } else if (javaType == Long.class) {
+            } else if (javaType == Long.class || javaType == long.class) {
                 wrapper.set(field, 0L);
             } else if (javaType == BigInteger.class) {
                 wrapper.set(field, BigInteger.ZERO);
@@ -208,13 +208,22 @@ abstract class FieldValuesGenerators implements FieldValueGenerator {
             final ReadWrapper readWrapper = wrapper.readonlyWrapper();
             FieldGenerator generator;
             Object fieldValue;
+            Class<?> javaType;
             for (FieldMeta<?> field : fieldChain) {
                 generator = generatorMap.get(field);
                 assert generator != null;
                 fieldValue = generator.next(field, readWrapper);
-                if (!field.javaType().isInstance(fieldValue)) { //must validate
+                javaType = field.javaType();
+                if (!javaType.isPrimitive()) {
+                    if (!javaType.isInstance(fieldValue)) {
+                        throw returnValueError(generator, field, fieldValue);
+                    }
+                } else if (javaType == int.class && !(fieldValue instanceof Integer)) {
+                    throw returnValueError(generator, field, fieldValue);
+                } else if (javaType == long.class && !(fieldValue instanceof Long)) {
                     throw returnValueError(generator, field, fieldValue);
                 }
+
                 wrapper.set(field, fieldValue);
             }
 

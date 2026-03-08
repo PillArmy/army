@@ -269,8 +269,11 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     }
 
     protected final Map<FieldMeta<?>, FieldGenerator> createFieldGeneratorMap() {
-        // TODO
-        return Collections.emptyMap();
+        Map<FieldMeta<?>, FieldGenerator> map = this.generatorMap;
+        if (map == null) {
+            map = Collections.emptyMap();
+        }
+        return map;
     }
 
     protected final List<String> parseMetaDdl(ArmySessionFactory sessionFactory, SchemaResult schemaResult) {

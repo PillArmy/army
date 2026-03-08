@@ -65,7 +65,10 @@ public final class SnowflakeGenerator implements FieldGenerator {
 
         }
         final Class<?> javaType = field.javaType();
-        if (javaType != Long.class && javaType != BigInteger.class && javaType != String.class) {
+        if (javaType != Long.class
+                && javaType != long.class
+                && javaType != BigInteger.class
+                && javaType != String.class) {
             throw FieldGeneratorUtils.dontSupportJavaType(SnowflakeGenerator.class, field);
         }
         final FieldMeta<?> dependField;
@@ -99,6 +102,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
 
 
     /**
+     * <p>mills
      * @see Param
      */
     public static final String START_TIME = "startTime";
@@ -128,7 +132,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
     public Object next(final FieldMeta<?> field, final ReadWrapper domain) throws GeneratorException {
         final Class<?> javaType = field.javaType();
         final Object nextSequence;
-        if (javaType == Long.class) {
+        if (javaType == Long.class || javaType == long.class) {
             nextSequence = this.snowflake.next();
         } else if (javaType == BigInteger.class) {
             nextSequence = new BigInteger(this.nextAsString(field, domain));
