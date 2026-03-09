@@ -21,12 +21,12 @@ import io.army.criteria.dialect.DmlCommand;
 import io.army.criteria.impl.inner._Expression;
 import io.army.criteria.impl.inner.mysql._MySQLLoadData;
 import io.army.criteria.mysql.MySQLLoadData;
+import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.util.ArrayUtils;
 import io.army.util._Assert;
 import io.army.util._Collections;
 
-import io.army.lang.Nullable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -76,7 +76,7 @@ abstract class MySQLLoads {
     } //StrategyOption
 
     @SuppressWarnings("unchecked")
-    private static abstract class LoadDataClause<T extends LoadDataClause<T>> {
+    private static abstract class LoadDataClause<T extends LoadDataClause<T>> implements Item {
 
         final CriteriaContext context;
 
@@ -89,7 +89,7 @@ abstract class MySQLLoads {
 
         private LoadDataClause() {
             this.context = CriteriaContexts.otherPrimaryContext(MySQLUtils.DIALECT);
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
 

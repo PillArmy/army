@@ -22,11 +22,11 @@ import io.army.criteria.dialect.DmlCommand;
 import io.army.criteria.impl.inner.postgre._PostgreDeclareCursor;
 import io.army.criteria.postgre.PostgreCursor;
 import io.army.criteria.postgre.PostgreQuery;
+import io.army.lang.Nullable;
 import io.army.util._Assert;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.function.BooleanSupplier;
 
 final class PostgreDeclareCursors extends CriteriaSupports.StatementMockSupport implements PostgreCursor,
@@ -60,7 +60,7 @@ final class PostgreDeclareCursors extends CriteriaSupports.StatementMockSupport 
 
     private PostgreDeclareCursors() {
         super(CriteriaContexts.otherPrimaryContext(PostgreUtils.DIALECT));
-        ContextStack.push(this.context);
+        ContextStack.push(this, this.context);
     }
 
 

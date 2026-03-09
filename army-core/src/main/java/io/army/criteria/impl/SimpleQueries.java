@@ -23,6 +23,7 @@ import io.army.criteria.impl.inner.*;
 import io.army.function.DialectBooleanOperator;
 import io.army.function.ExpressionOperator;
 import io.army.function.TeFunction;
+import io.army.lang.Nullable;
 import io.army.meta.ComplexTableMeta;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TableMeta;
@@ -31,7 +32,6 @@ import io.army.util._Assert;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -89,7 +89,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
     SimpleQueries(@Nullable ArmyStmtSpec withSpec, CriteriaContext context) {
         super(context);
-        ContextStack.push(this.context);
+        ContextStack.push(this, this.context);
         if (withSpec != null) {
             this.recursive = withSpec.isRecursive();
             this.cteList = withSpec.cteList();
@@ -1802,7 +1802,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
         SelectClauseDispatcher(CriteriaContext dispatcherContext) {
             this.context = dispatcherContext;
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
         @Override

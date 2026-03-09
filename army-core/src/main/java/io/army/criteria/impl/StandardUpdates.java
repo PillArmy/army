@@ -23,6 +23,7 @@ import io.army.criteria.standard.StandardQuery;
 import io.army.criteria.standard.StandardUpdate;
 import io.army.dialect.Dialect;
 import io.army.dialect.MySQLDialect;
+import io.army.lang.Nullable;
 import io.army.meta.ChildTableMeta;
 import io.army.meta.FieldMeta;
 import io.army.meta.SingleTableMeta;
@@ -30,7 +31,6 @@ import io.army.meta.TableMeta;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -302,7 +302,7 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
 
         private StandardUpdateClause(StandardDialect dialect, @Nullable ArmyStmtSpec spec) {
             super(spec, CriteriaContexts.primarySingleDmlContext(dialect, spec));
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
         @Override
@@ -355,7 +355,7 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
 
         private DomainUpdateClause() {
             super(null, CriteriaContexts.primarySingleDmlContext(StandardDialect.STANDARD10, null));
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
 

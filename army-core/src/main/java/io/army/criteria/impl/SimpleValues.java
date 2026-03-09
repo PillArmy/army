@@ -21,11 +21,11 @@ import io.army.criteria.impl.inner._Cte;
 import io.army.criteria.impl.inner._Selection;
 import io.army.criteria.impl.inner._SelectionMap;
 import io.army.criteria.impl.inner._ValuesQuery;
+import io.army.lang.Nullable;
 import io.army.util._Assert;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,7 +59,7 @@ abstract class SimpleValues<I extends Item, OR, OD, LR, LO, LF, SP> extends Limi
 
     SimpleValues(CriteriaContext context) {
         super(context);
-        ContextStack.push(this.context);
+        ContextStack.push(this, this.context);
     }
 
     @Override

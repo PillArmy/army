@@ -25,13 +25,13 @@ import io.army.criteria.mysql.MySQLInsert;
 import io.army.criteria.mysql.MySQLQuery;
 import io.army.dialect.Dialect;
 import io.army.dialect.MySQLDialect;
+import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.struct.CodeEnum;
 import io.army.util.ArrayUtils;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -137,7 +137,7 @@ abstract class MySQLInserts extends InsertSupports {
 
         private PrimaryInsertIntoClause() {
             super(CriteriaContexts.primaryInsertContext(MySQLUtils.DIALECT, null));
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
 
@@ -190,7 +190,7 @@ abstract class MySQLInserts extends InsertSupports {
                                       Function<MySQLComplexValuesClause<?, ?>, Insert> dmlFunction) {
             super(options, CriteriaContexts.primaryInsertContext(options.getContext().dialect(), null));
             this.dmlFunction = dmlFunction;
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
 
@@ -233,7 +233,7 @@ abstract class MySQLInserts extends InsertSupports {
         private PrimarySingleInsertIntoClause(ArmyStmtSpec spec, Function<? super Insert, I> function) {
             super(CriteriaContexts.primaryInsertContext(MySQLUtils.DIALECT, spec));
             this.function = function;
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
         @Override

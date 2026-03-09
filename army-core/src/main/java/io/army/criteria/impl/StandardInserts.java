@@ -26,12 +26,12 @@ import io.army.criteria.standard.StandardInsert;
 import io.army.criteria.standard.StandardQuery;
 import io.army.dialect.Dialect;
 import io.army.dialect.MySQLDialect;
+import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.struct.CodeEnum;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -96,7 +96,7 @@ abstract class StandardInserts extends InsertSupports {
                                         Function<? super Insert, I> function) {
             super(CriteriaContexts.primaryInsertContext(dialect, spec));
             this.function = function;
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
 
@@ -228,7 +228,7 @@ abstract class StandardInserts extends InsertSupports {
         private ChildInsertIntoClause(ValueSyntaxOptions options,
                                       Function<StandardComplexValuesClause<?, ?>, I> dmlFunction) {
             super(options, CriteriaContexts.primaryInsertContext(options.getContext().dialect(), null));
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
             this.dmlFunction = dmlFunction;
         }
 

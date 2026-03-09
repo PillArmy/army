@@ -26,6 +26,7 @@ import io.army.util._Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.ref.Cleaner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -48,6 +49,8 @@ abstract class ContextStack {
     }
 
     private static final ThreadLocal<Stack> HOLDER = new ThreadLocal<>();
+
+    private static final Cleaner CLEANER = Cleaner.create();
 
 
     static CriteriaContext peek() {
@@ -95,13 +98,18 @@ abstract class ContextStack {
         return blockList;
     }
 
-    static void push(final CriteriaContext context) {
+    /**
+     * @param statement statement that hold CriteriaContext
+     */
+    static void push(final Item statement, final CriteriaContext context) {
         final CriteriaContext outerContext;
         outerContext = context.getOuterContext();
         final Stack stack;
         if (outerContext == null) {
             //reset stack
-            HOLDER.set(new Stack(context));
+            final Stack newStack = new Stack(context);
+            HOLDER.set(newStack);
+            CLEANER.register(statement, newStack::clear); // finally clean Stack strong, if statement error,don't pop stack
             if (LOG.isTraceEnabled()) {
                 LOG.trace("reset stack for primary context {}.", context);
             }

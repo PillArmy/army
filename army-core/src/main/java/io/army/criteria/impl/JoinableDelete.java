@@ -24,9 +24,9 @@ import io.army.criteria.impl.inner._Cte;
 import io.army.criteria.impl.inner._Delete;
 import io.army.criteria.impl.inner._Statement;
 import io.army.criteria.impl.inner._TabularBlock;
+import io.army.lang.Nullable;
 import io.army.util._Assert;
 
-import io.army.lang.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -56,7 +56,7 @@ abstract class JoinableDelete<I extends Item, B extends CteBuilderSpec, WE exten
 
     JoinableDelete(@Nullable _Statement._WithClauseSpec spec, CriteriaContext context) {
         super(context);
-        ContextStack.push(this.context);
+        ContextStack.push(this, this.context);
         if (spec != null) {
             this.recursive = spec.isRecursive();
             this.cteList = spec.cteList();

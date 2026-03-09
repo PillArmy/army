@@ -21,12 +21,12 @@ import io.army.criteria.Item;
 import io.army.criteria.dialect.DmlCommand;
 import io.army.criteria.impl.inner.mysql._MySQLSet;
 import io.army.criteria.mysql.MySQLSet;
+import io.army.lang.Nullable;
 import io.army.util._Assert;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -45,7 +45,7 @@ final class MySQLSets extends CriteriaSupports.StatementMockSupport implements M
 
     private MySQLSets() {
         super(CriteriaContexts.otherPrimaryContext(MySQLUtils.DIALECT));
-        ContextStack.push(this.context);
+        ContextStack.push(this, this.context);
     }
 
 

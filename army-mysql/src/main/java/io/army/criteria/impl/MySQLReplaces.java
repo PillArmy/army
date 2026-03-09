@@ -140,7 +140,7 @@ abstract class MySQLReplaces extends InsertSupports {
 
         private PrimaryReplaceIntoClause() {
             super(CriteriaContexts.primaryInsertContext(MySQLUtils.DIALECT, null));
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
         @Override
@@ -188,7 +188,7 @@ abstract class MySQLReplaces extends InsertSupports {
                 , Function<MySQLComplexValuesClause<?, ?>, Insert> dmlFunction) {
             super(options, CriteriaContexts.primaryInsertContext(MySQLUtils.DIALECT, null));
             this.dmlFunction = dmlFunction;
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
         @Override
@@ -227,7 +227,7 @@ abstract class MySQLReplaces extends InsertSupports {
         private PrimarySingleReplaceIntoClause(ArmyStmtSpec spec, Function<? super Insert, I> function) {
             super(CriteriaContexts.primaryInsertContext(MySQLUtils.DIALECT, spec));
             this.function = function;
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
         @Override

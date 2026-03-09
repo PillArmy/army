@@ -32,13 +32,13 @@ import io.army.dialect.DialectParser;
 import io.army.dialect._Constant;
 import io.army.dialect._DialectUtils;
 import io.army.dialect._SqlContext;
+import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.struct.CodeEnum;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -325,7 +325,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private PrimaryInsertIntoClause() {
             super(CriteriaContexts.primaryInsertContext(PostgreUtils.DIALECT, null));
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
 
@@ -376,7 +376,7 @@ abstract class PostgreInserts extends InsertSupports {
             super(parentOption, CriteriaContexts.primaryInsertContext(PostgreUtils.DIALECT, null));
             this.dmlFunction = dmlFunction.andThen(PostgreInserts::insertIdentity);
             this.dqlFunction = dqlFunction.andThen(PostgreInserts::insertIdentity);
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
         @Override
@@ -416,7 +416,7 @@ abstract class PostgreInserts extends InsertSupports {
                                         Function<PrimaryStatement, I> function) {
             super(CriteriaContexts.primaryInsertContext(PostgreUtils.DIALECT, spec));
             this.function = function;
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
         @Override
@@ -459,7 +459,7 @@ abstract class PostgreInserts extends InsertSupports {
             super(CriteriaContexts.subInsertContext(PostgreUtils.DIALECT, null, outerContext));
             this.function = function;
             //just push sub context,here don't need to start cte
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
 
         }
 
@@ -501,7 +501,7 @@ abstract class PostgreInserts extends InsertSupports {
             super(CriteriaContexts.subInsertContext(PostgreUtils.DIALECT, spec, null));
             this.function = function;
             //just push sub context,here don't need to start cte
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
         @Override

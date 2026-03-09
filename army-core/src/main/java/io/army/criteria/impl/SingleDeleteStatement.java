@@ -23,9 +23,9 @@ import io.army.criteria.Statement;
 import io.army.criteria.impl.inner._Cte;
 import io.army.criteria.impl.inner._SingleDelete;
 import io.army.criteria.impl.inner._Statement;
+import io.army.lang.Nullable;
 import io.army.util._Assert;
 
-import io.army.lang.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -47,7 +47,7 @@ abstract class SingleDeleteStatement<I extends Item, B extends CteBuilderSpec, W
 
     SingleDeleteStatement(@Nullable _WithClauseSpec withSpec, CriteriaContext context) {
         super(context);
-        ContextStack.push(this.context);
+        ContextStack.push(this, this.context);
         if (withSpec != null) {
             this.recursive = withSpec.isRecursive();
             this.cteList = withSpec.cteList();

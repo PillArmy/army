@@ -50,7 +50,7 @@ abstract class BracketRowSet<I extends Item, RR, OR, OD, LR, LO, LF, SP>
         super(CriteriaContexts.bracketContext(spec)); //must migrate WITH clause and context when create bracket.
         this.recursive = spec.isRecursive();
         this.cteList = spec.cteList();
-        ContextStack.push(this.context);
+        ContextStack.push(this, this.context);
     }
 
 

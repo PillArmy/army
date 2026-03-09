@@ -25,6 +25,7 @@ import io.army.criteria.postgre.PostgreCtes;
 import io.army.criteria.postgre.PostgreInsert;
 import io.army.criteria.postgre.PostgreMerge;
 import io.army.criteria.postgre.PostgreQuery;
+import io.army.lang.Nullable;
 import io.army.meta.FieldMeta;
 import io.army.meta.SimpleTableMeta;
 import io.army.meta.TableMeta;
@@ -33,7 +34,6 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -67,7 +67,7 @@ abstract class PostgreMerges {
 
         private PrimaryMergeIntoClause(@Nullable ArmyStmtSpec spec) {
             super(spec, CriteriaContexts.primaryJoinableMergeContext(PostgreUtils.DIALECT)); //TODO add for multi-stmt
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
         @Override
@@ -339,7 +339,7 @@ abstract class PostgreMerges {
 
             final CriteriaContext subDmlContext;
             subDmlContext = CriteriaContexts.subSingleDmlContext(this.context.dialect(), this.context);
-            ContextStack.push(subDmlContext);
+            ContextStack.push(this, subDmlContext);
 
             final MergeUpdateSetClause<T> updateClause;
             this.updateClause = updateClause = new MergeUpdateSetClause<>(subDmlContext, usingClause.targetTable, usingClause.targetAlias);
@@ -419,7 +419,7 @@ abstract class PostgreMerges {
         private NotMatchWhenWhenPair(MergeUsingClause<T, I> usingClause) {
             super(CriteriaContexts.subInsertContext(usingClause.context.dialect(), null, usingClause.context));
             this.usingClause = usingClause;
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
 

@@ -25,10 +25,10 @@ import io.army.criteria.impl.inner._TabularBlock;
 import io.army.criteria.impl.inner.mysql._IndexHint;
 import io.army.criteria.impl.inner.mysql._MySQLMultiUpdate;
 import io.army.criteria.mysql.*;
+import io.army.lang.Nullable;
 import io.army.meta.TableMeta;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -87,7 +87,7 @@ abstract class MySQLMultiUpdates<I extends Item>
 
     private MySQLMultiUpdates(@Nullable ArmyStmtSpec spec) {
         super(spec, CriteriaContexts.primaryMultiDmlContext(MySQLUtils.DIALECT, spec));
-        ContextStack.push(this.context);
+        ContextStack.push(this, this.context);
     }
 
     @Override

@@ -26,6 +26,7 @@ import io.army.criteria.mysql.MySQLCtes;
 import io.army.criteria.mysql.MySQLQuery;
 import io.army.criteria.mysql.MySQLUpdate;
 import io.army.dialect.Dialect;
+import io.army.lang.Nullable;
 import io.army.meta.ComplexTableMeta;
 import io.army.meta.FieldMeta;
 import io.army.meta.SingleTableMeta;
@@ -33,7 +34,6 @@ import io.army.meta.TableMeta;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -461,7 +461,7 @@ abstract class MySQLSingleUpdates<I extends Item, T>
 
         private MySQLUpdateClause(@Nullable ArmyStmtSpec spec) {
             super(spec, CriteriaContexts.primarySingleDmlContext(MySQLUtils.DIALECT, null));
-            ContextStack.push(this.context);
+            ContextStack.push(this, this.context);
         }
 
         @Override

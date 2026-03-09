@@ -25,6 +25,7 @@ import io.army.criteria.impl.inner.postgre._PostgreUpdate;
 import io.army.criteria.postgre.*;
 import io.army.dialect.Dialect;
 import io.army.dialect._DialectUtils;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.meta.ComplexTableMeta;
 import io.army.meta.FieldMeta;
@@ -35,7 +36,6 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -883,7 +883,7 @@ abstract class PostgreUpdates<I extends Item, Q extends Item, T>
 
         private PostgreUpdateClause(@Nullable _Statement._WithClauseSpec spec, CriteriaContext context) {
             super(spec, context);
-            ContextStack.push(context);
+            ContextStack.push(this, context);
         }
 
         @Override

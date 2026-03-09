@@ -47,7 +47,7 @@ final class PostgreSets extends CriteriaSupports.StatementMockSupport
 
     private PostgreSets() {
         super(CriteriaContexts.otherPrimaryContext(PostgreUtils.DIALECT));
-        ContextStack.push(this.context);
+        ContextStack.push(this, this.context);
     }
 
 
