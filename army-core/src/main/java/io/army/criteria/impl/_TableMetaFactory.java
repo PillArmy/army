@@ -27,6 +27,8 @@ import io.army.util._StringUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.classfile.*;
+import java.lang.classfile.attribute.RuntimeVisibleAnnotationsAttribute;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -80,7 +82,8 @@ public abstract class _TableMetaFactory {
         URL url = null;
         try {
             final Map<Class<?>, TableMeta<?>> tableMetaMap = _Collections.hashMap();
-            final String jarProtocol = "jar", fileProtocol = "file";
+            final ClassFile classFile = ClassFile.of();
+
             for (String basePackage : basePackages) {
                 if (!_StringUtils.hasText(basePackage)) {
                     throw new IllegalArgumentException("basePackage must have text.");
@@ -100,25 +103,17 @@ public abstract class _TableMetaFactory {
                 while (enumeration.hasMoreElements()) {
                     url = enumeration.nextElement();
                     final String protocol = url.getProtocol();
-                    final Stream<ByteBuffer> stream;
-                    if (jarProtocol.equals(protocol)) {
-                        stream = scanJavaJarForJavaClassFile(url);
-                    } else if (fileProtocol.equals(protocol)) {
-                        stream = Files.find(Paths.get(url.getPath()), Integer.MAX_VALUE, _TableMetaFactory::isJavaClassFile)
-                                .map(_TableMetaFactory::readJavaClassFileBytes);
-                    } else {
-                        String m = String.format("url[%s] unsupported", url);
-                        throw new IllegalArgumentException(m);
-                    }
-                    stream.map(buffer -> readJavaClassFile(buffer, schemaMeta)) // read java class file and get class name if match.
-                            .filter(_StringUtils::hasText) // if empty string ,not domain class
-                            .map(_TableMetaFactory::getOrCreateTableMeta)// get or create table meta
-                            .forEach(tableMeta -> {
-                                final Class<?> domainClass = tableMeta.javaType();
-                                tableMetaMap.put(domainClass, tableMeta);
-                                loadDomainMetaHolder(domainClass);
-                            });
-                }
+                    try (Stream<ByteBuffer> stream = createJavaClassByteStream(protocol, url)) {
+                        stream.map(buffer -> readJavaClassFile(classFile, buffer, schemaMeta)) // read java class file and get class name if match.
+                                .filter(_StringUtils::hasText) // if empty string ,not domain class
+                                .map(_TableMetaFactory::getOrCreateTableMeta)// get or create table meta
+                                .forEach(tableMeta -> {
+                                    final Class<?> domainClass = tableMeta.javaType();
+                                    tableMetaMap.put(domainClass, tableMeta);
+                                    loadDomainMetaHolder(domainClass);
+                                });
+                    } // try
+                } // while
                 url = null;
             }
             return Collections.unmodifiableMap(tableMetaMap);
@@ -135,6 +130,22 @@ public abstract class _TableMetaFactory {
         } finally {
             TableMetaUtils.clearCache();
         }
+    }
+
+
+    private static Stream<ByteBuffer> createJavaClassByteStream(String protocol, URL url) throws IOException {
+        final Stream<ByteBuffer> stream;
+        final String jarProtocol = "jar", fileProtocol = "file";
+        if (jarProtocol.equals(protocol)) {
+            stream = scanJavaJarForJavaClassFile(url);
+        } else if (fileProtocol.equals(protocol)) {
+            stream = Files.find(Paths.get(url.getPath()), Integer.MAX_VALUE, _TableMetaFactory::isJavaClassFile)
+                    .map(_TableMetaFactory::readJavaClassFileBytes);
+        } else {
+            String m = String.format("url[%s] unsupported", url);
+            throw new IllegalArgumentException(m);
+        }
+        return stream;
     }
 
 
@@ -157,11 +168,10 @@ public abstract class _TableMetaFactory {
     private static Stream<ByteBuffer> scanJavaJarForJavaClassFile(final URL url) {
         try {
             final URLConnection conn = url.openConnection();
-            if (!(conn instanceof JarURLConnection)) {
+            if (!(conn instanceof JarURLConnection jarConn)) {
                 String m = String.format("url[%s] can' open %s .", url, JarURLConnection.class.getName());
                 throw new IllegalArgumentException(m);
             }
-            final JarURLConnection jarConn = (JarURLConnection) conn;
             final String rootEntryName = jarConn.getEntryName();
             final JarFile jarFile = jarConn.getJarFile();
             return jarFile
@@ -276,11 +286,70 @@ public abstract class _TableMetaFactory {
     }
 
 
+    private static String readJavaClassFile(ClassFile classFile, final ByteBuffer buffer, final SchemaMeta schemaMeta) {
+        final byte[] classBytes;
+        if (buffer.isReadOnly()) {
+            classBytes = new byte[buffer.remaining()];
+            buffer.get(classBytes, 0, classBytes.length);
+        } else {
+            classBytes = buffer.array();
+        }
+
+        final String tableAnnoName = Table.class.getName();
+        final String targetCatalog = schemaMeta.catalog(), targetSchema = schemaMeta.schema();
+
+        final ClassModel classModel;
+        classModel = classFile.parse(classBytes);
+
+        String annotationName, className = "";
+        top:
+        for (Attribute<?> attribute : classModel.attributes()) {
+            if (!(attribute instanceof RuntimeVisibleAnnotationsAttribute attr)) {
+                continue;
+            }
+            for (Annotation annotation : attr.annotations()) {
+                annotationName = annotation.className().stringValue();
+                annotationName = annotationName.substring(1, annotationName.length() - 1).replaceAll("/", ".");
+                if (!tableAnnoName.equals(annotationName)) {
+                    continue;
+                }
+                String catalog = null, schema = null;
+                for (AnnotationElement element : annotation.elements()) {
+                    if ("catalog".equals(element.name().stringValue())) {
+                        catalog = element.value().toString();
+                    } else if ("schema".equals(element.name().stringValue())) {
+                        schema = element.value().toString();
+                    }
+                    if (catalog != null && schema != null) {
+                        break;
+                    }
+                } // for (AnnotationElement element : annotation.elements())
+
+                final boolean catalogMatch, schemaMatch;
+                catalogMatch = (catalog == null && targetCatalog.isEmpty())
+                        || targetCatalog.equals(_StringUtils.toLowerCaseIfNonNull(catalog));
+                schemaMatch = (schema == null && targetSchema.isEmpty())
+                        || targetSchema.equals(_StringUtils.toLowerCaseIfNonNull(schema));
+                if (catalogMatch && schemaMatch) {
+                    className = classModel.thisClass().name().stringValue();
+                    className = className.replaceAll("/", ".");
+                }
+                break top;
+
+            } // for (Annotation annotation : attr.annotations())
+        } // for (Attribute<?> attribute : classFile.parse(classBytes).attributes())
+
+        return className;
+    }
+
+
     /**
      * @return if domain class return class name,or empty string
      * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1">The class File Format</a>
+     * @deprecated use {@link #readJavaClassFile(ClassFile, ByteBuffer, SchemaMeta)}
      */
-    private static String readJavaClassFile(final ByteBuffer buffer, final SchemaMeta schemaMeta) {
+    @Deprecated
+    private static String readJavaClassFile0(final ByteBuffer buffer, final SchemaMeta schemaMeta) {
         // 1. read magic
         if (buffer.getInt() != 0xCAFEBABE) {
             throw classFileFormatError();
@@ -334,7 +403,7 @@ public abstract class _TableMetaFactory {
 
 
     /**
-     * @see #readJavaClassFile(ByteBuffer, SchemaMeta)
+     * @see #readJavaClassFile0(ByteBuffer, SchemaMeta)
      * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4">The Constant Pool</a>
      */
     private static Item[] readConstantPool(final ByteBuffer buffer) {
@@ -546,7 +615,7 @@ public abstract class _TableMetaFactory {
     }
 
     /**
-     * @see #readJavaClassFile(ByteBuffer, SchemaMeta)
+     * @see #readJavaClassFile0(ByteBuffer, SchemaMeta)
      * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.5">Fields</a>
      * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.6">Methods</a>
      */
