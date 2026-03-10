@@ -39,6 +39,8 @@ public interface TableResult {
 
     List<String> changeIndexList();
 
+    List<String> dropIndexList();
+
     static Builder builder() {
         return TableResultImpl.createBuilder();
     }
@@ -58,6 +60,7 @@ public interface TableResult {
 
         void appendChangeIndex(String indexName);
 
+        void appendDropIndex(String indexName);
 
         TableResult buildAndClear();
 

@@ -32,13 +32,16 @@ public abstract class _Collections {
         return Collections.emptyList();
     }
 
-    public static <T> List<T> unmodifiableList(List<T> list) {
+    public static <T> List<T> unmodifiableList(@Nullable List<T> list) {
+        if (list == null) {
+            return Collections.emptyList();
+        }
         switch (list.size()) {
             case 0:
                 list = Collections.emptyList();
                 break;
             case 1:
-                list = Collections.singletonList(list.get(0));
+                list = Collections.singletonList(list.getFirst());
                 break;
             default:
                 list = Collections.unmodifiableList(list);

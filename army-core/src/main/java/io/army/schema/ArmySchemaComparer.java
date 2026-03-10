@@ -22,10 +22,7 @@ import io.army.meta.*;
 import io.army.sqltype.DataType;
 import io.army.util._Collections;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 abstract class ArmySchemaComparer implements SchemaComparer {
 
@@ -54,6 +51,9 @@ abstract class ArmySchemaComparer implements SchemaComparer {
         final List<TableResult> tableResultList = _Collections.arrayList();
         final boolean supportTableComment = this.supportTableComment();
 
+        final Set<String> columnMetaSet;
+        columnMetaSet = _Collections.hashSet();
+
         TableInfo tableInfo;
         for (TableMeta<?> table : tableMetas) {
             tableInfo = tableInfoMap.get(table.tableName());
@@ -67,7 +67,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
             }
 
             compareColumns(tableInfo, table, builder);
-            compareIndex(tableInfo, (TableMeta<?>) table, builder);
+            compareIndex(tableInfo, (TableMeta<?>) table, builder, columnMetaSet);
             tableResultList.add(builder.buildAndClear());
         }
         return new SchemaResult(schemaMeta.catalog(), schemaMeta.schema(), newTableList, tableResultList);
@@ -136,7 +136,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
     }
 
     private <T> void compareIndex(final TableInfo tableInfo, final TableMeta<T> table,
-                                  final TableResult.Builder tableBuilder) {
+                                  final TableResult.Builder tableBuilder, Set<String> columnMetaSet) {
 
         final Map<String, IndexInfo> indexMap = tableInfo.indexMap();
         IndexInfo indexInfo;
@@ -145,13 +145,14 @@ abstract class ArmySchemaComparer implements SchemaComparer {
         List<String> columnList;
         List<Boolean> ascList;
         for (IndexMeta<T> index : table.indexList()) {
-            if (index.isPrimaryKey()) {
+            if (index.isPrimaryKey()) { // TODO add primary key code
                 continue;
             }
+
             indexName = index.name();
             indexInfo = indexMap.get(indexName);
             if (indexInfo == null) {
-                tableBuilder.appendNewIndex(indexName);
+                handleNotFoundIndex(index, indexMap, columnMetaSet, tableBuilder);
                 continue;
             }
             if (indexInfo.unique() != index.isUnique()) {
@@ -186,6 +187,42 @@ abstract class ArmySchemaComparer implements SchemaComparer {
             }//inner for
 
         }
+
+    }
+
+
+    private static void handleNotFoundIndex(IndexMeta<?> indexMeta, Map<String, IndexInfo> indexMap, Set<String> columnMetaSet,
+                                            TableResult.Builder tableBuilder) {
+
+        if (!columnMetaSet.isEmpty()) {
+            columnMetaSet.clear();
+        }
+
+        for (IndexFieldMeta<?> field : indexMeta.fieldList()) {
+            columnMetaSet.add(field.columnName().toLowerCase(Locale.ROOT));
+        }
+
+        final int columnCount = columnMetaSet.size();
+        List<String> columnNameList;
+        IndexInfo actualIndex = null;
+        for (IndexInfo info : indexMap.values()) {
+            columnNameList = info.columnList();
+
+            if (columnNameList.size() == columnCount
+                    && columnMetaSet.containsAll(columnNameList)) {
+                actualIndex = info;
+                break;
+            }
+        }
+
+        if (actualIndex == null) {
+            tableBuilder.appendNewIndex(indexMeta.name());
+        } else if (indexMeta.isUnique() != actualIndex.unique()) { // TODO check index type
+            tableBuilder.appendDropIndex(actualIndex.indexName()); // drop old index(actualIndex)
+            tableBuilder.appendNewIndex(indexMeta.name()); // create new index
+        }
+
+        columnMetaSet.clear();
 
     }
 

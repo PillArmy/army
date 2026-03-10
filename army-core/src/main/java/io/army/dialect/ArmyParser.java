@@ -343,7 +343,7 @@ abstract class ArmyParser implements DialectParser {
 
         final List<String> ddlList = _Collections.arrayList();
         final List<TableMeta<?>> dropTableList = schemaResult.dropTableList();
-        if (dropTableList.size() > 0) {
+        if (!dropTableList.isEmpty()) {
             ddlDialect.dropTable(dropTableList, ddlList);
         }
         for (TableMeta<?> table : schemaResult.newTableList()) {
@@ -359,19 +359,25 @@ abstract class ArmyParser implements DialectParser {
                 ddlDialect.modifyTableComment(table, ddlList);
             }
             newFieldList = tableResult.newFieldList();
-            if (newFieldList.size() > 0) {
+            if (!newFieldList.isEmpty()) {
                 ddlDialect.addColumn(newFieldList, ddlList);
             }
             fieldResultList = tableResult.changeFieldList();
-            if (fieldResultList.size() > 0) {
+            if (!fieldResultList.isEmpty()) {
                 ddlDialect.modifyColumn(fieldResultList, ddlList);
             }
+
+            // index part, firstly drop index
+            indexList = tableResult.dropIndexList();
+            if (!indexList.isEmpty()) {
+                ddlDialect.dropIndex(table, indexList, ddlList);
+            }
             indexList = tableResult.newIndexList();
-            if (indexList.size() > 0) {
+            if (!indexList.isEmpty()) {
                 ddlDialect.createIndex(table, indexList, ddlList);
             }
             indexList = tableResult.changeIndexList();
-            if (indexList.size() > 0) {
+            if (!indexList.isEmpty()) {
                 ddlDialect.dropIndex(table, indexList, ddlList);
                 ddlDialect.createIndex(table, indexList, ddlList);
             }
@@ -379,7 +385,7 @@ abstract class ArmyParser implements DialectParser {
 
         final List<String> errorList;
         errorList = ddlDialect.errorMsgList();
-        if (errorList.size() > 0) {
+        if (!errorList.isEmpty()) {
             final StringBuilder builder = new StringBuilder(errorList.size() * 10)
                     .append("create ddl occur error:");
             for (String msg : errorList) {

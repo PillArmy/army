@@ -37,6 +37,8 @@ final class TableResultImpl implements TableResult {
 
     private final List<FieldResult> fieldResultList;
 
+    private final List<String> dropIndexList;
+
     private final List<String> newIndexList;
 
     private final List<String> changeIndexList;
@@ -58,19 +60,9 @@ final class TableResultImpl implements TableResult {
             this.fieldResultList = _Collections.unmodifiableList(fieldResultList);
         }
 
-        final List<String> newIndexList = builder.newIndexList;
-        if (newIndexList == null) {
-            this.newIndexList = Collections.emptyList();
-        } else {
-            this.newIndexList = _Collections.unmodifiableList(newIndexList);
-        }
-
-        final List<String> changeIndexList = builder.changeIndexList;
-        if (changeIndexList == null) {
-            this.changeIndexList = Collections.emptyList();
-        } else {
-            this.changeIndexList = _Collections.unmodifiableList(changeIndexList);
-        }
+        this.dropIndexList = _Collections.unmodifiableList(builder.dropIndexList);
+        this.newIndexList = _Collections.unmodifiableList(builder.newIndexList);
+        this.changeIndexList = _Collections.unmodifiableList(builder.changeIndexList);
 
     }
 
@@ -104,6 +96,10 @@ final class TableResultImpl implements TableResult {
         return this.changeIndexList;
     }
 
+    @Override
+    public List<String> dropIndexList() {
+        return this.dropIndexList;
+    }
 
     private static final class TableResultBuilder implements TableResult.Builder {
 
@@ -114,6 +110,8 @@ final class TableResultImpl implements TableResult {
         private boolean comment;
 
         private List<FieldResult> fieldResultList;
+
+        private List<String> dropIndexList;
 
         private List<String> newIndexList;
 
@@ -170,6 +168,16 @@ final class TableResultImpl implements TableResult {
         }
 
         @Override
+        public void appendDropIndex(String indexName) {
+            List<String> dropIndexList = this.dropIndexList;
+            if (dropIndexList == null) {
+                dropIndexList = _Collections.arrayList();
+                this.dropIndexList = dropIndexList;
+            }
+            dropIndexList.add(indexName);
+        }
+
+        @Override
         public TableResult buildAndClear() {
             final TableResult tableResult;
             tableResult = new TableResultImpl(this);
@@ -179,6 +187,7 @@ final class TableResultImpl implements TableResult {
             this.fieldResultList = null;
             this.comment = false;
 
+            this.dropIndexList = null;
             this.newIndexList = null;
             this.changeIndexList = null;
 
