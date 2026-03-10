@@ -89,7 +89,7 @@ final class AnnotationHandler {
                 String m = String.format("please trim %s table name .", MetaUtils.getClassName(domain));
                 this.errorMsgList.add(m);
             }
-            if (mode == null || errorMsgList.size() > 0) {
+            if (mode == null || !errorMsgList.isEmpty()) {
                 // occur error
                 continue;
             }
@@ -101,7 +101,7 @@ final class AnnotationHandler {
                     errorMsgList.add(m);
                 }
             }
-            if (errorMsgList.size() > 0) {
+            if (!errorMsgList.isEmpty()) {
                 continue;
             }
 
@@ -109,7 +109,7 @@ final class AnnotationHandler {
 
         }
 
-        if (errorMsgList.size() == 0) {
+        if (errorMsgList.isEmpty()) {
             codeCreator.flush(); // finally flush
         }
 
@@ -217,7 +217,7 @@ final class AnnotationHandler {
             , final @Nullable Map<String, VariableElement> parentFieldMap) {
 
         final TypeElement tableElement;
-        tableElement = mappedList.get(0);
+        tableElement = mappedList.getFirst();
         final Inheritance inheritance;
         inheritance = tableElement.getAnnotation(Inheritance.class);
         final String discriminatorField = inheritance == null ? null : inheritance.value();
@@ -268,7 +268,7 @@ final class AnnotationHandler {
 
         if (inheritance != null && !foundDiscriminatorColumn) {
             this.errorMsgList.add(String.format("Domain %s discriminator field[%s] not found."
-                    , MetaUtils.getClassName(mappedList.get(0)), discriminatorField));
+                    , MetaUtils.getClassName(mappedList.getFirst()), discriminatorField));
         }
         columnNameMap.clear();
 
@@ -319,11 +319,12 @@ final class AnnotationHandler {
 
 
     private void validateField(final String className, final String fieldName, final VariableElement field, final Column column, final boolean discriminatorField) {
+        if (field.asType().getKind().isPrimitive()) {
+            this.errorMsgList.add(String.format("Field %s.%s couldn't be primitive.", className, fieldName));
+        }
         switch (fieldName) {
             case _MetaBridge.ID: {
-//                if (field.asType().getKind().isPrimitive()) {
-//                    this.errorMsgList.add(String.format("Field %s.%s couldn't be primitive.", className, fieldName));
-//                }
+                //no-op
             }
             break;
             case _MetaBridge.CREATE_TIME:
