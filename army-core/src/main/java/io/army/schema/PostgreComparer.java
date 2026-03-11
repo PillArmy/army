@@ -23,6 +23,7 @@ import io.army.meta.TableMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PostgreType;
 import io.army.util._Exceptions;
+import io.army.util._StringUtils;
 
 import java.util.Locale;
 
@@ -55,6 +56,8 @@ final class PostgreComparer extends ArmySchemaComparer {
         if (!(dataType instanceof PostgreType)) {
             return !typeName.equals(dataType.typeName().toLowerCase(Locale.ROOT));
         }
+        final int precision, scale;
+
         final boolean notMatch;
         switch ((PostgreType) dataType) {
             case BOOLEAN:
@@ -108,8 +111,12 @@ final class PostgreComparer extends ArmySchemaComparer {
             case DECIMAL:
                 switch (typeName) {
                     case "numeric":
-                    case "decimal":
-                        notMatch = false;
+                    case "decimal": {
+                        precision = field.precision();
+                        scale = field.scale();
+                        notMatch = (precision > -1 && precision != columnInfo.precision())
+                                || (scale > -1 && scale != columnInfo.scale());
+                    }
                         break;
                     default:
                         notMatch = true;
@@ -139,9 +146,11 @@ final class PostgreComparer extends ArmySchemaComparer {
             case TIME:
                 switch (typeName) {
                     case "time":
-                    case "time without time zone":
-                        notMatch = false;
-                        break;
+                    case "time without time zone": {
+                        scale = field.scale();
+                        notMatch = scale > -1 && scale != columnInfo.scale();
+                    }
+                    break;
                     default:
                         notMatch = true;
                 }
@@ -149,9 +158,11 @@ final class PostgreComparer extends ArmySchemaComparer {
             case TIMETZ:
                 switch (typeName) {
                     case "timetz":
-                    case "time with time zone":
-                        notMatch = false;
-                        break;
+                    case "time with time zone": {
+                        scale = field.scale();
+                        notMatch = scale > -1 && scale != columnInfo.scale();
+                    }
+                    break;
                     default:
                         notMatch = true;
                 }
@@ -159,9 +170,11 @@ final class PostgreComparer extends ArmySchemaComparer {
             case TIMESTAMP:
                 switch (typeName) {
                     case "timestamp":
-                    case "timestamp without time zone":
-                        notMatch = false;
-                        break;
+                    case "timestamp without time zone": {
+                        scale = field.scale();
+                        notMatch = scale > -1 && scale != columnInfo.scale();
+                    }
+                    break;
                     default:
                         notMatch = true;
                 }
@@ -169,9 +182,11 @@ final class PostgreComparer extends ArmySchemaComparer {
             case TIMESTAMPTZ:
                 switch (typeName) {
                     case "timestamptz":
-                    case "timestamp with time zone":
-                        notMatch = false;
-                        break;
+                    case "timestamp with time zone": {
+                        scale = field.scale();
+                        notMatch = scale > -1 && scale != columnInfo.scale();
+                    }
+                    break;
                     default:
                         notMatch = true;
                 }
@@ -179,9 +194,11 @@ final class PostgreComparer extends ArmySchemaComparer {
             case CHAR:
                 switch (typeName) {
                     case "char":
-                    case "character":
-                        notMatch = false;
-                        break;
+                    case "character": {
+                        precision = field.precision();
+                        notMatch = precision > -1 && precision != columnInfo.precision();
+                    }
+                    break;
                     default:
                         notMatch = true;
                 }
@@ -189,9 +206,11 @@ final class PostgreComparer extends ArmySchemaComparer {
             case VARCHAR:
                 switch (typeName) {
                     case "varchar":
-                    case "character varying":
-                        notMatch = false;
-                        break;
+                    case "character varying": {
+                        precision = field.precision();
+                        notMatch = precision > -1 && precision != columnInfo.precision();
+                    }
+                    break;
                     default:
                         notMatch = true;
                 }
@@ -209,9 +228,11 @@ final class PostgreComparer extends ArmySchemaComparer {
             case VARBIT:
                 switch (typeName) {
                     case "bit varying":
-                    case "varbit":
-                        notMatch = false;
-                        break;
+                    case "varbit": {
+                        precision = field.precision();
+                        notMatch = precision > -1 && precision != columnInfo.precision();
+                    }
+                    break;
                     default:
                         notMatch = true;
                 }
@@ -383,8 +404,8 @@ final class PostgreComparer extends ArmySchemaComparer {
 
     @Override
     boolean compareDefault(ColumnInfo columnInfo, FieldMeta<?> field, DataType sqlType) {
-        //currently, false
-        return false;
+        //TODO  complete me
+        return _StringUtils.hasText(field.defaultValue()) ^ _StringUtils.hasText(columnInfo.defaultExp());
     }
 
     @Override

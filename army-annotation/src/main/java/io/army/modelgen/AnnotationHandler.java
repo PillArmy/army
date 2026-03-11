@@ -319,9 +319,9 @@ final class AnnotationHandler {
 
 
     private void validateField(final String className, final String fieldName, final VariableElement field, final Column column, final boolean discriminatorField) {
-        if (field.asType().getKind().isPrimitive()) {
-            this.errorMsgList.add(String.format("Field %s.%s couldn't be primitive.", className, fieldName));
-        }
+//        if (field.asType().getKind().isPrimitive()) {
+//            this.errorMsgList.add(String.format("Field %s.%s couldn't be primitive.", className, fieldName));
+//        }
         switch (fieldName) {
             case _MetaBridge.ID: {
                 //no-op

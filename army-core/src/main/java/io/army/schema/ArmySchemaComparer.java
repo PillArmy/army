@@ -51,6 +51,8 @@ abstract class ArmySchemaComparer implements SchemaComparer {
         final List<TableResult> tableResultList = _Collections.arrayList();
         final boolean supportTableComment = this.supportTableComment();
 
+        final FieldResult.Builder fieldBuilder = FieldResult.builder();
+
         final Set<String> columnMetaSet;
         columnMetaSet = _Collections.hashSet();
 
@@ -66,7 +68,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
                 builder.comment(!table.comment().equals(tableInfo.comment()));
             }
 
-            compareColumns(tableInfo, table, builder);
+            compareColumns(tableInfo, table, builder, fieldBuilder);
             compareIndex(tableInfo, (TableMeta<?>) table, builder, columnMetaSet);
             tableResultList.add(builder.buildAndClear());
         }
@@ -98,10 +100,10 @@ abstract class ArmySchemaComparer implements SchemaComparer {
     abstract String primaryKeyName(TableMeta<?> table);
 
 
-    private void compareColumns(TableInfo tableInfo, TableMeta<?> table, TableResult.Builder tableBuilder) {
+    private void compareColumns(TableInfo tableInfo, TableMeta<?> table, TableResult.Builder tableBuilder,
+                                FieldResult.Builder builder) {
 
         final Map<String, ColumnInfo> columnMap = tableInfo.columnMap();
-        final FieldResult.Builder builder = FieldResult.builder();
         final ServerMeta serverMeta = this.serverMeta;
         final boolean supportColumnComment = this.supportColumnComment();
 

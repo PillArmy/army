@@ -429,6 +429,22 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
             case TIMESTAMPTZ_ARRAY:
                 this.appendTimeDateType(field, dataType, builder);
                 break;
+            case CHAR:
+            case VARCHAR: {
+                this.parser.typeName(field.mappingType(), builder);
+                if (field.precision() > -1) { // https://www.postgresql.org/docs/current/datatype-character.html
+                    precision(field, dataType, 10_485_760, 255, builder);
+                }
+            }
+            break;
+            case BIT:
+            case VARBIT: {
+                this.parser.typeName(field.mappingType(), builder);
+                if (field.precision() > -1) { // https://www.postgresql.org/docs/current/datatype-bit.html
+                    precision(field, dataType, Integer.MAX_VALUE, 255, builder);
+                }
+            }
+            break;
             default:
                 this.parser.typeName(field.mappingType(), builder);
 

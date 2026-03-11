@@ -286,7 +286,7 @@ public abstract class _Exceptions {
     }
 
     public static CriteriaException visibleField(Visible visible, TableField field) {
-        String m = String.format("%s mode is %s,%s couldn't present in non-selection expression."
+        String m = String.format("%s mode is %s,%s couldn't present in non-selection or non-set left item expression."
                 , Visible.class.getSimpleName(), visible, field);
         return new CriteriaException(m);
     }

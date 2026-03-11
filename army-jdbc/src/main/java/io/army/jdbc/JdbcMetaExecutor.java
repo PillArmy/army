@@ -18,10 +18,10 @@ package io.army.jdbc;
 
 import io.army.executor.DataAccessException;
 import io.army.executor.SyncMetaExecutor;
+import io.army.lang.Nullable;
 import io.army.schema.*;
 import io.army.util._Collections;
 
-import io.army.lang.Nullable;
 import javax.sql.XAConnection;
 import java.sql.*;
 import java.util.List;
@@ -178,6 +178,7 @@ class JdbcMetaExecutor implements SyncMetaExecutor {
                               final DatabaseMetaData metaData, final Map<String, TableInfo.Builder> tableBuilderMap)
             throws SQLException {
 
+        int columnSize;
         try (ResultSet resultSet = metaData.getColumns(catalog, schema, "%", "%")) {
             TableInfo.Builder tableBuilder = null;
             final ColumnInfo.Builder builder = ColumnInfo.builder();
@@ -192,13 +193,14 @@ class JdbcMetaExecutor implements SyncMetaExecutor {
                     continue;
                 }
 
+                columnSize = resultSet.getInt("COLUMN_SIZE");
                 builder.name(resultSet.getString("COLUMN_NAME"))
                         .type(resultSet.getString("TYPE_NAME"))
                         .defaultExp(resultSet.getString("COLUMN_DEF"))
 
                         .comment(resultSet.getString("REMARKS"))
                         .autoincrement("YES".equals(resultSet.getString("IS_AUTOINCREMENT")))
-                        .precision(resultSet.getInt("COLUMN_SIZE"));
+                        .precision(columnSize);
                 nullable = resultSet.getString("IS_NULLABLE");
                 switch (nullable) {
                     case "YES":
@@ -219,14 +221,29 @@ class JdbcMetaExecutor implements SyncMetaExecutor {
 
                 switch (JDBCType.valueOf(resultSet.getInt("DATA_TYPE"))) {
                     case DECIMAL:
+                    case NUMERIC:
                         builder.scale(resultSet.getInt("DECIMAL_DIGITS"));
                         break;
-                    case TIME:
-                    case TIMESTAMP:
-                    case TIME_WITH_TIMEZONE:
-                    case TIMESTAMP_WITH_TIMEZONE:
-                        builder.scale(resultSet.getInt("SQL_DATETIME_SUB"));
-                        break;
+                    case TIME: {
+                        builder.scale(columnSize - 9);
+                        builder.precision(-1);
+                    }
+                    break;
+                    case TIMESTAMP: {
+                        builder.scale(columnSize - 23);
+                        builder.precision(-1);
+                    }
+                    break;
+                    case TIME_WITH_TIMEZONE: {
+                        builder.scale(columnSize - 15);
+                        builder.precision(-1);
+                    }
+                    break;
+                    case TIMESTAMP_WITH_TIMEZONE: {
+                        builder.scale(columnSize - 29);
+                        builder.precision(-1);
+                    }
+                    break;
                     default:
                         builder.scale(-1);
                 }

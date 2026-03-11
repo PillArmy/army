@@ -57,11 +57,17 @@ abstract class TableFieldMeta<T> extends OperationDataField implements FieldMeta
      */
     @SuppressWarnings("unchecked")
     static <T> FieldMeta<T> createFieldMeta(final TableMeta<T> table, final Field field) {
-        if (_MetaBridge.ID.equals(field.getName())) {
+        final String fieldName = field.getName();
+
+        if (_MetaBridge.ID.equals(fieldName)) {
             throw new IllegalArgumentException("id can't invoke this method.");
         }
         final DefaultSimpleFieldMeta<T> fieldMeta;
-        fieldMeta = new DefaultSimpleFieldMeta<>(table, field);
+        if (_MetaBridge.VISIBLE.equals(fieldName)) {
+            fieldMeta = new VisibleFieldMeta<>(table, field);
+        } else {
+            fieldMeta = new DefaultSimpleFieldMeta<>(table, field);
+        }
 
         final TableFieldMeta<?> cache;
         cache = INSTANCE_MAP.putIfAbsent(fieldMeta, fieldMeta);
@@ -69,13 +75,16 @@ abstract class TableFieldMeta<T> extends OperationDataField implements FieldMeta
         final DefaultSimpleFieldMeta<T> simple;
         if (cache == null) {
             simple = fieldMeta;
-        } else if (cache instanceof DefaultSimpleFieldMeta) {
-            // drop fieldMeta ,return cache.
-            simple = (DefaultSimpleFieldMeta<T>) cache;
-        } else {
+        } else if (!(cache instanceof DefaultSimpleFieldMeta)) {
             String m = String.format("%s.%s can't mapping to simple %s.", table.javaType().getName()
                     , field.getName(), FieldMeta.class.getName());
             throw new IllegalArgumentException(m);
+        } else if (!_MetaBridge.VISIBLE.equals(fieldName)) {
+            // drop fieldMeta ,return cache.
+            simple = (DefaultSimpleFieldMeta<T>) cache;
+        } else {
+            // drop fieldMeta ,return cache.
+            simple = (VisibleFieldMeta<T>) cache;
         }
         return simple;
 
@@ -191,6 +200,9 @@ abstract class TableFieldMeta<T> extends OperationDataField implements FieldMeta
         this.table = (DefaultTableMeta<T>) table;
         this.fieldName = field.getName();
         this.javaType = field.getType();
+
+        assert !_MetaBridge.VISIBLE.equals(this.fieldName) || this instanceof TableFieldMeta.VisibleFieldMeta<T>;
+
         try {
             final Column column;
             column = FieldMetaUtils.columnMeta(table.javaType(), field);
@@ -371,6 +383,7 @@ abstract class TableFieldMeta<T> extends OperationDataField implements FieldMeta
         return this.generatorMeta;
     }
 
+    @Nullable
     @Override
     public final FieldMeta<?> dependField() {
         final GeneratorMeta meta;
@@ -405,8 +418,7 @@ abstract class TableFieldMeta<T> extends OperationDataField implements FieldMeta
         final boolean match;
         if (obj == this) {
             match = true;
-        } else if (obj instanceof TableFieldMeta) {
-            final TableFieldMeta<?> o = (TableFieldMeta<?>) obj;
+        } else if (obj instanceof TableFieldMeta<?> o) {
             match = this.table.javaType == o.table.javaType
                     && this.fieldName.equals(o.fieldName);
         } else {
@@ -453,7 +465,7 @@ abstract class TableFieldMeta<T> extends OperationDataField implements FieldMeta
 
     @Override
     public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
-        if (context.visible() != Visible.BOTH && this.fieldName.equals(_MetaBridge.VISIBLE)) {
+        if (this instanceof VisibleFieldMeta && context.visible() != Visible.BOTH) {
             throw _Exceptions.visibleField(context.visible(), this);
         }
         context.appendField(this);
@@ -473,6 +485,15 @@ abstract class TableFieldMeta<T> extends OperationDataField implements FieldMeta
             super(table, field);
         }
 
+    }
+
+
+    private static final class VisibleFieldMeta<T> extends DefaultSimpleFieldMeta<T> {
+
+        private VisibleFieldMeta(TableMeta<T> table, Field field) throws MetaException {
+            super(table, field);
+            assert _MetaBridge.VISIBLE.equals(field.getName());
+        }
     }
 
     private static class DefaultIndexFieldMeta<T> extends TableFieldMeta<T>
