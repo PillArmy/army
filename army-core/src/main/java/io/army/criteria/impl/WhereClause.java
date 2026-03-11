@@ -21,10 +21,10 @@ import io.army.criteria.impl.inner._Predicate;
 import io.army.criteria.impl.inner._Statement;
 import io.army.dialect.Dialect;
 import io.army.function.*;
+import io.army.lang.Nullable;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -92,7 +92,7 @@ abstract class WhereClause<WR, WA, OR, OD, LR, LO, LF> extends LimitRowOrderByCl
     }
 
     @Override
-    public final WA where(UnaryOperator<IPredicate> expOperator, IPredicate operand) {
+    public final WA where(UnaryOperator<IPredicate> expOperator, SQLs.SymbolSpace space, IPredicate operand) {
         if (this.predicateList != null) {
             throw duplicationWhere();
         }

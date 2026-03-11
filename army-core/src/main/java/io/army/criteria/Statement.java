@@ -839,7 +839,7 @@ public interface Statement extends Item {
 
         WA where(Function<Expression, IPredicate> expOperator, Expression operand);
 
-        WA where(UnaryOperator<IPredicate> expOperator, IPredicate operand);
+        WA where(UnaryOperator<IPredicate> expOperator, SQLs.SymbolSpace space, IPredicate operand);
 
         <T> WA where(Function<T, IPredicate> expOperator, Supplier<T> supplier);
 
