@@ -395,10 +395,6 @@ public abstract class SQLs extends SQLSyntax {
         return StandardInserts.singleInsert20();
     }
 
-    public static StandardInsert._PrimaryOption20Spec<Insert> singleInsert20() {
-        return StandardInserts.singleInsert20();
-    }
-
 
     public static StandardUpdate._DomainUpdateClause<Update> domainUpdate() {
         return StandardUpdates.simpleDomain();
@@ -406,10 +402,6 @@ public abstract class SQLs extends SQLSyntax {
 
 
     public static StandardUpdate._WithSpec<Update> singleUpdate() {
-        return StandardUpdates.singleUpdate(StandardDialect.STANDARD20);
-    }
-
-    public static StandardUpdate._WithSpec<Update> singleUpdate20() {
         return StandardUpdates.singleUpdate(StandardDialect.STANDARD20);
     }
 
@@ -431,19 +423,10 @@ public abstract class SQLs extends SQLSyntax {
         return StandardUpdates.batchSingleUpdate(StandardDialect.STANDARD20);
     }
 
-    public static StandardUpdate._WithSpec<Statement._BatchUpdateParamSpec> batchSingleUpdate20() {
-        return StandardUpdates.batchSingleUpdate(StandardDialect.STANDARD20);
-    }
-
 
     public static StandardDelete._WithSpec<Delete> singleDelete() {
         return StandardDeletes.singleDelete(StandardDialect.STANDARD20);
     }
-
-    public static StandardDelete._WithSpec<Delete> singleDelete20() {
-        return StandardDeletes.singleDelete(StandardDialect.STANDARD20);
-    }
-
 
     public static StandardDelete._DomainDeleteClause<Delete> domainDelete() {
         return StandardDeletes.domainDelete();
@@ -454,14 +437,6 @@ public abstract class SQLs extends SQLSyntax {
      * Batch domain delete
      */
     public static StandardDelete._WithSpec<Statement._BatchDeleteParamSpec> batchSingleDelete() {
-        return StandardDeletes.batchSingleDelete(StandardDialect.STANDARD20);
-    }
-
-    /**
-     * <p>
-     * Batch domain delete
-     */
-    public static StandardDelete._WithSpec<Statement._BatchDeleteParamSpec> batchSingleDelete20() {
         return StandardDeletes.batchSingleDelete(StandardDialect.STANDARD20);
     }
 
@@ -476,11 +451,7 @@ public abstract class SQLs extends SQLSyntax {
     }
 
 
-    public static StandardQuery.WithSpec<Select> query20() {
-        return StandardQueries.simpleQuery(StandardDialect.STANDARD20, SELECT_IDENTITY);
-    }
-
-    public static StandardQuery.WithSpec<Statement._BatchSelectParamSpec> batchQuery20() {
+    public static StandardQuery.WithSpec<Statement._BatchSelectParamSpec> batchQuery() {
         return StandardQueries.batchQuery(StandardDialect.STANDARD20);
     }
 

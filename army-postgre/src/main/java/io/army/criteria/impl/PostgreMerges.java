@@ -62,7 +62,7 @@ abstract class PostgreMerges {
 
     private static final class PrimaryMergeIntoClause
             extends CriteriaSupports.WithClause<PostgreCtes, PostgreMerge._MergeIntoClause> implements
-            PostgreMerge._WithSpec {
+            PostgreMerge._WithSpec, ContextStackHost {
 
 
         private PrimaryMergeIntoClause(@Nullable ArmyStmtSpec spec) {
@@ -113,6 +113,9 @@ abstract class PostgreMerges {
             PostgreMerge._MergeWhenSpec<T, I>,
             PostgreMerge._MergeDynamicWhenClause<T> {
 
+        @SuppressWarnings("all")
+        private ContextStackHost stackHost;
+
         private final CriteriaContext context;
 
         private final boolean recursive;
@@ -138,6 +141,8 @@ abstract class PostgreMerges {
             if (!_StringUtils.hasText(targetAlias)) {
                 throw ContextStack.clearStackAnd(_Exceptions::tabularAliasIsEmpty);
             }
+            this.stackHost = clause;
+
             this.context = clause.context;
             this.context.singleDmlTable(targetTable, targetAlias);
             this.recursive = clause.isRecursive();
@@ -252,7 +257,11 @@ abstract class PostgreMerges {
                 throw ContextStack.clearStackAndCastCriteriaApi();
             }
             this.pairList = _Collections.unmodifiableList(list);
-            return this.function.apply(this);
+            final I stmt;
+            stmt = this.function.apply(this);
+
+            this.stackHost = null; // clear stack host TODO : check 正确性
+            return stmt;
         }
 
         private MergeUsingClause<T, I> onWhenEnd(final _PostgreMerge._WhenPair pair) {
@@ -318,7 +327,7 @@ abstract class PostgreMerges {
                     throw CriteriaUtils.dontAddAnyItem();
                 }
                 itemPairList = Collections.emptyList();
-            } else if ((itemPairList = updateClause.endUpdateSetClause()).size() == 0) {
+            } else if ((itemPairList = updateClause.endUpdateSetClause()).isEmpty()) {
                 throw CriteriaUtils.dontAddAnyItem();
             } else {
                 ContextStack.pop(updateClause.context);

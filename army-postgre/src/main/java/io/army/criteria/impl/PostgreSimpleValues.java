@@ -27,6 +27,7 @@ import io.army.dialect.Dialect;
 import io.army.dialect.PostgreDialect;
 
 import io.army.lang.Nullable;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -69,7 +70,7 @@ abstract class PostgreSimpleValues<I extends Item> extends SimpleValues<
      * create primary VALUES statement for dispatcher.
      */
     static <I extends Item> ValuesSpec<I> fromDispatcher(ArmyStmtSpec spec,
-                                                       Function<? super Values, I> function) {
+                                                         Function<? super Values, I> function) {
         return new SimplePrimaryValues<>(spec, null, function, null);
     }
 
@@ -77,7 +78,7 @@ abstract class PostgreSimpleValues<I extends Item> extends SimpleValues<
      * create sub VALUES statement for dispatcher.
      */
     static <I extends Item> ValuesSpec<I> fromSubDispatcher(ArmyStmtSpec spec,
-                                                          Function<? super SubValues, I> function) {
+                                                            Function<? super SubValues, I> function) {
         return new SimpleSubValues<>(spec, null, function, null);
     }
 
@@ -85,7 +86,7 @@ abstract class PostgreSimpleValues<I extends Item> extends SimpleValues<
      * create sub VALUES statement.
      */
     static <I extends Item> ValuesSpec<I> subValues(CriteriaContext outerContext,
-                                                  Function<? super SubValues, I> function) {
+                                                    Function<? super SubValues, I> function) {
         return new SimpleSubValues<>(null, outerContext, function, null);
     }
 
@@ -151,7 +152,7 @@ abstract class PostgreSimpleValues<I extends Item> extends SimpleValues<
 
 
     private static final class SimplePrimaryValues<I extends Item> extends PostgreSimpleValues<I>
-            implements ArmyValues {
+            implements ArmyValues, ContextStackHost {
 
         private final Function<? super Values, I> function;
 
@@ -250,17 +251,12 @@ abstract class PostgreSimpleValues<I extends Item> extends SimpleValues<
             return this.asQuery();
         }
 
-        @Override
-        final Dialect statementDialect() {
-            return PostgreDialect.POSTGRE15;
-        }
-
 
     } // PostgreBracketValues
 
 
     private static final class BracketValues<I extends Item> extends PostgreBracketValues<I>
-            implements ArmyValues {
+            implements ArmyValues, ContextStackHost {
 
         private final Function<? super Values, I> function;
 
@@ -345,7 +341,8 @@ abstract class PostgreSimpleValues<I extends Item> extends SimpleValues<
 
     }//PostgreComplexValues
 
-    private static final class ValuesDispatcher<I extends Item> extends PostgreValuesDispatcher<I> {
+    private static final class ValuesDispatcher<I extends Item> extends PostgreValuesDispatcher<I>
+            implements ContextStackHost {
 
         private ValuesDispatcher(CriteriaContext leftContext, Function<RowSet, I> function) {
             super(CriteriaContexts.primaryDispatcherContext(PostgreUtils.DIALECT, leftContext.getOuterContext(), leftContext), function);

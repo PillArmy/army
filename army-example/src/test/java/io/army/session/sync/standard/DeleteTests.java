@@ -75,7 +75,7 @@ public class DeleteTests extends SessionSupport {
         final LocalDateTime now = LocalDateTime.now();
 
         final Delete stmt;
-        stmt = SQLs.singleDelete20()
+        stmt = SQLs.singleDelete()
                 .with("idListCte").as(c -> c.select(ChinaRegion_.id)
                         .from(ChinaRegion_.T, AS, "t")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
@@ -107,7 +107,7 @@ public class DeleteTests extends SessionSupport {
         final LocalDateTime now = LocalDateTime.now();
 
         final BatchDelete stmt;
-        stmt = SQLs.batchSingleDelete20()
+        stmt = SQLs.batchSingleDelete()
                 .with("cte").as(c -> c.select(ChinaRegion_.id)
                         .from(ChinaRegion_.T, AS, "t")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))

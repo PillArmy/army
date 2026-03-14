@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 final class MySQLSets extends CriteriaSupports.StatementMockSupport implements MySQLSet._SetSpec,
-        MySQLSet._SetCommaClause, _MySQLSet, DmlCommand, MySQLSet {
+        MySQLSet._SetCommaClause, _MySQLSet, DmlCommand, MySQLSet, ContextStackHost {
 
     static _SetSpec setStmt() {
         return new MySQLSets();
@@ -103,7 +103,7 @@ final class MySQLSets extends CriteriaSupports.StatementMockSupport implements M
 
         final List<_Triple<SQLs.VarScope, String, Object>> list = this.tripleList;
 
-        if (!(list instanceof ArrayList) || list.size() == 0) {
+        if (!(list instanceof ArrayList) || list.isEmpty()) {
             throw ContextStack.clearStackAndCastCriteriaApi();
         }
         this.tripleList = _Collections.unmodifiableList(list);

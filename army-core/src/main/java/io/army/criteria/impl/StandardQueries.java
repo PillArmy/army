@@ -484,7 +484,8 @@ abstract class StandardQueries<I extends Item> extends SimpleQueries<
     } // StandardLockMode
 
 
-    static final class SimpleSelect<I extends Item> extends StandardQueries<I> implements ArmySelect {
+    static final class SimpleSelect<I extends Item> extends StandardQueries<I>
+            implements ArmySelect, ContextStackHost {
 
         private final Function<? super Select, I> function;
 
@@ -634,7 +635,7 @@ abstract class StandardQueries<I extends Item> extends SimpleQueries<
 
 
     private static final class BracketSelect<I extends Item> extends StandardBracketQuery<I>
-            implements ArmySelect {
+            implements ArmySelect, ContextStackHost {
 
         private final Function<? super Select, I> function;
 
@@ -809,7 +810,7 @@ abstract class StandardQueries<I extends Item> extends SimpleQueries<
                 throw ContextStack.clearStackAndCastCriteriaApi();
             }
             this.columnAliasList = list;
-            if (list.size() > 0) {
+            if (!list.isEmpty()) {
                 this.comma.context.onCteColumnAlias(this.name, list);
             }
             return this;

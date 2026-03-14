@@ -158,7 +158,8 @@ abstract class StandardDeletes<I extends Item, WE extends Item, DR>
     }//StandardDeleteStatement
 
     private static final class StandardSimpleDelete extends StandardDeleteStatement<Delete>
-            implements Delete {
+            implements Delete, ContextStackHost {
+
 
         private StandardSimpleDelete(StandardDialect dialect, @Nullable ArmyStmtSpec spec) {
             super(dialect, spec);
@@ -173,7 +174,7 @@ abstract class StandardDeletes<I extends Item, WE extends Item, DR>
     }//StandardSimpleDelete
 
     private static final class StandardBatchDelete extends StandardDeleteStatement<_BatchDeleteParamSpec>
-            implements BatchDelete, _BatchStatement, _BatchDeleteParamSpec {
+            implements BatchDelete, _BatchStatement, _BatchDeleteParamSpec, ContextStackHost {
 
         private List<?> paramList;
 
@@ -237,7 +238,7 @@ abstract class StandardDeletes<I extends Item, WE extends Item, DR>
     }//DomainDeleteStatement
 
     private static final class DomainSimpleDelete extends DomainDeleteStatement<Delete>
-            implements Delete {
+            implements Delete, ContextStackHost {
 
         private DomainSimpleDelete() {
         }
@@ -252,7 +253,7 @@ abstract class StandardDeletes<I extends Item, WE extends Item, DR>
 
 
     private static final class DomainBatchDelete extends DomainDeleteStatement<_BatchDeleteParamSpec>
-            implements BatchDelete, _BatchStatement, _BatchDeleteParamSpec {
+            implements BatchDelete, _BatchStatement, _BatchDeleteParamSpec, ContextStackHost {
 
         private List<?> paramList;
 

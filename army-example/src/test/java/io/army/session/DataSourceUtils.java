@@ -81,7 +81,7 @@ public abstract class DataSourceUtils {
                 url = "jdbc:mysql://localhost:3306/army_bank";
                 break;
             case PostgreSQL:
-                url = "jdbc:postgresql://localhost:5432/army_bank";
+                url = "jdbc:postgresql://localhost:5432/postgres";
                 break;
             case SQLite:
                 url = "jdbc:sqlite:src/test/resources/my-local/army_bank.sqlite";
@@ -98,12 +98,16 @@ public abstract class DataSourceUtils {
         properties.put("password", "army123");
 
         if (MyPaths.isMyLocal()) {
-            properties.put("sslMode", "DISABLED");
+            // properties.put("sslMode", "DISABLED");
             if (database == Database.MySQL) {
                 properties.put("allowMultiQueries", "true");
                 properties.put("allowLoadLocalInfile", "true");
             }
 
+        }
+        if (database == Database.PostgreSQL) {
+            properties.put("currentSchema", "army_bank");
+            properties.put("search_path", "army_bank");
         }
         return properties;
     }

@@ -40,7 +40,7 @@ public class Captcha extends Domain {
             , comment = "partner user id,@see table u_user,0 representing bank self")
     private Long partnerId;
 
-    @Column(precision = 5, notNull = true, comment = "provide to terminate user captcha")
+    @Column(precision = 50, notNull = true, comment = "provide to terminate user captcha")
     private String captcha;
 
     @Column(notNull = true, comment = "deadline,invalid after this")

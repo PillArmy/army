@@ -700,7 +700,7 @@ abstract class MySQLMultiDeletes<I extends Item> extends JoinableDelete<
 
 
     private static final class MySQLSimpleDelete extends MySQLMultiDeletes<Delete>
-            implements Delete {
+            implements Delete, ContextStackHost {
 
         private MySQLSimpleDelete() {
             super(null);
@@ -715,7 +715,7 @@ abstract class MySQLMultiDeletes<I extends Item> extends JoinableDelete<
     }//MySQLSimpleDelete
 
     private static final class MySQLBatchDelete extends MySQLMultiDeletes<_BatchDeleteParamSpec>
-            implements BatchDelete, _BatchStatement, _BatchDeleteParamSpec {
+            implements BatchDelete, _BatchStatement, _BatchDeleteParamSpec, ContextStackHost {
 
         private List<?> paramList;
 

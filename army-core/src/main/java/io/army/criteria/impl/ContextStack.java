@@ -17,9 +17,7 @@
 package io.army.criteria.impl;
 
 import io.army.ArmyException;
-import io.army.criteria.CriteriaException;
-import io.army.criteria.Expression;
-import io.army.criteria.Item;
+import io.army.criteria.*;
 import io.army.criteria.impl.inner._TabularBlock;
 import io.army.lang.Nullable;
 import io.army.util._Exceptions;
@@ -29,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.ref.Cleaner;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -50,7 +49,7 @@ abstract class ContextStack {
 
     private static final ThreadLocal<Stack> HOLDER = new ThreadLocal<>();
 
-    private static final Cleaner CLEANER = Cleaner.create();
+    private static final Cleaner CLEANER = Cleaner.create(r -> new Thread(r, "army stm cxt stack cleaner"));
 
 
     static CriteriaContext peek() {
@@ -89,7 +88,7 @@ abstract class ContextStack {
             String m = String.format("%s is not current context,context stack error", context);
             throw new CriteriaException(m);
         } else if (context.getOuterContext() == null) {
-            assert stack.size() == 0;
+            assert stack.isEmpty();
             HOLDER.remove();
         }
         if (LOG.isTraceEnabled()) {
@@ -99,17 +98,19 @@ abstract class ContextStack {
     }
 
     /**
-     * @param statement statement that hold CriteriaContext
+     * @param contextHolder statement that hold {@link CriteriaContext}
+     * @see ContextStackHost
      */
-    static void push(final Item statement, final CriteriaContext context) {
+    static void push(final Item contextHolder, final CriteriaContext context) {
         final CriteriaContext outerContext;
         outerContext = context.getOuterContext();
         final Stack stack;
         if (outerContext == null) {
+            assert contextHolder instanceof ContextStackHost;
             //reset stack
             final Stack newStack = new Stack(context);
             HOLDER.set(newStack);
-            CLEANER.register(statement, newStack::clear); // finally clean Stack strong, if statement error,don't pop stack
+            CLEANER.register(contextHolder, newStack::clear); // finally clean Stack strong, if statement error,don't pop stack
             if (LOG.isTraceEnabled()) {
                 LOG.trace("reset stack for primary context {}.", context);
             }
@@ -117,6 +118,8 @@ abstract class ContextStack {
             //no bug,never here
             throw new IllegalArgumentException("exists outer context,but no stack.");
         } else if (outerContext == stack.getLast()) {
+            assert !(contextHolder instanceof SubStatement && contextHolder instanceof ContextStackHost);
+
             stack.add(context);
             if (LOG.isTraceEnabled()) {
                 LOG.trace("push {}", context);

@@ -695,7 +695,7 @@ abstract class MySQLMultiUpdates<I extends Item>
      * This class is the implementation of  multi-table update api.
      */
     private static final class MySQLSimpleUpdate extends MySQLMultiUpdates<Update>
-            implements Update {
+            implements Update, ContextStackHost {
 
 
         private MySQLSimpleUpdate() {
@@ -711,7 +711,7 @@ abstract class MySQLMultiUpdates<I extends Item>
     }// MySQLSimpleUpdate
 
     private static final class MySQLBatchUpdate extends MySQLMultiUpdates<_BatchUpdateParamSpec>
-            implements BatchUpdate, _BatchStatement, _BatchUpdateParamSpec {
+            implements BatchUpdate, _BatchStatement, _BatchUpdateParamSpec, ContextStackHost {
 
         private List<?> paramList;
 

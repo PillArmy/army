@@ -58,7 +58,8 @@ abstract class MySQLInserts extends InsertSupports {
     /**
      * <p>
      * create single-table INSERT statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
-     *     */
+     *
+     */
     static MySQLInsert._PrimaryOptionSpec singleInsert() {
         return new PrimaryInsertIntoClause();
     }
@@ -66,7 +67,8 @@ abstract class MySQLInserts extends InsertSupports {
     /**
      * <p>
      * create single-table INSERT statement that is primary statement for multi-statement and support only {@link SingleTableMeta}.
-     *     */
+     *
+     */
     static <I extends Item> MySQLInsert._PrimarySingleOptionSpec<I> singleInsert(ArmyStmtSpec spec,
                                                                                  Function<? super Insert, I> function) {
         return new PrimarySingleInsertIntoClause<>(spec, function);
@@ -125,11 +127,13 @@ abstract class MySQLInserts extends InsertSupports {
     /**
      * <p>
      * This class is the implementation of {@link MySQLInsert._PrimaryOptionSpec}.
-     *     */
+     *
+     */
     private static final class PrimaryInsertIntoClause
             extends InsertSupports.NonQueryInsertOptionsImpl<MySQLInsert._PrimaryNullOptionSpec>
             implements MySQLInsert._PrimaryOptionSpec,
-            MySQLInsert._PrimaryIntoClause {
+            MySQLInsert._PrimaryIntoClause,
+            ContextStackHost {
 
         private List<Hint> hintList;
 
@@ -175,7 +179,8 @@ abstract class MySQLInserts extends InsertSupports {
 
     private static final class ChildInsertIntoClause<P> extends ChildOptionClause
             implements MySQLInsert._ChildInsertIntoSpec<P>,
-            MySQLInsert._ChildIntoClause<P> {
+            MySQLInsert._ChildIntoClause<P>,
+            ContextStackHost {
 
         private final Function<MySQLComplexValuesClause<?, ?>, Insert> dmlFunction;
 
@@ -218,11 +223,13 @@ abstract class MySQLInserts extends InsertSupports {
     /**
      * <p>
      * This class is the implementation of {@link MySQLInsert._PrimarySingleOptionSpec}.
-     *     */
+     *
+     */
     private static final class PrimarySingleInsertIntoClause<I extends Item>
             extends InsertSupports.NonQueryInsertOptionsImpl<MySQLInsert._PrimarySingleNullOptionSpec<I>>
             implements MySQLInsert._PrimarySingleOptionSpec<I>,
-            MySQLInsert._PrimarySingleIntoClause<I> {
+            MySQLInsert._PrimarySingleIntoClause<I>,
+            ContextStackHost {
 
         private final Function<? super Insert, I> function;
 
@@ -566,7 +573,10 @@ abstract class MySQLInserts extends InsertSupports {
             implements MySQLInsert._PartitionSpec<I, T>,
             MySQLInsert._ComplexColumnDefaultSpec<I, T>,
             MySQLInsert._StaticAssignmentSpec<I, T>,
-            MySQLInsert._OnAsRowAliasSpec<I, T> {
+            MySQLInsert._OnAsRowAliasSpec<I, T>,
+            ContextStackHost.ContextStackHostHolder {
+
+        private final ContextStackHost stackHost;
 
         private final List<Hint> hintList;
 
@@ -583,6 +593,7 @@ abstract class MySQLInserts extends InsertSupports {
         private MySQLComplexValuesClause(PrimaryInsertIntoClause options, SingleTableMeta<T> table,
                                          Function<MySQLComplexValuesClause<?, ?>, I> dmlFunction) {
             super(options, table, true);
+            this.stackHost = options;
             this.hintList = _Collections.safeList(options.hintList);
             this.modifierList = _Collections.safeList(options.modifierList);
             this.dmlFunction = dmlFunction;
@@ -591,6 +602,7 @@ abstract class MySQLInserts extends InsertSupports {
         private MySQLComplexValuesClause(ChildInsertIntoClause<?> options, ChildTableMeta<T> table,
                                          Function<MySQLComplexValuesClause<?, ?>, I> dmlFunction) {
             super(options, table, true);
+            this.stackHost = options;
             this.hintList = _Collections.safeList(options.hintList);
             this.modifierList = _Collections.safeList(options.modifierList);
             this.dmlFunction = dmlFunction;
@@ -599,6 +611,7 @@ abstract class MySQLInserts extends InsertSupports {
         private MySQLComplexValuesClause(PrimarySingleInsertIntoClause<?> options, SingleTableMeta<T> table,
                                          Function<MySQLComplexValuesClause<?, ?>, I> dmlFunction) {
             super(options, table, true);
+            this.stackHost = options;
             this.hintList = _Collections.safeList(options.hintList);
             this.modifierList = _Collections.safeList(options.modifierList);
             this.dmlFunction = dmlFunction;
@@ -662,7 +675,7 @@ abstract class MySQLInserts extends InsertSupports {
             }
             final List<_ItemPair> list = _Collections.arrayList();
             consumer.accept(CriteriaSupports.simpleFieldItemPairs(this.context, this.insertTable, list::add));
-            if (list.size() == 0) {
+            if (list.isEmpty()) {
                 throw CriteriaUtils.conflictClauseIsEmpty(this.context);
             }
             this.conflictPairList = _Collections.unmodifiableList(list);
@@ -677,7 +690,7 @@ abstract class MySQLInserts extends InsertSupports {
             final List<_ItemPair> list = _Collections.arrayList();
             consumer.accept(CriteriaSupports.simpleFieldItemPairs(this.context, this.insertTable, list::add));
 
-            if (list.size() > 0) {
+            if (!list.isEmpty()) {
                 this.conflictPairList = _Collections.unmodifiableList(list);
             }
             return this;
@@ -693,6 +706,12 @@ abstract class MySQLInserts extends InsertSupports {
             return this.dmlFunction.apply(this);
         }
 
+        @Override
+        public ContextStackHost getStackHost() {
+            return this.stackHost;
+        }
+
+        @Nullable
         @Override
         public String tableAlias() {
             //null,MySQL don't support table alias

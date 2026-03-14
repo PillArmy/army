@@ -84,11 +84,6 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
         return this.cteList;
     }
 
-    @Override
-    final Dialect statementDialect() {
-        return MySQLDialect.MySQL57;
-    }
-
 
     private static abstract class SimpleSingleUpdate<I extends Item, F extends TableField>
             extends StandardUpdates<
@@ -116,13 +111,17 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
     private static final class StandardSimpleUpdate<F extends TableField> extends SimpleSingleUpdate<Update, F>
             implements Update, StandardUpdate {
 
+        private ContextStackHost stackHost;
+
         private StandardSimpleUpdate(StandardSimpleUpdateClause clause, TableMeta<?> table, String tableAlias) {
             super(clause, table, tableAlias);
+            this.stackHost = clause;
         }
 
 
         @Override
         Update onAsUpdate() {
+            this.stackHost = null;// finally clear stack host
             return this;
         }
 
@@ -134,10 +133,13 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
             extends SimpleSingleUpdate<_BatchUpdateParamSpec, F>
             implements BatchUpdate, StandardUpdate, _BatchStatement, _BatchUpdateParamSpec {
 
+        private ContextStackHost stackHost;
+
         private List<?> paramList;
 
         private StandardBatchUpdate(StandardBatchUpdateClause clause, TableMeta<?> table, String tableAlias) {
             super(clause, table, tableAlias);
+            this.stackHost = clause;
         }
 
         @Override
@@ -161,6 +163,7 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
 
         @Override
         _BatchUpdateParamSpec onAsUpdate() {
+            this.stackHost = null; // finally clear stack host
             return this;
         }
 
@@ -181,7 +184,7 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
         @Override
         public final boolean isChildDml() {
             final List<_ItemPair> list = this.childItemPairList;
-            return this.updateTable instanceof ChildTableMeta && (list != null && list.size() > 0);
+            return this.updateTable instanceof ChildTableMeta && (list != null && !list.isEmpty());
         }
 
         @Override
@@ -212,7 +215,7 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
         @Override
         final boolean isNoChildItemPair() {
             final List<_ItemPair> childItemPairList = this.childItemPairList;
-            return childItemPairList == null || childItemPairList.size() == 0;
+            return childItemPairList == null || childItemPairList.isEmpty();
         }
 
 
@@ -231,12 +234,16 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
     private static final class DomainSimpleUpdate<F extends TableField> extends DomainUpdateStatement<Update, F>
             implements Update {
 
+        private ContextStackHost stackHost;
+
         private DomainSimpleUpdate(DomainSimpleUpdateClaus clause, TableMeta<?> table, String tableAlias) {
             super(clause, table, tableAlias);
+            this.stackHost = clause;
         }
 
         @Override
         Update onAsDomainUpdate() {
+            this.stackHost = null;// finally clear stack host
             return this;
         }
 
@@ -247,10 +254,13 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
             extends DomainUpdateStatement<_BatchUpdateParamSpec, F>
             implements BatchUpdate, _BatchStatement, _BatchUpdateParamSpec {
 
+        private ContextStackHost stackHost;
+
         private List<?> paramList;
 
         private DomainBatchUpdate(DomainBatchUpdateClaus clause, TableMeta<?> table, String tableAlias) {
             super(clause, table, tableAlias);
+            this.stackHost = clause;
         }
 
         @Override
@@ -273,6 +283,7 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
 
         @Override
         _BatchUpdateParamSpec onAsDomainUpdate() {
+            this.stackHost = null;// finally clear stack host
             return this;
         }
 
@@ -320,7 +331,8 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
 
     }//SingleUpdateClause
 
-    private static final class StandardSimpleUpdateClause extends StandardUpdateClause<Update> {
+    private static final class StandardSimpleUpdateClause extends StandardUpdateClause<Update>
+            implements ContextStackHost {
 
         private StandardSimpleUpdateClause(StandardDialect dialect) {
             super(dialect, null);
@@ -333,7 +345,8 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
 
     }//StandardSimpleUpdateClause
 
-    private static final class StandardBatchUpdateClause extends StandardUpdateClause<_BatchUpdateParamSpec> {
+    private static final class StandardBatchUpdateClause extends StandardUpdateClause<_BatchUpdateParamSpec>
+            implements ContextStackHost {
 
         private StandardBatchUpdateClause(StandardDialect dialect) {
             super(dialect, null);
@@ -361,7 +374,8 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
 
     }// DomainUpdateClause
 
-    private static final class DomainSimpleUpdateClaus extends DomainUpdateClause<Update> {
+    private static final class DomainSimpleUpdateClaus extends DomainUpdateClause<Update>
+            implements ContextStackHost {
 
         private DomainSimpleUpdateClaus() {
         }
@@ -387,7 +401,8 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
     }//DomainSimpleUpdateClaus
 
     private static final class DomainBatchUpdateClaus
-            extends DomainUpdateClause<_BatchUpdateParamSpec> {
+            extends DomainUpdateClause<_BatchUpdateParamSpec>
+            implements ContextStackHost {
 
         private DomainBatchUpdateClaus() {
         }

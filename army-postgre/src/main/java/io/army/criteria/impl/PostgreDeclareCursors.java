@@ -36,7 +36,8 @@ final class PostgreDeclareCursors extends CriteriaSupports.StatementMockSupport 
         PostgreCursor._HoldSpec,
         DmlCommand,
         Statement._AsCommandClause<DmlCommand>,
-        _PostgreDeclareCursor {
+        _PostgreDeclareCursor,
+        ContextStackHost {
 
 
     static PostgreCursor._PostgreDeclareClause declare() {

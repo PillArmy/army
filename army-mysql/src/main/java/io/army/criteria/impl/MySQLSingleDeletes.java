@@ -227,14 +227,9 @@ abstract class MySQLSingleDeletes<I extends Item>
         return MySQLSupports.mysqlLCteBuilder(recursive, this.context);
     }
 
-    @Override
-    final Dialect statementDialect() {
-        return MySQLUtils.DIALECT;
-    }
-
 
     private static final class MySQLSimpleDelete extends MySQLSingleDeletes<Delete>
-            implements Delete {
+            implements Delete, ContextStackHost {
 
         private MySQLSimpleDelete() {
             super(null);
@@ -249,7 +244,7 @@ abstract class MySQLSingleDeletes<I extends Item>
     }//MySQLSimpleDelete
 
     private static final class MySQLBatchDelete extends MySQLSingleDeletes<_BatchDeleteParamSpec>
-            implements BatchDelete, _BatchStatement, _BatchDeleteParamSpec {
+            implements BatchDelete, _BatchStatement, _BatchDeleteParamSpec, ContextStackHost {
 
         private List<?> paramList;
 

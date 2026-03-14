@@ -149,7 +149,7 @@ public class UpdateTests extends SessionSupport {
         final long startNanoSecond = System.nanoTime();
 
         final Update stmt;
-        stmt = SQLs.singleUpdate20()
+        stmt = SQLs.singleUpdate()
                 .with("cte").as(c -> c.select(ChinaRegion_.id)
                         .from(ChinaRegion_.T, AS, "c")
                         .where(ChinaRegion_.id::in, SQLs.SPACE, SQLs::rowParam, extractRegionIdList(regionList))

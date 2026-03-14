@@ -24,6 +24,7 @@ import io.army.criteria.mysql.MySQLValues;
 import io.army.dialect.Dialect;
 
 import io.army.lang.Nullable;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -121,7 +122,7 @@ abstract class MySQLSimpleValues<I extends Item>
 
 
     private static final class SimplePrimaryValues<I extends Item> extends MySQLSimpleValues<I>
-            implements ArmyValues {
+            implements ArmyValues, ContextStackHost {
 
         private final Function<? super Values, I> function;
 
@@ -217,16 +218,11 @@ abstract class MySQLSimpleValues<I extends Item>
             return this.asQuery();
         }
 
-        @Override
-        final Dialect statementDialect() {
-            return MySQLUtils.DIALECT;
-        }
-
 
     } // MySQLBracketValues
 
     private static final class BracketValues<I extends Item> extends MySQLBracketValues<I>
-            implements ArmyValues {
+            implements ArmyValues, ContextStackHost {
 
         private final Function<? super Values, I> function;
 
@@ -313,7 +309,8 @@ abstract class MySQLSimpleValues<I extends Item>
     } // MySQLValuesDispatcher
 
 
-    private static final class ValuesDispatcher<I extends Item> extends MySQLValuesDispatcher<I> {
+    private static final class ValuesDispatcher<I extends Item> extends MySQLValuesDispatcher<I>
+            implements ContextStackHost {
 
         private ValuesDispatcher(CriteriaContext leftContext, Function<RowSet, I> function) {
             super(CriteriaContexts.primaryDispatcherContext(MySQLUtils.DIALECT, leftContext.getOuterContext(), leftContext), function);

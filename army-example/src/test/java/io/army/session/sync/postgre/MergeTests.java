@@ -1,6 +1,7 @@
 package io.army.session.sync.postgre;
 
 
+import io.army.criteria.LiteralMode;
 import io.army.criteria.Statement;
 import io.army.criteria.dialect.DmlCommand;
 import io.army.criteria.impl.Postgres;
@@ -103,7 +104,8 @@ public class MergeTests extends SessionTestSupport {
 
         final DmlCommand stmt;
         stmt = Postgres.singleMerge()
-                .with("parent_cte").as(sw -> sw.insertInto(ChinaRegion_.T)
+                .with("parent_cte").as(sw -> sw.literalMode(LiteralMode.LITERAL)
+                        .insertInto(ChinaRegion_.T)
                         .values(regionList)
                         .returning(ChinaRegion_.id)
                         .asReturningInsert()
@@ -111,7 +113,8 @@ public class MergeTests extends SessionTestSupport {
                                         .comma(SQLs.refField("parent_cte", ChinaRegion_.ID))
                                 ).from("parent_cte")
                                 .asQuery()
-                ).comma("child_cte").as(sw -> sw.insertInto(ChinaProvince_.T)
+                ).comma("child_cte").as(sw -> sw.literalMode(LiteralMode.LITERAL)
+                        .insertInto(ChinaProvince_.T)
                         .defaultValue(ChinaProvince_.id, SQLs.scalarSubQuery()
                                 .select(s -> s.space(SQLs.refField("parent_row_number", ChinaRegion_.ID)))
                                 .from("parent_row_number")
@@ -125,18 +128,19 @@ public class MergeTests extends SessionTestSupport {
                         .select("t", PERIOD, RegisterRecord_.T)
                         .from(RegisterRecord_.T, AS, "t")
                         .orderBy(RegisterRecord_.id::desc)
-                        .limit(SQLs::param, 100)
+                        .limit(SQLs::literal, 100)
                         .asQuery()
                 ).as("r").on(Captcha_.requestNo::equal, SQLs.refField("r", RegisterRecord_.REQUEST_NO))
-                .whenNotMatched().then(s -> s.insert()
+                .whenNotMatched().then(s -> s.literalMode(LiteralMode.LITERAL)
+                        .insert()
                         .values()
-                        .parens(r -> r.space(Captcha_.captcha, SQLs::param, captcha.getCaptcha())
-                                .comma(Captcha_.deadline, SQLs::param, captcha.getDeadline())
+                        .parens(r -> r.space(Captcha_.captcha, SQLs::literal, captcha.getCaptcha())
+                                .comma(Captcha_.deadline, SQLs::literal, captcha.getDeadline())
                                 .comma(Captcha_.requestNo, SQLs.refField("r", RegisterRecord_.REQUEST_NO))
                                 .comma(Captcha_.partnerId, SQLs.refField("r", RegisterRecord_.PARTNER_ID))
                         )
                 ).whenMatched().then(ts -> ts.update()
-                        .set(Captcha_.captcha, SQLs::param, captcha.getCaptcha())
+                        .set(Captcha_.captcha, SQLs::literal, captcha.getCaptcha())
                         .set(Captcha_.deadline, SQLs.refField("r", RegisterRecord_.DEADLINE))
                 ).asCommand();
 

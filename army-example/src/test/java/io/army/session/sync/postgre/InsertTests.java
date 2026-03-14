@@ -369,6 +369,7 @@ public class InsertTests extends SessionTestSupport {
 
         final Insert stmt;
         stmt = Postgres.singleInsert()
+                .literalMode(LiteralMode.LITERAL)
                 .insertInto(ChinaRegion_.T)
                 .values(provinceList)
                 .asInsert()

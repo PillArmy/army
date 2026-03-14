@@ -772,14 +772,19 @@ abstract class PostgreUpdates<I extends Item, Q extends Item, T>
     private static final class PostgreSimpleUpdate<T> extends PostgreUpdates<Update, ReturningUpdate, T>
             implements Update {
 
+        @SuppressWarnings("all")
+        private ContextStackHost stackHost;
+
         private PostgreSimpleUpdate(PrimarySimpleUpdateClause clause, TableMeta<T> updateTable) {
             super(clause, updateTable);
+            this.stackHost = clause;
         }
 
 
         @Override
         Update onAsPostgreUpdate() {
             PostgreUtils.validateDmlInWithClause(cteList(), this);
+            this.stackHost = null;
             return this;
         }
 
@@ -788,6 +793,7 @@ abstract class PostgreUpdates<I extends Item, Q extends Item, T>
             final ReturningUpdateWrapper stmt;
             stmt = new ReturningUpdateWrapper(this);
             PostgreUtils.validateDmlInWithClause(stmt.cteList(), stmt);
+            this.stackHost = null;
             return stmt;
         }
 
@@ -799,10 +805,14 @@ abstract class PostgreUpdates<I extends Item, Q extends Item, T>
             _BatchReturningUpdateParamSpec,
             T> implements _BatchUpdateParamSpec, BatchUpdate, _BatchStatement {
 
+        @SuppressWarnings("all")
+        private ContextStackHost stackHost;
+
         private List<?> paramList;
 
         private PostgreBatchUpdate(PrimaryBatchUpdateClause clause, TableMeta<T> updateTable) {
             super(clause, updateTable);
+            this.stackHost = clause;
         }
 
 
@@ -827,11 +837,13 @@ abstract class PostgreUpdates<I extends Item, Q extends Item, T>
 
         @Override
         _BatchUpdateParamSpec onAsPostgreUpdate() {
+            this.stackHost = null;
             return this;
         }
 
         @Override
         _BatchReturningUpdateParamSpec onAsReturningUpdate() {
+            this.stackHost = null;
             return this::createBatchReturningUpdate;
         }
 
@@ -946,7 +958,8 @@ abstract class PostgreUpdates<I extends Item, Q extends Item, T>
 
     }//SimpleUpdateClause
 
-    private static final class PrimarySimpleUpdateClause extends PostgreUpdateClause<Update, ReturningUpdate> {
+    private static final class PrimarySimpleUpdateClause extends PostgreUpdateClause<Update, ReturningUpdate>
+            implements ContextStackHost {
 
 
         private PrimarySimpleUpdateClause() {
@@ -963,7 +976,8 @@ abstract class PostgreUpdates<I extends Item, Q extends Item, T>
 
     private static final class PrimaryBatchUpdateClause extends PostgreUpdateClause<
             _BatchUpdateParamSpec,
-            _BatchReturningUpdateParamSpec> {
+            _BatchReturningUpdateParamSpec>
+            implements ContextStackHost {
 
         private PrimaryBatchUpdateClause() {
             super(null, CriteriaContexts.primaryJoinableSingleUpdateContext(PostgreUtils.DIALECT, null));

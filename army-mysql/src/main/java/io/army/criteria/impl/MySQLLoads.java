@@ -165,7 +165,8 @@ abstract class MySQLLoads {
             extends LoadDataClause<PrimaryLoadDataClause<I>>
             implements MySQLLoadData._LoadDataClause<I>,
             MySQLLoadData._LocalInfileClause<I>,
-            MySQLLoadData._StrategyOptionSpec<I> {
+            MySQLLoadData._StrategyOptionSpec<I>,
+            ContextStackHost {
 
         private final Function<DmlCommand, I> function;
 
@@ -206,7 +207,8 @@ abstract class MySQLLoads {
             extends LoadDataClause<ChildLoadDataClause<I, P>>
             implements MySQLLoadData._ChildLoadDataClause<I, P>,
             MySQLLoadData._ChildLocalInfileClause<I, P>,
-            MySQLLoadData._ChildStrategyOptionSpec<I, P> {
+            MySQLLoadData._ChildStrategyOptionSpec<I, P>,
+            ContextStackHost {
 
         private final Function<PartitionClause<?, ?>, I> function;
 

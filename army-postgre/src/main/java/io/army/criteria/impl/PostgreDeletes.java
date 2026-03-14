@@ -797,7 +797,7 @@ abstract class PostgreDeletes<I extends Item, Q extends Item> extends JoinableDe
     }//SimpleJoinClauseTableBlock
 
     private static final class PrimarySimpleDelete extends PostgreDeletes<Delete, ReturningDelete>
-            implements Delete {
+            implements Delete, ContextStackHost {
 
         private PrimarySimpleDelete() {
             super(null, CriteriaContexts.primaryJoinableSingleDeleteContext(PostgreUtils.DIALECT, null));
@@ -823,7 +823,8 @@ abstract class PostgreDeletes<I extends Item, Q extends Item> extends JoinableDe
             _BatchReturningDeleteParamSpec>
             implements BatchDelete,
             _BatchStatement,
-            _BatchDeleteParamSpec {
+            _BatchDeleteParamSpec,
+            ContextStackHost {
 
         private List<?> paramList;
 

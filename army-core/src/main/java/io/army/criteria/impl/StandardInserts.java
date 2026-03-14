@@ -51,10 +51,6 @@ abstract class StandardInserts extends InsertSupports {
     }
 
 
-    static StandardInsert._PrimaryOptionSpec<Insert> singleInsert() {
-        return new PrimaryInsertInto10Clause<>(null, SQLs::identity);
-    }
-
     static StandardInsert._PrimaryOption20Spec<Insert> singleInsert20() {
         return new PrimaryInsertInto20Clause<>(null, SQLs::identity);
     }
@@ -111,7 +107,10 @@ abstract class StandardInserts extends InsertSupports {
 
     } // PrimaryInsertIntoClause
 
-
+    /**
+     * @deprecated use {@link PrimaryInsertInto20Clause}
+     */
+    @Deprecated
     private static final class PrimaryInsertInto10Clause<I extends Item> extends PrimaryInsertIntoClause<
             I,
             StandardInsert._PrimaryNullOption10Spec<I>,
@@ -162,7 +161,7 @@ abstract class StandardInserts extends InsertSupports {
             I,
             StandardInsert._PrimaryNullOption20Spec<I>,
             StandardInsert._PrimaryInsertInto20Clause<I>>
-            implements StandardInsert._PrimaryOption20Spec<I> {
+            implements StandardInsert._PrimaryOption20Spec<I>, ContextStackHost {
 
 
         private PrimaryInsertInto20Clause(@Nullable ArmyStmtSpec spec, Function<? super Insert, I> function) {
@@ -221,7 +220,7 @@ abstract class StandardInserts extends InsertSupports {
     private static final class ChildInsertIntoClause<I extends Item, P>
             extends ChildDynamicWithClause<StandardCtes, StandardInsert._ChildInsertIntoClause<I, P>>
             implements StandardInsert._ChildWithSpec<I, P>,
-            WithValueSyntaxOptions {
+            WithValueSyntaxOptions, ContextStackHost {
 
         private final Function<StandardComplexValuesClause<?, ?>, I> dmlFunction;
 
@@ -305,7 +304,10 @@ abstract class StandardInserts extends InsertSupports {
             implements StandardInsert._ColumnListSpec<T, I>,
             StandardInsert._ComplexColumnDefaultSpec<T, I>,
             Statement._DmlInsertClause<I>,
-            _Statement._WithClauseSpec {
+            _Statement._WithClauseSpec,
+            ContextStackHost.ContextStackHostHolder {
+
+        private final ContextStackHost contextStackHost;
 
         private final boolean recursive;
 
@@ -316,6 +318,7 @@ abstract class StandardInserts extends InsertSupports {
         private StandardComplexValuesClause(PrimaryInsertIntoClause<?, ?, ?> options, SingleTableMeta<T> table,
                                             Function<StandardComplexValuesClause<?, ?>, I> dmlFunction) {
             super(options, table, true);
+            this.contextStackHost = (ContextStackHost) options;
             this.recursive = options.isRecursive();
             this.cteList = options.cteList();
             this.dmlFunction = dmlFunction;
@@ -324,6 +327,7 @@ abstract class StandardInserts extends InsertSupports {
         private StandardComplexValuesClause(ChildInsertIntoClause<?, ?> options, ChildTableMeta<T> table,
                                             Function<StandardComplexValuesClause<?, ?>, I> dmlFunction) {
             super(options, table, true);
+            this.contextStackHost = options;
             this.recursive = options.isRecursive();
             this.cteList = options.cteList();
             this.dmlFunction = dmlFunction;
@@ -369,6 +373,12 @@ abstract class StandardInserts extends InsertSupports {
             return this.dmlFunction.apply(this);
         }
 
+        @Override
+        public ContextStackHost getStackHost() {
+            return this.contextStackHost;
+        }
+
+        @Nullable
         @Override
         public String tableAlias() {
             //null,standard api don't support table alias

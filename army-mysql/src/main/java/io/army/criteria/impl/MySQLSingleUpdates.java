@@ -397,12 +397,17 @@ abstract class MySQLSingleUpdates<I extends Item, T>
     private static final class MySQLSimpleUpdate<T> extends MySQLSingleUpdates<Update, T>
             implements Update {
 
+        @SuppressWarnings("all")
+        private ContextStackHost stackHost;
+
         private MySQLSimpleUpdate(SimpleUpdateClause clause) {
             super(clause);
+            this.stackHost = clause;
         }
 
         @Override
         Update onAsMySQLUpdate() {
+            this.stackHost = null;
             return this;
         }
 
@@ -412,10 +417,14 @@ abstract class MySQLSingleUpdates<I extends Item, T>
     private static final class MySQLBatchUpdate<T> extends MySQLSingleUpdates<_BatchUpdateParamSpec, T>
             implements BatchUpdate, _BatchUpdateParamSpec, _BatchStatement {
 
+        @SuppressWarnings("all")
+        private ContextStackHost stackHost;
+
         private List<?> paramList;
 
         private MySQLBatchUpdate(BatchUpdateClause clause) {
             super(clause);
+            this.stackHost = clause;
         }
 
         @Override
@@ -438,6 +447,7 @@ abstract class MySQLSingleUpdates<I extends Item, T>
 
         @Override
         _BatchUpdateParamSpec onAsMySQLUpdate() {
+            this.stackHost = null;
             return this;
         }
 
@@ -545,7 +555,8 @@ abstract class MySQLSingleUpdates<I extends Item, T>
 
     }//PostgreUpdateClause
 
-    private static final class SimpleUpdateClause extends MySQLUpdateClause<Update> {
+    private static final class SimpleUpdateClause extends MySQLUpdateClause<Update>
+            implements ContextStackHost {
 
         private SimpleUpdateClause() {
             super(null);
@@ -559,7 +570,8 @@ abstract class MySQLSingleUpdates<I extends Item, T>
 
     }//SimpleUpdateClause
 
-    private static final class BatchUpdateClause extends MySQLUpdateClause<_BatchUpdateParamSpec> {
+    private static final class BatchUpdateClause extends MySQLUpdateClause<_BatchUpdateParamSpec>
+            implements ContextStackHost {
 
         private BatchUpdateClause() {
             super(null);

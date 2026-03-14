@@ -152,7 +152,7 @@ public class InsertTests extends SessionSupport {
         regionList = createReginListWithCount(parentList.size());
 
         final Insert stmt;
-        stmt = SQLs.singleInsert20()
+        stmt = SQLs.singleInsert()
                 .with("cte").as(s -> s.select(ChinaRegion_.id, Windows.rowNumber().over().as("rowNumber"))
                         .from(ChinaRegion_.T, AS, "t")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(parentList)))
@@ -206,7 +206,7 @@ public class InsertTests extends SessionSupport {
         final long startNanoSecond = System.nanoTime();
 
         final Insert stmt;
-        stmt = SQLs.singleInsert20()
+        stmt = SQLs.singleInsert()
                 .with("cte").as(s -> s.select(ChinaRegion_.id, Windows.rowNumber().over().as("rowNumber"))
                         .from(ChinaRegion_.T, AS, "t")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, regionIdList))
@@ -348,7 +348,7 @@ public class InsertTests extends SessionSupport {
         final long startNanoSecond = System.nanoTime();
 
         final Insert stmt;
-        stmt = SQLs.singleInsert20()
+        stmt = SQLs.singleInsert()
                 .with("cte").as(s -> s.select(ChinaRegion_.id, Windows.rowNumber().over().as("rowNumber"))
                         .from(ChinaRegion_.T, AS, "t")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(parentList)))
@@ -407,7 +407,7 @@ public class InsertTests extends SessionSupport {
         final long startNanoSecond = System.nanoTime();
 
         final Insert stmt;
-        stmt = SQLs.singleInsert20()
+        stmt = SQLs.singleInsert()
                 .with("cte").as(s -> s.select(ChinaRegion_.id, Windows.rowNumber().over().as("rowNumber"))
                         .from(ChinaRegion_.T, AS, "t")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, regionIdList))

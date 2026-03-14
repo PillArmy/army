@@ -1954,6 +1954,8 @@ abstract class InsertSupports {
             Statement._DmlInsertClause<I>,
             Statement._DqlInsertClause<Q> {
 
+        private ContextStackHost stackHost;
+
         final TableMeta<?> insertTable;
 
 
@@ -1965,6 +1967,10 @@ abstract class InsertSupports {
             super(((CriteriaContextSpec) clause).getContext());
             this.insertTable = clause.table();
             this.tableAlias = clause.tableAlias();
+            if (clause instanceof ContextStackHost.ContextStackHostHolder) {
+                // Retain the object reference to prevent premature garbage collection of the host
+                this.stackHost = ((ContextStackHost.ContextStackHostHolder) clause).getStackHost();
+            }
         }
 
         @Override
@@ -2076,6 +2082,8 @@ abstract class InsertSupports {
             //finally clear context
             ContextStack.pop(this.context);
             this.prepared = Boolean.TRUE;
+
+            this.stackHost = null;  // finally clear host
         }
 
     }//AbstractInsertStatement

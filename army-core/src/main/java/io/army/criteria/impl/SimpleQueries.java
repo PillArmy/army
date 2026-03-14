@@ -1172,7 +1172,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
     final boolean hasGroupByClause() {
         final List<ArmyGroupByItem> itemList = this.groupByList;
-        return itemList != null && itemList.size() > 0;
+        return itemList != null && !itemList.isEmpty();
     }
 
 

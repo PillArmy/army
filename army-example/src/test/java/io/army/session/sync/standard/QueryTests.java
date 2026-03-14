@@ -38,7 +38,7 @@ public class QueryTests extends SessionSupport {
         final long startNanoSecond = System.nanoTime();
 
         final Select stmt;
-        stmt = SQLs.query20()
+        stmt = SQLs.query()
                 .with("cte").as(s -> s.select(ChinaRegion_.id)
                         .from(ChinaRegion_.T, AS, "c")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, regionIdList))
@@ -86,7 +86,7 @@ public class QueryTests extends SessionSupport {
         final long startNanoSecond = System.nanoTime();
 
         final Select stmt;
-        stmt = SQLs.query20()
+        stmt = SQLs.query()
                 .with("cte").as(s -> s.select(ChinaRegion_.id, SQLs.countAsterisk().as("count"))
                         .from(ChinaRegion_.T, AS, "c")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, regionIdList))
@@ -138,7 +138,7 @@ public class QueryTests extends SessionSupport {
         final long startNanoSecond = System.nanoTime();
 
         final BatchSelect stmt;
-        stmt = SQLs.batchQuery20()
+        stmt = SQLs.batchQuery()
                 .with("cte").as(s -> s.select(ChinaRegion_.id)
                         .from(ChinaRegion_.T, AS, "c")
                         .where(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
@@ -250,7 +250,7 @@ public class QueryTests extends SessionSupport {
         assert firstId != null && secondId != null;
 
         final Select stmt;
-        stmt = SQLs.query20()
+        stmt = SQLs.query()
                 .with("cte").as(s -> s.select(ChinaRegion_.id)
                         .from(ChinaRegion_.T, AS, "t")
                         .where(ChinaRegion_.id::equal, SQLs::literal, firstId)
@@ -291,7 +291,7 @@ public class QueryTests extends SessionSupport {
         final List<Long> idList = extractRegionIdList(regionList);
 
         final Select stmt;
-        stmt = SQLs.query20()
+        stmt = SQLs.query()
                 .with("cte").as(sw -> sw.select("t", PERIOD, ChinaRegion_.T)
                         .from(ChinaRegion_.T, AS, "t")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, idList))

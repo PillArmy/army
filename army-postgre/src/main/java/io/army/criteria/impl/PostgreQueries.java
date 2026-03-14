@@ -927,7 +927,7 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
 
 
     private static final class SimpleSelect<I extends Item> extends PostgreQueries<I>
-            implements ArmySelect {
+            implements ArmySelect, ContextStackHost {
 
         private final Function<? super Select, I> function;
 
@@ -1053,7 +1053,7 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
 
 
     private static final class BracketSelect<I extends Item> extends PostgreBracketQuery<I>
-            implements ArmySelect {
+            implements ArmySelect, ContextStackHost {
 
         private final Function<? super Select, I> function;
 
@@ -1152,7 +1152,8 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
     }//PostgreQueryDispatcher
 
 
-    private static final class SelectDispatcher<I extends Item> extends PostgreQueryDispatcher<I> {
+    private static final class SelectDispatcher<I extends Item> extends PostgreQueryDispatcher<I>
+            implements ContextStackHost {
 
         private SelectDispatcher(CriteriaContext leftContext, Function<RowSet, I> function) {
             super(CriteriaContexts.primaryDispatcherContext(leftContext.dialect(), leftContext.getOuterContext(), leftContext), function);

@@ -16,10 +16,7 @@
 
 package io.army.schema;
 
-import io.army.meta.FieldMeta;
-import io.army.meta.SchemaMeta;
-import io.army.meta.ServerMeta;
-import io.army.meta.TableMeta;
+import io.army.meta.*;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PostgreType;
 import io.army.util._Exceptions;
@@ -405,7 +402,8 @@ final class PostgreComparer extends ArmySchemaComparer {
     @Override
     boolean compareDefault(ColumnInfo columnInfo, FieldMeta<?> field, DataType sqlType) {
         //TODO  complete me
-        return _StringUtils.hasText(field.defaultValue()) ^ _StringUtils.hasText(columnInfo.defaultExp());
+        return !(field instanceof IndexFieldMeta)  // 如果是索引,其默认值可能是自增的. 如 primary key
+                && (_StringUtils.hasText(field.defaultValue()) ^ _StringUtils.hasText(columnInfo.defaultExp()));
     }
 
     @Override

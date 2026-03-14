@@ -28,6 +28,7 @@ import io.army.criteria.mysql.MySQLQuery;
 import io.army.criteria.mysql.MySQLReplace;
 import io.army.dialect.Dialect;
 import io.army.dialect.MySQLDialect;
+import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.struct.CodeEnum;
 import io.army.util.ArrayUtils;
@@ -131,7 +132,8 @@ abstract class MySQLReplaces extends InsertSupports {
     private static final class PrimaryReplaceIntoClause extends InsertSupports.NonQueryInsertOptionsImpl<
             MySQLReplace._PrimaryNullOptionSpec>
             implements MySQLReplace._PrimaryOptionSpec,
-            MySQLReplace._PrimaryIntoClause {
+            MySQLReplace._PrimaryIntoClause,
+            ContextStackHost {
 
 
         private List<Hint> hintList;
@@ -175,8 +177,9 @@ abstract class MySQLReplaces extends InsertSupports {
 
 
     private static final class ChildReplaceIntoClause<P> extends ChildOptionClause
-            implements MySQLReplace._ChildReplaceIntoSpec<P>
-            , MySQLReplace._ChildIntoClause<P> {
+            implements MySQLReplace._ChildReplaceIntoSpec<P>,
+            MySQLReplace._ChildIntoClause<P>,
+            ContextStackHost {
 
         private final Function<MySQLComplexValuesClause<?, ?>, Insert> dmlFunction;
 
@@ -216,7 +219,8 @@ abstract class MySQLReplaces extends InsertSupports {
             extends InsertSupports.NonQueryInsertOptionsImpl<
             MySQLReplace._PrimarySingleNullOptionSpec<I>>
             implements MySQLReplace._PrimarySingleOptionSpec<I>,
-            MySQLReplace._PrimarySingleIntoClause<I> {
+            MySQLReplace._PrimarySingleIntoClause<I>,
+            ContextStackHost {
 
         private final Function<? super Insert, I> function;
 
@@ -287,7 +291,10 @@ abstract class MySQLReplaces extends InsertSupports {
             MySQLReplace._StaticAssignmentSpec<I, T>>
             implements MySQLReplace._PartitionSpec<I, T>,
             MySQLReplace._StaticAssignmentSpec<I, T>,
-            Statement._DmlInsertClause<I> {
+            Statement._DmlInsertClause<I>,
+            ContextStackHost.ContextStackHostHolder {
+
+        private final ContextStackHost stackHost;
 
         private final Function<MySQLComplexValuesClause<?, ?>, I> dmlFunction;
 
@@ -300,6 +307,7 @@ abstract class MySQLReplaces extends InsertSupports {
         private MySQLComplexValuesClause(PrimaryReplaceIntoClause options, SingleTableMeta<T> table,
                                          Function<MySQLComplexValuesClause<?, ?>, I> dmlFunction) {
             super(options, table, true);
+            this.stackHost = options;
             this.hintList = _Collections.safeList(options.hintList);
             this.modifierList = _Collections.safeList(options.modifierList);
             this.dmlFunction = dmlFunction;
@@ -308,6 +316,7 @@ abstract class MySQLReplaces extends InsertSupports {
         private MySQLComplexValuesClause(ChildReplaceIntoClause<?> options, ComplexTableMeta<?, T> table,
                                          Function<MySQLComplexValuesClause<?, ?>, I> dmlFunction) {
             super(options, table, true);
+            this.stackHost = options;
             this.hintList = _Collections.safeList(options.hintList);
             this.modifierList = _Collections.safeList(options.modifierList);
             this.dmlFunction = dmlFunction;
@@ -316,6 +325,7 @@ abstract class MySQLReplaces extends InsertSupports {
         private MySQLComplexValuesClause(PrimarySingleReplaceIntoClause<?> options, SingleTableMeta<T> table,
                                          Function<MySQLComplexValuesClause<?, ?>, I> dmlFunction) {
             super(options, table, true);
+            this.stackHost = options;
             this.hintList = _Collections.safeList(options.hintList);
             this.modifierList = _Collections.safeList(options.modifierList);
             this.dmlFunction = dmlFunction;
@@ -366,7 +376,12 @@ abstract class MySQLReplaces extends InsertSupports {
             return this.dmlFunction.apply(this);
         }
 
+        @Override
+        public ContextStackHost getStackHost() {
+            return this.stackHost;
+        }
 
+        @Nullable
         @Override
         public String tableAlias() {
             // MySQL don't support

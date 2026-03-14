@@ -34,7 +34,8 @@ final class PostgreSets extends CriteriaSupports.StatementMockSupport
         PostgreCommand._SetClause,
         _PostgreCommand._SetCommand,
         DmlCommand,
-        Statement._AsCommandClause<DmlCommand> {
+        Statement._AsCommandClause<DmlCommand>,
+        ContextStackHost {
 
 
     static PostgreCommand._SetClause setStmt() {

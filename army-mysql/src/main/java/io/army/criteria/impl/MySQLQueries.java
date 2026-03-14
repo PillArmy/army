@@ -30,6 +30,7 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 
 import io.army.lang.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -1033,7 +1034,8 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
     }//DynamicLockBlock
 
 
-    private static final class SimpleSelect<I extends Item> extends MySQLQueries<I> implements ArmySelect {
+    private static final class SimpleSelect<I extends Item> extends MySQLQueries<I>
+            implements ArmySelect, ContextStackHost {
 
         private final Function<? super Select, I> function;
 
@@ -1298,7 +1300,8 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
 
     }//MySQLBracketQuery
 
-    private static final class BracketSelect<I extends Item> extends MySQLBracketQuery<I> implements ArmySelect {
+    private static final class BracketSelect<I extends Item> extends MySQLBracketQuery<I>
+            implements ArmySelect, ContextStackHost {
 
         private final Function<? super Select, I> function;
 
@@ -1412,7 +1415,8 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
     } // MySQLQueryDispatcher
 
 
-    private static final class SelectDispatcher<I extends Item> extends MySQLQueryDispatcher<I> {
+    private static final class SelectDispatcher<I extends Item> extends MySQLQueryDispatcher<I>
+            implements ContextStackHost {
 
         private SelectDispatcher(CriteriaContext leftContext, Function<RowSet, I> function) {
             super(CriteriaContexts.primaryDispatcherContext(MySQLUtils.DIALECT, leftContext.getOuterContext(), leftContext), function);
@@ -1634,7 +1638,6 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
         public List<String> intoVarList() {
             return this.intoVarList;
         }
-
 
 
     } // MySQLBatchSelect

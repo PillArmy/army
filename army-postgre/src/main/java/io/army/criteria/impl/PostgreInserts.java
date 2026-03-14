@@ -321,7 +321,7 @@ abstract class PostgreInserts extends InsertSupports {
             PostgreInsert._PrimaryNullOptionSpec,
             PostgreCtes,
             PostgreInsert._PrimaryInsertIntoClause>
-            implements PostgreInsert._PrimaryOptionSpec {
+            implements PostgreInsert._PrimaryOptionSpec, ContextStackHost {
 
         private PrimaryInsertIntoClause() {
             super(CriteriaContexts.primaryInsertContext(PostgreUtils.DIALECT, null));
@@ -364,7 +364,7 @@ abstract class PostgreInserts extends InsertSupports {
     private static final class ChildInsertIntoClause<P> extends ChildDynamicWithClause<
             PostgreCtes,
             PostgreInsert._ChildInsertIntoClause<P>>
-            implements PostgreInsert._ChildWithCteSpec<P> {
+            implements PostgreInsert._ChildWithCteSpec<P>, ContextStackHost {
 
         private final Function<PostgreComplexValuesClause<?, ?, ?>, Insert> dmlFunction;
 
@@ -408,7 +408,7 @@ abstract class PostgreInserts extends InsertSupports {
             PostgreInsert._ComplexNullOptionSpec<I>,
             PostgreCtes,
             PostgreInsert._ComplexInsertIntoClause<I>>
-            implements PostgreInsert._ComplexOptionSpec<I> {
+            implements PostgreInsert._ComplexOptionSpec<I>, ContextStackHost {
 
         private final Function<PrimaryStatement, I> function;
 
@@ -980,7 +980,13 @@ abstract class PostgreInserts extends InsertSupports {
             PostgreInsert._OverridingValueSpec<T, I, Q>,
             PostgreInsert._ComplexColumnDefaultSpec<T, I, Q>,
             PostgreInsert._StaticReturningCommaSpec<Q>,
-            Statement._DqlInsertClause<Q> {
+            Statement._DqlInsertClause<Q>,
+            ContextStackHost.ContextStackHostHolder {
+
+        /**
+         * Retain the object reference to prevent premature garbage collection of the host
+         */
+        private final ContextStackHost contextStackHost;
 
         private final Function<PostgreComplexValuesClause<?, ?, ?>, I> dmlFunction;
 
@@ -1008,6 +1014,12 @@ abstract class PostgreInserts extends InsertSupports {
                                            Function<PostgreComplexValuesClause<?, ?, ?>, I> dmlFunction,
                                            Function<PostgreComplexValuesClause<?, ?, ?>, Q> dqlFunction) {
             super(options, table, twoStmtMode);
+            if (options instanceof ContextStackHost) {
+                this.contextStackHost = (ContextStackHost) options; // primary insert
+            } else {
+                this.contextStackHost = null; // sub insert
+            }
+
             this.recursive = options.isRecursive();
             this.cteList = options.cteList();
             this.dmlFunction = dmlFunction;
@@ -1250,12 +1262,17 @@ abstract class PostgreInserts extends InsertSupports {
         public Q asReturningInsert() {
             final List<_SelectItem> selectionList = this.returningList;
             if (selectionList != PostgreSupports.EMPTY_SELECT_ITEM_LIST) {
-                if (!(selectionList instanceof ArrayList && selectionList.size() > 0)) {
+                if (!(selectionList instanceof ArrayList && !selectionList.isEmpty())) {
                     throw ContextStack.clearStackAndCastCriteriaApi();
                 }
                 this.returningList = _Collections.unmodifiableList(selectionList);
             }
             return this.dqlFunction.apply(this);
+        }
+
+        @Override
+        public ContextStackHost getStackHost() {
+            return this.contextStackHost;
         }
 
         @Override
@@ -1529,6 +1546,7 @@ abstract class PostgreInserts extends InsertSupports {
             return conflictAction != null && conflictAction.isDoNothing();
         }
 
+        @Nullable
         @Override
         public final String rowAlias() {
             // null,postgre don't support row alias
@@ -1544,8 +1562,6 @@ abstract class PostgreInserts extends InsertSupports {
         public final _ConflictActionClauseResult getConflictActionResult() {
             return this.conflictAction;
         }
-
-
 
 
     }//PrimaryValueSyntaxInsertStatement
