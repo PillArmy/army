@@ -1849,7 +1849,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
         private final MappingType[] compatibleTypeArray;
 
-        private long rowNumber = 0L;
+        private long rowNumber = 1L;
 
         private ResultSet resultSet;
 
