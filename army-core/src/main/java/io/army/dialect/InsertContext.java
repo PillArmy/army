@@ -925,11 +925,12 @@ abstract class InsertContext extends StatementContext
                 }
             }
             break;
-            case LITERAL: {
+            case LITERAL:
+            case CONST: {
                 if (value == null) {
                     this.sqlBuilder.append(_Constant.SPACE_NULL);
                 } else {
-                    this.parser.safeLiteral(field, value, true, this.sqlBuilder.append(_Constant.SPACE));
+                    this.parser.safeLiteral(field, value, mode == LiteralMode.LITERAL, this.sqlBuilder.append(_Constant.SPACE));
                 }
             }
             break;
