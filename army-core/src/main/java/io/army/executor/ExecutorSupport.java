@@ -47,6 +47,7 @@ import org.slf4j.Logger;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -1484,6 +1485,17 @@ public abstract class ExecutorSupport {
 
         @Override
         public void set(Object target, String propertyName, @Nullable Object value) throws ObjectAccessException {
+            throw new UnsupportedOperationException();
+        }
+
+
+        @Override
+        public Set<String> writablePropertySet() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Set<String> readablePropertySet() {
             throw new UnsupportedOperationException();
         }
 

@@ -19,6 +19,8 @@ package io.army.bean;
 
 import io.army.lang.Nullable;
 
+import java.util.Set;
+
 public interface ObjectAccessor extends ReadAccessor {
 
 
@@ -57,6 +59,9 @@ public interface ObjectAccessor extends ReadAccessor {
      *                                  accessor method failed or a type mismatch occurred
      */
     void set(Object target, String propertyName, @Nullable Object value) throws ObjectAccessException;
+
+
+    Set<String> writablePropertySet();
 
 
     ReadAccessor getReadAccessor();

@@ -16,8 +16,11 @@
 
 package io.army.bean;
 
+import io.army.lang.Nullable;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
+import java.util.Set;
 
 class BeanReadAccessor implements ReadAccessor {
 
@@ -33,6 +36,7 @@ class BeanReadAccessor implements ReadAccessor {
         return this.accessors.readerMap.get(propertyName) != null;
     }
 
+    @Nullable
     @Override
     public final Object get(final Object target, final String propertyName) throws ObjectAccessException {
         if (!this.accessors.beanClass.isInstance(target)) {
@@ -53,6 +57,10 @@ class BeanReadAccessor implements ReadAccessor {
         }
     }
 
+    @Override
+    public final Set<String> readablePropertySet() {
+        return this.accessors.readerMap.keySet();
+    }
 
     @Override
     public final Class<?> getAccessedType() {

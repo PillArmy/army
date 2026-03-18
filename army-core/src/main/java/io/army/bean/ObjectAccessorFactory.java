@@ -17,14 +17,15 @@
 package io.army.bean;
 
 
+import io.army.lang.Nullable;
 import io.army.proxy.ArmyProxy;
 import io.army.util._Collections;
 
-import io.army.lang.Nullable;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.*;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 
@@ -280,6 +281,12 @@ public abstract class ObjectAccessorFactory {
             }
         }
 
+
+        @Override
+        public Set<String> writablePropertySet() {
+            return this.accessors.writerMap.keySet();
+        }
+
         @Override
         public ReadAccessor getReadAccessor() {
             BeanReadAccessor readAccessor = this.readAccessor;
@@ -332,6 +339,12 @@ public abstract class ObjectAccessorFactory {
         }
 
         @Override
+        public Set<String> writablePropertySet() {
+            // map always empty
+            return Set.of();
+        }
+
+        @Override
         public ReadAccessor getReadAccessor() {
             return MapReadAccessor.INSTANCE;
         }
@@ -348,6 +361,12 @@ public abstract class ObjectAccessorFactory {
                 throw new IllegalArgumentException("target non-map");
             }
             return ((Map<String, Object>) target).get(propertyName);
+        }
+
+        @Override
+        public Set<String> readablePropertySet() {
+            // map always empty
+            return Set.of();
         }
 
         @Override

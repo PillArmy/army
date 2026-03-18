@@ -18,6 +18,7 @@ package io.army.bean;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 final class MapReadAccessor implements ReadAccessor {
 
@@ -50,6 +51,11 @@ final class MapReadAccessor implements ReadAccessor {
         return Map.class;
     }
 
+    @Override
+    public Set<String> readablePropertySet() {
+        // map always empty
+        return Set.of();
+    }
 
     @Override
     public String toString() {

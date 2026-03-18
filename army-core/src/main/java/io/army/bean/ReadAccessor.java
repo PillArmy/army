@@ -18,6 +18,8 @@ package io.army.bean;
 
 import io.army.lang.Nullable;
 
+import java.util.Set;
+
 public interface ReadAccessor {
 
 
@@ -47,6 +49,7 @@ public interface ReadAccessor {
     @Nullable
     Object get(Object target, String propertyName) throws ObjectAccessException;
 
+    Set<String> readablePropertySet();
 
     /**
      * Return the type of the wrapped bean instance.
