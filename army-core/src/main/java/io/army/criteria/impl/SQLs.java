@@ -131,7 +131,7 @@ public abstract class SQLs extends SQLSyntax {
     @Support({H2})
     public static final BetweenModifier ASYMMETRIC = SqlWords.KeyWordSymmetric.ASYMMETRIC;
 
-    public static final SymbolAsterisk ASTERISK = SqlWords.SQLSymbolAsterisk.ASTERISK;
+    public static final SymbolAsterisk ASTERISK = new LiteralSymbolAsterisk();
 
     public static final SymbolPeriod PERIOD = SqlWords.SQLSymbolPeriod.PERIOD;
 
@@ -661,7 +661,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface SymbolAsterisk {
+    public sealed interface SymbolAsterisk extends Expression permits LiteralSymbolAsterisk {
 
     }
 
@@ -1197,7 +1197,7 @@ public abstract class SQLs extends SQLSyntax {
      * @see SQLs#_ASTERISK_EXP
      */
     private static final class LiteralSymbolAsterisk extends NonOperationExpression
-            implements FunctionArg.SingleFunctionArg {
+            implements FunctionArg.SingleFunctionArg, SymbolAsterisk, SQLWords {
 
         private LiteralSymbolAsterisk() {
         }
@@ -1205,6 +1205,11 @@ public abstract class SQLs extends SQLSyntax {
         @Override
         public TypeMeta typeMeta() {
             throw unsupportedOperation(this);
+        }
+
+        @Override
+        public String spaceRender() {
+            return " *";
         }
 
         @Override

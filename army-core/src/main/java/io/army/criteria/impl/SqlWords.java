@@ -774,27 +774,6 @@ abstract class SqlWords {
 
     }//SQLSymbolPoint
 
-    enum SQLSymbolAsterisk implements SQLs.SymbolAsterisk, SQLWords {
-
-        ASTERISK(" *");
-
-        private final String spaceStar;
-
-        SQLSymbolAsterisk(String spaceStar) {
-            this.spaceStar = spaceStar;
-        }
-
-        @Override
-        public final String spaceRender() {
-            return this.spaceStar;
-        }
-
-        @Override
-        public final String toString() {
-            return SQLs.keyWordsToString(this);
-        }
-
-    }//SQLSymbolStar
 
     enum KeyWordEscape implements SQLs.WordEscape, SQLs.ArmyKeyWord {
 
