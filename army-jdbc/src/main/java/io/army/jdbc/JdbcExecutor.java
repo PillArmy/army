@@ -1307,7 +1307,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                         && inTransaction(Option.EMPTY_FUNC)) {
                     // see org.postgresql.core.QueryExecutor.QUERY_FORWARD_CURSOR
                     // see org.postgresql.jdbc.PgStatement.executeInternal()
-                    //  this.conn.setAutoCommit(false); // postgre command ,see io.army.jdbc.PostgreExecutor.handleAutoCommitAfterTransactionEndForPostgreFetchSize()
+                    this.conn.setAutoCommit(false); // postgre command ,see io.army.jdbc.PostgreExecutor.handleAutoCommitAfterTransactionEndForPostgreFetchSize()
                 }
             } else if (fetchSize == 0
                     && this instanceof MySQLExecutor
