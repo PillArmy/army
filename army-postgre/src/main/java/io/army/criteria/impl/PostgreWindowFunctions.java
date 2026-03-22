@@ -21,13 +21,13 @@ import io.army.criteria.*;
 import io.army.criteria.dialect.Window;
 import io.army.criteria.postgre.PostgreWindow;
 import io.army.criteria.standard.SQLFunction;
+import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.mapping.array.DoubleArrayType;
 import io.army.mapping.array.IntervalArrayType;
 import io.army.mapping.optional.IntervalType;
 import io.army.meta.TypeMeta;
 
-import io.army.lang.Nullable;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -248,8 +248,8 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * Both offset and default are evaluated with respect to the current row. If omitted, offset defaults to 1 and default to NULL.
      * </a>
      */
-    public static _OverSpec lag(Expression value, Expression offset) {
-        return PostgreFunctionUtils.twoArgWindowFunc("lag", value, offset, _returnType(value, Expressions::identityType));
+    public static _OverSpec lag(Expression value, Object offset) {
+        return PostgreFunctionUtils.twoArgWindowFunc("lag", value, SQLs._nonNullLiteral(offset), _returnType(value, Expressions::identityType));
     }
 
     /**
@@ -262,8 +262,8 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * Both offset and default are evaluated with respect to the current row. If omitted, offset defaults to 1 and default to NULL.
      * </a>
      */
-    public static _OverSpec lag(Expression value, Expression offset, Expression defaultValue) {
-        return PostgreFunctionUtils.threeArgWindowFunc("lag", value, offset, defaultValue,
+    public static _OverSpec lag(Expression value, Object offset, Expression defaultValue) {
+        return PostgreFunctionUtils.threeArgWindowFunc("lag", value, SQLs._nonNullLiteral(offset), defaultValue,
                 _returnType(value, Expressions::identityType)
         );
     }
@@ -292,8 +292,8 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * Both offset and default are evaluated with respect to the current row. If omitted, offset defaults to 1 and default to NULL.
      * </a>
      */
-    public static _OverSpec lead(Expression value, Expression offset) {
-        return PostgreFunctionUtils.twoArgWindowFunc("lead", value, offset, _returnType(value, Expressions::identityType));
+    public static _OverSpec lead(Expression value, Object offset) {
+        return PostgreFunctionUtils.twoArgWindowFunc("lead", value, SQLs._nonNullLiteral(offset), _returnType(value, Expressions::identityType));
     }
 
     /**
@@ -306,8 +306,8 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * Both offset and default are evaluated with respect to the current row. If omitted, offset defaults to 1 and default to NULL.
      * </a>
      */
-    public static _OverSpec lead(Expression value, Expression offset, Expression defaultValue) {
-        return PostgreFunctionUtils.threeArgWindowFunc("lead", value, offset, defaultValue,
+    public static _OverSpec lead(Expression value, Object offset, Expression defaultValue) {
+        return PostgreFunctionUtils.threeArgWindowFunc("lead", value, SQLs._nonNullLiteral(offset), defaultValue,
                 _returnType(value, Expressions::identityType)
         );
     }
@@ -887,7 +887,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * @see #countAsterisk()
      */
     public static _AggWindowFunc countAsterisk() {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("count", SQLs._ASTERISK_EXP, LongType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("count", SQLs.ASTERISK, LongType.INSTANCE);
     }
 
     /**

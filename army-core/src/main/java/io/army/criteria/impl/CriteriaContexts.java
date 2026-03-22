@@ -804,8 +804,11 @@ abstract class CriteriaContexts {
                 throw ContextStack.clearStackAndNullPointer();
             }
             final _Cte cte;
+            final CriteriaContext left;
             if (this.withCteContext != null) {
                 cte = this.doRefCte(this, cteName);
+            } else if ((left = this.getLeftContext()) != null) {
+                cte = left.refCte(cteName);
             } else if (this.outerContext == null) {
                 throw unknownCte(cteName);
             } else {
@@ -906,9 +909,10 @@ abstract class CriteriaContexts {
             throw ContextStack.clearStackAndCriteriaError(m);
         }
 
+        @Nullable
         @Override
         public CriteriaContext getLeftContext() {
-            throw ContextStack.criteriaError(this, "current context don't support getLeftContext()");
+            return null;
         }
 
         @Override
@@ -1246,8 +1250,11 @@ abstract class CriteriaContexts {
             }
 
             final _Cte cte;
+            final CriteriaContext left;
             if (thisLevelCte != null) {
                 cte = thisLevelCte;
+            } else if ((left = getLeftContext()) != null) {
+                cte = left.refCte(cteName);
             } else if (this.outerContext == null) {
                 throw unknownCte(cteName);
             } else {
