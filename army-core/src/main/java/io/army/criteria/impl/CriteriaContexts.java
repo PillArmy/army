@@ -804,10 +804,15 @@ abstract class CriteriaContexts {
                 throw ContextStack.clearStackAndNullPointer();
             }
             final _Cte cte;
-            final CriteriaContext left;
+            CriteriaContext left;
             if (this.withCteContext != null) {
                 cte = this.doRefCte(this, cteName);
             } else if ((left = this.getLeftContext()) != null) {
+                CriteriaContext moreLeft = left;
+                while (moreLeft != null) {
+                    left = moreLeft;
+                    moreLeft = moreLeft.getLeftContext();
+                }
                 cte = left.refCte(cteName);
             } else if (this.outerContext == null) {
                 throw unknownCte(cteName);
@@ -1250,10 +1255,15 @@ abstract class CriteriaContexts {
             }
 
             final _Cte cte;
-            final CriteriaContext left;
+            CriteriaContext left;
             if (thisLevelCte != null) {
                 cte = thisLevelCte;
             } else if ((left = getLeftContext()) != null) {
+                CriteriaContext moreLeft = left;
+                while (moreLeft != null) {
+                    left = moreLeft;
+                    moreLeft = moreLeft.getLeftContext();
+                }
                 cte = left.refCte(cteName);
             } else if (this.outerContext == null) {
                 throw unknownCte(cteName);

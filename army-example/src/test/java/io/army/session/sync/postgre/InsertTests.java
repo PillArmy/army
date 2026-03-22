@@ -188,7 +188,7 @@ public class InsertTests extends SessionTestSupport {
         final int fetchSize = 5;
 
         final List<ChinaRegion<?>> regionList;
-        regionList = createReginListWithCount(fetchSize * 4 + 1);
+        regionList = createReginListWithCount(fetchSize * 100 + 1);
 
         final long startNanoSecond = System.nanoTime();
 
