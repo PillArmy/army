@@ -1524,7 +1524,12 @@ abstract class CriteriaContexts {
         @Override
         final void validateFieldFromSubContext(final QualifiedField<?> field) {
             if (isInWithClause()) {
-                throw unknownQualifiedField(field);
+                final StatementContext outer = this.outerContext;
+                if (outer == null) {
+                    throw unknownQualifiedField(field);
+                }
+                outer.validateFieldFromSubContext(field);
+                return;
             }
             final Map<String, _TabularBlock> aliasToBlock = this.aliasToBlock;
             final _TabularBlock block;
