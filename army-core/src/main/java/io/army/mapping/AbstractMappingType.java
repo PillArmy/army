@@ -129,6 +129,8 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                     type = IntegerType.INSTANCE;
                 } else if (targetType == Long.class || targetType == long.class) {
                     type = LongType.INSTANCE;
+                } else if (targetType == boolean.class || targetType == Boolean.class) {
+                    type = BooleanType.INSTANCE;
                 } else if (targetType == Short.class || targetType == short.class) {
                     type = ShortType.INSTANCE;
                 } else if (targetType == Byte.class || targetType == byte.class) {
