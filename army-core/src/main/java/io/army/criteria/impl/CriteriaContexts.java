@@ -1434,7 +1434,11 @@ abstract class CriteriaContexts {
                 }
                 qualifiedField = getOrCreateField(tableAlias, field);
             } else if (isInWithClause()) {
-                throw unknownQualifiedField(tableAlias, field);
+                final StatementContext outerContext = this.outerContext;
+                if (outerContext == null) {
+                    throw unknownQualifiedField(tableAlias, field);
+                }
+                qualifiedField = outerContext.field(tableAlias, field);
             } else if (this instanceof PrimaryContext) {
                 qualifiedField = null;
             } else {
@@ -1472,7 +1476,11 @@ abstract class CriteriaContexts {
             } else if (getDerived(derivedAlias) != null) { // here getDerived() trigger buffer derived table in current context
                 field = createDerivedField(derivedAlias, fieldName);
             } else if (isInWithClause()) {
-                throw unknownDerivedField(derivedAlias, fieldName);
+                final StatementContext outerContext = this.outerContext;
+                if (outerContext == null) {
+                    throw unknownDerivedField(derivedAlias, fieldName);
+                }
+                field = outerContext.refField(derivedAlias, fieldName);
             } else if ((noFromClause = this.aliasToBlock == null) && (this instanceof SimpleQueryContext
                     && ((SimpleQueryContext) this).deferCommandClause == null)) {
                 throw nonDeferCommandClause(this.dialect, "SELECT", derivedAlias, fieldName);
