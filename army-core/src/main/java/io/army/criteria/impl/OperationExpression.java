@@ -345,7 +345,7 @@ abstract class OperationExpression extends OperationSQLExpression
     }
 
     @Override
-    public Expression castTo(final @Nullable MappingType type) {
+    public Expression castTo(final @Nullable TypeMeta type) {
         if (type == null) {
             throw ContextStack.clearStackAndNullPointer();
         }

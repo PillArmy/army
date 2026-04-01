@@ -23,7 +23,6 @@ import io.army.dialect._SqlContext;
 import io.army.function.OptionalClauseOperator;
 import io.army.function.TeFunction;
 import io.army.lang.Nullable;
-import io.army.mapping.MappingType;
 import io.army.mapping.NullType;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TypeMeta;
@@ -388,7 +387,7 @@ abstract class NonOperationExpression implements ArmyExpression {
 
 
     @Override
-    public final Expression castTo(MappingType type) {
+    public final Expression castTo(TypeMeta type) {
         throw unsupportedOperation(this);
     }
 

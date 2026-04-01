@@ -113,7 +113,7 @@ abstract class Expressions {
         return new MappingExpression(expression, typeMeta);
     }
 
-    static OperationExpression castExpToType(OperationExpression expression, MappingType typeMeta) {
+    static OperationExpression castExpToType(OperationExpression expression, TypeMeta typeMeta) {
         return new CastTypeExpression(expression, typeMeta);
     }
 
@@ -1533,16 +1533,21 @@ abstract class Expressions {
     } // MappingExpression
 
 
-    private static class CastTypeExpression extends OperationExpression.OperationCompoundExpression {
+    private static class CastTypeExpression extends OperationExpression.OperationDefiniteExpression
+            implements SimpleExpression {
 
         private final ArmyExpression expression;
 
         private final MappingType castType;
 
 
-        private CastTypeExpression(OperationExpression expression, MappingType castType) {
+        private CastTypeExpression(OperationExpression expression, TypeMeta castType) {
             this.expression = expression;
-            this.castType = castType;
+            if (castType instanceof MappingType) {
+                this.castType = (MappingType) castType;
+            } else {
+                this.castType = castType.mappingType();
+            }
         }
 
         @Override
@@ -1556,7 +1561,16 @@ abstract class Expressions {
                 String m = String.format("server database %s don't support castTo() method.", context.serverDatabase());
                 throw new CriteriaException(m);
             }
-            this.expression.appendSql(sqlBuilder, context);
+            final ArmyExpression exp = this.expression;
+            final boolean outerParens = !(exp instanceof ArmySimpleExpression);// SimplrePrediate's sub class implements SimpleExpression
+
+            if (outerParens) {
+                sqlBuilder.append(_Constant.LEFT_PAREN);
+            }
+            exp.appendSql(sqlBuilder, context);
+            if (outerParens) {
+                sqlBuilder.append(_Constant.RIGHT_PAREN);
+            }
             sqlBuilder.append("::");
             context.parser().typeName(this.castType, sqlBuilder);
         }

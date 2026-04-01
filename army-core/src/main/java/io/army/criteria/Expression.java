@@ -20,7 +20,6 @@ import io.army.criteria.impl.SQLs;
 import io.army.function.OptionalClauseOperator;
 import io.army.function.TeFunction;
 import io.army.lang.Nullable;
-import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.TypeMeta;
 
@@ -219,7 +218,7 @@ public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpda
 
     //  TODO 解决子接口问题
     @Support({PostgreSQL})
-    Expression castTo(MappingType type);
+    Expression castTo(TypeMeta type);
 
 
     /**
