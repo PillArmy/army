@@ -455,7 +455,7 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
             micro = (costNano % 1000_000L) / 1000L;
             nano = costNano % 1000L;
 
-            builder.append("\n\nsql parsing cost ")
+            builder.append("\n\nsql parsing take ")
                     .append(millis)
                     .append(" millis ")
                     .append(micro)
@@ -502,7 +502,7 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
         this.factory.dialectParser.printStmt(stmt, logMode.beautify, builder::append);
 
 
-        builder.append("\n\nsql execution cost ")
+        builder.append("\n\nsql execution take ")
                 .append(millis)
                 .append(" millis ")
                 .append(micro)
