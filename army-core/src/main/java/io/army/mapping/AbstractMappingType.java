@@ -139,9 +139,9 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                     type = BigDecimalType.INSTANCE;
                 } else if (targetType == BigInteger.class) {
                     type = BigIntegerType.INSTANCE;
-                } else if (targetType == Float.class) {
+                } else if (targetType == Float.class || targetType == float.class) {
                     type = FloatType.INSTANCE;
-                } else if (targetType == Double.class) {
+                } else if (targetType == Double.class || targetType == double.class) {
                     type = DoubleType.INSTANCE;
                 } else if (targetType == YearMonth.class) {    // for example :  https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_period-add
                     switch (armyType) {
