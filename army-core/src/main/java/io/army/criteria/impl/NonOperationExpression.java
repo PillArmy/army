@@ -23,6 +23,9 @@ import io.army.dialect._SqlContext;
 import io.army.function.OptionalClauseOperator;
 import io.army.function.TeFunction;
 import io.army.lang.Nullable;
+import io.army.mapping.ArrayMappingType;
+import io.army.mapping.JsonMappingType;
+import io.army.mapping.MappingType;
 import io.army.mapping.NullType;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TypeMeta;
@@ -35,7 +38,7 @@ import java.util.function.Function;
  * This class representing non-operation expression.
  * This class is base class of following : <ul>
  * <li>{@link SQLs#DEFAULT}</li>
- * <li>{@link SQLs#_ASTERISK_EXP}</li>
+ * <li>{@link SQLs#ASTERISK}</li>
  * </ul>
  */
 abstract class NonOperationExpression implements ArmyExpression {
@@ -350,12 +353,12 @@ abstract class NonOperationExpression implements ArmyExpression {
     }
 
     @Override
-    public final <M extends SQLWords, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> funcRef, Expression right, M modifier, Expression optionalExp) {
+    public final <M extends SQLToken, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> funcRef, Expression right, M modifier, Expression optionalExp) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final <M extends SQLWords, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> funcRef, Expression right, M modifier, char escapeChar) {
+    public final <M extends SQLToken, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> funcRef, Expression right, M modifier, char escapeChar) {
         throw unsupportedOperation(this);
     }
 
@@ -365,31 +368,32 @@ abstract class NonOperationExpression implements ArmyExpression {
     }
 
     @Override
-    public final <M extends SQLWords, T extends RightOperand> CompoundPredicate whiteSpace(TeFunction<Expression, M, T, CompoundPredicate> funcRef, M modifier, T right) {
+    public final <M extends SQLToken, T extends RightOperand> CompoundPredicate whiteSpace(TeFunction<Expression, M, T, CompoundPredicate> funcRef, M modifier, T right) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final <M extends SQLWords> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> funcRef, Expression right, M modifier, Expression optionalExp) {
+    public final <M extends SQLToken> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> funcRef, Expression right, M modifier, Expression optionalExp) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final <M extends SQLWords> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> operator, Expression right, M modifier, char escapeChar) {
-        throw unsupportedOperation(this);
-    }
-
-
-    @Override
-    public final OperationExpression mapTo(TypeMeta typeMeta) {
+    public final <M extends SQLToken> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> operator, Expression right, M modifier, char escapeChar) {
         throw unsupportedOperation(this);
     }
 
 
     @Override
-    public final Expression castTo(TypeMeta type) {
+    public final TypedExpression mapTo(MappingType typeMeta) {
         throw unsupportedOperation(this);
     }
+
+
+    @Override
+    public final TypedExpression castTo(MappingType type) {
+        throw unsupportedOperation(this);
+    }
+
 
     @Override
     public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
@@ -512,6 +516,7 @@ abstract class NonOperationExpression implements ArmyExpression {
             return NullType.INSTANCE;
         }
 
+        @Nullable
         @Override
         public Object value() {
             //always null
@@ -540,11 +545,6 @@ abstract class NonOperationExpression implements ArmyExpression {
         private UpdateTimePlaceHolderExpression() {
         }
 
-
-        @Override
-        public TypeMeta typeMeta() {
-            throw new UnsupportedOperationException("updateTime placeholder don't support this operation");
-        }
 
         @Override
         public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {

@@ -34,7 +34,7 @@ import java.util.function.Supplier;
  * This interface name is 'IPredicate' not 'Predicate', because of {@link java.util.function.Predicate}.
  * * @since 0.6.0
  */
-public interface IPredicate extends Expression, Statement._WhereAndClause<IPredicate> {
+public interface IPredicate extends TypedExpression, Statement._WhereAndClause<IPredicate> {
 
     /**
      * @return always return {@link BooleanType#INSTANCE}
@@ -55,27 +55,27 @@ public interface IPredicate extends Expression, Statement._WhereAndClause<IPredi
 
     <E extends RightOperand> SimplePredicate or(Function<E, IPredicate> expOperator, Supplier<E> supplier);
 
-    <T> SimplePredicate or(ExpressionOperator<SimpleExpression, T, IPredicate> expOperator,
-                           BiFunction<SimpleExpression, T, Expression> operator, @Nullable T value);
+    <T> SimplePredicate or(ExpressionOperator<TypedExpression, T, IPredicate> expOperator,
+                           BiFunction<TypedExpression, T, Expression> operator, @Nullable T value);
 
-    <T> SimplePredicate or(ExpressionOperator<SimpleExpression, T, IPredicate> expOperator, SQLs.SymbolSpace space,
-                           BiFunction<SimpleExpression, T, Expression> valueOperator, Supplier<T> supplier);
+    <T> SimplePredicate or(ExpressionOperator<TypedExpression, T, IPredicate> expOperator, SQLs.SymbolSpace space,
+                           BiFunction<TypedExpression, T, Expression> valueOperator, Supplier<T> supplier);
 
     SimplePredicate or(InOperator inOperator, SQLs.SymbolSpace space,
-                       BiFunction<SimpleExpression, Collection<?>, RowExpression> funcRef, Collection<?> value);
+                       BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Collection<?> value);
 
-    SimplePredicate or(BiFunction<TeNamedOperator<SqlField>, Integer, IPredicate> expOperator,
-                       TeNamedOperator<SqlField> namedOperator, int size);
+    SimplePredicate or(BiFunction<TeNamedParamsFunc<TypedField>, Integer, IPredicate> expOperator,
+                       TeNamedParamsFunc<TypedField> namedOperator, int size);
 
-    <T> SimplePredicate or(BetweenValueOperator<T> expOperator, BiFunction<SimpleExpression, T, Expression> operator,
+    <T> SimplePredicate or(BetweenValueOperator<T> expOperator, BiFunction<TypedExpression, T, Expression> operator,
                            T firstValue, SQLs.WordAnd and, T secondValue);
 
-    <T, U> SimplePredicate or(BetweenDualOperator<T, U> expOperator, BiFunction<SimpleExpression, T, Expression> firstFunc,
-                              T firstValue, SQLs.WordAnd and, BiFunction<SimpleExpression, U, Expression> secondFunc, U secondValue);
+    <T, U> SimplePredicate or(BetweenDualOperator<T, U> expOperator, BiFunction<TypedExpression, T, Expression> firstFunc,
+                              T firstValue, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFunc, U secondValue);
 
     SimplePredicate or(BetweenOperator expOperator, Expression first, SQLs.WordAnd and, Expression second);
 
-    SimplePredicate or(InNamedOperator expOperator, TeNamedOperator<SimpleExpression> namedOperator, String paramName, int size);
+    SimplePredicate or(InNamedOperator expOperator, TeNamedParamsFunc<TypedField> namedOperator, String paramName, int size);
 
     SimplePredicate or(Consumer<Consumer<IPredicate>> consumer);
 
@@ -83,31 +83,31 @@ public interface IPredicate extends Expression, Statement._WhereAndClause<IPredi
 
     <T> IPredicate ifOr(Function<T, IPredicate> expOperator, Supplier<T> supplier);
 
-    <T> IPredicate ifOr(ExpressionOperator<SimpleExpression, T, IPredicate> expOperator,
-                        BiFunction<SimpleExpression, T, Expression> operator, Supplier<T> getter);
+    <T> IPredicate ifOr(ExpressionOperator<TypedExpression, T, IPredicate> expOperator,
+                        BiFunction<TypedExpression, T, Expression> operator, Supplier<T> getter);
 
     IPredicate ifOr(InOperator inOperator, SQLs.SymbolSpace space,
-                    BiFunction<SimpleExpression, Collection<?>, RowExpression> funcRef, Supplier<Collection<?>> suppler);
+                    BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Supplier<Collection<?>> suppler);
 
     <K, V> IPredicate ifOr(InOperator inOperator, SQLs.SymbolSpace space,
-                           BiFunction<SimpleExpression, Collection<?>, RowExpression> funcRef, Function<K, V> function, K key);
+                           BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Function<K, V> function, K key);
 
-    IPredicate ifOr(BiFunction<TeNamedOperator<SqlField>, Integer, IPredicate> expOperator,
-                    TeNamedOperator<SqlField> namedOperator, Supplier<Integer> supplier);
-
-
-    <K, V> IPredicate ifOr(ExpressionOperator<SimpleExpression, V, IPredicate> expOperator,
-                           BiFunction<SimpleExpression, V, Expression> operator, Function<K, V> function, K keyName);
+    IPredicate ifOr(BiFunction<TeNamedParamsFunc<TypedField>, Integer, IPredicate> expOperator,
+                    TeNamedParamsFunc<TypedField> namedOperator, Supplier<Integer> supplier);
 
 
-    <T> IPredicate ifOr(BetweenValueOperator<T> expOperator, BiFunction<SimpleExpression, T, Expression> operator,
+    <K, V> IPredicate ifOr(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
+                           BiFunction<TypedExpression, V, Expression> operator, Function<K, V> function, K keyName);
+
+
+    <T> IPredicate ifOr(BetweenValueOperator<T> expOperator, BiFunction<TypedExpression, T, Expression> operator,
                         Supplier<T> firstGetter, SQLs.WordAnd and, Supplier<T> secondGetter);
 
-    <T, U> IPredicate ifOr(BetweenDualOperator<T, U> expOperator, BiFunction<SimpleExpression, T, Expression> firstFunc,
+    <T, U> IPredicate ifOr(BetweenDualOperator<T, U> expOperator, BiFunction<TypedExpression, T, Expression> firstFunc,
                            Supplier<T> firstGetter, SQLs.WordAnd and,
-                           BiFunction<SimpleExpression, U, Expression> secondFunc, Supplier<U> secondGetter);
+                           BiFunction<TypedExpression, U, Expression> secondFunc, Supplier<U> secondGetter);
 
-    IPredicate ifOr(InNamedOperator expOperator, TeNamedOperator<SimpleExpression> namedOperator, String paramName,
+    IPredicate ifOr(InNamedOperator expOperator, TeNamedParamsFunc<TypedField> namedOperator, String paramName,
                     Supplier<Integer> supplier);
 
     IPredicate ifOr(Consumer<Consumer<IPredicate>> consumer);

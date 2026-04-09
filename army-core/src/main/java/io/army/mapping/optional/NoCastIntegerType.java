@@ -25,6 +25,7 @@ import io.army.mapping.array.IntegerArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
+@Deprecated
 public final class NoCastIntegerType extends _NumericType._IntegerType implements NoCastType {
 
     public static NoCastIntegerType from(final Class<?> fieldType) {

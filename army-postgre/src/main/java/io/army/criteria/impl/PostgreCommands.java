@@ -402,7 +402,7 @@ abstract class PostgreCommands {
             super(CriteriaContexts.otherPrimaryContext(PostgreUtils.DIALECT));
             // here don't need to push stack
             this.allOrName = SQLs.ALL;
-            this.selectionList = ArrayUtils.of(
+            this.selectionList = List.of(
                     ArmySelections.forName("name", StringType.INSTANCE),
                     ArmySelections.forName("setting", StringType.INSTANCE),
                     ArmySelections.forName("description", StringType.INSTANCE)

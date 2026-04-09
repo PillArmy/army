@@ -24,6 +24,7 @@ import io.army.mapping.array.TextArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
+@Deprecated
 public final class NoCastTextType extends _ArmyBuildInType implements MappingType.SqlTextType, NoCastType {
 
 

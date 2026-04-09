@@ -33,7 +33,7 @@ import io.army.util._StringUtils;
  *
  * @since 0.6.0
  */
-final class PostgreDoubleColonCastExpression extends OperationExpression.OperationDefiniteExpression
+final class PostgreDoubleColonCastExpression extends OperationExpression.OperationTypedExpression
         implements LiteralExpression {
 
 

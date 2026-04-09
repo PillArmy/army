@@ -16,10 +16,10 @@
 
 package io.army.criteria.impl;
 
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 import io.army.util._StringUtils;
 
-public enum _UnionType implements SQLWords {
+public enum _UnionType implements SQLToken {
 
     UNION(" UNION"),
     UNION_ALL(" UNION ALL"),

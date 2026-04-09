@@ -593,9 +593,9 @@ final class MySQLDialectParser extends MySQLParser {
         }
     }
 
-    private void selectModifiers(List<? extends SQLWords> modifierList, StringBuilder builder) {
+    private void selectModifiers(List<? extends SQLToken> modifierList, StringBuilder builder) {
         MySQLs.Modifier modifier;
-        for (SQLWords words : modifierList) {
+        for (SQLToken words : modifierList) {
             modifier = (MySQLs.Modifier) words;
             if (modifier == MySQLs.ALL
                     || modifier == MySQLs.DISTINCT
@@ -690,7 +690,7 @@ final class MySQLDialectParser extends MySQLParser {
         String alias, cteName;
         _JoinType joinType;
         List<_Predicate> predicateList;
-        SQLWords modifier;
+        SQLToken modifier;
         for (int i = 0; i < blockSize; i++) {
             block = blockList.get(i);
             joinType = block.jointType();
@@ -902,7 +902,7 @@ final class MySQLDialectParser extends MySQLParser {
         if (indexHintList.size() == 0) {
             return;
         }
-        SQLWords purpose;
+        SQLToken purpose;
         List<String> indexNameList;
         int indexSize, hintIndex = 0;
         for (_IndexHint indexHint : indexHintList) {
@@ -945,7 +945,7 @@ final class MySQLDialectParser extends MySQLParser {
         }
         final List<String> ofList;
         ofList = block.lockTableAliasList();
-        final SQLWords lockOption;
+        final SQLToken lockOption;
         lockOption = block.lockWaitOption();
         sqlBuilder.append(lockModeText); //append lock mode
 
@@ -1098,7 +1098,7 @@ final class MySQLDialectParser extends MySQLParser {
         loadDataInfileClause(loadData.fileName(), sqlBuilder);
 
         //4. REPLACE / IGNORE
-        final SQLWords strategyOption;
+        final SQLToken strategyOption;
         strategyOption = loadData.strategyOption();
         if (strategyOption != null) {
             sqlBuilder.append(strategyOption.spaceRender());
@@ -1132,7 +1132,7 @@ final class MySQLDialectParser extends MySQLParser {
         if ((ignoreRows = loadData.ignoreRows()) != null) {
             sqlBuilder.append(" IGNORE ")
                     .append(ignoreRows);
-            final SQLWords word = loadData.ignoreRowWord();
+            final SQLToken word = loadData.ignoreRowWord();
             if (word != SQLs.LINES && word != SQLs.ROWS) {
                 String m = String.format("MySQL LOAD DATA statement IGNORE number ROWS|LINES clause don't support %s key word.", word);
                 throw new CriteriaException(m);
@@ -1318,7 +1318,7 @@ final class MySQLDialectParser extends MySQLParser {
                 , this.dialect, SPACE_WITH_ROLLUP));
     }
 
-    private CriteriaException dontSupportLockWord(SQLWords lockOption) {
+    private CriteriaException dontSupportLockWord(SQLToken lockOption) {
         return new CriteriaException(String.format("%s don't support %s clause"
                 , this.dialect, lockOption.spaceRender()));
     }

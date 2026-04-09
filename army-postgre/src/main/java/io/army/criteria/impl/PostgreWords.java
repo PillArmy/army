@@ -328,7 +328,7 @@ abstract class PostgreWords {
             this.spaceLiteral = spaceLiteral;
         }
 
-        @Override
+        //@Override
         public TypeMeta typeMeta() {
             return StringType.INSTANCE;
         }

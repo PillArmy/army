@@ -53,43 +53,41 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
     }
 
 
-    static MySQLWindowFunctions._OverSpec zeroArgWindowFunc(String name, TypeMeta returnType) {
-        return new NoArgWindowFunction(name, returnType);
+    static MySQLWindowFunctions._OverSpec zeroArgWindowFunc(String name) {
+        return new NoArgWindowFunction(name);
     }
 
-    static MySQLWindowFunctions._OverSpec oneArgWindowFunc(String name, Expression arg, TypeMeta returnType) {
-        return new OneArgWindowFunction(name, arg, returnType);
+    static MySQLWindowFunctions._OverSpec oneArgWindowFunc(String name, Expression arg) {
+        return new OneArgWindowFunction(name, arg);
     }
 
     static MySQLWindowFunctions._OverSpec twoArgWindowFunc(
-            String name, Expression one, Expression two, TypeMeta returnType) {
-        return new MultiArgWindowFunction0(name, null, twoExpList(name, one, two), returnType);
+            String name, Expression one, Expression two) {
+        return new MultiArgWindowFunction(name, twoExpList(name, one, two));
     }
 
-    static MySQLWindowFunctions._OverSpec threeArgWindow(String name, Expression one, Expression two, Expression three,
-                                                         TypeMeta returnType) {
-        return new MultiArgWindowFunction0(name, null, threeExpList(name, one, two, three), returnType);
+    static MySQLWindowFunctions._OverSpec threeArgWindow(String name, Expression one, Expression two, Expression three) {
+        return new MultiArgWindowFunction(name, threeExpList(name, one, two, three));
     }
 
 
     static MySQLWindowFunctions._FromFirstLastOverSpec twoArgFromFirstWindowFunc(String name, Expression one,
-                                                                                 Expression two, TypeMeta returnType) {
-        return new FromFirstLastMultiArgWindowFunc(name, twoExpList(name, one, two), returnType);
+                                                                                 Expression two) {
+        return new FromFirstLastMultiArgWindowFunc(name, twoExpList(name, one, two));
     }
 
 
-    static MySQLWindowFunctions._ItemAggregateWindowFunc oneArgAggregate(String name, Object arg,
-                                                                         TypeMeta returnType) {
-        return new OneArgAggregateWindowFunc(name, arg, returnType);
+    static MySQLWindowFunctions._ItemAggregateWindowFunc oneArgAggregate(String name, Object arg) {
+        return new OneArgAggregateWindowFunc(name, arg);
     }
 
-    static MySQLWindowFunctions._AggregateWindowFunc compositeAggWindowFunc(String name, List<?> argList, TypeMeta returnType) {
-        return new AggregateCompositeWindowFunc(name, argList, returnType);
+    static MySQLWindowFunctions._AggregateWindowFunc compositeAggWindowFunc(String name, List<?> argList) {
+        return new AggregateCompositeWindowFunc(name, argList);
     }
 
     static MySQLWindowFunctions._ItemAggregateWindowFunc multiArgAggregateWindowFunc(
-            String name, List<Expression> argList, TypeMeta returnType) {
-        return new MultiArgAggregateWindowFunc(name, argList, returnType);
+            String name, List<Expression> argList) {
+        return new MultiArgAggregateWindowFunc(name, argList);
     }
 
 
@@ -119,7 +117,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
             argList.add(SQLs.USING);
             argList.add(SQLs.identifier(charName));
         }
-        return LiteralFunctions.compositeFunc("CHAR", argList, StringType.INSTANCE);
+        return LiteralFunctions.compositeFunc("CHAR", argList);
     }
 
 
@@ -149,13 +147,13 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
     static SimpleExpression statementDigest(final PrimaryStatement statement, final Visible visible, final boolean literal) {
         final String name = "STATEMENT_DIGEST";
         assertPrimaryStatement(statement, name);
-        return new StatementDigestFunc(name, statement, visible, literal, StringType.INSTANCE);
+        return new StatementDigestFunc(name, statement, visible, literal);
     }
 
     static SimpleExpression statementDigestText(final PrimaryStatement statement, final Visible visible, final boolean literal) {
         final String name = "STATEMENT_DIGEST_TEXT";
         assertPrimaryStatement(statement, name);
-        return new StatementDigestFunc(name, statement, visible, literal, StringType.INSTANCE);
+        return new StatementDigestFunc(name, statement, visible, literal);
     }
 
 
@@ -194,8 +192,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
             implements MySQLWindowFunctions._OverSpec, MySQLFunction {
 
 
-        private MySQLWindowFunction(String name, TypeMeta returnType) {
-            super(name, returnType);
+        private MySQLWindowFunction(String name) {
+            super(name);
         }
 
 
@@ -216,8 +214,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
     private static class NoArgWindowFunction extends MySQLWindowFunction implements FunctionUtils.NoArgFunction {
 
-        private NoArgWindowFunction(String name, TypeMeta returnType) {
-            super(name, returnType);
+        private NoArgWindowFunction(String name) {
+            super(name);
         }
 
         @Override
@@ -237,8 +235,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
         private final Object argument;
 
-        private OneArgWindowFunction(String name, Object argument, TypeMeta returnType) {
-            super(name, returnType);
+        private OneArgWindowFunction(String name, Object argument) {
+            super(name);
             this.argument = argument;
         }
 
@@ -258,21 +256,20 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
     private static class OneOptionArgWindowFunction extends MySQLWindowFunction {
 
-        private final SQLWords option;
+        private final SQLToken option;
 
         private final ArmyExpression argument;
 
 
-        private OneOptionArgWindowFunction(String name, @Nullable SQLWords option, ArmyExpression argument,
-                                           TypeMeta returnType) {
-            super(name, returnType);
+        private OneOptionArgWindowFunction(String name, @Nullable SQLToken option, ArmyExpression argument) {
+            super(name);
             this.option = option;
             this.argument = argument;
         }
 
         @Override
         final void appendArg(final StringBuilder sqlBuilder, final _SqlContext context) {
-            final SQLWords option = this.option;
+            final SQLToken option = this.option;
             if (option != null) {
                 sqlBuilder.append(option.spaceRender());
             }
@@ -281,7 +278,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
         @Override
         final void argToString(final StringBuilder builder) {
-            final SQLWords option = this.option;
+            final SQLToken option = this.option;
             if (option != null) {
                 builder.append(_Constant.SPACE)
                         .append(option.spaceRender());
@@ -296,13 +293,12 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
     @Deprecated
     private static class MultiArgWindowFunction0 extends MySQLWindowFunction {
 
-        private final SQLWords option;
+        private final SQLToken option;
 
         private final List<ArmyExpression> argList;
 
-        private MultiArgWindowFunction0(String name, @Nullable SQLWords option, List<ArmyExpression> argList,
-                                        TypeMeta returnType) {
-            super(name, returnType);
+        private MultiArgWindowFunction0(String name, @Nullable SQLToken option, List<ArmyExpression> argList) {
+            super(name);
             assert argList.size() > 0;
             this.option = option;
             this.argList = argList;
@@ -326,8 +322,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
         private final List<? extends Expression> argList;
 
-        private MultiArgWindowFunction(String name, List<? extends Expression> argList, TypeMeta returnType) {
-            super(name, returnType);
+        private MultiArgWindowFunction(String name, List<? extends Expression> argList) {
+            super(name);
             this.argList = argList;
         }
 
@@ -353,10 +349,10 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
         private NullTreatment nullTreatment;
 
         /**
-         * @see #twoArgFromFirstWindowFunc(String, Expression, Expression, TypeMeta)
+         * @see #twoArgFromFirstWindowFunc(String, Expression, Expression)
          */
-        public FromFirstLastMultiArgWindowFunc(String name, List<ArmyExpression> argList, TypeMeta returnType) {
-            super(name, null, argList, returnType);
+        public FromFirstLastMultiArgWindowFunc(String name, List<ArmyExpression> argList) {
+            super(name, null, argList);
         }
 
         @Override
@@ -442,8 +438,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
     private static final class OneArgAggregateWindowFunc extends OneArgWindowFunction
             implements MySQLWindowFunctions._ItemAggregateWindowFunc {
 
-        private OneArgAggregateWindowFunc(String name, Object argument, TypeMeta returnType) {
-            super(name, argument, returnType);
+        private OneArgAggregateWindowFunc(String name, Object argument) {
+            super(name, argument);
         }
 
 
@@ -453,9 +449,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
     private static final class OneArgOptionAggregateWindowFunc extends OneOptionArgWindowFunction
             implements MySQLWindowFunctions._ItemAggregateWindowFunc {
 
-        private OneArgOptionAggregateWindowFunc(String name, @Nullable SQLWords option, ArmyExpression argument,
-                                                TypeMeta returnType) {
-            super(name, option, argument, returnType);
+        private OneArgOptionAggregateWindowFunc(String name, @Nullable SQLToken option, ArmyExpression argument) {
+            super(name, option, argument);
         }
 
 
@@ -466,9 +461,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
     private static final class MultiArgAggregateWindowFunc0 extends MultiArgWindowFunction0
             implements MySQLWindowFunctions._ItemAggregateWindowFunc {
 
-        private MultiArgAggregateWindowFunc0(String name, @Nullable SQLWords option, List<ArmyExpression> argList,
-                                             TypeMeta returnType) {
-            super(name, option, argList, returnType);
+        private MultiArgAggregateWindowFunc0(String name, @Nullable SQLToken option, List<ArmyExpression> argList) {
+            super(name, option, argList);
         }
 
     }//MultiArgAggregateWindowFunc
@@ -477,8 +471,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
     private static final class MultiArgAggregateWindowFunc extends MultiArgWindowFunction
             implements MySQLWindowFunctions._ItemAggregateWindowFunc {
 
-        private MultiArgAggregateWindowFunc(String name, List<? extends Expression> argList, TypeMeta returnType) {
-            super(name, argList, returnType);
+        private MultiArgAggregateWindowFunc(String name, List<? extends Expression> argList) {
+            super(name, argList);
         }
 
 
@@ -489,8 +483,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
         private final List<?> argList;
 
-        private CompositeWindowFunc(String name, List<?> argList, TypeMeta returnType) {
-            super(name, returnType);
+        private CompositeWindowFunc(String name, List<?> argList) {
+            super(name);
             this.argList = argList;
         }
 
@@ -512,8 +506,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
             implements MySQLWindowFunctions._AggregateWindowFunc {
 
 
-        private AggregateCompositeWindowFunc(String name, List<?> argList, TypeMeta returnType) {
-            super(name, argList, returnType);
+        private AggregateCompositeWindowFunc(String name, List<?> argList) {
+            super(name, argList);
         }
 
 
@@ -602,8 +596,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
 
         private StatementDigestFunc(String name, final PrimaryStatement statement, final Visible visible,
-                                    final boolean literal, TypeMeta returnType) {
-            super(name, returnType);
+                                    final boolean literal) {
+            super(name);
             this.statement = statement;
             this.visible = visible;
             this.literal = literal;
@@ -1145,7 +1139,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
          * @see #jsonValueFunc(Object, Object, Consumer)
          */
         private JsonValueFunc(Object jsonDoc, Object path, JsonValueOptionClause clause) {
-            super("JSON_VALUE", clause.obtainType());
+            super("JSON_VALUE");
             this.jsonDoc = jsonDoc;
             this.path = path;
             this.optionClause = clause;

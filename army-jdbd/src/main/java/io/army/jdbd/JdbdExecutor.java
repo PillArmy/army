@@ -19,6 +19,7 @@ package io.army.jdbd;
 import io.army.ArmyException;
 import io.army.criteria.SQLParam;
 import io.army.criteria.Selection;
+import io.army.criteria.TypedSelection;
 import io.army.env.SqlLogMode;
 import io.army.executor.*;
 import io.army.lang.Nullable;
@@ -77,8 +78,8 @@ import java.util.function.Supplier;
  * <p>This class is a abstract implementation of {@link ReactiveExecutor} with jdbd spi.
  * <p>This class is base class of following jdbd executor:
  * <ul>
- *     <li>{@link MySQLStmtExecutor}</li>
- *     <li>{@link PostgreStmtExecutor}</li>
+ *     <li>{@link MySQLExecutor}</li>
+ *     <li>{@link PostgreExecutor}</li>
  * </ul>
  * <p>Following is chinese signature:<br/>
  * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
@@ -622,7 +623,7 @@ abstract class JdbdExecutor extends JdbdExecutorSupport
     abstract Logger getLogger();
 
 
-    abstract DataType getDataType(ResultRowMeta meta, int indexBasedZero);
+    abstract DataType dataTypeMap(ResultRowMeta meta, MappingType[] typeArray, int indexBasedZero);
 
     @Nullable
     abstract Object get(DataRow row, int indexBasedZero, MappingType type, DataType dataType);
@@ -824,17 +825,13 @@ abstract class JdbdExecutor extends JdbdExecutorSupport
         final Object value;
         if (nullable == null || nullable instanceof byte[] || nullable instanceof String) {
             value = nullable;
-        } else if (nullable instanceof Blob) {
-            final Blob blob = (Blob) nullable;
+        } else if (nullable instanceof Blob blob) {
             value = io.jdbd.type.Blob.from(blob.value());
-        } else if (nullable instanceof Clob) {
-            final Clob clob = (Clob) nullable;
+        } else if (nullable instanceof Clob clob) {
             value = io.jdbd.type.Clob.from(clob.value());
-        } else if (nullable instanceof io.army.type.BlobPath) {
-            final io.army.type.BlobPath path = (io.army.type.BlobPath) nullable;
+        } else if (nullable instanceof BlobPath path) {
             value = io.jdbd.type.BlobPath.from(path.isDeleteOnClose(), path.value());
-        } else if (nullable instanceof io.army.type.TextPath) {
-            final io.army.type.TextPath armyPath = (io.army.type.TextPath) nullable;
+        } else if (nullable instanceof TextPath armyPath) {
             value = io.jdbd.type.TextPath.from(armyPath.isDeleteOnClose(), armyPath.charset(), armyPath.value());
         } else {
             throw beforeBindMethodError(type, dataType, nullable);
@@ -1510,14 +1507,16 @@ abstract class JdbdExecutor extends JdbdExecutorSupport
             final MappingType[] originalTypeArray = this.originalTypeArray;
             final JdbdExecutor executor = this.executor;
             TypeMeta typeMeta;
+            Selection selection;
             for (int i = 0; i < columnLength; i++) {
 
-                dataTypeArray[i] = executor.getDataType(rowMeta, i);
+                dataTypeArray[i] = executor.dataTypeMap(rowMeta, originalTypeArray, i);
 
-                if (originalTypeArray[i] != null) {
+                selection = selectionList.get(i);
+                if (!(selection instanceof TypedSelection)) {
                     continue;
                 }
-                typeMeta = selectionList.get(i).typeMeta();
+                typeMeta = ((TypedSelection) selection).typeMeta();
                 if (!(typeMeta instanceof MappingType)) {
                     typeMeta = typeMeta.mappingType();
                 }
@@ -1531,7 +1530,7 @@ abstract class JdbdExecutor extends JdbdExecutorSupport
                 metaDataTypeArray = new DataType[dataTypeArray.length];
                 System.arraycopy(dataTypeArray, 0, metaDataTypeArray, 0, dataTypeArray.length);
             }
-            return new JdbdStmtRecordMeta(rowMeta.resultNo(), metaDataTypeArray, selectionList, this.executor, rowMeta);
+            return new JdbdStmtRecordMeta(rowMeta.resultNo(), metaDataTypeArray, originalTypeArray, selectionList, this.executor, rowMeta);
         }
 
         private void acceptStates(final @Nullable io.jdbd.result.ResultStates jdbdStates) {

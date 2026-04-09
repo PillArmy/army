@@ -23,10 +23,9 @@ import io.army.criteria.impl.SQLs;
  * <ul>
  *     <li>{@link SqlField}</li>
  *     <li>single-value parameter/literal,for example {@link SQLs#param(TypeInfer, Object)}; see {@link ValueExpression}</li>
- *     <li>sql function,for example {@link SQLs#countAsterisk()}</li>
+ *     <li>sql function,for example {@link SQLs#count(Expression)}</li>
  *     <li>sql variable</li>
  * </ul>
- * <p>This interface is base interface of {@link DefiniteExpression}
  *
  * @since 0.6.0
  */

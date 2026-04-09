@@ -25,8 +25,6 @@ import io.army.dialect.DialectParser;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
-import io.army.mapping.IntegerType;
-import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TableMeta;
@@ -1369,6 +1367,7 @@ abstract class CriteriaContexts {
             return table;
         }
 
+        @Nullable
         @Override
         public final _SelectionMap getDerived(final @Nullable String derivedAlias) {
             if (derivedAlias == null) {
@@ -1841,6 +1840,8 @@ abstract class CriteriaContexts {
                         final DerivedField field;
                         if (selection instanceof FieldSelection) { // for codec field
                             field = new FieldSelectionField(derivedAlias, (FieldSelection) selection);
+                        } else if (selection instanceof TypedSelection) {
+                            field = new TypedSelectionField(derivedAlias, (TypedSelection) selection);
                         } else {
                             field = new ImmutableDerivedField(derivedAlias, selection);
                         }
@@ -4443,7 +4444,8 @@ abstract class CriteriaContexts {
     }//MultiStmtContext
 
 
-    static class ImmutableDerivedField extends OperationDataField implements DerivedField {
+    static final class ImmutableDerivedField extends OperationExpression.OperationSimpleExpression
+            implements DerivedField, _Selection, ArmySimpleExpression {
 
         private final String tableName;
 
@@ -4454,24 +4456,87 @@ abstract class CriteriaContexts {
             this.selection = selection;
         }
 
-        @Override
-        public final TypeMeta typeMeta() {
-            return this.selection.typeMeta();
-        }
 
+        @Nullable
         @Override
-        public final TableField tableField() {
+        public TableField tableField() {
             return ((_Selection) this.selection).tableField();
         }
 
+        @Nullable
         @Override
-        public final Expression underlyingExp() {
+        public Expression underlyingExp() {
             return ((_Selection) this.selection).underlyingExp();
         }
 
         @Override
-        public final String fieldName() {
+        public String fieldName() {
             return this.selection.label();
+        }
+
+        @Override
+        public String tableAlias() {
+            return this.tableName;
+        }
+
+        @Override
+        public String label() {
+            return this.selection.label();
+        }
+
+
+        @Override
+        public void appendSelectItem(final StringBuilder sqlBuilder, final _SqlContext context) {
+            final DialectParser parser = context.parser();
+
+            sqlBuilder.append(_Constant.SPACE);
+
+            parser.identifier(this.tableName, sqlBuilder)
+                    .append(_Constant.PERIOD);
+            parser.identifier(this.selection.label(), sqlBuilder);
+        }
+
+        @Override
+        public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
+            final DialectParser dialect = context.parser();
+
+            sqlBuilder.append(_Constant.SPACE);
+
+            dialect.identifier(this.tableName, sqlBuilder)
+                    .append(_Constant.PERIOD);
+            dialect.identifier(this.selection.label(), sqlBuilder);
+
+        }
+
+        @Override
+        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
+            // false
+            return false;
+        }
+
+        @Override
+        public String toString() {
+            return _StringUtils.builder()
+                    .append(_Constant.SPACE)
+                    .append(this.tableName)
+                    .append(_Constant.PERIOD)
+                    .append(this.selection.label())
+                    .toString();
+        }
+
+    } // ImmutableDerivedField
+
+
+    private static class TypedSelectionField extends OperationTypedField
+            implements TypedDerivedField {
+
+        private final String tableName;
+
+        private final TypedSelection selection;
+
+        private TypedSelectionField(String tableName, TypedSelection selection) {
+            this.tableName = tableName;
+            this.selection = selection;
         }
 
         @Override
@@ -4480,10 +4545,31 @@ abstract class CriteriaContexts {
         }
 
         @Override
+        public final String fieldName() {
+            return this.selection.label();
+        }
+
+        @Override
         public final String label() {
             return this.selection.label();
         }
 
+        @Override
+        public final TypeMeta typeMeta() {
+            return this.selection.typeMeta();
+        }
+
+        @Nullable
+        @Override
+        public final TableField tableField() {
+            return ((_Selection) this.selection).tableField();
+        }
+
+        @Nullable
+        @Override
+        public final Expression underlyingExp() {
+            return ((_Selection) this.selection).underlyingExp();
+        }
 
         @Override
         public final void appendSelectItem(final StringBuilder sqlBuilder, final _SqlContext context) {
@@ -4508,14 +4594,15 @@ abstract class CriteriaContexts {
 
         }
 
+
         @Override
         public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // false
+            // TODO check ?
             return false;
         }
 
         @Override
-        public final String toString() {
+        public String toString() {
             return _StringUtils.builder()
                     .append(_Constant.SPACE)
                     .append(this.tableName)
@@ -4524,7 +4611,7 @@ abstract class CriteriaContexts {
                     .toString();
         }
 
-    } // ImmutableDerivedField
+    } // TypedSelectionField
 
 
     /**
@@ -4533,7 +4620,7 @@ abstract class CriteriaContexts {
      *
      * @since 0.6.0
      */
-    private static final class FieldSelectionField extends ImmutableDerivedField implements FieldSelection {
+    private static final class FieldSelectionField extends TypedSelectionField implements FieldSelection {
 
         private FieldSelectionField(String tableName, FieldSelection selection) {
             super(tableName, selection);
@@ -4541,7 +4628,7 @@ abstract class CriteriaContexts {
 
         @Override
         public FieldMeta<?> fieldMeta() {
-            return ((FieldSelection) this.selection).fieldMeta();
+            return ((FieldSelection) ((TypedSelectionField) this).selection).fieldMeta();
         }
 
 
@@ -4567,10 +4654,6 @@ abstract class CriteriaContexts {
             this.selection = selection;
         }
 
-        @Override
-        public final MappingType typeMeta() {
-            return this.selection.typeMeta().mappingType();
-        }
 
         @Override
         public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
@@ -4614,11 +4697,6 @@ abstract class CriteriaContexts {
             this.selection = selection;
         }
 
-        @Override
-        public final MappingType typeMeta() {
-            // always return IntegerType.INSTANCE not this.targetSelection type.
-            return IntegerType.INSTANCE;
-        }
 
         @Override
         public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {

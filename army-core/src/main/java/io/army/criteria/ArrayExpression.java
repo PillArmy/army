@@ -16,13 +16,70 @@
 
 package io.army.criteria;
 
+import io.army.criteria.impl.SQLs;
+import io.army.mapping.MappingType;
+
+import java.util.function.BiFunction;
+
+import static io.army.dialect.Database.H2;
+import static io.army.dialect.Database.PostgreSQL;
+
 /**
  * <p>
  * This interface representing array {@link Expression}.
  *
+ * @see <a href="https://www.postgresql.org/docs/current/arrays.html">Arrays</a>
  * @since 0.6.0
  */
-public interface ArrayExpression extends SimpleExpression, Statement._ArrayExpOperator {
+@Deprecated
+public interface ArrayExpression extends SimpleExpression, TypedExpression {
+
+
+    @Support({H2, PostgreSQL})
+    SimpleExpression atElement(int index);
+
+    SimpleExpression atElement(int index1, int index2);
+
+    SimpleExpression atElement(int index1, int index2, int index3, int... restIndex);
+
+    SimpleExpression atElement(Expression index);
+
+    SimpleExpression atElement(Expression index1, Expression index2);
+
+    SimpleExpression atElement(Expression index1, Expression index2, Expression index3, Expression... restIndex);
+
+    @Support({H2, PostgreSQL})
+    ArrayExpression atArray(int index);
+
+    @Support({PostgreSQL})
+    ArrayExpression atArray(int index1, int index2);
+
+    @Support({PostgreSQL})
+    ArrayExpression atArray(int index1, int index2, int index3, int... restIndex);
+
+    @Support({PostgreSQL})
+    ArrayExpression atArray(ArraySubscript index);
+
+    @Support({PostgreSQL})
+    ArrayExpression atArray(ArraySubscript index1, ArraySubscript index2);
+
+    @Support({PostgreSQL})
+    ArrayExpression atArray(ArraySubscript index1, ArraySubscript index2, ArraySubscript index3, ArraySubscript... restIndex);
+
+    @Support({PostgreSQL})
+    <T> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef, T value);
+
+    @Support({PostgreSQL})
+    <T> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef, T value1, T value2);
+
+    @Support({PostgreSQL})
+    <T> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef, T value1, T value2, T value3);
+
+    @Support({PostgreSQL})
+    <T, U> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef1, T value1, BiFunction<MappingType, U, Expression> funcRef2, U value2);
+
+    @Support({PostgreSQL})
+    <T, U, V> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef1, T value1, BiFunction<MappingType, U, Expression> funcRef2, U value2, BiFunction<MappingType, V, Expression> funcRef3, V value3);
 
 
 }

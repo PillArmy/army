@@ -21,8 +21,8 @@ import io.army.criteria.impl.inner._DerivedTable;
 import io.army.dialect.*;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
-import io.army.mapping.array.TextArrayType;
 import io.army.mapping.optional.JsonPathType;
+import io.army.mapping.optional.NoCastIntegerType;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TypeMeta;
 import io.army.util.ArrayUtils;
@@ -30,12 +30,9 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.function.BinaryOperator;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
 
 /**
  * <p>
@@ -48,35 +45,16 @@ import java.util.function.UnaryOperator;
  */
 abstract class Expressions {
 
-    Expressions() {
-        throw new UnsupportedOperationException();
+    private Expressions() {
     }
 
     static CompoundExpression dualExp(final Expression left, final DualExpOperator operator, final Expression right) {
-        final BinaryOperator<MappingType> inferFunc;
-        switch (operator) {
-            case PLUS:
-            case MINUS:
-                inferFunc = Expressions::plusMinusType;
-                break;
-            case TIMES:
-            case DIVIDE:
-                inferFunc = Expressions::timesDivideType;
-                break;
-            case MOD:
-                inferFunc = Expressions::modeType;
-                break;
-            case BITWISE_AND:
-            case BITWISE_OR:
-            case BITWISE_XOR:
-            case RIGHT_SHIFT:
-            case LEFT_SHIFT:
-                inferFunc = Expressions::bitwiseType;
-                break;
-            default:
-                throw _Exceptions.unexpectedEnum(operator);
+        if (!(left instanceof OperationExpression)) {
+            throw NonOperationExpression.nonOperationExpression(left);
+        } else if (!(right instanceof OperationExpression)) {
+            throw NonOperationExpression.nonOperationExpression(right);
         }
-        return dialectDualExp(left, operator, right, inferFunc);
+        return new DualExpression(left, operator, right);
     }
 
     static SimpleResultExpression collateExp(final Expression exp, final @Nullable String collation) {
@@ -90,35 +68,43 @@ abstract class Expressions {
         return new CollateExpression(exp, collation);
     }
 
-    static CompoundExpression dialectDualExp(final Expression left, final DualExpOperator operator,
-                                             final Expression right, final BinaryOperator<MappingType> inferFunc) {
-        if (!(left instanceof OperationExpression)) {
-            throw NonOperationExpression.nonOperationExpression(left);
-        } else if (!(right instanceof OperationExpression)) {
-            throw NonOperationExpression.nonOperationExpression(right);
-        }
-        return new DualExpression(left, operator, right, inferFunc);
-    }
-
 
     static SimpleExpression unaryExp(final UnaryExpOperator operator, final Expression operand) {
         if (!(operand instanceof OperationExpression)) {
             throw NonOperationExpression.nonOperationExpression(operand);
         }
-        return new StandardUnaryExpression(operator, operand, Expressions::identityType);
+        return new StandardUnaryExpression(operator, operand);
     }
 
 
-    static OperationExpression mapExpType(OperationExpression expression, TypeMeta typeMeta) {
-        return new MappingExpression(expression, typeMeta);
+    static OperationExpression.OperationTypedExpression mapExpType(OperationExpression expression, @Nullable MappingType type) {
+        if (type == null) {
+            throw ContextStack.clearStackAndNullPointer();
+        }
+        return new MappingExpression(expression, type);
     }
 
-    static OperationExpression castExpToType(OperationExpression expression, TypeMeta typeMeta) {
+    static TypedExpression castExpToType(OperationExpression expression, TypeMeta typeMeta) {
         return new CastTypeExpression(expression, typeMeta);
     }
 
-    static Expression scalarExpression(final SubQuery subQuery) {
-        return new ScalarExpression(validateScalarSubQuery(subQuery), subQuery);
+    static TypedArrayExpression castExpToArray(OperationExpression expression, @Nullable ArrayMappingType type) {
+        if (type == null) {
+            throw ContextStack.clearStackAndNullPointer();
+        }
+        return new CastArrayTypeExpression(expression, type);
+    }
+
+    static JsonExpression castExpToJson(OperationExpression expression, @Nullable JsonMappingType type) {
+        if (type == null) {
+            throw ContextStack.clearStackAndNullPointer();
+        }
+        return new CastJsonTypeExpression(expression, type);
+    }
+
+    static SimpleExpression scalarExpression(final SubQuery subQuery) {
+        validateScalarSubQuery(subQuery);
+        return new ScalarExpression(subQuery);
     }
 
     static OperationPredicate existsPredicate(final boolean not, final @Nullable SubQuery operand) {
@@ -375,68 +361,25 @@ abstract class Expressions {
     }
 
 
+    @Deprecated
     static TypeMeta nonNullFirstArrayType(final List<Object> elementList) {
-        assert elementList.size() > 0;
-        TypeMeta type = null;
-        for (Object element : elementList) {
-            if (element == null || element == SQLs.NULL) {
-                continue;
-            }
-            if (!(element instanceof Expression)) {
-                type = _MappingFactory.getDefaultIfMatch(element.getClass());
-                if (type == null) {
-                    throw CriteriaUtils.clearStackAndNonDefaultType(element);
-                }
-            } else {
-                type = ((Expression) element).typeMeta();
-            }
-            break;
-        }
+        throw new UnsupportedOperationException();
+    }
 
-        if (type == null) {
-            type = TextArrayType.LINEAR;
-        } else if (type instanceof MappingType) {
-            type = ((MappingType) type).arrayTypeOfThis();
+
+    static ArrayExpression array(@Nullable List<?> elementList) {
+        if (elementList == null) {
+            throw ContextStack.clearStackAndNullPointer();
+        }
+        final List<?> list;
+        if (elementList.isEmpty()) {
+            list = List.of();
+        } else if (elementList.getClass().getName().startsWith("java.util.ImmutableCollections$")) {
+            list = elementList;
         } else {
-            type = type.mappingType().arrayTypeOfThis();
+            list = _Collections.unmodifiableList(elementList);
         }
-        return type;
-    }
-
-
-    static SQLs._ArrayConstructorSpec array() {
-        return new SimpleArrayConstructor(Collections.emptyList(), TextArrayType.LINEAR);
-    }
-
-
-    static SQLs._ArrayConstructorSpec array(final Function<List<Object>, TypeMeta> inferFunc,
-                                            List<Object> elementList) {
-        final TypeMeta type;
-        if (elementList.size() == 0) {
-            elementList = Collections.emptyList();
-            type = TextArrayType.LINEAR;
-        } else {
-            type = inferFunc.apply(elementList);
-        }
-        return new SimpleArrayConstructor(elementList, type);
-    }
-
-    static SQLs._ArrayConstructorSpec array(final Function<List<Object>, TypeMeta> inferFunc,
-                                            final Consumer<Consumer<Object>> consumer) {
-        List<Object> elementList = _Collections.arrayList();
-        consumer.accept(elementList::add);
-        final TypeMeta type;
-        if (elementList.size() == 0) {
-            elementList = Collections.emptyList();
-            type = TextArrayType.LINEAR;
-        } else {
-            type = inferFunc.apply(elementList);
-        }
-        return new SimpleArrayConstructor(elementList, type);
-    }
-
-    static SQLs._ArrayConstructorSpec array(final SubQuery subQuery) {
-        return new SubQueryArrayConstructor(subQuery, validateScalarSubQuery(subQuery));
+        return new SimpleArrayExpression(list);
     }
 
 
@@ -519,7 +462,7 @@ abstract class Expressions {
             list.add((ArmyGroupByItem) e);
         });
         final GroupByItem item;
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             if (modifier != null) {
                 throw CriteriaUtils.dontAddAnyItem();
             }
@@ -532,136 +475,6 @@ abstract class Expressions {
         return item;
     }
 
-
-    static MappingType identityType(MappingType type) {
-        return type;
-    }
-
-
-    static MappingType doubleType(MappingType type) {
-        return DoubleType.INSTANCE;
-    }
-
-    static MappingType divideType(final MappingType left, final MappingType right) {
-        final MappingType type;
-        if (left instanceof MappingType.SqlDecimalType || right instanceof MappingType.SqlDecimalType) {
-            type = BigDecimalType.INSTANCE;
-        } else {
-            type = DoubleType.INSTANCE;
-        }
-        return type;
-    }
-
-    static MappingType plusMinusType(final MappingType left, final MappingType right) {
-        final MappingType returnType;
-        if (!(left instanceof MappingType.SqlNumberOrStringType) && right instanceof MappingType.SqlNumberType) {
-            returnType = left;
-        } else if (!(right instanceof MappingType.SqlNumberOrStringType) && left instanceof MappingType.SqlNumberType) {
-            returnType = right;
-        } else if (!(left instanceof MappingType.SqlNumberOrStringType && right instanceof MappingType.SqlNumberOrStringType)) {
-            if (left.isSameType(right)) {
-                returnType = left;
-            } else {
-                returnType = TextType.INSTANCE;
-            }
-        } else if (left instanceof MappingType.SqlFloatType || right instanceof MappingType.SqlFloatType) {
-            returnType = DoubleType.INSTANCE;
-        } else if (left instanceof MappingType.SqlDecimalType || right instanceof MappingType.SqlDecimalType) {
-            returnType = BigDecimalType.INSTANCE;
-        } else if (left instanceof MappingType.SqlIntegerType && right instanceof MappingType.SqlIntegerType) {
-            final MappingType.LengthType leftLength, rightLength;
-            leftLength = ((MappingType.SqlIntegerType) left).lengthType();
-            rightLength = ((MappingType.SqlIntegerType) right).lengthType();
-
-            if (leftLength.compareWith(MappingType.LengthType.DEFAULT) < 0
-                    && rightLength.compareWith(MappingType.LengthType.DEFAULT) < 0) {   // TODO handle 无符号数
-                returnType = IntegerType.INSTANCE;
-            } else if (leftLength.compareWith(MappingType.LengthType.LONG) < 0
-                    && rightLength.compareWith(MappingType.LengthType.LONG) < 0) {
-                returnType = LongType.INSTANCE;
-            } else {
-                returnType = BigIntegerType.INSTANCE;
-            }
-        } else if (left.isSameType(right)) {
-            returnType = left;
-        } else {
-            returnType = TextType.INSTANCE;
-        }
-        return returnType;
-    }
-
-
-    static MappingType timesDivideType(final MappingType left, final MappingType right) {
-        final MappingType returnType;
-        if (!(left instanceof MappingType.SqlNumberOrStringType) && right instanceof MappingType.SqlNumberType) {
-            returnType = left;
-        } else if (!(right instanceof MappingType.SqlNumberOrStringType) && left instanceof MappingType.SqlNumberType) {
-            returnType = right;
-        } else if (!(left instanceof MappingType.SqlNumberOrStringType && right instanceof MappingType.SqlNumberOrStringType)) {
-            if (left.isSameType(right)) {
-                returnType = left;
-            } else {
-                returnType = TextType.INSTANCE;
-            }
-        } else if (left instanceof MappingType.SqlFloatType || right instanceof MappingType.SqlFloatType) {
-            returnType = DoubleType.INSTANCE;
-        } else if (left instanceof MappingType.SqlDecimalType || right instanceof MappingType.SqlDecimalType) {
-            returnType = BigDecimalType.INSTANCE;
-        } else if (left instanceof MappingType.SqlIntegerType && right instanceof MappingType.SqlIntegerType) {
-            returnType = BigDecimalType.INSTANCE;
-        } else if (left.isSameType(right)) {
-            returnType = left;
-        } else {
-            returnType = TextType.INSTANCE;
-        }
-        return returnType;
-    }
-
-
-    static MappingType modeType(final MappingType left, final MappingType right) {
-        final MappingType returnType;
-        if (!(left instanceof MappingType.SqlNumberOrStringType) && right instanceof MappingType.SqlNumberType) {
-            returnType = left;
-        } else if (!(right instanceof MappingType.SqlNumberOrStringType) && left instanceof MappingType.SqlNumberType) {
-            returnType = right;
-        } else if (!(left instanceof MappingType.SqlNumberOrStringType && right instanceof MappingType.SqlNumberOrStringType)) {
-            if (left.isSameType(right)) {
-                returnType = left;
-            } else {
-                returnType = TextType.INSTANCE;
-            }
-        } else if (left instanceof MappingType.SqlFloatType || right instanceof MappingType.SqlFloatType) {
-            returnType = DoubleType.INSTANCE;
-        } else if (left instanceof MappingType.SqlDecimalType || right instanceof MappingType.SqlDecimalType) {
-            returnType = BigDecimalType.INSTANCE;
-        } else if (left instanceof MappingType.SqlIntegerType && right instanceof MappingType.SqlIntegerType) {
-            returnType = left;
-        } else if (left.isSameType(right)) {
-            returnType = left;
-        } else {
-            returnType = TextType.INSTANCE;
-        }
-        return returnType;
-    }
-
-    static MappingType bitwiseType(final MappingType left, final MappingType right) {
-        final MappingType returnType;
-        if (left.getClass() == right.getClass()) {
-            returnType = left;
-        } else if (left instanceof MappingType.SqlBitType || right instanceof MappingType.SqlBitType) {
-            returnType = left instanceof MappingType.SqlBitType ? left : right;
-        } else if (!(left instanceof MappingType.SqlIntegerType || right instanceof MappingType.SqlIntegerType)) {
-            returnType = StringType.INSTANCE;
-        } else if (!(left instanceof MappingType.SqlIntegerType && right instanceof MappingType.SqlIntegerType)) {
-            returnType = LongType.INSTANCE;
-        } else if (((MappingType.SqlIntegerType) left).lengthType()
-                .compareWith(((MappingType.SqlIntegerType) right).lengthType()) >= 0) {
-            returnType = left;
-        } else {
-            returnType = right;
-        }
-        return returnType;
-    }
 
     static void validateSubQueryContext(final @Nullable SubQuery subQuery) {
         if (subQuery == null) {
@@ -683,22 +496,51 @@ abstract class Expressions {
     /*-------------------below private method-------------------*/
 
     /**
+     * @see CastTypeExpression
+     * @see CastArrayTypeExpression
+     * @see CastJsonTypeExpression
+     */
+    private static void appendTypeCastExp(ArmySQLExpression expression, StringBuilder sqlBuilder, _SqlContext context, MappingType type) {
+        final boolean outerParen = !(expression instanceof ArmySimpleSQLExpression);
+        if (outerParen) {
+            sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
+        }
+        expression.appendSql(sqlBuilder, context);
+        if (outerParen) {
+            sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
+        }
+        appendTypeCastSuffix(sqlBuilder, context, type);
+    }
+
+    /**
+     * @see #appendTypeCastExp(ArmySQLExpression, StringBuilder, _SqlContext, MappingType)
+     * @see SimpleArrayExpression
+     */
+    private static void appendTypeCastSuffix(StringBuilder sqlBuilder, _SqlContext context, MappingType type) {
+        switch (context.dialectDatabase()) {
+            case PostgreSQL: {
+                sqlBuilder.append(_Constant.DOUBLE_COLON);
+                context.parser().typeName(type, sqlBuilder);
+            }
+            break;
+            case MySQL:
+            case H2:
+            default: // TODO add other database
+                throw new CriteriaException(String.format("not support %s", context.dialectDatabase()));
+        }
+    }
+
+    /**
      * @see #scalarExpression(SubQuery)
      * @see #array(SubQuery)
      */
-    private static MappingType validateScalarSubQuery(final SubQuery subQuery) {
+    private static void validateScalarSubQuery(final SubQuery subQuery) {
         validateSubQueryContext(subQuery);
         final List<? extends Selection> selectionList;
         selectionList = ((_DerivedTable) subQuery).refAllSelection();
         if (selectionList.size() != 1) {
             throw ContextStack.clearStackAnd(_Exceptions::nonScalarSubQuery, subQuery);
         }
-        TypeMeta typeMeta;
-        typeMeta = selectionList.get(0).typeMeta();
-        if (!(typeMeta instanceof MappingType)) {
-            typeMeta = typeMeta.mappingType();
-        }
-        return (MappingType) typeMeta;
     }
 
 
@@ -750,39 +592,14 @@ abstract class Expressions {
 
         final ArmyExpression right;
 
-        final BinaryOperator<MappingType> inferFunc;
-
-
-        private MappingType type;
-
         /**
          * @see #dualExp(Expression, DualExpOperator, Expression)
-         * @see #dialectDualExp(Expression, DualExpOperator, Expression, BinaryOperator)
          */
-        private DualExpression(final Expression left, final DualExpOperator operator, final Expression right,
-                               final BinaryOperator<MappingType> inferFunc) {
+        private DualExpression(final Expression left, final DualExpOperator operator, final Expression right) {
             this.left = (ArmyExpression) left;
             this.operator = operator;
             this.right = (ArmyExpression) right;
-            this.inferFunc = inferFunc;
         }
-
-        @Override
-        public final MappingType typeMeta() {
-            MappingType type = this.type;
-            if (type == null) {
-                if (this.left instanceof DualExpression) {
-                    type = ((DualExpression) this.left).inferToLeft(this.operator, this.right.typeMeta().mappingType(),
-                            this.inferFunc);
-                } else {
-                    type = this.inferFunc.apply(this.left.typeMeta().mappingType(),
-                            this.right.typeMeta().mappingType());
-                }
-                this.type = type;
-            }
-            return type;
-        }
-
 
         @Override
         public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
@@ -879,33 +696,6 @@ abstract class Expressions {
         }
 
 
-        /**
-         * @see #typeMeta()
-         */
-        private MappingType inferToLeft(final DualExpOperator operator, final MappingType right,
-                                        final BinaryOperator<MappingType> rightFunc) {
-            final MappingType interim, resultType;
-            if (this.operator.precedenceValue - operator.precedenceValue < 0) {
-                interim = rightFunc.apply(this.right.typeMeta().mappingType(), right);
-                if (this.left instanceof DualExpression) {
-                    resultType = ((DualExpression) this.left).inferToLeft(this.operator, interim, this.inferFunc);
-                } else {
-                    resultType = this.inferFunc.apply(this.left.typeMeta().mappingType(), interim);
-                }
-            } else {
-                if (this.left instanceof DualExpression) {
-                    interim = ((DualExpression) this.left).inferToLeft(this.operator,
-                            this.right.typeMeta().mappingType(), this.inferFunc);
-                } else {
-                    interim = this.inferFunc.apply(this.left.typeMeta().mappingType(),
-                            this.right.typeMeta().mappingType());
-                }
-                resultType = rightFunc.apply(interim, right);
-            }
-            return resultType;
-        }
-
-
     }//DualExpression
 
 
@@ -922,39 +712,12 @@ abstract class Expressions {
 
         final ArmyExpression operand;
 
-        private final UnaryOperator<MappingType> inferFunc;
-
-        private MappingType type;
-
         /**
          * @see #unaryExp(UnaryExpOperator, Expression)
          */
-        UnaryExpression(Operator.SqlUnaryExpOperator operator, Expression operand,
-                        UnaryOperator<MappingType> inferFunc) {
+        UnaryExpression(Operator.SqlUnaryExpOperator operator, Expression operand) {
             this.operator = operator;
             this.operand = (ArmyExpression) operand;
-            this.inferFunc = inferFunc;
-        }
-
-        /**
-         * @return expression couldn't return {@link TableField},avoid to codec filed.
-         */
-        @Override
-        public final MappingType typeMeta() {
-            MappingType type = this.type;
-            if (type != null) {
-                return type;
-            }
-
-            final TypeMeta typeMeta;
-            if ((typeMeta = this.operand.typeMeta()) instanceof MappingType) {
-                type = (MappingType) typeMeta;
-            } else {
-                type = typeMeta.mappingType();
-            }
-            type = this.inferFunc.apply(type); // infer
-            this.type = type;
-            return type;
         }
 
 
@@ -1036,9 +799,8 @@ abstract class Expressions {
         /**
          * @see #unaryExp(UnaryExpOperator, Expression)
          */
-        private StandardUnaryExpression(UnaryExpOperator operator, Expression operand,
-                                        UnaryOperator<MappingType> inferFunc) {
-            super(operator, operand, inferFunc);
+        private StandardUnaryExpression(UnaryExpOperator operator, Expression operand) {
+            super(operator, operand);
         }
 
     }//StandardUnaryExpression
@@ -1048,20 +810,13 @@ abstract class Expressions {
 
         private final SubQuery subQuery;
 
-        private final TypeMeta type;
-
         /**
          * @see #scalarExpression(SubQuery)
          */
-        private ScalarExpression(TypeMeta expType, SubQuery subQuery) {
+        private ScalarExpression(SubQuery subQuery) {
             this.subQuery = subQuery;
-            this.type = expType;
         }
 
-        @Override
-        public TypeMeta typeMeta() {
-            return this.type;
-        }
 
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
@@ -1496,21 +1251,21 @@ abstract class Expressions {
     }//BetweenPredicate
 
 
-    private static class MappingExpression extends OperationExpression.OperationCompoundExpression {
+    private static class MappingExpression extends OperationExpression.OperationTypedExpression {
 
         private final ArmyExpression expression;
 
-        private final TypeMeta castType;
+        private final TypeMeta type;
 
 
-        private MappingExpression(OperationExpression expression, TypeMeta castType) {
+        private MappingExpression(OperationExpression expression, MappingType type) {
             this.expression = expression;
-            this.castType = castType;
+            this.type = type;
         }
 
         @Override
         public MappingType typeMeta() {
-            return this.castType.mappingType();
+            return this.type.mappingType();
         }
 
         @Override
@@ -1533,52 +1288,39 @@ abstract class Expressions {
     } // MappingExpression
 
 
-    private static class CastTypeExpression extends OperationExpression.OperationDefiniteExpression
-            implements SimpleExpression {
+    private static class CastTypeExpression extends OperationExpression.OperationTypedExpression
+            implements ArmySimpleExpression {
 
-        private final ArmyExpression expression;
+        private final ArmySQLExpression expression;
 
-        private final MappingType castType;
+        private final MappingType type;
 
 
-        private CastTypeExpression(OperationExpression expression, TypeMeta castType) {
+        private CastTypeExpression(ArmySQLExpression expression, TypeMeta type) {
             this.expression = expression;
-            if (castType instanceof MappingType) {
-                this.castType = (MappingType) castType;
+            if (type instanceof MappingType) {
+                this.type = (MappingType) type;
             } else {
-                this.castType = castType.mappingType();
+                this.type = type.mappingType();
             }
         }
 
+
         @Override
-        public MappingType typeMeta() {
-            return this.castType;
+        public TypeMeta typeMeta() {
+            return this.type;
         }
 
         @Override
         public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
-            if (context.serverDatabase() != Database.PostgreSQL) {
-                String m = String.format("server database %s don't support castTo() method.", context.serverDatabase());
-                throw new CriteriaException(m);
-            }
-            final ArmyExpression exp = this.expression;
-            final boolean outerParens = !(exp instanceof ArmySimpleExpression);// SimplrePrediate's sub class implements SimpleExpression
-
-            if (outerParens) {
-                sqlBuilder.append(_Constant.LEFT_PAREN);
-            }
-            exp.appendSql(sqlBuilder, context);
-            if (outerParens) {
-                sqlBuilder.append(_Constant.RIGHT_PAREN);
-            }
-            sqlBuilder.append("::");
-            context.parser().typeName(this.castType, sqlBuilder);
+            appendTypeCastExp(this.expression, sqlBuilder, context, this.type);
         }
 
 
         @Override
         public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            return this.expression.currentLevelContainFieldOf(table);
+            // TODO fix me ?
+            return false;
         }
 
         @Override
@@ -1588,6 +1330,63 @@ abstract class Expressions {
 
 
     } // CastTypeExpression
+
+
+    /**
+     * @see #castExpToArray(OperationExpression, ArrayMappingType)
+     */
+    private static final class CastArrayTypeExpression extends OperationArrayExpression
+            implements TypedArrayExpression {
+
+        private final ArmySQLExpression expression;
+
+        private final ArrayMappingType type;
+
+        private CastArrayTypeExpression(ArmySQLExpression expression, ArrayMappingType type) {
+            this.expression = expression;
+            this.type = type;
+        }
+
+        @Override
+        public TypeMeta typeMeta() {
+            return this.type;
+        }
+
+        @Override
+        public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
+            appendTypeCastExp(this.expression, sqlBuilder, context, this.type);
+        }
+
+        @Override
+        public String toString() {
+            return this.expression.toString();
+        }
+
+    } // CastArrayTypeExpression
+
+    /**
+     * @see #castExpToJson(OperationExpression, JsonMappingType)
+     */
+    private static final class CastJsonTypeExpression extends OperationJsonExpression {
+
+        private final ArmySQLExpression expression;
+
+        private CastJsonTypeExpression(ArmySQLExpression expression, JsonMappingType type) {
+            super(type);
+            this.expression = expression;
+        }
+
+        @Override
+        public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
+            appendTypeCastExp(this.expression, sqlBuilder, context, this.type);
+        }
+
+        @Override
+        public String toString() {
+            return this.expression.toString();
+        }
+
+    } // CastJsonTypeExpression
 
 
     private static final class SubQueryPredicate extends OperationPredicate.OperationCompoundPredicate {
@@ -1844,38 +1643,33 @@ abstract class Expressions {
         private final ArmyArrayExpression arrayExp;
 
 
-        private final TypeMeta type;
+        // private final TypeMeta type;
 
         private ArrayElementExpression(final OperationExpression arrayExp) {
             this.arrayExp = (ArmyArrayExpression) arrayExp;
-            final TypeMeta arrayType;
-            arrayType = arrayExp.typeMeta();
-
-            if (this instanceof ArrayExpression) { // TODO  bug ?
-                if (arrayType instanceof MappingType) {
-                    this.type = arrayType;
-                } else {
-                    // avoid to field codec
-                    this.type = arrayType.mappingType();
-                }
-            } else if (arrayType instanceof MappingType) {
-                this.type = ((MappingType.SqlArrayType) arrayType).elementType();
-            } else {
-                // avoid to field codec
-                this.type = ((MappingType.SqlArrayType) arrayType.mappingType()).elementType();
-            }
-        }
-
-        @Override
-        public final TypeMeta typeMeta() {
-            return this.type;
+//            final TypeMeta arrayType;
+//            arrayType = arrayExp.typeMeta();
+//
+//            if (this instanceof ArrayExpression) { // TODO  fix me bug ? ,在去类型化后,怎么表达
+//                if (arrayType instanceof MappingType) {
+//                    this.type = arrayType;
+//                } else {
+//                    // avoid to field codec
+//                    this.type = arrayType.mappingType();
+//                }
+//            } else if (arrayType instanceof MappingType) {
+//                this.type = ((MappingType.SqlArrayType) arrayType).elementType();
+//            } else {
+//                // avoid to field codec
+//                this.type = ((MappingType.SqlArrayType) arrayType.mappingType()).elementType();
+//            }
         }
 
         @Override
         public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
 
             final boolean outerParens;
-            outerParens = !(this.arrayExp instanceof SimpleArrayExpression);
+            outerParens = !(this.arrayExp instanceof io.army.criteria.impl.SimpleArrayExpression);
 
             if (outerParens) {
                 sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
@@ -1903,7 +1697,7 @@ abstract class Expressions {
             sqlBuilder = new StringBuilder();
 
             final boolean outerParens;
-            outerParens = this.arrayExp instanceof SimpleArrayExpression;
+            outerParens = this.arrayExp instanceof io.army.criteria.impl.SimpleArrayExpression;
 
             if (outerParens) {
                 sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
@@ -2155,26 +1949,44 @@ abstract class Expressions {
     }
 
 
-    private static abstract class JsonOperatorExpression extends OperationExpression.OperationSimpleExpression {
+    private static abstract class OperationJsonExpression extends OperationExpression.OperationTypedExpression
+            implements JsonExpression, ArmySimpleExpression {
 
-        final ArmyJsonExpression json;
+        final JsonMappingType type;
 
-        final TypeMeta type;
 
-        private JsonOperatorExpression(final OperationExpression json) {
-            this.json = (ArmyJsonExpression) json;
-
-            final TypeMeta jsonType;
-            if ((jsonType = json.typeMeta()) instanceof MappingType) {
-                this.type = jsonType;
-            } else {
-                this.type = jsonType.mappingType();
-            }
+        private OperationJsonExpression(final JsonMappingType type) {
+            this.type = type;
         }
 
         @Override
         public final TypeMeta typeMeta() {
             return this.type;
+        }
+
+        @Override
+        public final JsonExpression arrayElement(int index) {
+            return Expressions.jsonArrayElement(this, index);
+        }
+
+        @Override
+        public final JsonExpression objectAttr(String keyName) {
+            return Expressions.jsonObjectAttr(this, keyName);
+        }
+
+        @Override
+        public final JsonExpression atPath(String jsonPath) {
+            return Expressions.jsonPathExtract(this, jsonPath);
+        }
+
+        @Override
+        public final JsonExpression atPath(Expression jsonPath) {
+            return Expressions.jsonPathExtract(this, jsonPath);
+        }
+
+        @Override
+        public final <T> JsonExpression atPath(BiFunction<MappingType, T, Expression> funcRef, T jsonPath) {
+            return Expressions.jsonPathExtract(this, funcRef.apply(JsonPathType.INSTANCE, jsonPath));
         }
 
 
@@ -2216,7 +2028,7 @@ abstract class Expressions {
 
     }//JsonOperatorExpression
 
-    private static final class JsonObjectAttrExpression extends JsonOperatorExpression implements ArmyJsonExpression {
+    private static final class JsonObjectAttrExpression extends OperationJsonExpression {
 
         private final String key;
 
@@ -2282,7 +2094,7 @@ abstract class Expressions {
     }//JsonObjectAttrExpression
 
 
-    private static final class JsonArrayElementExpression extends JsonOperatorExpression implements ArmyJsonExpression {
+    private static final class JsonArrayElementExpression extends OperationJsonExpression implements ArmyJsonExpression {
 
         private final int index;
 
@@ -2343,7 +2155,7 @@ abstract class Expressions {
     }//JsonArrayElementExpression
 
 
-    private static final class JsonPathExtractExpression extends JsonOperatorExpression implements ArmyJsonExpression {
+    private static final class JsonPathExtractExpression extends OperationJsonExpression implements ArmyJsonExpression {
 
         private final Object jsonPath;
 
@@ -2358,7 +2170,7 @@ abstract class Expressions {
 
             switch (context.dialectDatabase()) {
                 case MySQL: {
-                    if (((MySQLDialect) context.dialect()).compareWith(MySQLDialect.MySQL80) < 0) {
+                    if (context.dialect().compareWith(MySQLDialect.MySQL80) < 0) {
                         throw dontSupportJsonPathError(context.dialect());
                     }
                     this.appendJson(sqlBuilder, context);
@@ -2371,14 +2183,15 @@ abstract class Expressions {
                 }
                 break;
                 case PostgreSQL: {
-                    final String funcName;
-                    if (this.type.mappingType() instanceof MappingType.SqlJsonType) {
-                        funcName = "JSON_PATH_QUERY";
-                    } else {
-                        funcName = "JSONB_PATH_QUERY";
-                    }
-
-                    context.appendFuncName(true, funcName);
+                    // TODO fix me ,在去类型化后,怎么表达
+//                    final String funcName;
+//                    if (this.type.mappingType() instanceof MappingType.SqlJsonType) {
+//                        funcName = "JSON_PATH_QUERY";
+//                    } else {
+//                        funcName = "JSONB_PATH_QUERY";
+//                    }
+//
+//                    context.appendFuncName(true, funcName);
 
                     sqlBuilder.append(_Constant.LEFT_PAREN);
                     this.json.appendSql(sqlBuilder, context);
@@ -2435,48 +2248,113 @@ abstract class Expressions {
      * <p>
      * This class is base class of below:
      * <ul>
-     *     <li>{@link SimpleArrayConstructor}</li>
-     *     <li>{@link SubQueryArrayConstructor}</li>
+     *     <li>{@link SimpleArrayExpression}</li>
+     *     <li>{@link CastArrayTypeExpression}</li>
      * </ul>
      */
-    private static abstract class ArrayConstructor extends OperationExpression.OperationSimpleExpression
-            implements ArmyArrayExpression, SQLs._ArrayConstructorSpec {
+    private static abstract class OperationArrayExpression extends OperationExpression.OperationTypedExpression
+            implements ArrayExpression, ArmySimpleExpression {
 
-        final TypeMeta inferType;
 
-        private ArrayConstructor(TypeMeta inferType) {
-            this.inferType = inferType;
-        }
-
-        private MappingType castType;
+        /*-------------------below array operator method -------------------*/
 
         @Override
-        public final MappingType typeMeta() {
-            MappingType userDefinedType = this.castType;
-            if (userDefinedType == null) {
-                if (this.inferType instanceof MappingType) {
-                    userDefinedType = (MappingType) this.inferType;
-                } else {
-                    //avoid field codec
-                    userDefinedType = this.inferType.mappingType();
-                }
-            }
-            return userDefinedType;
+        public final SimpleExpression atElement(int index) {
+            return Expressions.arrayElementExp(this, index);
         }
 
         @Override
-        public final ArrayExpression castTo(final @Nullable MappingType type) {
-            if (this.castType != null) {
-                throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-            } else if (type == null) {
-                throw ContextStack.clearStackAndNullPointer();
-            } else if (!(type instanceof MappingType.SqlArrayType)) {
-                String m = String.format("%s isn't %s type.", type, MappingType.SqlArrayType.class.getName());
-                throw ContextStack.clearStackAndCriteriaError(m);
-            }
-            this.castType = type;
-            return this;
+        public final SimpleExpression atElement(int index1, int index2) {
+            return Expressions.arrayElementExp(this, index1, index2);
         }
+
+        @Override
+        public final SimpleExpression atElement(int index1, int index2, int index3, int... restIndex) {
+            return Expressions.arrayElementExp(this, index1, index2, index3, restIndex);
+        }
+
+        @Override
+        public final SimpleExpression atElement(Expression index) {
+            return Expressions.arrayElementExp(this, index);
+        }
+
+        @Override
+        public final SimpleExpression atElement(Expression index1, Expression index2) {
+            return Expressions.arrayElementExp(this, index1, index2);
+        }
+
+        @Override
+        public final SimpleExpression atElement(Expression index1, Expression index2, Expression index3, Expression... restIndex) {
+            return Expressions.arrayElementExp(this, index1, index2, index3, restIndex);
+        }
+
+        @Override
+        public final ArrayExpression atArray(int index) {
+            return Expressions.arrayElementArrayExp(this, index);
+        }
+
+        @Override
+        public final ArrayExpression atArray(int index1, int index2) {
+            return Expressions.arrayElementArrayExp(this, index1, index2);
+        }
+
+        @Override
+        public final ArrayExpression atArray(int index1, int index2, int index3, int... restIndex) {
+            return Expressions.arrayElementArrayExp(this, index1, index2, index3, restIndex);
+        }
+
+        @Override
+        public final ArrayExpression atArray(ArraySubscript index) {
+            return Expressions.arrayElementArrayExp(this, index);
+        }
+
+        @Override
+        public final ArrayExpression atArray(ArraySubscript index1, ArraySubscript index2) {
+            return Expressions.arrayElementArrayExp(this, index1, index2);
+        }
+
+        @Override
+        public final ArrayExpression atArray(ArraySubscript index1, ArraySubscript index2, ArraySubscript index3, ArraySubscript... restIndex) {
+            return Expressions.arrayElementArrayExp(this, index1, index2, index3, restIndex);
+        }
+
+        @Override
+        public final <T> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef, T value) {
+            return Expressions.arrayElementArrayExp(this, funcRef.apply(NoCastIntegerType.INSTANCE, value));
+        }
+
+        @Override
+        public final <T> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef, T value1, T value2) {
+            return Expressions.arrayElementArrayExp(this, funcRef.apply(NoCastIntegerType.INSTANCE, value1),
+                    funcRef.apply(NoCastIntegerType.INSTANCE, value2)
+            );
+        }
+
+        @Override
+        public final <T> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef, T value1, T value2, T value3) {
+            return Expressions.arrayElementArrayExp(this, funcRef.apply(NoCastIntegerType.INSTANCE, value1),
+                    funcRef.apply(NoCastIntegerType.INSTANCE, value2),
+                    funcRef.apply(NoCastIntegerType.INSTANCE, value3),
+                    new ArraySubscript[0]
+            );
+        }
+
+        @Override
+        public final <T, U> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef1, T value1, BiFunction<MappingType, U, Expression> funcRef2, U value2) {
+            return Expressions.arrayElementArrayExp(this, funcRef1.apply(NoCastIntegerType.INSTANCE, value1),
+                    funcRef2.apply(NoCastIntegerType.INSTANCE, value2)
+            );
+        }
+
+        @Override
+        public final <T, U, V> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef1, T value1, BiFunction<MappingType, U, Expression> funcRef2, U value2, BiFunction<MappingType, V, Expression> funcRef3, V value3) {
+            return Expressions.arrayElementArrayExp(this, funcRef1.apply(NoCastIntegerType.INSTANCE, value1),
+                    funcRef2.apply(NoCastIntegerType.INSTANCE, value2),
+                    funcRef3.apply(NoCastIntegerType.INSTANCE, value3),
+                    new ArraySubscript[0]
+            );
+        }
+
 
         @Override
         public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
@@ -2488,22 +2366,30 @@ abstract class Expressions {
     } //ArrayConstructor
 
 
-    private static final class SimpleArrayConstructor extends ArrayConstructor {
+    private static final class SimpleArrayExpression extends OperationArrayExpression {
 
-        private final List<Object> elementList;
+        private final List<?> elementList;
+
 
         /**
-         * @see #array(Function, Consumer)
+         * @see #array(List)
          */
-        private SimpleArrayConstructor(List<Object> elementList, TypeMeta inferType) {
-            super(inferType);
+        private SimpleArrayExpression(List<?> elementList) {
             this.elementList = elementList;
         }
 
+        @Override
+        public TypeMeta typeMeta() {
+            // user no cast ,never here
+            throw new UnsupportedOperationException("You couldn't cast Expression");
+        }
 
+        /**
+         * @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS">Array Constructors</a>
+         */
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
-            final List<Object> elementList = this.elementList;
+            final List<?> elementList = this.elementList;
             final int elementSize = elementList.size();
 
             sqlBuilder.append(" ARRAY[");
@@ -2512,18 +2398,13 @@ abstract class Expressions {
             MappingType elementType;
             for (int i = 0; i < elementSize; i++) {
                 if (i > 0) {
-                    sqlBuilder.append(_Constant.SPACE_COMMA);
+                    sqlBuilder.append(_Constant.COMMA);
                 }
                 element = elementList.get(i);
                 if (element == null) {
-                    sqlBuilder.append(_Constant.SPACE_NULL);
-                } else if (element instanceof Expression) {
-                    ((ArmyExpression) element).appendSql(sqlBuilder, context);
-                } else if (element instanceof String) {
-                    context.appendLiteral(TextType.INSTANCE, element, false);
-                } else if (element instanceof Integer) {
-                    sqlBuilder.append(_Constant.SPACE)
-                            .append(element);
+                    sqlBuilder.append(_Constant.NULL);
+                } else if (element instanceof SQLExpression) {
+                    ((ArmySQLExpression) element).appendSql(sqlBuilder, context);
                 } else if ((elementType = _MappingFactory.getDefaultIfMatch(element.getClass())) == null) {
                     String m = String.format("Not found %s for %s", MappingType.class.getName(),
                             element.getClass().getName());
@@ -2533,32 +2414,10 @@ abstract class Expressions {
                 }
             }
 
-            sqlBuilder.append(_Constant.SPACE_RIGHT_SQUARE_BRACKET);
-
-
-            final MappingType castType = ((ArrayConstructor) this).castType;
-            switch (context.dialectDatabase()) {
-                case PostgreSQL: {
-                    if (castType != null) {
-                        sqlBuilder.append(_Constant.DOUBLE_COLON);
-                        context.parser().typeName(castType, sqlBuilder);
-                    } else if (elementSize == 0) {
-                        sqlBuilder.append(_Constant.DOUBLE_COLON);
-                        context.parser().typeName(this.inferType.mappingType(), sqlBuilder);
-                    }
-                }
-                break;
-                case H2:
-                case MySQL:
-                default: {
-                    String m = String.format("%s don't support array constructor expression.", context.dialectDatabase());
-                    throw new CriteriaException(m);
-                }
-
-            }//switch
-
+            sqlBuilder.append(']');
 
         }
+
 
         @Override
         public String toString() {
@@ -2566,7 +2425,7 @@ abstract class Expressions {
             sqlBuilder = new StringBuilder()
                     .append(" ARRAY[");
 
-            final List<Object> elementList = this.elementList;
+            final List<?> elementList = this.elementList;
             final int elementSize = elementList.size();
             Object element;
             for (int i = 0; i < elementSize; i++) {
@@ -2584,40 +2443,7 @@ abstract class Expressions {
         }
 
 
-    }//SimpleArrayConstructor
-
-
-    private static final class SubQueryArrayConstructor extends ArrayConstructor {
-
-        private final SubQuery query;
-
-        /**
-         * @see #array(SubQuery)
-         */
-        private SubQueryArrayConstructor(SubQuery query, MappingType type) {
-            super(type);
-            this.query = query;
-        }
-
-
-        @Override
-        public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
-            sqlBuilder.append(" ARRAY[");
-            context.appendSubQuery(this.query);
-            sqlBuilder.append(_Constant.SPACE_RIGHT_SQUARE_BRACKET);
-        }
-
-        @Override
-        public String toString() {
-            return _StringUtils.builder()
-                    .append(" ARRAY[")
-                    .append(this.query)
-                    .append(_Constant.SPACE_RIGHT_SQUARE_BRACKET)
-                    .toString();
-        }
-
-
-    }//SubQueryArrayConstructor
+    } // SimpleArrayExpression
 
 
     private static final class CollateExpression extends OperationExpression.OperationSimpleExpression
@@ -2630,12 +2456,6 @@ abstract class Expressions {
         private CollateExpression(Expression exp, String collation) {
             this.exp = (ArmyExpression) exp;
             this.collation = collation;
-        }
-
-        @Override
-        public TypeMeta typeMeta() {
-            // here , allow FieldMeta , because COLLATE is not operator
-            return this.exp.typeMeta();
         }
 
 

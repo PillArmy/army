@@ -17,7 +17,7 @@
 package io.army.dialect.sqlite;
 
 import io.army.criteria.CriteriaException;
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 import io.army.criteria.Visible;
 import io.army.criteria.impl._SQLConsultant;
 import io.army.criteria.impl._UnionType;
@@ -642,7 +642,7 @@ abstract class SQLiteParser extends _ArmyDialectParser {
      * @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
      */
     @Override
-    protected final void standardLockClause(final SQLWords lockMode, final _SqlContext context) {
+    protected final void standardLockClause(final SQLToken lockMode, final _SqlContext context) {
         throw _Exceptions.dontSupportForUpdateClause(this.dialect);
     }
 

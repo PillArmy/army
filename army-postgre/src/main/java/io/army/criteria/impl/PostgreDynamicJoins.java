@@ -59,7 +59,7 @@ abstract class PostgreDynamicJoins extends JoinableClause.DynamicJoinableBlock<
 
 
     private PostgreDynamicJoins(CriteriaContext context, Consumer<_TabularBlock> blockConsumer, _JoinType joinType,
-                                @Nullable SQLWords modifier, TabularItem tabularItem, String alias) {
+                                @Nullable SQLToken modifier, TabularItem tabularItem, String alias) {
         super(context, blockConsumer, joinType, modifier, tabularItem, alias);
     }
 
@@ -245,7 +245,7 @@ abstract class PostgreDynamicJoins extends JoinableClause.DynamicJoinableBlock<
     private static class PostgreDynamicBlock extends PostgreDynamicJoins {
 
         private PostgreDynamicBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer, _JoinType joinType,
-                                    @Nullable SQLWords modifier, TabularItem tabularItem, String alias) {
+                                    @Nullable SQLToken modifier, TabularItem tabularItem, String alias) {
             super(context, blockConsumer, joinType, modifier, tabularItem, alias);
         }
 
@@ -264,7 +264,7 @@ abstract class PostgreDynamicJoins extends JoinableClause.DynamicJoinableBlock<
         private ArmyExpression seed;
 
         private DynamicTableBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer, _JoinType joinType,
-                                  @Nullable SQLWords modifier, TableMeta<?> table, String alias) {
+                                  @Nullable SQLToken modifier, TableMeta<?> table, String alias) {
             super(context, blockConsumer, joinType, modifier, table, alias);
         }
 
@@ -412,7 +412,7 @@ abstract class PostgreDynamicJoins extends JoinableClause.DynamicJoinableBlock<
             PostgreStatement._DynamicTableRepeatableJoinSpec {
 
         private DynamicTableJoinBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer,
-                                      _JoinType joinType, @Nullable SQLWords modifier, TableMeta<?> table,
+                                      _JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> table,
                                       String alias) {
             super(context, blockConsumer, joinType, modifier, table, alias);
         }
@@ -426,7 +426,7 @@ abstract class PostgreDynamicJoins extends JoinableClause.DynamicJoinableBlock<
             PostgreStatement._DynamicRepeatableOnSpec {
 
         private DynamicTableOnBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer,
-                                    _JoinType joinType, @Nullable SQLWords modifier, TableMeta<?> table,
+                                    _JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> table,
                                     String alias) {
             super(context, blockConsumer, joinType, modifier, table, alias);
         }
@@ -444,7 +444,7 @@ abstract class PostgreDynamicJoins extends JoinableClause.DynamicJoinableBlock<
         private _SelectionMap selectionMap;
 
         private DynamicDerivedBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer, _JoinType joinType,
-                                    @Nullable SQLWords modifier, DerivedTable table, String alias) {
+                                    @Nullable SQLToken modifier, DerivedTable table, String alias) {
             super(context, blockConsumer, joinType, modifier, table, alias);
             this.selectionMap = (_DerivedTable) table;
         }
@@ -510,7 +510,7 @@ abstract class PostgreDynamicJoins extends JoinableClause.DynamicJoinableBlock<
             implements PostgreStatement._DynamicParensJoinSpec {
 
         private DynamicDerivedJoinBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer,
-                                        _JoinType joinType, @Nullable SQLWords modifier, DerivedTable table,
+                                        _JoinType joinType, @Nullable SQLToken modifier, DerivedTable table,
                                         String alias) {
             super(context, blockConsumer, joinType, modifier, table, alias);
         }
@@ -523,7 +523,7 @@ abstract class PostgreDynamicJoins extends JoinableClause.DynamicJoinableBlock<
             implements Statement._ParensOnSpec<PostgreStatement._DynamicJoinSpec> {
 
         private DynamicDerivedOnBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer,
-                                      _JoinType joinType, @Nullable SQLWords modifier, DerivedTable table,
+                                      _JoinType joinType, @Nullable SQLToken modifier, DerivedTable table,
                                       String alias) {
             super(context, blockConsumer, joinType, modifier, table, alias);
         }

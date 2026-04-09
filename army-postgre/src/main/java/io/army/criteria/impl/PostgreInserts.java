@@ -519,7 +519,7 @@ abstract class PostgreInserts extends InsertSupports {
     }//StaticSubInsertIntoClause
 
 
-    enum OverridingMode implements SQLWords {
+    enum OverridingMode implements SQLToken {
 
         OVERRIDING_SYSTEM_VALUE(" OVERRIDING SYSTEM VALUE"),
         OVERRIDING_USER_VALUE(" OVERRIDING USER VALUE");
@@ -1554,7 +1554,7 @@ abstract class PostgreInserts extends InsertSupports {
         }
 
         @Override
-        public final SQLWords overridingValueWords() {
+        public final SQLToken overridingValueWords() {
             return this.overridingMode;
         }
 
@@ -2503,7 +2503,7 @@ abstract class PostgreInserts extends InsertSupports {
 
 
         @Override
-        public final SQLWords overridingValueWords() {
+        public final SQLToken overridingValueWords() {
             return this.overridingMode;
         }
 

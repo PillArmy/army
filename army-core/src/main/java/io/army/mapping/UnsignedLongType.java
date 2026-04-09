@@ -41,7 +41,7 @@ public final class UnsignedLongType extends _ArmyNoInjectionType
 
     @Override
     public Class<?> javaType() {
-        return Integer.class;
+        return Long.class;
     }
 
 

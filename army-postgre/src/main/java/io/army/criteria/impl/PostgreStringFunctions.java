@@ -31,6 +31,7 @@ import java.util.function.BiFunction;
 *
  * @see <a href="https://www.postgresql.org/docs/current/functions-string.html">String Functions and Operators</a>
  */
+@SuppressWarnings("unused")
 abstract class PostgreStringFunctions extends Functions {
 
     /**
@@ -51,15 +52,15 @@ abstract class PostgreStringFunctions extends Functions {
 
     }
 
-    public interface WordVersion extends SQLWords {
+    public interface WordVersion extends SQLToken {
 
     }
 
-    public interface WordStandalone extends SQLWords {
+    public interface WordStandalone extends SQLToken {
 
     }
 
-    public interface StandaloneOption extends SQLWords {
+    public interface StandaloneOption extends SQLToken {
 
     }
 
@@ -67,16 +68,16 @@ abstract class PostgreStringFunctions extends Functions {
 
     }
 
-    public interface WordPassing extends SQLWords {
+    public interface WordPassing extends SQLToken {
 
     }
 
-    public interface PassingOption extends SQLWords {
+    public interface PassingOption extends SQLToken {
 
     }
 
 
-    enum KeyWordNormalizeForm implements WordNormalizeForm, SQLs.ArmyKeyWord, SQLWords {
+    enum KeyWordNormalizeForm implements WordNormalizeForm, SQLs.ArmyKeyWord, SQLToken {
 
         NFC(" NFC"),
         NFD(" NFD"),
@@ -102,7 +103,7 @@ abstract class PostgreStringFunctions extends Functions {
 
     }//KeyWordNormalizeForm
 
-    private enum KeyWordPlacing implements WordPlacing, SQLs.ArmyKeyWord, SQLWords {
+    private enum KeyWordPlacing implements WordPlacing, SQLs.ArmyKeyWord, SQLToken {
 
         PLACING(" PLACING");
 
@@ -149,7 +150,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">bit_length ( bytea ) → integer</a>
      */
     public static SimpleExpression bitLength(Expression exp) {
-        return FunctionUtils.oneArgFunc("BIT_LENGTH", exp, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("BIT_LENGTH", exp);
     }
 
     /**
@@ -160,7 +161,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">char_length ( text ) → integer</a>
      */
     public static SimpleExpression charLength(Expression exp) {
-        return FunctionUtils.oneArgFunc("CHAR_LENGTH", exp, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("CHAR_LENGTH", exp);
     }
 
     /**
@@ -173,7 +174,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-range.html#RANGE-FUNCTIONS-TABLE">lower ( anyrange ) → anyelement</a>
      */
     public static SimpleExpression lower(Expression exp) {
-        return FunctionUtils.oneArgFunc("LOWER", exp, _returnType(exp, PostgreStringFunctions::lowerOrUpperType));
+        return LiteralFunctions.oneArgFunc("LOWER", exp);
     }
 
 
@@ -186,7 +187,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">normalize ( text [, form ] ) → text</a>
      */
     public static SimpleExpression normalize(Expression exp) {
-        return FunctionUtils.oneArgFunc("NORMALIZE", exp, exp.typeMeta());
+        return LiteralFunctions.oneArgFunc("NORMALIZE", exp);
     }
 
     /**
@@ -204,7 +205,7 @@ abstract class PostgreStringFunctions extends Functions {
         } else if (!(form instanceof KeyWordNormalizeForm)) {
             throw CriteriaUtils.funcArgError(name, form);
         } else {
-            func = FunctionUtils.complexArgFunc(name, exp.typeMeta(), exp, SqlWords.FuncWord.COMMA, form);
+            func = LiteralFunctions.compositeFunc(name, List.of(exp, SqlWords.FuncWord.COMMA, form));
         }
         return func;
     }
@@ -220,7 +221,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">octet_length ( bytea ) → integer</a>
      */
     public static SimpleExpression octetLength(Expression exp) {
-        return FunctionUtils.oneArgFunc("OCTET_LENGTH", exp, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("OCTET_LENGTH", exp);
     }
 
     /**
@@ -276,8 +277,7 @@ abstract class PostgreStringFunctions extends Functions {
         } else if (in != SQLs.IN) {
             throw CriteriaUtils.funcArgError(name, in);
         } else {
-            func = FunctionUtils.complexArgFunc(name, IntegerType.INSTANCE,
-                    substring, in, string);
+            func = LiteralFunctions.compositeFunc(name, List.of(substring, in, string));
         }
         return func;
     }
@@ -363,8 +363,7 @@ abstract class PostgreStringFunctions extends Functions {
         } else if (wordEscape != SQLs.ESCAPE) {
             throw CriteriaUtils.funcArgError(name, wordEscape);
         } else {
-            func = FunctionUtils.complexArgFunc(name, string.typeMeta(),
-                    string, similar, pattern, wordEscape, escape);
+            func = LiteralFunctions.compositeFunc(name, List.of(string, similar, pattern, wordEscape, escape));
         }
         return func;
     }
@@ -377,7 +376,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
      */
     public static SimpleExpression trim(Expression string) {
-        return FunctionUtils.oneArgFunc("TRIM", string, string.typeMeta());
+        return LiteralFunctions.oneArgFunc("TRIM", string);
     }
 
     /**
@@ -395,7 +394,7 @@ abstract class PostgreStringFunctions extends Functions {
         } else if (string instanceof SqlValueParam.MultiValue) {
             throw CriteriaUtils.funcArgError(name, string);
         }
-        return FunctionUtils.complexArgFunc(name, string.typeMeta(), from, string);
+        return LiteralFunctions.compositeFunc(name, List.of(from, string));
     }
 
     /**
@@ -422,8 +421,7 @@ abstract class PostgreStringFunctions extends Functions {
         } else if (from != SQLs.FROM) {
             throw CriteriaUtils.funcArgError(name, from);
         }
-        return FunctionUtils.complexArgFunc(name, string.typeMeta(),
-                position, from, string);
+        return LiteralFunctions.compositeFunc(name, List.of(position, from, string));
     }
 
     /**
@@ -445,8 +443,7 @@ abstract class PostgreStringFunctions extends Functions {
         } else if (from != SQLs.FROM) {
             throw CriteriaUtils.funcArgError(name, from);
         }
-        return FunctionUtils.complexArgFunc(name, string.typeMeta(),
-                characters, from, string);
+        return LiteralFunctions.compositeFunc(name, List.of(characters, from, string));
     }
 
     /**
@@ -476,8 +473,7 @@ abstract class PostgreStringFunctions extends Functions {
         } else if (from != SQLs.FROM) {
             throw CriteriaUtils.funcArgError(name, from);
         }
-        return FunctionUtils.complexArgFunc(name, string.typeMeta(),
-                position, characters, from, string);
+        return LiteralFunctions.compositeFunc(name, List.of(position, characters, from, string));
     }
 
     /**
@@ -495,7 +491,7 @@ abstract class PostgreStringFunctions extends Functions {
         } else if (characters instanceof SqlValueParam.MultiValue) {
             throw CriteriaUtils.funcArgError(name, characters);
         }
-        return FunctionUtils.twoArgFunc(name, string, characters, string.typeMeta());
+        return LiteralFunctions.twoArgFunc(name, string, characters);
     }
 
     /**
@@ -515,8 +511,7 @@ abstract class PostgreStringFunctions extends Functions {
         } else if (characters instanceof SqlValueParam.MultiValue) {
             throw CriteriaUtils.funcArgError(name, characters);
         }
-        return FunctionUtils.complexArgFunc(name, string.typeMeta(),
-                from, string, SqlWords.FuncWord.COMMA, characters);
+        return LiteralFunctions.compositeFunc(name, List.of(from, string, SqlWords.FuncWord.COMMA, characters));
     }
 
 
@@ -546,8 +541,7 @@ abstract class PostgreStringFunctions extends Functions {
         } else if (from != SQLs.FROM) {
             throw CriteriaUtils.funcArgError(name, from);
         }
-        return FunctionUtils.complexArgFunc(name, string.typeMeta(),
-                position, from, string, SqlWords.FuncWord.COMMA, characters);
+        return LiteralFunctions.compositeFunc(name, List.of(position, from, string, SqlWords.FuncWord.COMMA, characters));
     }
 
     /**
@@ -559,7 +553,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">upper ( text ) → text</a>
      */
     public static SimpleExpression upper(Expression exp) {
-        return FunctionUtils.oneArgFunc("UPPER", exp, _returnType(exp, PostgreStringFunctions::lowerOrUpperType));
+        return LiteralFunctions.oneArgFunc("UPPER", exp);
     }
 
     /*-------------------below Other String Functions and Operators -------------------*/
@@ -572,7 +566,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">ascii ( text ) → integer</a>
      */
     public static SimpleExpression ascii(Expression exp) {
-        return FunctionUtils.oneArgFunc("ASCII", exp, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("ASCII", exp);
     }
 
     /**
@@ -583,7 +577,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">btrim ( string text [, characters text ] ) → text</a>
      */
     public static SimpleExpression btrim(Expression exp) {
-        return FunctionUtils.oneArgFunc("BTRIM", exp, exp.typeMeta());
+        return LiteralFunctions.oneArgFunc("BTRIM", exp);
     }
 
     /**
@@ -594,7 +588,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">btrim ( string text [, characters text ] ) → text</a>
      */
     public static SimpleExpression btrim(Expression exp, Expression characters) {
-        return FunctionUtils.twoArgFunc("BTRIM", exp, characters, exp.typeMeta());
+        return LiteralFunctions.twoArgFunc("BTRIM", exp, characters);
     }
 
     /**
@@ -605,7 +599,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">chr ( integer ) → text</a>
      */
     public static SimpleExpression chr(Expression exp) {
-        return FunctionUtils.oneArgFunc("CHR", exp, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("CHR", exp);
     }
 
     /**
@@ -616,7 +610,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">concat ( val1 "any" [, val2 "any" [, ...] ] ) → text</a>
      */
     public static SimpleExpression concat(Expression exp1, Expression... rest) {
-        return FunctionUtils.oneAndRestFunc("CONCAT", StringType.INSTANCE, exp1, rest);
+        return FunctionUtils.oneAndRestFunc("CONCAT", exp1, rest);
     }
 
     /**
@@ -628,7 +622,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">concat ( val1 "any" [, val2 "any" [, ...] ] ) → text</a>
      */
     public static SimpleExpression concat(List<Expression> expList) {
-        return FunctionUtils.multiArgFunc("CONCAT", expList, StringType.INSTANCE);
+        return FunctionUtils.multiArgFunc("CONCAT", expList);
     }
 
     /**
@@ -678,7 +672,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">concat_ws ( sep text, val1 "any" [, val2 "any" [, ...] ] ) → text</a>
      */
     public static SimpleExpression concatWs(Expression sep, List<Expression> expList) {
-        return FunctionUtils.oneAndMultiArgFunc("CONCAT_WS", sep, expList, StringType.INSTANCE);
+        return FunctionUtils.oneAndMultiArgFunc("CONCAT_WS", sep, expList);
     }
 
 
@@ -690,7 +684,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">format ( formatstr text [, formatarg "any" [, ...] ] ) → text</a>
      */
     public static SimpleExpression format(Expression formatStr) {
-        return FunctionUtils.oneArgFunc("FORMAT", formatStr, formatStr.typeMeta());
+        return LiteralFunctions.oneArgFunc("FORMAT", formatStr);
     }
 
     /**
@@ -701,7 +695,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">format ( formatstr text [, formatarg "any" [, ...] ] ) → text</a>
      */
     public static SimpleExpression format(Expression formatStr, Expression... formatArgs) {
-        return FunctionUtils.oneAndRestFunc("FORMAT", formatStr.typeMeta(), formatStr, formatArgs);
+        return FunctionUtils.oneAndRestFunc("FORMAT", formatStr, formatArgs);
     }
 
     /**
@@ -712,7 +706,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">initcap ( text ) → text</a>
      */
     public static SimpleExpression initcap(Expression exp) {
-        return FunctionUtils.oneArgFunc("INITCAP", exp, exp.typeMeta());
+        return LiteralFunctions.oneArgFunc("INITCAP", exp);
     }
 
     /**
@@ -723,7 +717,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">left ( string text, n integer ) → text</a>
      */
     public static SimpleExpression left(Expression string, Expression n) {
-        return FunctionUtils.twoArgFunc("LEFT", string, n, string.typeMeta());
+        return LiteralFunctions.twoArgFunc("LEFT", string, n);
     }
 
 
@@ -736,7 +730,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">lpad ( string text, length integer [, fill text ] ) → text</a>
      */
     public static SimpleExpression lpad(Expression string, Expression length) {
-        return FunctionUtils.twoArgFunc("LPAD", string, length, string.typeMeta());
+        return LiteralFunctions.twoArgFunc("LPAD", string, length);
     }
 
     /**
@@ -748,7 +742,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">lpad ( string text, length integer [, fill text ] ) → text</a>
      */
     public static SimpleExpression lpad(Expression string, Expression length, Expression fill) {
-        return FunctionUtils.threeArgFunc("LPAD", string, length, fill, string.typeMeta());
+        return LiteralFunctions.threeArgFunc("LPAD", string, length, fill);
     }
 
     /**
@@ -759,7 +753,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">ltrim ( string text [, characters text ] ) → text</a>
      */
     public static SimpleExpression ltrim(Expression string) {
-        return FunctionUtils.oneArgFunc("LTRIM", string, string.typeMeta());
+        return LiteralFunctions.oneArgFunc("LTRIM", string);
     }
 
     /**
@@ -771,7 +765,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">ltrim ( bytes bytea, bytesremoved bytea ) → bytea</a>
      */
     public static SimpleExpression ltrim(Expression string, Expression characters) {
-        return FunctionUtils.twoArgFunc("LTRIM", string, characters, string.typeMeta());
+        return LiteralFunctions.twoArgFunc("LTRIM", string, characters);
     }
 
     /**
@@ -783,7 +777,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">md5 ( bytea ) → text</a>
      */
     public static SimpleExpression md5(Expression string) {
-        return FunctionUtils.oneArgFunc("MD5", string, TextType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("MD5", string);
     }
 
     /**
@@ -794,7 +788,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">parse_ident ( qualified_identifier text [, strict_mode boolean DEFAULT true ] ) → text[]</a>
      */
     public static SimpleExpression parseIdent(Expression qualifiedIdentifier) {
-        return FunctionUtils.oneArgFunc("PARSE_IDENT", qualifiedIdentifier, TextArrayType.from(String[].class));
+        return LiteralFunctions.oneArgFunc("PARSE_IDENT", qualifiedIdentifier);
     }
 
     /**
@@ -809,7 +803,7 @@ abstract class PostgreStringFunctions extends Functions {
         if (strictMode != SQLs.TRUE && strictMode != SQLs.FALSE) {
             throw CriteriaUtils.funcArgError(name, strictMode);
         }
-        return FunctionUtils.twoArgFunc(name, qualifiedIdentifier, strictMode, TextArrayType.from(String[].class));
+        return LiteralFunctions.twoArgFunc(name, qualifiedIdentifier, strictMode);
     }
 
 
@@ -821,7 +815,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">pg_client_encoding ( ) → name</a>
      */
     public static SimpleExpression pgClientEncoding() {
-        return FunctionUtils.zeroArgFunc("PG_CLIENT_ENCODING", StringType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("PG_CLIENT_ENCODING");
     }
 
 
@@ -837,7 +831,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">quote_literal ( anyelement ) → text</a>
      */
     public static SimpleExpression quoteLiteral(Expression anyElement) {
-        return FunctionUtils.oneArgFunc("QUOTE_LITERAL", anyElement, _returnType(anyElement, Functions::_sqlStringType));
+        return LiteralFunctions.oneArgFunc("QUOTE_LITERAL", anyElement);
     }
 
     /**
@@ -852,7 +846,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">quote_nullable ( anyelement ) → text</a>
      */
     public static SimpleExpression quoteNullable(Expression anyElement) {
-        return FunctionUtils.oneArgFunc("QUOTE_NULLABLE", anyElement, _returnType(anyElement, Functions::_sqlStringType));
+        return LiteralFunctions.oneArgFunc("QUOTE_NULLABLE", anyElement);
     }
 
 
@@ -866,7 +860,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_count ( string text, pattern text [, start integer [, flags text ] ] ) → integer</a>
      */
     public static SimpleExpression regexpCount(Expression string, Expression pattern) {
-        return FunctionUtils.twoArgFunc("REGEXP_COUNT", string, pattern, IntegerType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("REGEXP_COUNT", string, pattern);
     }
 
 
@@ -880,7 +874,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_count ( string text, pattern text [, start integer [, flags text ] ] ) → integer</a>
      */
     public static SimpleExpression regexpCount(Expression string, Expression pattern, Expression start) {
-        return FunctionUtils.threeArgFunc("REGEXP_COUNT", string, pattern, start, IntegerType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("REGEXP_COUNT", string, pattern, start);
     }
 
     /**
@@ -893,7 +887,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_count ( string text, pattern text [, start integer [, flags text ] ] ) → integer</a>
      */
     public static SimpleExpression regexpCount(Expression string, Expression pattern, Expression start, Expression flags) {
-        return FunctionUtils.fourArgFunc("REGEXP_COUNT", string, pattern, start, flags, IntegerType.INSTANCE);
+        return FunctionUtils.fourArgFunc("REGEXP_COUNT", string, pattern, start, flags);
     }
 
     /**
@@ -990,7 +984,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_match ( string text, pattern text [, flags text ] ) → text[] </a>
      */
     public static SimpleExpression regexpMatch(Expression string, Expression pattern) {
-        return FunctionUtils.twoArgFunc("REGEXP_MATCH", string, pattern, TextArrayType.from(String[].class));
+        return LiteralFunctions.twoArgFunc("REGEXP_MATCH", string, pattern);
     }
 
     /**
@@ -1001,7 +995,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_match ( string text, pattern text [, flags text ] ) → text[]</a>
      */
     public static SimpleExpression regexpMatch(Expression string, Expression pattern, Expression flags) {
-        return FunctionUtils.threeArgFunc("REGEXP_MATCH", string, pattern, flags, TextArrayType.from(String[].class));
+        return LiteralFunctions.threeArgFunc("REGEXP_MATCH", string, pattern, flags);
     }
 
     /**
@@ -1012,8 +1006,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
      */
     public static _ColumnWithOrdinalityFunction regexpMatches(Expression string, Expression pattern) {
-        return DialectFunctionUtils.twoArgColumnFunction("REGEXP_MATCHES", string, pattern,
-                null, TextArrayType.from(String[].class));
+        return DialectFunctionUtils.twoArgColumnFunction("REGEXP_MATCHES", string, pattern, null);
     }
 
     /**
@@ -1026,7 +1019,7 @@ abstract class PostgreStringFunctions extends Functions {
     public static _ColumnWithOrdinalityFunction regexpMatches(Expression string, Expression pattern, Expression flags) {
         final String name = "REGEXP_MATCHES";
         return DialectFunctionUtils.threeArgColumnFunction(name, string, pattern, flags,
-                name.toLowerCase(Locale.ROOT), TextArrayType.from(String[].class));
+                name.toLowerCase(Locale.ROOT));
     }
 
     /**
@@ -1037,7 +1030,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_replace ( string text, pattern text, replacement text [, start integer ] [, flags text ] ) → text</a>
      */
     public static SimpleExpression regexpReplace(Expression string, Expression pattern, Expression replacement) {
-        return FunctionUtils.threeArgFunc("REGEXP_REPLACE", string, pattern, replacement, TextType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("REGEXP_REPLACE", string, pattern, replacement);
     }
 
     /**
@@ -1048,7 +1041,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_replace ( string text, pattern text, replacement text [, start integer ] [, flags text ] ) → text</a>
      */
     public static SimpleExpression regexpReplace(Expression string, Expression pattern, Expression replacement, Expression startOrFlag) {
-        return FunctionUtils.fourArgFunc("REGEXP_REPLACE", string, pattern, replacement, startOrFlag, TextType.INSTANCE);
+        return FunctionUtils.fourArgFunc("REGEXP_REPLACE", string, pattern, replacement, startOrFlag);
     }
 
     /**
@@ -1061,7 +1054,7 @@ abstract class PostgreStringFunctions extends Functions {
      * regexp_replace ( string text, pattern text, replacement text, start integer, N integer [, flags text ] ) → text</a>
      */
     public static SimpleExpression regexpReplace(Expression string, Expression pattern, Expression replacement, Expression start, Expression nOrFlat) {
-        return FunctionUtils.fiveArgFunc("REGEXP_REPLACE", string, pattern, replacement, start, nOrFlat, TextType.INSTANCE);
+        return FunctionUtils.fiveArgFunc("REGEXP_REPLACE", string, pattern, replacement, start, nOrFlat);
     }
 
     /**
@@ -1074,7 +1067,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_replace ( string text, pattern text, replacement text [, start integer ] [, flags text ] ) → text</a>
      */
     public static SimpleExpression regexpReplace(Expression string, Expression pattern, Expression replacement, Expression start, Expression n, Expression flags) {
-        return FunctionUtils.sixArgFunc("REGEXP_REPLACE", string, pattern, replacement, start, n, flags, TextType.INSTANCE);
+        return FunctionUtils.sixArgFunc("REGEXP_REPLACE", string, pattern, replacement, start, n, flags);
     }
 
     /**
@@ -1086,7 +1079,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_split_to_array ( string text, pattern text [, flags text ] ) → text[]</a>
      */
     public static SimpleExpression regexpSplitToArray(Expression string, Expression pattern) {
-        return FunctionUtils.twoArgFunc("REGEXP_SPLIT_TO_ARRAY", string, pattern, TextArrayType.from(String[].class));
+        return LiteralFunctions.twoArgFunc("REGEXP_SPLIT_TO_ARRAY", string, pattern);
     }
 
     /**
@@ -1098,7 +1091,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_split_to_array ( string text, pattern text [, flags text ] ) → text[]</a>
      */
     public static SimpleExpression regexpSplitToArray(Expression string, Expression pattern, Expression flags) {
-        return FunctionUtils.threeArgFunc("REGEXP_SPLIT_TO_ARRAY", string, pattern, flags, TextArrayType.from(String[].class));
+        return LiteralFunctions.threeArgFunc("REGEXP_SPLIT_TO_ARRAY", string, pattern, flags);
     }
 
     /**
@@ -1110,8 +1103,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_split_to_table ( string text, pattern text [, flags text ] ) → setof text</a>
      */
     public static _ColumnWithOrdinalityFunction regexpSplitToTable(Expression string, Expression pattern) {
-        return DialectFunctionUtils.twoArgColumnFunction("REGEXP_SPLIT_TO_TABLE", string, pattern,
-                null, TextType.INSTANCE);
+        return DialectFunctionUtils.twoArgColumnFunction("REGEXP_SPLIT_TO_TABLE", string, pattern, null);
     }
 
     /**
@@ -1124,8 +1116,7 @@ abstract class PostgreStringFunctions extends Functions {
      */
     public static _ColumnWithOrdinalityFunction regexpSplitToTable(Expression string, Expression pattern, Expression flags) {
         final String name = "REGEXP_SPLIT_TO_TABLE";
-        return DialectFunctionUtils.threeArgColumnFunction(name, string, pattern, flags,
-                name.toLowerCase(Locale.ROOT), TextType.INSTANCE);
+        return DialectFunctionUtils.threeArgColumnFunction(name, string, pattern, flags, name.toLowerCase(Locale.ROOT));
     }
 
     /**
@@ -1136,7 +1127,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_substr ( string text, pattern text [, start integer [, N integer [, flags text [, subexpr integer ] ] ] ] ) → text</a>
      */
     public static SimpleExpression regexpSubstr(Expression string, Expression pattern, Expression start) {
-        return FunctionUtils.threeArgFunc("REGEXP_SUBSTR", string, pattern, start, TextType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("REGEXP_SUBSTR", string, pattern, start);
     }
 
     /**
@@ -1147,7 +1138,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_substr ( string text, pattern text [, start integer [, N integer [, flags text [, subexpr integer ] ] ] ] ) → text</a>
      */
     public static SimpleExpression regexpSubstr(Expression string, Expression pattern, Expression start, Expression n) {
-        return FunctionUtils.fourArgFunc("REGEXP_SUBSTR", string, pattern, start, n, TextType.INSTANCE);
+        return FunctionUtils.fourArgFunc("REGEXP_SUBSTR", string, pattern, start, n);
     }
 
     /**
@@ -1158,7 +1149,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_substr ( string text, pattern text [, start integer [, N integer [, flags text [, subexpr integer ] ] ] ] ) → text</a>
      */
     public static SimpleExpression regexpSubstr(Expression string, Expression pattern, Expression start, Expression n, Expression flags) {
-        return FunctionUtils.fiveArgFunc("REGEXP_SUBSTR", string, pattern, start, n, flags, TextType.INSTANCE);
+        return FunctionUtils.fiveArgFunc("REGEXP_SUBSTR", string, pattern, start, n, flags);
     }
 
 
@@ -1170,7 +1161,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_substr ( string text, pattern text [, start integer [, N integer [, flags text [, subexpr integer ] ] ] ] ) → text</a>
      */
     public static SimpleExpression regexpSubstr(Expression string, Expression pattern, Expression start, Expression n, Expression flags, Expression subExpr) {
-        return FunctionUtils.sixArgFunc("REGEXP_SUBSTR", string, pattern, start, n, flags, subExpr, TextType.INSTANCE);
+        return FunctionUtils.sixArgFunc("REGEXP_SUBSTR", string, pattern, start, n, flags, subExpr);
     }
 
     /**
@@ -1181,7 +1172,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">repeat ( string text, number integer ) → text</a>
      */
     public static SimpleExpression repeat(Expression string, Expression number) {
-        return FunctionUtils.twoArgFunc("REPEAT", string, number, TextType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("REPEAT", string, number);
     }
 
 
@@ -1193,7 +1184,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">replace ( string text, from text, to text ) → text</a>
      */
     public static SimpleExpression replace(Expression string, Expression from, Expression to) {
-        return FunctionUtils.threeArgFunc("REPLACE", string, from, to, TextType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("REPLACE", string, from, to);
     }
 
     /**
@@ -1204,7 +1195,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">reverse ( text ) → text</a>
      */
     public static SimpleExpression reverse(Expression string) {
-        return FunctionUtils.oneArgFunc("REVERSE", string, TextType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("REVERSE", string);
     }
 
     /**
@@ -1215,7 +1206,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">right ( string text, n integer ) → text</a>
      */
     public static SimpleExpression right(Expression string, Expression n) {
-        return FunctionUtils.twoArgFunc("RIGHT", string, n, TextType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("RIGHT", string, n);
     }
 
     /**
@@ -1226,7 +1217,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">rpad ( string text, length integer [, fill text ] ) → text</a>
      */
     public static SimpleExpression rpad(Expression string, Expression length) {
-        return FunctionUtils.twoArgFunc("RPAD", string, length, TextType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("RPAD", string, length);
     }
 
     /**
@@ -1237,7 +1228,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">rpad ( string text, length integer [, fill text ] ) → text</a>
      */
     public static SimpleExpression rpad(Expression string, Expression length, Expression fill) {
-        return FunctionUtils.threeArgFunc("RPAD", string, length, fill, TextType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("RPAD", string, length, fill);
     }
 
     /**
@@ -1248,7 +1239,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">rtrim ( string text [, characters text ] ) → text</a>
      */
     public static SimpleExpression rtrim(Expression string) {
-        return FunctionUtils.oneArgFunc("RTRIM", string, TextType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("RTRIM", string);
     }
 
     /**
@@ -1260,7 +1251,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">rtrim ( bytes bytea, bytesremoved bytea ) → bytea</a>
      */
     public static SimpleExpression rtrim(Expression string, Expression characters) {
-        return FunctionUtils.twoArgFunc("RTRIM", string, characters, string.typeMeta());
+        return LiteralFunctions.twoArgFunc("RTRIM", string, characters);
     }
 
     /**
@@ -1271,7 +1262,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">split_part ( string text, delimiter text, n integer ) → text</a>
      */
     public static SimpleExpression splitPart(Expression string, Expression delimiter, Expression n) {
-        return FunctionUtils.threeArgFunc("SPLIT_PART", string, delimiter, n, TextType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("SPLIT_PART", string, delimiter, n);
     }
 
     /**
@@ -1294,7 +1285,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">string_to_array ( string text, delimiter text [, null_string text ] ) → text[]</a>
      */
     public static SimpleExpression stringToArray(Expression string, Expression delimiter) {
-        return FunctionUtils.twoArgFunc("STRING_TO_ARRAY", string, delimiter, TextArrayType.from(String[].class));
+        return LiteralFunctions.twoArgFunc("STRING_TO_ARRAY", string, delimiter);
     }
 
 
@@ -1306,7 +1297,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">string_to_array ( string text, delimiter text [, null_string text ] ) → text[]</a>
      */
     public static SimpleExpression stringToArray(Expression string, Expression delimiter, Expression nullString) {
-        return FunctionUtils.threeArgFunc("STRING_TO_ARRAY", string, delimiter, nullString, TextArrayType.from(String[].class));
+        return LiteralFunctions.threeArgFunc("STRING_TO_ARRAY", string, delimiter, nullString);
     }
 
     /**
@@ -1317,9 +1308,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">string_to_table ( string text, delimiter text [, null_string text ] ) → setof text</a>
      */
     public static _ColumnWithOrdinalityFunction stringToTable(Expression string, Expression delimiter) {
-        return DialectFunctionUtils.twoArgColumnFunction("STRING_TO_TABLE", string, delimiter,
-                null, TextType.INSTANCE
-        );
+        return DialectFunctionUtils.twoArgColumnFunction("STRING_TO_TABLE", string, delimiter, null);
     }
 
 
@@ -1331,8 +1320,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">string_to_table ( string text, delimiter text [, null_string text ] ) → setof text</a>
      */
     public static _ColumnWithOrdinalityFunction stringToTable(Expression string, Expression delimiter, Expression nullString) {
-        return DialectFunctionUtils.threeArgColumnFunction("STRING_TO_TABLE", string, delimiter, nullString,
-                null, TextType.INSTANCE);
+        return DialectFunctionUtils.threeArgColumnFunction("STRING_TO_TABLE", string, delimiter, nullString, null);
     }
 
     /**
@@ -1343,7 +1331,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">strpos ( string text, substring text ) → integer</a>
      */
     public static SimpleExpression strPos(Expression string, Expression substring) {
-        return FunctionUtils.twoArgFunc("STRPOS", string, substring, IntegerType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("STRPOS", string, substring);
     }
 
     /**
@@ -1355,7 +1343,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">substr ( bytes bytea, start integer [, count integer ] ) → bytea</a>
      */
     public static SimpleExpression substr(Expression string, Expression start) {
-        return FunctionUtils.twoArgFunc("SUBSTR", string, start, string.typeMeta());
+        return LiteralFunctions.twoArgFunc("SUBSTR", string, start);
     }
 
     /**
@@ -1367,7 +1355,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">substr ( bytes bytea, start integer [, count integer ] ) → bytea</a>
      */
     public static SimpleExpression substr(Expression string, Expression start, Expression count) {
-        return FunctionUtils.threeArgFunc("SUBSTR", string, start, count, string.typeMeta());
+        return LiteralFunctions.threeArgFunc("SUBSTR", string, start, count);
     }
 
     /**
@@ -1381,7 +1369,7 @@ abstract class PostgreStringFunctions extends Functions {
      * </a>
      */
     public static SimpleExpression toAscii(Expression string) {
-        return FunctionUtils.oneArgFunc("TO_ASCII", string, TextType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("TO_ASCII", string);
     }
 
     /**
@@ -1395,7 +1383,7 @@ abstract class PostgreStringFunctions extends Functions {
      * </a>
      */
     public static SimpleExpression toAscii(Expression string, Expression encoding) {
-        return FunctionUtils.twoArgFunc("TO_ASCII", string, encoding, TextType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("TO_ASCII", string, encoding);
     }
 
     /**
@@ -1408,7 +1396,7 @@ abstract class PostgreStringFunctions extends Functions {
      * </a>
      */
     public static SimpleExpression toHex(Expression integer) {
-        return FunctionUtils.oneArgFunc("TO_HEX", integer, TextType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("TO_HEX", integer);
     }
 
     /**
@@ -1419,7 +1407,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">translate ( string text, from text, to text ) → text</a>
      */
     public static SimpleExpression translate(Expression string, Expression from, Expression to) {
-        return FunctionUtils.threeArgFunc("TRANSLATE", string, from, to, TextType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("TRANSLATE", string, from, to);
     }
 
     /**
@@ -1432,7 +1420,7 @@ abstract class PostgreStringFunctions extends Functions {
      * </a>
      */
     public static SimpleExpression uniStr(Expression string) {
-        return FunctionUtils.oneArgFunc("UNISTR", string, TextType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("UNISTR", string);
     }
 
 
@@ -1447,7 +1435,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">bit_count ( bytes bytea ) → bigint</a>
      */
     public static SimpleExpression bitCount(Expression bit) {
-        return FunctionUtils.oneArgFunc("BIT_COUNT", bit, LongType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("BIT_COUNT", bit);
     }
 
     /**
@@ -1459,7 +1447,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">get_bit ( bytes bytea, n bigint ) → integer</a>
      */
     public static SimpleExpression getBit(Expression bits, Expression n) {
-        return FunctionUtils.twoArgFunc("GET_BIT", bits, n, IntegerType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("GET_BIT", bits, n);
     }
 
     /**
@@ -1471,7 +1459,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">set_bit ( bytes bytea, n bigint, newvalue integer ) → bytea</a>
      */
     public static SimpleExpression setBit(Expression bits, Expression n) {
-        return FunctionUtils.twoArgFunc("SET_BIT", bits, n, bits.typeMeta());
+        return LiteralFunctions.twoArgFunc("SET_BIT", bits, n);
     }
 
     /*-------------------below Binary String Functions and Operators -------------------*/
@@ -1484,7 +1472,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">get_bit ( bytes bytea, n bigint ) → integer</a>
      */
     public static SimpleExpression getByte(Expression bits, Expression n) {
-        return FunctionUtils.twoArgFunc("GET_BIT", bits, n, IntegerType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("GET_BIT", bits, n);
     }
 
     /**
@@ -1495,7 +1483,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">length ( bytes bytea, encoding name ) → integer</a>
      */
     public static SimpleExpression length(Expression bytes, Expression encoding) {
-        return FunctionUtils.twoArgFunc("LENGTH", bytes, encoding, IntegerType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("LENGTH", bytes, encoding);
     }
 
     /**
@@ -1506,7 +1494,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">set_bit ( bytes bytea, n bigint, newvalue integer ) → bytea</a>
      */
     public static SimpleExpression setBit(Expression bits, Expression n, Expression newValue) {
-        return FunctionUtils.threeArgFunc("SET_BIT", bits, n, newValue, bits.typeMeta());
+        return LiteralFunctions.threeArgFunc("SET_BIT", bits, n, newValue);
     }
 
     /**
@@ -1517,7 +1505,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">set_byte ( bytes bytea, n integer, newvalue integer ) → bytea</a>
      */
     public static SimpleExpression setByte(Expression bits, Expression n, Expression newValue) {
-        return FunctionUtils.threeArgFunc("SET_BYTE", bits, n, newValue, bits.typeMeta());
+        return LiteralFunctions.threeArgFunc("SET_BYTE", bits, n, newValue);
     }
 
     /**
@@ -1528,7 +1516,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">sha224 ( bytea ) → bytea</a>
      */
     public static SimpleExpression sha224(Expression bytea) {
-        return FunctionUtils.oneArgFunc("SHA224", bytea, bytea.typeMeta());
+        return LiteralFunctions.oneArgFunc("SHA224", bytea);
     }
 
     /**
@@ -1539,7 +1527,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">sha256 ( bytea ) → bytea</a>
      */
     public static SimpleExpression sha256(Expression bytea) {
-        return FunctionUtils.oneArgFunc("SHA256", bytea, bytea.typeMeta());
+        return LiteralFunctions.oneArgFunc("SHA256", bytea);
     }
 
     /**
@@ -1550,7 +1538,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">sha384 ( bytea ) → bytea</a>
      */
     public static SimpleExpression sha384(Expression bytea) {
-        return FunctionUtils.oneArgFunc("SHA384", bytea, bytea.typeMeta());
+        return LiteralFunctions.oneArgFunc("SHA384", bytea);
     }
 
     /**
@@ -1561,7 +1549,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">sha512 ( bytea ) → bytea</a>
      */
     public static SimpleExpression sha512(Expression bytea) {
-        return FunctionUtils.oneArgFunc("SHA512", bytea, bytea.typeMeta());
+        return LiteralFunctions.oneArgFunc("SHA512", bytea);
     }
 
     /**
@@ -1572,7 +1560,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">convert ( bytes bytea, src_encoding name, dest_encoding name ) → bytea</a>
      */
     public static SimpleExpression convert(Expression bytea, Expression srcEncoding, Expression destEncoding) {
-        return FunctionUtils.threeArgFunc("CONVERT", bytea, srcEncoding, destEncoding, bytea.typeMeta());
+        return LiteralFunctions.threeArgFunc("CONVERT", bytea, srcEncoding, destEncoding);
     }
 
     /**
@@ -1583,7 +1571,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">convert_from ( bytes bytea, src_encoding name ) → text</a>
      */
     public static SimpleExpression convertFrom(Expression bytea, Expression srcEncoding) {
-        return FunctionUtils.twoArgFunc("CONVERT_FROM", bytea, srcEncoding, TextType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("CONVERT_FROM", bytea, srcEncoding);
     }
 
     /**
@@ -1593,7 +1581,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">convert_to ( string text, dest_encoding name ) → bytea</a>
      */
     public static SimpleExpression convertTo(Expression bytea, Expression destEncoding) {
-        return FunctionUtils.twoArgFunc("CONVERT_TO", bytea, destEncoding, VarBinaryType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("CONVERT_TO", bytea, destEncoding);
     }
 
 
@@ -1605,7 +1593,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">encode ( bytes bytea, format text ) → text</a>
      */
     public static SimpleExpression encode(Expression bytea, Expression format) {
-        return FunctionUtils.twoArgFunc("ENCODE", bytea, format, TextType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("ENCODE", bytea, format);
     }
 
     /**
@@ -1616,7 +1604,7 @@ abstract class PostgreStringFunctions extends Functions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">decode ( string text, format text ) → bytea</a>
      */
     public static SimpleExpression decode(Expression text, Expression format) {
-        return FunctionUtils.twoArgFunc("DECODE", text, format, VarBinaryType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("DECODE", text, format);
     }
 
 
@@ -1649,11 +1637,9 @@ abstract class PostgreStringFunctions extends Functions {
         } else if (wordFor != SQLs.FOR) {
             throw CriteriaUtils.funcArgError(name, wordFor);
         } else if (count == null) {
-            func = FunctionUtils.complexArgFunc(name, string.typeMeta(),
-                    string, placing, newSubstring, from, start);
+            func = LiteralFunctions.compositeFunc(name, List.of(string, placing, newSubstring, from, start));
         } else {
-            func = FunctionUtils.complexArgFunc(name, string.typeMeta(),
-                    string, placing, newSubstring, from, start, wordFor, count);
+            func = LiteralFunctions.compositeFunc(name, List.of(string, placing, newSubstring, from, start, wordFor, count));
         }
         return func;
     }
@@ -1679,14 +1665,11 @@ abstract class PostgreStringFunctions extends Functions {
         } else if (wordFor != SQLs.FOR) {
             throw CriteriaUtils.funcArgError(name, wordFor);
         } else if (start != null && count != null) {
-            func = FunctionUtils.complexArgFunc(name, string.typeMeta(),
-                    string, from, start, wordFor, count);
+            func = LiteralFunctions.compositeFunc(name, List.of(string, from, start, wordFor, count));
         } else if (start != null) {
-            func = FunctionUtils.complexArgFunc(name, string.typeMeta(),
-                    string, from, start);
+            func = LiteralFunctions.compositeFunc(name, List.of(string, from, start));
         } else if (count != null) {
-            func = FunctionUtils.complexArgFunc(name, string.typeMeta(),
-                    string, wordFor, count);
+            func = LiteralFunctions.compositeFunc(name, List.of(string, wordFor, count));
         } else {
             //no bug,never here
             throw new IllegalArgumentException();

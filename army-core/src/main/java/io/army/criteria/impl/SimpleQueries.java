@@ -555,8 +555,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final <E> HR having(ExpressionOperator<SimpleExpression, E, IPredicate> expOperator,
-                               BiFunction<SimpleExpression, E, Expression> valueOperator, E value) {
+    public final <E> HR having(ExpressionOperator<TypedExpression, E, IPredicate> expOperator,
+                               BiFunction<TypedExpression, E, Expression> valueOperator, E value) {
         if (this.groupByList != null) {
             this.addHavingPredicate(expOperator.apply(valueOperator, value));
         }
@@ -565,8 +565,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
     @Override
     public final <E> HR having(DialectBooleanOperator<E> fieldOperator,
-                               BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                               BiFunction<SimpleExpression, E, Expression> func, @Nullable E value) {
+                               BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                               BiFunction<TypedExpression, E, Expression> func, @Nullable E value) {
         if (this.groupByList != null) {
             this.addHavingPredicate(fieldOperator.apply(operator, func, value));
         }
@@ -574,8 +574,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final <K, V> HR having(ExpressionOperator<SimpleExpression, V, IPredicate> expOperator,
-                                  BiFunction<SimpleExpression, V, Expression> valueOperator, Function<K, V> function,
+    public final <K, V> HR having(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
+                                  BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function,
                                   K key) {
         if (this.groupByList != null) {
             this.addHavingPredicate(expOperator.apply(valueOperator, function.apply(key)));
@@ -585,8 +585,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
     @Override
     public final <K, V> HR having(DialectBooleanOperator<V> fieldOperator,
-                                  BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                                  BiFunction<SimpleExpression, V, Expression> func, Function<K, V> function, K key) {
+                                  BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                                  BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key) {
         if (this.groupByList != null) {
             this.addHavingPredicate(fieldOperator.apply(operator, func, function.apply(key)));
         }
@@ -594,8 +594,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final <E> HR ifHaving(ExpressionOperator<SimpleExpression, E, IPredicate> expOperator,
-                                 BiFunction<SimpleExpression, E, Expression> valueOperator, Supplier<E> supplier) {
+    public final <E> HR ifHaving(ExpressionOperator<TypedExpression, E, IPredicate> expOperator,
+                                 BiFunction<TypedExpression, E, Expression> valueOperator, Supplier<E> supplier) {
         if (this.groupByList != null) {
             final E value;
             if ((value = supplier.get()) != null) {
@@ -607,8 +607,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
     @Override
     public final <E> HR ifHaving(DialectBooleanOperator<E> fieldOperator,
-                                 BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                                 BiFunction<SimpleExpression, E, Expression> func, Supplier<E> supplier) {
+                                 BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                                 BiFunction<TypedExpression, E, Expression> func, Supplier<E> supplier) {
         if (this.groupByList != null) {
             final E value;
             if ((value = supplier.get()) != null) {
@@ -619,8 +619,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final <K, V> HR ifHaving(ExpressionOperator<SimpleExpression, V, IPredicate> expOperator,
-                                    BiFunction<SimpleExpression, V, Expression> valueOperator, Function<K, V> function,
+    public final <K, V> HR ifHaving(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
+                                    BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function,
                                     K key) {
         if (this.groupByList != null) {
             final V value;
@@ -633,8 +633,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
     @Override
     public final <K, V> HR ifHaving(DialectBooleanOperator<V> fieldOperator,
-                                    BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                                    BiFunction<SimpleExpression, V, Expression> func, Function<K, V> function, K key) {
+                                    BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                                    BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key) {
         if (this.groupByList != null) {
             final V value;
             if ((value = function.apply(key)) != null) {
@@ -677,8 +677,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final <E> HR spaceAnd(ExpressionOperator<SimpleExpression, E, IPredicate> expOperator,
-                                 BiFunction<SimpleExpression, E, Expression> valueOperator, E value) {
+    public final <E> HR spaceAnd(ExpressionOperator<TypedExpression, E, IPredicate> expOperator,
+                                 BiFunction<TypedExpression, E, Expression> valueOperator, E value) {
         if (this.groupByList != null) {
             this.addHavingPredicate(expOperator.apply(valueOperator, value));
         }
@@ -687,8 +687,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
     @Override
     public final <E> HR spaceAnd(DialectBooleanOperator<E> fieldOperator,
-                                 BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                                 BiFunction<SimpleExpression, E, Expression> func, @Nullable E value) {
+                                 BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                                 BiFunction<TypedExpression, E, Expression> func, @Nullable E value) {
         if (this.groupByList != null) {
             this.addHavingPredicate(fieldOperator.apply(operator, func, value));
         }
@@ -696,8 +696,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final <K, V> HR spaceAnd(ExpressionOperator<SimpleExpression, V, IPredicate> expOperator,
-                                    BiFunction<SimpleExpression, V, Expression> valueOperator, Function<K, V> function,
+    public final <K, V> HR spaceAnd(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
+                                    BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function,
                                     K key) {
         if (this.groupByList != null) {
             this.addHavingPredicate(expOperator.apply(valueOperator, function.apply(key)));
@@ -707,8 +707,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
     @Override
     public final <K, V> HR spaceAnd(DialectBooleanOperator<V> fieldOperator,
-                                    BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                                    BiFunction<SimpleExpression, V, Expression> func, Function<K, V> function, K key) {
+                                    BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                                    BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key) {
         if (this.groupByList != null) {
             this.addHavingPredicate(fieldOperator.apply(operator, func, function.apply(key)));
         }
@@ -716,8 +716,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final <E> HR ifSpaceAnd(ExpressionOperator<SimpleExpression, E, IPredicate> expOperator,
-                                   BiFunction<SimpleExpression, E, Expression> valueOperator, Supplier<E> supplier) {
+    public final <E> HR ifSpaceAnd(ExpressionOperator<TypedExpression, E, IPredicate> expOperator,
+                                   BiFunction<TypedExpression, E, Expression> valueOperator, Supplier<E> supplier) {
         if (this.groupByList != null) {
             final E value;
             if ((value = supplier.get()) != null) {
@@ -729,8 +729,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
     @Override
     public final <E> HR ifSpaceAnd(DialectBooleanOperator<E> fieldOperator,
-                                   BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                                   BiFunction<SimpleExpression, E, Expression> func, Supplier<E> supplier) {
+                                   BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                                   BiFunction<TypedExpression, E, Expression> func, Supplier<E> supplier) {
         if (this.groupByList != null) {
             final E value;
             if ((value = supplier.get()) != null) {
@@ -741,8 +741,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final <K, V> HR ifSpaceAnd(ExpressionOperator<SimpleExpression, V, IPredicate> expOperator,
-                                      BiFunction<SimpleExpression, V, Expression> valueOperator,
+    public final <K, V> HR ifSpaceAnd(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
+                                      BiFunction<TypedExpression, V, Expression> valueOperator,
                                       Function<K, V> function, K key) {
         if (this.groupByList != null) {
             final V value;
@@ -755,8 +755,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
     @Override
     public final <K, V> HR ifSpaceAnd(DialectBooleanOperator<V> fieldOperator,
-                                      BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                                      BiFunction<SimpleExpression, V, Expression> func, Function<K, V> function, K key) {
+                                      BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                                      BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key) {
         if (this.groupByList != null) {
             final V value;
             if ((value = function.apply(key)) != null) {
@@ -876,8 +876,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final List<? extends SQLWords> modifierList() {
-        final List<? extends SQLWords> list = this.modifierList;
+    public final List<? extends SQLToken> modifierList() {
+        final List<? extends SQLToken> list = this.modifierList;
         if (list == null || list instanceof ArrayList) {
             throw _Exceptions.castCriteriaApi();
         }
@@ -980,7 +980,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
         String m;
         final List<_Cte> cteList = this.cteList;
-        if (cteList != null && cteList.size() > 0) {
+        if (cteList != null && !cteList.isEmpty()) {
             m = String.format("couldn't exists WITH clause %s", msgSuffix);
             throw ContextStack.clearStackAnd(IllegalOneStmtModeException::new, m);
         }
@@ -995,12 +995,12 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         } else if (this.hasGroupByClause()) {
             m = String.format("couldn't exists GROUP BY clause %s.", msgSuffix);
             throw ContextStack.clearStackAndCriteriaError(m);
-        } else if (this instanceof _Query._WindowClauseSpec && ((_WindowClauseSpec) this).windowList().size() > 0) {
+        } else if (this instanceof _Query._WindowClauseSpec && !((_WindowClauseSpec) this).windowList().isEmpty()) {
             m = String.format("couldn't exists WINDOW clause %s.", msgSuffix);
             throw ContextStack.clearStackAndCriteriaError(m);
         }
 
-        final Selection selection = selectionList.get(0);
+        final Selection selection = selectionList.getFirst();
         final DerivedField derivedIdField;
 
 
@@ -1040,7 +1040,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
             }
         }
 
-        final OperationPredicate predicate = (OperationPredicate) whereClause.get(0);
+        final OperationPredicate predicate = (OperationPredicate) whereClause.getFirst();
         final Expressions.DualPredicate dual;
         if (!(predicate instanceof Expressions.DualPredicate)
                 || (dual = (Expressions.DualPredicate) predicate).operator != DualBooleanOperator.EQUAL) {
@@ -1073,7 +1073,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
         String m;
         final List<_Cte> cteList = this.cteList;
-        if (cteList != null && cteList.size() > 0) {
+        if (cteList != null && !cteList.isEmpty()) {
             m = String.format("couldn't exists WITH clause in CTE[%s]", thisCteName);
             throw ContextStack.clearStackAnd(IllegalOneStmtModeException::new, m);
         } else if (this.hasLimitClause()) {
@@ -1082,7 +1082,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         } else if (this.hasGroupByClause()) {
             m = String.format("couldn't exists GROUP BY clause in CTE[%s].", thisCteName);
             throw ContextStack.clearStackAnd(IllegalOneStmtModeException::new, m);
-        } else if (this instanceof _Query._WindowClauseSpec && ((_WindowClauseSpec) this).windowList().size() > 0) {
+        } else if (this instanceof _Query._WindowClauseSpec && !((_WindowClauseSpec) this).windowList().isEmpty()) {
             m = String.format("couldn't exists WINDOW clause in CTE[%s].", thisCteName);
             throw ContextStack.clearStackAnd(IllegalOneStmtModeException::new, m);
         }
@@ -1095,7 +1095,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         final String idAlias = names.get(1), rowNumberAlias = names.get(2);
 
         final _SelectItem selectItem;
-        selectItem = selectItemList.get(0);
+        selectItem = selectItemList.getFirst();
         Expression expression;
         if (!(selectItem instanceof ArmySelections.ExpressionSelection)) {
             m = String.format("first select item isn't window function rowNumber() expression in CTE[%s]", thisCteName);
@@ -1123,7 +1123,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
             m = String.format("Must just one from-item in CTE[%s]", thisCteName);
             throw ContextStack.clearStackAnd(IllegalOneStmtModeException::new, m);
         }
-        final _TabularBlock block = blockList.get(0);
+        final _TabularBlock block = blockList.getFirst();
         final TabularItem item = block.tableItem();
         if (!(item instanceof _Cte)) {
             m = String.format("from-item isn't CTE in CTE[%s]", thisCteName);
@@ -1507,7 +1507,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
                 if (this.distinctOnExpList != null) {
                     throw ContextStack.clearStackAndCastCriteriaApi();
                 }
-                if (list.size() > 0) {
+                if (!list.isEmpty()) {
                     this.selectDistinct();
                     this.distinctOnExpList = _Collections.unmodifiableList(list);
                 } else if (required) {
@@ -1540,11 +1540,11 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
                     throw ContextStack.clearStackAndCastCriteriaApi();
                 }
 
-                if (distinct != null && list.size() > 0) {
+                if (distinct != null && !list.isEmpty()) {
                     this.selectDistinct();
                     this.distinctOnExpList = _Collections.unmodifiableList(list);
                 } else if (required) {
-                    if (list.size() == 0) {
+                    if (list.isEmpty()) {
                         throw CriteriaUtils.dontAddAnyItem();
                     }
                     throw ContextStack.nullPointer(this.context);
@@ -1564,7 +1564,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }//WithCteDistinctOnSimpleQueries
 
 
-    enum LockWaitOption implements SQLWords {
+    enum LockWaitOption implements SQLToken {
 
         NOWAIT(" NOWAIT"),
         SKIP_LOCKED(" SKIP LOCKED");
@@ -1596,7 +1596,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
         private List<String> tableAliasList;
 
-        private SQLWords lockWaitOption;
+        private SQLToken lockWaitOption;
 
         private boolean clauseEnd;
 
@@ -1617,7 +1617,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
             if (this.clauseEnd) {
                 throw ContextStack.clearStackAndCastCriteriaApi();
             }
-            this.tableAliasList = ArrayUtils.of(tableAlias1, tableAlias2);
+            this.tableAliasList = List.of(tableAlias1, tableAlias2);
             return (LT) this;
         }
 
@@ -1626,7 +1626,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
             if (this.clauseEnd) {
                 throw ContextStack.clearStackAndCastCriteriaApi();
             }
-            this.tableAliasList = ArrayUtils.of(tableAlias1, tableAlias2, tableAlias3);
+            this.tableAliasList = List.of(tableAlias1, tableAlias2, tableAlias3);
             return (LT) this;
         }
 
@@ -1635,7 +1635,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
             if (this.clauseEnd) {
                 throw ContextStack.clearStackAndCastCriteriaApi();
             }
-            this.tableAliasList = ArrayUtils.of(tableAlias1, tableAlias2, tableAlias3, tableAlias4);
+            this.tableAliasList = List.of(tableAlias1, tableAlias2, tableAlias3, tableAlias4);
             return (LT) this;
         }
 
@@ -1722,7 +1722,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public final SQLWords lockWaitOption() {
+        public final SQLToken lockWaitOption() {
             return this.lockWaitOption;
         }
 
@@ -2466,7 +2466,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
         private final List<Hint> hintList;
 
-        private final List<? extends SQLWords> modifierList;
+        private final List<? extends SQLToken> modifierList;
 
         private final int selectionSize;
 
@@ -2530,7 +2530,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public final List<? extends SQLWords> modifierList() {
+        public final List<? extends SQLToken> modifierList() {
             return this.modifierList;
         }
 

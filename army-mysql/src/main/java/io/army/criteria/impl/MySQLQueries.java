@@ -867,7 +867,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
         return this;
     }
 
-    private enum MySQLLockStrength implements SQLWords {
+    private enum MySQLLockStrength implements SQLToken {
 
         FOR_UPDATE(_Constant.SPACE_FOR_UPDATE),
         FOR_SHARE(_Constant.SPACE_FOR_SHARE);
@@ -892,7 +892,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
     }//MySQLLockStrength
 
 
-    private enum LockInShareMode implements _LockBlock, SQLWords {
+    private enum LockInShareMode implements _LockBlock, SQLToken {
 
         LOCK_IN_SHARE_MODE(_Constant.SPACE_LOCK_IN_SHARE_MODE);
 
@@ -909,7 +909,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
         }
 
         @Override
-        public final SQLWords lockStrength() {
+        public final SQLToken lockStrength() {
             return this;
         }
 
@@ -919,7 +919,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
         }
 
         @Override
-        public final SQLWords lockWaitOption() {
+        public final SQLToken lockWaitOption() {
             //always null
             return null;
         }
@@ -977,7 +977,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
         }
 
         @Override
-        public SQLWords lockStrength() {
+        public SQLToken lockStrength() {
             return this.lockStrength;
         }
 
@@ -1022,7 +1022,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
         }
 
         @Override
-        public SQLWords lockStrength() {
+        public SQLToken lockStrength() {
             final MySQLLockStrength strength = this.lockStrength;
             if (strength == null) {
                 throw ContextStack.clearStackAndCastCriteriaApi();

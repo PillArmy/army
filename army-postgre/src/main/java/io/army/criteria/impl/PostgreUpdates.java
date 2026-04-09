@@ -570,7 +570,7 @@ abstract class PostgreUpdates<I extends Item, Q extends Item, T>
     }
 
     @Override
-    public final SQLWords modifier() {
+    public final SQLToken modifier() {
         return this.onlyModifier;
     }
 
@@ -1016,7 +1016,7 @@ abstract class PostgreUpdates<I extends Item, Q extends Item, T>
             _SingleJoinSpec<I, Q>>
             implements _TableSampleOnSpec<I, Q>, _RepeatableOnClause<I, Q> {
 
-        private SimpleJoinClauseTableBlock(_JoinType joinType, @Nullable SQLWords modifier, TableMeta<?> table, String alias,
+        private SimpleJoinClauseTableBlock(_JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> table, String alias,
                                            _SingleJoinSpec<I, Q> stmt) {
             super(joinType, modifier, table, alias, stmt);
         }
@@ -1081,7 +1081,7 @@ abstract class PostgreUpdates<I extends Item, Q extends Item, T>
         }
 
         @Override
-        public final SQLWords modifier() {
+        public final SQLToken modifier() {
             return this.only;
         }
 

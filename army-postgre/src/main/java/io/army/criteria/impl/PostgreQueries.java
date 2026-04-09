@@ -755,7 +755,7 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
         /**
          * @see #onJoinTable(_JoinType, SQLs.TableModifier, TableMeta, String)
          */
-        private JonClauseTableBlock(_JoinType joinType, @Nullable SQLWords modifier, TableMeta<?> tableItem, String alias,
+        private JonClauseTableBlock(_JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> tableItem, String alias,
                                     PostgreQuery._JoinSpec<I> stmt) {
             super(joinType, modifier, tableItem, alias, stmt);
         }
@@ -764,7 +764,7 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
     }//JonClauseTableBlock
 
 
-    private enum PostgreLockStrength implements SQLWords {
+    private enum PostgreLockStrength implements SQLToken {
 
         FOR_UPDATE(_Constant.SPACE_FOR_UPDATE),
         FOR_SHARE(_Constant.SPACE_FOR_SHARE),
@@ -846,7 +846,7 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
 
 
         @Override
-        public SQLWords lockStrength() {
+        public SQLToken lockStrength() {
             return this.lockStrength;
         }
 
@@ -914,7 +914,7 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
         }
 
         @Override
-        public SQLWords lockStrength() {
+        public SQLToken lockStrength() {
             final PostgreLockStrength strength = this.lockStrength;
             if (strength == null) {
                 throw ContextStack.clearStackAndCastCriteriaApi();
@@ -1618,15 +1618,15 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
         private final SQLs.Modifier groupByModifier;
         private final List<_Window> windowList;
 
-        private final SQLWords offsetRow;
+        private final SQLToken offsetRow;
 
-        private final SQLWords fetchFirstNext;
+        private final SQLToken fetchFirstNext;
 
 
-        private final SQLWords fetchRowPercent;
-        private final SQLWords fetchRow;
+        private final SQLToken fetchRowPercent;
+        private final SQLToken fetchRow;
 
-        private final SQLWords fetchOnlyWithTies;
+        private final SQLToken fetchOnlyWithTies;
 
         private final List<_LockBlock> lockBlockList;
 
@@ -1658,27 +1658,27 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
         }
 
         @Override
-        public SQLWords offsetRowModifier() {
+        public SQLToken offsetRowModifier() {
             return this.offsetRow;
         }
 
         @Override
-        public SQLWords fetchFirstOrNext() {
+        public SQLToken fetchFirstOrNext() {
             return this.fetchFirstNext;
         }
 
         @Override
-        public SQLWords fetchPercentModifier() {
+        public SQLToken fetchPercentModifier() {
             return this.fetchRowPercent;
         }
 
         @Override
-        public SQLWords fetchRowModifier() {
+        public SQLToken fetchRowModifier() {
             return this.fetchRow;
         }
 
         @Override
-        public SQLWords fetchOnlyOrWithTies() {
+        public SQLToken fetchOnlyOrWithTies() {
             return this.fetchOnlyWithTies;
         }
 

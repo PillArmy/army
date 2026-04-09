@@ -40,16 +40,16 @@ abstract class LimitRowOrderByClause<OR, OD, LR, LO, LF> extends OrderByClause<O
 
     private ArmyExpression offsetExp;
 
-    private SQLWords offsetRow;
+    private SQLToken offsetRow;
 
-    private SQLWords fethFirstNext;
+    private SQLToken fethFirstNext;
 
     private ArmyExpression rowCountOrPercent;
 
-    private SQLWords fetchRowPercent;
-    private SQLWords fetchRow;
+    private SQLToken fetchRowPercent;
+    private SQLToken fetchRow;
 
-    private SQLWords fetchOnlyWithTies;
+    private SQLToken fetchOnlyWithTies;
 
     LimitRowOrderByClause(CriteriaContext context) {
         super(context);
@@ -288,7 +288,7 @@ abstract class LimitRowOrderByClause<OR, OD, LR, LO, LF> extends OrderByClause<O
             throw CriteriaUtils.unknownWords(row);
         }
         this.offsetExp = (ArmyExpression) start;
-        this.offsetRow = (SQLWords) row;
+        this.offsetRow = (SQLToken) row;
         return (LO) this;
     }
 
@@ -352,11 +352,11 @@ abstract class LimitRowOrderByClause<OR, OD, LR, LO, LF> extends OrderByClause<O
         } else if (onlyWithTies != SQLs.ONLY && onlyWithTies != SQLs.WITH_TIES) {
             throw CriteriaUtils.unknownWords(this.context, onlyWithTies);
         }
-        this.fethFirstNext = (SQLWords) firstOrNext;
+        this.fethFirstNext = (SQLToken) firstOrNext;
         this.rowCountOrPercent = (ArmyExpression) count;
         this.fetchRowPercent = null;
-        this.fetchRow = (SQLWords) row;
-        this.fetchOnlyWithTies = (SQLWords) onlyWithTies;
+        this.fetchRow = (SQLToken) row;
+        this.fetchOnlyWithTies = (SQLToken) onlyWithTies;
         return (LF) this;
     }
 
@@ -426,11 +426,11 @@ abstract class LimitRowOrderByClause<OR, OD, LR, LO, LF> extends OrderByClause<O
         } else if (this.rowCountOrPercent != null) {
             throw limitAndFetch(this.context);
         }
-        this.fethFirstNext = (SQLWords) firstOrNext;
+        this.fethFirstNext = (SQLToken) firstOrNext;
         this.rowCountOrPercent = (ArmyExpression) percent;
-        this.fetchRowPercent = (SQLWords) wordPercent;
-        this.fetchRow = (SQLWords) row;
-        this.fetchOnlyWithTies = (SQLWords) onlyWithTies;
+        this.fetchRowPercent = (SQLToken) wordPercent;
+        this.fetchRow = (SQLToken) row;
+        this.fetchOnlyWithTies = (SQLToken) onlyWithTies;
         return (LF) this;
     }
 
@@ -508,7 +508,7 @@ abstract class LimitRowOrderByClause<OR, OD, LR, LO, LF> extends OrderByClause<O
     }
 
     @Override
-    public final SQLWords offsetRowModifier() {
+    public final SQLToken offsetRowModifier() {
         return this.offsetRow;
     }
 
@@ -519,22 +519,22 @@ abstract class LimitRowOrderByClause<OR, OD, LR, LO, LF> extends OrderByClause<O
 
 
     @Override
-    public final SQLWords fetchFirstOrNext() {
+    public final SQLToken fetchFirstOrNext() {
         return this.fethFirstNext;
     }
 
     @Override
-    public final SQLWords fetchPercentModifier() {
+    public final SQLToken fetchPercentModifier() {
         return this.fetchRowPercent;
     }
 
     @Override
-    public final SQLWords fetchRowModifier() {
+    public final SQLToken fetchRowModifier() {
         return this.fetchRow;
     }
 
     @Override
-    public final SQLWords fetchOnlyOrWithTies() {
+    public final SQLToken fetchOnlyOrWithTies() {
         return this.fetchOnlyWithTies;
     }
 
@@ -552,11 +552,6 @@ abstract class LimitRowOrderByClause<OR, OD, LR, LO, LF> extends OrderByClause<O
         private static final AllWord INSTANCE = new AllWord();
 
         private AllWord() {
-        }
-
-        @Override
-        public TypeMeta typeMeta() {
-            throw unsupportedOperation(this);
         }
 
         @Override

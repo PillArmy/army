@@ -19,6 +19,7 @@ package io.army.jdbc;
 import io.army.ArmyException;
 import io.army.criteria.SQLParam;
 import io.army.criteria.Selection;
+import io.army.criteria.TypedSelection;
 import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.executor.DriverException;
@@ -212,7 +213,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     public final ResultStates update(SimpleStmt stmt, SyncStmtOption option, Function<Option<?>, ?> sessionFunc)
             throws DataAccessException {
 
-        assert !(stmt instanceof GeneratedKeyStmt) || stmt.selectionList().size() == 0;
+        assert !(stmt instanceof GeneratedKeyStmt) || stmt.selectionList().isEmpty();
 
 
         try (final Statement statement = bindStatement(stmt, option)) {
@@ -399,7 +400,9 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                        DataType dataType, Object value)
             throws SQLException;
 
-    abstract DataType getDataType(ResultSetMetaData meta, int indexBasedOne) throws SQLException;
+
+    abstract DataType dataTypeMap(ResultSetMetaData meta, MappingType[] typeArray, int indexBasedZero) throws SQLException;
+
 
     @Nullable
     abstract Object get(ResultSet resultSet, int indexBasedOne, MappingType type, DataType dataType) throws SQLException;
@@ -566,11 +569,8 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
             resultSet = statement.executeQuery(sql);
 
-            final DataType[] dataTypeArray;
-            dataTypeArray = createSqlTypArray(resultSet.getMetaData());
-
             final XidRowSpliterator spliterator;
-            spliterator = new XidRowSpliterator(this, option, statement, resultSet, dataTypeArray, function, sessionFunc);
+            spliterator = new XidRowSpliterator(this, option, statement, resultSet, function, sessionFunc);
 
             final Consumer<StreamCommander> consumer;
             consumer = option.commanderConsumer();
@@ -856,12 +856,12 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             metaData = resultSet.getMetaData();
 
             final DataType[] dataTypeArray = stmtCursor.dataTypeArray;
-            readDataTypeArray(metaData, dataTypeArray);
-
+            final MappingType[] typeArray = stmtCursor.typeArray;
             final List<? extends Selection> selectionList = stmtCursor.selectionList;
+            updateTypeArrayPair(metaData, dataTypeArray, typeArray, selectionList);
 
             final JdbcCurrentRecord<R> currentRecord;
-            currentRecord = new JdbcCurrentRecord<>(this, selectionList, dataTypeArray, function, consumer,
+            currentRecord = new JdbcCurrentRecord<>(this, selectionList, dataTypeArray, typeArray, function, consumer,
                     metaData, resultItemStream);
 
             final JdbcCursorRowSpliterator<R> spliterator;
@@ -964,7 +964,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                                                          SyncStmtOption option, final @Nullable LongConsumer consumer) {
         final List<List<SQLParam>> groupList;
         groupList = stmt.groupList();
-        if (groupList.get(0).size() > 0) {
+        if (!groupList.getFirst().isEmpty()) {
             throw new IllegalArgumentException("stmt error");
         }
 
@@ -1229,24 +1229,38 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
 
-    private DataType[] createSqlTypArray(final ResultSetMetaData metaData) throws SQLException {
-        final DataType[] dataTypeArray = new DataType[metaData.getColumnCount()];
-        final int columnCount = dataTypeArray.length;
-        for (int i = 0; i < columnCount; i++) {
-            dataTypeArray[i] = getDataType(metaData, i + 1);
-        }
-        return dataTypeArray;
-    }
-
-    private void readDataTypeArray(final ResultSetMetaData metaData, final DataType[] dataTypeArray) throws SQLException {
-        final int columnCount = metaData.getColumnCount();
+    private void updateTypeArrayPair(final ResultSetMetaData meta, final DataType[] dataTypeArray,
+                                     final MappingType[] typeArray,
+                                     final @Nullable List<? extends Selection> selectionList)
+            throws SQLException {
+        final int columnCount = meta.getColumnCount();
         if (columnCount != dataTypeArray.length) {
             throw _Exceptions.columnCountAndSelectionCountNotMatch(columnCount, dataTypeArray.length);
-        }
-        for (int i = 0; i < columnCount; i++) {
-            dataTypeArray[i] = getDataType(metaData, i + 1);
+        } else if (columnCount != typeArray.length) {
+            throw _Exceptions.columnCountAndSelectionCountNotMatch(columnCount, typeArray.length);
+        } else if (selectionList != null && columnCount != selectionList.size()) {
+            throw _Exceptions.columnCountAndSelectionCountNotMatch(columnCount, typeArray.length);
         }
 
+        Selection selection;
+        TypeMeta typeMeta;
+        for (int i = 0; i < columnCount; i++) {
+
+            dataTypeArray[i] = dataTypeMap(meta, typeArray, i);
+
+            if (selectionList == null) {
+                continue;
+            }
+            selection = selectionList.get(i);
+            if (!(selection instanceof TypedSelection)) {
+                continue;
+            }
+            typeMeta = ((TypedSelection) selection).typeMeta();
+            if (!(typeMeta instanceof MappingType)) {
+                typeMeta = typeMeta.mappingType();
+            }
+            typeArray[i] = (MappingType) typeMeta;
+        }
     }
 
 
@@ -1261,9 +1275,9 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
         final Statement statement;
 
-        if (!option.isPreferServerPrepare() && paramGroup.size() == 0 && option.fetchSize() < 1) {
+        if (!option.isPreferServerPrepare() && paramGroup.isEmpty() && option.fetchSize() < 1) {
             statement = this.conn.createStatement();
-        } else if (stmt instanceof GeneratedKeyStmt && stmt.selectionList().size() == 0) {
+        } else if (stmt instanceof GeneratedKeyStmt && stmt.selectionList().isEmpty()) {
             statement = this.conn.prepareStatement(stmt.sqlText(), Statement.RETURN_GENERATED_KEYS);
         } else {
             statement = this.conn.prepareStatement(stmt.sqlText());
@@ -1297,7 +1311,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             statement.setQueryTimeout(option.restSeconds());
         }
 
-        if (stmt.selectionList().size() > 0) {
+        if (!stmt.selectionList().isEmpty()) {
             final int fetchSize = option.fetchSize();
             if (fetchSize > 0) {
                 statement.setFetchSize(fetchSize);
@@ -1543,16 +1557,16 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
             final List<? extends Selection> selectionList = stmt.selectionList();
 
-            final ResultSetMetaData metaData;
-            metaData = resultSet.getMetaData();
+            final ResultSetMetaData meta;
+            meta = resultSet.getMetaData();
 
             final DataType[] dataTypeArray = new DataType[selectionList.size()];
-            readDataTypeArray(metaData, dataTypeArray);
-
+            final MappingType[] typeArray = new MappingType[dataTypeArray.length];
+            updateTypeArrayPair(meta, dataTypeArray, typeArray, selectionList);
 
             final JdbcCurrentRecord<R> currentRecord;
-            currentRecord = new JdbcCurrentRecord<>(this, selectionList, dataTypeArray, function,
-                    option.stateConsumer(), metaData, resultItemStream);
+            currentRecord = new JdbcCurrentRecord<>(this, selectionList, dataTypeArray, typeArray, function,
+                    option.stateConsumer(), meta, resultItemStream);
 
             final JdbcSimpleSpliterator<R> spliterator;
             spliterator = new JdbcSimpleSpliterator<>(true, statement, resultSet, currentRecord, stmt, option, sessionFunc);
@@ -1592,15 +1606,16 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
             final List<? extends Selection> selectionList = stmt.selectionList();
 
-            final ResultSetMetaData metaData;
-            metaData = resultSet.getMetaData();
+            final ResultSetMetaData meta;
+            meta = resultSet.getMetaData();
 
             final DataType[] dataTypeArray = new DataType[selectionList.size()];
-            readDataTypeArray(metaData, dataTypeArray);
+            final MappingType[] typeArray = new MappingType[dataTypeArray.length];
+            updateTypeArrayPair(meta, dataTypeArray, typeArray, selectionList);
 
             final JdbcCurrentRecord<R> currentRecord;
-            currentRecord = new JdbcCurrentRecord<>(this, selectionList, dataTypeArray, function, option.stateConsumer(),
-                    metaData, resultItemStream);
+            currentRecord = new JdbcCurrentRecord<>(this, selectionList, dataTypeArray, typeArray,
+                    function, option.stateConsumer(), meta, resultItemStream);
 
             final BatchRowSpliterator<R> spliterator;
             spliterator = new BatchRowSpliterator<>(statement, currentRecord, stmt, option, resultSet, sessionFunc);
@@ -1625,7 +1640,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
         final List<List<SQLParam>> groupList = stmt.groupList();
 
-        if (groupList.getFirst().size() > 0) {
+        if (!groupList.getFirst().isEmpty()) {
             throw new IllegalArgumentException("Batch stmt not multi-statement");
         }
         Statement statement = null;
@@ -1650,15 +1665,15 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
             final List<? extends Selection> selectionList = stmt.selectionList();
 
-            final ResultSetMetaData metaData;
-            metaData = resultSet.getMetaData();
+            final ResultSetMetaData meta = resultSet.getMetaData();
 
             final DataType[] dataTypeArray = new DataType[selectionList.size()];
-            readDataTypeArray(metaData, dataTypeArray);
+            final MappingType[] typeArray = new MappingType[dataTypeArray.length];
+            updateTypeArrayPair(meta, dataTypeArray, typeArray, selectionList);
 
             final JdbcCurrentRecord<R> currentRecord;
-            currentRecord = new JdbcCurrentRecord<>(this, selectionList, dataTypeArray, function,
-                    option.stateConsumer(), metaData, resultItemStream);
+            currentRecord = new JdbcCurrentRecord<>(this, selectionList, dataTypeArray, typeArray, function,
+                    option.stateConsumer(), meta, resultItemStream);
 
             final MultiSmtBatchRowSpliterator<R> spliterator;
             spliterator = new MultiSmtBatchRowSpliterator<>(statement, currentRecord, stmt, option, resultSet,
@@ -1696,14 +1711,14 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             final int idSelectionIndex = stmt.idSelectionIndex();
             final int idColumnIndexBaseOne;
             if (idSelectionIndex < 0) {
-                assert stmt.selectionList().size() == 0;
+                assert stmt.selectionList().isEmpty();
                 idColumnIndexBaseOne = 1;
             } else {
                 idColumnIndexBaseOne = idSelectionIndex + 1;
             }
 
             final DataType sqlType;
-            sqlType = getDataType(resultSet.getMetaData(), idColumnIndexBaseOne);
+            sqlType = dataTypeMap(resultSet.getMetaData(), new MappingType[1], 0);
 
             final MappingEnv env = this.factory.mappingEnv;
             final int rowSize = stmt.rowSize();
@@ -1855,19 +1870,21 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
 
         private JdbcCurrentRecord(JdbcExecutor executor, List<? extends Selection> selectionList,
-                                  DataType[] dataTypeArray, Function<? super CurrentRecord, R> function,
+                                  DataType[] dataTypeArray, MappingType[] typeArray,
+                                  Function<? super CurrentRecord, R> function,
                                   Consumer<ResultStates> consumer, ResultSetMetaData meta, boolean resultItemStream) {
+
             this.executor = executor;
             this.selectionList = selectionList;
             this.dataTypeArray = dataTypeArray;
+            this.rawTypeArray = typeArray;
             this.function = function;
 
             this.consumer = consumer;
             this.resultItemStream = resultItemStream;
             this.dontNeedToCreateStates = !resultItemStream && consumer == ResultStates.IGNORE_STATES;
-            this.rawTypeArray = createRawTypeArray(selectionList);
             this.compatibleTypeArray = new MappingType[dataTypeArray.length];
-            this.recordMeta = new JdbcStmtRecordMeta(1, executor, dataTypeArray, selectionList, meta);
+            this.recordMeta = new JdbcStmtRecordMeta(1, executor, dataTypeArray, typeArray, selectionList, meta);
         }
 
         private JdbcCurrentRecord(JdbcCurrentRecord<R> r, ResultSetMetaData meta) {
@@ -1881,7 +1898,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             this.dontNeedToCreateStates = r.dontNeedToCreateStates;
             this.rawTypeArray = r.rawTypeArray;
             this.compatibleTypeArray = r.compatibleTypeArray;
-            this.recordMeta = new JdbcStmtRecordMeta(r.recordMeta.resultNo() + 1, r.executor, r.dataTypeArray, r.selectionList, meta);
+            this.recordMeta = new JdbcStmtRecordMeta(r.recordMeta.resultNo() + 1, r.executor, r.dataTypeArray, r.rawTypeArray, r.selectionList, meta);
         }
 
 
@@ -1918,7 +1935,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
         @Override
         public <T> T get(final int indexBasedZero, final @Nullable Class<T> columnClass) {
             if (columnClass == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("columnClass is null");
             }
             this.recordMeta.checkIndex(indexBasedZero);
 
@@ -2962,7 +2979,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
 
         private XidRowSpliterator(JdbcExecutor executor, StreamOption option, Statement statement, ResultSet resultSet,
-                                  DataType[] dataTypeArray, Function<DataRecord, Xid> function,
+                                  Function<DataRecord, Xid> function,
                                   Function<Option<?>, ?> sessionFunc) throws SQLException {
             this.executor = executor;
             this.info = executor.obtainTransaction();
@@ -2972,7 +2989,13 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
             this.function = function;
             this.sessionFunc = sessionFunc;
-            this.meta = new JdbcProcRecordMeta(1, executor, dataTypeArray, resultSet.getMetaData());
+
+            final ResultSetMetaData meta = resultSet.getMetaData();
+            final DataType[] dataTypeArray = new DataType[meta.getColumnCount()];
+            final MappingType[] typeArray = new MappingType[dataTypeArray.length];
+
+            executor.updateTypeArrayPair(meta, dataTypeArray, typeArray, null);
+            this.meta = new JdbcProcRecordMeta(1, executor, dataTypeArray, typeArray, meta);
         }
 
         @Override
@@ -3228,6 +3251,8 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
         private final DataType[] dataTypeArray;
 
+        private final MappingType[] typeArray;
+
         private ResultType nextResultType;
 
         private int nextBatchIndex = 0;
@@ -3255,6 +3280,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             this.closeStatement = closeStatement;
             this.statement = statement;
             this.dataTypeArray = new DataType[stmt.selectionList().size()];
+            this.typeArray = new MappingType[this.dataTypeArray.length];
             this.batchSize = stmt.groupList().size();
 
             if (this.batchSize == 1) {
@@ -3285,6 +3311,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             return this.stmt.groupList().size();
         }
 
+        @Nullable
         @Override
         public <R> R queryOne(Class<R> resultClass) throws ArmyException {
             return query(resultClass, ResultStates.IGNORE_STATES)
@@ -3292,6 +3319,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                     .orElse(null);
         }
 
+        @Nullable
         @Override
         public <R> R queryOneObject(Supplier<R> constructor) throws ArmyException {
             return queryObject(constructor, ResultStates.IGNORE_STATES)
@@ -3299,6 +3327,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                     .orElse(null);
         }
 
+        @Nullable
         @Override
         public <R> R queryOneRecord(Function<? super CurrentRecord, R> function) throws ArmyException {
             return queryRecord(function, ResultStates.IGNORE_STATES)
@@ -3345,7 +3374,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                 rowFunc = (Function<DataRecord, R>) this.objectRowFunc;
             }
             if (rowFunc == null) {
-                this.objectRowFunc = rowFunc = RowFunctions.objectRowFunc(constructor, this.stmt.selectionList(), true);
+                this.objectRowFunc = rowFunc = RowFunctions.objectRowFunc(constructor, true);
             }
             return queryRecord(rowFunc, consumer);
         }
@@ -3397,11 +3426,14 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                 final ResultSetMetaData metaData;
                 metaData = resultSet.getMetaData();
 
+                final List<? extends Selection> selectionList = this.stmt.selectionList();
+
                 final DataType[] dataTypeArray = this.dataTypeArray;
-                executor.readDataTypeArray(metaData, dataTypeArray);
+                final MappingType[] typeArray = this.typeArray;
+                executor.updateTypeArrayPair(metaData, dataTypeArray, typeArray, selectionList);
 
                 final JdbcCurrentRecord<R> currentRecord;
-                currentRecord = new JdbcCurrentRecord<>(executor, this.stmt.selectionList(), dataTypeArray,
+                currentRecord = new JdbcCurrentRecord<>(executor, selectionList, dataTypeArray, typeArray,
                         function, combineConsumer(consumer, stmtOption), metaData, false);
 
                 final JdbcSimpleSpliterator<R> spliterator;

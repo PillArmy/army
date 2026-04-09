@@ -20,6 +20,9 @@ import io.army.criteria.impl.SQLs;
 import io.army.function.OptionalClauseOperator;
 import io.army.function.TeFunction;
 import io.army.lang.Nullable;
+import io.army.mapping.ArrayMappingType;
+import io.army.mapping.JsonMappingType;
+import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.TypeMeta;
 
@@ -44,7 +47,7 @@ import static io.army.dialect.Database.*;
  * @since 0.6.0
  */
 @SuppressWarnings("unused")
-public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpdateSpec, SortItem,
+public interface Expression extends SQLExpression, SortItem,
         GroupByItem.ExpressionItem, RightOperand, AssignmentItem, SelectionSpec, ArraySubscript {
 
 
@@ -55,8 +58,8 @@ public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpda
      * @param operand non-null
      * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     * @see DefiniteExpression#equal(BiFunction, Object)
-     * @see SqlField#spaceEqual(BiFunction)
+     * @see TypedExpression#equal(BiFunction, Object)
+     * @see TypedField#spaceEqual(BiFunction)
      */
     CompoundPredicate equal(Expression operand);
 
@@ -213,13 +216,14 @@ public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpda
     CompoundExpression leftShift(Expression bitNumber);
 
 
-    @Override
-    Expression mapTo(TypeMeta typeMeta);
+    /**
+     * <p>Map the expression to a known type expression,but don't support codec.
+     */
+    TypedExpression mapTo(MappingType typeMeta);
 
-    //  TODO 解决子接口问题
+
     @Support({PostgreSQL})
-    Expression castTo(TypeMeta type);
-
+    TypedExpression castTo(MappingType type);
 
     /**
      * @return always this
@@ -281,7 +285,7 @@ public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpda
      * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
      */
 
-    <M extends SQLWords, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> funcRef, Expression right, M modifier, Expression optionalExp);
+    <M extends SQLToken, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> funcRef, Expression right, M modifier, Expression optionalExp);
 
     /**
      * <p>
@@ -296,7 +300,7 @@ public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpda
      *                For example: {@code Postgres.pound(Expression,Expression)}
      * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
      */
-    <M extends SQLWords, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> funcRef, Expression right, M modifier, char escapeChar);
+    <M extends SQLToken, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> funcRef, Expression right, M modifier, char escapeChar);
 
 
     /**
@@ -336,7 +340,7 @@ public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpda
      *                For example: {@code Postgres.pound(Expression,Expression)}
      * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
      */
-    <M extends SQLWords, T extends RightOperand> CompoundPredicate whiteSpace(TeFunction<Expression, M, T, CompoundPredicate> funcRef, final M modifier, T right);
+    <M extends SQLToken, T extends RightOperand> CompoundPredicate whiteSpace(TeFunction<Expression, M, T, CompoundPredicate> funcRef, final M modifier, T right);
 
     /**
      * <p>
@@ -356,7 +360,7 @@ public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpda
      * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
      */
 
-    <M extends SQLWords> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> funcRef, Expression right, M modifier, Expression optionalExp);
+    <M extends SQLToken> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> funcRef, Expression right, M modifier, Expression optionalExp);
 
     /**
      * <p>
@@ -376,7 +380,7 @@ public interface Expression extends SQLExpression, TypeInfer, TypeInfer.TypeUpda
      * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
      */
 
-    <M extends SQLWords> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> funcRef, Expression right, M modifier, char escapeChar);
+    <M extends SQLToken> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> funcRef, Expression right, M modifier, char escapeChar);
 
 
 }

@@ -16,7 +16,7 @@
 
 package io.army.criteria.impl.inner;
 
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 import io.army.criteria.TabularItem;
 import io.army.criteria.impl._JoinType;
 import io.army.lang.Nullable;
@@ -45,7 +45,7 @@ public interface _TabularBlock {
 
     interface _ModifierTableBlockSpec {
         @Nullable
-        SQLWords modifier();
+        SQLToken modifier();
     }
 
 }

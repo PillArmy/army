@@ -31,14 +31,12 @@ abstract class ArmySelections implements _Selection {
 
     static _Selection forExp(final Expression exp, final String alias) {
         final _Selection selection;
-        if (exp instanceof FieldSelection) {
-            if (((FieldSelection) exp).label().equals(alias)) {
-                selection = (_Selection) exp;
-            } else {
-                selection = new FieldSelectionImpl((FieldSelection) exp, alias);
-            }
-        } else if (exp instanceof SqlField && ((SqlField) exp).fieldName().equals(alias)) {
+        if (exp instanceof NamedExpression && ((NamedExpression) exp).label().equals(alias)) {
             selection = (_Selection) exp;
+        } else if (exp instanceof FieldSelection) {
+            selection = new RenameFieldSelection((FieldSelection) exp, alias);
+        } else if (exp instanceof TypedSelection) {
+            selection = new RenameTypedSelection((TypedSelection) exp, alias);
         } else {
             selection = new ExpressionSelection((ArmyExpression) exp, alias);
         }
@@ -47,38 +45,45 @@ abstract class ArmySelections implements _Selection {
 
     static Selection renameSelection(final Selection selection, final String alias) {
         final Selection s;
-        if (selection instanceof FieldSelection) {
+        if (selection instanceof AnonymousSelection) {
+            s = new RenameSelection(selection, alias);
+        } else if (selection instanceof FieldSelection) {
             if (selection.label().equals(alias)) {
                 s = selection;
             } else {
-                s = new FieldSelectionImpl((FieldSelection) selection, alias);
+                s = new RenameFieldSelection((FieldSelection) selection, alias);
             }
-        } else if (selection instanceof AnonymousSelection || !selection.label().equals(alias)) {
-            s = new RenameSelection(selection, alias);
-        } else {
+        } else if (selection instanceof TypedSelection) {
+            if (selection.label().equals(alias)) {
+                s = selection;
+            } else {
+                s = new RenameTypedSelection((TypedSelection) selection, alias);
+            }
+        } else if (selection.label().equals(alias)) {
             s = selection;
+        } else {
+            s = new RenameSelection(selection, alias);
         }
         return s;
     }
 
 
-    static Selection forName(final @Nullable String alias, final @Nullable TypeMeta typeMeta) {
+    static Selection forName(final @Nullable String alias) {
         if (alias == null) {
             throw ContextStack.clearStackAndNullPointer();
-        } else if (typeMeta == null) {
-            throw ContextStack.clearStackAndNullPointer();
         }
-        final Selection selection;
-        if (typeMeta instanceof MappingType) {
-            selection = new SelectionForName(alias, (MappingType) typeMeta);
-        } else {
-            selection = new SelectionForName(alias, typeMeta.mappingType());
-        }
-        return selection;
+        return new SelectionForName(alias);
     }
 
-    static Selection forAnonymous(TypeMeta type) {
-        return new AnonymousSelectionImpl(type);
+    static Selection forName(final @Nullable String alias, MappingType type) {
+        if (alias == null) {
+            throw ContextStack.clearStackAndNullPointer();
+        }
+        return new TypedSelectionForName(alias, type);
+    }
+
+    static Selection forAnonymous() {
+        return new AnonymousSelectionImpl();
     }
 
     static Selection forColumnFunc(Functions._ColumnFunction func, String alias) {
@@ -98,25 +103,15 @@ abstract class ArmySelections implements _Selection {
         return this.alias;
     }
 
-     static final class ExpressionSelection extends ArmySelections {
+    static final class ExpressionSelection extends ArmySelections {
 
-         final ArmyExpression expression;
+        final ArmyExpression expression;
 
-         private ExpressionSelection(ArmyExpression expression, String alias) {
-             super(alias);
-             this.expression = expression;
-         }
+        private ExpressionSelection(ArmyExpression expression, String alias) {
+            super(alias);
+            this.expression = expression;
+        }
 
-         @Override
-         public MappingType typeMeta() {
-             TypeMeta paramMeta = this.expression.typeMeta();
-             if (!(paramMeta instanceof MappingType)) {
-                 // ExpressionSelection couldn't return io.army.criteria.TableField ,avoid to statement executor
-                 // decode selection .
-                 paramMeta = paramMeta.mappingType();
-             }
-             return (MappingType) paramMeta;
-         }
 
         @Override
         public void appendSelectItem(final StringBuilder sqlBuilder, final _SqlContext context) {
@@ -127,6 +122,7 @@ abstract class ArmySelections implements _Selection {
             context.identifier(this.alias, sqlBuilder);
         }
 
+        @Nullable
         @Override
         public TableField tableField() {
             //always null
@@ -147,16 +143,70 @@ abstract class ArmySelections implements _Selection {
     }//ExpressionSelection
 
 
-     static final class FieldSelectionImpl extends ArmySelections implements FieldSelection, _SelfDescribed {
+    static final class RenameTypedSelection extends ArmySelections implements TypedSelection {
 
-         final FieldSelection selection;
 
-         private FieldSelectionImpl(FieldSelection selection, String alias) {
-             super(alias);
-             this.selection = selection;
-         }
+        private final TypedSelection selection;
 
-         final
+        private RenameTypedSelection(TypedSelection selection, String alias) {
+            super(alias);
+            this.selection = selection;
+        }
+
+        @Override
+        public TypeMeta typeMeta() {
+            return this.selection.typeMeta();
+        }
+
+        @Nullable
+        @Override
+        public TableField tableField() {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public Expression underlyingExp() {
+            if (this.selection instanceof Expression) {
+                return (Expression) this.selection;
+            }
+            return null;
+        }
+
+        @Override
+        public void appendSelectItem(StringBuilder sqlBuilder, _SqlContext context) {
+            ((_SelfDescribed) this.selection).appendSql(sqlBuilder, context);
+            sqlBuilder.append(_Constant.SPACE_AS_SPACE);
+            context.identifier(this.alias, sqlBuilder);
+        }
+
+        @Override
+        public String toString() {
+            return _StringUtils.builder()
+                    .append(this.selection)
+                    .append(_Constant.SPACE_AS_SPACE)
+                    .append(this.alias)
+                    .toString();
+        }
+
+
+    } // RenameTypedSelection
+
+
+    static final class RenameFieldSelection extends ArmySelections implements FieldSelection, _SelfDescribed {
+
+        final FieldSelection selection;
+
+        private RenameFieldSelection(FieldSelection selection, String alias) {
+            super(alias);
+            this.selection = selection;
+        }
+
+
+        @Override
+        public TypeMeta typeMeta() {
+            return this.selection.typeMeta();
+        }
 
         @Override
         public FieldMeta<?> fieldMeta() {
@@ -170,10 +220,6 @@ abstract class ArmySelections implements _Selection {
             return fieldMeta;
         }
 
-        @Override
-        public TypeMeta typeMeta() {
-            return this.fieldMeta();
-        }
 
         @Override
         public void appendSelectItem(final StringBuilder sqlBuilder, final _SqlContext context) {
@@ -200,6 +246,7 @@ abstract class ArmySelections implements _Selection {
             }
         }
 
+        @Nullable
         @Override
         public Expression underlyingExp() {
             final FieldSelection selection = this.selection;
@@ -212,6 +259,7 @@ abstract class ArmySelections implements _Selection {
             return exp;
         }
 
+        @Nullable
         @Override
         public TableField tableField() {
             final FieldSelection selection = this.selection;
@@ -245,10 +293,6 @@ abstract class ArmySelections implements _Selection {
             this.selection = selection;
         }
 
-        @Override
-        public TypeMeta typeMeta() {
-            return this.selection.typeMeta();
-        }
 
         @Override
         public void appendSelectItem(final StringBuilder sqlBuilder, final _SqlContext context) {
@@ -285,14 +329,57 @@ abstract class ArmySelections implements _Selection {
 
     }//RenameSelection
 
-    private static final class SelectionForName extends ArmySelections {
 
+    private static final class TypedSelectionForName extends ArmySelections implements TypedSelection {
 
         private final MappingType type;
 
-        private SelectionForName(String alias, MappingType type) {
+        private TypedSelectionForName(String alias, MappingType type) {
             super(alias);
             this.type = type;
+        }
+
+        @Override
+        public TypeMeta typeMeta() {
+            return this.type;
+        }
+
+        @Nullable
+        @Override
+        public TableField tableField() {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public Expression underlyingExp() {
+            return null;
+        }
+
+        @Override
+        public void appendSelectItem(StringBuilder sqlBuilder, _SqlContext context) {
+            //no-bug ,never here
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String toString() {
+            return _StringUtils.builder()
+                    .append(_Constant.SPACE)
+                    .append(this.alias)
+                    .append(_Constant.SPACE_AS_SPACE)
+                    .append(this.alias)
+                    .toString();
+        }
+
+
+    } // TypedSelectionForName
+
+    private static final class SelectionForName extends ArmySelections {
+
+
+        private SelectionForName(String alias) {
+            super(alias);
         }
 
 
@@ -303,20 +390,15 @@ abstract class ArmySelections implements _Selection {
 
         }
 
-        @Override
-        public TypeMeta typeMeta() {
-            return this.type;
-        }
-
 
         @Override
         public TableField tableField() {
-            return null;
+            return null; // TODO
         }
 
         @Override
         public Expression underlyingExp() {
-            return null;
+            return null; // TODO
         }
 
         @Override
@@ -353,30 +435,17 @@ abstract class ArmySelections implements _Selection {
             context.identifier(this.alias, sqlBuilder);
         }
 
-        @Override
-        public MappingType typeMeta() {
-            final TypeMeta typeMeta;
-            typeMeta = this.func.typeMeta();
-            final MappingType type;
-            if (typeMeta instanceof MappingType) {
-                type = (MappingType) typeMeta;
-            } else {
-                type = typeMeta.mappingType();
-            }
-            return type;
-        }
-
 
         @Override
         public TableField tableField() {
             //always null
-            return null;
+            return null; // TODO
         }
 
         @Override
         public Expression underlyingExp() {
             //always null
-            return null;
+            return null; // TODO
         }
 
         @Override
@@ -394,17 +463,10 @@ abstract class ArmySelections implements _Selection {
 
     private static final class AnonymousSelectionImpl implements AnonymousSelection {
 
-        private final TypeMeta type;
 
-        private AnonymousSelectionImpl(TypeMeta type) {
-            this.type = type;
+        private AnonymousSelectionImpl() {
         }
 
-
-        @Override
-        public TypeMeta typeMeta() {
-            return this.type;
-        }
 
         @Override
         public String label() {

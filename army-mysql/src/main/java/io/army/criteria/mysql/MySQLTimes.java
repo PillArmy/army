@@ -16,10 +16,10 @@
 
 package io.army.criteria.mysql;
 
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 
 @Deprecated
-public enum MySQLTimes implements SQLWords {
+public enum MySQLTimes implements SQLToken {
 
     TIME(" TIME"),
     DATE(" DATE"),

@@ -1239,7 +1239,7 @@ abstract class ArmyParser implements DialectParser {
         this.standardLimitClause(query.offsetExp(), query.rowCountExp(), context);
     }
 
-    protected void standardLockClause(SQLWords lockMode, _SqlContext context) {
+    protected void standardLockClause(SQLToken lockMode, _SqlContext context) {
         throw new UnsupportedOperationException();
     }
 
@@ -1506,11 +1506,11 @@ abstract class ArmyParser implements DialectParser {
 
     }
 
-    protected final void selectModifierClause(final List<? extends SQLWords> modifierList, final _SqlContext context,
-                                              final Function<SQLWords, Integer> validator) {
+    protected final void selectModifierClause(final List<? extends SQLToken> modifierList, final _SqlContext context,
+                                              final Function<SQLToken, Integer> validator) {
         final StringBuilder sqlBuilder = context.sqlBuilder();
         int level, lastLevel = -1;
-        for (SQLWords modifier : modifierList) {
+        for (SQLToken modifier : modifierList) {
             level = validator.apply(modifier);
             if (level < 0 || level < lastLevel) {
                 String m = String.format("SELECT modifier[%s] syntax error.", modifier);
@@ -1555,7 +1555,7 @@ abstract class ArmyParser implements DialectParser {
         TabularItem tabularItem;
         String alias, cteName;
         _JoinType joinType;
-        SQLWords modifier;
+        SQLToken modifier;
         List<_Predicate> predicateList;
         final boolean tableOnlyModifier = this.tableOnlyModifier;
         for (int i = 0; i < blockSize; i++) {
@@ -3117,13 +3117,13 @@ abstract class ArmyParser implements DialectParser {
     /**
      * @see #parseStandardQuery(_StandardQuery, _SimpleQueryContext)
      */
-    private void standardSelectClause(final List<? extends SQLWords> modifierList, final StringBuilder sqlBuilder) {
+    private void standardSelectClause(final List<? extends SQLToken> modifierList, final StringBuilder sqlBuilder) {
         switch (modifierList.size()) {
             case 0:
                 //no-op
                 break;
             case 1: {
-                final SQLWords modifier = modifierList.get(0);
+                final SQLToken modifier = modifierList.get(0);
                 if (!(modifier == SQLs.DISTINCT || modifier == SQLs.ALL)) {
                     String m = String.format("Standard query api support only %s or %s", SQLs.DISTINCT, SQLs.ALL);
                     throw new CriteriaException(m);
@@ -3364,7 +3364,7 @@ abstract class ArmyParser implements DialectParser {
         this.standardLimitClause(stmt.offsetExp(), stmt.rowCountExp(), context);
 
         //9. lock clause
-        final SQLWords lock = stmt.lockStrength();
+        final SQLToken lock = stmt.lockStrength();
         if (lock != null) {
             this.standardLockClause(lock, context);
         }

@@ -16,13 +16,11 @@
 
 package io.army.criteria;
 
-
 import io.army.criteria.impl.SQLs;
 import io.army.function.OptionalClauseOperator;
-import io.army.function.TeNamedOperator;
+import io.army.function.TeNamedParamsFunc;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
-import io.army.mapping.optional.NoCastTextType;
 
 import java.util.Collection;
 import java.util.function.BiFunction;
@@ -31,14 +29,16 @@ import java.util.function.UnaryOperator;
 import static io.army.dialect.Database.H2;
 import static io.army.dialect.Database.PostgreSQL;
 
+
 /**
  * <p>This interface is base interface of following :
  * <ul>
- *     <li>{@link TableField}</li>
+ *     <li>{@link TypedField}</li>
  *     <li>{@link ValueExpression}</li>
+ *     <li>{@link IPredicate}</li>
  * </ul>
  */
-public interface DefiniteExpression extends SimpleExpression {
+public interface TypedExpression extends Expression , TypeInfer{
 
 
     /**
@@ -66,7 +66,7 @@ public interface DefiniteExpression extends SimpleExpression {
      * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
-    <T> CompoundPredicate equal(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundPredicate equal(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
     /**
      * <p>
@@ -95,7 +95,7 @@ public interface DefiniteExpression extends SimpleExpression {
      * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
-    <T> CompoundPredicate notEqual(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundPredicate notEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
     /**
      * <p>
@@ -125,7 +125,7 @@ public interface DefiniteExpression extends SimpleExpression {
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html#operator_equal-to">NULL-safe equal.</a>
      */
-    <T> CompoundPredicate nullSafeEqual(BiFunction<SimpleExpression, T, Expression> funcRef, @Nullable T value);
+    <T> CompoundPredicate nullSafeEqual(BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value);
 
 
     /**
@@ -155,7 +155,7 @@ public interface DefiniteExpression extends SimpleExpression {
      * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
-    <T> CompoundPredicate less(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundPredicate less(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
 
     /**
@@ -185,7 +185,7 @@ public interface DefiniteExpression extends SimpleExpression {
      * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
-    <T> CompoundPredicate lessEqual(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundPredicate lessEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
     /**
      * <p>
@@ -214,7 +214,7 @@ public interface DefiniteExpression extends SimpleExpression {
      * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
-    <T> CompoundPredicate greater(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundPredicate greater(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
     /**
      * <p>
@@ -243,7 +243,7 @@ public interface DefiniteExpression extends SimpleExpression {
      * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
-    <T> CompoundPredicate greaterEqual(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundPredicate greaterEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
 
     /**
@@ -275,7 +275,7 @@ public interface DefiniteExpression extends SimpleExpression {
      * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
-    <T> CompoundPredicate between(BiFunction<SimpleExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
+    <T> CompoundPredicate between(BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
 
 
     /**
@@ -322,7 +322,7 @@ public interface DefiniteExpression extends SimpleExpression {
      * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
-    <T, U> CompoundPredicate between(BiFunction<SimpleExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<SimpleExpression, U, Expression> secondFuncRef, U second);
+    <T, U> CompoundPredicate between(BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
 
 
     /**
@@ -354,7 +354,7 @@ public interface DefiniteExpression extends SimpleExpression {
      * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
-    <T> CompoundPredicate notBetween(BiFunction<SimpleExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
+    <T> CompoundPredicate notBetween(BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
 
     /**
      * <p>
@@ -400,7 +400,7 @@ public interface DefiniteExpression extends SimpleExpression {
      * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
-    <T, U> CompoundPredicate notBetween(BiFunction<SimpleExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<SimpleExpression, U, Expression> secondFuncRef, U second);
+    <T, U> CompoundPredicate notBetween(BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
 
 
     /**
@@ -434,7 +434,7 @@ public interface DefiniteExpression extends SimpleExpression {
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
     @Support({PostgreSQL, H2})
-    <T> CompoundPredicate between(@Nullable SQLs.BetweenModifier modifier, BiFunction<SimpleExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
+    <T> CompoundPredicate between(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
 
     /**
      * <p>
@@ -481,7 +481,7 @@ public interface DefiniteExpression extends SimpleExpression {
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
     @Support({PostgreSQL, H2})
-    <T, U> CompoundPredicate between(@Nullable SQLs.BetweenModifier modifier, BiFunction<SimpleExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<SimpleExpression, U, Expression> secondFuncRef, U second);
+    <T, U> CompoundPredicate between(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
 
 
     /**
@@ -515,7 +515,7 @@ public interface DefiniteExpression extends SimpleExpression {
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
     @Support({PostgreSQL, H2})
-    <T> CompoundPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, BiFunction<SimpleExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
+    <T> CompoundPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
 
     /**
      * <p>
@@ -562,7 +562,7 @@ public interface DefiniteExpression extends SimpleExpression {
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
     @Support({PostgreSQL, H2})
-    <T, U> CompoundPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, BiFunction<SimpleExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<SimpleExpression, U, Expression> secondFuncRef, U second);
+    <T, U> CompoundPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
 
 
     /**
@@ -596,7 +596,7 @@ public interface DefiniteExpression extends SimpleExpression {
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
     @Support({PostgreSQL, H2})
-    <T> CompoundPredicate is(SQLs.IsComparisonWord operator, BiFunction<SimpleExpression, T, Expression> funcRef, @Nullable T value);
+    <T> CompoundPredicate is(SQLs.IsComparisonWord operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value);
 
     /**
      * <p>
@@ -629,44 +629,44 @@ public interface DefiniteExpression extends SimpleExpression {
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
     @Support({PostgreSQL, H2})
-    <T> CompoundPredicate isNot(SQLs.IsComparisonWord operator, BiFunction<SimpleExpression, T, Expression> funcRef, @Nullable T value);
+    <T> CompoundPredicate isNot(SQLs.IsComparisonWord operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value);
 
-    CompoundPredicate in(BiFunction<SimpleExpression, Collection<?>, RowExpression> funcRef, Collection<?> value);
+    CompoundPredicate in(BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Collection<?> value);
 
-    CompoundPredicate notIn(BiFunction<SimpleExpression, Collection<?>, RowExpression> funcRef, Collection<?> value);
+    CompoundPredicate notIn(BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Collection<?> value);
 
-    CompoundPredicate in(TeNamedOperator<SimpleExpression> funcRef, String paramName, int size);
+    CompoundPredicate in(TeNamedParamsFunc<TypedExpression> funcRef, String paramName, int size);
 
-    CompoundPredicate notIn(TeNamedOperator<SimpleExpression> funcRef, String paramName, int size);
+    CompoundPredicate notIn(TeNamedParamsFunc<TypedExpression> funcRef, String paramName, int size);
 
 
-    <T> CompoundPredicate like(BiFunction<NoCastTextType, T, Expression> funcRef, T value);
+    <T> CompoundPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value);
 
-    <T> CompoundPredicate like(BiFunction<NoCastTextType, T, Expression> funcRef, T value, SQLs.WordEscape escape, char escapeChar);
+    <T> CompoundPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value, SQLs.WordEscape escape, char escapeChar);
 
-    <T> CompoundPredicate notLike(BiFunction<NoCastTextType, T, Expression> funcRef, T value);
+    <T> CompoundPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value);
 
-    <T> CompoundPredicate notLike(BiFunction<NoCastTextType, T, Expression> funcRef, T value, SQLs.WordEscape escape, char escapeChar);
+    <T> CompoundPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value, SQLs.WordEscape escape, char escapeChar);
 
-    <T> CompoundExpression mod(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundExpression mod(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression times(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundExpression times(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression plus(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundExpression plus(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression minus(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundExpression minus(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression divide(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundExpression divide(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression bitwiseAnd(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundExpression bitwiseAnd(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression bitwiseOr(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundExpression bitwiseOr(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression bitwiseXor(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundExpression bitwiseXor(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression rightShift(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundExpression rightShift(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression leftShift(BiFunction<SimpleExpression, T, Expression> funcRef, T value);
+    <T> CompoundExpression leftShift(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
 
     /*-------------------below dialect operator method-------------------*/
@@ -685,7 +685,7 @@ public interface DefiniteExpression extends SimpleExpression {
      * @param value   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
      */
 
-    <T, R extends ResultExpression> R space(BiFunction<SimpleExpression, Expression, R> operator, BiFunction<SimpleExpression, T, Expression> funcRef, @Nullable T value);
+    <T, R extends ResultExpression> R space(BiFunction<TypedExpression, Expression, R> operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value);
 
     /**
      * <p>
@@ -699,7 +699,7 @@ public interface DefiniteExpression extends SimpleExpression {
      *                For example: {@code Postgres.pound(Expression,Expression)}
      * @param value   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
      */
-    <M extends SQLWords, T, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> operator, BiFunction<SimpleExpression, T, Expression> funcRef, @Nullable T value, M modifier, Expression optionalExp);
+    <M extends SQLToken, T, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value, M modifier, Expression optionalExp);
 
     /**
      * <p>
@@ -713,12 +713,12 @@ public interface DefiniteExpression extends SimpleExpression {
      *                For example: {@code Postgres.pound(Expression,Expression)}
      * @param value   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
      */
-    <M extends SQLWords, T, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> operator, BiFunction<SimpleExpression, T, Expression> funcRef, @Nullable T value, M modifier, char escapeChar);
+    <M extends SQLToken, T, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value, M modifier, char escapeChar);
 
     /**
      * <p>
      * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, IPredicate)} type infer.
+     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, SQLs.SymbolSpace,IPredicate)} type infer.
      *
      * <p>
      * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
@@ -730,12 +730,12 @@ public interface DefiniteExpression extends SimpleExpression {
      *                For example: {@code Postgres.pound(Expression,Expression)}
      * @param value   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
      */
-    <T> CompoundPredicate whiteSpace(BiFunction<SimpleExpression, Expression, CompoundPredicate> operator, BiFunction<SimpleExpression, T, Expression> funcRef, @Nullable T value);
+    <T> CompoundPredicate whiteSpace(BiFunction<TypedExpression, Expression, CompoundPredicate> operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value);
 
     /**
      * <p>
      * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, IPredicate)} type infer.
+     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, SQLs.SymbolSpace,IPredicate)} type infer.
      *
      * <p>
      * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
@@ -747,12 +747,12 @@ public interface DefiniteExpression extends SimpleExpression {
      *                For example: {@code Postgres.pound(Expression,Expression)}
      * @param value   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
      */
-    <M extends SQLWords, T> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> operator, BiFunction<MappingType, T, Expression> funcRef, @Nullable T value, M modifier, Expression optionalExp);
+    <M extends SQLToken, T> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> operator, BiFunction<MappingType, T, Expression> funcRef, @Nullable T value, M modifier, Expression optionalExp);
 
     /**
      * <p>
      * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, IPredicate)} type infer.
+     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, SQLs.SymbolSpace,IPredicate)} type infer.
      *
      * <p>
      * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
@@ -764,7 +764,8 @@ public interface DefiniteExpression extends SimpleExpression {
      *                For example: {@code Postgres.pound(Expression,Expression)}
      * @param value   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
      */
-    <M extends SQLWords, T> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> operator, BiFunction<MappingType, T, Expression> funcRef, @Nullable T value, M modifier, char escapeChar);
+    <M extends SQLToken, T> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> operator, BiFunction<MappingType, T, Expression> funcRef, @Nullable T value, M modifier, char escapeChar);
+
 
 
 }

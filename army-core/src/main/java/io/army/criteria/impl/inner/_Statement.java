@@ -16,7 +16,7 @@
 
 package io.army.criteria.impl.inner;
 
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 import io.army.criteria.SortItem;
 import io.army.criteria.Statement;
 import io.army.lang.Nullable;
@@ -79,10 +79,10 @@ public interface _Statement extends Statement {
     interface _SQL2008LimitClauseSpec extends _LimitClauseSpec {
 
         @Nullable
-        SQLWords offsetRowModifier();
+        SQLToken offsetRowModifier();
 
         @Nullable
-        SQLWords fetchFirstOrNext();
+        SQLToken fetchFirstOrNext();
 
 
         /**
@@ -92,13 +92,13 @@ public interface _Statement extends Statement {
         _Expression rowCountExp();
 
         @Nullable
-        SQLWords fetchPercentModifier();
+        SQLToken fetchPercentModifier();
 
         @Nullable
-        SQLWords fetchRowModifier();
+        SQLToken fetchRowModifier();
 
         @Nullable
-        SQLWords fetchOnlyOrWithTies();
+        SQLToken fetchOnlyOrWithTies();
 
 
     }

@@ -36,35 +36,35 @@ abstract class WindowFunctions {
     }
 
 
-    static Windows._OverSpec zeroArgWindowFunc(String name, TypeMeta returnType) {
-        return new ZeroArgStandardWindowFunc(name, returnType);
+    static Windows._OverSpec zeroArgWindowFunc(String name) {
+        return new ZeroArgStandardWindowFunc(name);
     }
 
-    static Windows._OverSpec oneArgWindowFunc(String name, Expression one, TypeMeta returnType) {
-        return new OneArgStandardWindowFunc(name, one, returnType);
+    static Windows._OverSpec oneArgWindowFunc(String name, Expression one) {
+        return new OneArgStandardWindowFunc(name, one);
     }
 
-    static Windows._OverSpec twoArgWindowFunc(String name, Expression one, Expression two, TypeMeta returnType) {
-        return new TwoArgStandardWindowFunc(name, one, two, returnType);
+    static Windows._OverSpec twoArgWindowFunc(String name, Expression one, Expression two) {
+        return new TwoArgStandardWindowFunc(name, one, two);
     }
 
-    static Windows._OverSpec compositeWindowFunc(String name, List<?> argList, TypeMeta returnType) {
-        return new CompositeStandardWindowFunc(name, argList, returnType);
+    static Windows._OverSpec compositeWindowFunc(String name, List<?> argList) {
+        return new CompositeStandardWindowFunc(name, argList);
     }
 
 
     /*-------------------below Aggregate functions-------------------*/
 
-    static Windows._WindowAggSpec oneArgWindowAggFunc(String name, Expression one, TypeMeta returnType) {
-        return new OneArgStandardAggWidowFunc(name, one, returnType);
+    static Windows._WindowAggSpec oneArgWindowAggFunc(String name, Expression one) {
+        return new OneArgStandardAggWidowFunc(name, one);
     }
 
-    static Windows._WindowAggSpec twoArgAggWindow(String name, Expression one, Expression two, TypeMeta returnType) {
-        return new TwoArgStandardAggWidowFunc(name, one, two, returnType);
+    static Windows._WindowAggSpec twoArgAggWindow(String name, Expression one, Expression two) {
+        return new TwoArgStandardAggWidowFunc(name, one, two);
     }
 
-    static Windows._WindowAggSpec compositeWindowAggFunc(String name, List<?> argList, TypeMeta returnType) {
-        return new CompositeStandardWindowAggFunc(name, argList, returnType);
+    static Windows._WindowAggSpec compositeWindowAggFunc(String name, List<?> argList) {
+        return new CompositeStandardWindowAggFunc(name, argList);
     }
 
 
@@ -79,8 +79,8 @@ abstract class WindowFunctions {
 
         private _Window anonymousWindow;
 
-        WindowFunction(String name, TypeMeta returnType) {
-            super(name, returnType);
+        WindowFunction(String name) {
+            super(name);
             this.outerContext = ContextStack.peek();
         }
 
@@ -258,8 +258,8 @@ abstract class WindowFunctions {
     private static abstract class StandardWindowFunction extends WindowFunction<Window._StandardPartitionBySpec>
             implements Windows._OverSpec {
 
-        private StandardWindowFunction(String name, TypeMeta returnType) {
-            super(name, returnType);
+        private StandardWindowFunction(String name) {
+            super(name);
         }
 
 
@@ -292,8 +292,8 @@ abstract class WindowFunctions {
     private static final class ZeroArgStandardWindowFunc extends StandardWindowFunction
             implements FunctionUtils.NoArgFunction {
 
-        private ZeroArgStandardWindowFunc(String name, TypeMeta returnType) {
-            super(name, returnType);
+        private ZeroArgStandardWindowFunc(String name) {
+            super(name);
         }
 
 
@@ -314,8 +314,8 @@ abstract class WindowFunctions {
 
         private final ArmyExpression one;
 
-        private OneArgStandardWindowFunc(String name, Expression one, TypeMeta returnType) {
-            super(name, returnType);
+        private OneArgStandardWindowFunc(String name, Expression one) {
+            super(name);
             this.one = (ArmyExpression) one;
         }
 
@@ -339,8 +339,8 @@ abstract class WindowFunctions {
 
         private final ArmyExpression two;
 
-        private TwoArgStandardWindowFunc(String name, Expression one, Expression two, TypeMeta returnType) {
-            super(name, returnType);
+        private TwoArgStandardWindowFunc(String name, Expression one, Expression two) {
+            super(name);
             this.one = (ArmyExpression) one;
             this.two = (ArmyExpression) two;
         }
@@ -367,8 +367,8 @@ abstract class WindowFunctions {
             implements Windows._WindowAggSpec {
 
 
-        private OneArgStandardAggWidowFunc(String name, Expression one, TypeMeta returnType) {
-            super(name, one, returnType);
+        private OneArgStandardAggWidowFunc(String name, Expression one) {
+            super(name, one);
         }
 
 
@@ -379,8 +379,8 @@ abstract class WindowFunctions {
             implements Windows._WindowAggSpec {
 
 
-        private TwoArgStandardAggWidowFunc(String name, Expression one, Expression two, TypeMeta returnType) {
-            super(name, one, two, returnType);
+        private TwoArgStandardAggWidowFunc(String name, Expression one, Expression two) {
+            super(name, one, two);
         }
 
 
@@ -391,8 +391,8 @@ abstract class WindowFunctions {
 
         private final List<?> argList;
 
-        private CompositeStandardWindowFunc(String name, List<?> argList, TypeMeta returnType) {
-            super(name, returnType);
+        private CompositeStandardWindowFunc(String name, List<?> argList) {
+            super(name);
             this.argList = argList;
         }
 
@@ -413,8 +413,8 @@ abstract class WindowFunctions {
     private static final class CompositeStandardWindowAggFunc extends CompositeStandardWindowFunc
             implements Windows._WindowAggSpec {
 
-        private CompositeStandardWindowAggFunc(String name, List<?> argList, TypeMeta returnType) {
-            super(name, argList, returnType);
+        private CompositeStandardWindowAggFunc(String name, List<?> argList) {
+            super(name, argList);
         }
 
 

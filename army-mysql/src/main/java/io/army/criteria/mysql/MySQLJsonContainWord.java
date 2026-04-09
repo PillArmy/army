@@ -16,10 +16,10 @@
 
 package io.army.criteria.mysql;
 
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 
 @Deprecated
-public enum MySQLJsonContainWord implements SQLWords {
+public enum MySQLJsonContainWord implements SQLToken {
 
     one("'one'"),
     all("'all'");

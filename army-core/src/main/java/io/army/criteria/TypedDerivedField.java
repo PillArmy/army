@@ -13,18 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.army.criteria;
 
-public interface SQLWords extends SQLElement {
 
-
-    String spaceRender();
-
-    @Override
-    String toString();
-
-
+public interface TypedDerivedField extends TypedField, DerivedField {
 
 
 }

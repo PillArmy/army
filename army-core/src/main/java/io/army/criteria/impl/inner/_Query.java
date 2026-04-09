@@ -18,7 +18,7 @@ package io.army.criteria.impl.inner;
 
 import io.army.criteria.GroupByItem;
 import io.army.criteria.Query;
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 import io.army.criteria.dialect.Hint;
 import io.army.lang.Nullable;
 
@@ -34,7 +34,7 @@ public interface _Query extends Query, _PartRowSet, _RowSet._SelectItemListSpec,
 
     List<Hint> hintList();
 
-    List<? extends SQLWords> modifierList();
+    List<? extends SQLToken> modifierList();
 
 
     List<_TabularBlock> tableBlockList();
@@ -69,12 +69,12 @@ public interface _Query extends Query, _PartRowSet, _RowSet._SelectItemListSpec,
     interface _LockBlock {
 
 
-        SQLWords lockStrength();
+        SQLToken lockStrength();
 
         List<String> lockTableAliasList();
 
         @Nullable
-        SQLWords lockWaitOption();
+        SQLToken lockWaitOption();
 
 
     }

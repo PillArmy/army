@@ -28,7 +28,7 @@ import io.army.meta.TypeMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.util._Exceptions;
 
-final class PostgreExcludedField extends OperationDataField implements _Selection, FieldSelection {
+final class PostgreExcludedField extends OperationTypedField implements _Selection, FieldSelection {
 
 
     static PostgreExcludedField excludedField(FieldMeta<?> field) {

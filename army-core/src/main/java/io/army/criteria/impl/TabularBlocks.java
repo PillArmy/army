@@ -36,7 +36,7 @@ abstract class TabularBlocks {
         throw new UnsupportedOperationException();
     }
 
-    static FromClauseTableBlock fromTableBlock(_JoinType joinType, @Nullable SQLWords modifier, TableMeta<?> table,
+    static FromClauseTableBlock fromTableBlock(_JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> table,
                                                String alias) {
         final FromClauseTableBlock bock;
         if (modifier == null) {
@@ -48,7 +48,7 @@ abstract class TabularBlocks {
     }
 
 
-    static FromClauseDerivedBlock fromDerivedBlock(_JoinType joinType, @Nullable SQLWords modifier, DerivedTable table,
+    static FromClauseDerivedBlock fromDerivedBlock(_JoinType joinType, @Nullable SQLToken modifier, DerivedTable table,
                                                    String alias) {
         final FromClauseDerivedBlock bock;
         if (modifier == null) {
@@ -59,7 +59,7 @@ abstract class TabularBlocks {
         return bock;
     }
 
-    static FromClauseAliasDerivedBlock fromAliasDerivedBlock(_JoinType joinType, @Nullable SQLWords modifier,
+    static FromClauseAliasDerivedBlock fromAliasDerivedBlock(_JoinType joinType, @Nullable SQLToken modifier,
                                                              DerivedTable table, String alias) {
         final FromClauseAliasDerivedBlock bock;
         if (modifier == null) {
@@ -80,7 +80,7 @@ abstract class TabularBlocks {
     }
 
 
-    static <R extends Item> JoinClauseTableBlock<R> joinTableBlock(_JoinType joinType, @Nullable SQLWords modifier,
+    static <R extends Item> JoinClauseTableBlock<R> joinTableBlock(_JoinType joinType, @Nullable SQLToken modifier,
                                                                    TableMeta<?> table, String alias, R clause) {
         final JoinClauseTableBlock<R> block;
         if (modifier == null) {
@@ -91,7 +91,7 @@ abstract class TabularBlocks {
         return block;
     }
 
-    static <R extends Item> JoinClauseDerivedBlock<R> joinDerivedBlock(_JoinType joinType, @Nullable SQLWords modifier,
+    static <R extends Item> JoinClauseDerivedBlock<R> joinDerivedBlock(_JoinType joinType, @Nullable SQLToken modifier,
                                                                        DerivedTable table, String alias, R clause) {
         final JoinClauseDerivedBlock<R> block;
         if (modifier == null) {
@@ -103,7 +103,7 @@ abstract class TabularBlocks {
     }
 
     static <R extends Item> JoinClauseSimpleModifierAliasDerivedBlock<R> joinAliasDerivedBlock(
-            _JoinType joinType, @Nullable SQLWords modifier, DerivedTable table, String alias, R clause) {
+            _JoinType joinType, @Nullable SQLToken modifier, DerivedTable table, String alias, R clause) {
         return new JoinClauseSimpleModifierAliasDerivedBlock<>(joinType, modifier, table, alias, clause);
     }
 
@@ -169,19 +169,19 @@ abstract class TabularBlocks {
 
     static class FromClauseModifierTableBlock extends FromClauseTableBlock implements _ModifierTabularBlock {
 
-        private final SQLWords modifier;
+        private final SQLToken modifier;
 
         /**
-         * @see #fromTableBlock(_JoinType, SQLWords, TableMeta, String)
+         * @see #fromTableBlock(_JoinType, SQLToken, TableMeta, String)
          */
-        FromClauseModifierTableBlock(_JoinType joinType, @Nullable SQLWords modifier, TableMeta<?> table,
+        FromClauseModifierTableBlock(_JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> table,
                                      String alias) {
             super(joinType, table, alias);
             this.modifier = modifier;
         }
 
         @Override
-        public final SQLWords modifier() {
+        public final SQLToken modifier() {
             return this.modifier;
         }
 
@@ -315,7 +315,7 @@ abstract class TabularBlocks {
         @Override
         public final R on(IPredicate predicate1, IPredicate predicate2) {
 
-            this.predicateList = ArrayUtils.of(
+            this.predicateList = List.of(
                     (OperationPredicate) predicate1,
                     (OperationPredicate) predicate2
             );
@@ -331,7 +331,7 @@ abstract class TabularBlocks {
         @Override
         public final R on(Function<Expression, IPredicate> operator1, Expression operandField1,
                           Function<Expression, IPredicate> operator2, Expression operandField2) {
-            this.predicateList = ArrayUtils.of(
+            this.predicateList = List.of(
                     (OperationPredicate) operator1.apply(operandField1),
                     (OperationPredicate) operator2.apply(operandField2)
             );
@@ -413,16 +413,16 @@ abstract class TabularBlocks {
     static abstract class JoinClauseModifierTableBlock<R extends Item> extends JoinClauseTableBlock<R>
             implements _ModifierTabularBlock {
 
-        private final SQLWords modifier;
+        private final SQLToken modifier;
 
-        JoinClauseModifierTableBlock(_JoinType joinType, @Nullable SQLWords modifier, TableMeta<?> table,
+        JoinClauseModifierTableBlock(_JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> table,
                                      String alias, R clause) {
             super(joinType, table, alias, clause);
             this.modifier = modifier;
         }
 
         @Override
-        public final SQLWords modifier() {
+        public final SQLToken modifier() {
             return this.modifier;
         }
 
@@ -458,17 +458,17 @@ abstract class TabularBlocks {
     static abstract class JoinClauseModifierDerivedBlock<R extends Item> extends JoinClauseDerivedBlock<R>
             implements _ModifierTabularBlock {
 
-        private final SQLWords modifier;
+        private final SQLToken modifier;
 
 
-        JoinClauseModifierDerivedBlock(_JoinType joinType, @Nullable SQLWords modifier, DerivedTable table,
+        JoinClauseModifierDerivedBlock(_JoinType joinType, @Nullable SQLToken modifier, DerivedTable table,
                                        String alias, R clause) {
             super(joinType, table, alias, clause);
             this.modifier = modifier;
         }
 
         @Override
-        public final SQLWords modifier() {
+        public final SQLToken modifier() {
             return this.modifier;
         }
 
@@ -484,7 +484,7 @@ abstract class TabularBlocks {
 
         private _SelectionMap selectionMap;
 
-        JoinClauseAliasDerivedBlock(_JoinType joinType, @Nullable SQLWords modifier, DerivedTable table,
+        JoinClauseAliasDerivedBlock(_JoinType joinType, @Nullable SQLToken modifier, DerivedTable table,
                                     String alias, R clause) {
             super(joinType, modifier, table, alias, clause);
             this.selectionMap = (_SelectionMap) table;
@@ -606,7 +606,7 @@ abstract class TabularBlocks {
     private static final class FromClauseSimpleTableBlock extends FromClauseTableBlock {
 
         /**
-         * @see #fromTableBlock(_JoinType, SQLWords, TableMeta, String)
+         * @see #fromTableBlock(_JoinType, SQLToken, TableMeta, String)
          */
         private FromClauseSimpleTableBlock(_JoinType joinType, TableMeta<?> table, String alias) {
             super(joinType, table, alias);
@@ -619,7 +619,7 @@ abstract class TabularBlocks {
     private static final class FromClauseSimpleDerivedBlock extends FromClauseDerivedBlock {
 
         /**
-         * @see #fromDerivedBlock(_JoinType, SQLWords, DerivedTable, String)
+         * @see #fromDerivedBlock(_JoinType, SQLToken, DerivedTable, String)
          */
         private FromClauseSimpleDerivedBlock(_JoinType joinType, DerivedTable table, String alias) {
             super(joinType, table, alias);
@@ -630,19 +630,19 @@ abstract class TabularBlocks {
 
     static class FromClauseModifierDerivedBlock extends FromClauseDerivedBlock implements _ModifierTabularBlock {
 
-        private final SQLWords modifier;
+        private final SQLToken modifier;
 
         /**
-         * @see #fromDerivedBlock(_JoinType, SQLWords, DerivedTable, String)
+         * @see #fromDerivedBlock(_JoinType, SQLToken, DerivedTable, String)
          */
-        private FromClauseModifierDerivedBlock(_JoinType joinType, @Nullable SQLWords modifier, DerivedTable table,
+        private FromClauseModifierDerivedBlock(_JoinType joinType, @Nullable SQLToken modifier, DerivedTable table,
                                                String alias) {
             super(joinType, table, alias);
             this.modifier = modifier;
         }
 
         @Override
-        public SQLWords modifier() {
+        public SQLToken modifier() {
             return this.modifier;
         }
 
@@ -653,7 +653,7 @@ abstract class TabularBlocks {
     private static final class JoinClauseSimpleTableBlock<R extends Item> extends JoinClauseTableBlock<R> {
 
         /**
-         * @see #joinTableBlock(_JoinType, SQLWords, TableMeta, String, Item)
+         * @see #joinTableBlock(_JoinType, SQLToken, TableMeta, String, Item)
          */
         private JoinClauseSimpleTableBlock(_JoinType joinType, TableMeta<?> table, String alias, R clause) {
             super(joinType, table, alias, clause);
@@ -665,9 +665,9 @@ abstract class TabularBlocks {
     private static final class JoinClauseSimpleModifierTableBlock<R extends Item> extends JoinClauseModifierTableBlock<R> {
 
         /**
-         * @see #joinTableBlock(_JoinType, SQLWords, TableMeta, String, Item)
+         * @see #joinTableBlock(_JoinType, SQLToken, TableMeta, String, Item)
          */
-        private JoinClauseSimpleModifierTableBlock(_JoinType joinType, @Nullable SQLWords modifier, TableMeta<?> table,
+        private JoinClauseSimpleModifierTableBlock(_JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> table,
                                                    String alias, R clause) {
             super(joinType, modifier, table, alias, clause);
         }
@@ -678,7 +678,7 @@ abstract class TabularBlocks {
     private static final class JoinClauseSimpleDerivedBlock<R extends Item> extends JoinClauseDerivedBlock<R> {
 
         /**
-         * @see #joinDerivedBlock(_JoinType, SQLWords, DerivedTable, String, Item)
+         * @see #joinDerivedBlock(_JoinType, SQLToken, DerivedTable, String, Item)
          */
         JoinClauseSimpleDerivedBlock(_JoinType joinType, DerivedTable table, String alias, R clause) {
             super(joinType, table, alias, clause);
@@ -691,9 +691,9 @@ abstract class TabularBlocks {
             extends JoinClauseModifierDerivedBlock<R> {
 
         /**
-         * @see #joinDerivedBlock(_JoinType, SQLWords, DerivedTable, String, Item)
+         * @see #joinDerivedBlock(_JoinType, SQLToken, DerivedTable, String, Item)
          */
-        JoinClauseSimpleModifierDerivedBlock(_JoinType joinType, @Nullable SQLWords modifier,
+        JoinClauseSimpleModifierDerivedBlock(_JoinType joinType, @Nullable SQLToken modifier,
                                              DerivedTable table, String alias, R clause) {
             super(joinType, modifier, table, alias, clause);
         }
@@ -705,9 +705,9 @@ abstract class TabularBlocks {
             extends JoinClauseAliasDerivedBlock<R> {
 
         /**
-         * @see #joinAliasDerivedBlock(_JoinType, SQLWords, DerivedTable, String, Item)
+         * @see #joinAliasDerivedBlock(_JoinType, SQLToken, DerivedTable, String, Item)
          */
-        private JoinClauseSimpleModifierAliasDerivedBlock(_JoinType joinType, @Nullable SQLWords modifier,
+        private JoinClauseSimpleModifierAliasDerivedBlock(_JoinType joinType, @Nullable SQLToken modifier,
                                                           DerivedTable table, String alias, R clause) {
             super(joinType, modifier, table, alias, clause);
         }
@@ -718,19 +718,19 @@ abstract class TabularBlocks {
     private static final class FromClauseModifierAliasDerivedBlock extends FromClauseAliasDerivedBlock
             implements _ModifierTabularBlock {
 
-        private final SQLWords modifier;
+        private final SQLToken modifier;
 
         /**
-         * @see #fromAliasDerivedBlock(_JoinType, SQLWords, DerivedTable, String)
+         * @see #fromAliasDerivedBlock(_JoinType, SQLToken, DerivedTable, String)
          */
-        private FromClauseModifierAliasDerivedBlock(_JoinType joinType, @Nullable SQLWords modifier, DerivedTable table,
+        private FromClauseModifierAliasDerivedBlock(_JoinType joinType, @Nullable SQLToken modifier, DerivedTable table,
                                                     String alias) {
             super(joinType, table, alias);
             this.modifier = modifier;
         }
 
         @Override
-        public SQLWords modifier() {
+        public SQLToken modifier() {
             return this.modifier;
         }
 
@@ -769,7 +769,7 @@ abstract class TabularBlocks {
     interface DialectBlockParams extends BlockParams {
 
         @Nullable
-        SQLWords modifier();
+        SQLToken modifier();
 
     }
 

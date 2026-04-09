@@ -28,6 +28,7 @@ import io.army.util._TimeUtils;
 
 import java.time.*;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * package class
@@ -94,7 +95,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     public static SimpleExpression addDate(Object date, final Object days) {
         date = FuncExpUtils.localDateLiteralExp(date);
         FuncExpUtils.assertIntExp(days);
-        return LiteralFunctions.twoArgFunc("ADDDATE", date, days, LocalDateType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("ADDDATE", date, days);
     }
 
     /**
@@ -144,7 +145,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     public static SimpleExpression subDate(Object date, final Object days) {
         date = FuncExpUtils.localDateLiteralExp(date);
         FuncExpUtils.assertIntExp(days);
-        return LiteralFunctions.twoArgFunc("SUBDATE", date, days, LocalDateType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("SUBDATE", date, days);
     }
 
     /**
@@ -246,7 +247,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         dt = FuncExpUtils.localOffsetDateTimeLiteralExp(dt);
         FuncExpUtils.assertTextExp(fromTz);
         FuncExpUtils.assertTextExp(toTz);
-        return LiteralFunctions.threeArgFunc("CONVERT_TZ", dt, fromTz, toTz, LocalDateTimeType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("CONVERT_TZ", dt, fromTz, toTz);
     }
 
     /**
@@ -256,7 +257,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_curdate">CURRENT_DATE()</a>
      */
     public static SimpleExpression currentDate() {
-        return LiteralFunctions.zeroArgFunc("CURRENT_DATE", LocalDateType.INSTANCE);
+        return LiteralFunctions.zeroArgFunc("CURRENT_DATE");
     }
 
     /**
@@ -266,7 +267,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_current-time">CURRENT_TIME()</a>
      */
     public static SimpleExpression currentTime() {
-        return LiteralFunctions.zeroArgFunc("CURRENT_TIME", LocalTimeType.INSTANCE);
+        return LiteralFunctions.zeroArgFunc("CURRENT_TIME");
     }
 
     /**
@@ -282,7 +283,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      */
     public static SimpleExpression currentTime(final Object fsp) {
         FuncExpUtils.assertIntExp(fsp);
-        return LiteralFunctions.oneArgFunc("CURRENT_TIME", fsp, LocalTimeType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("CURRENT_TIME", fsp);
     }
 
     /**
@@ -294,7 +295,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_current-timestamp">CURRENT_TIMESTAMP()</a>
      */
     public static SimpleExpression currentTimestamp() {
-        return LiteralFunctions.zeroArgFunc("CURRENT_TIMESTAMP", LocalDateTimeType.INSTANCE);
+        return LiteralFunctions.zeroArgFunc("CURRENT_TIMESTAMP");
     }
 
     /**
@@ -312,7 +313,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      */
     public static SimpleExpression currentTimestamp(final Object fsp) {
         FuncExpUtils.assertIntExp(fsp);
-        return LiteralFunctions.oneArgFunc("CURRENT_TIMESTAMP", fsp, LocalDateTimeType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("CURRENT_TIMESTAMP", fsp);
     }
 
 
@@ -336,7 +337,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (expr instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("DATE", expr, LocalDateType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("DATE", expr);
     }
 
     /**
@@ -372,7 +373,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (expr2 instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.twoArgFunc("DATEDIFF", expr1, expr2, IntegerType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("DATEDIFF", expr1, expr2);
     }
 
     /**
@@ -464,7 +465,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     public static SimpleExpression dateFormat(Object date, final Object format) {
         date = mysqlTimeTypeLiteralExp(date);
         FuncExpUtils.assertTextExp(format);
-        return LiteralFunctions.twoArgFunc("DATE_FORMAT", date, format, StringType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("DATE_FORMAT", date, format);
     }
 
     /**
@@ -487,7 +488,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("DAYOFMONTH", date, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("DAYOFMONTH", date);
     }
 
     /**
@@ -531,7 +532,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("DAYNAME", date, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("DAYNAME", date);
     }
 
     /**
@@ -576,7 +577,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("DAYOFWEEK", date, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("DAYOFWEEK", date);
     }
 
     /**
@@ -599,7 +600,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("DAYOFYEAR", date, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("DAYOFYEAR", date);
     }
 
     /**
@@ -625,7 +626,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
 
         date = mysqlTimeTypeLiteralExp(date);
 
-        return LiteralFunctions.compositeFunc("EXTRACT", Arrays.asList(unit, from, date), LongType.INSTANCE);
+        return LiteralFunctions.compositeFunc("EXTRACT", List.of(unit, from, date));
     }
 
 
@@ -642,7 +643,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      */
     public static SimpleExpression fromDays(Object n) {
         FuncExpUtils.assertIntExp(n);
-        return LiteralFunctions.oneArgFunc("FROM_DAYS", n, LocalDateType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("FROM_DAYS", n);
     }
 
     /**
@@ -669,7 +670,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (unixTimestamp instanceof String && ((String) unixTimestamp).indexOf(':') > 0) {
             unixTimestamp = mysqlTimeTypeLiteralExp(unixTimestamp);
         }
-        return LiteralFunctions.oneArgFunc("FROM_UNIXTIME", unixTimestamp, LocalDateTimeType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("FROM_UNIXTIME", unixTimestamp);
     }
 
 
@@ -704,7 +705,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
             unixTimestamp = mysqlTimeTypeLiteralExp(unixTimestamp);
         }
         FuncExpUtils.assertTextExp(format);
-        return LiteralFunctions.twoArgFunc("FROM_UNIXTIME", unixTimestamp, format, StringType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("FROM_UNIXTIME", unixTimestamp, format);
     }
 
     /**
@@ -735,7 +736,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
                 throw CriteriaUtils.funcArgError(name, type);
         }
         FuncExpUtils.assertTextExp(format);
-        return LiteralFunctions.compositeFunc(name, Arrays.asList(type, SQLs.COMMA, format), StringType.INSTANCE);
+        return LiteralFunctions.compositeFunc(name, Arrays.asList(type, SQLs.COMMA, format));
     }
 
     /**
@@ -755,7 +756,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      */
     public static SimpleExpression hour(Object time) {
         time = mysqlTimeTypeLiteralExp(time);
-        return LiteralFunctions.oneArgFunc("HOUR", time, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("HOUR", time);
     }
 
     /**
@@ -777,7 +778,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("LAST_DAY", date, LocalDateType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("LAST_DAY", date);
     }
 
     /**
@@ -788,7 +789,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_now">NOW([fsp])</a>
      */
     public static SimpleExpression now() {
-        return LiteralFunctions.zeroArgFunc("NOW", LocalDateTimeType.INSTANCE);
+        return LiteralFunctions.zeroArgFunc("NOW");
     }
 
     /**
@@ -805,7 +806,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      */
     public static SimpleExpression now(Object fsp) {
         FuncExpUtils.assertIntExp(fsp);
-        return LiteralFunctions.oneArgFunc("NOW", fsp, LocalDateTimeType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("NOW", fsp);
     }
 
     /**
@@ -815,7 +816,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_sysdate">SYSDATE([fsp])</a>
      */
     public static SimpleExpression sysDate() {
-        return LiteralFunctions.zeroArgFunc("SYSDATE", LocalDateTimeType.INSTANCE);
+        return LiteralFunctions.zeroArgFunc("SYSDATE");
     }
 
     /**
@@ -832,7 +833,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      */
     public static SimpleExpression sysDate(final Object fsp) {
         FuncExpUtils.assertIntExp(fsp);
-        return LiteralFunctions.oneArgFunc("SYSDATE", fsp, LocalDateTimeType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("SYSDATE", fsp);
     }
 
     /**
@@ -855,7 +856,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (expr instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("TIMESTAMP", expr, LocalDateTimeType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("TIMESTAMP", expr);
     }
 
     /**
@@ -889,7 +890,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (!(expr2 instanceof Expression || expr2 instanceof LocalTime)) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.twoArgFunc("TIMESTAMP", expr1, expr2, LocalDateTimeType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("TIMESTAMP", expr1, expr2);
     }
 
     /**
@@ -926,33 +927,8 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
             throw CriteriaUtils.funcArgExpError();
         }
 
-        TypeMeta returnType;
-        if (datetimeExpr instanceof LocalDate) {
-            if (unit.isTimePart()) {
-                returnType = LocalDateTimeType.INSTANCE;
-            } else {
-                returnType = LocalDateType.INSTANCE;
-            }
-        } else if (!(datetimeExpr instanceof Expression)) {
-            returnType = LocalDateTimeType.INSTANCE;
-        } else {
-            returnType = ((Expression) datetimeExpr).typeMeta();
-            if (!(returnType instanceof MappingType)) {
-                returnType = returnType.mappingType();
-            }
-
-            if (!(returnType instanceof MappingType.SqlLocalDateType)) {
-                returnType = LocalDateTimeType.INSTANCE;
-            } else if (unit.isTimePart()) {
-                returnType = LocalDateTimeType.INSTANCE;
-            } else {
-                returnType = LocalDateType.INSTANCE;
-            }
-        }
-
         return LiteralFunctions.compositeFunc("TIMESTAMPADD",
-                Arrays.asList(unit, SQLs.COMMA, interval, SQLs.COMMA, datetimeExpr),
-                returnType);
+                List.of(unit, SQLs.COMMA, interval, SQLs.COMMA, datetimeExpr));
     }
 
     /**
@@ -989,8 +965,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
             throw CriteriaUtils.funcArgExpError();
         }
         return LiteralFunctions.compositeFunc("TIMESTAMPDIFF",
-                Arrays.asList(unit, SQLs.COMMA, datetimeExpr1, SQLs.COMMA, datetimeExpr2),
-                LongType.INSTANCE);
+                Arrays.asList(unit, SQLs.COMMA, datetimeExpr1, SQLs.COMMA, datetimeExpr2));
     }
 
     /**
@@ -1014,7 +989,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     public static SimpleExpression timeFormat(Object time, final Object format) {
         time = FuncExpUtils.localTimeLiteralExp(time);
         FuncExpUtils.assertTextExp(format);
-        return LiteralFunctions.twoArgFunc("TIME_FORMAT", time, format, StringType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("TIME_FORMAT", time, format);
     }
 
     /**
@@ -1031,7 +1006,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      */
     public static SimpleExpression toDays(Object date) {
         date = FuncExpUtils.localDateLiteralExp(date);
-        return LiteralFunctions.oneArgFunc("TO_DAYS", date, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("TO_DAYS", date);
     }
 
     /**
@@ -1054,7 +1029,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (expr instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("TO_SECONDS", expr, LongType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("TO_SECONDS", expr);
     }
 
     /**
@@ -1063,7 +1038,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_unix-timestamp">UNIX_TIMESTAMP()</a>
      */
     public static SimpleExpression unixTimestamp() {
-        return LiteralFunctions.zeroArgFunc("UNIX_TIMESTAMP", LongType.INSTANCE);
+        return LiteralFunctions.zeroArgFunc("UNIX_TIMESTAMP");
     }
 
     /**
@@ -1086,7 +1061,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("UNIX_TIMESTAMP", date, LongType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("UNIX_TIMESTAMP", date);
     }
 
     /**
@@ -1095,7 +1070,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_utc-date">UTC_DATE()</a>
      */
     public static SimpleExpression utcDate() {
-        return LiteralFunctions.zeroArgFunc("UTC_DATE", LocalDateType.INSTANCE);
+        return LiteralFunctions.zeroArgFunc("UTC_DATE");
     }
 
     /**
@@ -1104,7 +1079,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_utc-time">UTC_TIME()</a>
      */
     public static SimpleExpression utcTime() {
-        return LiteralFunctions.zeroArgFunc("UTC_DATE", LocalTimeType.INSTANCE);
+        return LiteralFunctions.zeroArgFunc("UTC_DATE");
     }
 
     /**
@@ -1120,7 +1095,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      */
     public static SimpleExpression utcTime(final Object fsp) {
         FuncExpUtils.assertIntExp(fsp);
-        return LiteralFunctions.oneArgFunc("UTC_TIME", fsp, LocalTimeType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("UTC_TIME", fsp);
     }
 
     /**
@@ -1129,7 +1104,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_utc-timestamp">UTC_TIMESTAMP()</a>
      */
     public static SimpleExpression utcTimestamp() {
-        return LiteralFunctions.zeroArgFunc("UTC_TIMESTAMP", LocalDateTimeType.INSTANCE);
+        return LiteralFunctions.zeroArgFunc("UTC_TIMESTAMP");
     }
 
     /**
@@ -1145,7 +1120,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      */
     public static SimpleExpression utcTimestamp(final Object fsp) {
         FuncExpUtils.assertIntExp(fsp);
-        return LiteralFunctions.oneArgFunc("UTC_TIMESTAMP", fsp, LocalDateTimeType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("UTC_TIMESTAMP", fsp);
     }
 
     /**
@@ -1168,7 +1143,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("WEEK", date, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("WEEK", date);
     }
 
     /**
@@ -1197,7 +1172,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
             throw CriteriaUtils.funcArgExpError();
         }
         FuncExpUtils.assertIntExp(mode);
-        return LiteralFunctions.twoArgFunc("WEEK", date, mode, IntegerType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("WEEK", date, mode);
     }
 
     /**
@@ -1242,7 +1217,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("WEEKDAY", date, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("WEEKDAY", date);
     }
 
     /**
@@ -1265,7 +1240,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("WEEKOFYEAR", date, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("WEEKOFYEAR", date);
     }
 
     /**
@@ -1288,7 +1263,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("YEAR", date, YearType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("YEAR", date);
     }
 
     /**
@@ -1311,7 +1286,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("YEARWEEK", date, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("YEARWEEK", date);
     }
 
     /**
@@ -1339,7 +1314,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.twoArgFunc("YEARWEEK", date, mode, IntegerType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("YEARWEEK", date, mode);
     }
 
 
@@ -1365,7 +1340,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
             FuncExpUtils.assertIntExp(year);
         }
         FuncExpUtils.assertIntExp(dayOfYear);
-        return LiteralFunctions.twoArgFunc("MAKEDATE", year, dayOfYear, LocalDateType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("MAKEDATE", year, dayOfYear);
     }
 
     /**
@@ -1393,7 +1368,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         FuncExpUtils.assertIntExp(hour);
         FuncExpUtils.assertIntExp(minute);
         FuncExpUtils.assertIntExp(second);
-        return LiteralFunctions.threeArgFunc("MAKETIME", hour, minute, second, LocalTimeType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("MAKETIME", hour, minute, second);
     }
 
 
@@ -1415,7 +1390,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      */
     public static SimpleExpression microSecond(Object expr) {
         expr = mysqlTimeTypeLiteralExp(expr);
-        return LiteralFunctions.oneArgFunc("MICROSECOND", expr, LongType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("MICROSECOND", expr);
     }
 
     /**
@@ -1436,7 +1411,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      */
     public static SimpleExpression minute(Object time) {
         time = mysqlTimeTypeLiteralExp(time);
-        return LiteralFunctions.oneArgFunc("MINUTE", time, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("MINUTE", time);
     }
 
     /**
@@ -1480,7 +1455,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("MONTH", date, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("MONTH", date);
     }
 
     /**
@@ -1524,7 +1499,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("MONTHNAME", date, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("MONTHNAME", date);
     }
 
     /**
@@ -1546,7 +1521,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     public static SimpleExpression periodAdd(final Object p, final Object n) {
         FuncExpUtils.assertIntExp(p);
         FuncExpUtils.assertIntExp(n);
-        return LiteralFunctions.twoArgFunc("PERIOD_ADD", p, n, IntegerType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("PERIOD_ADD", p, n);
     }
 
     /**
@@ -1568,7 +1543,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     public static SimpleExpression periodDiff(final Object p1, final Object p2) {
         FuncExpUtils.assertIntExp(p1);
         FuncExpUtils.assertIntExp(p2);
-        return LiteralFunctions.twoArgFunc("PERIOD_DIFF", p1, p2, IntegerType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("PERIOD_DIFF", p1, p2);
     }
 
     /**
@@ -1591,7 +1566,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (date instanceof LocalTime) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("QUARTER", date, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("QUARTER", date);
     }
 
     /**
@@ -1614,7 +1589,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (expr instanceof LocalDate) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("TIME", expr, LocalTimeType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("TIME", expr);
     }
 
     /**
@@ -1650,7 +1625,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (expr2 instanceof LocalDate) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.twoArgFunc("TIMEDIFF", expr1, expr2, DurationType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("TIMEDIFF", expr1, expr2);
     }
 
 
@@ -1674,7 +1649,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         if (time instanceof LocalDate) {
             throw CriteriaUtils.funcArgExpError();
         }
-        return LiteralFunctions.oneArgFunc("SECOND", time, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("SECOND", time);
     }
 
     /**
@@ -1690,7 +1665,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      */
     public static SimpleExpression secToTime(final Object seconds) {
         FuncExpUtils.assertIntExp(seconds);
-        return LiteralFunctions.oneArgFunc("SEC_TO_TIME", seconds, LocalTimeType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("SEC_TO_TIME", seconds);
     }
 
     /**
@@ -1712,7 +1687,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     public static SimpleExpression strToDate(final Object str, final Object format) {
         FuncExpUtils.assertTextExp(str);
         FuncExpUtils.assertTextExp(format);
-        return LiteralFunctions.twoArgFunc("STR_TO_DATE", str, format, StringType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("STR_TO_DATE", str, format);
     }
 
 
@@ -1726,17 +1701,9 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     private static SimpleExpression _dateIntervalFunc(final String name, Object date, final SQLs.WordInterval interval,
                                                       final Object expr, final MySQLTimeUnit unit) {
         date = FuncExpUtils.localDateLiteralExp(date);
-
         FuncExpUtils.assertWord(interval, SQLs.INTERVAL);
         FuncExpUtils.assertIntExp(expr);
-
-        final MappingType returnType;
-        if (unit.isTimePart()) {
-            returnType = LocalDateTimeType.INSTANCE;
-        } else {
-            returnType = LocalDateType.INSTANCE;
-        }
-        return LiteralFunctions.compositeFunc(name, Arrays.asList(date, SQLs.COMMA, interval, expr, unit), returnType);
+        return LiteralFunctions.compositeFunc(name, List.of(date, SQLs.COMMA, interval, expr, unit));
     }
 
 
@@ -1765,22 +1732,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
         ContextStack.assertNonNull(unit);
 
         date = mysqlTimeTypeLiteralExp(date);
-
-        final TypeMeta type, returnType;
-        if (date instanceof Expression) {
-            type = ((Expression) date).typeMeta();
-        } else if (date instanceof LocalDate) {
-            type = LocalDateType.INSTANCE;
-        } else if (date instanceof LocalDateTime
-                || date instanceof OffsetDateTime
-                || date instanceof ZonedDateTime) {
-            type = LocalDateTimeType.INSTANCE;
-        } else {
-            throw CriteriaUtils.funcArgExpError();
-        }
-
-        returnType = _dateAddSubReturnType(type.mappingType(), unit);
-        return LiteralFunctions.compositeFunc(name, Arrays.asList(date, SQLs.COMMA, interval, expr, unit), returnType);
+        return LiteralFunctions.compositeFunc(name, Arrays.asList(date, SQLs.COMMA, interval, expr, unit));
     }
 
 
@@ -1954,20 +1906,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      * @see #subTime(Object, Object)
      */
     private static SimpleExpression _addOrSubTime(final String name, Object expr1, final Object expr2) {
-        final TypeMeta returnType;
-        expr1 = mysqlTimeTypeLiteralExp(expr1);
-        if (expr1 instanceof Expression) {
-            returnType = ((Expression) expr1).typeMeta();
-        } else if (expr1 instanceof LocalTime) {
-            returnType = LocalTimeType.INSTANCE;
-        } else if (expr1 instanceof LocalDateTime
-                || expr1 instanceof OffsetDateTime
-                || expr1 instanceof ZonedDateTime) {
-            returnType = LocalDateTimeType.INSTANCE;
-        } else {
-            throw CriteriaUtils.funcArgExpError();
-        }
-        return LiteralFunctions.twoArgFunc(name, expr1, FuncExpUtils.localTimeLiteralExp(expr2), returnType);
+        return LiteralFunctions.twoArgFunc(name, expr1, FuncExpUtils.localTimeLiteralExp(expr2));
     }
 
     /**

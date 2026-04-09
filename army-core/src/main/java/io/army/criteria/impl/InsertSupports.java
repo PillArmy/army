@@ -2555,9 +2555,9 @@ abstract class InsertSupports {
             idSelection = ((ArmySelections.RenameSelection) idSelection).selection;
         }
 
-        if (idSelection instanceof ArmySelections.FieldSelectionImpl) {
+        if (idSelection instanceof ArmySelections.RenameFieldSelection) {
             final FieldSelection fs;
-            fs = ((ArmySelections.FieldSelectionImpl) idSelection).selection;
+            fs = ((ArmySelections.RenameFieldSelection) idSelection).selection;
             if (!(fs instanceof TableField)) {
                 throw idSelectionIsNotParentId(cte.name(), child, idAlias);
             }
@@ -2806,9 +2806,9 @@ abstract class InsertSupports {
         final Expression discriminatorExp;
         discriminatorExp = ((_Selection) discriminatorSelection).underlyingExp();
 
-        if (!(discriminatorExp instanceof ArmyLiteralExpression
+        if (!(discriminatorExp instanceof ArmyLiteralExpression de
                 && discriminatorExp instanceof SqlValueParam.SingleAnonymousValue
-                && discriminatorExp.typeMeta().mappingType() instanceof CodeEnumType)) {
+                && de.typeMeta().mappingType() instanceof CodeEnumType)) {
             String m = String.format("The appropriate %s[%s] of discriminator %s must be literal."
                     , Selection.class.getSimpleName(), discriminatorSelection.label()
                     , discriminatorField);

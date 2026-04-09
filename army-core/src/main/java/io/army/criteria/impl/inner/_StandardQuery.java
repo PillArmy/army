@@ -16,13 +16,13 @@
 
 package io.army.criteria.impl.inner;
 
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 import io.army.lang.Nullable;
 
 public interface _StandardQuery extends _Query, _Query._WindowClauseSpec {
 
     @Nullable
-    SQLWords lockStrength();
+    SQLToken lockStrength();
 
 
 }

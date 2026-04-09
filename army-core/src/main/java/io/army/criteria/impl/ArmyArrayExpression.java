@@ -21,7 +21,8 @@ import io.army.criteria.ArrayExpression;
 /**
  * package interface
  */
-interface ArmyArrayExpression extends ArrayExpression, ArmyExpression {
+@Deprecated
+interface ArmyArrayExpression extends ArrayExpression, ArmyExpression, ArmySimpleExpression {
 
 
 }

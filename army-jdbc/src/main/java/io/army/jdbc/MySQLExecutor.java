@@ -158,9 +158,10 @@ abstract class MySQLExecutor extends JdbcExecutor {
 
 
     @Override
-    final DataType getDataType(ResultSetMetaData meta, int indexBasedOne) throws SQLException {
-        return getMySqlType(meta.getColumnTypeName(indexBasedOne));
+    final DataType dataTypeMap(ResultSetMetaData meta, MappingType[] typeArray, int indexBasedZero) throws SQLException {
+        return getMySqlType(meta.getColumnTypeName(indexBasedZero + 1), typeArray, indexBasedZero);
     }
+
 
     @Override
     final void bind(final PreparedStatement stmt, final int indexBasedOne,
@@ -316,7 +317,6 @@ abstract class MySQLExecutor extends JdbcExecutor {
     }
 
 
-
     final Isolation readIsolation(final String level) {
         final Isolation isolation;
         switch (level.toUpperCase(Locale.ROOT)) {
@@ -338,7 +338,6 @@ abstract class MySQLExecutor extends JdbcExecutor {
         }
         return isolation;
     }
-
 
 
 

@@ -51,7 +51,7 @@ abstract class MySQLLoads {
     }
 
 
-    private enum StrategyOption implements SQLWords {
+    private enum StrategyOption implements SQLToken {
 
         REPLACE(" REPLACE"),
         IGNORE(" IGNORE");
@@ -266,7 +266,7 @@ abstract class MySQLLoads {
 
         private Long ignoreLine;
 
-        private SQLWords ignoreLineWord;
+        private SQLToken ignoreLineWord;
 
         private List<_Expression> columnExpList;
 
@@ -386,7 +386,7 @@ abstract class MySQLLoads {
                 throw CriteriaUtils.unknownWords(word);
             }
             this.ignoreLine = rowNumber;
-            this.ignoreLineWord = (SQLWords) word;
+            this.ignoreLineWord = (SQLToken) word;
             return this;
         }
 
@@ -401,7 +401,7 @@ abstract class MySQLLoads {
                 throw CriteriaUtils.unknownWords(word);
             }
             this.ignoreLine = ClauseUtils.invokeSupplier(supplier);
-            this.ignoreLineWord = (SQLWords) word;
+            this.ignoreLineWord = (SQLToken) word;
             return this;
         }
 
@@ -605,7 +605,7 @@ abstract class MySQLLoads {
 
         private final Long ignoreRowNumber;
 
-        private final SQLWords ignoreRowWord;
+        private final SQLToken ignoreRowWord;
 
         private final List<_Expression> columnOrUserVarList;
 
@@ -692,7 +692,7 @@ abstract class MySQLLoads {
         }
 
         @Override
-        public final SQLWords strategyOption() {
+        public final SQLToken strategyOption() {
             return this.strategyOption;
         }
 
@@ -758,7 +758,7 @@ abstract class MySQLLoads {
 
         @Nullable
         @Override
-        public SQLWords ignoreRowWord() {
+        public SQLToken ignoreRowWord() {
             return this.ignoreRowWord;
         }
 

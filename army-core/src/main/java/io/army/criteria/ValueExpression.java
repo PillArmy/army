@@ -29,7 +29,7 @@ package io.army.criteria;
  * @see RowValueExpression
  * @since 0.6.0
  */
-public interface ValueExpression extends DefiniteExpression, SqlValueParam.SingleValue {
+public interface ValueExpression extends TypedExpression, SimpleExpression, SqlValueParam.SingleValue {
 
 
 }

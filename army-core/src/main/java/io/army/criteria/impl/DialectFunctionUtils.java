@@ -25,13 +25,11 @@ import io.army.dialect.DialectParser;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
-import io.army.mapping.LongType;
 import io.army.mapping.MappingType;
 import io.army.mapping.optional.CompositeTypeField;
 import io.army.mapping.optional.NoCastTextType;
 import io.army.meta.FieldMeta;
 import io.army.meta.ParentTableMeta;
-import io.army.meta.TypeMeta;
 import io.army.util.ArrayUtils;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
@@ -98,37 +96,34 @@ abstract class DialectFunctionUtils extends FunctionUtils {
     }
 
     static Functions._ColumnWithOrdinalityFunction zeroArgColumnFunction(final String name,
-                                                                         final @Nullable String fieldName,
-                                                                         final TypeMeta returnType) {
+                                                                         final @Nullable String fieldName) {
 
-        return new ZeroArgColumnFunction(name, true, fieldName, returnType);
+        return new ZeroArgColumnFunction(name, true, fieldName);
     }
 
 
     static Functions._ColumnWithOrdinalityFunction oneArgColumnFunction(final String name, final Expression one,
-                                                                        final @Nullable String fieldName,
-                                                                        final TypeMeta returnType) {
+                                                                        final @Nullable String fieldName) {
         if (!(one instanceof FunctionArg.SingleFunctionArg)) {
             throw CriteriaUtils.funcArgError(name, one);
         }
-        return new OneArgColumnFunction(name, true, fieldName, one, returnType);
+        return new OneArgColumnFunction(name, true, fieldName, one);
     }
 
     static Functions._ColumnWithOrdinalityFunction twoArgColumnFunction(
-            final String name, final Object one, final Object two, final @Nullable String fieldName,
-            final TypeMeta returnType) {
-        return new TwoArgColumnFunction(name, true, fieldName, one, two, returnType);
+            final String name, final Object one, final Object two, final @Nullable String fieldName) {
+        return new TwoArgColumnFunction(name, true, fieldName, one, two);
     }
 
     static Functions._ColumnWithOrdinalityFunction threeArgColumnFunction(
             final String name, final Object one, final Object two, final Object three,
-            final @Nullable String fieldName, final TypeMeta returnType) {
-        return new ThreeArgColumnFunction(name, true, fieldName, one, two, three, returnType);
+            final @Nullable String fieldName) {
+        return new ThreeArgColumnFunction(name, true, fieldName, one, two, three);
     }
 
     static Functions._ColumnWithOrdinalityFunction fourArgColumnFunction(
             final String name, final Expression one, final Expression two, final Expression three,
-            final Expression four, final @Nullable String fieldName, final TypeMeta returnType) {
+            final Expression four, final @Nullable String fieldName) {
 
         if (!(one instanceof FunctionArg.SingleFunctionArg)) {
             throw CriteriaUtils.funcArgError(name, one);
@@ -139,12 +134,12 @@ abstract class DialectFunctionUtils extends FunctionUtils {
         } else if (!(four instanceof FunctionArg.SingleFunctionArg)) {
             throw CriteriaUtils.funcArgError(name, four);
         }
-        return new FourArgColumnFunction(name, true, fieldName, one, two, three, four, returnType);
+        return new FourArgColumnFunction(name, true, fieldName, one, two, three, four);
     }
 
     static List<Selection> compositeFieldList(final String name, final Expression compositeExp) {
         final MappingType type;
-        type = compositeExp.typeMeta().mappingType();
+        type = null; // TODO compositeExp.typeMeta().mappingType();
         if (!(type instanceof MappingType.SqlCompositeType)) {
             throw CriteriaUtils.notCompositeType(name, compositeExp);
         }
@@ -158,7 +153,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
         final List<Selection> selectionList;
         selectionList = _Collections.arrayList(fieldSize);
         for (CompositeTypeField field : fieldList) {
-            selectionList.add(ArmySelections.forName(field.name, field.type));
+            selectionList.add(ArmySelections.forName(field.name));
         }
         return selectionList;
     }
@@ -253,7 +248,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
 
         static final String ORDINALITY = "ordinality";
 
-        static final Selection ORDINALITY_FIELD = ArmySelections.forName(ORDINALITY, LongType.INSTANCE);
+        static final Selection ORDINALITY_FIELD = ArmySelections.forName(ORDINALITY);
 
         private static final String SPACE_WITH_ORDINALITY = " WITH ORDINALITY";
 
@@ -356,28 +351,25 @@ abstract class DialectFunctionUtils extends FunctionUtils {
     private static abstract class ColumnFunction extends TabularSqlFunction
             implements ArmyTabularFunction, Functions._ColumnWithOrdinalityFunction {
 
-        private final TypeMeta returnType;
 
         private List<Selection> fieldList;
 
         private String userDefinedAlias;
 
-        private TypeMeta userDefinedType;
 
-        private ColumnFunction(String name, boolean buildIn, @Nullable String fieldName, TypeMeta returnType) {
+        private ColumnFunction(String name, boolean buildIn, @Nullable String fieldName) {
             super(name, buildIn);
             if (fieldName == null) {
-                this.fieldList = _Collections.singletonList(ArmySelections.forAnonymous(returnType));
+                this.fieldList = _Collections.singletonList(ArmySelections.forAnonymous());
             } else {
-                this.fieldList = _Collections.singletonList(ArmySelections.forName(fieldName, returnType));
+                this.fieldList = _Collections.singletonList(ArmySelections.forName(fieldName));
             }
-            this.returnType = returnType;
         }
 
 
         @Override
         public final boolean hasAnonymousField() {
-            return this.fieldList.get(0) instanceof AnonymousSelection;
+            return this.fieldList.getFirst() instanceof AnonymousSelection;
         }
 
         @Override
@@ -395,26 +387,27 @@ abstract class DialectFunctionUtils extends FunctionUtils {
                 throw ContextStack.criteriaError(this.outerContext, _Exceptions::selectionAliasNoText);
             }
             this.userDefinedAlias = selectionLabel;
-            this.typeMeta();
             return ArmySelections.forColumnFunc(this, selectionLabel);
         }
 
 
         @Override
         public final Functions._TabularFunction withOrdinality() {
-            if (this.userDefinedType != null) {
-                throw ContextStack.clearStackAndCastCriteriaApi();
-            }
-            this.userDefinedType = this.returnType;
+//            if (this.userDefinedType != null) {
+//                throw ContextStack.clearStackAndCastCriteriaApi();
+//            }
+//            this.userDefinedType = this.returnType;
+            // TODO 检查 去类型的正确性
             return this.addOrdinalityField();
         }
 
         @Override
         public final Functions._TabularFunction ifWithOrdinality(final BooleanSupplier predicate) {
-            if (this.userDefinedType != null) {
-                throw ContextStack.clearStackAndCastCriteriaApi();
-            }
-            this.userDefinedType = this.returnType;
+//            if (this.userDefinedType != null) {
+//                throw ContextStack.clearStackAndCastCriteriaApi();
+//            }
+//            this.userDefinedType = this.returnType;
+            // TODO 检查 去类型的正确性
             if (predicate.getAsBoolean()) {
                 this.addOrdinalityField();
             }
@@ -426,7 +419,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
             if (fieldList.size() != 1) {
                 throw ContextStack.clearStackAndCastCriteriaApi();
             }
-            this.fieldList = ArrayUtils.of(fieldList.get(0), ORDINALITY_FIELD);
+            this.fieldList = List.of(fieldList.get(0), ORDINALITY_FIELD);
             return this;
         }
 
@@ -460,34 +453,14 @@ abstract class DialectFunctionUtils extends FunctionUtils {
             return this.fieldList;
         }
 
-        @Override
-        public final TypeMeta typeMeta() {
-            TypeMeta type = this.userDefinedType;
-            if (type == null) {
-                type = this.returnType;
-                this.userDefinedType = type;
-            }
-            return type;
-        }
-
-        @Override
-        public final SelectionSpec mapTo(final @Nullable TypeMeta typeMeta) {
-            if (this.userDefinedType != null) {
-                throw ContextStack.clearStackAndCastCriteriaApi();
-            } else if (typeMeta == null) {
-                throw ContextStack.nullPointer(this.outerContext);
-            }
-            this.userDefinedType = typeMeta;
-            return this;
-        }
 
 
     }//ColumnFunction
 
     private static final class ZeroArgColumnFunction extends ColumnFunction implements NoArgFunction {
 
-        private ZeroArgColumnFunction(String name, boolean buildIn, @Nullable String fieldName, TypeMeta returnType) {
-            super(name, buildIn, fieldName, returnType);
+        private ZeroArgColumnFunction(String name, boolean buildIn, @Nullable String fieldName) {
+            super(name, buildIn, fieldName);
         }
 
         @Override
@@ -509,10 +482,10 @@ abstract class DialectFunctionUtils extends FunctionUtils {
         private final ArmyExpression one;
 
         /**
-         * @see #oneArgColumnFunction(String, Expression, String, TypeMeta)
+         * @see #oneArgColumnFunction(String, Expression, String)
          */
-        private OneArgColumnFunction(String name, boolean buildIn, @Nullable String fieldName, Expression one, TypeMeta returnType) {
-            super(name, buildIn, fieldName, returnType);
+        private OneArgColumnFunction(String name, boolean buildIn, @Nullable String fieldName, Expression one) {
+            super(name, buildIn, fieldName);
             this.one = (ArmyExpression) one;
         }
 
@@ -536,9 +509,8 @@ abstract class DialectFunctionUtils extends FunctionUtils {
 
         private final Object two;
 
-        private TwoArgColumnFunction(String name, boolean buildIn, @Nullable String fieldName, Object one, Object two,
-                                     TypeMeta returnType) {
-            super(name, buildIn, fieldName, returnType);
+        private TwoArgColumnFunction(String name, boolean buildIn, @Nullable String fieldName, Object one, Object two) {
+            super(name, buildIn, fieldName);
             this.one = one;
             this.two = two;
         }
@@ -570,8 +542,8 @@ abstract class DialectFunctionUtils extends FunctionUtils {
         private final Object three;
 
         private ThreeArgColumnFunction(String name, boolean buildIn, @Nullable String fieldName, Object one, Object two,
-                                       Object three, TypeMeta returnType) {
-            super(name, buildIn, fieldName, returnType);
+                                       Object three) {
+            super(name, buildIn, fieldName);
             this.one = one;
             this.two = two;
             this.three = three;
@@ -614,11 +586,11 @@ abstract class DialectFunctionUtils extends FunctionUtils {
         private final ArmyExpression four;
 
         /**
-         * @see #fourArgColumnFunction(String, Expression, Expression, Expression, Expression, String, TypeMeta)
+         * @see #fourArgColumnFunction(String, Expression, Expression, Expression, Expression, String)
          */
         private FourArgColumnFunction(String name, boolean buildIn, @Nullable String fieldName, Expression one, Expression two,
-                                      Expression three, Expression four, TypeMeta returnType) {
-            super(name, buildIn, fieldName, returnType);
+                                      Expression three, Expression four) {
+            super(name, buildIn, fieldName);
             this.one = (ArmyExpression) one;
             this.two = (ArmyExpression) two;
             this.three = (ArmyExpression) three;
@@ -997,7 +969,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
     }//OneArgUndoneFunction
 
 
-    static abstract class FunctionField extends OperationDataField implements _FunctionField {
+    static abstract class FunctionField extends OperationTypedField implements _FunctionField {
 
         final String name;
 
@@ -1103,9 +1075,8 @@ abstract class DialectFunctionUtils extends FunctionUtils {
 
         private final _SelectionGroup._TableFieldGroup group;
 
-        private JsonObjectTableRowFunc(String name, _SelectionGroup._TableFieldGroup group,
-                                       MappingType returnType) {
-            super(name, returnType);
+        private JsonObjectTableRowFunc(String name, _SelectionGroup._TableFieldGroup group) {
+            super(name);
             this.group = group;
         }
 

@@ -121,7 +121,7 @@ final class PostgreDialectParser extends PostgreParser {
         List<String> columnAliasList;
         _PostgreCte._SearchClause searchClause;
         _PostgreCte._CycleClause cycleClause;
-        SQLWords materialized;
+        SQLToken materialized;
         for (int i = 0, columnSize; i < cteSize; i++) {
             if (i > 0) {
                 sqlBuilder.append(_Constant.SPACE_COMMA_SPACE);
@@ -314,7 +314,7 @@ final class PostgreDialectParser extends PostgreParser {
         // 2. UPDATE key word
         sqlBuilder.append(_Constant.UPDATE);
         // 3. ONLY modifier
-        final SQLWords onlyModifier;
+        final SQLToken onlyModifier;
         onlyModifier = stmt.modifier();
         if (onlyModifier != null) {
             assert onlyModifier == SQLs.ONLY;
@@ -578,7 +578,7 @@ final class PostgreDialectParser extends PostgreParser {
         }
 
         sqlBuilder.append("MERGE INTO");
-        final SQLWords targetOnly = stmt.targetModifier();
+        final SQLToken targetOnly = stmt.targetModifier();
         if (targetOnly != null) {
             assert targetOnly == SQLs.ONLY;
             sqlBuilder.append(_Constant.SPACE_ONLY);
@@ -597,7 +597,7 @@ final class PostgreDialectParser extends PostgreParser {
 
         sqlBuilder.append(_Constant.SPACE_USING);
         if (sourceItem instanceof TableMeta) {
-            final SQLWords sourceOnly;
+            final SQLToken sourceOnly;
             if (sourceBlock instanceof _ModifierTabularBlock
                     && (sourceOnly = ((_ModifierTabularBlock) sourceBlock).modifier()) != null) {
                 assert sourceOnly == SQLs.ONLY;
@@ -784,7 +784,7 @@ final class PostgreDialectParser extends PostgreParser {
         String alias, cteName;
         _JoinType joinType;
         List<_Predicate> predicateList;
-        SQLWords modifier;
+        SQLToken modifier;
         for (int i = 0; i < blockSize; i++) {
             block = blockList.get(i);
             joinType = block.jointType();
@@ -968,7 +968,7 @@ final class PostgreDialectParser extends PostgreParser {
         ((_InsertContext._ColumnListSpec) context).appendFieldList();
 
         // 5. OVERRIDING { SYSTEM | USER } VALUE clause
-        final SQLWords overridingModifier;
+        final SQLToken overridingModifier;
         if ((overridingModifier = stmt.overridingValueWords()) != null) {
             sqlBuilder.append(overridingModifier.spaceRender());
         }
@@ -1128,7 +1128,7 @@ final class PostgreDialectParser extends PostgreParser {
             return;
         }
 
-        final List<? extends SQLWords> modifierList = stmt.modifierList();
+        final List<? extends SQLToken> modifierList = stmt.modifierList();
         if (modifierList.contains(Postgres.DISTINCT)) {
             String m = String.format("%s Currently, lock clause cannot be specified with DISTINCT", this.dialect);
             throw new CriteriaException(m);
@@ -1138,7 +1138,7 @@ final class PostgreDialectParser extends PostgreParser {
         sqlBuilder = context.sqlBuilder();
         List<String> tableAliasList;
         int tableAliasSize;
-        SQLWords waitOption;
+        SQLToken waitOption;
         for (_Query._LockBlock block : blockList) {
 
             sqlBuilder.append(block.lockStrength().spaceRender());
@@ -1212,7 +1212,7 @@ final class PostgreDialectParser extends PostgreParser {
         if (distinctOnExpSize == 0) {
             return;
         }
-        final List<? extends SQLWords> modifierList = stmt.modifierList();
+        final List<? extends SQLToken> modifierList = stmt.modifierList();
         if (modifierList.size() != 1 || modifierList.get(0) != Postgres.DISTINCT) {
             throw _Exceptions.castCriteriaApi();
         }
@@ -1245,7 +1245,7 @@ final class PostgreDialectParser extends PostgreParser {
         rowCountExp = stmt.rowCountExp();
         offsetExp = stmt.offsetExp();
 
-        final SQLWords fetchFirstNext;
+        final SQLToken fetchFirstNext;
         fetchFirstNext = stmt.fetchFirstOrNext();
 
         // LIMIT clause
@@ -1267,7 +1267,7 @@ final class PostgreDialectParser extends PostgreParser {
             } else {
                 offsetExp.appendSql(sqlBuilder, context);
             }
-            final SQLWords offsetRow;
+            final SQLToken offsetRow;
             if ((offsetRow = stmt.offsetRowModifier()) != null) {
                 if (offsetRow != SQLs.ROW && offsetRow != SQLs.ROWS) {
                     throw _Exceptions.castCriteriaApi();
@@ -1282,7 +1282,7 @@ final class PostgreDialectParser extends PostgreParser {
                 throw _Exceptions.castCriteriaApi();
             }
 
-            final SQLWords fetchRowRows, fetchOnlyWithTies;
+            final SQLToken fetchRowRows, fetchOnlyWithTies;
             fetchRowRows = stmt.fetchRowModifier();
             fetchOnlyWithTies = stmt.fetchOnlyOrWithTies();
 
@@ -1337,7 +1337,7 @@ final class PostgreDialectParser extends PostgreParser {
     }
 
 
-    private static CriteriaException errorFetchOnlyOrWithTies(@Nullable SQLWords words) {
+    private static CriteriaException errorFetchOnlyOrWithTies(@Nullable SQLToken words) {
         String m = String.format("Postgre don't support modifier[%s] in FETCH clause.", words);
         return new CriteriaException(m);
     }

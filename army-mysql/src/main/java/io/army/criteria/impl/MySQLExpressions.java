@@ -473,7 +473,7 @@ abstract class MySQLExpressions {
     }
 
 
-    private static final class AnonymousTextLiteral extends OperationExpression.OperationDefiniteExpression
+    private static final class AnonymousTextLiteral extends OperationExpression.OperationTypedExpression
             implements LiteralExpression, SqlValueParam.SingleAnonymousValue {
 
         private final String charsetName;
@@ -571,7 +571,7 @@ abstract class MySQLExpressions {
             this.type = type;
         }
 
-        @Override
+        //@Override
         public MappingType typeMeta() {
             return this.type;
         }

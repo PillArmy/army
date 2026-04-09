@@ -16,11 +16,11 @@
 
 package io.army.criteria.mysql;
 
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 import io.army.util._StringUtils;
 
 @Deprecated
-public enum MySQLCharset implements SQLWords {
+public enum MySQLCharset implements SQLToken {
 
     armscii8(" armscii8"),
     ascii(" ascii"),

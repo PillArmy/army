@@ -342,7 +342,7 @@ abstract class MySQLOtherFunctions extends MySQLMiscellaneousFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/bit-functions.html#function_bit-count">BIT_COUNT(N)</a>
      */
     public static SimpleExpression bitCount(final Expression n) {
-        return FunctionUtils.oneArgFunc("BIT_COUNT", n, IntegerType.INSTANCE);
+        return FunctionUtils.oneArgFunc("BIT_COUNT", n);
     }
 
 
@@ -362,7 +362,7 @@ abstract class MySQLOtherFunctions extends MySQLMiscellaneousFunctions {
         expression2 = SQLs._nullableLiteral(expr2);
 
 
-        return LiteralFunctions.threeArgFunc("IF", predicate, expression1, expression2, expression1.typeMeta());
+        return LiteralFunctions.threeArgFunc("IF", predicate, expression1, expression2);
     }
 
 
@@ -375,7 +375,7 @@ abstract class MySQLOtherFunctions extends MySQLMiscellaneousFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/flow-control-functions.html#function_ifnull">IFNULL(expr1,expr2)</a>
      */
     public static SimpleExpression ifNull(final Expression expr1, final Expression expr2) {
-        return FunctionUtils.twoArgFunc("IFNULL", expr1, expr2, expr1.typeMeta());
+        return FunctionUtils.twoArgFunc("IFNULL", expr1, expr2);
     }
 
 

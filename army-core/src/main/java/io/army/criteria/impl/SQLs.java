@@ -29,7 +29,6 @@ import io.army.dialect._SetClauseContext;
 import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
-import io.army.meta.TypeMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
@@ -48,6 +47,7 @@ import static io.army.dialect.Database.PostgreSQL;
  * <p>
  * This class is util class used to create standard sql statement.
  */
+@SuppressWarnings("unused")
 public abstract class SQLs extends SQLSyntax {
 
     /**
@@ -186,7 +186,7 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final WordUsing USING = SqlWords.KeyWordUsing.USING;
 
-    public static final SQLWords COMMA = SqlWords.FuncWord.COMMA;
+    public static final SQLToken COMMA = SqlWords.FuncWord.COMMA;
 
     public static final WordsAtTimeZone AT_TIME_ZONE = SqlWords.KeyWordsAtTimeZone.AT_TIME_ZONE;
 
@@ -375,10 +375,6 @@ public abstract class SQLs extends SQLSyntax {
     }
 
 
-    /**
-     * package field
-     */
-    static final Expression _ASTERISK_EXP = new LiteralSymbolAsterisk();
 
     static final UnaryOperator<Select> SELECT_IDENTITY = SQLs::identity;
 
@@ -428,6 +424,7 @@ public abstract class SQLs extends SQLSyntax {
         return StandardDeletes.singleDelete(StandardDialect.STANDARD20);
     }
 
+
     public static StandardDelete._DomainDeleteClause<Delete> domainDelete() {
         return StandardDeletes.domainDelete();
     }
@@ -439,7 +436,6 @@ public abstract class SQLs extends SQLSyntax {
     public static StandardDelete._WithSpec<Statement._BatchDeleteParamSpec> batchSingleDelete() {
         return StandardDeletes.batchSingleDelete(StandardDialect.STANDARD20);
     }
-
 
     public static StandardDelete._DomainDeleteClause<Statement._BatchDeleteParamSpec> batchDomainDelete() {
         return StandardDeletes.batchDomainDelete();
@@ -468,7 +464,7 @@ public abstract class SQLs extends SQLSyntax {
 
     /*-------------------below package method-------------------*/
 
-    static AssignmentItem _assignmentItem(final SqlField field, final @Nullable Object value) {
+    static AssignmentItem _assignmentItem(final TypedField field, final @Nullable Object value) {
         final AssignmentItem item;
         if (value instanceof AssignmentItem) {
             item = (AssignmentItem) value;
@@ -642,7 +638,7 @@ public abstract class SQLs extends SQLSyntax {
     }
 
 
-    public interface SymbolSpace {
+    public sealed interface SymbolSpace permits SqlWords.SymbolSpaceEnum {
 
     }
 
@@ -657,11 +653,11 @@ public abstract class SQLs extends SQLSyntax {
     /**
      * @see SQLs#DISTINCT
      */
-    public interface ArgDistinct extends SQLWords {
+    public interface ArgDistinct extends SQLToken {
 
     }
 
-    public sealed interface SymbolAsterisk extends Expression permits LiteralSymbolAsterisk {
+    public sealed interface SymbolAsterisk extends Expression, SQLToken permits LiteralSymbolAsterisk {
 
     }
 
@@ -673,11 +669,11 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordAs extends SQLWords {
+    public interface WordAs extends SQLToken {
 
     }
 
-    public interface WordTo extends SQLWords {
+    public interface WordTo extends SQLToken {
 
     }
 
@@ -685,11 +681,11 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordBoolean extends BooleanTestWord, SimplePredicate {
+    public interface WordBoolean extends BooleanTestWord, SimplePredicate, LiteralExpression {
 
     }
 
-    public interface QuantifiedWord extends SQLWords {
+    public interface QuantifiedWord extends SQLToken {
 
     }
 
@@ -697,7 +693,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordEscape extends SQLWords {
+    public interface WordEscape extends SQLToken {
 
     }
 
@@ -705,11 +701,11 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface BooleanTestWord extends SQLWords {
+    public interface BooleanTestWord extends SQLToken {
 
     }
 
-    public interface DocumentValueOption extends SQLWords {
+    public interface DocumentValueOption extends SQLToken {
 
     }
 
@@ -722,21 +718,15 @@ public abstract class SQLs extends SQLSyntax {
     }
 
 
-    public interface _ArrayConstructorSpec extends ArrayExpression {
-
-        ArrayExpression castTo(MappingType type);
+    public interface IsComparisonWord extends SQLToken {
 
     }
 
-    public interface IsComparisonWord extends SQLWords {
+    public interface BetweenModifier extends SQLToken {
 
     }
 
-    public interface BetweenModifier extends SQLWords {
-
-    }
-
-    public interface WordInterval extends SQLWords {
+    public interface WordInterval extends SQLToken {
 
     }
 
@@ -744,7 +734,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordOnly extends TableModifier, FetchOnlyWithTies, SQLWords {
+    public interface WordOnly extends TableModifier, FetchOnlyWithTies, SQLToken {
 
     }
 
@@ -775,7 +765,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordLines extends SQLWords, LinesWord {
+    public interface WordLines extends SQLToken, LinesWord {
 
     }
 
@@ -787,12 +777,12 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordPath extends SQLWords {
+    public interface WordPath extends SQLToken {
 
     }
 
 
-    public interface WordsForOrdinality extends SQLWords {
+    public interface WordsForOrdinality extends SQLToken {
 
     }
 
@@ -812,19 +802,19 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordColumns extends SQLWords {
+    public interface WordColumns extends SQLToken {
 
     }
 
-    public interface WordNested extends SQLWords {
+    public interface WordNested extends SQLToken {
 
     }
 
-    public interface WordExists extends SQLWords {
+    public interface WordExists extends SQLToken {
 
     }
 
-    public interface WordError extends SQLWords {
+    public interface WordError extends SQLToken {
 
     }
 
@@ -832,23 +822,23 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordsCharacterSet extends SQLWords {
+    public interface WordsCharacterSet extends SQLToken {
 
     }
 
-    public interface WordCollate extends SQLWords {
+    public interface WordCollate extends SQLToken {
 
     }
 
-    public interface WordUsing extends SQLWords {
+    public interface WordUsing extends SQLToken {
 
     }
 
-    public interface TableModifier extends SQLWords {
+    public interface TableModifier extends SQLToken {
 
     }
 
-    public interface DerivedModifier extends SQLWords {
+    public interface DerivedModifier extends SQLToken {
 
     }
 
@@ -872,12 +862,12 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface NullsFirstLast extends SQLWords {
+    public interface NullsFirstLast extends SQLToken {
 
     }
 
 
-    public interface IndexHintPurpose extends SQLWords {
+    public interface IndexHintPurpose extends SQLToken {
 
     }
 
@@ -893,7 +883,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordsAtTimeZone extends SQLWords {
+    public interface WordsAtTimeZone extends SQLToken {
 
     }
 
@@ -902,10 +892,9 @@ public abstract class SQLs extends SQLSyntax {
         String name();
     }
 
-    public interface WordMaterialized extends SQLWords {
+    public interface WordMaterialized extends SQLToken {
 
     }
-
 
 
 
@@ -1117,7 +1106,7 @@ public abstract class SQLs extends SQLSyntax {
 
             if (!(subStatement instanceof DerivedTable)) {
                 throw CriteriaUtils.subDmlNoReturningClause(name);
-            } else if (this.columnNameList.size() == 0) {
+            } else if (this.columnNameList.isEmpty()) {
                 this.selectionMap = (_DerivedTable) subStatement;
             } else {
                 this.selectionMap = CriteriaUtils.createAliasSelectionMap(this.columnNameList,
@@ -1148,6 +1137,7 @@ public abstract class SQLs extends SQLSyntax {
         }
 
 
+        @Nullable
         @Override
         public Selection refSelection(final String name) {
             return this.selectionMap.refSelection(name);
@@ -1155,7 +1145,6 @@ public abstract class SQLs extends SQLSyntax {
 
 
     }//CteImpl
-
 
     /**
      * <p>
@@ -1165,7 +1154,7 @@ public abstract class SQLs extends SQLSyntax {
      * @see SQLs#DEFAULT
      */
     private static final class DefaultWord extends NonOperationExpression
-            implements WordDefault, ArmyKeyWord {
+            implements SQLs.WordDefault, Functions.ArmyKeyWord {
 
         private DefaultWord() {
         }
@@ -1173,11 +1162,6 @@ public abstract class SQLs extends SQLSyntax {
         @Override
         public String spaceRender() {
             return _Constant.SPACE_DEFAULT;
-        }
-
-        @Override
-        public TypeMeta typeMeta() {
-            throw unsupportedOperation(this);
         }
 
         @Override
@@ -1193,24 +1177,21 @@ public abstract class SQLs extends SQLSyntax {
 
     }// DefaultWord
 
+
     /**
-     * @see SQLs#_ASTERISK_EXP
+     * @see SQLs#ASTERISK
      */
     private static final class LiteralSymbolAsterisk extends NonOperationExpression
-            implements FunctionArg.SingleFunctionArg, SymbolAsterisk, SQLWords {
+            implements FunctionArg.SingleFunctionArg, SymbolAsterisk {
 
         private LiteralSymbolAsterisk() {
-        }
-
-        @Override
-        public TypeMeta typeMeta() {
-            throw unsupportedOperation(this);
         }
 
         @Override
         public String spaceRender() {
             return " *";
         }
+
 
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {

@@ -394,10 +394,12 @@ final class SQLiteExecutor extends JdbcExecutor implements SyncLocalExecutor {
         }
     }
 
+
     @Override
-    DataType getDataType(final ResultSetMetaData meta, final int indexBasedOne) throws SQLException {
-        return getSQLiteType(meta.getColumnTypeName(indexBasedOne));
+    DataType dataTypeMap(ResultSetMetaData meta, MappingType[] typeArray, int indexBasedZero) throws SQLException {
+        return getSQLiteType(meta.getColumnTypeName(indexBasedZero + 1), typeArray, indexBasedZero);
     }
+
 
     @Nullable
     @Override

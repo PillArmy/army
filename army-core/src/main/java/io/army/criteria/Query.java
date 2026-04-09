@@ -47,7 +47,7 @@ public interface Query extends RowSet {
      * @see SQLs#ALL
      * @see SQLs#DISTINCT
      */
-    interface SelectModifier extends SQLWords {
+    interface SelectModifier extends SQLToken {
 
     }
 
@@ -324,25 +324,25 @@ public interface Query extends RowSet {
         <K, V> R spaceAnd(Function<V, IPredicate> operator, Function<K, V> operand, K key);
 
 
-        <E> R spaceAnd(ExpressionOperator<SimpleExpression, E, IPredicate> expOperator, BiFunction<SimpleExpression, E, Expression> valueOperator, E value);
+        <E> R spaceAnd(ExpressionOperator<TypedExpression, E, IPredicate> expOperator, BiFunction<TypedExpression, E, Expression> valueOperator, E value);
 
-        <E> R spaceAnd(DialectBooleanOperator<E> fieldOperator, BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                       BiFunction<SimpleExpression, E, Expression> func, @Nullable E value);
+        <E> R spaceAnd(DialectBooleanOperator<E> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                       BiFunction<TypedExpression, E, Expression> func, @Nullable E value);
 
-        <K, V> R spaceAnd(ExpressionOperator<SimpleExpression, V, IPredicate> expOperator, BiFunction<SimpleExpression, V, Expression> valueOperator, Function<K, V> function, K key);
+        <K, V> R spaceAnd(ExpressionOperator<TypedExpression, V, IPredicate> expOperator, BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function, K key);
 
-        <K, V> R spaceAnd(DialectBooleanOperator<V> fieldOperator, BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                          BiFunction<SimpleExpression, V, Expression> func, Function<K, V> function, K key);
+        <K, V> R spaceAnd(DialectBooleanOperator<V> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                          BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key);
 
-        <E> R ifSpaceAnd(ExpressionOperator<SimpleExpression, E, IPredicate> expOperator, BiFunction<SimpleExpression, E, Expression> valueOperator, Supplier<E> supplier);
+        <E> R ifSpaceAnd(ExpressionOperator<TypedExpression, E, IPredicate> expOperator, BiFunction<TypedExpression, E, Expression> valueOperator, Supplier<E> supplier);
 
-        <E> R ifSpaceAnd(DialectBooleanOperator<E> fieldOperator, BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                         BiFunction<SimpleExpression, E, Expression> func, Supplier<E> supplier);
+        <E> R ifSpaceAnd(DialectBooleanOperator<E> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                         BiFunction<TypedExpression, E, Expression> func, Supplier<E> supplier);
 
-        <K, V> R ifSpaceAnd(ExpressionOperator<SimpleExpression, V, IPredicate> expOperator, BiFunction<SimpleExpression, V, Expression> valueOperator, Function<K, V> function, K key);
+        <K, V> R ifSpaceAnd(ExpressionOperator<TypedExpression, V, IPredicate> expOperator, BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function, K key);
 
-        <K, V> R ifSpaceAnd(DialectBooleanOperator<V> fieldOperator, BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                            BiFunction<SimpleExpression, V, Expression> func, Function<K, V> function, K key);
+        <K, V> R ifSpaceAnd(DialectBooleanOperator<V> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                            BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key);
     }
 
 
@@ -357,25 +357,25 @@ public interface Query extends RowSet {
         <K, V> R having(Function<V, IPredicate> operator, Function<K, V> operand, K key);
 
 
-        <E> R having(ExpressionOperator<SimpleExpression, E, IPredicate> expOperator, BiFunction<SimpleExpression, E, Expression> valueOperator, E value);
+        <E> R having(ExpressionOperator<TypedExpression, E, IPredicate> expOperator, BiFunction<TypedExpression, E, Expression> valueOperator, E value);
 
-        <E> R having(DialectBooleanOperator<E> fieldOperator, BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                     BiFunction<SimpleExpression, E, Expression> func, @Nullable E value);
+        <E> R having(DialectBooleanOperator<E> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                     BiFunction<TypedExpression, E, Expression> func, @Nullable E value);
 
-        <K, V> R having(ExpressionOperator<SimpleExpression, V, IPredicate> expOperator, BiFunction<SimpleExpression, V, Expression> valueOperator, Function<K, V> function, K key);
+        <K, V> R having(ExpressionOperator<TypedExpression, V, IPredicate> expOperator, BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function, K key);
 
-        <K, V> R having(DialectBooleanOperator<V> fieldOperator, BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                        BiFunction<SimpleExpression, V, Expression> func, Function<K, V> function, K key);
+        <K, V> R having(DialectBooleanOperator<V> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                        BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key);
 
-        <E> R ifHaving(ExpressionOperator<SimpleExpression, E, IPredicate> expOperator, BiFunction<SimpleExpression, E, Expression> valueOperator, Supplier<E> supplier);
+        <E> R ifHaving(ExpressionOperator<TypedExpression, E, IPredicate> expOperator, BiFunction<TypedExpression, E, Expression> valueOperator, Supplier<E> supplier);
 
-        <E> R ifHaving(DialectBooleanOperator<E> fieldOperator, BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                       BiFunction<SimpleExpression, E, Expression> func, Supplier<E> supplier);
+        <E> R ifHaving(DialectBooleanOperator<E> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                       BiFunction<TypedExpression, E, Expression> func, Supplier<E> supplier);
 
-        <K, V> R ifHaving(ExpressionOperator<SimpleExpression, V, IPredicate> expOperator, BiFunction<SimpleExpression, V, Expression> valueOperator, Function<K, V> function, K key);
+        <K, V> R ifHaving(ExpressionOperator<TypedExpression, V, IPredicate> expOperator, BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function, K key);
 
-        <K, V> R ifHaving(DialectBooleanOperator<V> fieldOperator, BiFunction<SimpleExpression, Expression, CompoundPredicate> operator,
-                          BiFunction<SimpleExpression, V, Expression> func, Function<K, V> function, K key);
+        <K, V> R ifHaving(DialectBooleanOperator<V> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
+                          BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key);
 
 
     }

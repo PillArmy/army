@@ -36,6 +36,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
+@SuppressWarnings("unused")
 abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFunctions {
 
     /**
@@ -52,7 +53,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">get_current_ts_config ( ) → regconfig</a>
      */
     public static SimpleExpression getCurrentTsConfig() {
-        return FunctionUtils.zeroArgFunc("GET_CURRENT_TS_CONFIG", StringType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("GET_CURRENT_TS_CONFIG");
     }
 
     /**
@@ -62,7 +63,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">numnode ( tsquery ) → integer</a>
      */
     public static SimpleExpression numNode(Expression exp) {
-        return FunctionUtils.oneArgFunc("NUMNODE", exp, IntegerType.INSTANCE);
+        return FunctionUtils.oneArgFunc("NUMNODE", exp);
     }
 
 
@@ -115,7 +116,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">ts_lexize ( dict regdictionary, token text ) → text[]</a>
      */
     public static SimpleExpression tsLexize(Expression dict, Expression token) {
-        return FunctionUtils.twoArgFunc("TS_LEXIZE", dict, token, TextArrayType.LINEAR);
+        return FunctionUtils.twoArgFunc("TS_LEXIZE", dict, token);
     }
 
     /**
@@ -137,8 +138,8 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
     public static _TabularWithOrdinalityFunction tsParse(Expression parserName, Expression document) {
         final List<Selection> fieldList = _Collections.arrayList(2);
 
-        fieldList.add(ArmySelections.forName("tokid", IntegerType.INSTANCE));
-        fieldList.add(ArmySelections.forName("token", TextType.INSTANCE));
+        fieldList.add(ArmySelections.forName("tokid"));
+        fieldList.add(ArmySelections.forName("token"));
 
         return DialectFunctionUtils.twoArgTabularFunc("TS_PARSE", parserName, document, fieldList);
     }
@@ -163,9 +164,9 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
     public static _TabularWithOrdinalityFunction tsTokenType(Expression exp) {
         final List<Selection> fieldList = _Collections.arrayList(3);
 
-        fieldList.add(ArmySelections.forName("tokid", IntegerType.INSTANCE));
-        fieldList.add(ArmySelections.forName("alias", TextType.INSTANCE));
-        fieldList.add(ArmySelections.forName("description", TextType.INSTANCE));
+        fieldList.add(ArmySelections.forName("tokid"));
+        fieldList.add(ArmySelections.forName("alias"));
+        fieldList.add(ArmySelections.forName("description"));
 
         return DialectFunctionUtils.oneArgTabularFunc("TS_TOKEN_TYPE", exp, fieldList);
     }
@@ -216,7 +217,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-uuid.html">UUID Functions</a>
      */
     public static SimpleExpression genRandomUuid() {
-        return FunctionUtils.zeroArgFunc("GEN_RANDOM_UUID", UUIDType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("GEN_RANDOM_UUID");
     }
 
     /*-------------------below Sequence Manipulation Functions-------------------*/
@@ -228,7 +229,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-sequence.html">nextval ( regclass ) → bigint</a>
      */
     public static SimpleExpression nextVal(Expression exp) {
-        return FunctionUtils.oneArgFunc("NEXTVAL", exp, LongType.INSTANCE);
+        return FunctionUtils.oneArgFunc("NEXTVAL", exp);
     }
 
     /**
@@ -239,7 +240,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-sequence.html">setval ( regclass, bigint [, boolean ] ) → bigint</a>
      */
     public static SimpleExpression setVal(Expression regClass, Expression value) {
-        return FunctionUtils.twoArgFunc("SETVAL", regClass, value, LongType.INSTANCE);
+        return FunctionUtils.twoArgFunc("SETVAL", regClass, value);
     }
 
     /**
@@ -251,7 +252,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-sequence.html">setval ( regclass, bigint [, boolean ] ) → bigint</a>
      */
     public static SimpleExpression setVal(Expression regClass, Expression value, Expression isCalled) {
-        return FunctionUtils.threeArgFunc("SETVAL", regClass, value, isCalled, LongType.INSTANCE);
+        return FunctionUtils.threeArgFunc("SETVAL", regClass, value, isCalled);
     }
 
 
@@ -262,7 +263,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-sequence.html">currval ( regclass ) → bigint</a>
      */
     public static SimpleExpression currVal(Expression exp) {
-        return FunctionUtils.oneArgFunc("CURRVAL", exp, LongType.INSTANCE);
+        return FunctionUtils.oneArgFunc("CURRVAL", exp);
     }
 
     /**
@@ -272,7 +273,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-sequence.html">lastval ( regclass ) → bigint</a>
      */
     public static SimpleExpression lastVal(Expression exp) {
-        return FunctionUtils.oneArgFunc("LASTVAL", exp, LongType.INSTANCE);
+        return FunctionUtils.oneArgFunc("LASTVAL", exp);
     }
 
     /*-------------------below Conditional Expressions-------------------*/
@@ -290,7 +291,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-conditional.html#FUNCTIONS-COALESCE-NVL-IFNULL">COALESCE(value [, ...])</a>
      */
     public static SimpleExpression coalesce(Expression firstValue, Expression... rest) {
-        return FunctionUtils.oneAndRestFunc("COALESCE", _returnType(firstValue, Expressions::identityType),
+        return FunctionUtils.oneAndRestFunc("COALESCE",
                 firstValue, rest
         );
     }
@@ -320,7 +321,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-conditional.html#FUNCTIONS-GREATEST-LEAST">GREATEST(value [, ...])</a>
      */
     public static SimpleExpression greatest(Expression firstValue, Expression... rest) {
-        return FunctionUtils.oneAndRestFunc("GREATEST", _returnType(firstValue, Expressions::identityType),
+        return FunctionUtils.oneAndRestFunc("GREATEST",
                 firstValue, rest
         );
     }
@@ -350,7 +351,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-conditional.html#FUNCTIONS-GREATEST-LEAST">LEAST(value [, ...])</a>
      */
     public static SimpleExpression least(Expression firstValue, Expression... rest) {
-        return FunctionUtils.oneAndRestFunc("LEAST", _returnType(firstValue, Expressions::identityType),
+        return FunctionUtils.oneAndRestFunc("LEAST",
                 firstValue, rest
         );
     }
@@ -379,9 +380,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">array_append ( anycompatiblearray, anycompatible ) → anycompatiblearray</a>
      */
     public static SimpleExpression arrayAppend(Expression anyCompatibleArray, Expression anyCompatible) {
-        return FunctionUtils.twoArgFunc("ARRAY_APPEND", anyCompatibleArray, anyCompatible,
-                _returnType(anyCompatibleArray, Expressions::identityType)
-        );
+        return FunctionUtils.twoArgFunc("ARRAY_APPEND", anyCompatibleArray, anyCompatible);
     }
 
     /**
@@ -393,9 +392,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">array_cat ( anycompatiblearray, anycompatiblearray ) → anycompatiblearray</a>
      */
     public static SimpleExpression arrayCat(Expression anyCompatibleArray1, Expression anyCompatibleArray2) {
-        return FunctionUtils.twoArgFunc("ARRAY_CAT", anyCompatibleArray1, anyCompatibleArray2,
-                _returnType(anyCompatibleArray1, Expressions::identityType)
-        );
+        return FunctionUtils.twoArgFunc("ARRAY_CAT", anyCompatibleArray1, anyCompatibleArray2);
     }
 
     /**
@@ -407,7 +404,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">array_dims ( anyarray ) → text</a>
      */
     public static SimpleExpression arrayDims(Expression anyArray) {
-        return FunctionUtils.oneArgFunc("ARRAY_DIMS", anyArray, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("ARRAY_DIMS", anyArray);
     }
 
     /**
@@ -528,7 +525,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">array_length ( anyarray, integer ) → integer</a>
      */
     public static SimpleExpression arrayLength(Expression anyArray, Expression dimension) {
-        return FunctionUtils.twoArgFunc("ARRAY_LENGTH", anyArray, dimension, IntegerType.INSTANCE);
+        return FunctionUtils.twoArgFunc("ARRAY_LENGTH", anyArray, dimension);
     }
 
     /**
@@ -542,7 +539,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">array_lower ( anyarray, integer ) → integer</a>
      */
     public static SimpleExpression arrayLower(Expression anyArray, Expression dimension) {
-        return FunctionUtils.twoArgFunc("ARRAY_LOWER", anyArray, dimension, IntegerType.INSTANCE);
+        return FunctionUtils.twoArgFunc("ARRAY_LOWER", anyArray, dimension);
     }
 
     /**
@@ -555,7 +552,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">array_ndims ( anyarray ) → integer</a>
      */
     public static SimpleExpression arrayNDims(Expression anyArray) {
-        return FunctionUtils.oneArgFunc("ARRAY_NDIMS", anyArray, IntegerType.INSTANCE);
+        return FunctionUtils.oneArgFunc("ARRAY_NDIMS", anyArray);
     }
 
     /**
@@ -569,7 +566,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">array_position ( anycompatiblearray, anycompatible [, integer ] ) → integer</a>
      */
     public static SimpleExpression arrayPosition(Expression anyCompatibleArray, Expression anyCompatible) {
-        return FunctionUtils.twoArgFunc("ARRAY_POSITION", anyCompatibleArray, anyCompatible, IntegerType.INSTANCE);
+        return FunctionUtils.twoArgFunc("ARRAY_POSITION", anyCompatibleArray, anyCompatible);
     }
 
     /**
@@ -614,9 +611,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      */
     public static SimpleExpression arrayPosition(Expression anyCompatibleArray, Expression anyCompatible,
                                                  Expression subscript) {
-        return FunctionUtils.threeArgFunc("ARRAY_POSITION", anyCompatibleArray, anyCompatible, subscript,
-                IntegerType.INSTANCE
-        );
+        return FunctionUtils.threeArgFunc("ARRAY_POSITION", anyCompatibleArray, anyCompatible, subscript);
     }
 
     /**
@@ -629,7 +624,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">array_positions ( anycompatiblearray, anycompatible ) → integer[]</a>
      */
     public static SimpleExpression arrayPositions(Expression anyCompatibleArray, Expression anyCompatible) {
-        return FunctionUtils.twoArgFunc("ARRAY_POSITIONS", anyCompatibleArray, anyCompatible, IntegerArrayType.LINEAR);
+        return FunctionUtils.twoArgFunc("ARRAY_POSITIONS", anyCompatibleArray, anyCompatible);
     }
 
 
@@ -643,9 +638,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">array_prepend ( anycompatible, anycompatiblearray ) → anycompatiblearray</a>
      */
     public static SimpleExpression arrayPrepend(Expression anyCompatible, Expression anyCompatibleArray) {
-        return FunctionUtils.twoArgFunc("ARRAY_PREPEND", anyCompatible, anyCompatibleArray,
-                _returnType(anyCompatibleArray, Expressions::identityType)
-        );
+        return FunctionUtils.twoArgFunc("ARRAY_PREPEND", anyCompatible, anyCompatibleArray);
     }
 
     /**
@@ -658,9 +651,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">array_remove ( anycompatiblearray, anycompatible ) → anycompatiblearray</a>
      */
     public static SimpleExpression arrayRemove(Expression anyCompatibleArray, Expression anyCompatible) {
-        return FunctionUtils.twoArgFunc("ARRAY_REMOVE", anyCompatibleArray, anyCompatible,
-                _returnType(anyCompatibleArray, Expressions::identityType)
-        );
+        return FunctionUtils.twoArgFunc("ARRAY_REMOVE", anyCompatibleArray, anyCompatible);
     }
 
     /**
@@ -674,9 +665,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      */
     public static SimpleExpression arrayReplace(Expression anyCompatibleArray, Expression anyCompatible,
                                                 Expression replacement) {
-        return FunctionUtils.threeArgFunc("ARRAY_REPLACE", anyCompatibleArray, anyCompatible, replacement,
-                _returnType(anyCompatibleArray, Expressions::identityType)
-        );
+        return FunctionUtils.threeArgFunc("ARRAY_REPLACE", anyCompatibleArray, anyCompatible, replacement);
     }
 
     /**
@@ -689,7 +678,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">array_to_string ( array anyarray, delimiter text [, null_string text ] ) → text</a>
      */
     public static SimpleExpression arrayToString(Expression array, Expression delimiter, Expression nullString) {
-        return FunctionUtils.threeArgFunc("ARRAY_TO_STRING", array, delimiter, nullString, TextType.INSTANCE);
+        return FunctionUtils.threeArgFunc("ARRAY_TO_STRING", array, delimiter, nullString);
     }
 
     /**
@@ -703,7 +692,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">array_upper ( anyarray, integer ) → integer</a>
      */
     public static SimpleExpression arrayUpper(Expression anyArray, Expression dimension) {
-        return FunctionUtils.twoArgFunc("ARRAY_UPPER", anyArray, dimension, IntegerType.INSTANCE);
+        return FunctionUtils.twoArgFunc("ARRAY_UPPER", anyArray, dimension);
     }
 
     /**
@@ -717,7 +706,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">cardinality ( anyarray ) → integer</a>
      */
     public static SimpleExpression cardinality(Expression anyArray) {
-        return FunctionUtils.oneArgFunc("CARDINALITY", anyArray, IntegerType.INSTANCE);
+        return FunctionUtils.oneArgFunc("CARDINALITY", anyArray);
     }
 
 
@@ -732,7 +721,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">trim_array ( array anyarray, n integer ) → anyarray</a>
      */
     public static SimpleExpression trimArray(Expression array, Expression n) {
-        return FunctionUtils.twoArgFunc("TRIM_ARRAY", array, n, _returnType(array, Expressions::identityType));
+        return FunctionUtils.twoArgFunc("TRIM_ARRAY", array, n);
     }
 
     /**
@@ -792,21 +781,20 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
         final String name = "UNNEST";
 
         final MappingType type;
-        type = exp.typeMeta().mappingType();
+        type = null; //TODO fix me exp.typeMeta().mappingType();
         final _TabularWithOrdinalityFunction func;
         if (type instanceof MappingType.SqlArrayType) {
-            func = DialectFunctionUtils.oneArgColumnFunction(name, exp, null, CriteriaUtils.arrayUnderlyingType(type));
+            func = DialectFunctionUtils.oneArgColumnFunction(name, exp, null);
         } else if (type instanceof PostgreTsVectorType) {
             final List<Selection> fieldList = _Collections.arrayList(3);
 
-            fieldList.add(ArmySelections.forName("lexeme", TextType.INSTANCE));
-            fieldList.add(ArmySelections.forName("positions", ShortArrayType.from(Short[].class)));
-            fieldList.add(ArmySelections.forName("weights", TextType.INSTANCE));
+            fieldList.add(ArmySelections.forName("lexeme"));
+            fieldList.add(ArmySelections.forName("positions"));
+            fieldList.add(ArmySelections.forName("weights"));
 
             func = DialectFunctionUtils.oneArgTabularFunc(name, exp, fieldList);
         } else if (type instanceof PostgreRangeType.MultiRangeType) {
-            func = DialectFunctionUtils.oneArgColumnFunction(name, exp, null,
-                    ((PostgreRangeType.MultiRangeType) type).rangeType());
+            func = DialectFunctionUtils.oneArgColumnFunction(name, exp, null);
         } else {
             throw CriteriaUtils.funcArgError(name, exp);
         }
@@ -838,9 +826,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static _ColumnWithOrdinalityFunction unnest(final ArrayExpression exp) {
-        return DialectFunctionUtils.oneArgColumnFunction("UNNEST", exp, null,
-                CriteriaUtils.arrayUnderlyingType(exp.typeMeta().mappingType())
-        );
+        return DialectFunctionUtils.oneArgColumnFunction("UNNEST", exp, null);
     }
 
     /**
@@ -864,8 +850,8 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
     public static _TabularWithOrdinalityFunction unnest(ArrayExpression array1, ArrayExpression array2) {
         final List<Selection> fieldList = _Collections.arrayList(2);
 
-        fieldList.add(ArmySelections.forAnonymous(CriteriaUtils.arrayUnderlyingType(array1.typeMeta())));
-        fieldList.add(ArmySelections.forAnonymous(CriteriaUtils.arrayUnderlyingType(array2.typeMeta())));
+        fieldList.add(ArmySelections.forAnonymous());
+        fieldList.add(ArmySelections.forAnonymous());
         return DialectFunctionUtils.twoArgTabularFunc("UNNEST", array1, array2, fieldList);
     }
 
@@ -892,9 +878,9 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
         final String name = "UNNEST";
 
         final List<Selection> fieldList = _Collections.arrayList(3 + restArray.length);
-        fieldList.add(ArmySelections.forAnonymous(CriteriaUtils.arrayUnderlyingType(array1.typeMeta())));
-        fieldList.add(ArmySelections.forAnonymous(CriteriaUtils.arrayUnderlyingType(array2.typeMeta())));
-        fieldList.add(ArmySelections.forAnonymous(CriteriaUtils.arrayUnderlyingType(array3.typeMeta())));
+        fieldList.add(ArmySelections.forAnonymous());
+        fieldList.add(ArmySelections.forAnonymous());
+        fieldList.add(ArmySelections.forAnonymous());
 
 
         final _TabularWithOrdinalityFunction func;
@@ -908,7 +894,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
 
             for (ArrayExpression array : restArray) {
                 argList.add((ArmyExpression) array);
-                fieldList.add(ArmySelections.forAnonymous(CriteriaUtils.arrayUnderlyingType(array.typeMeta())));
+                fieldList.add(ArmySelections.forAnonymous());
             }
             func = DialectFunctionUtils.multiArgTabularFunc(name, argList, fieldList);
         }
@@ -939,7 +925,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
         final List<Selection> fieldList = _Collections.arrayList();
         consumer.accept(exp -> {
             argList.add((ArmyExpression) exp);
-            fieldList.add(ArmySelections.forAnonymous(CriteriaUtils.arrayUnderlyingType(exp.typeMeta())));
+            fieldList.add(ArmySelections.forAnonymous());
         });
 
         if (argList.size() == 0) {
@@ -1043,7 +1029,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression rangeMerge(Expression range1, Expression range2) {
-        return FunctionUtils.twoArgFunc("RANGE_MERGE", range1, range2, _returnType(range1, Expressions::identityType));
+        return FunctionUtils.twoArgFunc("RANGE_MERGE", range1, range2);
     }
 
     /**
@@ -1062,17 +1048,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression multiRange(final Expression anyRange) {
-        final UnaryOperator<MappingType> func;
-        func = t -> {
-            final MappingType type;
-            if (t instanceof PostgreRangeType.SingleRangeType) {
-                type = ((PostgreRangeType.SingleRangeType) t).multiRangeType();
-            } else {
-                type = TextType.INSTANCE;
-            }
-            return type;
-        };
-        return FunctionUtils.oneArgFunc("multirange", anyRange, _returnType(anyRange, func));
+        return FunctionUtils.oneArgFunc("multirange", anyRange);
     }
 
     /*-------------------below Series Generating Functions-------------------*/
@@ -1087,9 +1063,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
     public static _ColumnWithOrdinalityFunction generateSeries(Object start, Object stop) {
         final Expression startExp;
         startExp = SQLs._nonNullLiteral(start);
-        return DialectFunctionUtils.twoArgColumnFunction("generate_series", startExp, stop, null,
-                _returnType(startExp, Expressions::identityType)
-        );
+        return DialectFunctionUtils.twoArgColumnFunction("generate_series", startExp, stop, null);
     }
 
     /**
@@ -1104,8 +1078,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
     public static _ColumnWithOrdinalityFunction generateSeries(Object start, Object stop, Object step) {
         final Expression startExp;
         startExp = SQLs._nonNullLiteral(start);
-        return DialectFunctionUtils.threeArgColumnFunction("generate_series", startExp, stop, step, null,
-                _returnType(startExp, Expressions::identityType)
+        return DialectFunctionUtils.threeArgColumnFunction("generate_series", startExp, stop, step, null
         );
     }
 
@@ -1115,9 +1088,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static _ColumnWithOrdinalityFunction generateSubscripts(Expression array, Expression dim) {
-        return DialectFunctionUtils.twoArgColumnFunction("generate_subscripts", array, dim, null,
-                IntegerType.INSTANCE
-        );
+        return DialectFunctionUtils.twoArgColumnFunction("generate_subscripts", array, dim, null);
     }
 
     /**
@@ -1129,8 +1100,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static _ColumnWithOrdinalityFunction generateSubscripts(Expression array, Expression dim, Expression reverse) {
-        return DialectFunctionUtils.threeArgColumnFunction("generate_subscripts", array, dim, reverse, null,
-                IntegerType.INSTANCE
+        return DialectFunctionUtils.threeArgColumnFunction("generate_subscripts", array, dim, reverse, null
         );
     }
 
@@ -1144,7 +1114,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression currentDatabase() {
-        return FunctionUtils.zeroArgFunc("current_database", TextType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("current_database");
     }
 
     /**
@@ -1155,7 +1125,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression currentQuery() {
-        return FunctionUtils.zeroArgFunc("current_query", TextType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("current_query");
     }
 
 
@@ -1167,7 +1137,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression currentSchema() {
-        return FunctionUtils.zeroArgFunc("current_schema", TextType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("current_schema");
     }
 
 
@@ -1180,7 +1150,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression currentSchema(Expression includeImplicit) {
-        return FunctionUtils.oneArgFunc("current_schema", includeImplicit, TextArrayType.LINEAR);
+        return FunctionUtils.oneArgFunc("current_schema", includeImplicit);
     }
 
 
@@ -1192,7 +1162,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression inetClientAddr() {
-        return FunctionUtils.zeroArgFunc("inet_client_addr", PostgreInetType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("inet_client_addr");
     }
 
 
@@ -1204,7 +1174,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression inetClientPort() {
-        return FunctionUtils.zeroArgFunc("inet_client_port", IntegerType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("inet_client_port");
     }
 
     /**
@@ -1215,7 +1185,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression inetServerAddr() {
-        return FunctionUtils.zeroArgFunc("inet_server_addr", PostgreInetType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("inet_server_addr");
     }
 
     /**
@@ -1226,7 +1196,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression inetServerPort() {
-        return FunctionUtils.zeroArgFunc("inet_server_port", IntegerType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("inet_server_port");
     }
 
     /**
@@ -1237,7 +1207,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgBackendPid() {
-        return FunctionUtils.zeroArgFunc("pg_backend_pid", IntegerType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("pg_backend_pid");
     }
 
 
@@ -1249,7 +1219,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgBlockingPids(Expression exp) {
-        return FunctionUtils.oneArgFunc("pg_blocking_pids", exp, IntegerArrayType.PRIMITIVE_LINEAR);
+        return FunctionUtils.oneArgFunc("pg_blocking_pids", exp);
     }
 
     /**
@@ -1260,7 +1230,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgConfLoadTime() {
-        return FunctionUtils.zeroArgFunc("pg_conf_load_time", OffsetDateTimeType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("pg_conf_load_time");
     }
 
 
@@ -1272,7 +1242,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgCurrentLogFile() {
-        return FunctionUtils.zeroArgFunc("pg_current_logfile", TextType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("pg_current_logfile");
     }
 
     /**
@@ -1283,7 +1253,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgCurrentLogFile(Expression exp) {
-        return FunctionUtils.oneArgFunc("pg_current_logfile", exp, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_current_logfile", exp);
     }
 
     /**
@@ -1294,7 +1264,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgMyTempSchema() {
-        return FunctionUtils.zeroArgFunc("pg_my_temp_schema", LongType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("pg_my_temp_schema");
     }
 
 
@@ -1328,7 +1298,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static _ColumnWithOrdinalityFunction pgListeningChannels() {
-        return DialectFunctionUtils.zeroArgColumnFunction("pg_listening_channels", null, TextType.INSTANCE);
+        return DialectFunctionUtils.zeroArgColumnFunction("pg_listening_channels", null);
     }
 
     /**
@@ -1339,7 +1309,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgNotificationQueueUsage() {
-        return FunctionUtils.zeroArgFunc("pg_notification_queue_usage", DoubleType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("pg_notification_queue_usage");
     }
 
     /**
@@ -1350,7 +1320,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgPostMasterStartTime() {
-        return FunctionUtils.zeroArgFunc("pg_postmaster_start_time", OffsetDateTimeType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("pg_postmaster_start_time");
     }
 
     /**
@@ -1361,7 +1331,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgSafeSnapshotBlockingPids(Expression exp) {
-        return FunctionUtils.oneArgFunc("pg_safe_snapshot_blocking_pids", exp, IntegerArrayType.PRIMITIVE_LINEAR);
+        return FunctionUtils.oneArgFunc("pg_safe_snapshot_blocking_pids", exp);
     }
 
     /**
@@ -1372,7 +1342,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgTriggerDepth() {
-        return FunctionUtils.zeroArgFunc("pg_trigger_depth", IntegerType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("pg_trigger_depth");
     }
 
     /**
@@ -1383,7 +1353,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression version() {
-        return FunctionUtils.zeroArgFunc("version", TextType.INSTANCE);
+        return FunctionUtils.zeroArgFunc("version");
     }
 
 
@@ -1721,7 +1691,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression aclDefault(Expression type, Expression ownerId) {
-        return FunctionUtils.twoArgFunc("acldefault", type, ownerId, PostgreAclItemArrayType.LINEAR);
+        return FunctionUtils.twoArgFunc("acldefault", type, ownerId);
     }
 
     /**
@@ -1739,10 +1709,10 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
     public static _TabularWithOrdinalityFunction aclExplode(Expression exp) {
         final List<Selection> fieldList = _Collections.arrayList(4);
 
-        fieldList.add(ArmySelections.forName("grantor", LongType.INSTANCE));
-        fieldList.add(ArmySelections.forName("grantee", LongType.INSTANCE));
-        fieldList.add(ArmySelections.forName("privilege_type", TextType.INSTANCE));
-        fieldList.add(ArmySelections.forName("is_grantable", BooleanType.INSTANCE));
+        fieldList.add(ArmySelections.forName("grantor"));
+        fieldList.add(ArmySelections.forName("grantee"));
+        fieldList.add(ArmySelections.forName("privilege_type"));
+        fieldList.add(ArmySelections.forName("is_grantable"));
 
         return DialectFunctionUtils.oneArgTabularFunc("aclexplode", exp, fieldList);
     }
@@ -1756,7 +1726,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression makeAclItem(Expression grantee, Expression grantor, Expression privileges, Expression isGrantable) {
-        return FunctionUtils.fourArgFunc("makeaclitem", grantee, grantor, privileges, isGrantable, PostgreAclItemType.TEXT);
+        return FunctionUtils.fourArgFunc("makeaclitem", grantee, grantor, privileges, isGrantable);
     }
 
 
@@ -1921,7 +1891,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression formatType(Expression type, Expression typeMode) {
-        return FunctionUtils.twoArgFunc("format_type", type, typeMode, TextType.INSTANCE);
+        return FunctionUtils.twoArgFunc("format_type", type, typeMode);
     }
 
     /**
@@ -1932,7 +1902,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgCharToEncoding(Expression encoding) {
-        return FunctionUtils.oneArgFunc("pg_char_to_encoding", encoding, IntegerType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_char_to_encoding", encoding);
     }
 
 
@@ -1944,7 +1914,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgEncodingToChar(Expression encoding) {
-        return FunctionUtils.oneArgFunc("pg_encoding_to_char", encoding, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_encoding_to_char", encoding);
     }
 
     /**
@@ -1965,13 +1935,13 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
     public static _TabularWithOrdinalityFunction pgGetCatalogForeignKeys() {
         final List<Selection> fieldList = _Collections.arrayList(6);
 
-        fieldList.add(ArmySelections.forName("fktable", TextType.INSTANCE));
-        fieldList.add(ArmySelections.forName("fkcols", TextArrayType.LINEAR));
-        fieldList.add(ArmySelections.forName("pktable", TextType.INSTANCE));
-        fieldList.add(ArmySelections.forName("pkcols", TextArrayType.LINEAR));
+        fieldList.add(ArmySelections.forName("fktable"));
+        fieldList.add(ArmySelections.forName("fkcols"));
+        fieldList.add(ArmySelections.forName("pktable"));
+        fieldList.add(ArmySelections.forName("pkcols"));
 
-        fieldList.add(ArmySelections.forName("is_array", BooleanType.INSTANCE));
-        fieldList.add(ArmySelections.forName("is_opt", BooleanType.INSTANCE));
+        fieldList.add(ArmySelections.forName("is_array"));
+        fieldList.add(ArmySelections.forName("is_opt"));
         return DialectFunctionUtils.zeroArgTabularFunc("pg_get_catalog_foreign_keys", fieldList);
     }
 
@@ -1983,7 +1953,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetConstraintDef(Expression constraint) {
-        return FunctionUtils.oneArgFunc("pg_get_constraintdef", constraint, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_get_constraintdef", constraint);
     }
 
 
@@ -1996,7 +1966,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetConstraintDef(Expression constraint, Expression pretty) {
-        return FunctionUtils.twoArgFunc("pg_get_constraintdef", constraint, pretty, TextType.INSTANCE);
+        return FunctionUtils.twoArgFunc("pg_get_constraintdef", constraint, pretty);
     }
 
 
@@ -2010,7 +1980,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      */
     public static SimpleExpression pgGetExpr(Expression expr, Expression relation, Expression pretty) {
         // TODO hwo to pg_node_tree ?
-        return FunctionUtils.threeArgFunc("pg_get_expr", expr, relation, pretty, TextType.INSTANCE);
+        return FunctionUtils.threeArgFunc("pg_get_expr", expr, relation, pretty);
     }
 
     /**
@@ -2021,7 +1991,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetFunctionDef(Expression func) {
-        return FunctionUtils.oneArgFunc("pg_get_functiondef", func, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_get_functiondef", func);
     }
 
     /**
@@ -2032,7 +2002,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetFunctionArguments(Expression func) {
-        return FunctionUtils.oneArgFunc("pg_get_function_arguments", func, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_get_function_arguments", func);
     }
 
 
@@ -2044,7 +2014,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetFunctionIdentityArguments(Expression func) {
-        return FunctionUtils.oneArgFunc("pg_get_function_identity_arguments", func, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_get_function_identity_arguments", func);
     }
 
 
@@ -2056,7 +2026,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetFunctionResult(Expression func) {
-        return FunctionUtils.oneArgFunc("pg_get_function_result", func, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_get_function_result", func);
     }
 
     /**
@@ -2067,7 +2037,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetIndexDef(Expression func) {
-        return FunctionUtils.oneArgFunc("pg_get_indexdef", func, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_get_indexdef", func);
     }
 
     /**
@@ -2079,7 +2049,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetIndexDef(Expression func, Expression column, Expression pretty) {
-        return FunctionUtils.threeArgFunc("pg_get_indexdef", func, column, pretty, TextType.INSTANCE);
+        return FunctionUtils.threeArgFunc("pg_get_indexdef", func, column, pretty);
     }
 
     /**
@@ -2099,12 +2069,12 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
     public static _TabularWithOrdinalityFunction pgGetKeywords() {
         final List<Selection> fieldList = _Collections.arrayList(5);
 
-        fieldList.add(ArmySelections.forName("word", TextType.INSTANCE));
-        fieldList.add(ArmySelections.forName("catcode", CharacterType.INSTANCE));
-        fieldList.add(ArmySelections.forName("barelabel", BooleanType.INSTANCE));
-        fieldList.add(ArmySelections.forName("catdesc", TextType.INSTANCE));
+        fieldList.add(ArmySelections.forName("word"));
+        fieldList.add(ArmySelections.forName("catcode"));
+        fieldList.add(ArmySelections.forName("barelabel"));
+        fieldList.add(ArmySelections.forName("catdesc"));
 
-        fieldList.add(ArmySelections.forName("baredesc", TextType.INSTANCE));
+        fieldList.add(ArmySelections.forName("baredesc"));
         return DialectFunctionUtils.zeroArgTabularFunc("pg_get_keywords", fieldList);
     }
 
@@ -2116,7 +2086,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetRuleDef(Expression rule) {
-        return FunctionUtils.oneArgFunc("pg_get_ruledef", rule, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_get_ruledef", rule);
     }
 
 
@@ -2129,7 +2099,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetRuleDef(Expression rule, Expression pretty) {
-        return FunctionUtils.twoArgFunc("pg_get_ruledef", rule, pretty, TextType.INSTANCE);
+        return FunctionUtils.twoArgFunc("pg_get_ruledef", rule, pretty);
     }
 
 
@@ -2141,7 +2111,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetSerialSequence(Expression table, Expression column) {
-        return FunctionUtils.twoArgFunc("pg_get_serial_sequence", table, column, TextType.INSTANCE);
+        return FunctionUtils.twoArgFunc("pg_get_serial_sequence", table, column);
     }
 
 
@@ -2153,7 +2123,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetStatisticsObjDef(Expression statObj) {
-        return FunctionUtils.oneArgFunc("pg_get_statisticsobjdef", statObj, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_get_statisticsobjdef", statObj);
     }
 
     /**
@@ -2164,7 +2134,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetTriggerDef(Expression trigger) {
-        return FunctionUtils.oneArgFunc("pg_get_triggerdef", trigger, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_get_triggerdef", trigger);
     }
 
     /**
@@ -2176,7 +2146,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetTriggerDef(Expression trigger, Expression pretty) {
-        return FunctionUtils.twoArgFunc("pg_get_triggerdef", trigger, pretty, TextType.INSTANCE);
+        return FunctionUtils.twoArgFunc("pg_get_triggerdef", trigger, pretty);
     }
 
     /**
@@ -2187,7 +2157,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetUserById(Expression role) {
-        return FunctionUtils.oneArgFunc("pg_get_userbyid", role, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_get_userbyid", role);
     }
 
     /**
@@ -2200,7 +2170,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetViewDef(Expression view) {
-        return FunctionUtils.oneArgFunc("pg_get_viewdef", view, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_get_viewdef", view);
     }
 
     /**
@@ -2213,7 +2183,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgGetViewDef(Expression view, Expression exp) {
-        return FunctionUtils.twoArgFunc("pg_get_viewdef", view, exp, TextType.INSTANCE);
+        return FunctionUtils.twoArgFunc("pg_get_viewdef", view, exp);
     }
 
     /**
@@ -2265,9 +2235,9 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      */
     public static _TabularWithOrdinalityFunction pgOptionsToTable(Expression optionsArray) {
         final List<Selection> fieldList;
-        fieldList = ArrayUtils.of(
-                ArmySelections.forName("option_name", TextType.INSTANCE),
-                ArmySelections.forName("option_value", TextType.INSTANCE)
+        fieldList = List.of(
+                ArmySelections.forName("option_name"),
+                ArmySelections.forName("option_value")
         );
         return DialectFunctionUtils.oneArgTabularFunc("pg_options_to_table", optionsArray, fieldList);
     }
@@ -2280,7 +2250,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgSettingsGetFlags(Expression guc) {
-        return FunctionUtils.oneArgFunc("pg_settings_get_flags", guc, TextArrayType.LINEAR);
+        return FunctionUtils.oneArgFunc("pg_settings_get_flags", guc);
     }
 
 
@@ -2295,7 +2265,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static _ColumnWithOrdinalityFunction pgTablespaceDatabases(Expression tablespace) {
-        return DialectFunctionUtils.oneArgColumnFunction("pg_tablespace_databases", tablespace, null, LongType.INSTANCE);
+        return DialectFunctionUtils.oneArgColumnFunction("pg_tablespace_databases", tablespace, null);
     }
 
     /**
@@ -2306,7 +2276,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgTablespaceLocation(Expression tablespace) {
-        return FunctionUtils.oneArgFunc("pg_tablespace_location", tablespace, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_tablespace_location", tablespace);
     }
 
 
@@ -2318,7 +2288,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgTypeOf(Expression any) {
-        return FunctionUtils.oneArgFunc("pg_typeof", any, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("pg_typeof", any);
     }
 
     /**
@@ -2329,7 +2299,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression collationSpaceFor(Expression any) {
-        return FunctionUtils.oneArgFunc("COLLATION FOR", any, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("COLLATION FOR", any);
     }
 
 
@@ -2341,7 +2311,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression toRegClass(Expression exp) {
-        return FunctionUtils.oneArgFunc("to_regclass", exp, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("to_regclass", exp);
     }
 
     /**
@@ -2352,7 +2322,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression toRegCollation(Expression exp) {
-        return FunctionUtils.oneArgFunc("to_regcollation", exp, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("to_regcollation", exp);
     }
 
     /**
@@ -2363,7 +2333,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression toRegNamespace(Expression exp) {
-        return FunctionUtils.oneArgFunc("to_regnamespace", exp, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("to_regnamespace", exp);
     }
 
 
@@ -2375,7 +2345,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression toRegOper(Expression exp) {
-        return FunctionUtils.oneArgFunc("to_regoper", exp, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("to_regoper", exp);
     }
 
     /**
@@ -2386,7 +2356,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression toRegOperator(Expression exp) {
-        return FunctionUtils.oneArgFunc("to_regoperator", exp, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("to_regoperator", exp);
     }
 
     /**
@@ -2397,7 +2367,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression toRegProc(Expression exp) {
-        return FunctionUtils.oneArgFunc("to_regproc", exp, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("to_regproc", exp);
     }
 
     /**
@@ -2408,7 +2378,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression toRegProcedure(Expression exp) {
-        return FunctionUtils.oneArgFunc("to_regprocedure", exp, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("to_regprocedure", exp);
     }
 
     /**
@@ -2419,7 +2389,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression toRegRole(Expression exp) {
-        return FunctionUtils.oneArgFunc("to_regrole", exp, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("to_regrole", exp);
     }
 
     /**
@@ -2430,7 +2400,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression toRegType(Expression exp) {
-        return FunctionUtils.oneArgFunc("to_regtype", exp, TextType.INSTANCE);
+        return FunctionUtils.oneArgFunc("to_regtype", exp);
     }
 
     /*-------------------below Object Information and Addressing Functions-------------------*/
@@ -2443,7 +2413,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static SimpleExpression pgDescribeObject(Expression classId, Expression objId, Expression objSubId) {
-        return FunctionUtils.threeArgFunc("pg_describe_object", classId, objId, objSubId, TextType.INSTANCE);
+        return FunctionUtils.threeArgFunc("pg_describe_object", classId, objId, objSubId);
     }
 
     /**
@@ -2462,11 +2432,11 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      */
     public static _TabularWithOrdinalityFunction pgIdentifyObject(Expression classId, Expression objId, Expression objSubId) {
         final List<Selection> fieldList;
-        fieldList = ArrayUtils.of(
-                ArmySelections.forName("type", TextType.INSTANCE),
-                ArmySelections.forName("schema", TextType.INSTANCE),
-                ArmySelections.forName("name", TextType.INSTANCE),
-                ArmySelections.forName("identity", TextType.INSTANCE)
+        fieldList = List.of(
+                ArmySelections.forName("type"),
+                ArmySelections.forName("schema"),
+                ArmySelections.forName("name"),
+                ArmySelections.forName("identity")
         );
         return DialectFunctionUtils.threeArgTabularFunc("pg_identify_object", classId, objId, objSubId, fieldList);
     }
@@ -2486,10 +2456,10 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      */
     public static _TabularWithOrdinalityFunction pgIdentifyObjectAsAddress(Expression classId, Expression objId, Expression objSubId) {
         final List<Selection> fieldList;
-        fieldList = ArrayUtils.of(
-                ArmySelections.forName("type", TextType.INSTANCE),
-                ArmySelections.forName("object_names", TextArrayType.LINEAR),
-                ArmySelections.forName("object_args", TextArrayType.LINEAR)
+        fieldList = List.of(
+                ArmySelections.forName("type"),
+                ArmySelections.forName("object_names"),
+                ArmySelections.forName("object_args")
         );
         return DialectFunctionUtils.threeArgTabularFunc("pg_identify_object_as_address", classId, objId, objSubId, fieldList);
     }
@@ -2510,10 +2480,10 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      */
     public static _TabularWithOrdinalityFunction pgGetObjectAddress(Expression type, Expression objectNames, Expression objectArgs) {
         final List<Selection> fieldList;
-        fieldList = ArrayUtils.of(
-                ArmySelections.forName("classid", LongType.INSTANCE),
-                ArmySelections.forName("objid", LongType.INSTANCE),
-                ArmySelections.forName("objsubid", IntegerType.INSTANCE)
+        fieldList = List.of(
+                ArmySelections.forName("classid"),
+                ArmySelections.forName("objid"),
+                ArmySelections.forName("objsubid")
         );
         return DialectFunctionUtils.threeArgTabularFunc("pg_get_object_address", type, objectNames, objectArgs, fieldList);
     }
@@ -2531,13 +2501,13 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
         final List<Selection> fieldList = _Collections.arrayList(6);
 
 
-        fieldList.add(ArmySelections.forName("alias", TextType.INSTANCE));
-        fieldList.add(ArmySelections.forName("description", TextType.INSTANCE));
-        fieldList.add(ArmySelections.forName("token", TextType.INSTANCE));
-        fieldList.add(ArmySelections.forName("dictionaries", TextArrayType.LINEAR));
+        fieldList.add(ArmySelections.forName("alias"));
+        fieldList.add(ArmySelections.forName("description"));
+        fieldList.add(ArmySelections.forName("token"));
+        fieldList.add(ArmySelections.forName("dictionaries"));
 
-        fieldList.add(ArmySelections.forName("dictionary", TextType.INSTANCE));
-        fieldList.add(ArmySelections.forName("lexemes", TextArrayType.LINEAR));
+        fieldList.add(ArmySelections.forName("dictionary"));
+        fieldList.add(ArmySelections.forName("lexemes"));
 
         final String name = "ts_debug";
         final _TabularWithOrdinalityFunction func;
@@ -2568,9 +2538,9 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
     private static _TabularWithOrdinalityFunction _tsStat(final Expression sqlQuery, final @Nullable Expression weights) {
         final List<Selection> fieldList = _Collections.arrayList(3);
 
-        fieldList.add(ArmySelections.forName("word", TextType.INSTANCE));
-        fieldList.add(ArmySelections.forName("ndoc", IntegerType.INSTANCE));
-        fieldList.add(ArmySelections.forName("nentry", IntegerType.INSTANCE));
+        fieldList.add(ArmySelections.forName("word"));
+        fieldList.add(ArmySelections.forName("ndoc"));
+        fieldList.add(ArmySelections.forName("nentry"));
 
         final String name = "ts_stat";
         _TabularWithOrdinalityFunction func;
@@ -2593,13 +2563,9 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
         final String name = "array_fill";
         final SimpleExpression func;
         if (bounds == null) {
-            func = FunctionUtils.twoArgFunc(name, anyElement, dimensions,
-                    _returnType(anyElement, MappingType::arrayTypeOfThis)
-            );
+            func = FunctionUtils.twoArgFunc(name, anyElement, dimensions);
         } else {
-            func = FunctionUtils.threeArgFunc(name, anyElement, dimensions, bounds,
-                    _returnType(anyElement, MappingType::arrayTypeOfThis)
-            );
+            func = FunctionUtils.threeArgFunc(name, anyElement, dimensions, bounds);
         }
         return func;
     }

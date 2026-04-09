@@ -28,6 +28,7 @@ import io.army.mapping.array.IntervalArrayType;
 import io.army.mapping.optional.IntervalType;
 import io.army.meta.TypeMeta;
 
+import io.army.lang.Nullable;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -49,6 +50,7 @@ import java.util.function.Consumer;
  * @see <a href="https://www.postgresql.org/docs/current/functions-aggregate.html#FUNCTIONS-HYPOTHETICAL-TABLE">Hypothetical-Set Aggregate Functions list</a>
  * @since 0.6.0
  */
+@SuppressWarnings("unused")
 abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
 
     PostgreWindowFunctions() {
@@ -136,7 +138,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec rowNumber() {
-        return PostgreFunctionUtils.zeroArgWindowFunc("row_number", LongType.INSTANCE);
+        return PostgreFunctionUtils.zeroArgWindowFunc("row_number");
     }
 
 
@@ -149,7 +151,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec rank() {
-        return PostgreFunctionUtils.zeroArgWindowFunc("rank", LongType.INSTANCE);
+        return PostgreFunctionUtils.zeroArgWindowFunc("rank");
     }
 
     /**
@@ -161,7 +163,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec denseRank() {
-        return PostgreFunctionUtils.zeroArgWindowFunc("dense_rank", LongType.INSTANCE);
+        return PostgreFunctionUtils.zeroArgWindowFunc("dense_rank");
     }
 
     /**
@@ -173,7 +175,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec percentRank() {
-        return PostgreFunctionUtils.zeroArgWindowFunc("percent_rank", DoubleType.INSTANCE);
+        return PostgreFunctionUtils.zeroArgWindowFunc("percent_rank");
     }
 
 
@@ -186,7 +188,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec cumeDist() {
-        return PostgreFunctionUtils.zeroArgWindowFunc("cume_dist", DoubleType.INSTANCE);
+        return PostgreFunctionUtils.zeroArgWindowFunc("cume_dist");
     }
 
     /**
@@ -221,7 +223,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec ntile(Expression numBuckets) {
-        return PostgreFunctionUtils.oneArgWindowFunc("ntile", numBuckets, IntegerType.INSTANCE);
+        return PostgreFunctionUtils.oneArgWindowFunc("ntile", numBuckets);
     }
 
     /**
@@ -235,7 +237,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec lag(Expression value) {
-        return PostgreFunctionUtils.oneArgWindowFunc("lag", value, _returnType(value, Expressions::identityType));
+        return PostgreFunctionUtils.oneArgWindowFunc("lag", value);
     }
 
     /**
@@ -249,7 +251,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec lag(Expression value, Object offset) {
-        return PostgreFunctionUtils.twoArgWindowFunc("lag", value, SQLs._nonNullLiteral(offset), _returnType(value, Expressions::identityType));
+        return PostgreFunctionUtils.twoArgWindowFunc("lag", value, SQLs._nonNullLiteral(offset));
     }
 
     /**
@@ -263,9 +265,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec lag(Expression value, Object offset, Expression defaultValue) {
-        return PostgreFunctionUtils.threeArgWindowFunc("lag", value, SQLs._nonNullLiteral(offset), defaultValue,
-                _returnType(value, Expressions::identityType)
-        );
+        return PostgreFunctionUtils.threeArgWindowFunc("lag", value, SQLs._nonNullLiteral(offset), defaultValue);
     }
 
     /**
@@ -279,7 +279,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec lead(Expression value) {
-        return PostgreFunctionUtils.oneArgWindowFunc("lead", value, _returnType(value, Expressions::identityType));
+        return PostgreFunctionUtils.oneArgWindowFunc("lead", value);
     }
 
     /**
@@ -293,7 +293,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec lead(Expression value, Object offset) {
-        return PostgreFunctionUtils.twoArgWindowFunc("lead", value, SQLs._nonNullLiteral(offset), _returnType(value, Expressions::identityType));
+        return PostgreFunctionUtils.twoArgWindowFunc("lead", value, SQLs._nonNullLiteral(offset));
     }
 
     /**
@@ -307,9 +307,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec lead(Expression value, Object offset, Expression defaultValue) {
-        return PostgreFunctionUtils.threeArgWindowFunc("lead", value, SQLs._nonNullLiteral(offset), defaultValue,
-                _returnType(value, Expressions::identityType)
-        );
+        return PostgreFunctionUtils.threeArgWindowFunc("lead", value, SQLs._nonNullLiteral(offset), defaultValue);
     }
 
     /**
@@ -321,7 +319,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec firstValue(Expression value) {
-        return PostgreFunctionUtils.oneArgWindowFunc("first_value", value, _returnType(value, Expressions::identityType));
+        return PostgreFunctionUtils.oneArgWindowFunc("first_value", value);
     }
 
     /**
@@ -333,7 +331,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec lastValue(Expression value) {
-        return PostgreFunctionUtils.oneArgWindowFunc("last_value", value, _returnType(value, Expressions::identityType));
+        return PostgreFunctionUtils.oneArgWindowFunc("last_value", value);
     }
 
     /**
@@ -368,7 +366,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _OverSpec nthValue(Expression value, Expression n) {
-        return PostgreFunctionUtils.twoArgWindowFunc("nth_value", value, n, _returnType(value, Expressions::identityType));
+        return PostgreFunctionUtils.twoArgWindowFunc("nth_value", value, n);
     }
 
     /*-------------------below general-purpose Aggregate Functions-------------------*/
@@ -384,7 +382,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc arrayAgg(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("array_agg", modifier, any, null, _returnType(any, MappingType::arrayTypeOfThis));
+        return PostgreFunctionUtils.oneArgAggFunc("array_agg", modifier, any, null);
     }
 
     /**
@@ -398,7 +396,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc arrayAgg(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("array_agg", null, any, consumer, _returnType(any, MappingType::arrayTypeOfThis));
+        return PostgreFunctionUtils.oneArgAggFunc("array_agg", null, any, consumer);
     }
 
     /**
@@ -413,7 +411,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc arrayAgg(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                       Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("array_agg", modifier, any, consumer, _returnType(any, MappingType::arrayTypeOfThis));
+        return PostgreFunctionUtils.oneArgAggFunc("array_agg", modifier, any, consumer);
     }
 
     /**
@@ -425,9 +423,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc arrayAgg(Expression any) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("array_agg", any,
-                _returnType(any, MappingType::arrayTypeOfThis)
-        );
+        return PostgreFunctionUtils.oneArgAggWindowFunc("array_agg", any);
     }
 
 
@@ -451,7 +447,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc avg(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("avg", modifier, any, null, _returnType(any, Functions::_avgType));
+        return PostgreFunctionUtils.oneArgAggFunc("avg", modifier, any, null);
     }
 
     /**
@@ -476,7 +472,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc avg(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("avg", null, any, consumer, _returnType(any, Functions::_avgType));
+        return PostgreFunctionUtils.oneArgAggFunc("avg", null, any, consumer);
     }
 
     /**
@@ -501,7 +497,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc avg(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                  Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("avg", modifier, any, consumer, _returnType(any, Functions::_avgType));
+        return PostgreFunctionUtils.oneArgAggFunc("avg", modifier, any, consumer);
     }
 
 
@@ -525,7 +521,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc avg(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("avg", exp, _returnType(exp, Functions::_avgType));
+        return PostgreFunctionUtils.oneArgAggWindowFunc("avg", exp);
     }
 
 
@@ -545,7 +541,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc bitAnd(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("bit_and", modifier, any, null, _returnType(any, PostgreWindowFunctions::_bitOpeType));
+        return PostgreFunctionUtils.oneArgAggFunc("bit_and", modifier, any, null);
     }
 
     /**
@@ -566,7 +562,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc bitAnd(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("bit_and", null, any, consumer, _returnType(any, PostgreWindowFunctions::_bitOpeType));
+        return PostgreFunctionUtils.oneArgAggFunc("bit_and", null, any, consumer);
     }
 
     /**
@@ -587,7 +583,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc bitAnd(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                     Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("bit_and", modifier, any, consumer, _returnType(any, PostgreWindowFunctions::_bitOpeType));
+        return PostgreFunctionUtils.oneArgAggFunc("bit_and", modifier, any, consumer);
     }
 
     /**
@@ -606,7 +602,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc bitAnd(Expression exp) {
-        return _bitWindowFunc("bit_and", exp);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("bit_and", exp);
     }
 
     /**
@@ -625,7 +621,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc bitOr(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("bit_or", modifier, any, null, _returnType(any, PostgreWindowFunctions::_bitOpeType));
+        return PostgreFunctionUtils.oneArgAggFunc("bit_or", modifier, any, null);
     }
 
     /**
@@ -646,7 +642,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc bitOr(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("bit_or", null, any, consumer, _returnType(any, PostgreWindowFunctions::_bitOpeType));
+        return PostgreFunctionUtils.oneArgAggFunc("bit_or", null, any, consumer);
     }
 
     /**
@@ -667,7 +663,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc bitOr(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                    Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("bit_or", modifier, any, consumer, _returnType(any, PostgreWindowFunctions::_bitOpeType));
+        return PostgreFunctionUtils.oneArgAggFunc("bit_or", modifier, any, consumer);
     }
 
 
@@ -687,7 +683,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc bitOr(Expression exp) {
-        return _bitWindowFunc("bit_or", exp);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("bit_or", exp);
     }
 
     /**
@@ -706,7 +702,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc bitXor(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("bit_xor", modifier, any, null, _returnType(any, PostgreWindowFunctions::_bitOpeType));
+        return PostgreFunctionUtils.oneArgAggFunc("bit_xor", modifier, any, null);
     }
 
     /**
@@ -727,7 +723,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc bitXor(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("bit_xor", null, any, consumer, _returnType(any, PostgreWindowFunctions::_bitOpeType));
+        return PostgreFunctionUtils.oneArgAggFunc("bit_xor", null, any, consumer);
     }
 
     /**
@@ -748,7 +744,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc bitXor(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                     Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("bit_xor", modifier, any, consumer, _returnType(any, PostgreWindowFunctions::_bitOpeType));
+        return PostgreFunctionUtils.oneArgAggFunc("bit_xor", modifier, any, consumer);
     }
 
     /**
@@ -767,7 +763,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc bitXor(Expression exp) {
-        return _bitWindowFunc("bit_xor", exp);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("bit_xor", exp);
     }
 
     /**
@@ -779,7 +775,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc boolAnd(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("bool_and", modifier, any, null, BooleanType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("bool_and", modifier, any, null);
     }
 
     /**
@@ -793,7 +789,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc boolAnd(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("bool_and", null, any, consumer, BooleanType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("bool_and", null, any, consumer);
     }
 
     /**
@@ -807,7 +803,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc boolAnd(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                      Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("bool_and", modifier, any, consumer, BooleanType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("bool_and", modifier, any, consumer);
     }
 
 
@@ -820,7 +816,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc boolAnd(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("bool_and", exp, BooleanType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("bool_and", exp);
     }
 
 
@@ -833,7 +829,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc boolOr(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("bool_or", modifier, any, null, BooleanType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("bool_or", modifier, any, null);
     }
 
     /**
@@ -847,7 +843,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc boolOr(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("bool_or", null, any, consumer, BooleanType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("bool_or", null, any, consumer);
     }
 
     /**
@@ -861,7 +857,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc boolOr(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                     Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("bool_or", modifier, any, consumer, BooleanType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("bool_or", modifier, any, consumer);
     }
 
     /**
@@ -873,7 +869,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc boolOr(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("bool_or", exp, BooleanType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("bool_or", exp);
     }
 
 
@@ -887,7 +883,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * @see #countAsterisk()
      */
     public static _AggWindowFunc countAsterisk() {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("count", SQLs.ASTERISK, LongType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("count", SQLs.ASTERISK);
     }
 
     /**
@@ -900,7 +896,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * @see #count(Expression)
      */
     public static _PgAggFunc count(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("count", modifier, any, null, LongType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("count", modifier, any, null);
     }
 
     /**
@@ -915,7 +911,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc count(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("count", null, any, consumer, LongType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("count", null, any, consumer);
     }
 
     /**
@@ -930,7 +926,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc count(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                    Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("count", modifier, any, consumer, LongType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("count", modifier, any, consumer);
     }
 
     /**
@@ -943,7 +939,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * @see #count(Expression)
      */
     public static _AggWindowFunc count(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("count", exp, LongType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("count", exp);
     }
 
     /**
@@ -956,7 +952,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * @see #boolAnd(Expression)
      */
     public static _PgAggFunc every(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("every", modifier, any, null, BooleanType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("every", modifier, any, null);
     }
 
     /**
@@ -971,7 +967,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc every(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("every", null, any, consumer, BooleanType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("every", null, any, consumer);
     }
 
     /**
@@ -986,7 +982,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc every(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                    Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("every", modifier, any, consumer, BooleanType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("every", modifier, any, consumer);
     }
 
     /**
@@ -999,7 +995,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * @see #boolAnd(Expression)
      */
     public static _AggWindowFunc every(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("every", exp, BooleanType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("every", exp);
     }
 
     /**
@@ -1011,7 +1007,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc jsonAgg(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("json_agg", modifier, any, null, JsonType.TEXT);
+        return PostgreFunctionUtils.oneArgAggFunc("json_agg", modifier, any, null);
     }
 
     /**
@@ -1025,7 +1021,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc jsonAgg(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("json_agg", null, any, consumer, JsonType.TEXT);
+        return PostgreFunctionUtils.oneArgAggFunc("json_agg", null, any, consumer);
     }
 
     /**
@@ -1039,7 +1035,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc jsonAgg(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                      Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("json_agg", modifier, any, consumer, JsonType.TEXT);
+        return PostgreFunctionUtils.oneArgAggFunc("json_agg", modifier, any, consumer);
     }
 
     /**
@@ -1051,7 +1047,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc jsonAgg(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("json_agg", exp, JsonType.TEXT);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("json_agg", exp);
     }
 
     /**
@@ -1063,7 +1059,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc jsonbAgg(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("jsonb_agg", modifier, any, null, JsonbType.TEXT);
+        return PostgreFunctionUtils.oneArgAggFunc("jsonb_agg", modifier, any, null);
     }
 
     /**
@@ -1077,7 +1073,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc jsonbAgg(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("jsonb_agg", null, any, consumer, JsonbType.TEXT);
+        return PostgreFunctionUtils.oneArgAggFunc("jsonb_agg", null, any, consumer);
     }
 
     /**
@@ -1091,7 +1087,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc jsonbAgg(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                       Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("jsonb_agg", modifier, any, consumer, JsonbType.TEXT);
+        return PostgreFunctionUtils.oneArgAggFunc("jsonb_agg", modifier, any, consumer);
     }
 
     /**
@@ -1103,7 +1099,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc jsonbAgg(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("jsonb_agg", exp, JsonbType.TEXT);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("jsonb_agg", exp);
     }
 
     /**
@@ -1115,7 +1111,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc jsonObjectAgg(@Nullable SQLs.ArgDistinct modifier, Expression key, Expression value) {
-        return PostgreFunctionUtils.twoArgAggFunc("json_object_agg", modifier, key, value, null, JsonType.TEXT);
+        return PostgreFunctionUtils.twoArgAggFunc("json_object_agg", modifier, key, value, null);
     }
 
     /**
@@ -1129,7 +1125,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc jsonObjectAgg(Expression key, Expression value, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("json_object_agg", null, key, value, consumer, JsonType.TEXT);
+        return PostgreFunctionUtils.twoArgAggFunc("json_object_agg", null, key, value, consumer);
     }
 
     /**
@@ -1143,7 +1139,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc jsonObjectAgg(@Nullable SQLs.ArgDistinct modifier, Expression key, Expression value,
                                            Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("json_object_agg", modifier, key, value, consumer, JsonType.TEXT);
+        return PostgreFunctionUtils.twoArgAggFunc("json_object_agg", modifier, key, value, consumer);
     }
 
 
@@ -1190,7 +1186,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc jsonObjectAgg(Expression key, Expression value) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("json_object_agg", key, value, JsonType.TEXT);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("json_object_agg", key, value);
     }
 
 
@@ -1203,7 +1199,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc jsonbObjectAgg(@Nullable SQLs.ArgDistinct modifier, Expression key, Expression value) {
-        return PostgreFunctionUtils.twoArgAggFunc("jsonb_object_agg", modifier, key, value, null, JsonbType.TEXT);
+        return PostgreFunctionUtils.twoArgAggFunc("jsonb_object_agg", modifier, key, value, null);
     }
 
     /**
@@ -1217,7 +1213,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc jsonbObjectAgg(Expression key, Expression value, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("jsonb_object_agg", null, key, value, consumer, JsonbType.TEXT);
+        return PostgreFunctionUtils.twoArgAggFunc("jsonb_object_agg", null, key, value, consumer);
     }
 
     /**
@@ -1231,7 +1227,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc jsonbObjectAgg(@Nullable SQLs.ArgDistinct modifier, Expression key, Expression value,
                                             Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("jsonb_object_agg", modifier, key, value, consumer, JsonbType.TEXT);
+        return PostgreFunctionUtils.twoArgAggFunc("jsonb_object_agg", modifier, key, value, consumer);
     }
 
 
@@ -1278,7 +1274,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc jsonbObjectAgg(Expression key, Expression value) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("jsonb_object_agg", key, value, JsonbType.TEXT);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("jsonb_object_agg", key, value);
     }
 
     /**
@@ -1290,7 +1286,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc max(@Nullable SQLs.ArgDistinct modifier, Expression exp) {
-        return PostgreFunctionUtils.oneArgAggFunc("max", modifier, exp, null, _returnType(exp, Expressions::identityType));
+        return PostgreFunctionUtils.oneArgAggFunc("max", modifier, exp, null);
     }
 
     /**
@@ -1302,7 +1298,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc max(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("max", exp, _returnType(exp, Expressions::identityType));
+        return PostgreFunctionUtils.oneArgAggWindowFunc("max", exp);
     }
 
     /**
@@ -1314,7 +1310,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc min(@Nullable SQLs.ArgDistinct modifier, Expression exp) {
-        return PostgreFunctionUtils.oneArgAggFunc("min", modifier, exp, null, _returnType(exp, Expressions::identityType));
+        return PostgreFunctionUtils.oneArgAggFunc("min", modifier, exp, null);
     }
 
     /**
@@ -1326,7 +1322,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc min(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("min", exp, _returnType(exp, Expressions::identityType));
+        return PostgreFunctionUtils.oneArgAggWindowFunc("min", exp);
     }
 
 
@@ -1340,9 +1336,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc rangeAgg(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("range_agg", modifier, any, null,
-                _returnType(any, Expressions::identityType)
-        );
+        return PostgreFunctionUtils.oneArgAggFunc("range_agg", modifier, any, null);
     }
 
     /**
@@ -1357,9 +1351,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc rangeAgg(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("range_agg", null, any, consumer,
-                _returnType(any, Expressions::identityType)
-        );
+        return PostgreFunctionUtils.oneArgAggFunc("range_agg", null, any, consumer);
     }
 
     /**
@@ -1374,9 +1366,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc rangeAgg(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                       Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("range_agg", modifier, any, consumer,
-                _returnType(any, Expressions::identityType)
-        );
+        return PostgreFunctionUtils.oneArgAggFunc("range_agg", modifier, any, consumer);
     }
 
 
@@ -1390,7 +1380,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc rangeAgg(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("range_agg", exp, _returnType(exp, Expressions::identityType));
+        return PostgreFunctionUtils.oneArgAggWindowFunc("range_agg", exp);
     }
 
     /**
@@ -1403,9 +1393,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc rangeIntersectAgg(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("range_intersect_agg", modifier, any, null,
-                _returnType(any, Expressions::identityType)
-        );
+        return PostgreFunctionUtils.oneArgAggFunc("range_intersect_agg", modifier, any, null);
     }
 
     /**
@@ -1420,9 +1408,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc rangeIntersectAgg(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("range_intersect_agg", null, any, consumer,
-                _returnType(any, Expressions::identityType)
-        );
+        return PostgreFunctionUtils.oneArgAggFunc("range_intersect_agg", null, any, consumer);
     }
 
     /**
@@ -1437,9 +1423,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc rangeIntersectAgg(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                                Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("range_intersect_agg", modifier, any, consumer,
-                _returnType(any, Expressions::identityType)
-        );
+        return PostgreFunctionUtils.oneArgAggFunc("range_intersect_agg", modifier, any, consumer);
     }
 
 
@@ -1453,7 +1437,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc rangeIntersectAgg(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("range_intersect_agg", exp, _returnType(exp, Expressions::identityType));
+        return PostgreFunctionUtils.oneArgAggWindowFunc("range_intersect_agg", exp);
     }
 
 
@@ -1467,9 +1451,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc stringAgg(@Nullable SQLs.ArgDistinct modifier, Expression value, Expression delimiter) {
-        return PostgreFunctionUtils.twoArgAggFunc("string_agg", modifier, value, delimiter, null,
-                _returnType(value, Expressions::identityType)
-        );
+        return PostgreFunctionUtils.twoArgAggFunc("string_agg", modifier, value, delimiter, null);
     }
 
     /**
@@ -1484,9 +1466,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc stringAgg(Expression value, Expression delimiter, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("string_agg", null, value, delimiter, consumer,
-                _returnType(value, Expressions::identityType)
-        );
+        return PostgreFunctionUtils.twoArgAggFunc("string_agg", null, value, delimiter, consumer);
     }
 
     /**
@@ -1501,9 +1481,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc stringAgg(@Nullable SQLs.ArgDistinct modifier, Expression value, Expression delimiter,
                                        Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("string_agg", modifier, value, delimiter, consumer,
-                _returnType(value, Expressions::identityType)
-        );
+        return PostgreFunctionUtils.twoArgAggFunc("string_agg", modifier, value, delimiter, consumer);
     }
 
     /**
@@ -1516,7 +1494,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc stringAgg(Expression value, Expression delimiter) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("string_agg", value, delimiter, _returnType(value, Expressions::identityType));
+        return PostgreFunctionUtils.twoArgAggWindowFunc("string_agg", value, delimiter);
     }
 
     /**
@@ -1545,7 +1523,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc sum(@Nullable SQLs.ArgDistinct modifier, Expression exp) {
-        return PostgreFunctionUtils.oneArgAggFunc("sum", modifier, exp, null, _returnType(exp, Functions::_sumType));
+        return PostgreFunctionUtils.oneArgAggFunc("sum", modifier, exp, null);
     }
 
 
@@ -1575,7 +1553,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc sum(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("sum", exp, _returnType(exp, Functions::_sumType));
+        return PostgreFunctionUtils.oneArgAggWindowFunc("sum", exp);
     }
 
 
@@ -1588,7 +1566,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc xmlAgg(@Nullable SQLs.ArgDistinct modifier, Expression any) {
-        return PostgreFunctionUtils.oneArgAggFunc("xmlagg", modifier, any, null, XmlType.TEXT);
+        return PostgreFunctionUtils.oneArgAggFunc("xmlagg", modifier, any, null);
     }
 
     /**
@@ -1602,7 +1580,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc xmlAgg(Expression any, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("xmlagg", null, any, consumer, XmlType.TEXT);
+        return PostgreFunctionUtils.oneArgAggFunc("xmlagg", null, any, consumer);
     }
 
     /**
@@ -1616,7 +1594,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc xmlAgg(@Nullable SQLs.ArgDistinct modifier, Expression any,
                                     Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("xmlagg", modifier, any, consumer, XmlType.TEXT);
+        return PostgreFunctionUtils.oneArgAggFunc("xmlagg", modifier, any, consumer);
     }
 
     /**
@@ -1628,7 +1606,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc xmlAgg(Expression xml) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("xmlagg", xml, XmlType.TEXT);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("xmlagg", xml);
     }
 
     /*-------------------below Aggregate Functions for Statistics-------------------*/
@@ -1643,7 +1621,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc corr(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggFunc("corr", modifier, y, x, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("corr", modifier, y, x, null);
     }
 
     /**
@@ -1657,7 +1635,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc corr(Expression y, Expression x, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("corr", null, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("corr", null, y, x, consumer);
     }
 
     /**
@@ -1671,7 +1649,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc corr(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x,
                                   Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("corr", modifier, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("corr", modifier, y, x, consumer);
     }
 
     /**
@@ -1683,7 +1661,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc corr(Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("corr", y, x, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("corr", y, x);
     }
 
     /**
@@ -1695,7 +1673,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc covarPop(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggFunc("covar_pop", modifier, y, x, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("covar_pop", modifier, y, x, null);
     }
 
     /**
@@ -1709,7 +1687,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc covarPop(Expression y, Expression x, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("covar_pop", null, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("covar_pop", null, y, x, consumer);
     }
 
     /**
@@ -1723,7 +1701,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc covarPop(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x,
                                       Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("covar_pop", modifier, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("covar_pop", modifier, y, x, consumer);
     }
 
     /**
@@ -1735,7 +1713,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc covarPop(Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("covar_pop", y, x, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("covar_pop", y, x);
     }
 
 
@@ -1748,7 +1726,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc covarSamp(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggFunc("covar_samp", modifier, y, x, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("covar_samp", modifier, y, x, null);
     }
 
     /**
@@ -1762,7 +1740,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc covarSamp(Expression y, Expression x, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("covar_samp", null, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("covar_samp", null, y, x, consumer);
     }
 
     /**
@@ -1776,7 +1754,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc covarSamp(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x,
                                        Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("covar_samp", modifier, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("covar_samp", modifier, y, x, consumer);
     }
 
     /**
@@ -1788,7 +1766,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc covarSamp(Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("covar_samp", y, x, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("covar_samp", y, x);
     }
 
 
@@ -1801,7 +1779,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc regrAvgx(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggFunc("regr_avgx", modifier, y, x, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_avgx", modifier, y, x, null);
     }
 
     /**
@@ -1815,7 +1793,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrAvgx(Expression y, Expression x, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_avgx", null, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_avgx", null, y, x, consumer);
     }
 
     /**
@@ -1829,7 +1807,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrAvgx(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x,
                                       Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_avgx", modifier, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_avgx", modifier, y, x, consumer);
     }
 
     /**
@@ -1841,7 +1819,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc regrAvgx(Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_avgx", y, x, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_avgx", y, x);
     }
 
 
@@ -1854,7 +1832,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc regrAvgy(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggFunc("regr_avgy", modifier, y, x, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_avgy", modifier, y, x, null);
     }
 
     /**
@@ -1868,7 +1846,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrAvgy(Expression y, Expression x, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_avgy", null, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_avgy", null, y, x, consumer);
     }
 
     /**
@@ -1882,7 +1860,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrAvgy(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x,
                                       Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_avgy", modifier, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_avgy", modifier, y, x, consumer);
     }
 
     /**
@@ -1894,7 +1872,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc regrAvgy(Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_avgy", y, x, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_avgy", y, x);
     }
 
 
@@ -1907,7 +1885,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc regrCount(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggFunc("regr_count", modifier, y, x, null, LongType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_count", modifier, y, x, null);
     }
 
     /**
@@ -1921,7 +1899,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrCount(Expression y, Expression x, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_count", null, y, x, consumer, LongType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_count", null, y, x, consumer);
     }
 
     /**
@@ -1935,7 +1913,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrCount(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x,
                                        Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_count", modifier, y, x, consumer, LongType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_count", modifier, y, x, consumer);
     }
 
     /**
@@ -1947,7 +1925,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc regrCount(Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_count", y, x, LongType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_count", y, x);
     }
 
 
@@ -1960,7 +1938,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc regrIntercept(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggFunc("regr_intercept", modifier, y, x, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_intercept", modifier, y, x, null);
     }
 
     /**
@@ -1974,7 +1952,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrIntercept(Expression y, Expression x, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_intercept", null, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_intercept", null, y, x, consumer);
     }
 
     /**
@@ -1988,7 +1966,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrIntercept(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x,
                                            Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_intercept", modifier, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_intercept", modifier, y, x, consumer);
     }
 
 
@@ -2001,7 +1979,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc regrIntercept(Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_intercept", y, x, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_intercept", y, x);
     }
 
 
@@ -2014,7 +1992,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc regrR2(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggFunc("regr_r2", modifier, y, x, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_r2", modifier, y, x, null);
     }
 
     /**
@@ -2028,7 +2006,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrR2(Expression y, Expression x, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_r2", null, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_r2", null, y, x, consumer);
     }
 
     /**
@@ -2042,7 +2020,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrR2(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x,
                                     Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_r2", modifier, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_r2", modifier, y, x, consumer);
     }
 
 
@@ -2055,7 +2033,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc regrR2(Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_r2", y, x, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_r2", y, x);
     }
 
 
@@ -2068,7 +2046,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc regrSlope(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggFunc("regr_slope", modifier, y, x, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_slope", modifier, y, x, null);
     }
 
     /**
@@ -2083,7 +2061,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrSlope(Expression y, Expression x, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_slope", null, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_slope", null, y, x, consumer);
     }
 
     /**
@@ -2097,7 +2075,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrSlope(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x,
                                        Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_slope", modifier, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_slope", modifier, y, x, consumer);
     }
 
     /**
@@ -2109,7 +2087,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc regrSlope(Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_slope", y, x, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_slope", y, x);
     }
 
 
@@ -2122,7 +2100,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc regrSxx(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggFunc("regr_sxx", modifier, y, x, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_sxx", modifier, y, x, null);
     }
 
     /**
@@ -2136,7 +2114,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrSxx(Expression y, Expression x, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_sxx", null, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_sxx", null, y, x, consumer);
     }
 
     /**
@@ -2150,7 +2128,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrSxx(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x,
                                      Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_sxx", modifier, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_sxx", modifier, y, x, consumer);
     }
 
 
@@ -2163,7 +2141,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc regrSxx(Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_sxx", y, x, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_sxx", y, x);
     }
 
 
@@ -2176,7 +2154,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc regrSxy(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggFunc("regr_sxy", modifier, y, x, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_sxy", modifier, y, x, null);
     }
 
     /**
@@ -2190,7 +2168,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrSxy(Expression y, Expression x, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_sxy", null, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_sxy", null, y, x, consumer);
     }
 
     /**
@@ -2204,7 +2182,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrSxy(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x,
                                      Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_sxy", modifier, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_sxy", modifier, y, x, consumer);
     }
 
     /**
@@ -2216,7 +2194,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc regrSxy(Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_sxy", y, x, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_sxy", y, x);
     }
 
 
@@ -2229,7 +2207,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc regrSyy(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggFunc("regr_syy", modifier, y, x, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_syy", modifier, y, x, null);
     }
 
     /**
@@ -2243,7 +2221,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrSyy(Expression y, Expression x, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_syy", null, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_syy", null, y, x, consumer);
     }
 
     /**
@@ -2257,7 +2235,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc regrSyy(@Nullable SQLs.ArgDistinct modifier, Expression y, Expression x,
                                      Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.twoArgAggFunc("regr_syy", modifier, y, x, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggFunc("regr_syy", modifier, y, x, consumer);
     }
 
     /**
@@ -2269,7 +2247,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc regrSyy(Expression y, Expression x) {
-        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_syy", y, x, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.twoArgAggWindowFunc("regr_syy", y, x);
     }
 
 
@@ -2282,7 +2260,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc stdDev(@Nullable SQLs.ArgDistinct modifier, Expression exp) {
-        return PostgreFunctionUtils.oneArgAggFunc("stddev", modifier, exp, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("stddev", modifier, exp, null);
     }
 
     /**
@@ -2296,7 +2274,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc stdDev(Expression exp, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("stddev", null, exp, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("stddev", null, exp, consumer);
     }
 
     /**
@@ -2310,7 +2288,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc stdDev(@Nullable SQLs.ArgDistinct modifier, Expression exp,
                                     Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("stddev", modifier, exp, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("stddev", modifier, exp, consumer);
     }
 
     /**
@@ -2322,7 +2300,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc stdDev(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("stddev", exp, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("stddev", exp);
     }
 
 
@@ -2335,7 +2313,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc stdDevPop(@Nullable SQLs.ArgDistinct modifier, Expression exp) {
-        return PostgreFunctionUtils.oneArgAggFunc("stddev_pop", modifier, exp, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("stddev_pop", modifier, exp, null);
     }
 
     /**
@@ -2349,7 +2327,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc stdDevPop(Expression exp, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("stddev_pop", null, exp, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("stddev_pop", null, exp, consumer);
     }
 
     /**
@@ -2363,7 +2341,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc stdDevPop(@Nullable SQLs.ArgDistinct modifier, Expression exp,
                                        Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("stddev_pop", modifier, exp, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("stddev_pop", modifier, exp, consumer);
     }
 
     /**
@@ -2375,7 +2353,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc stdDevPop(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("stddev_pop", exp, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("stddev_pop", exp);
     }
 
 
@@ -2388,7 +2366,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc stdDevSamp(@Nullable SQLs.ArgDistinct modifier, Expression exp) {
-        return PostgreFunctionUtils.oneArgAggFunc("stddev_samp", modifier, exp, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("stddev_samp", modifier, exp, null);
     }
 
     /**
@@ -2402,7 +2380,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc stdDevSamp(Expression exp, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("stddev_samp", null, exp, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("stddev_samp", null, exp, consumer);
     }
 
     /**
@@ -2416,7 +2394,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc stdDevSamp(@Nullable SQLs.ArgDistinct modifier, Expression exp,
                                         Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("stddev_samp", modifier, exp, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("stddev_samp", modifier, exp, consumer);
     }
 
     /**
@@ -2428,7 +2406,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc stdDevSamp(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("stddev_samp", exp, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("stddev_samp", exp);
     }
 
 
@@ -2441,7 +2419,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc variance(@Nullable SQLs.ArgDistinct modifier, Expression exp) {
-        return PostgreFunctionUtils.oneArgAggFunc("variance", modifier, exp, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("variance", modifier, exp, null);
     }
 
     /**
@@ -2455,7 +2433,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc variance(Expression exp, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("variance", null, exp, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("variance", null, exp, consumer);
     }
 
     /**
@@ -2469,7 +2447,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc variance(@Nullable SQLs.ArgDistinct modifier, Expression exp,
                                       Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("variance", modifier, exp, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("variance", modifier, exp, consumer);
     }
 
     /**
@@ -2481,7 +2459,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc variance(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("variance", exp, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("variance", exp);
     }
 
 
@@ -2494,7 +2472,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc varPop(@Nullable SQLs.ArgDistinct modifier, Expression exp) {
-        return PostgreFunctionUtils.oneArgAggFunc("var_pop", modifier, exp, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("var_pop", modifier, exp, null);
     }
 
     /**
@@ -2509,7 +2487,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc varPop(Expression exp, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("var_pop", null, exp, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("var_pop", null, exp, consumer);
     }
 
     /**
@@ -2523,7 +2501,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc varPop(@Nullable SQLs.ArgDistinct modifier, Expression exp,
                                     Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("var_pop", modifier, exp, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("var_pop", modifier, exp, consumer);
     }
 
     /**
@@ -2535,7 +2513,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc varPop(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("var_pop", exp, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("var_pop", exp);
     }
 
 
@@ -2548,7 +2526,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _PgAggFunc varSamp(@Nullable SQLs.ArgDistinct modifier, Expression exp) {
-        return PostgreFunctionUtils.oneArgAggFunc("var_samp", modifier, exp, null, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("var_samp", modifier, exp, null);
     }
 
     /**
@@ -2562,7 +2540,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc varSamp(Expression exp, Consumer<Statement._SimpleOrderByClause> consumer) {
 
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("var_samp", null, exp, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("var_samp", null, exp, consumer);
     }
 
     /**
@@ -2576,7 +2554,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _PgAggFunc varSamp(@Nullable SQLs.ArgDistinct modifier, Expression exp,
                                      Consumer<Statement._SimpleOrderByClause> consumer) {
         ContextStack.assertNonNull(consumer);
-        return PostgreFunctionUtils.oneArgAggFunc("var_samp", modifier, exp, consumer, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggFunc("var_samp", modifier, exp, consumer);
     }
 
 
@@ -2589,7 +2567,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWindowFunc varSamp(Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc("var_samp", exp, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgAggWindowFunc("var_samp", exp);
     }
 
 
@@ -2606,9 +2584,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWithGroupClause mode() {
-        return PostgreFunctionUtils.zeroArgWithGroupAggFunc("mode",
-                PostgreFunctionUtils.unaryOrderSetType(Expressions::identityType)
-        );
+        return PostgreFunctionUtils.zeroArgWithGroupAggFunc("mode");
     }
 
     /**
@@ -2628,9 +2604,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _AggWithGroupClause percentileCont(final Object fraction) {
         final Expression fractionExp;
         fractionExp = SQLs._nonNullLiteral(fraction);
-        return PostgreFunctionUtils.oneArgWithGroupAggFunc("percentile_cont", fractionExp,
-                PostgreFunctionUtils.biOrderedSetType(fractionExp, PostgreWindowFunctions::_percentileType)
-        );
+        return PostgreFunctionUtils.oneArgWithGroupAggFunc("percentile_cont", fractionExp);
     }
 
     /**
@@ -2649,9 +2623,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     public static _AggWithGroupClause percentileDisc(final Object fraction) {
         final Expression fractionExp;
         fractionExp = SQLs._nonNullLiteral(fraction);
-        return PostgreFunctionUtils.oneArgWithGroupAggFunc("percentile_disc", fractionExp,
-                PostgreFunctionUtils.biOrderedSetType(fractionExp, PostgreWindowFunctions::_percentileType)
-        );
+        return PostgreFunctionUtils.oneArgWithGroupAggFunc("percentile_disc", fractionExp);
     }
 
 
@@ -2665,7 +2637,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWithGroupClause rank(Expression args) {
-        return PostgreFunctionUtils.oneArgWithGroupAggFunc("rank", args, LongType.INSTANCE);
+        return PostgreFunctionUtils.oneArgWithGroupAggFunc("rank", args);
     }
 
     /**
@@ -2676,7 +2648,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWithGroupClause denseRank(Expression args) {
-        return PostgreFunctionUtils.oneArgWithGroupAggFunc("dense_rank", args, LongType.INSTANCE);
+        return PostgreFunctionUtils.oneArgWithGroupAggFunc("dense_rank", args);
     }
 
     /**
@@ -2687,7 +2659,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWithGroupClause percentRank(Expression args) {
-        return PostgreFunctionUtils.oneArgWithGroupAggFunc("percent_rank", args, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgWithGroupAggFunc("percent_rank", args);
     }
 
     /**
@@ -2698,7 +2670,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      * </a>
      */
     public static _AggWithGroupClause cumeDist(Expression args) {
-        return PostgreFunctionUtils.oneArgWithGroupAggFunc("cume_dist", args, DoubleType.INSTANCE);
+        return PostgreFunctionUtils.oneArgWithGroupAggFunc("cume_dist", args);
     }
 
     /*-------------------below user-defined WITH GROUP aggregate function-------------------*/
@@ -2706,39 +2678,29 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
     /**
      * user-defined WITH GROUP aggregate function
      */
-    public static _AggWithGroupClause myWithGroupAggFunc(String name, TypeMeta returnType) {
-        return PostgreFunctionUtils.zeroArgMyWithGroupAggFunc(name, returnType);
+    public static _AggWithGroupClause myWithGroupAggFunc(String name) {
+        return PostgreFunctionUtils.zeroArgMyWithGroupAggFunc(name);
     }
 
 
     /**
      * user-defined WITH GROUP aggregate function
      */
-    public static _AggWithGroupClause myWithGroupAggFunc(String name, Expression one, TypeMeta returnType) {
-        return PostgreFunctionUtils.oneArgMyWithGroupAggFunc(name, one, returnType);
+    public static _AggWithGroupClause myWithGroupAggFunc(String name, Expression one) {
+        return PostgreFunctionUtils.oneArgMyWithGroupAggFunc(name, one);
     }
 
     /**
      * user-defined WITH GROUP aggregate function
      */
-    public static _AggWithGroupClause myWithGroupAggFunc(String name, List<Expression> argList, TypeMeta returnType) {
-        return PostgreFunctionUtils.multiArgMyWithGroupAggFunc(name, FunctionUtils.expList(name, argList), returnType);
+    public static _AggWithGroupClause myWithGroupAggFunc(String name, List<Expression> argList) {
+        return PostgreFunctionUtils.multiArgMyWithGroupAggFunc(name, FunctionUtils.expList(name, argList));
     }
 
 
     /*-------------------below private method-------------------*/
 
 
-    /**
-     * @see #bitAnd(Expression)
-     * @see #bitOr(Expression)
-     * @see #bitXor(Expression)
-     */
-    private static _AggWindowFunc _bitWindowFunc(String name, Expression exp) {
-        return PostgreFunctionUtils.oneArgAggWindowFunc(name, exp,
-                _returnType(exp, PostgreWindowFunctions::_bitOpeType)
-        );
-    }
 
 
     /**

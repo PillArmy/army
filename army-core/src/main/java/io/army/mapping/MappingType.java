@@ -16,7 +16,8 @@ import io.army.util._StringUtils;
 
 import java.util.List;
 
-public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permits AbstractMappingType {
+public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem
+        permits AbstractMappingType, ArrayMappingType, JsonMappingType {
 
     /**
      * document type mapping ,perhaps return null value ,for example : {@link JsonType#afterGet(DataType, MappingEnv, Object)}

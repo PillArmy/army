@@ -322,11 +322,11 @@ abstract class FuncExpUtils {
                 sqlBuilder.append(_Constant.SPACE_NULL);
             } else if (value instanceof Expression) {
                 ((ArmyExpression) value).appendSql(sqlBuilder, context);
-            } else if (value instanceof SQLWords) {
+            } else if (value instanceof SQLToken) {
                 if (!(value instanceof SQLs.ArmyKeyWord)) {
                     throw new CriteriaException(String.format("SQL function[%s] illegal words %s", name, value));
                 }
-                sqlBuilder.append(((SQLWords) value).spaceRender());
+                sqlBuilder.append(((SQLToken) value).spaceRender());
             } else if (value instanceof SQLIdentifier) {
                 sqlBuilder.append(_Constant.SPACE);
                 context.identifier(((SQLIdentifier) value).render(), sqlBuilder);
@@ -366,11 +366,11 @@ abstract class FuncExpUtils {
                 builder.append(_Constant.SPACE_NULL);
             } else if (value instanceof Expression) {
                 builder.append(value);
-            } else if (value instanceof SQLWords) {
+            } else if (value instanceof SQLToken) {
                 if (!(value instanceof SQLs.ArmyKeyWord)) {
                     throw new CriteriaException(String.format("Illegal words %s", value));
                 }
-                builder.append(((SQLWords) value).spaceRender());
+                builder.append(((SQLToken) value).spaceRender());
             } else if (value instanceof SQLIdentifier) {
                 builder.append(_Constant.SPACE)
                         .append(((SQLIdentifier) value).render());
@@ -399,7 +399,7 @@ abstract class FuncExpUtils {
     }
 
 
-    static VariadicClause variadicClause(final boolean required, @Nullable SQLWords separator, ArrayList<Object> arrayList) {
+    static VariadicClause variadicClause(final boolean required, @Nullable SQLToken separator, ArrayList<Object> arrayList) {
         return new VariadicClause(required, separator, arrayList, null, null);
     }
 
@@ -444,7 +444,7 @@ abstract class FuncExpUtils {
 
         private final boolean required;
 
-        private final SQLWords separator;
+        private final SQLToken separator;
 
         private final MappingType type;
 
@@ -455,7 +455,7 @@ abstract class FuncExpUtils {
 
         private List<Object> expList;
 
-        private VariadicClause(boolean required, @Nullable SQLWords separator, @Nullable ArrayList<Object> expList,
+        private VariadicClause(boolean required, @Nullable SQLToken separator, @Nullable ArrayList<Object> expList,
                                @Nullable MappingType type, @Nullable Class<?> literalClass) {
             this.required = required;
             this.separator = separator;
@@ -485,7 +485,7 @@ abstract class FuncExpUtils {
                 throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
             }
 
-            final SQLWords separator = this.separator;
+            final SQLToken separator = this.separator;
             if (separator != null && list.size() > this.startLength) {
                 list.add(separator);
             }

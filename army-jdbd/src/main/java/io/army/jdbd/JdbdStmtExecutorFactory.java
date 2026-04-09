@@ -434,16 +434,16 @@ final class JdbdStmtExecutorFactory extends ExecutorFactorySupport implements Re
 
         switch (serverDatabase) {
             case MySQL:
-                localFunc = MySQLStmtExecutor::localExecutor;
-                rmFunc = MySQLStmtExecutor::rmExecutor;
-                armyToJdbdOptionFunc = MySQLStmtExecutor::mapToJdbdDialectOption;
-                jdbdToArmyOptionFunc = MySQLStmtExecutor::mapToArmyDialectOption;
+                localFunc = MySQLExecutor::localExecutor;
+                rmFunc = MySQLExecutor::rmExecutor;
+                armyToJdbdOptionFunc = MySQLExecutor::mapToJdbdDialectOption;
+                jdbdToArmyOptionFunc = MySQLExecutor::mapToArmyDialectOption;
                 break;
             case PostgreSQL:
-                localFunc = PostgreStmtExecutor::localExecutor;
-                rmFunc = PostgreStmtExecutor::rmExecutor;
-                armyToJdbdOptionFunc = PostgreStmtExecutor::mapToJdbdDialectOption;
-                jdbdToArmyOptionFunc = PostgreStmtExecutor::mapToArmyDialectOption;
+                localFunc = PostgreExecutor::localExecutor;
+                rmFunc = PostgreExecutor::rmExecutor;
+                armyToJdbdOptionFunc = PostgreExecutor::mapToJdbdDialectOption;
+                jdbdToArmyOptionFunc = PostgreExecutor::mapToArmyDialectOption;
                 break;
             case Oracle:
             case H2:

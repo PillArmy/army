@@ -17,13 +17,49 @@
 package io.army.criteria;
 
 
+import io.army.criteria.impl.SQLs;
+import io.army.mapping.MappingType;
+
+import java.util.function.BiFunction;
+
+import static io.army.dialect.Database.MySQL;
+import static io.army.dialect.Database.PostgreSQL;
+
 /**
  * <p>
  * This interface representing json {@link Expression}.
  *
  * @since 0.6.0
  */
-public interface JsonExpression extends SimpleExpression, Statement._JsonExpOperator {
+@Deprecated
+public interface JsonExpression extends SimpleExpression,TypedExpression {
 
+
+    @Support({MySQL, PostgreSQL})
+    JsonExpression arrayElement(int index);
+
+    @Support({MySQL, PostgreSQL})
+    JsonExpression objectAttr(String keyName);
+
+    @Support({MySQL, PostgreSQL})
+    JsonExpression atPath(String jsonPath);
+
+    @Support({MySQL, PostgreSQL})
+    JsonExpression atPath(Expression jsonPath);
+
+    /**
+     * @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
+     *                <ul>
+     *                    <li>{@link SQLs#param(TypeInfer, Object)}</li>
+     *                    <li>{@link SQLs#literal(TypeInfer, Object)}</li>
+     *                    <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
+     *                    <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
+     *                    <li>developer custom method</li>
+     *                </ul>.
+     *                The first argument of funcRef always is {@link io.army.mapping.optional.JsonPathType#INSTANCE}.
+     * @param value   non-null,it will be passed to funcRef as the second argument of funcRef
+     */
+    @Support({MySQL, PostgreSQL})
+    <T> JsonExpression atPath(BiFunction<MappingType, T, Expression> funcRef, T value);
 
 }

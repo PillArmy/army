@@ -56,12 +56,12 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
                 .asQuery();
 
         printStmt(LOG, stmt);
-
-        final TypeMeta expType;
-        expType = SQLs.literal(JsonType.TEXT, jsonText)
-                .space(Postgres::hyphenGt, SQLs.literalValue(2))
-                .typeMeta();
-        Assert.assertTrue(expType instanceof JsonType);
+//
+//        final TypeMeta expType;
+//        expType = SQLs.literal(JsonType.TEXT, jsonText)
+//                .space(Postgres::hyphenGt, SQLs.literalValue(2))
+//                .typeMeta();
+//        Assert.assertTrue(expType instanceof JsonType);
     }
 
     /**
@@ -80,11 +80,11 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
 
         printStmt(LOG, stmt);
 
-        final TypeMeta expType;
-        expType = SQLs.literal(JsonType.TEXT, jsonText)
-                .space(Postgres::hyphenGtGt, SQLs.literalValue(2))
-                .typeMeta();
-        Assert.assertTrue(expType instanceof TextType);
+//        final TypeMeta expType;
+//        expType = SQLs.literal(JsonType.TEXT, jsonText)
+//                .space(Postgres::hyphenGtGt, SQLs.literalValue(2))
+//                .typeMeta();
+//        Assert.assertTrue(expType instanceof TextType);
     }
 
     /**
@@ -103,11 +103,11 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
 
         printStmt(LOG, stmt);
 
-        final TypeMeta expType;
-        expType = SQLs.literal(JsonType.TEXT, jsonText)
-                .space(Postgres::poundGt, SQLs.literal(TextArrayType.LINEAR, "{a,b,1}"))
-                .typeMeta();
-        Assert.assertTrue(expType instanceof JsonType);
+//        final TypeMeta expType;
+//        expType = SQLs.literal(JsonType.TEXT, jsonText)
+//                .space(Postgres::poundGt, SQLs.literal(TextArrayType.LINEAR, "{a,b,1}"))
+//                .typeMeta();
+//        Assert.assertTrue(expType instanceof JsonType);
     }
 
     /**
@@ -128,11 +128,11 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
 
         printStmt(LOG, stmt);
 
-        final TypeMeta expType;
-        expType = SQLs.literal(JsonType.TEXT, jsonText)
-                .space(Postgres::poundGtGt, SQLs.literal(TextArrayType.LINEAR, "{a,b,1}"))
-                .typeMeta();
-        Assert.assertTrue(expType instanceof TextType);
+//        final TypeMeta expType;
+//        expType = SQLs.literal(JsonType.TEXT, jsonText)
+//                .space(Postgres::poundGtGt, SQLs.literal(TextArrayType.LINEAR, "{a,b,1}"))
+//                .typeMeta();
+//        Assert.assertTrue(expType instanceof TextType);
 
     }
 
@@ -239,18 +239,18 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
 
         printStmt(LOG, stmt);
 
-        TypeMeta expType;
-        expType = SQLs.literal(JsonbType.TEXT, leftArray)
-                .space(Postgres::doubleVertical, SQLs::literal, rightArray)
-                .typeMeta();
-
-        Assert.assertSame(expType, JsonbType.TEXT);
-
-        expType = SQLs.literal(JsonbType.TEXT, leftObject)
-                .space(Postgres::doubleVertical, SQLs::literal, rightObject)
-                .typeMeta();
-
-        Assert.assertSame(expType, JsonbType.TEXT);
+//        TypeMeta expType;
+//        expType = SQLs.literal(JsonbType.TEXT, leftArray)
+//                .space(Postgres::doubleVertical, SQLs::literal, rightArray)
+//                .typeMeta();
+//
+//        Assert.assertSame(expType, JsonbType.TEXT);
+//
+//        expType = SQLs.literal(JsonbType.TEXT, leftObject)
+//                .space(Postgres::doubleVertical, SQLs::literal, rightObject)
+//                .typeMeta();
+//
+//        Assert.assertSame(expType, JsonbType.TEXT);
 
     }
 
@@ -276,25 +276,25 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
 
         printStmt(LOG, stmt);
 
-        TypeMeta expType;
-        expType = SQLs.literal(JsonbType.TEXT, leftArray)
-                .space(Postgres::minus, SQLs.literal(TextType.INSTANCE, "a"))
-                .typeMeta();
-
-        Assert.assertSame(expType, JsonbType.TEXT);
-
-
-        expType = SQLs.literal(JsonbType.TEXT, leftObject)
-                .space(Postgres::minus, SQLs.literal(TextType.INSTANCE, "b"))
-                .typeMeta();
-
-        Assert.assertSame(expType, JsonbType.TEXT);
-
-        expType = SQLs.literal(JsonbType.TEXT, leftArray)
-                .space(Postgres::minus, SQLs.literal(IntegerType.INSTANCE, 1))
-                .typeMeta();
-
-        Assert.assertSame(expType, JsonbType.TEXT);
+//        TypeMeta expType;
+//        expType = SQLs.literal(JsonbType.TEXT, leftArray)
+//                .space(Postgres::minus, SQLs.literal(TextType.INSTANCE, "a"))
+//                .typeMeta();
+//
+//        Assert.assertSame(expType, JsonbType.TEXT);
+//
+//
+//        expType = SQLs.literal(JsonbType.TEXT, leftObject)
+//                .space(Postgres::minus, SQLs.literal(TextType.INSTANCE, "b"))
+//                .typeMeta();
+//
+//        Assert.assertSame(expType, JsonbType.TEXT);
+//
+//        expType = SQLs.literal(JsonbType.TEXT, leftArray)
+//                .space(Postgres::minus, SQLs.literal(IntegerType.INSTANCE, 1))
+//                .typeMeta();
+//
+//        Assert.assertSame(expType, JsonbType.TEXT);
 
     }
 
@@ -314,12 +314,12 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
 
         printStmt(LOG, stmt);
 
-        TypeMeta expType;
-        expType = SQLs.literal(JsonbType.TEXT, jsonbArray)
-                .space(Postgres::poundHyphen, SQLs.literal(TextArrayType.LINEAR, "{1,b}"))
-                .typeMeta();
-
-        Assert.assertSame(expType, JsonbType.TEXT);
+//        TypeMeta expType;
+//        expType = SQLs.literal(JsonbType.TEXT, jsonbArray)
+//                .space(Postgres::poundHyphen, SQLs.literal(TextArrayType.LINEAR, "{1,b}"))
+//                .typeMeta();
+//
+//        Assert.assertSame(expType, JsonbType.TEXT);
     }
 
     /**

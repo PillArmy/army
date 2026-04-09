@@ -87,7 +87,7 @@ public class QueryTests extends SessionSupport {
 
         final Select stmt;
         stmt = SQLs.query()
-                .with("cte").as(s -> s.select(ChinaRegion_.id, SQLs.countAsterisk().as("count"))
+                .with("cte").as(s -> s.select(ChinaRegion_.id, SQLs.count(ASTERISK).as("count"))
                         .from(ChinaRegion_.T, AS, "c")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, regionIdList))
                         .groupBy(ChinaRegion_.id)

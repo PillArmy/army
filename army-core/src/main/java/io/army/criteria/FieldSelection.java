@@ -24,7 +24,7 @@ import io.army.meta.FieldMeta;
  * @see FieldMeta
  * @see QualifiedField
  */
-public interface FieldSelection extends Selection {
+public interface FieldSelection extends TypedSelection {
 
     FieldMeta<?> fieldMeta();
 

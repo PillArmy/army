@@ -287,9 +287,10 @@ abstract class PostgreExecutor extends JdbcExecutor {
 
     }
 
+
     @Override
-    final DataType getDataType(final ResultSetMetaData meta, final int indexBasedOne) throws SQLException {
-        return getPostgreType(meta.getColumnTypeName(indexBasedOne));
+    final DataType dataTypeMap(ResultSetMetaData meta, MappingType[] typeArray, int indexBasedZero) throws SQLException {
+        return getPostgreType(meta.getColumnTypeName(indexBasedZero + 1), typeArray, indexBasedZero);
     }
 
     @Override

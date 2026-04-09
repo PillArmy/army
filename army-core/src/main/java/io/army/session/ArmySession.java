@@ -522,7 +522,7 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
     /*-------------------below static method -------------------*/
 
     static <R> ReaderFunction<R> constructorReaderFunc(final Supplier<R> constructor) {
-        return (stmt, immutableMap) -> RowFunctions.objectRowFunc(constructor, stmt.selectionList(), immutableMap);
+        return (stmt, immutableMap) -> RowFunctions.objectRowFunc(constructor, immutableMap);
     }
 
     static <R> ReaderFunction<R> classReaderFunc(final Class<R> resultClass) {
@@ -534,7 +534,7 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
     }
 
     static <R> RowFunction<R> constructorRowFunc(final Supplier<R> constructor) {
-        return stmt -> RowFunctions.objectRowFunc(constructor, stmt.selectionList(), true);
+        return stmt -> RowFunctions.objectRowFunc(constructor, true);
     }
 
     static <R> RowFunction<R> recordRowFunc(final Function<? super CurrentRecord, R> function) {
@@ -765,7 +765,8 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
                 TypeMeta typeMeta;
                 for (int i = 0; i < selectionSize; i++) {
                     selection = selectionList.get(i);
-                    typeMeta = selection.typeMeta();
+                    typeMeta = null; //selection.typeMeta();
+                    // TODO fix me
                     if (!(typeMeta instanceof MappingType)) {
                         typeMeta = typeMeta.mappingType();
                     }

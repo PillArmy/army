@@ -44,7 +44,7 @@ public final class TwoIntType extends UserMappingType
     public static final TwoIntType INSTANCE = new TwoIntType();
     private static final DataType DATA_TYPE = DataType.from("TWOINTS");
 
-    private static final List<CompositeTypeField> FIELD_LIST = ArrayUtils.of(
+    private static final List<CompositeTypeField> FIELD_LIST = List.of(
             CompositeTypeField.from("a", IntegerType.INSTANCE),
             CompositeTypeField.from("b", IntegerType.INSTANCE)
     );

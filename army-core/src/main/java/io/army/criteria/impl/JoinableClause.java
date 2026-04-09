@@ -963,7 +963,7 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
 
         private final _JoinType joinType;
 
-        private final SQLWords modifier;
+        private final SQLToken modifier;
 
         final TabularItem tabularItem;
 
@@ -972,7 +972,7 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
         private List<_Predicate> onPredicateList;
 
         JoinableBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer, _JoinType joinType,
-                      @Nullable SQLWords modifier, TabularItem tabularItem, String alias) {
+                      @Nullable SQLToken modifier, TabularItem tabularItem, String alias) {
             super(context, blockConsumer);
             this.joinType = joinType;
             this.modifier = modifier;
@@ -1002,7 +1002,7 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
 
         @Override
         public final OR on(IPredicate predicate1, IPredicate predicate2) {
-            this.onPredicateList = ArrayUtils.of(
+            this.onPredicateList = List.of(
                     (OperationPredicate) predicate1,
                     (OperationPredicate) predicate2
             );
@@ -1018,7 +1018,7 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
         @Override
         public final OR on(Function<Expression, IPredicate> operator1, Expression operandField1
                 , Function<Expression, IPredicate> operator2, Expression operandField2) {
-            this.onPredicateList = ArrayUtils.of(
+            this.onPredicateList = List.of(
                     (OperationPredicate) operator1.apply(operandField1),
                     (OperationPredicate) operator2.apply(operandField2)
             );
@@ -1044,7 +1044,7 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
         }
 
         @Override
-        public final SQLWords modifier() {
+        public final SQLToken modifier() {
             return this.modifier;
         }
 
@@ -1087,7 +1087,7 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
             extends JoinableBlock<FT, FS, FC, FF, JT, JS, JC, JF, OR> {
 
         NestedJoinableBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer, _JoinType joinType,
-                            @Nullable SQLWords modifier, TabularItem tabularItem, String alias) {
+                            @Nullable SQLToken modifier, TabularItem tabularItem, String alias) {
             super(context, blockConsumer, joinType, modifier, tabularItem, alias);
         }
 
@@ -1104,7 +1104,7 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
 
 
         DynamicJoinableBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer, _JoinType joinType,
-                             @Nullable SQLWords modifier, TabularItem tabularItem, String alias) {
+                             @Nullable SQLToken modifier, TabularItem tabularItem, String alias) {
             super(context, blockConsumer, joinType, modifier, tabularItem, alias);
         }
 

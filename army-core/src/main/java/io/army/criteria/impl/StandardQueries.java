@@ -282,7 +282,7 @@ abstract class StandardQueries<I extends Item> extends SimpleQueries<
     }
 
     @Override
-    public final SQLWords lockStrength() {
+    public final SQLToken lockStrength() {
         return this.lockStrength;
     }
 
@@ -459,7 +459,7 @@ abstract class StandardQueries<I extends Item> extends SimpleQueries<
 
     /*################################## blow private inter class method ##################################*/
 
-    private enum StandardLockMode implements SQLWords {
+    private enum StandardLockMode implements SQLToken {
 
         FOR_UPDATE(_Constant.SPACE_FOR_UPDATE);
 
@@ -893,7 +893,7 @@ abstract class StandardQueries<I extends Item> extends SimpleQueries<
     static final class StandardBatchSimpleSelect extends ArmyBatchSimpleSelect
             implements StandardQuery, _StandardQuery {
 
-        private final SQLWords lockStrength;
+        private final SQLToken lockStrength;
 
         private final List<_Window> windowList;
 
@@ -911,7 +911,7 @@ abstract class StandardQueries<I extends Item> extends SimpleQueries<
         }
 
         @Override
-        public SQLWords lockStrength() {
+        public SQLToken lockStrength() {
             return this.lockStrength;
         }
 

@@ -23,6 +23,7 @@ import io.army.executor.DataAccessException;
 import io.army.executor.DriverException;
 import io.army.executor.ExecutorSupport;
 import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.mapping.OffsetTimeType;
 import io.army.meta.ServerMeta;
 import io.army.option.Option;
@@ -236,8 +237,8 @@ abstract class JdbcExecutorSupport extends ExecutorSupport {
 
         final ResultSetMetaData meta;
 
-        JdbcRecordMeta(int resultNo, JdbcExecutor executor, DataType[] dataTypeArray, ResultSetMetaData meta) {
-            super(resultNo, dataTypeArray, executor.factory.executorEnv);
+        JdbcRecordMeta(int resultNo, JdbcExecutor executor, DataType[] dataTypeArray, MappingType[] typeArray, ResultSetMetaData meta) {
+            super(resultNo, dataTypeArray, typeArray, executor.factory.executorEnv);
             this.executor = executor;
             this.meta = meta;
         }
@@ -623,9 +624,9 @@ abstract class JdbcExecutorSupport extends ExecutorSupport {
 
         private List<String> columnLabelList;
 
-        JdbcStmtRecordMeta(int resultNo, JdbcExecutor executor, DataType[] dataTypeArray,
+        JdbcStmtRecordMeta(int resultNo, JdbcExecutor executor, DataType[] dataTypeArray, MappingType[] typeArray,
                            List<? extends Selection> selectionList, ResultSetMetaData meta) {
-            super(resultNo, executor, dataTypeArray, meta);
+            super(resultNo, executor, dataTypeArray, typeArray, meta);
             this.selectionList = selectionList;
 
         }
@@ -701,8 +702,8 @@ abstract class JdbcExecutorSupport extends ExecutorSupport {
         private List<String> columnLabelList;
 
 
-        JdbcProcRecordMeta(int resultNo, JdbcExecutor executor, DataType[] dataTypeArray, ResultSetMetaData meta) {
-            super(resultNo, executor, dataTypeArray, meta);
+        JdbcProcRecordMeta(int resultNo, JdbcExecutor executor, DataType[] dataTypeArray, MappingType[] typeArray, ResultSetMetaData meta) {
+            super(resultNo, executor, dataTypeArray, typeArray, meta);
         }
 
         @Override
@@ -1034,6 +1035,8 @@ abstract class JdbcExecutorSupport extends ExecutorSupport {
 
         final DataType[] dataTypeArray;
 
+        final MappingType[] typeArray;
+
         final Statement statement;
 
         private Class<?> resultClass;
@@ -1050,6 +1053,7 @@ abstract class JdbcExecutorSupport extends ExecutorSupport {
             this.executor = executor;
             this.stmtOption = stmtOption;
             this.dataTypeArray = new DataType[this.selectionList.size()];
+            this.typeArray = new MappingType[this.dataTypeArray.length];
             this.statement = executor.conn.createStatement();
         }
 
@@ -1280,7 +1284,7 @@ abstract class JdbcExecutorSupport extends ExecutorSupport {
                 rowFunc = (Function<DataRecord, R>) this.objectRowFunc;
             }
             if (rowFunc == null) {
-                this.objectRowFunc = rowFunc = RowFunctions.objectRowFunc(constructor, this.selectionList, true);
+                this.objectRowFunc = rowFunc = RowFunctions.objectRowFunc(constructor, true);
             }
             return executeFetchRecord(direction, count, rowFunc, consumer, false);
         }

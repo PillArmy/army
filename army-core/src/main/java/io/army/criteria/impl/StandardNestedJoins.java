@@ -121,7 +121,7 @@ final class StandardNestedJoins<I extends Item> extends JoinableClause.NestedLef
         private final Supplier<I> ender;
 
         private StandardNestedBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer, _JoinType joinType,
-                                    @Nullable SQLWords modifier, TabularItem tabularItem, String alias, Supplier<I> ender) {
+                                    @Nullable SQLToken modifier, TabularItem tabularItem, String alias, Supplier<I> ender) {
             super(context, blockConsumer, joinType, modifier, tabularItem, alias);
             this.ender = ender;
         }

@@ -52,7 +52,7 @@ abstract class StandardDynamicJoins extends JoinableClause.DynamicJoinableBlock<
 
 
     private StandardDynamicJoins(CriteriaContext context, Consumer<_TabularBlock> blockConsumer, _JoinType joinType,
-                                 @Nullable SQLWords modifier, TabularItem tabularItem, String alias) {
+                                 @Nullable SQLToken modifier, TabularItem tabularItem, String alias) {
         super(context, blockConsumer, joinType, modifier, tabularItem, alias);
     }
 
@@ -191,7 +191,7 @@ abstract class StandardDynamicJoins extends JoinableClause.DynamicJoinableBlock<
     private static final class StandardDynamicBlock extends StandardDynamicJoins {
 
         private StandardDynamicBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer, _JoinType joinType,
-                                     @Nullable SQLWords modifier, TabularItem tabularItem, String alias) {
+                                     @Nullable SQLToken modifier, TabularItem tabularItem, String alias) {
             super(context, blockConsumer, joinType, modifier, tabularItem, alias);
         }
 

@@ -57,7 +57,7 @@ abstract class MySQLDynamicJoins extends JoinableClause.DynamicJoinableBlock<
 
 
     private MySQLDynamicJoins(CriteriaContext context, Consumer<_TabularBlock> blockConsumer,
-                              _JoinType joinType, @Nullable SQLWords modifier, TabularItem tabularItem, String alias) {
+                              _JoinType joinType, @Nullable SQLToken modifier, TabularItem tabularItem, String alias) {
         super(context, blockConsumer, joinType, modifier, tabularItem, alias);
     }
 
@@ -274,7 +274,7 @@ abstract class MySQLDynamicJoins extends JoinableClause.DynamicJoinableBlock<
         private _SelectionMap selectionMap;
 
         private DynamicDerivedBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer,
-                                    _JoinType joinType, @Nullable SQLWords modifier, DerivedTable table, String alias) {
+                                    _JoinType joinType, @Nullable SQLToken modifier, DerivedTable table, String alias) {
             super(context, blockConsumer, joinType, modifier, table, alias);
             this.selectionMap = (_DerivedTable) table;
         }

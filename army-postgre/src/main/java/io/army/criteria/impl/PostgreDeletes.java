@@ -788,7 +788,7 @@ abstract class PostgreDeletes<I extends Item, Q extends Item> extends JoinableDe
             implements PostgreDelete._TableSampleOnSpec<I, Q>,
             PostgreDelete._RepeatableOnClause<I, Q> {
 
-        private SimpleJoinClauseTableBlock(_JoinType joinType, @Nullable SQLWords modifier, TableMeta<?> tableItem,
+        private SimpleJoinClauseTableBlock(_JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> tableItem,
                                            String alias, PostgreDelete._SingleJoinSpec<I, Q> stmt) {
             super(joinType, modifier, tableItem, alias, stmt);
         }

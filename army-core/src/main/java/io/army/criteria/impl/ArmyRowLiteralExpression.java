@@ -60,7 +60,7 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
             throw ContextStack.clearStackAndNullPointer();
         } else if (values == null) {
             throw ContextStack.clearStackAndNullPointer();
-        } else if (values.size() == 0) {
+        } else if (values.isEmpty()) {
             throw valuesIsEmpty();
         } else if ((type = infer.typeMeta()) instanceof TableField && ((TableField) type).codec()) {
             throw ArmyParamExpression.typeInferReturnCodecField("encodingMultiLiteral");
@@ -168,7 +168,7 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
          * @see #multi(TypeInfer, Collection, boolean)
          */
         private AnonymousRowLiteral(TypeMeta type, Collection<?> values, final boolean typeName) {
-            assert values.size() > 0;
+            assert !values.isEmpty();
             if (type instanceof QualifiedField) {
                 this.type = ((QualifiedField<?>) type).fieldMeta();
             } else {

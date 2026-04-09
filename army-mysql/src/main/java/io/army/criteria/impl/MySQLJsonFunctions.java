@@ -50,7 +50,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY([val[, val] ...])</a>
      */
     public static SimpleExpression jsonArray() {
-        return LiteralFunctions.zeroArgFunc("JSON_ARRAY", JsonType.TEXT);
+        return LiteralFunctions.zeroArgFunc("JSON_ARRAY");
     }
 
     /**
@@ -65,7 +65,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY([val[, val] ...])</a>
      */
     public static SimpleExpression jsonArray(Object value) {
-        return LiteralFunctions.oneArgFunc("JSON_ARRAY", value, JsonType.TEXT);
+        return LiteralFunctions.oneArgFunc("JSON_ARRAY", value);
     }
 
     /**
@@ -90,7 +90,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY([val[, val] ...])</a>
      */
     public static SimpleExpression jsonArray(Object value1, Object value2, Object... variadic) {
-        return LiteralFunctions.multiArgFunc("JSON_ARRAY", FuncExpUtils.twoAndVariadic(value1, value2, variadic), JsonType.TEXT);
+        return LiteralFunctions.multiArgFunc("JSON_ARRAY", FuncExpUtils.twoAndVariadic(value1, value2, variadic));
     }
 
 
@@ -106,7 +106,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY([val[, val] ...])</a>
      */
     public static SimpleExpression jsonArray(Consumer<Clause._VariadicSpaceClause> consumer) {
-        return LiteralFunctions.multiArgFunc("JSON_ARRAY", FuncExpUtils.variadicList(false, consumer), JsonType.TEXT);
+        return LiteralFunctions.multiArgFunc("JSON_ARRAY", FuncExpUtils.variadicList(false, consumer));
     }
 
     /**
@@ -122,7 +122,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY([val[, val] ...])</a>
      */
     public static SimpleExpression jsonArray(SQLs.SymbolSpace space, Consumer<Clause._VariadicConsumer> consumer) {
-        return LiteralFunctions.multiArgFunc("JSON_ARRAY", FuncExpUtils.variadicList(false, consumer), JsonType.TEXT);
+        return LiteralFunctions.multiArgFunc("JSON_ARRAY", FuncExpUtils.variadicList(false, consumer));
     }
 
     /**
@@ -131,7 +131,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-object">JSON_OBJECT([key, val[, key, val] ...])</a>
      */
     public static SimpleExpression jsonObject() {
-        return LiteralFunctions.zeroArgFunc("JSON_OBJECT", JsonType.TEXT);
+        return LiteralFunctions.zeroArgFunc("JSON_OBJECT");
     }
 
     /**
@@ -141,7 +141,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-object">JSON_OBJECT([key, val[, key, val] ...])</a>
      */
     public static SimpleExpression jsonObject(final Map<String, ?> expMap) {
-        return LiteralFunctions.jsonMapFunc("JSON_OBJECT", expMap, JsonType.TEXT);
+        return LiteralFunctions.jsonMapFunc("JSON_OBJECT", expMap);
     }
 
 
@@ -152,7 +152,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-object">JSON_OBJECT([key, val[, key, val] ...])</a>
      */
     public static SimpleExpression jsonObject(final Consumer<Clause._PairVariadicSpaceClause> consumer) {
-        return LiteralFunctions.multiArgFunc("JSON_OBJECT", FuncExpUtils.pariVariadicList(false, consumer), JsonType.TEXT);
+        return LiteralFunctions.multiArgFunc("JSON_OBJECT", FuncExpUtils.pariVariadicList(false, consumer));
     }
 
     /**
@@ -162,7 +162,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-object">JSON_OBJECT([key, val[, key, val] ...])</a>
      */
     public static SimpleExpression jsonObject(SQLs.SymbolSpace space, Consumer<Clause._PairVariadicConsumerClause> consumer) {
-        return LiteralFunctions.multiArgFunc("JSON_OBJECT", FuncExpUtils.pariVariadicList(false, consumer), JsonType.TEXT);
+        return LiteralFunctions.multiArgFunc("JSON_OBJECT", FuncExpUtils.pariVariadicList(false, consumer));
     }
 
 
@@ -179,7 +179,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      */
     public static SimpleExpression jsonQuote(final Object string) {
         FuncExpUtils.assertTextExp(string);
-        return LiteralFunctions.oneArgFunc("JSON_QUOTE", string, JsonType.TEXT);
+        return LiteralFunctions.oneArgFunc("JSON_QUOTE", string);
     }
 
     /**
@@ -330,7 +330,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      */
     public static SimpleExpression jsonExtract(Object jsonDoc, Object path) {
         FuncExpUtils.assertPathExp(path);
-        return LiteralFunctions.twoArgFunc("JSON_EXTRACT", FuncExpUtils.jsonDocExp(jsonDoc), path, JsonType.TEXT);
+        return LiteralFunctions.twoArgFunc("JSON_EXTRACT", FuncExpUtils.jsonDocExp(jsonDoc), path);
     }
 
     /**
@@ -372,7 +372,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
 
         FuncExpUtils.addAllTextExp(argList, "path", pathVariadic);
 
-        return LiteralFunctions.multiArgFunc("JSON_EXTRACT", argList, JsonType.TEXT);
+        return LiteralFunctions.multiArgFunc("JSON_EXTRACT", argList);
     }
 
 
@@ -389,7 +389,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-keys">JSON_KEYS(json_doc[, path])</a>
      */
     public static SimpleExpression jsonKeys(final Object jsonDoc) {
-        return LiteralFunctions.oneArgFunc("JSON_KEYS", FuncExpUtils.jsonDocExp(jsonDoc), JsonType.TEXT);
+        return LiteralFunctions.oneArgFunc("JSON_KEYS", FuncExpUtils.jsonDocExp(jsonDoc));
     }
 
     /**
@@ -411,7 +411,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      */
     public static SimpleExpression jsonKeys(final Object jsonDoc, final Object path) {
         FuncExpUtils.assertPathExp(path);
-        return LiteralFunctions.twoArgFunc("JSON_KEYS", FuncExpUtils.jsonDocExp(jsonDoc), path, JsonType.TEXT);
+        return LiteralFunctions.twoArgFunc("JSON_KEYS", FuncExpUtils.jsonDocExp(jsonDoc), path);
     }
 
 
@@ -462,8 +462,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     public static SimpleExpression jsonSearch(final Object jsonDoc, final Object oneOrAll, final Object searchStr) {
         FuncExpUtils.assertTextExp(oneOrAll);
         FuncExpUtils.assertTextExp(searchStr);
-        return LiteralFunctions.threeArgFunc("JSON_SEARCH", FuncExpUtils.jsonDocExp(jsonDoc),
-                oneOrAll, searchStr, JsonType.TEXT);
+        return LiteralFunctions.threeArgFunc("JSON_SEARCH", FuncExpUtils.jsonDocExp(jsonDoc), oneOrAll, searchStr);
     }
 
     /**
@@ -507,7 +506,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
         argList.add(searchStr);
         argList.add(escapeChar);
 
-        return LiteralFunctions.multiArgFunc("JSON_SEARCH", argList, JsonType.TEXT);
+        return LiteralFunctions.multiArgFunc("JSON_SEARCH", argList);
     }
 
     /**
@@ -559,7 +558,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
         argList.add(escapeChar);
 
         argList.add(path);
-        return LiteralFunctions.multiArgFunc("JSON_SEARCH", argList, JsonType.TEXT);
+        return LiteralFunctions.multiArgFunc("JSON_SEARCH", argList);
     }
 
     /**
@@ -627,7 +626,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
 
         FuncExpUtils.addAllTextExp(argList, "path", pathVariadic);
 
-        return LiteralFunctions.multiArgFunc("JSON_SEARCH", argList, JsonType.TEXT);
+        return LiteralFunctions.multiArgFunc("JSON_SEARCH", argList);
     }
 
 
@@ -651,7 +650,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      */
     public static SimpleExpression jsonValue(final Object jsonDoc, final Object path) {
         FuncExpUtils.assertPathExp(path);
-        return LiteralFunctions.twoArgFunc("JSON_VALUE", FuncExpUtils.jsonDocExp(jsonDoc), path, JsonType.TEXT);
+        return LiteralFunctions.twoArgFunc("JSON_VALUE", FuncExpUtils.jsonDocExp(jsonDoc), path);
     }
 
 
@@ -1009,7 +1008,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
 
         final Expression jsonDocExp;
         jsonDocExp = FuncExpUtils.jsonDocExp(jsonDoc);
-        return LiteralFunctions.twoArgFunc("JSON_REMOVE", jsonDocExp, path, jsonDocExp.typeMeta());
+        return LiteralFunctions.twoArgFunc("JSON_REMOVE", jsonDocExp, path);
     }
 
     /**
@@ -1045,7 +1044,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
         argList.add(path);
 
         FuncExpUtils.addAllTextExp(argList, "path", pathVariadic);
-        return LiteralFunctions.multiArgFunc("JSON_REMOVE", argList, jsonDocExp.typeMeta());
+        return LiteralFunctions.multiArgFunc("JSON_REMOVE", argList);
     }
 
     /**
@@ -1069,7 +1068,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
 
         final List<?> argList;
         argList = FuncExpUtils.variadicList(true, arrayList, String.class, consumer);
-        return LiteralFunctions.multiArgFunc("JSON_REMOVE", argList, jsonDocExp.typeMeta());
+        return LiteralFunctions.multiArgFunc("JSON_REMOVE", argList);
     }
 
 
@@ -1086,7 +1085,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-unquote">JSON_UNQUOTE(json_val)</a>
      */
     public static SimpleExpression jsonUnquote(final Object jsonVal) {
-        return LiteralFunctions.oneArgFunc("JSON_UNQUOTE", FuncExpUtils.jsonDocExp(jsonVal), StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("JSON_UNQUOTE", FuncExpUtils.jsonDocExp(jsonVal));
     }
 
     /**
@@ -1100,7 +1099,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-attribute-functions.html#function_json-depth">JSON_DEPTH(json_doc)</a>
      */
     public static SimpleExpression jsonDepth(final Object jsonDoc) {
-        return LiteralFunctions.oneArgFunc("JSON_DEPTH", FuncExpUtils.jsonDocExp(jsonDoc), IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("JSON_DEPTH", FuncExpUtils.jsonDocExp(jsonDoc));
     }
 
 
@@ -1115,7 +1114,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-attribute-functions.html#function_json-length">JSON_LENGTH(json_doc[, path])</a>
      */
     public static SimpleExpression jsonLength(final Object jsonDoc) {
-        return LiteralFunctions.oneArgFunc("JSON_LENGTH", FuncExpUtils.jsonDocExp(jsonDoc), IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("JSON_LENGTH", FuncExpUtils.jsonDocExp(jsonDoc));
     }
 
 
@@ -1137,7 +1136,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      */
     public static SimpleExpression jsonLength(Object jsonDoc, Object path) {
         FuncExpUtils.assertPathExp(path);
-        return LiteralFunctions.twoArgFunc("JSON_LENGTH", FuncExpUtils.jsonDocExp(jsonDoc), path, IntegerType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("JSON_LENGTH", FuncExpUtils.jsonDocExp(jsonDoc), path);
     }
 
     /**
@@ -1152,7 +1151,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-attribute-functions.html#function_json-type">JSON_TYPE(json_val)</a>
      */
     public static SimpleExpression jsonType(final Object jsonVal) {
-        return LiteralFunctions.oneArgFunc("JSON_TYPE", FuncExpUtils.jsonDocExp(jsonVal), StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("JSON_TYPE", FuncExpUtils.jsonDocExp(jsonVal));
     }
 
 
@@ -1306,7 +1305,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
         for (Object jsonDoc : jsonDocArray) {
             argList.add(FuncExpUtils.jsonDocExp(jsonDoc));
         }
-        return LiteralFunctions.multiArgFunc(name, argList, jsonDocExp.typeMeta());
+        return LiteralFunctions.multiArgFunc(name, argList);
     }
 
     /**
@@ -1325,7 +1324,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
                 argList.add(SQLs.literal(JsonType.TEXT, json));
             }
         }
-        return LiteralFunctions.multiArgFunc(name, argList, argList.get(0).typeMeta());
+        return LiteralFunctions.multiArgFunc(name, argList);
     }
 
     /**
@@ -1346,7 +1345,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
 
         final List<?> argList;
         argList = FuncExpUtils.pariVariadicExpList(true, arrayList, JsonType.TEXT, consumer);
-        return LiteralFunctions.multiArgFunc(name, argList, jsonDocExpr.typeMeta());
+        return LiteralFunctions.multiArgFunc(name, argList);
     }
 
 

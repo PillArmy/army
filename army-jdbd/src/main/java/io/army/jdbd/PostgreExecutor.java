@@ -36,7 +36,7 @@ import java.time.*;
 import java.util.BitSet;
 import java.util.UUID;
 
-abstract class PostgreStmtExecutor extends JdbdExecutor {
+abstract class PostgreExecutor extends JdbdExecutor {
 
     static ReactiveLocalExecutor localExecutor(JdbdStmtExecutorFactory factory, LocalDatabaseSession session, String name) {
         throw new UnsupportedOperationException();
@@ -68,7 +68,7 @@ abstract class PostgreStmtExecutor extends JdbdExecutor {
         return armyOption;
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(PostgreStmtExecutor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PostgreExecutor.class);
 
     /**
      * <p>
@@ -84,7 +84,7 @@ abstract class PostgreStmtExecutor extends JdbdExecutor {
     /**
      * private constructor
      */
-    private PostgreStmtExecutor(JdbdStmtExecutorFactory factory, DatabaseSession session, String name) {
+    private PostgreExecutor(JdbdStmtExecutorFactory factory, DatabaseSession session, String name) {
         super(factory, session, name);
     }
 
@@ -93,10 +93,7 @@ abstract class PostgreStmtExecutor extends JdbdExecutor {
         return LOG;
     }
 
-    @Override
-    final DataType getDataType(ResultRowMeta meta, int indexBasedZero) {
-        return getPostgreType(meta.getDataType(indexBasedZero).typeName());
-    }
+
 
     @Override
     final void bind(ParametrizedStatement statement, final int indexBasedZero, final MappingType type,
@@ -210,6 +207,11 @@ abstract class PostgreStmtExecutor extends JdbdExecutor {
         }
     }
 
+
+    @Override
+    final DataType dataTypeMap(ResultRowMeta meta, MappingType[] typeArray, int indexBasedZero) {
+        return getPostgreType(meta.getDataType(indexBasedZero).typeName(), typeArray, indexBasedZero);
+    }
 
     @Nullable
     @Override

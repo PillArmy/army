@@ -29,7 +29,7 @@ package io.army.criteria;
  *
  * @since 0.6.0
  */
-public interface SelectionSpec extends TypeInfer {
+public interface SelectionSpec extends Item {
 
     /**
      * @param selectionLabel non-null,non-empty.

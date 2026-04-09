@@ -16,7 +16,7 @@
 
 package io.army.criteria.impl.inner.postgre;
 
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 import io.army.criteria.impl.inner._Insert;
 import io.army.criteria.impl.inner._Predicate;
 import io.army.criteria.impl.inner._Statement;
@@ -28,7 +28,7 @@ public interface _PostgreInsert extends _Insert, _Insert._SupportConflictClauseS
         _Statement._ReturningListSpec {
 
     @Nullable
-    SQLWords overridingValueWords();
+    SQLToken overridingValueWords();
 
 
     @Nullable

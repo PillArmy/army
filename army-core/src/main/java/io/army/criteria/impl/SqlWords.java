@@ -16,7 +16,7 @@
 
 package io.army.criteria.impl;
 
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 import io.army.dialect._Constant;
 
 abstract class SqlWords {
@@ -403,7 +403,7 @@ abstract class SqlWords {
     }//IsComparisonKeyWord
 
 
-    enum KeyWordAll implements SQLWords, SQLs.WordAll, SQLs.ArmyKeyWord {
+    enum KeyWordAll implements SQLToken, SQLs.WordAll, SQLs.ArmyKeyWord {
 
         ALL(" ALL");
 
@@ -459,7 +459,7 @@ abstract class SqlWords {
 
     }//KeyWordInterval
 
-    enum KeyWordPercent implements SQLs.WordPercent, SQLWords {
+    enum KeyWordPercent implements SQLs.WordPercent, SQLToken {
 
         PERCENT(" PERCENT");
 
@@ -526,7 +526,7 @@ abstract class SqlWords {
 
     }//KeyWordLateral
 
-    enum KeyWordFirst implements SQLs.WordFirst, SQLWords {
+    enum KeyWordFirst implements SQLs.WordFirst, SQLToken {
 
         FIRST(" FIRST");
 
@@ -548,7 +548,7 @@ abstract class SqlWords {
 
     }//KeyWordFirst
 
-    enum KeyWordNext implements SQLs.WordNext, SQLWords {
+    enum KeyWordNext implements SQLs.WordNext, SQLToken {
 
         NEXT(" NEXT");
 
@@ -570,7 +570,7 @@ abstract class SqlWords {
 
     }//KeyWordNext
 
-    enum KeyWordsNullsFirstLast implements SQLs.NullsFirstLast, SQLWords {
+    enum KeyWordsNullsFirstLast implements SQLs.NullsFirstLast, SQLToken {
 
         NULLS_FIRST(" NULLS FIRST"),
         NULLS_LAST(" NULLS LAST");
@@ -593,7 +593,7 @@ abstract class SqlWords {
 
     }//KeyWordsNullsFirstLast
 
-    enum KeyWordRow implements SQLs.WordRow, SQLWords {
+    enum KeyWordRow implements SQLs.WordRow, SQLToken {
 
         ROW(" ROW");
 
@@ -648,7 +648,7 @@ abstract class SqlWords {
 
     } //KeyWordLines
 
-    enum KeyWordWithTies implements SQLs.WordsWithTies, SQLWords {
+    enum KeyWordWithTies implements SQLs.WordsWithTies, SQLToken {
 
         WITH_TIES(" WITH TIES");
 
@@ -670,7 +670,7 @@ abstract class SqlWords {
 
     }//KeyWordNext
 
-    enum KeyWordOny implements SQLs.WordOnly, SQLWords {
+    enum KeyWordOny implements SQLs.WordOnly, SQLToken {
 
         ONLY;
 
@@ -1038,4 +1038,6 @@ abstract class SqlWords {
 
 
     } // KeyWordMaterialized
+
+
 }

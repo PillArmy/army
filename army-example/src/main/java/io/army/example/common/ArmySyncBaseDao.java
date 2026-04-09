@@ -19,6 +19,7 @@ package io.army.example.common;
 import io.army.criteria.Expression;
 import io.army.criteria.Select;
 import io.army.criteria.SimpleExpression;
+import io.army.criteria.TypedExpression;
 import io.army.criteria.impl.SQLs;
 import io.army.criteria.standard.StandardQuery;
 import io.army.meta.ChildTableMeta;
@@ -27,6 +28,7 @@ import io.army.meta.ParentTableMeta;
 import io.army.meta.TableMeta;
 import io.army.session.SyncSession;
 import io.army.session.SyncSessionContext;
+import io.army.util.RowMaps;
 
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +80,7 @@ public abstract class ArmySyncBaseDao implements SyncBaseDao {
         session = this.sessionContext.currentSession();
         final Select stmt;
         stmt = createFindByIdStmt(session, domainClass, SQLs::param, id).asQuery();
-        return session.queryOneObject(stmt, HashMap::new);
+        return session.queryOneObject(stmt, RowMaps::hashMap);
     }
 
     @Override
@@ -89,7 +91,7 @@ public abstract class ArmySyncBaseDao implements SyncBaseDao {
 
     protected final <P, T> StandardQuery._WhereAndSpec<Select> createFindByIdStmt(
             SyncSession session, Class<T> domainClass,
-            BiFunction<SimpleExpression, Object, Expression> valueOperator, Object id) {
+            BiFunction<TypedExpression, Object, Expression> valueOperator, Object id) {
         final TableMeta<T> table;
         table = session.tableMeta(domainClass);
 

@@ -21,10 +21,10 @@ import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
 import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
-import io.army.meta.TypeMeta;
 import io.army.util._StringUtils;
 
 import io.army.lang.Nullable;
+
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Map;
@@ -707,6 +707,26 @@ abstract class SQLSyntax extends Functions {
         return ContextStack.peek().refField(derivedAlias, selectionAlias);
     }
 
+    /**
+     * <p>
+     * Reference a derived field from current statement.
+     *
+     * @param derivedAlias   derived table alias,
+     * @param selectionAlias derived field alias
+     * @throws CriteriaException            throw when current statement don't support derived field (eg: single-table UPDATE statement).
+     * @throws UnknownDerivedFieldException throw when derived filed is unknown.
+     */
+    public static TypedDerivedField refTypedField(String derivedAlias, String selectionAlias) {
+        final DerivedField field;
+        field = ContextStack.peek().refField(derivedAlias, selectionAlias);
+        if (!(field instanceof TypedDerivedField)) {
+            String m = String.format("derived field(%s.%s) isn't %s", derivedAlias, selectionAlias,
+                    TypedDerivedField.class.getName());
+            throw ContextStack.clearStackAndCriteriaError(m);
+        }
+        return (TypedDerivedField) field;
+    }
+
 
     /**
      * <p>
@@ -716,7 +736,6 @@ abstract class SQLSyntax extends Functions {
      * <p>
      * <strong>NOTE</strong> : override,if selection alias duplication.
      *
-     * @return the {@link Expression#typeMeta()} of the {@link Expression} returned always return {@link TypeMeta#mappingType()} of {@link Selection#typeMeta()} .
      * @throws CriteriaException then when <ul>
      *                           <li>current statement don't support this method,eg: UPDATE statement</li>
      *                           <li>the {@link Selection} not exists,here possibly is deferred,if you invoke this method before SELECT clause end. eg: postgre DISTINCT ON clause</li>
@@ -732,7 +751,6 @@ abstract class SQLSyntax extends Functions {
      * The {@link Expression} returned don't support {@link Expression#as(String)} method.
      *
      * @param selectionOrdinal based 1 .
-     * @return the {@link Expression#typeMeta()} of the {@link Expression} returned always return {@link io.army.mapping.IntegerType#INSTANCE}
      * @throws CriteriaException throw when<ul>
      *                           <li>selectionOrdinal less than 1</li>
      *                           <li>the {@link Selection} not exists,here possibly is deferred,if you invoke this method before SELECT clause end. eg: postgre DISTINCT ON clause</li>

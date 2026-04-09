@@ -80,13 +80,6 @@ import io.army.mapping.MappingType;
  */
 public interface VarExpression extends SimpleExpression {
 
-    /**
-     * <p>The data type of variable expression is mutable.
-     *
-     * @return current data type of variable expression
-     */
-    @Override
-    MappingType typeMeta();
 
     /**
      * @return session variable name

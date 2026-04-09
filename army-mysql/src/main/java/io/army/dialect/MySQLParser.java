@@ -345,7 +345,7 @@ abstract class MySQLParser extends _ArmyDialectParser {
     }
 
     @Override
-    protected final void standardLockClause(final SQLWords lockMode, final _SqlContext context) {
+    protected final void standardLockClause(final SQLToken lockMode, final _SqlContext context) {
         if (!_Constant.SPACE_FOR_UPDATE.equals(lockMode.spaceRender())) {
             throw _Exceptions.castCriteriaApi();
         }

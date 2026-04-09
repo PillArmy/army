@@ -31,6 +31,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.util.List;
 
+import static io.army.criteria.impl.SQLs.ASTERISK;
+
 public abstract class SQLStmts {
 
     SQLStmts() {
@@ -178,13 +180,13 @@ public abstract class SQLStmts {
         if (domainTable instanceof ChildTableMeta) {
             final ParentTableMeta<?> parent = ((ChildTableMeta<T>) domainTable).parentMeta();
             stmt = SQLs.query()
-                    .select(SQLs.countAsterisk().as("count"))
+                    .select(SQLs.count(ASTERISK).as("count"))
                     .from(domainTable, SQLs.AS, "c")
                     .join(parent, SQLs.AS, "p").on(domainTable.id().equal(parent.id()))
                     .asQuery();
         } else {
             stmt = SQLs.query()
-                    .select(SQLs.countAsterisk().as("count"))
+                    .select(SQLs.count(ASTERISK).as("count"))
                     .from(domainTable, SQLs.AS, "t")
                     .asQuery();
         }

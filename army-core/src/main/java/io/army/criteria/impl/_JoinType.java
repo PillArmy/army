@@ -16,11 +16,11 @@
 
 package io.army.criteria.impl;
 
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 import io.army.util._StringUtils;
 
 
-public enum _JoinType implements SQLWords {
+public enum _JoinType implements SQLToken {
 
     NONE(""),
     LEFT_JOIN(" LEFT JOIN"),

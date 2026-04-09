@@ -20,8 +20,7 @@ import io.army.criteria.*;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
-import io.army.mapping.MappingType;
-import io.army.mapping._MappingFactory;
+import io.army.mapping.*;
 import io.army.meta.FieldMeta;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TypeMeta;
@@ -42,13 +41,13 @@ import java.util.Objects;
  * @see ArmyRowParamExpression
  * @since 0.6.0
  */
-abstract class ArmyLiteralExpression extends OperationExpression.OperationDefiniteExpression
+abstract class ArmyLiteralExpression extends OperationExpression.OperationTypedExpression
         implements _LiteralExpression {
 
     /**
      * @see SQLs#literalValue(Object)
      */
-    static ArmyLiteralExpression from(final @Nullable Object value, final boolean typeName) {
+    static LiteralExpression from(final @Nullable Object value, final boolean typeName) {
         if (value == null) {
             throw ContextStack.clearStackAndNullPointer();
         }
@@ -57,7 +56,7 @@ abstract class ArmyLiteralExpression extends OperationExpression.OperationDefini
         if (type == null) {
             throw CriteriaUtils.clearStackAndNonDefaultType(value);
         }
-        return new AnonymousLiteral(type, value, typeName);
+        return forMappingType(type, value, typeName);
     }
 
 
@@ -65,12 +64,16 @@ abstract class ArmyLiteralExpression extends OperationExpression.OperationDefini
      * @throws CriteriaException throw when infer return codec {@link TableField}.
      * @see SQLs#literal(TypeInfer, Object)
      */
-    static ArmyLiteralExpression single(final @Nullable TypeInfer infer, final @Nullable Object value, final boolean typeName) {
+    static LiteralExpression single(final @Nullable TypeInfer infer, final @Nullable Object value, final boolean typeName) {
         final TypeMeta type;
         if (infer == null) {
             throw ContextStack.clearStackAndNullPointer();
         } else if ((type = infer.typeMeta()) instanceof TableField && ((TableField) type).codec()) {
             throw ArmyParamExpression.typeInferReturnCodecField("encodingLiteral");
+        }
+
+        if (infer instanceof MappingType) {
+            return forMappingType((MappingType) type, value, typeName);
         }
         return new AnonymousLiteral(type, value, typeName);
     }
@@ -167,6 +170,64 @@ abstract class ArmyLiteralExpression extends OperationExpression.OperationDefini
         return ContextStack.clearStackAndCriteriaError("name must have text for single-literal.");
     }
 
+
+    private static LiteralExpression forMappingType(final MappingType type, final @Nullable Object value, final boolean typeName) {
+        final LiteralExpression literal;
+        if (type == BooleanType.INSTANCE) {
+            if (!(value instanceof Boolean)) {
+                literal = new AnonymousLiteral(type, value, typeName);
+            } else if (Boolean.TRUE.equals(value)) {
+                literal = SQLs.TRUE;
+            } else {
+                literal = SQLs.FALSE;
+            }
+        } else if (type == IntegerType.INSTANCE) {
+            if (value instanceof Integer) {
+                literal = integerLiteral((Integer) value, typeName);
+            } else {
+                literal = new AnonymousLiteral(type, value, typeName);
+            }
+        } else if (type == StringType.INSTANCE) {
+            if (!(value instanceof String)) {
+                literal = new AnonymousLiteral(type, value, typeName);
+            } else if ("".equals(value)) {
+                literal = typeName ? SQLs.LITERAL_EMPTY_STRING : SQLs.CONST_EMPTY_STRING;
+            } else if (" ".equals(value)) {
+                literal = typeName ? SQLs.LITERAL_SPACE : SQLs.CONST_SPACE;
+            } else {
+                literal = new AnonymousLiteral(type, value, typeName);
+            }
+        } else if (type == BigDecimalType.INSTANCE) {
+            literal = new AnonymousLiteral(type, value, typeName);
+        } else if (type == DoubleType.INSTANCE) {
+            literal = new AnonymousLiteral(type, value, typeName);
+        } else {
+            literal = new AnonymousLiteral(type, value, typeName);
+        }
+        return literal;
+    }
+
+
+    private static LiteralExpression integerLiteral(final Integer value, final boolean typeName) {
+        return switch (value) {
+            case -1 -> typeName ? SQLs.LITERAL_MINUS_1 : SQLs.CONST_MINUS_1;
+            case 0 -> typeName ? SQLs.LITERAL_0 : SQLs.CONST_0;
+            case 1 -> typeName ? SQLs.LITERAL_1 : SQLs.CONST_1;
+            case 2 -> typeName ? SQLs.LITERAL_2 : SQLs.CONST_2;
+            case 3 -> typeName ? SQLs.LITERAL_3 : SQLs.CONST_3;
+            case 4 -> typeName ? SQLs.LITERAL_4 : SQLs.CONST_4;
+            case 5 -> typeName ? SQLs.LITERAL_5 : SQLs.CONST_5;
+            case 6 -> typeName ? SQLs.LITERAL_6 : SQLs.CONST_6;
+            case 7 -> typeName ? SQLs.LITERAL_7 : SQLs.CONST_7;
+            case 8 -> typeName ? SQLs.LITERAL_8 : SQLs.CONST_8;
+            case 9 -> typeName ? SQLs.LITERAL_9 : SQLs.CONST_9;
+            case 10 -> typeName ? SQLs.LITERAL_10 : SQLs.CONST_10;
+            case 100 -> typeName ? SQLs.LITERAL_100 : SQLs.CONST_100;
+            case 1000 -> typeName ? SQLs.LITERAL_1000 : SQLs.CONST_1000;
+            default -> new AnonymousLiteral(IntegerType.INSTANCE, value, typeName);
+        };
+    }
+
     final TypeMeta type;
 
     final boolean typeName;
@@ -236,8 +297,7 @@ abstract class ArmyLiteralExpression extends OperationExpression.OperationDefini
             final boolean match;
             if (obj == this) {
                 match = true;
-            } else if (obj instanceof AnonymousLiteral) {
-                final AnonymousLiteral o = (AnonymousLiteral) obj;
+            } else if (obj instanceof AnonymousLiteral o) {
                 match = o.type.equals(this.type)
                         && Objects.equals(o.value, this.value);
             } else {

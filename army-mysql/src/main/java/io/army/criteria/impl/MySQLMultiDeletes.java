@@ -122,19 +122,19 @@ abstract class MySQLMultiDeletes<I extends Item> extends JoinableDelete<
 
     @Override
     public final _MultiDeleteFromTableClause<I> delete(String alias1, String alias2) {
-        this.tableAliasList = ArrayUtils.of(alias1, alias2);
+        this.tableAliasList = List.of(alias1, alias2);
         return this;
     }
 
     @Override
     public final _MultiDeleteFromTableClause<I> delete(String alias1, String alias2, String alias3) {
-        this.tableAliasList = ArrayUtils.of(alias1, alias2, alias3);
+        this.tableAliasList = List.of(alias1, alias2, alias3);
         return this;
     }
 
     @Override
     public final _MultiDeleteFromTableClause<I> delete(String alias1, String alias2, String alias3, String alias4) {
-        this.tableAliasList = ArrayUtils.of(alias1, alias2, alias3, alias4);
+        this.tableAliasList = List.of(alias1, alias2, alias3, alias4);
         return this;
     }
 

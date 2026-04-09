@@ -185,7 +185,7 @@ public abstract class _Exceptions {
         return new CriteriaException(m);
     }
 
-    public static CriteriaException dontSupportModifier(SQLWords modifier, Dialect dialect) {
+    public static CriteriaException dontSupportModifier(SQLToken modifier, Dialect dialect) {
         String m = String.format("%s don't support modifier[%s]", dialect, modifier);
         return new CriteriaException(m);
     }
@@ -954,11 +954,6 @@ public abstract class _Exceptions {
     }
 
 
-    public static ArmyException expectedTypeAndResultNotMatch(Selection selection, Class<?> resultType) {
-        String m = String.format("expected type %s and query result mapping type %s not match."
-                , resultType.getName(), selection.typeMeta().mappingType().getClass().getName());
-        throw new ArmyException(m);
-    }
 
     @Deprecated
     public static OptimisticLockException optimisticLock(long affectedRows) {
@@ -1413,6 +1408,12 @@ public abstract class _Exceptions {
         String m = String.format("Number %s row id value is null for %s", rowIndexBasedZero + 1, field);
         return new DataAccessException(m);
     }
+
+    public static DataAccessException primitiveNullColumn(String label,Class<?> beanClass) {
+        String m = String.format("property[%s.%s] is primitive ,but database return null", beanClass.getName(),label);
+        return new DataAccessException(m);
+    }
+
 
     public static DataAccessException secondStmtIdIsNull(Selection idSelection) {
         String m;

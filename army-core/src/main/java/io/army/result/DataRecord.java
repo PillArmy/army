@@ -36,7 +36,7 @@ public interface DataRecord extends ResultItem, ResultItem.ResultAccessSpec {
 
 
     /**
-     * <p>java doc see
+     * <p>Javadoc see
      * <ul>
      *     <li>{@link ResultRecord#get(int, Class)}</li>
      *     <li>{@link CurrentRecord#get(int, Class)}</li>

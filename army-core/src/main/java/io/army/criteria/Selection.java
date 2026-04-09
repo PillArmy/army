@@ -27,7 +27,7 @@ package io.army.criteria;
  * @see QualifiedField#as(String)
  * @since 0.6.0
  */
-public interface Selection extends SelectItem, TypeInfer {
+public interface Selection extends SelectItem {
 
     String label();
 

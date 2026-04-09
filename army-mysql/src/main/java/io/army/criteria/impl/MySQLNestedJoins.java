@@ -143,7 +143,7 @@ final class MySQLNestedJoins<I extends Item> extends JoinableClause.NestedLeftPa
         private final Supplier<I> ender;
 
         private MySQLNestedBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer
-                , _JoinType joinType, @Nullable SQLWords modifier
+                , _JoinType joinType, @Nullable SQLToken modifier
                 , TabularItem tabularItem, String alias, Supplier<I> ender) {
             super(context, blockConsumer, joinType, modifier, tabularItem, alias);
             this.ender = ender;
@@ -724,7 +724,7 @@ final class MySQLNestedJoins<I extends Item> extends JoinableClause.NestedLeftPa
         private _SelectionMap selectionMap;
 
         private NestedDerivedBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer,
-                                   _JoinType joinType, @Nullable SQLWords modifier, DerivedTable table,
+                                   _JoinType joinType, @Nullable SQLToken modifier, DerivedTable table,
                                    String alias, Supplier<I> ender) {
             super(context, blockConsumer, joinType, modifier, table, alias, ender);
             this.selectionMap = (_DerivedTable) table;
@@ -792,7 +792,7 @@ final class MySQLNestedJoins<I extends Item> extends JoinableClause.NestedLeftPa
             implements MySQLStatement._NestedLeftParensJoinSpec<I> {
 
         private FromClauseDerivedBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer,
-                                       _JoinType joinType, @Nullable SQLWords modifier, DerivedTable table,
+                                       _JoinType joinType, @Nullable SQLToken modifier, DerivedTable table,
                                        String alias, Supplier<I> ender) {
             super(context, blockConsumer, joinType, modifier, table, alias, ender);
         }
@@ -805,7 +805,7 @@ final class MySQLNestedJoins<I extends Item> extends JoinableClause.NestedLeftPa
             implements MySQLStatement._NestedParenCrossSpec<I> {
 
         private CrossClauseDerivedBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer,
-                                        _JoinType joinType, @Nullable SQLWords modifier, DerivedTable table,
+                                        _JoinType joinType, @Nullable SQLToken modifier, DerivedTable table,
                                         String alias, Supplier<I> ender) {
             super(context, blockConsumer, joinType, modifier, table, alias, ender);
         }
@@ -818,7 +818,7 @@ final class MySQLNestedJoins<I extends Item> extends JoinableClause.NestedLeftPa
             implements MySQLStatement._NestedParenOnSpec<I> {
 
         private JoinClauseDerivedBlock(CriteriaContext context, Consumer<_TabularBlock> blockConsumer,
-                                       _JoinType joinType, @Nullable SQLWords modifier, DerivedTable table,
+                                       _JoinType joinType, @Nullable SQLToken modifier, DerivedTable table,
                                        String alias, Supplier<I> ender) {
             super(context, blockConsumer, joinType, modifier, table, alias, ender);
         }

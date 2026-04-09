@@ -16,7 +16,7 @@
 
 package io.army.criteria.impl.inner.postgre;
 
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 import io.army.criteria.SubStatement;
 import io.army.criteria.impl.inner._Expression;
 import io.army.lang.Nullable;
@@ -26,7 +26,7 @@ import java.util.List;
 public interface _PostgreCteStatement extends SubStatement {
 
     @Nullable
-    SQLWords materializedOption();
+    SQLToken materializedOption();
 
     SubStatement subStatement();
 
@@ -34,7 +34,7 @@ public interface _PostgreCteStatement extends SubStatement {
     interface _SearchOptionClauseSpec extends _PostgreCteStatement {
 
         @Nullable
-        SQLWords searchOption();
+        SQLToken searchOption();
 
         List<String> firstByList();
 

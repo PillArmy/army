@@ -16,10 +16,7 @@
 
 package io.army.criteria.impl;
 
-import io.army.criteria.Expression;
-import io.army.criteria.SimpleExpression;
-import io.army.criteria.TableField;
-import io.army.criteria.TypeInfer;
+import io.army.criteria.*;
 import io.army.criteria.dialect.VarExpression;
 import io.army.dialect.Database;
 import io.army.dialect._Constant;
@@ -34,7 +31,7 @@ import io.army.util._StringUtils;
 
 import java.util.Objects;
 
-final class UserVarExpression extends OperationExpression.OperationDefiniteExpression implements VarExpression {
+final class UserVarExpression extends OperationExpression.OperationTypedExpression implements VarExpression {
 
     static VarExpression create(final String varName, final TypeInfer type) {
         if (!_StringUtils.hasText(varName)) {
@@ -65,8 +62,8 @@ final class UserVarExpression extends OperationExpression.OperationDefiniteExpre
         }
 
         TypeMeta type;
-        if (value instanceof Expression) {
-            type = ((Expression) value).typeMeta();
+        if (value instanceof TypedExpression) { // TODO check logic
+            type = ((TypedExpression) value).typeMeta();
         } else {
             type = _MappingFactory.getDefaultIfMatch(value.getClass());
             if (type == null) {
@@ -102,14 +99,16 @@ final class UserVarExpression extends OperationExpression.OperationDefiniteExpre
         this.type = type;
     }
 
-    @Override
-    public MappingType typeMeta() {
-        return this.type;
-    }
 
     @Override
     public String name() {
         return this.name;
+    }
+
+
+    @Override
+    public TypeMeta typeMeta() {
+        return this.type; // TODO check
     }
 
     @Override
@@ -218,19 +217,6 @@ final class UserVarExpression extends OperationExpression.OperationDefiniteExpre
             this.right = (ArmyExpression) right;
         }
 
-        @Override
-        public MappingType typeMeta() {   // couldn't be field ,because filed codec
-            TypeMeta typeMeta;
-            if (this.operator == null) {
-                typeMeta = this.right.typeMeta();
-            } else {
-                typeMeta = this.varExp.type;
-            }
-            if (!(typeMeta instanceof MappingType)) {
-                typeMeta = typeMeta.mappingType();
-            }
-            return (MappingType) typeMeta;
-        }
 
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {

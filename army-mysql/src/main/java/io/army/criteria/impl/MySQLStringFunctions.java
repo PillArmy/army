@@ -57,7 +57,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression ascii(final Object str) {
         FuncExpUtils.assertLiteralExp(str);
-        return LiteralFunctions.oneArgFunc("ASCII", str, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("ASCII", str);
     }
 
     /**
@@ -73,7 +73,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression bin(final Object n) {
         FuncExpUtils.assertLiteralExp(n);
-        return LiteralFunctions.oneArgFunc("BIN", n, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("BIN", n);
     }
 
 
@@ -90,7 +90,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression charFunc(final Object n) {
         FuncExpUtils.assertLiteralExp(n);
-        return LiteralFunctions.oneArgFunc("CHAR", n, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("CHAR", n);
     }
 
     /**
@@ -171,7 +171,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_char">CHAR_LENGTH(str)</a>
      */
     public static SimpleExpression charLength(final Object str) {
-        return LiteralFunctions.oneArgFunc("CHAR_LENGTH", str, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("CHAR_LENGTH", str);
     }
 
     /**
@@ -193,7 +193,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
     public static SimpleExpression concat(final Object str1, Object str2) {
         FuncExpUtils.assertTextExp(str1);
         FuncExpUtils.assertTextExp(str2);
-        return LiteralFunctions.twoArgFunc("CONCAT", str1, str2, StringType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("CONCAT", str1, str2);
     }
 
     /**
@@ -234,7 +234,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         argList.add(str3);
 
         FuncExpUtils.addAllTextExp(argList, "str", strVariadic);
-        return LiteralFunctions.multiArgFunc("CONCAT", argList, StringType.INSTANCE);
+        return LiteralFunctions.multiArgFunc("CONCAT", argList);
     }
 
     /**
@@ -255,7 +255,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         if (argList.size() < 2) {
             throw ContextStack.clearStackAndCriteriaError("argument count must great than 1");
         }
-        return LiteralFunctions.multiArgFunc("CONCAT", argList, StringType.INSTANCE);
+        return LiteralFunctions.multiArgFunc("CONCAT", argList);
     }
 
     /**
@@ -277,7 +277,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         if (argList.size() < 2) {
             throw ContextStack.clearStackAndCriteriaError("argument count must great than 1");
         }
-        return LiteralFunctions.multiArgFunc("CONCAT", argList, StringType.INSTANCE);
+        return LiteralFunctions.multiArgFunc("CONCAT", argList);
     }
 
     /**
@@ -302,7 +302,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_concat-ws">CONCAT_WS(separator,str1,str2,...)</a>
      */
     public static SimpleExpression concatWs(Object separator, Object str1, Object str2) {
-        return LiteralFunctions.threeArgFunc("CONCAT_WS", separator, str1, str2, StringType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("CONCAT_WS", separator, str1, str2);
     }
 
     /**
@@ -338,7 +338,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression concatWs(Object separator, Object str1, Object str2, Object str3, Object... strVariadic) {
         FuncExpUtils.assertTextExp(separator);
-        return _oneAndThreeStrVariadic("CONCAT_WS", StringType.INSTANCE, separator, str1, str2, str3, strVariadic);
+        return _oneAndThreeStrVariadic("CONCAT_WS", separator, str1, str2, str3, strVariadic);
     }
 
 
@@ -361,7 +361,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression concatWs(Object separator, Consumer<Clause._VariadicSpaceClause> consumer) {
         FuncExpUtils.assertTextExp(separator);
-        return _oneAndVariadicStringConsumer("CONCAT_WS", separator, 2, consumer, StringType.INSTANCE);
+        return _oneAndVariadicStringConsumer("CONCAT_WS", separator, 2, consumer);
     }
 
     /**
@@ -384,7 +384,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression concatWs(Object separator, SQLs.SymbolSpace space, Consumer<Clause._VariadicConsumer> consumer) {
         FuncExpUtils.assertTextExp(separator);
-        return _oneAndVariadicStringConsumer("CONCAT_WS", separator, 2, consumer, StringType.INSTANCE);
+        return _oneAndVariadicStringConsumer("CONCAT_WS", separator, 2, consumer);
     }
 
 
@@ -421,7 +421,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression elt(Object n, Object str1, Object str2, Object str3, Object... strVariadic) {
         FuncExpUtils.assertIntExp(n);
-        return _oneAndThreeStrVariadic("ELT", StringType.INSTANCE, n, str1, str2, str3, str3);
+        return _oneAndThreeStrVariadic("ELT", n, str1, str2, str3, str3);
     }
 
 
@@ -444,7 +444,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression elt(Object n, Consumer<Clause._VariadicSpaceClause> consumer) {
         FuncExpUtils.assertIntExp(n);
-        return _oneAndVariadicStringConsumer("ELT", n, 3, consumer, StringType.INSTANCE);
+        return _oneAndVariadicStringConsumer("ELT", n, 3, consumer);
     }
 
     /**
@@ -467,7 +467,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression elt(Object n, SQLs.SymbolSpace space, Consumer<Clause._VariadicConsumer> consumer) {
         FuncExpUtils.assertIntExp(n);
-        return _oneAndVariadicStringConsumer("ELT", n, 3, consumer, StringType.INSTANCE);
+        return _oneAndVariadicStringConsumer("ELT", n, 3, consumer);
     }
 
     /**
@@ -600,7 +600,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression field(Object str, Object str1, Object str2, Object str3, Object... strVariadic) {
         FuncExpUtils.assertTextExp(str);
-        return _oneAndThreeStrVariadic("FIELD", StringType.INSTANCE, str, str1, str2, str3, strVariadic);
+        return _oneAndThreeStrVariadic("FIELD", str, str1, str2, str3, strVariadic);
     }
 
     /**
@@ -622,7 +622,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression field(Object str, Consumer<Clause._VariadicSpaceClause> consumer) {
         FuncExpUtils.assertTextExp(str);
-        return _oneAndVariadicStringConsumer("FIELD", str, 3, consumer, IntegerType.INSTANCE);
+        return _oneAndVariadicStringConsumer("FIELD", str, 3, consumer);
     }
 
     /**
@@ -645,7 +645,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression field(Object str, SQLs.SymbolSpace space, Consumer<Clause._VariadicConsumer> consumer) {
         FuncExpUtils.assertTextExp(str);
-        return _oneAndVariadicStringConsumer("FIELD", str, 3, consumer, IntegerType.INSTANCE);
+        return _oneAndVariadicStringConsumer("FIELD", str, 3, consumer);
     }
 
     /**
@@ -667,7 +667,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
     public static SimpleExpression findInSet(Object str, Object strList) {
         FuncExpUtils.assertTextExp(str);
         FuncExpUtils.assertTextExp(strList);
-        return LiteralFunctions.twoArgFunc("FIND_IN_SET", str, strList, IntegerType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("FIND_IN_SET", str, strList);
     }
 
 
@@ -691,7 +691,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
     public static SimpleExpression format(final Object x, final Object d) {
         FuncExpUtils.assertNumberExp(x);
         FuncExpUtils.assertIntExp(d);
-        return LiteralFunctions.twoArgFunc("FORMAT", x, d, StringType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("FORMAT", x, d);
     }
 
 
@@ -722,7 +722,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         FuncExpUtils.assertNumberExp(x);
         FuncExpUtils.assertIntExp(d);
         FuncExpUtils.assertTextExp(locale);
-        return LiteralFunctions.threeArgFunc("FORMAT", x, d, locale, StringType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("FORMAT", x, d, locale);
     }
 
     /**
@@ -738,7 +738,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_from-base64">FROM_BASE64(str)</a>
      */
     public static SimpleExpression fromBase64(final Object str) {
-        return LiteralFunctions.oneArgFunc("FROM_BASE64", str, VarBinaryType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("FROM_BASE64", str);
     }
 
     /**
@@ -754,7 +754,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_to-base64">TO_BASE64(str)</a>
      */
     public static SimpleExpression toBase64(final Object str) {
-        return LiteralFunctions.oneArgFunc("TO_BASE64", str, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("TO_BASE64", str);
     }
 
     /**
@@ -771,7 +771,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_hex">HEX(str), HEX(N)</a>
      */
     public static SimpleExpression hex(final Object strOrNum) {
-        return LiteralFunctions.oneArgFunc("HEX", strOrNum, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("HEX", strOrNum);
     }
 
     /**
@@ -787,7 +787,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_unhex">UNHEX(str)</a>
      */
     public static SimpleExpression unhex(Object str) {
-        return LiteralFunctions.oneArgFunc("UNHEX", str, VarBinaryType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("UNHEX", str);
     }
 
     /**
@@ -822,7 +822,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         FuncExpUtils.assertIntExp(len);
         FuncExpUtils.assertTextExp(newStr);
 
-        return LiteralFunctions.fourArgFunc("INSERT", str, pos, len, newStr, StringType.INSTANCE);
+        return LiteralFunctions.fourArgFunc("INSERT", str, pos, len, newStr);
     }
 
     /**
@@ -845,7 +845,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         FuncExpUtils.assertTextExp(str);
         FuncExpUtils.assertTextExp(substr);
 
-        return LiteralFunctions.twoArgFunc("INSTR", str, substr, IntegerType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("INSTR", str, substr);
     }
 
 
@@ -863,7 +863,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
     public static SimpleExpression left(Object str, Object len) {
         FuncExpUtils.assertTextExp(str);
         FuncExpUtils.assertIntExp(len);
-        return LiteralFunctions.twoArgFunc("LEFT", str, len, StringType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("LEFT", str, len);
     }
 
     /**
@@ -879,7 +879,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression length(Object str) {
         FuncExpUtils.assertTextExp(str);
-        return LiteralFunctions.oneArgFunc("LENGTH", str, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("LENGTH", str);
     }
 
     /**
@@ -895,7 +895,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression loadFile(Object fileName) {
         FuncExpUtils.assertTextExp(fileName);
-        return LiteralFunctions.oneArgFunc("LOAD_FILE", fileName, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("LOAD_FILE", fileName);
     }
 
 
@@ -925,7 +925,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         FuncExpUtils.assertTextExp(str);
         FuncExpUtils.assertIntExp(len);
         FuncExpUtils.assertTextExp(padstr);
-        return LiteralFunctions.threeArgFunc("LPAD", str, len, padstr, StringType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("LPAD", str, len, padstr);
     }
 
     /**
@@ -954,7 +954,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         FuncExpUtils.assertTextExp(str);
         FuncExpUtils.assertIntExp(len);
         FuncExpUtils.assertTextExp(padstr);
-        return LiteralFunctions.threeArgFunc("RPAD", str, len, padstr, StringType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("RPAD", str, len, padstr);
     }
 
 
@@ -972,7 +972,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression ltrim(final Object str) {
         FuncExpUtils.assertTextExp(str);
-        return LiteralFunctions.oneArgFunc("LTRIM", str, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("LTRIM", str);
     }
 
     /**
@@ -989,7 +989,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression rtrim(final Object str) {
         FuncExpUtils.assertTextExp(str);
-        return LiteralFunctions.oneArgFunc("RTRIM", str, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("RTRIM", str);
     }
 
     /**
@@ -1044,7 +1044,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
             FuncExpUtils.addAllTextExp(argList, "str", strVariadic);
         }
 
-        return LiteralFunctions.multiArgFunc("MAKE_SET", argList, StringType.INSTANCE);
+        return LiteralFunctions.multiArgFunc("MAKE_SET", argList);
     }
 
     /**
@@ -1067,7 +1067,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_make-set">MAKE_SET(bits,str1,str2,...)</a>
      */
     public static SimpleExpression makeSet(final Object bits, Consumer<Clause._VariadicSpaceClause> consumer) {
-        return _oneAndVariadicStringConsumer("MAKE_SET", bits, 2, consumer, StringType.INSTANCE);
+        return _oneAndVariadicStringConsumer("MAKE_SET", bits, 2, consumer);
     }
 
     /**
@@ -1091,7 +1091,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_make-set">MAKE_SET(bits,str1,str2,...)</a>
      */
     public static SimpleExpression makeSet(final Object bits, SQLs.SymbolSpace space, Consumer<Clause._VariadicConsumer> consumer) {
-        return _oneAndVariadicStringConsumer("MAKE_SET", bits, 2, consumer, StringType.INSTANCE);
+        return _oneAndVariadicStringConsumer("MAKE_SET", bits, 2, consumer);
     }
 
 
@@ -1114,7 +1114,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
     public static SimpleExpression subString(final Object str, final Object pos) {
         FuncExpUtils.assertTextExp(str);
         FuncExpUtils.assertIntExp(pos);
-        return LiteralFunctions.twoArgFunc("SUBSTRING", str, pos, StringType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("SUBSTRING", str, pos);
     }
 
     /**
@@ -1142,7 +1142,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         FuncExpUtils.assertTextExp(str);
         FuncExpUtils.assertIntExp(pos);
         FuncExpUtils.assertIntExp(len);
-        return LiteralFunctions.threeArgFunc("SUBSTRING", str, pos, len, StringType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("SUBSTRING", str, pos, len);
     }
 
     /**
@@ -1158,7 +1158,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_oct">OCT(N)</a>
      */
     public static SimpleExpression oct(final Object n) {
-        return LiteralFunctions.oneArgFunc("OCT", n, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("OCT", n);
     }
 
     /**
@@ -1173,7 +1173,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression ord(final Object str) {
         FuncExpUtils.assertTextExp(str);
-        return LiteralFunctions.oneArgFunc("ORD", str, IntegerType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("ORD", str);
     }
 
     /**
@@ -1201,7 +1201,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         if (in != SQLs.IN) {
             throw CriteriaUtils.unknownWords(in);
         }
-        return LiteralFunctions.compositeFunc("POSITION", Arrays.asList(substr, in, str), IntegerType.INSTANCE);
+        return LiteralFunctions.compositeFunc("POSITION", Arrays.asList(substr, in, str));
     }
 
 
@@ -1218,7 +1218,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression quote(final Object str) {
         FuncExpUtils.assertTextExp(str);
-        return LiteralFunctions.oneArgFunc("QUOTE", str, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("QUOTE", str);
     }
 
     /**
@@ -1240,7 +1240,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
     public static SimpleExpression repeat(final Object str, final Object count) {
         FuncExpUtils.assertTextExp(str);
         FuncExpUtils.assertIntExp(count);
-        return LiteralFunctions.twoArgFunc("REPEAT", str, count, StringType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("REPEAT", str, count);
     }
 
     /**
@@ -1268,7 +1268,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         FuncExpUtils.assertTextExp(str);
         FuncExpUtils.assertTextExp(fromStr);
         FuncExpUtils.assertTextExp(toStr);
-        return LiteralFunctions.threeArgFunc("REPLACE", str, fromStr, toStr, StringType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("REPLACE", str, fromStr, toStr);
     }
 
     /**
@@ -1284,7 +1284,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression reverse(final Object str) {
         FuncExpUtils.assertTextExp(str);
-        return LiteralFunctions.oneArgFunc("REVERSE", str, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("REVERSE", str);
     }
 
     /**
@@ -1306,7 +1306,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
     public static SimpleExpression right(final Object str, final Object len) {
         FuncExpUtils.assertTextExp(str);
         FuncExpUtils.assertIntExp(len);
-        return LiteralFunctions.twoArgFunc("RIGHT", str, len, StringType.INSTANCE);
+        return LiteralFunctions.twoArgFunc("RIGHT", str, len);
     }
 
     /**
@@ -1322,7 +1322,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression soundex(final Object str) {
         FuncExpUtils.assertTextExp(str);
-        return LiteralFunctions.oneArgFunc("SOUNDEX", str, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("SOUNDEX", str);
     }
 
 
@@ -1339,7 +1339,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression space(final Object n) {
         FuncExpUtils.assertIntExp(n);
-        return LiteralFunctions.oneArgFunc("SPACE", n, StringType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("SPACE", n);
     }
 
     /**
@@ -1367,7 +1367,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         FuncExpUtils.assertTextExp(str);
         FuncExpUtils.assertTextExp(delim);
         FuncExpUtils.assertIntExp(count);
-        return LiteralFunctions.threeArgFunc("SUBSTRING_INDEX", str, delim, count, StringType.INSTANCE);
+        return LiteralFunctions.threeArgFunc("SUBSTRING_INDEX", str, delim, count);
     }
 
 
@@ -1384,7 +1384,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression weightString(Object str) {
         FuncExpUtils.assertTextExp(str);
-        return LiteralFunctions.oneArgFunc("WEIGHT_STRING", str, VarBinaryType.INSTANCE);
+        return LiteralFunctions.oneArgFunc("WEIGHT_STRING", str);
     }
 
     /**
@@ -1407,7 +1407,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression weightString(Object str, SQLs.WordAs as, TypeDef type) {
         _checkWeightStringArgs(str, as, type);
-        return LiteralFunctions.compositeFunc("WEIGHT_STRING", Arrays.asList(str, as, type), VarBinaryType.INSTANCE);
+        return LiteralFunctions.compositeFunc("WEIGHT_STRING", List.of(str, as, type));
     }
 
     /**
@@ -1435,7 +1435,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      */
     public static SimpleExpression weightString(Object str, SQLs.WordAs as, TypeDef type, Object flags) {
         _checkWeightStringArgs(str, as, type);
-        return LiteralFunctions.compositeFunc("WEIGHT_STRING", Arrays.asList(str, as, type, flags), VarBinaryType.INSTANCE);
+        return LiteralFunctions.compositeFunc("WEIGHT_STRING", List.of(str, as, type, flags));
     }
 
 
@@ -1450,8 +1450,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      * @see #elt(Object, SQLs.SymbolSpace, Consumer)
      */
     private static SimpleExpression _oneAndVariadicStringConsumer(final String name, Object one, final int min,
-                                                                  Consumer<? super FuncExpUtils.VariadicClause> consumer,
-                                                                  TypeMeta returnType) {
+                                                                  Consumer<? super FuncExpUtils.VariadicClause> consumer) {
         final ArrayList<Object> arrayList = _Collections.arrayList(1 + min + 2);
         arrayList.add(one);
 
@@ -1460,7 +1459,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         if (argList.size() < (1 + min)) {
             throw ContextStack.clearStackAndCriteriaError(String.format("variadic argument count must great than or equal %s", min));
         }
-        return LiteralFunctions.multiArgFunc(name, argList, returnType);
+        return LiteralFunctions.multiArgFunc(name, argList);
     }
 
 
@@ -1478,14 +1477,14 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
 
         final SimpleExpression func;
         if (separator == null && numberOfBits == null) {
-            func = LiteralFunctions.threeArgFunc(name, bits, on, off, StringType.INSTANCE);
+            func = LiteralFunctions.threeArgFunc(name, bits, on, off);
         } else if (numberOfBits != null) {
             FuncExpUtils.assertTextExp(separator);
             FuncExpUtils.assertIntExp(numberOfBits);
-            func = LiteralFunctions.fiveArgFunc(name, bits, on, off, separator, numberOfBits, StringType.INSTANCE);
+            func = LiteralFunctions.fiveArgFunc(name, bits, on, off, separator, numberOfBits);
         } else {
             FuncExpUtils.assertTextExp(separator);
-            func = LiteralFunctions.fourArgFunc(name, bits, on, off, separator, StringType.INSTANCE);
+            func = LiteralFunctions.fourArgFunc(name, bits, on, off, separator);
         }
         return func;
     }
@@ -1495,7 +1494,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
      * @see #elt(Object, Object, Object, Object, Object...)
      * @see #field(Object, Object, Object, Object, Object...)
      */
-    private static SimpleExpression _oneAndThreeStrVariadic(final String name, TypeMeta returnType, Object one,
+    private static SimpleExpression _oneAndThreeStrVariadic(final String name, Object one,
                                                             Object str1, Object str2, Object str3, Object... strVariadic) {
         FuncExpUtils.assertTextExp(str1);
         FuncExpUtils.assertTextExp(str2);
@@ -1509,7 +1508,7 @@ abstract class MySQLStringFunctions extends MySQLNumberFunctions {
         argList.add(str3);
 
         FuncExpUtils.addAllTextExp(argList, "str", strVariadic);
-        return LiteralFunctions.multiArgFunc(name, argList, StringType.INSTANCE);
+        return LiteralFunctions.multiArgFunc(name, argList);
     }
 
 

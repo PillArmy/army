@@ -48,10 +48,6 @@ class ArmySortItems implements ArmySortItem {
         this.order = order;
     }
 
-    @Override
-    public final TypeMeta typeMeta() {
-        return this.sortItem.typeMeta();
-    }
 
     @Override
     public final SortItem asSortItem() {

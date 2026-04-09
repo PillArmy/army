@@ -88,7 +88,7 @@ abstract class PostgreBlocks {
         }
 
         @Override
-        public SQLWords modifier() {
+        public SQLToken modifier() {
             return this.modifier;
         }
 
@@ -140,7 +140,7 @@ abstract class PostgreBlocks {
         }
 
         @Override
-        public SQLWords modifier() {
+        public SQLToken modifier() {
             return this.modifier;
         }
 

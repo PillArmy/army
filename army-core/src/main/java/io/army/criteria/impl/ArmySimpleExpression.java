@@ -16,6 +16,8 @@
 
 package io.army.criteria.impl;
 
+import io.army.criteria.SimpleExpression;
+
 /**
  * <p>
  * Package interface. This interface is base interface of below:
@@ -31,7 +33,7 @@ package io.army.criteria.impl;
  *     </ul>
  ** @since 0.6.0
  */
-interface ArmySimpleExpression extends ArmyExpression, ArmySimpleSQLExpression {
+interface ArmySimpleExpression extends ArmyExpression, SimpleExpression, ArmySimpleSQLExpression {
 
 
 }

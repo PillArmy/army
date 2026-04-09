@@ -91,7 +91,7 @@ abstract class CriteriaUtils {
     static List<String> columnAliasList(final boolean required, Consumer<Consumer<String>> consumer) {
         List<String> list = _Collections.arrayList();
         consumer.accept(list::add);
-        if (list.size() > 0) {
+        if (!list.isEmpty()) {
             list = _Collections.unmodifiableList(list);
         } else if (required) {
             list = Collections.emptyList();
@@ -105,7 +105,7 @@ abstract class CriteriaUtils {
                                    final Consumer<Consumer<String>> consumer) {
         List<String> list = _Collections.arrayList();
         consumer.accept(list::add);
-        if (list.size() > 0) {
+        if (!list.isEmpty()) {
             list = _Collections.unmodifiableList(list);
         } else if (!required) {
             list = Collections.emptyList();
@@ -274,7 +274,7 @@ abstract class CriteriaUtils {
     static List<_SelectItem> selectionList(CriteriaContext context, Consumer<Returnings> consumer) {
         final List<_SelectItem> list = _Collections.arrayList();
         consumer.accept(CriteriaSupports.returningBuilder(list::add));
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             throw CriteriaUtils.returningListIsEmpty(context);
         }
         return list;
@@ -361,8 +361,7 @@ abstract class CriteriaUtils {
 
         if (selectItemSize == 0) {
             selectionMap = Collections.emptyMap();
-        } else if (selectItemSize == 1 && selectItemList.get(0) instanceof Selection) {
-            final Selection selection = (Selection) selectItemList.get(0);
+        } else if (selectItemSize == 1 && selectItemList.getFirst() instanceof Selection selection) {
             selectionMap = Collections.singletonMap(selection.label(), selection);
         } else {
             final Map<String, Selection> map = _Collections.hashMap((int) (selectItemSize / 0.75F));
@@ -882,7 +881,7 @@ abstract class CriteriaUtils {
         return ContextStack.clearStackAndCriteriaError(m);
     }
 
-    static CriteriaException errorModifier(@Nullable SQLWords modifier) {
+    static CriteriaException errorModifier(@Nullable SQLToken modifier) {
         String m = String.format("error modifier[%s]", modifier);
         return ContextStack.clearStackAndCriteriaError(m);
     }

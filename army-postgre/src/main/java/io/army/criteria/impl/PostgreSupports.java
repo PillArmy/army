@@ -88,7 +88,7 @@ abstract class PostgreSupports extends CriteriaSupports {
 
         private ArmyExpression seed;
 
-        PostgreTableOnBlock(_JoinType joinType, @Nullable SQLWords modifier, TableMeta<?> table, String alias, OR stmt) {
+        PostgreTableOnBlock(_JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> table, String alias, OR stmt) {
             super(joinType, modifier, table, alias, stmt);
         }
 
@@ -236,7 +236,7 @@ abstract class PostgreSupports extends CriteriaSupports {
 
         private ArmyExpression seed;
 
-        FromClauseTableBlock(_JoinType joinType, @Nullable SQLWords modifier, TableMeta<?> table, String alias) {
+        FromClauseTableBlock(_JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> table, String alias) {
             super(joinType, modifier, table, alias);
         }
 
@@ -394,10 +394,10 @@ abstract class PostgreSupports extends CriteriaSupports {
                 } else {
                     columnTypeList = _Collections.arrayList(columnList.size());
                 }
-
-                final Consumer<Selection> consumer;
-                consumer = s -> columnTypeList.add(s.typeMeta().mappingType());
-                CriteriaUtils.refSelectionList(columnList, this.columnALiasList, (_SelectionMap) this.subQuery, consumer);
+                // TODO fix me
+//                final Consumer<Selection> consumer;
+//                consumer = s -> columnTypeList.add(s.typeMeta().mappingType());
+//                CriteriaUtils.refSelectionList(columnList, this.columnALiasList, (_SelectionMap) this.subQuery, consumer);
 
                 final MappingType type;
                 if (breadth) {
@@ -606,13 +606,14 @@ abstract class PostgreSupports extends CriteriaSupports {
             if (cycleMarkValue == null) {
                 this.cycleMarkSelection = ArmySelections.forName(this.cycleMarkColumnName, BooleanType.INSTANCE);
             } else {
-                this.cycleMarkSelection = ArmySelections.forName(this.cycleMarkColumnName, cycleMarkValue.typeMeta().mappingType());
+                this.cycleMarkSelection = ArmySelections.forName(this.cycleMarkColumnName); // TODO fix me
             }
 
             final List<MappingType> columnTypeList = _Collections.arrayList(columnList.size());
-            final Consumer<Selection> consumer;
-            consumer = s -> columnTypeList.add(s.typeMeta().mappingType());
-            CriteriaUtils.refSelectionList(columnList, this.columnALiasList, (_SelectionMap) this.subQuery, consumer);
+            // TODO fix me
+//            final Consumer<Selection> consumer;
+//            consumer = s -> columnTypeList.add(s.typeMeta().mappingType());
+//            CriteriaUtils.refSelectionList(columnList, this.columnALiasList, (_SelectionMap) this.subQuery, consumer);
 
             this.cyclePathSelection = ArmySelections.forName(this.cyclePathColumnName, SqlRecordArrayType.fromRow(SqlRecord[].class, columnTypeList));
             return true;

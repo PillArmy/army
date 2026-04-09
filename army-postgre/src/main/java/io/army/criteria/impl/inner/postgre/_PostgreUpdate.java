@@ -16,7 +16,7 @@
 
 package io.army.criteria.impl.inner.postgre;
 
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 import io.army.criteria.impl.SQLs;
 import io.army.criteria.impl.inner._DialectStatement;
 import io.army.criteria.impl.inner._JoinableUpdate;
@@ -28,7 +28,7 @@ public interface _PostgreUpdate extends _SingleUpdate, _DialectStatement, _State
         _JoinableUpdate, _Statement._ReturningListSpec, _Statement._WithDmlSpec {
 
     @Nullable
-    SQLWords modifier();
+    SQLToken modifier();
 
     @Nullable
     SQLs.SymbolAsterisk asterisk();

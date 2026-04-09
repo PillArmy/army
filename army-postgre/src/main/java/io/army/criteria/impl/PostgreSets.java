@@ -66,7 +66,7 @@ final class PostgreSets extends CriteriaSupports.StatementMockSupport
         if (this.pair != null) {
             throw ContextStack.clearStackAndCastCriteriaApi();
         }
-        this.pair = new ParamValue(scope, name, equal, ArrayUtils.of(value1, value2));
+        this.pair = new ParamValue(scope, name, equal, List.of(value1, value2));
         return this;
     }
 
@@ -75,7 +75,7 @@ final class PostgreSets extends CriteriaSupports.StatementMockSupport
         if (this.pair != null) {
             throw ContextStack.clearStackAndCastCriteriaApi();
         }
-        this.pair = new ParamValue(scope, name, equal, ArrayUtils.of(value1, value2, value3));
+        this.pair = new ParamValue(scope, name, equal, List.of(value1, value2, value3));
         return this;
     }
 
@@ -84,7 +84,7 @@ final class PostgreSets extends CriteriaSupports.StatementMockSupport
         if (this.pair != null) {
             throw ContextStack.clearStackAndCastCriteriaApi();
         }
-        this.pair = new ParamValue(scope, name, equal, ArrayUtils.of(value1, value2, value3, value4));
+        this.pair = new ParamValue(scope, name, equal, List.of(value1, value2, value3, value4));
         return this;
     }
 

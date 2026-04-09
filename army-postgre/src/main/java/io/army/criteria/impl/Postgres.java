@@ -109,35 +109,35 @@ public abstract class Postgres extends PostgreSyntax {
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">current_date → date</a>
      */
-    public static final Expression CURRENT_DATE = LiteralFunctions.noParensFunc("current_date", LocalDateType.INSTANCE);
+    public static final Expression CURRENT_DATE = LiteralFunctions.noParensFunc("current_date");
     /**
      * <p>
      * The {@link MappingType} of function return type: {@link  OffsetTimeType}
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">current_time</a>
      */
-    public static final Expression CURRENT_TIME = LiteralFunctions.noParensFunc("current_time", OffsetTimeType.INSTANCE);
+    public static final Expression CURRENT_TIME = LiteralFunctions.noParensFunc("current_time");
     /**
      * <p>
      * The {@link MappingType} of function return type: {@link  OffsetDateTimeType}
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">current_timestamp → timestamp with time zone</a>
      */
-    public static final Expression CURRENT_TIMESTAMP = LiteralFunctions.noParensFunc("current_timestamp", OffsetDateTimeType.INSTANCE);
+    public static final Expression CURRENT_TIMESTAMP = LiteralFunctions.noParensFunc("current_timestamp");
     /**
      * <p>
      * The {@link MappingType} of function return type: {@link  LocalTimeType}
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">localtime → time</a>
      */
-    public static final Expression LOCALTIME = LiteralFunctions.noParensFunc("localtime", LocalTimeType.INSTANCE);
+    public static final Expression LOCALTIME = LiteralFunctions.noParensFunc("localtime");
     /**
      * <p>
      * The {@link MappingType} of function return type: {@link  LocalDateTimeType}
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">localtimestamp → timestamp</a>
      */
-    public static final Expression LOCALTIMESTAMP = LiteralFunctions.noParensFunc("localtimestamp", LocalDateTimeType.INSTANCE);
+    public static final Expression LOCALTIMESTAMP = LiteralFunctions.noParensFunc("localtimestamp");
 
     /**
      * <p>
@@ -145,7 +145,7 @@ public abstract class Postgres extends PostgreSyntax {
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">current_catalog → name</a>
      */
-    public static final Expression CURRENT_CATALOG = LiteralFunctions.noParensFunc("current_catalog", TextType.INSTANCE);
+    public static final Expression CURRENT_CATALOG = LiteralFunctions.noParensFunc("current_catalog");
 
     /**
      * <p>
@@ -153,7 +153,7 @@ public abstract class Postgres extends PostgreSyntax {
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">current_user → name</a>
      */
-    public static final Expression CURRENT_USER = LiteralFunctions.noParensFunc("current_user", TextType.INSTANCE);
+    public static final Expression CURRENT_USER = LiteralFunctions.noParensFunc("current_user");
 
 
     /**
@@ -162,7 +162,7 @@ public abstract class Postgres extends PostgreSyntax {
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">session_user → name</a>
      */
-    public static final Expression SESSION_USER = LiteralFunctions.noParensFunc("session_user", TextType.INSTANCE);
+    public static final Expression SESSION_USER = LiteralFunctions.noParensFunc("session_user");
 
     /**
      * <p>
@@ -170,7 +170,7 @@ public abstract class Postgres extends PostgreSyntax {
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">user → name</a>
      */
-    public static final Expression USER = LiteralFunctions.noParensFunc("user", TextType.INSTANCE);
+    public static final Expression USER = LiteralFunctions.noParensFunc("user");
 
     /**
      * <p>create single-table INSERT statement that is primary statement.
@@ -525,7 +525,7 @@ public abstract class Postgres extends PostgreSyntax {
 
     }
 
-    public interface WordName extends SQLWords {
+    public interface WordName extends SQLToken {
 
     }
 

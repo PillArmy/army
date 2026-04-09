@@ -66,7 +66,7 @@ abstract class MySQLSupports extends CriteriaSupports {
         if (indexName1 == null || indexName2 == null) {
             throw ContextStack.clearStackAndNullPointer();
         }
-        return new MySQLIndexHint(command, null, ArrayUtils.of(indexName1, indexName2));
+        return new MySQLIndexHint(command, null, List.of(indexName1, indexName2));
     }
 
     static _IndexHint indexHint(IndexHintCommand command, @Nullable String indexName1, @Nullable String indexName2,
@@ -74,7 +74,7 @@ abstract class MySQLSupports extends CriteriaSupports {
         if (indexName1 == null || indexName2 == null || indexName3 == null) {
             throw ContextStack.clearStackAndNullPointer();
         }
-        return new MySQLIndexHint(command, null, ArrayUtils.of(indexName1, indexName2, indexName3));
+        return new MySQLIndexHint(command, null, List.of(indexName1, indexName2, indexName3));
     }
 
     static _IndexHint indexHint(IndexHintCommand command, Consumer<Clause._StaticStringSpaceClause> consumer) {
@@ -116,7 +116,7 @@ abstract class MySQLSupports extends CriteriaSupports {
         } else if (wordFor != SQLs.FOR) {
             throw CriteriaUtils.unknownWords(wordFor);
         }
-        return new MySQLIndexHint(command, target, ArrayUtils.of(indexName1, indexName2));
+        return new MySQLIndexHint(command, target, List.of(indexName1, indexName2));
     }
 
     static _IndexHint indexHint(IndexHintCommand command, SQLs.WordFor wordFor, SQLs.IndexHintPurpose target,
@@ -126,7 +126,7 @@ abstract class MySQLSupports extends CriteriaSupports {
         } else if (wordFor != SQLs.FOR) {
             throw CriteriaUtils.unknownWords(wordFor);
         }
-        return new MySQLIndexHint(command, target, ArrayUtils.of(indexName1, indexName2, indexName3));
+        return new MySQLIndexHint(command, target, List.of(indexName1, indexName2, indexName3));
     }
 
     static _IndexHint indexHint(IndexHintCommand command, SQLs.WordFor wordFor, SQLs.IndexHintPurpose target,
@@ -286,7 +286,7 @@ abstract class MySQLSupports extends CriteriaSupports {
 
         @Nullable
         @Override
-        public SQLWords modifier() {
+        public SQLToken modifier() {
             //always null, MySQL table don't support modifier
             return null;
         }
@@ -567,7 +567,7 @@ abstract class MySQLSupports extends CriteriaSupports {
 
         @Nullable
         @Override
-        public final SQLWords modifier() {
+        public final SQLToken modifier() {
             //always null, MySQL table don't support modifier
             return null;
         }
@@ -684,7 +684,7 @@ abstract class MySQLSupports extends CriteriaSupports {
         }
 
         @Override
-        public final SQLWords modifier() {
+        public final SQLToken modifier() {
             return null;
         }
 
@@ -703,7 +703,7 @@ abstract class MySQLSupports extends CriteriaSupports {
     }//PartitionAsClause
 
 
-    enum IndexHintCommand implements SQLWords {
+    enum IndexHintCommand implements SQLToken {
 
         USE_INDEX(" USE INDEX"),
         IGNORE_INDEX(" IGNORE INDEX"),
@@ -752,12 +752,12 @@ abstract class MySQLSupports extends CriteriaSupports {
 
 
         @Override
-        public SQLWords command() {
+        public SQLToken command() {
             return this.command;
         }
 
         @Override
-        public SQLWords purpose() {
+        public SQLToken purpose() {
             return this.purpose;
         }
 

@@ -55,8 +55,8 @@ public interface SQLFunction extends Item {
 
         <T> _CaseEndClause elseValue(Function<T, Expression> valueOperator, Supplier<T> getter);
 
-        <T> _CaseEndClause elseValue(ExpressionOperator<SimpleExpression, T, Expression> expOperator,
-                                     BiFunction<SimpleExpression, T, Expression> valueOperator, T value);
+        <T> _CaseEndClause elseValue(ExpressionOperator<TypedExpression, T, Expression> expOperator,
+                                     BiFunction<TypedExpression, T, Expression> valueOperator, T value);
 
         _CaseEndClause ifElse(Supplier<?> supplier);
 
@@ -64,11 +64,11 @@ public interface SQLFunction extends Item {
 
         <K, V> _CaseEndClause ifElse(Function<V, Expression> valueOperator, Function<K, V> function, K key);
 
-        <T> _CaseEndClause ifElse(ExpressionOperator<SimpleExpression, T, Expression> expOperator,
-                                  BiFunction<SimpleExpression, T, Expression> valueOperator, Supplier<T> getter);
+        <T> _CaseEndClause ifElse(ExpressionOperator<TypedExpression, T, Expression> expOperator,
+                                  BiFunction<TypedExpression, T, Expression> valueOperator, Supplier<T> getter);
 
-        <K, V> _CaseEndClause ifElse(ExpressionOperator<SimpleExpression, V, Expression> expOperator,
-                                     BiFunction<SimpleExpression, V, Expression> valueOperator, Function<K, V> function,
+        <K, V> _CaseEndClause ifElse(ExpressionOperator<TypedExpression, V, Expression> expOperator,
+                                     BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function,
                                      K key);
 
 
@@ -84,8 +84,8 @@ public interface SQLFunction extends Item {
 
         <T> Item then(Function<T, Expression> valueOperator, Supplier<T> getter);
 
-        <T> Item then(ExpressionOperator<SimpleExpression, T, Expression> expOperator,
-                      BiFunction<SimpleExpression, T, Expression> valueOperator, T value);
+        <T> Item then(ExpressionOperator<TypedExpression, T, Expression> expOperator,
+                      BiFunction<TypedExpression, T, Expression> valueOperator, T value);
 
     }
 
@@ -100,10 +100,10 @@ public interface SQLFunction extends Item {
 
         <T> _SqlCaseThenClause space(Function<T, Expression> valueOperator, Supplier<T> getter);
 
-        <T> _SqlCaseThenClause space(ExpressionOperator<SimpleExpression, T, Expression> expOperator,
-                                     BiFunction<SimpleExpression, T, Expression> valueOperator, T value);
+        <T> _SqlCaseThenClause space(ExpressionOperator<TypedExpression, T, Expression> expOperator,
+                                     BiFunction<TypedExpression, T, Expression> valueOperator, T value);
 
-        <T> _SqlCaseThenClause space(BetweenValueOperator<T> expOperator, BiFunction<SimpleExpression, T, Expression> operator,
+        <T> _SqlCaseThenClause space(BetweenValueOperator<T> expOperator, BiFunction<TypedExpression, T, Expression> operator,
                                      T firstValue, SQLs.WordAnd and, T secondValue);
 
         _SqlCaseThenClause space(BetweenOperator expOperator, Expression first, SQLs.WordAnd and, Expression second);
@@ -124,10 +124,10 @@ public interface SQLFunction extends Item {
 
         <T> Item when(Function<T, Expression> valueOperator, Supplier<T> getter);
 
-        <T> Item when(ExpressionOperator<SimpleExpression, T, Expression> expOperator,
-                      BiFunction<SimpleExpression, T, Expression> valueOperator, T value);
+        <T> Item when(ExpressionOperator<TypedExpression, T, Expression> expOperator,
+                      BiFunction<TypedExpression, T, Expression> valueOperator, T value);
 
-        <T> Item when(BetweenValueOperator<T> expOperator, BiFunction<SimpleExpression, T, Expression> operator,
+        <T> Item when(BetweenValueOperator<T> expOperator, BiFunction<TypedExpression, T, Expression> operator,
                       T firstValue, SQLs.WordAnd and, T secondValue);
 
         Item when(BetweenOperator expOperator, Expression first, SQLs.WordAnd and, Expression second);
@@ -152,7 +152,7 @@ public interface SQLFunction extends Item {
         <T> _CaseWhenSpec then(Function<T, Expression> valueOperator, Supplier<T> getter);
 
         @Override
-        <T> _CaseWhenSpec then(ExpressionOperator<SimpleExpression, T, Expression> expOperator, BiFunction<SimpleExpression, T, Expression> valueOperator, T value);
+        <T> _CaseWhenSpec then(ExpressionOperator<TypedExpression, T, Expression> expOperator, BiFunction<TypedExpression, T, Expression> valueOperator, T value);
     }
 
 
@@ -174,10 +174,10 @@ public interface SQLFunction extends Item {
         <T> _StaticCaseThenClause when(Function<T, Expression> valueOperator, Supplier<T> getter);
 
         @Override
-        <T> _StaticCaseThenClause when(ExpressionOperator<SimpleExpression, T, Expression> expOperator, BiFunction<SimpleExpression, T, Expression> valueOperator, T value);
+        <T> _StaticCaseThenClause when(ExpressionOperator<TypedExpression, T, Expression> expOperator, BiFunction<TypedExpression, T, Expression> valueOperator, T value);
 
         @Override
-        <T> _StaticCaseThenClause when(BetweenValueOperator<T> expOperator, BiFunction<SimpleExpression, T, Expression> operator, T firstValue, SQLs.WordAnd and, T secondValue);
+        <T> _StaticCaseThenClause when(BetweenValueOperator<T> expOperator, BiFunction<TypedExpression, T, Expression> operator, T firstValue, SQLs.WordAnd and, T secondValue);
 
         @Override
         _StaticCaseThenClause when(BetweenOperator expOperator, Expression first, SQLs.WordAnd and, Expression second);
@@ -202,7 +202,7 @@ public interface SQLFunction extends Item {
         <T> CaseWhens then(Function<T, Expression> valueOperator, Supplier<T> getter);
 
         @Override
-        <T> CaseWhens then(ExpressionOperator<SimpleExpression, T, Expression> expOperator, BiFunction<SimpleExpression, T, Expression> valueOperator, T value);
+        <T> CaseWhens then(ExpressionOperator<TypedExpression, T, Expression> expOperator, BiFunction<TypedExpression, T, Expression> valueOperator, T value);
     }
 
 
@@ -221,10 +221,10 @@ public interface SQLFunction extends Item {
         <T> _DynamicCaseThenClause when(Function<T, Expression> valueOperator, Supplier<T> getter);
 
         @Override
-        <T> _DynamicCaseThenClause when(ExpressionOperator<SimpleExpression, T, Expression> expOperator, BiFunction<SimpleExpression, T, Expression> valueOperator, T value);
+        <T> _DynamicCaseThenClause when(ExpressionOperator<TypedExpression, T, Expression> expOperator, BiFunction<TypedExpression, T, Expression> valueOperator, T value);
 
         @Override
-        <T> _DynamicCaseThenClause when(BetweenValueOperator<T> expOperator, BiFunction<SimpleExpression, T, Expression> operator, T firstValue, SQLs.WordAnd and, T secondValue);
+        <T> _DynamicCaseThenClause when(BetweenValueOperator<T> expOperator, BiFunction<TypedExpression, T, Expression> operator, T firstValue, SQLs.WordAnd and, T secondValue);
 
         @Override
         _DynamicCaseThenClause when(BetweenOperator expOperator, Expression first, SQLs.WordAnd and, Expression second);

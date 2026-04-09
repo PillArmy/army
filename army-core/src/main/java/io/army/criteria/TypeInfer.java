@@ -24,12 +24,5 @@ public interface TypeInfer extends Item {
     TypeMeta typeMeta();
 
 
-    interface TypeUpdateSpec extends TypeInfer {
-
-        TypeInfer mapTo(TypeMeta typeMeta);
-
-    }
-
-
 
 }

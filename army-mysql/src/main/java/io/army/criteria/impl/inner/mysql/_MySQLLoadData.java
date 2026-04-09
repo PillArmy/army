@@ -16,7 +16,7 @@
 
 package io.army.criteria.impl.inner.mysql;
 
-import io.army.criteria.SQLWords;
+import io.army.criteria.SQLToken;
 import io.army.criteria.impl.MySQLs;
 import io.army.criteria.impl._Pair;
 import io.army.criteria.impl.inner._DialectStatement;
@@ -37,7 +37,7 @@ public interface _MySQLLoadData extends _Statement, _DialectStatement {
     Path fileName();
 
     @Nullable
-    SQLWords strategyOption();
+    SQLToken strategyOption();
 
     TableMeta<?> table();
 
@@ -72,7 +72,7 @@ public interface _MySQLLoadData extends _Statement, _DialectStatement {
     Long ignoreRows();
 
     @Nullable
-    SQLWords ignoreRowWord();
+    SQLToken ignoreRowWord();
 
     List<_Expression> columnOrUserVarList();
 

@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
 import io.army.lang.Nullable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.time.*;
 
 /**
@@ -43,7 +45,7 @@ import java.time.*;
  *
  * @since 0.6.0
  */
-abstract class MySQLStmtExecutor extends JdbdExecutor {
+abstract class MySQLExecutor extends JdbdExecutor {
 
     static ReactiveLocalExecutor localExecutor(JdbdStmtExecutorFactory factory, LocalDatabaseSession session, String name) {
         return new LocalExecutor(factory, session, name);
@@ -63,28 +65,20 @@ abstract class MySQLStmtExecutor extends JdbdExecutor {
         return null;
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(MySQLStmtExecutor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MySQLExecutor.class);
 
     private static final Option<Boolean> WITH_CONSISTENT_SNAPSHOT = Option.from("WITH CONSISTENT SNAPSHOT", Boolean.class);
 
     /**
      * private constructor
      */
-    private MySQLStmtExecutor(JdbdStmtExecutorFactory factory, DatabaseSession session, String name) {
+    private MySQLExecutor(JdbdStmtExecutorFactory factory, DatabaseSession session, String name) {
         super(factory, session, name);
     }
 
     @Override
     final Logger getLogger() {
         return LOG;
-    }
-
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/data-types.html">MySQL Data Types</a>
-     */
-    @Override
-    final DataType getDataType(final ResultRowMeta meta, final int indexBasedZero) {
-        return getMySqlType(meta.getDataType(indexBasedZero).typeName());
     }
 
 
@@ -295,6 +289,13 @@ abstract class MySQLStmtExecutor extends JdbdExecutor {
         statement.bind(indexBasedZero, jdbdType, bindValue);
     }
 
+    /**
+     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/data-types.html">MySQL Data Types</a>
+     */
+    @Override
+    final DataType dataTypeMap(ResultRowMeta meta, MappingType[] typeArray, int indexBasedZero) {
+        return getMySqlType(meta.getDataType(indexBasedZero).typeName(), typeArray, indexBasedZero);
+    }
 
     @Nullable
     @Override
@@ -404,7 +405,7 @@ abstract class MySQLStmtExecutor extends JdbdExecutor {
         return value;
     }
 
-    private static final class LocalExecutor extends MySQLStmtExecutor implements ReactiveLocalExecutor {
+    private static final class LocalExecutor extends MySQLExecutor implements ReactiveLocalExecutor {
 
         private LocalExecutor(JdbdStmtExecutorFactory factory, LocalDatabaseSession session, String name) {
             super(factory, session, name);
@@ -413,7 +414,7 @@ abstract class MySQLStmtExecutor extends JdbdExecutor {
 
     } // LocalExecutor
 
-    private static final class RmExecutor extends MySQLStmtExecutor implements ReactiveRmExecutor {
+    private static final class RmExecutor extends MySQLExecutor implements ReactiveRmExecutor {
 
         private RmExecutor(JdbdStmtExecutorFactory factory, RmDatabaseSession session, String name) {
             super(factory, session, name);

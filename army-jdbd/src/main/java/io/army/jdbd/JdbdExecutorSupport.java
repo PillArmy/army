@@ -19,6 +19,7 @@ package io.army.jdbd;
 import io.army.criteria.Selection;
 import io.army.executor.DataAccessException;
 import io.army.executor.ReactiveExecutorSupport;
+import io.army.mapping.MappingType;
 import io.army.option.Option;
 import io.army.result.*;
 import io.army.sqltype.DataType;
@@ -49,8 +50,9 @@ abstract class JdbdExecutorSupport extends ReactiveExecutorSupport {
 
         private Set<Option<?>> optionSet;
 
-        private JdbdRecordMeta(int resultNo, DataType[] dataTypeArray, JdbdExecutor executor, ResultRowMeta meta) {
-            super(resultNo, dataTypeArray, executor.factory.executorEnv);
+        private JdbdRecordMeta(int resultNo, DataType[] dataTypeArray, MappingType[] typeArray,
+                               JdbdExecutor executor, ResultRowMeta meta) {
+            super(resultNo, dataTypeArray, typeArray, executor.factory.executorEnv);
             this.executor = executor;
             this.meta = meta;
         }
@@ -278,9 +280,9 @@ abstract class JdbdExecutorSupport extends ReactiveExecutorSupport {
 
         private List<String> columnLabelList;
 
-        JdbdStmtRecordMeta(int resultNo, DataType[] dataTypeArray, List<? extends Selection> selectionList,
+        JdbdStmtRecordMeta(int resultNo, DataType[] dataTypeArray, MappingType[] typeArray, List<? extends Selection> selectionList,
                            JdbdExecutor executor, ResultRowMeta meta) {
-            super(resultNo, dataTypeArray, executor, meta);
+            super(resultNo, dataTypeArray, typeArray, executor, meta);
             this.selectionList = selectionList;
             assert selectionList.size() == dataTypeArray.length;
         }

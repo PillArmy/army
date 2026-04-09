@@ -136,7 +136,7 @@ abstract class ClauseUtils {
         return (List<_Expression>) clause.endClause();
     }
 
-    static VariadicExpressionClause variadicExpressionClause(boolean required, @Nullable SQLWords separator, ArrayList<Object> expList) {
+    static VariadicExpressionClause variadicExpressionClause(boolean required, @Nullable SQLToken separator, ArrayList<Object> expList) {
         return new VariadicExpressionClause(required, separator, expList);
     }
 
@@ -318,13 +318,13 @@ abstract class ClauseUtils {
 
         private final boolean required;
 
-        private final SQLWords separator;
+        private final SQLToken separator;
 
         private final int startLength;
 
         private List<Object> expList;
 
-        private VariadicExpressionClause(boolean required, @Nullable SQLWords separator, @Nullable ArrayList<Object> expList) {
+        private VariadicExpressionClause(boolean required, @Nullable SQLToken separator, @Nullable ArrayList<Object> expList) {
             this.required = required;
             this.separator = separator;
             this.expList = expList;
@@ -371,7 +371,7 @@ abstract class ClauseUtils {
                 throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
             }
 
-            final SQLWords separator = this.separator;
+            final SQLToken separator = this.separator;
             if (separator != null && expList.size() > this.startLength) {
                 expList.add(separator);
             }

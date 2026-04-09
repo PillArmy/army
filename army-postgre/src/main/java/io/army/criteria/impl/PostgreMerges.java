@@ -742,7 +742,7 @@ abstract class PostgreMerges {
 
         @Nullable
         @Override
-        public final SQLWords overridingValueWords() {
+        public final SQLToken overridingValueWords() {
             return this.overridingMode;
         }
 
@@ -841,7 +841,7 @@ abstract class PostgreMerges {
 
         @Nullable
         @Override
-        public SQLWords targetModifier() {
+        public SQLToken targetModifier() {
             return this.targetOnly;
         }
 

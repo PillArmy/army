@@ -45,7 +45,7 @@ public final class MyRowType extends UserMappingType
 
     private static final DataType DATA_TYPE = DataType.from("MYROWTYPE");
 
-    private static final List<CompositeTypeField> FIELD_LIST = ArrayUtils.of(
+    private static final List<CompositeTypeField> FIELD_LIST = List.of(
             CompositeTypeField.from("a", IntegerType.INSTANCE),
             CompositeTypeField.from("b", TextArrayType.LINEAR),
             CompositeTypeField.from("c", MySubRowType.INSTANCE)

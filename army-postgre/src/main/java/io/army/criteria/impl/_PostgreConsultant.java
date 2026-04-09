@@ -162,7 +162,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
         }
     }
 
-    public static int queryModifier(final SQLWords modifier) {
+    public static int queryModifier(final SQLToken modifier) {
         final int level;
         if (modifier == Postgres.DISTINCT || modifier == Postgres.ALL) {
             level = 0;

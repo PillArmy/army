@@ -46,54 +46,53 @@ abstract class LiteralFunctions {
         throw new UnsupportedOperationException();
     }
 
-    static SimpleExpression zeroArgFunc(String name, TypeMeta returnType) {
-        return new ZeroArgFunc(name, true, returnType);
+    static SimpleExpression zeroArgFunc(String name) {
+        return new ZeroArgFunc(name, true);
     }
 
-    static SimpleExpression myZeroArgFunc(String name, TypeMeta returnType) {
-        return new ZeroArgFunc(name, false, returnType);
+    static SimpleExpression myZeroArgFunc(String name) {
+        return new ZeroArgFunc(name, false);
     }
 
-    static SimpleExpression oneArgFunc(String name, @Nullable Object arg, TypeMeta returnType) {
-        return new OneArgFunc(name, true, arg, returnType);
+    static SimpleExpression oneArgFunc(String name, @Nullable Object arg) {
+        return new OneArgFunc(name, true, arg);
     }
 
-    static SimpleExpression myOneArgFunc(String name, @Nullable Object arg, TypeMeta returnType) {
-        return new OneArgFunc(name, false, arg, returnType);
+    static SimpleExpression myOneArgFunc(String name, @Nullable Object arg) {
+        return new OneArgFunc(name, false, arg);
     }
 
-    static SimpleExpression twoArgFunc(String name, @Nullable Object one, @Nullable Object two, TypeMeta returnType) {
-        return new TwoArgFunc(name, true, one, two, returnType);
+    static SimpleExpression twoArgFunc(String name, @Nullable Object one, @Nullable Object two) {
+        return new TwoArgFunc(name, true, one, two);
     }
 
-    static SimpleExpression myTwoArgFunc(String name, @Nullable Object one, @Nullable Object two, TypeMeta returnType) {
-        return new TwoArgFunc(name, false, one, two, returnType);
+    static SimpleExpression myTwoArgFunc(String name, @Nullable Object one, @Nullable Object two) {
+        return new TwoArgFunc(name, false, one, two);
     }
 
     static SimpleExpression threeArgFunc(String name, @Nullable Object one, @Nullable Object two,
-                                         @Nullable Object three, TypeMeta returnType) {
-        return new ThreeArgFunc(name, true, one, two, three, returnType);
+                                         @Nullable Object three) {
+        return new ThreeArgFunc(name, true, one, two, three);
     }
 
     static SimpleExpression myThreeArgFunc(String name, @Nullable Object one, @Nullable Object two,
-                                           @Nullable Object three, TypeMeta returnType) {
-        return new ThreeArgFunc(name, false, one, two, three, returnType);
+                                           @Nullable Object three) {
+        return new ThreeArgFunc(name, false, one, two, three);
     }
 
     static SimpleExpression fourArgFunc(String name, @Nullable Object one, @Nullable Object two,
-                                        @Nullable Object three, @Nullable Object four, TypeMeta returnType) {
+                                        @Nullable Object three, @Nullable Object four) {
         final List<Object> argList = _Collections.arrayList(4);
 
         argList.add(one);
         argList.add(two);
         argList.add(three);
         argList.add(four);
-        return new MultiArgFunc(name, true, argList, returnType);
+        return new MultiArgFunc(name, true, argList);
     }
 
     static SimpleExpression fiveArgFunc(String name, @Nullable Object one, @Nullable Object two,
-                                        @Nullable Object three, @Nullable Object four, @Nullable Object five,
-                                        TypeMeta returnType) {
+                                        @Nullable Object three, @Nullable Object four, @Nullable Object five) {
         final List<Object> argList = _Collections.arrayList(5);
 
         argList.add(one);
@@ -102,29 +101,29 @@ abstract class LiteralFunctions {
         argList.add(four);
 
         argList.add(five);
-        return new MultiArgFunc(name, true, argList, returnType);
+        return new MultiArgFunc(name, true, argList);
     }
 
 
-    static SimpleExpression multiArgFunc(String name, List<?> argList, TypeMeta returnType) {
-        return new MultiArgFunc(name, true, argList, returnType);
+    static SimpleExpression multiArgFunc(String name, List<?> argList) {
+        return new MultiArgFunc(name, true, argList);
     }
 
-    static SimpleExpression myMultiArgFunc(String name, List<?> argList, TypeMeta returnType) {
-        return new MultiArgFunc(name, false, argList, returnType);
+    static SimpleExpression myMultiArgFunc(String name, List<?> argList) {
+        return new MultiArgFunc(name, false, argList);
     }
 
-    static SimpleExpression compositeFunc(String name, List<?> argList, TypeMeta returnType) {
-        return new CompositeFunc(name, argList, returnType);
+    static SimpleExpression compositeFunc(String name, List<?> argList) {
+        return new CompositeFunc(name, argList);
     }
 
-    static SimpleExpression noParensFunc(String name, TypeMeta returnType) {
-        return new NoParensFunctionExpression(name, returnType);
+    static SimpleExpression noParensFunc(String name) {
+        return new NoParensFunctionExpression(name);
     }
 
 
-    public static SimpleExpression jsonMapFunc(String name, Map<String, ?> map, TypeMeta returnType) {
-        return new JsonMapFunc(name, map, returnType);
+    public static SimpleExpression jsonMapFunc(String name, Map<String, ?> map) {
+        return new JsonMapFunc(name, map);
     }
 
 
@@ -178,8 +177,8 @@ abstract class LiteralFunctions {
     private static final class ZeroArgFunc extends OperationExpression.SqlFunctionExpression
             implements FunctionUtils.NoArgFunction {
 
-        private ZeroArgFunc(String name, boolean buildIn, TypeMeta returnType) {
-            super(name, buildIn, returnType);
+        private ZeroArgFunc(String name, boolean buildIn) {
+            super(name, buildIn);
         }
 
         @Override
@@ -201,11 +200,11 @@ abstract class LiteralFunctions {
         private final Object arg;
 
         /**
-         * @see #oneArgFunc(String, Object, TypeMeta)
-         * @see #myOneArgFunc(String, Object, TypeMeta)
+         * @see #oneArgFunc(String, Object)
+         * @see #myOneArgFunc(String, Object)
          */
-        private OneArgFunc(String name, boolean buildIn, @Nullable Object arg, TypeMeta returnType) {
-            super(name, buildIn, returnType);
+        private OneArgFunc(String name, boolean buildIn, @Nullable Object arg) {
+            super(name, buildIn);
             this.arg = arg;
         }
 
@@ -229,8 +228,8 @@ abstract class LiteralFunctions {
 
         private final Object two;
 
-        private TwoArgFunc(String name, boolean buildIn, @Nullable Object one, @Nullable Object two, TypeMeta returnType) {
-            super(name, buildIn, returnType);
+        private TwoArgFunc(String name, boolean buildIn, @Nullable Object one, @Nullable Object two) {
+            super(name, buildIn);
             this.one = one;
             this.two = two;
         }
@@ -262,8 +261,8 @@ abstract class LiteralFunctions {
         private final Object three;
 
         private ThreeArgFunc(String name, boolean buildIn, @Nullable Object one, @Nullable Object two,
-                             @Nullable Object three, TypeMeta returnType) {
-            super(name, buildIn, returnType);
+                             @Nullable Object three) {
+            super(name, buildIn);
             this.one = one;
             this.two = two;
             this.three = three;
@@ -297,8 +296,8 @@ abstract class LiteralFunctions {
 
         private final List<?> argList;
 
-        private MultiArgFunc(String name, boolean buildIn, List<?> argList, TypeMeta returnType) {
-            super(name, buildIn, returnType);
+        private MultiArgFunc(String name, boolean buildIn, List<?> argList) {
+            super(name, buildIn);
             this.argList = argList;
         }
 
@@ -321,8 +320,8 @@ abstract class LiteralFunctions {
 
         private final List<?> argList;
 
-        private CompositeFunc(String name, List<?> argList, TypeMeta returnType) {
-            super(name, returnType);
+        private CompositeFunc(String name, List<?> argList) {
+            super(name);
             this.argList = argList;
         }
 
@@ -493,10 +492,10 @@ abstract class LiteralFunctions {
         private final Map<String, ?> map;
 
         /**
-         * @see #jsonMapFunc(String, Map, TypeMeta)
+         * @see #jsonMapFunc(String, Map)
          */
-        private JsonMapFunc(String name, Map<String, ?> map, TypeMeta returnType) {
-            super(name, returnType);
+        private JsonMapFunc(String name, Map<String, ?> map) {
+            super(name);
             this.map = Collections.unmodifiableMap(_Collections.hashMap(map));
         }
 
@@ -571,18 +570,6 @@ abstract class LiteralFunctions {
             return "CASE";
         }
 
-
-        @Override
-        public MappingType typeMeta() {
-            final TypeMeta returnType = this.returnType;
-            final MappingType t;
-            if (returnType instanceof MappingType) {
-                t = (MappingType) returnType;
-            } else {
-                t = returnType.mappingType();
-            }
-            return t;
-        }
 
         @Override
         public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
@@ -694,14 +681,14 @@ abstract class LiteralFunctions {
         }
 
         @Override
-        public <T> CaseFunction when(ExpressionOperator<SimpleExpression, T, Expression> expOperator,
-                                     BiFunction<SimpleExpression, T, Expression> valueOperator, T value) {
+        public <T> CaseFunction when(ExpressionOperator<TypedExpression, T, Expression> expOperator,
+                                     BiFunction<TypedExpression, T, Expression> valueOperator, T value) {
             return this.when(expOperator.apply(valueOperator, value));
         }
 
         @Override
         public <T> CaseFunction when(BetweenValueOperator<T> expOperator,
-                                     BiFunction<SimpleExpression, T, Expression> operator, T firstValue,
+                                     BiFunction<TypedExpression, T, Expression> operator, T firstValue,
                                      SQLs.WordAnd and, T secondValue) {
             return this.when(expOperator.apply(operator, firstValue, and, secondValue));
         }
@@ -745,14 +732,14 @@ abstract class LiteralFunctions {
         }
 
         @Override
-        public <T> _SqlCaseThenClause space(ExpressionOperator<SimpleExpression, T, Expression> expOperator,
-                                            BiFunction<SimpleExpression, T, Expression> valueOperator, T value) {
+        public <T> _SqlCaseThenClause space(ExpressionOperator<TypedExpression, T, Expression> expOperator,
+                                            BiFunction<TypedExpression, T, Expression> valueOperator, T value) {
             return this.space(expOperator.apply(valueOperator, value));
         }
 
         @Override
         public <T> _SqlCaseThenClause space(BetweenValueOperator<T> expOperator,
-                                            BiFunction<SimpleExpression, T, Expression> operator, T firstValue,
+                                            BiFunction<TypedExpression, T, Expression> operator, T firstValue,
                                             SQLs.WordAnd and, T secondValue) {
             return this.space(expOperator.apply(operator, firstValue, and, secondValue));
         }
@@ -797,8 +784,8 @@ abstract class LiteralFunctions {
         }
 
         @Override
-        public <T> CaseFunction then(ExpressionOperator<SimpleExpression, T, Expression> expOperator,
-                                     BiFunction<SimpleExpression, T, Expression> valueOperator, T value) {
+        public <T> CaseFunction then(ExpressionOperator<TypedExpression, T, Expression> expOperator,
+                                     BiFunction<TypedExpression, T, Expression> valueOperator, T value) {
             return this.then(expOperator.apply(valueOperator, value));
         }
 
@@ -836,8 +823,8 @@ abstract class LiteralFunctions {
         }
 
         @Override
-        public <T> _CaseEndClause elseValue(ExpressionOperator<SimpleExpression, T, Expression> expOperator,
-                                            BiFunction<SimpleExpression, T, Expression> valueOperator, T value) {
+        public <T> _CaseEndClause elseValue(ExpressionOperator<TypedExpression, T, Expression> expOperator,
+                                            BiFunction<TypedExpression, T, Expression> valueOperator, T value) {
             return this.elseValue(expOperator.apply(valueOperator, value));
         }
 
@@ -871,8 +858,8 @@ abstract class LiteralFunctions {
         }
 
         @Override
-        public <T> _CaseEndClause ifElse(ExpressionOperator<SimpleExpression, T, Expression> expOperator,
-                                         BiFunction<SimpleExpression, T, Expression> valueOperator, Supplier<T> getter) {
+        public <T> _CaseEndClause ifElse(ExpressionOperator<TypedExpression, T, Expression> expOperator,
+                                         BiFunction<TypedExpression, T, Expression> valueOperator, Supplier<T> getter) {
             final T value;
             if ((value = getter.get()) != null) {
                 this.elseValue(expOperator.apply(valueOperator, value));
@@ -881,8 +868,8 @@ abstract class LiteralFunctions {
         }
 
         @Override
-        public <K, V> _CaseEndClause ifElse(ExpressionOperator<SimpleExpression, V, Expression> expOperator,
-                                            BiFunction<SimpleExpression, V, Expression> valueOperator,
+        public <K, V> _CaseEndClause ifElse(ExpressionOperator<TypedExpression, V, Expression> expOperator,
+                                            BiFunction<TypedExpression, V, Expression> valueOperator,
                                             Function<K, V> function, K key) {
             final V value;
             if ((value = function.apply(key)) != null) {
@@ -942,10 +929,10 @@ abstract class LiteralFunctions {
             implements FunctionUtils.NoParensFunction {
 
         /**
-         * @see #noParensFunc(String, TypeMeta)
+         * @see #noParensFunc(String)
          */
-        private NoParensFunctionExpression(String name, TypeMeta returnType) {
-            super(name, true, returnType); //no parens function must be build-in
+        private NoParensFunctionExpression(String name) {
+            super(name, true); //no parens function must be build-in,currently
         }
 
         @Override
@@ -965,12 +952,9 @@ abstract class LiteralFunctions {
 
         private final Object expression;
 
-        private final MappingType type;
-
-        private StandardCastFunc(Object expression, MappingType type) {
-            super("CAST", true, type);
+        private StandardCastFunc(Object expression) {
+            super("CAST", true);
             this.expression = expression;
-            this.type = typeMeta();
         }
 
 
@@ -980,19 +964,8 @@ abstract class LiteralFunctions {
             FuncExpUtils.appendLiteral(this.name, this.expression, sqlBuilder, context);
 
             sqlBuilder.append(_Constant.SPACE_AS_SPACE);
+            // TODO check me
 
-            final ServerMeta serverMeta = context.parser().serverMeta();
-            final DataType dataType = this.type.map(serverMeta);
-            final String typeName;
-            switch (serverMeta.serverDatabase()) {
-                case MySQL:
-                    typeName = castFuncAppendMySQLDataType(dataType, serverMeta);
-                    break;
-                case PostgreSQL:
-                    castFuncAppendPostgreDataType(dataType, sqlBuilder);
-                    break;
-                default:
-            }
 
 
         }

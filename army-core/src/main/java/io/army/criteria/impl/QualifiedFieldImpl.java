@@ -36,7 +36,7 @@ import io.army.util._StringUtils;
 import java.util.Objects;
 
 
-final class QualifiedFieldImpl<T> extends OperationDataField implements QualifiedField<T> {
+final class QualifiedFieldImpl<T> extends OperationTypedField implements QualifiedField<T> {
 
     static <T> QualifiedFieldImpl<T> create(final String tableAlias, final FieldMeta<T> field) {
         return new QualifiedFieldImpl<>(tableAlias, field);

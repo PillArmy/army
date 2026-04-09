@@ -177,8 +177,8 @@ public interface UpdateStatement extends NarrowDmlStatement {
          *                      <li>{@link io.army.criteria.impl.SQLs#PARAM_DECIMAL_0}</li>
          *                      </ul>
          */
-        <T> WA and(ExpressionOperator<SimpleExpression, T, Expression> expOperator1,
-                   BiFunction<SimpleExpression, T, Expression> operator, T operand1,
+        <T> WA and(ExpressionOperator<TypedExpression, T, Expression> expOperator1,
+                   BiFunction<TypedExpression, T, Expression> operator, T operand1,
                    BiFunction<Expression, Expression, IPredicate> expOperator2, ValueExpression numberOperand);
 
         /**
@@ -189,8 +189,8 @@ public interface UpdateStatement extends NarrowDmlStatement {
          *                      <li>{@link io.army.criteria.impl.SQLs#PARAM_DECIMAL_0}</li>
          *                      </ul>
          */
-        <T> WA ifAnd(ExpressionOperator<SimpleExpression, T, Expression> expOperator1,
-                     BiFunction<SimpleExpression, T, Expression> operator, @Nullable T operand1,
+        <T> WA ifAnd(ExpressionOperator<TypedExpression, T, Expression> expOperator1,
+                     BiFunction<TypedExpression, T, Expression> operator, @Nullable T operand1,
                      BiFunction<Expression, Expression, IPredicate> expOperator2, ValueExpression numberOperand);
 
         /**
@@ -201,8 +201,8 @@ public interface UpdateStatement extends NarrowDmlStatement {
          *                      <li>{@link io.army.criteria.impl.SQLs#PARAM_DECIMAL_0}</li>
          *                      </ul>
          */
-        WA and(Function<BiFunction<SqlField, String, Expression>, Expression> fieldOperator,
-               BiFunction<SqlField, String, Expression> operator,
+        WA and(Function<BiFunction<TypedField, String, Expression>, Expression> fieldOperator,
+               BiFunction<TypedField, String, Expression> operator,
                BiFunction<Expression, Expression, IPredicate> expOperator2, ValueExpression numberOperand);
 
     } // _UpdateWhereAndClause

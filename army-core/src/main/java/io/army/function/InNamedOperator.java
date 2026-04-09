@@ -17,14 +17,15 @@
 package io.army.function;
 
 import io.army.criteria.IPredicate;
-import io.army.criteria.SimpleExpression;
+import io.army.criteria.TypedExpression;
+import io.army.criteria.TypedField;
 
 /**
  * <p>
  * This interface representing below methods:
  * <ul>
- *     <li>{@link io.army.criteria.DefiniteExpression#in(TeNamedOperator, String, int)}</li>
- *     <li>{@link io.army.criteria.DefiniteExpression#notIn(TeNamedOperator, String, int)}</li>
+ *     <li>{@link TypedExpression#in(TeNamedParamsFunc, String, int)}</li>
+ *     <li>{@link TypedExpression#notIn(TeNamedParamsFunc, String, int)}</li>
  *     <li>other custom method</li>
  * </ul>
  *
@@ -34,7 +35,7 @@ import io.army.criteria.SimpleExpression;
 public interface InNamedOperator {
 
 
-    IPredicate apply(TeNamedOperator<SimpleExpression> namedOperator, String paramName, int size);
+    IPredicate apply(TeNamedParamsFunc<TypedField> namedOperator, String paramName, int size);
 
 
 }

@@ -48,14 +48,14 @@ abstract class MySQLSyntax extends MySQLOtherFunctions {
     /**
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/charset-mysql.html">String Literals</a>
      */
-    public static DefiniteExpression textLiteral(String charsetName, String literal) {
+    public static LiteralExpression textLiteral(String charsetName, String literal) {
         return MySQLExpressions.textLiteral(charsetName, literal, null);
     }
 
     /**
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-literals.html">String Literals</a>
      */
-    public static DefiniteExpression textLiteral(String charsetName, String literal, SQLs.WordCollate collate, String collationName) {
+    public static LiteralExpression textLiteral(String charsetName, String literal, SQLs.WordCollate collate, String collationName) {
         ContextStack.assertNonNull(collationName);
         return MySQLExpressions.textLiteral(charsetName, literal, collationName);
     }
@@ -63,14 +63,14 @@ abstract class MySQLSyntax extends MySQLOtherFunctions {
     /**
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-literals.html">String Literals</a>
      */
-    public static DefiniteExpression encodingTextLiteral(String charsetName, TableField field, String literal) {
+    public static LiteralExpression encodingTextLiteral(String charsetName, TableField field, String literal) {
         return MySQLExpressions.encodingTextLiteral(charsetName, field, literal, null);
     }
 
     /**
      * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-literals.html">String Literals</a>
      */
-    public static DefiniteExpression encodingTextLiteral(String charsetName, TableField field, String literal, SQLs.WordCollate collate, String collationName) {
+    public static LiteralExpression encodingTextLiteral(String charsetName, TableField field, String literal, SQLs.WordCollate collate, String collationName) {
         ContextStack.assertNonNull(collationName);
         return MySQLExpressions.encodingTextLiteral(charsetName, field, literal, collationName);
     }

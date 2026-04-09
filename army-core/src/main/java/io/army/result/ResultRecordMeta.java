@@ -18,6 +18,7 @@ package io.army.result;
 
 import io.army.criteria.Selection;
 import io.army.executor.DataAccessException;
+import io.army.mapping.MappingType;
 import io.army.option.Option;
 import io.army.sqltype.ArmyType;
 import io.army.sqltype.DataType;
@@ -34,6 +35,7 @@ public interface ResultRecordMeta extends ResultItem, ResultItem.ResultAccessSpe
 
     List<? extends Selection> selectionList() throws DataAccessException;
 
+    MappingType getMappingType(int indexBasedZero);
 
     Selection getSelection(int indexBasedZero) throws DataAccessException;
 
@@ -210,6 +212,8 @@ public interface ResultRecordMeta extends ResultItem, ResultItem.ResultAccessSpe
     Class<?> getSecondJavaType(int indexBasedZero) throws DataAccessException;
 
     /*-------------------below column label method-------------------*/
+
+    MappingType getMappingType(String columnLabel);
 
 
     Selection getSelection(String columnLabel) throws DataAccessException;
