@@ -362,7 +362,12 @@ public abstract class ObjectAccessorFactory {
 
         @Override
         public Class<?> getJavaType(String propertyName) {
-            return this.classArray[getIndex(propertyName)];
+            final int index;
+            index = getIndex(propertyName);
+            if (index < 0) {
+                throw invalidProperty(propertyName);
+            }
+            return this.classArray[index];
         }
 
         @Override
@@ -466,6 +471,7 @@ public abstract class ObjectAccessorFactory {
         public String toString() {
             return String.format("%s of %s.", ObjectAccessor.class.getName(), this.beanClass.getName());
         }
+
 
         private ObjectAccessException invalidIndex(int index) {
             final Class<?> beanClass = this.beanClass;
