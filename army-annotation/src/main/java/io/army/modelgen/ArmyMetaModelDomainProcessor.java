@@ -32,15 +32,18 @@ import java.util.Set;
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
 public class ArmyMetaModelDomainProcessor extends AbstractProcessor {
 
+
     private static final boolean ALLOW_OTHER_PROCESSORS_TO_CLAIM_ANNOTATIONS = false;
 
     private ProcessingEnvironment processingEnv;
 
+    // private Messager messager;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.processingEnv = processingEnv;
+        // this.messager = processingEnv.getMessager();
     }
 
     @Override
@@ -57,7 +60,7 @@ public class ArmyMetaModelDomainProcessor extends AbstractProcessor {
         try {
             final AnnotationHandler handler = new AnnotationHandler(this.processingEnv);
             handler.createSourceFiles(elementSet);
-            if (handler.errorMsgList.size() > 0) {
+            if (!handler.errorMsgList.isEmpty()) {
                 final String m, title;
                 title = "handle army annotation occur error,detail:";
                 m = _MetaBridge.createErrorMessage(title, handler.errorMsgList);
@@ -66,15 +69,15 @@ public class ArmyMetaModelDomainProcessor extends AbstractProcessor {
         } catch (IOException e) {
             throw new AnnotationMetaException("Army create source file occur.", e);
         }
-        System.out.printf("[INFO] %s generate %s army static metamodel class source file, cost %s ms.%n",
+        String msg = String.format("%s generate %s army static metamodel class source file, take %s ms.%n",
                 ArmyMetaModelDomainProcessor.class.getName(),
                 domainSetSize,
                 System.currentTimeMillis() - startTime);
+
+        // this.messager.printMessage(Diagnostic.Kind.NOTE, msg);
+        System.out.printf("[%sINFO%s] %s", "\u001B[34m", "\u001B[0m", msg);
         return ALLOW_OTHER_PROCESSORS_TO_CLAIM_ANNOTATIONS;
     }
-
-
-    /*################################## blow private static method ##################################*/
 
 
 }
