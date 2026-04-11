@@ -168,9 +168,9 @@ public abstract class ObjectAccessorFactory {
                     } // switch
 
                     oldFieldType = fieldTypeMap.putIfAbsent(fieldName, fieldType);
-                    if (oldFieldType != null && oldFieldType != fieldType) {
-                        String m = String.format("%s.%s setter and getter not match", beanClass.getName(), fieldName);
-                        throw new ObjectAccessException(m);
+                    if (oldFieldType != null && oldFieldType != fieldType && oldFieldType.isAssignableFrom(fieldType)) {
+                        // Override getter
+                        fieldTypeMap.put(fieldName, fieldType);
                     }
 
                 }
