@@ -16,8 +16,8 @@
 
 package io.army.dialect;
 
+import io.army.bean.ObjectAccessor;
 import io.army.bean.ObjectAccessorFactory;
-import io.army.bean.ReadAccessor;
 import io.army.criteria.CriteriaException;
 import io.army.criteria.impl.inner._BatchStatement;
 import io.army.criteria.impl.inner._Statement;
@@ -43,7 +43,7 @@ abstract class BatchSpecStatementContext extends StatementContext implements Bat
 
     final int paramSize;
 
-    final ReadAccessor accessor;
+    final ObjectAccessor accessor;
 
     final boolean multiStmtBatch;
 
@@ -65,7 +65,7 @@ abstract class BatchSpecStatementContext extends StatementContext implements Bat
 
 
         if (this.paramList != null && parentOrOuterContext instanceof MultiStmtContext) {
-            this.accessor = ObjectAccessorFactory.readOnlyFromInstance(this.paramList.get(0));
+            this.accessor = ObjectAccessorFactory.fromInstance(this.paramList.getFirst());
             this.multiStmtBatch = parentOrOuterContext instanceof MultiStmtBatchContext;
             this.paramIndex = 0;
         } else {
@@ -99,10 +99,11 @@ abstract class BatchSpecStatementContext extends StatementContext implements Bat
     }
 
 
+    @Nullable
     @Override
     final Object readCurrentRowNamedValue(final String name) {
         final List<?> paramList = this.paramList;
-        final ReadAccessor accessor = this.accessor;
+        final ObjectAccessor accessor = this.accessor;
         if (paramList == null || accessor == null) {
             if (this instanceof _SimpleQueryContext) {
                 String m = "simple query don't support named literal";

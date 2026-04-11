@@ -21,7 +21,58 @@ import io.army.lang.Nullable;
 
 import java.util.Set;
 
-public interface ObjectAccessor extends ReadAccessor {
+public interface ObjectAccessor {
+
+
+    /**
+     * @return negative : Index-based access is not supported
+     */
+    int getIndex(String propertyName);
+
+    boolean isReadable(int index);
+
+    /**
+     * Determine whether the specified property is readable.
+     * <p>Returns {@code false} if the property doesn't field exist.
+     *
+     * @param propertyName the property to check
+     *                     (maybe a nested path then/or an indexed/mapped property)
+     * @return whether the property is readable
+     */
+    boolean isReadable(String propertyName);
+
+
+    @Nullable
+    Object get(Object target, int index) throws ObjectAccessException;
+
+
+    /**
+     * Get the current value of the specified property.
+     *
+     * @param target       one instance of {@link #getAccessedType()}
+     * @param propertyName the name of the property to get the value of
+     *                     (maybe a nested path then/or an indexed/mapped property)
+     * @return the value of the property
+     * @throws IllegalArgumentException throw when target isn't the instance of {@link #getAccessedType()}
+     * @throws InvalidPropertyException if there is no such property or
+     *                                  if the property isn'field readable
+     * @throws PropertyAccessException  if the property was valid but the
+     *                                  accessor method failed
+     */
+    @Nullable
+    Object get(Object target, String propertyName) throws ObjectAccessException;
+
+    Set<String> readablePropertySet();
+
+    Class<?> getJavaType(String propertyName);
+
+    Class<?> getJavaType(int index);
+
+    /**
+     * Return the type of the wrapped bean instance.
+     */
+    Class<?> getAccessedType();
+
 
     boolean isWritable(int index);
 
@@ -68,7 +119,5 @@ public interface ObjectAccessor extends ReadAccessor {
 
     Set<String> writablePropertySet();
 
-
-    ReadAccessor getReadAccessor();
 
 }

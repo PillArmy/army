@@ -20,7 +20,6 @@ import io.army.ArmyException;
 import io.army.bean.ObjectAccessException;
 import io.army.bean.ObjectAccessor;
 import io.army.bean.ObjectAccessorFactory;
-import io.army.bean.ReadAccessor;
 import io.army.criteria.CriteriaException;
 import io.army.criteria.Selection;
 import io.army.criteria.TypeInfer;
@@ -1534,10 +1533,6 @@ public abstract class ExecutorSupport {
             throw new UnsupportedOperationException();
         }
 
-        @Override
-        public ReadAccessor getReadAccessor() {
-            throw new UnsupportedOperationException();
-        }
 
         @Override
         public boolean isReadable(String propertyName) {
