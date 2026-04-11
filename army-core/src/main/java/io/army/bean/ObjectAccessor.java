@@ -23,28 +23,33 @@ import java.util.Set;
 
 public interface ObjectAccessor extends ReadAccessor {
 
+    boolean isWritable(int index);
 
     /**
      * Determine whether the specified property is writable.
-     * <p>Returns {@code false} if the property doesn'field exist.
+     * <p>Returns {@code false} if the property doesn't field exist.
      *
      * @param propertyName the property to check
-     *                     (may be a nested path then/or an indexed/mapped property)
+     *                     (maybe a nested path then/or an indexed/mapped property)
      * @return whether the property is writable
      */
     boolean isWritable(String propertyName);
 
+
+    boolean isWritable(int index, Class<?> valueType);
+
     /**
      * Determine whether the specified property is writable.
      * <p>Returns {@code false} if the property doesn'field exist.
      *
      * @param propertyName the property to check
-     *                     (may be a nested path then/or an indexed/mapped property)
+     *                     (maybe a nested path then/or an indexed/mapped property)
      * @return whether the property is writable
      */
     boolean isWritable(String propertyName, Class<?> valueType);
 
-    Class<?> getJavaType(String propertyName);
+
+    void set(Object target, int index, @Nullable Object value) throws ObjectAccessException;
 
 
     /**
@@ -52,7 +57,7 @@ public interface ObjectAccessor extends ReadAccessor {
      *
      * @param target       one instance of {@link #getAccessedType()}
      * @param propertyName the name of the property to set the value of
-     *                     (may be a nested path then/or an indexed/mapped property)
+     *                     (maybe a nested path then/or an indexed/mapped property)
      * @throws InvalidPropertyException if there is no such property or
      *                                  if the property isn'field writable
      * @throws PropertyAccessException  if the property was valid but the

@@ -22,23 +22,34 @@ import java.util.Set;
 
 public interface ReadAccessor {
 
+    /**
+     * @return negative : Index-based access is not supported
+     */
+    int getIndex(String propertyName);
+
+    boolean isReadable(int index);
 
     /**
      * Determine whether the specified property is readable.
-     * <p>Returns {@code false} if the property doesn'field exist.
+     * <p>Returns {@code false} if the property doesn't field exist.
      *
      * @param propertyName the property to check
-     *                     (may be a nested path then/or an indexed/mapped property)
+     *                     (maybe a nested path then/or an indexed/mapped property)
      * @return whether the property is readable
      */
     boolean isReadable(String propertyName);
+
+
+    @Nullable
+    Object get(Object target, int index) throws ObjectAccessException;
+
 
     /**
      * Get the current value of the specified property.
      *
      * @param target       one instance of {@link #getAccessedType()}
      * @param propertyName the name of the property to get the value of
-     *                     (may be a nested path then/or an indexed/mapped property)
+     *                     (maybe a nested path then/or an indexed/mapped property)
      * @return the value of the property
      * @throws IllegalArgumentException throw when target isn't the instance of {@link #getAccessedType()}
      * @throws InvalidPropertyException if there is no such property or
@@ -51,6 +62,9 @@ public interface ReadAccessor {
 
     Set<String> readablePropertySet();
 
+    Class<?> getJavaType(String propertyName);
+
+    Class<?> getJavaType(int index);
     /**
      * Return the type of the wrapped bean instance.
      */

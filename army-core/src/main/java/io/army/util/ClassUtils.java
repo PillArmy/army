@@ -90,30 +90,56 @@ public abstract class ClassUtils {
         return clazz;
     }
 
+    public static boolean isAssignableFrom(final Class<?> left, final Class<?> right) {
+        final boolean assignable;
+        if (left.isAssignableFrom(right)) {
+            assignable = true;
+        } else if (left.isPrimitive()) {
+            assignable = right == getWrapperClass(left);
+        } else if (right.isPrimitive()) {
+            assignable = left.isAssignableFrom(getWrapperClass(right));
+        } else {
+            assignable = false;
+        }
+        return assignable;
+    }
+
+
     public static boolean isWrapperClass(final Class<?> wrapperClass, final Class<?> primitiveClass) {
         final boolean match;
-        if (primitiveClass == int.class) {
-            match = wrapperClass == Integer.class;
-        } else if (primitiveClass == long.class) {
-            match = wrapperClass == Long.class;
-        } else if (primitiveClass == boolean.class) {
-            match = wrapperClass == Boolean.class;
-        } else if (primitiveClass == short.class) {
-            match = wrapperClass == Short.class;
-        } else if (primitiveClass == byte.class) {
-            match = wrapperClass == Byte.class;
-        } else if (primitiveClass == double.class) {
-            match = wrapperClass == Double.class;
-        } else if (primitiveClass == float.class) {
-            match = wrapperClass == Float.class;
-        } else if (primitiveClass == char.class) {
-            match = wrapperClass == Character.class;
-        } else if (primitiveClass == void.class) {
-            match = wrapperClass == Void.class;
+        if (primitiveClass.isPrimitive()) {
+            match = wrapperClass == getWrapperClass(primitiveClass);
         } else {
             match = false;
         }
         return match;
+    }
+
+
+    public static Class<?> getWrapperClass(final Class<?> primitive) {
+        final Class<?> wrapper;
+        if (primitive == int.class) {
+            wrapper = Integer.class;
+        } else if (primitive == long.class) {
+            wrapper = Long.class;
+        } else if (primitive == boolean.class) {
+            wrapper = Boolean.class;
+        } else if (primitive == double.class) {
+            wrapper = Double.class;
+        } else if (primitive == float.class) {
+            wrapper = Float.class;
+        } else if (primitive == short.class) {
+            wrapper = Short.class;
+        } else if (primitive == byte.class) {
+            wrapper = Byte.class;
+        } else if (primitive == char.class) {
+            wrapper = Character.class;
+        } else if (primitive == void.class) {
+            wrapper = Void.class;
+        } else {
+            throw new IllegalArgumentException(String.format("%s isn't primitive", primitive.getName()));
+        }
+        return wrapper;
     }
 
 

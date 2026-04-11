@@ -25,7 +25,7 @@ public interface ReadWrapper {
      * <p>Returns {@code false} if the property doesn'field exist.
      *
      * @param propertyName the property to check
-     *                     (may be a nested path then/or an indexed/mapped property)
+     *                     (maybe a nested path then/or an indexed/mapped property)
      * @return whether the property is readable
      */
     boolean isReadable(String propertyName);
