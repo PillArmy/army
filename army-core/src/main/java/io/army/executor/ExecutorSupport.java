@@ -20,7 +20,6 @@ import io.army.ArmyException;
 import io.army.bean.ObjectAccessException;
 import io.army.bean.ObjectAccessor;
 import io.army.bean.ObjectAccessorFactory;
-import io.army.bean.ReadAccessor;
 import io.army.criteria.CriteriaException;
 import io.army.criteria.Selection;
 import io.army.criteria.TypeInfer;
@@ -1620,6 +1619,41 @@ public abstract class ExecutorSupport {
     private static final class PseudoWriterAccessor implements ObjectAccessor {
 
         @Override
+        public boolean isWritable(int index) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isWritable(int index, Class<?> valueType) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void set(Object target, int index, @Nullable Object value) throws ObjectAccessException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int getIndex(String propertyName) {
+            return -1;
+        }
+
+        @Override
+        public boolean isReadable(int index) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object get(Object target, int index) throws ObjectAccessException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Class<?> getJavaType(int index) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public boolean isWritable(String propertyName) {
             throw new UnsupportedOperationException();
         }
@@ -1650,10 +1684,6 @@ public abstract class ExecutorSupport {
             throw new UnsupportedOperationException();
         }
 
-        @Override
-        public ReadAccessor getReadAccessor() {
-            throw new UnsupportedOperationException();
-        }
 
         @Override
         public boolean isReadable(String propertyName) {

@@ -16,8 +16,8 @@
 
 package io.army.stmt;
 
+import io.army.bean.ObjectAccessor;
 import io.army.bean.ObjectAccessorFactory;
-import io.army.bean.ReadAccessor;
 import io.army.criteria.*;
 import io.army.criteria.impl.SQLs;
 import io.army.dialect._DialectUtils;
@@ -140,8 +140,8 @@ public abstract class Stmts {
         final int batchSize = namedParamList.size();
 
         final List<List<SQLParam>> groupList = _Collections.arrayList(batchSize);
-        final ReadAccessor accessor;
-        accessor = ObjectAccessorFactory.readOnlyFromInstance(namedParamList.get(0));
+        final ObjectAccessor accessor;
+        accessor = ObjectAccessorFactory.fromInstance(namedParamList.getFirst());
 
         NamedParam namedParam = null;
         List<SQLParam> group;
