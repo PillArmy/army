@@ -21,5 +21,5 @@ import io.army.lang.Nullable;
 @FunctionalInterface
 interface ValueWriteAccessor {
 
-    void set(Object bean, @Nullable Object value);
+    void set(Object bean, @Nullable Object value) throws Exception;
 }

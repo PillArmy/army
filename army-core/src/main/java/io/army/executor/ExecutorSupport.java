@@ -1484,7 +1484,7 @@ public abstract class ExecutorSupport {
 
         @Override
         public int getIndex(String propertyName) {
-            throw new UnsupportedOperationException();
+            return -1;
         }
 
         @Override

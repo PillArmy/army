@@ -22,6 +22,6 @@ import io.army.lang.Nullable;
 interface ValueReadAccessor {
 
     @Nullable
-    Object get(Object bean);
+    Object get(Object bean) throws Exception;
 
 }

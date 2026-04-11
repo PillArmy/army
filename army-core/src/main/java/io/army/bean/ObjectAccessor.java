@@ -56,7 +56,7 @@ public interface ObjectAccessor {
      * @throws IllegalArgumentException throw when target isn't the instance of {@link #getAccessedType()}
      * @throws InvalidPropertyException if there is no such property or
      *                                  if the property isn'field readable
-     * @throws PropertyAccessException  if the property was valid but the
+     * @throws ObjectAccessException  if the property was valid but the
      *                                  accessor method failed
      */
     @Nullable
@@ -111,7 +111,7 @@ public interface ObjectAccessor {
      *                     (maybe a nested path then/or an indexed/mapped property)
      * @throws InvalidPropertyException if there is no such property or
      *                                  if the property isn'field writable
-     * @throws PropertyAccessException  if the property was valid but the
+     * @throws ObjectAccessException  if the property was valid but the
      *                                  accessor method failed or a type mismatch occurred
      */
     void set(Object target, String propertyName, @Nullable Object value) throws ObjectAccessException;

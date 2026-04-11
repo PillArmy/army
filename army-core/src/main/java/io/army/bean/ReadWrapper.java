@@ -38,7 +38,7 @@ public interface ReadWrapper {
      * @return the value of the property
      * @throws InvalidPropertyException if there is no such property or
      *                                  if the property isn'field readable
-     * @throws PropertyAccessException  if the property was valid but the
+     * @throws ObjectAccessException  if the property was valid but the
      *                                  accessor method failed
      */
     @Nullable

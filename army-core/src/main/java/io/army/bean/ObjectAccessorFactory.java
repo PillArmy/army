@@ -18,7 +18,6 @@ package io.army.bean;
 
 
 import io.army.lang.Nullable;
-import io.army.proxy.ArmyProxy;
 import io.army.util.ClassUtils;
 import io.army.util._Collections;
 
@@ -67,7 +66,7 @@ public abstract class ObjectAccessorFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Supplier<T> beanConstructor(final Class<T> beanClass) {
+    public static <T> Supplier<T> beanConstructor(Class<T> beanClass) {
         return (Supplier<T>) CONSTRUCTOR_CACHE.get(beanClass);
     }
 
@@ -192,15 +191,11 @@ public abstract class ObjectAccessorFactory {
 
         final Map<String, Class<?>> fieldTypeMap = _Collections.hashMap();
 
-        final MethodHandles.Lookup lookup = MethodHandles.lookup();
-
         try {
             int modifiers;
             String fieldName;
             ValueReadAccessor fieldReader;
             ValueWriteAccessor fieldWriter;
-            MethodHandle mh;
-            CallSite site;
             for (Class<?> clazz = beanClass; clazz != Object.class; clazz = clazz.getSuperclass()) {
                 if (!FieldAccessBean.class.isAssignableFrom(clazz)) {
                     break;
@@ -212,30 +207,11 @@ public abstract class ObjectAccessorFactory {
                         continue;
                     }
                     fieldName = field.getName();
-                    // getter: unreflectGetter return (clazz) → fieldType
-                    mh = lookup.unreflectGetter(field);
-                    site = LambdaMetafactory.metafactory(
-                            lookup,
-                            "get",
-                            MethodType.methodType(ValueReadAccessor.class),
-                            MethodType.methodType(Object.class, Object.class),
-                            mh,
-                            MethodType.methodType(field.getType(), beanClass)
-                    );
-                    fieldReader = (ValueReadAccessor) site.getTarget().invokeExact();
+
+                    fieldReader = field::get;
                     readerMap.putIfAbsent(fieldName, fieldReader);
 
-                    // setter: unreflectSetter return (clazz, fieldType) → void
-                    mh = lookup.unreflectSetter(field);
-                    site = LambdaMetafactory.metafactory(
-                            lookup,
-                            "set",
-                            MethodType.methodType(ValueWriteAccessor.class),
-                            MethodType.methodType(void.class, Object.class, Object.class),
-                            mh,
-                            MethodType.methodType(void.class, beanClass, field.getType())
-                    );
-                    fieldWriter = (ValueWriteAccessor) site.getTarget().invokeExact();
+                    fieldWriter = field::set;
                     writerMap.putIfAbsent(fieldName, fieldWriter);
 
                     fieldTypeMap.putIfAbsent(fieldName, field.getType());
@@ -263,19 +239,28 @@ public abstract class ObjectAccessorFactory {
         final ValueWriteAccessor[] writeArray = new ValueWriteAccessor[nameCount];
 
         int index = 0;
+        boolean setterAndGetterMatch = true;
+        ValueReadAccessor reader;
+        ValueWriteAccessor writer;
         for (String name : nameSet) {
 
             nameToIndexMap.put(name, index);
 
             classArray[index] = fieldTypeMap.get(name);
-            readerArray[index] = readerMap.get(name);
-            writeArray[index] = writerMap.get(name);
+            reader = readerMap.get(name);
+            writer = writerMap.get(name);
+
+            if (reader == null || writer == null) {
+                setterAndGetterMatch = false;
+            }
+            readerArray[index] = reader;
+            writeArray[index] = writer;
 
             index++;
         }
 
         assert index == nameCount;
-        return new BeanWriterAccessor(beanClass, nameToIndexMap, classArray, readerArray, writeArray);
+        return new BeanWriterAccessor(beanClass, nameToIndexMap, classArray, readerArray, writeArray, setterAndGetterMatch);
     }
 
 
@@ -291,13 +276,17 @@ public abstract class ObjectAccessorFactory {
 
         private final ValueWriteAccessor[] writeArray;
 
+        private final boolean setterAndGetterMatch;
+
         private BeanWriterAccessor(Class<?> beanClass, Map<String, Integer> nameToIndexMap,
-                                   Class<?>[] classArray, ValueReadAccessor[] readerArray, ValueWriteAccessor[] writeArray) {
+                                   Class<?>[] classArray, ValueReadAccessor[] readerArray,
+                                   ValueWriteAccessor[] writeArray, boolean setterAndGetterMatch) {
             this.beanClass = beanClass;
             this.nameToIndexMap = Collections.unmodifiableMap(nameToIndexMap);
             this.classArray = classArray;
             this.readerArray = readerArray;
             this.writeArray = writeArray;
+            this.setterAndGetterMatch = setterAndGetterMatch;
         }
 
 
@@ -357,7 +346,7 @@ public abstract class ObjectAccessorFactory {
 
         @Override
         public Set<String> readablePropertySet() {
-            if (this.classArray.length == this.readerArray.length) {
+            if (this.setterAndGetterMatch) {
                 return this.nameToIndexMap.keySet();
             }
             final Map<String, Integer> nameToIndexMap = this.nameToIndexMap;
@@ -411,7 +400,12 @@ public abstract class ObjectAccessorFactory {
 
         @Override
         public boolean isWritable(String propertyName, Class<?> valueType) {
-            return isWritable(getIndex(propertyName), valueType);
+            final int index;
+            index = getIndex(propertyName);
+            if (index < 0) {
+                throw invalidProperty(propertyName);
+            }
+            return isWritable(index, valueType);
         }
 
 
@@ -454,7 +448,7 @@ public abstract class ObjectAccessorFactory {
         @Override
         public Set<String> writablePropertySet() {
 
-            if (this.classArray.length == this.writeArray.length) {
+            if (this.setterAndGetterMatch) {
                 return this.nameToIndexMap.keySet();
             }
             final ValueWriteAccessor[] writeArray = this.writeArray;
@@ -587,7 +581,7 @@ public abstract class ObjectAccessorFactory {
 
         @Override
         public int getIndex(String propertyName) {
-            throw invalidIndex();
+            return -1;
         }
 
         @Override
@@ -621,9 +615,6 @@ public abstract class ObjectAccessorFactory {
 
         @Override
         protected ObjectAccessor computeValue(Class<?> type) {
-            while (ArmyProxy.class.isAssignableFrom(type)) {
-                type = type.getSuperclass();
-            }
             final ObjectAccessor accessor;
             if (FieldAccessBean.class.isAssignableFrom(type)) {
                 accessor = createFieldAccessorPair(type);
