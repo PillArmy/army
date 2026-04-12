@@ -73,7 +73,7 @@ public class QuerySuiteTests extends SessionTestSupport {
         session.queryOne(stmt, BigDecimal.class);
     }
 
-    @Test
+    @Test(invocationCount = 2)
     public void singleColumnSearchBreadthFirstClause(final SyncLocalSession session) {
         final int listSize = 10;
         final List<ChinaRegion<?>> regionList, tempList;
@@ -87,7 +87,7 @@ public class QuerySuiteTests extends SessionTestSupport {
         session.batchSave(regionList);
 
         final Long lastId;
-        lastId = regionList.get(regionList.size() - 1).getId();
+        lastId = regionList.getLast().getId();
         assert lastId != null;
 
         final Select stmt;
@@ -108,7 +108,7 @@ public class QuerySuiteTests extends SessionTestSupport {
 
         final List<Map<String, Object>> rowList;
         rowList = session.queryObjectList(stmt, RowMaps::hashMap);
-        Assert.assertTrue(rowList.size() > 0);
+        Assert.assertFalse(rowList.isEmpty());
 
         LOG.debug("{} rowList size[{}]", session.name(), rowList.size());
 

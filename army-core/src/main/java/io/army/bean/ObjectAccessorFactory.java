@@ -93,16 +93,16 @@ public abstract class ObjectAccessorFactory {
 
         final Map<String, Class<?>> fieldTypeMap = _Collections.hashMap();
 
-        final MethodHandles.Lookup lookup = MethodHandles.lookup();
-
         try {
+            final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
             MethodHandle handle;
             CallSite site;
             String fieldName, methodName;
             int modifiers;
             ValueReader readAccessor;
             ValueWriter writeAccessor;
-            Class<?> oldFieldType, fieldType, paramType;
+            Class<?> oldFieldType, fieldType;
             boolean writerMethod;
             int minLength, minusOne;
             for (Class<?> clazz = beanClass; clazz != Object.class; clazz = clazz.getSuperclass()) {
@@ -155,18 +155,14 @@ public abstract class ObjectAccessorFactory {
 
                     if (writerMethod && !writerMap.containsKey(fieldName)) {
                         fieldType = method.getParameterTypes()[0];
-                        if (fieldType.isPrimitive()) {
-                            paramType = ClassUtils.getWrapperClass(fieldType);
-                        } else {
-                            paramType = fieldType;
-                        }
+
                         site = LambdaMetafactory.metafactory(
                                 lookup,
                                 "set",
                                 MethodType.methodType(ValueWriter.class),
                                 MethodType.methodType(void.class, Object.class, Object.class),
                                 handle,
-                                MethodType.methodType(void.class, beanClass, paramType)
+                                MethodType.methodType(void.class, beanClass, ClassUtils.wrapperClassIfNeed(fieldType))
                         );
                         writeAccessor = (ValueWriter) site.getTarget().invokeExact();
                         writerMap.putIfAbsent(fieldName, writeAccessor);

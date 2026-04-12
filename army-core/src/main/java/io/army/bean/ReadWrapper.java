@@ -34,7 +34,7 @@ public interface ReadWrapper {
      * Get the current value of the specified property.
      *
      * @param propertyName the name of the property to get the value of
-     *                     (may be a nested path then/or an indexed/mapped property)
+     *                     (maybe a nested path then/or an indexed/mapped property)
      * @return the value of the property
      * @throws InvalidPropertyException if there is no such property or
      *                                  if the property isn'field readable
