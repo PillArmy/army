@@ -105,7 +105,6 @@ public abstract class ObjectAccessorFactory {
             Class<?> oldFieldType, fieldType;
             boolean writerMethod;
             int minLength, minusOne;
-            MethodType methodType;
             for (Class<?> clazz = beanClass; clazz != Object.class; clazz = clazz.getSuperclass()) {
                 for (Method method : clazz.getDeclaredMethods()) {
                     if (method.isBridge()) {
@@ -157,28 +156,26 @@ public abstract class ObjectAccessorFactory {
                     if (writerMethod && !writerMap.containsKey(fieldName)) {
                         fieldType = method.getParameterTypes()[0];
 
-                        methodType = MethodType.methodType(void.class, beanClass, fieldType);
                         site = LambdaMetafactory.metafactory(
                                 lookup,
                                 "set",
                                 MethodType.methodType(ValueWriter.class),
-                                methodType,
+                                MethodType.methodType(void.class, Object.class, Object.class),
                                 handle,
-                                methodType
+                                MethodType.methodType(void.class, beanClass, fieldType)
                         );
                         writeAccessor = (ValueWriter) site.getTarget().invokeExact();
                         writerMap.putIfAbsent(fieldName, writeAccessor);
                     } else if (!writerMethod && !readerMap.containsKey(fieldName)) {
                         fieldType = method.getReturnType();
 
-                        methodType = MethodType.methodType(fieldType, beanClass);
                         site = LambdaMetafactory.metafactory(
                                 lookup,
                                 "get",
                                 MethodType.methodType(ValueReader.class),
-                                methodType,
+                                MethodType.methodType(Object.class, Object.class),
                                 handle,
-                                methodType
+                                MethodType.methodType(fieldType, beanClass)
                         );
                         readAccessor = (ValueReader) site.getTarget().invokeExact();
                         readerMap.putIfAbsent(fieldName, readAccessor);
