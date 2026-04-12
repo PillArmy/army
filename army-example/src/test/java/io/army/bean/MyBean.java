@@ -29,6 +29,8 @@ public class MyBean extends BaseBean {
 
     private String Da;
 
+    private Number absNumber;
+
     public int getId() {
         return id;
     }
@@ -123,6 +125,16 @@ public class MyBean extends BaseBean {
 
     public MyBean setDa(String da) {
         Da = da;
+        return this;
+    }
+
+
+    public Number getAbsNumber() {
+        return absNumber;
+    }
+
+    public MyBean setAbsNumber(Number absNumber) {
+        this.absNumber = absNumber;
         return this;
     }
 }
