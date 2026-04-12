@@ -24,10 +24,14 @@ public class ObjectAccessorFactoryTests {
         Assert.assertTrue(accessor.isWritable("id", int.class));
         Assert.assertTrue(accessor.isWritable("id", Integer.class));
 
+        Assert.assertTrue(accessor.getIndex("id") > -1);
+
+
         Assert.assertEquals(accessor.getJavaType("visible"), boolean.class);
         Assert.assertTrue(accessor.isReadable("visible"));
         Assert.assertTrue(accessor.isWritable("visible", boolean.class));
         Assert.assertTrue(accessor.isWritable("visible", Boolean.class));
+        Assert.assertTrue(accessor.getIndex("visible") > -1);
 
 
         Assert.assertEquals(accessor.getJavaType("aB"), boolean.class);
@@ -56,20 +60,25 @@ public class ObjectAccessorFactoryTests {
         Assert.assertEquals(accessor.getJavaType("URL"), String.class);
         Assert.assertTrue(accessor.isReadable("URL"));
         Assert.assertTrue(accessor.isWritable("URL", String.class));
+        Assert.assertTrue(accessor.getIndex("URL") > -1);
 
 
         Assert.assertFalse(accessor.isReadable("B"));
         Assert.assertFalse(accessor.isWritable("B"));
         Assert.assertFalse(accessor.isWritable("B", LocalDate.class));
+        Assert.assertTrue(accessor.getIndex("B") < 0);
 
         Assert.assertFalse(accessor.isReadable("noGetterSetterField"));
         Assert.assertFalse(accessor.isWritable("noGetterSetterField"));
         Assert.assertFalse(accessor.isWritable("noGetterSetterField", boolean.class));
         Assert.assertFalse(accessor.isWritable("noGetterSetterField", Boolean.class));
 
+        Assert.assertTrue(accessor.getIndex("noGetterSetterField") < 0);
+
         Assert.assertFalse(accessor.isReadable("Da"));
         Assert.assertFalse(accessor.isWritable("Da"));
         Assert.assertFalse(accessor.isWritable("Da", String.class));
+        Assert.assertTrue(accessor.getIndex("Da") < 0);
 
 
     }
@@ -86,11 +95,14 @@ public class ObjectAccessorFactoryTests {
         Assert.assertTrue(accessor.isWritable("id"));
         Assert.assertTrue(accessor.isWritable("id", int.class));
         Assert.assertTrue(accessor.isWritable("id", Integer.class));
+        Assert.assertTrue(accessor.getIndex("id") > -1);
+
 
         Assert.assertEquals(accessor.getJavaType("name"), String.class);
         Assert.assertTrue(accessor.isReadable("name"));
         Assert.assertTrue(accessor.isWritable("name", String.class));
         Assert.assertFalse(accessor.isWritable("name", Integer.class));
+        Assert.assertTrue(accessor.getIndex("name") > -1);
 
         Assert.assertFalse(accessor.isReadable("privateBool"));
         Assert.assertFalse(accessor.isWritable("privateBool"));
@@ -112,11 +124,14 @@ public class ObjectAccessorFactoryTests {
         Assert.assertFalse(accessor.isWritable("propInt"));
         Assert.assertFalse(accessor.isWritable("propInt", int.class));
         Assert.assertFalse(accessor.isWritable("propInt", Integer.class));
+        Assert.assertTrue(accessor.getIndex("propInt") < 0);
+
 
         Assert.assertFalse(accessor.isReadable("visible"));
         Assert.assertFalse(accessor.isWritable("visible"));
         Assert.assertFalse(accessor.isWritable("visible", boolean.class));
         Assert.assertFalse(accessor.isWritable("visible", Boolean.class));
+        Assert.assertTrue(accessor.getIndex("visible") < 0);
 
 
     }
