@@ -813,7 +813,7 @@ abstract class CriteriaContexts {
                     left = moreLeft;
                     moreLeft = moreLeft.getLeftContext();
                 }
-                cte = left.refCte(cteName);
+                cte = ((StatementContext) left).refCteFromRight(this, cteName);
             } else if (this.outerContext == null) {
                 throw unknownCte(cteName);
             } else {
@@ -1211,14 +1211,27 @@ abstract class CriteriaContexts {
          * @param sourceContext the context whose {@link CriteriaContext#refCte(String)} is invoked .
          */
         private _Cte refCteForSub(final CriteriaContext sourceContext, final String cteName) {
-            final StatementContext outerContext = this.outerContext;
+            final StatementContext outerContext;
             final _Cte cte;
             if (this.withCteContext != null) {
                 cte = this.doRefCte(sourceContext, cteName);
-            } else if (outerContext == null) {
+            } else if ((outerContext = this.outerContext) == null) {
                 throw unknownCte(cteName);
             } else {
-                cte = outerContext.refCteForSub(this, cteName);
+                cte = outerContext.refCteForSub(sourceContext, cteName);
+            }
+            return cte;
+        }
+
+        private _Cte refCteFromRight(final CriteriaContext sourceContext, final String cteName) {
+            final StatementContext outerContext;
+            final _Cte cte;
+            if (this.withCteContext != null) {
+                cte = this.doRefCte(sourceContext, cteName);
+            } else if ((outerContext = this.outerContext) == null) {
+                throw unknownCte(cteName);
+            } else {
+                cte = outerContext.refCteForSub(sourceContext, cteName);
             }
             return cte;
         }
@@ -1264,7 +1277,7 @@ abstract class CriteriaContexts {
                     left = moreLeft;
                     moreLeft = moreLeft.getLeftContext();
                 }
-                cte = left.refCte(cteName);
+                cte = ((StatementContext) left).refCteFromRight(sourceContext, cteName);
             } else if (this.outerContext == null) {
                 throw unknownCte(cteName);
             } else {

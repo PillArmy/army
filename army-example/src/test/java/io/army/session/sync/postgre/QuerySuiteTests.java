@@ -300,7 +300,7 @@ public class QuerySuiteTests extends SessionTestSupport {
         session.batchSave(regionList);
 
         final Long lastId;
-        lastId = regionList.get(regionList.size() - 1).getId();
+        lastId = regionList.getLast().getId();
         assert lastId != null;
 
         final Select stmt;
@@ -322,7 +322,7 @@ public class QuerySuiteTests extends SessionTestSupport {
 
         final List<Map<String, Object>> rowList;
         rowList = session.queryObjectList(stmt, RowMaps::hashMap);
-        Assert.assertTrue(rowList.size() > 0);
+        Assert.assertFalse(rowList.isEmpty());
 
         LOG.debug("{} rowList size[{}]", session.name(), rowList.size());
 
