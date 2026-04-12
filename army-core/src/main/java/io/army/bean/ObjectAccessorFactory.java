@@ -71,27 +71,45 @@ public abstract class ObjectAccessorFactory {
     }
 
 
+    @FunctionalInterface
+    private interface ValueReader {
+
+        @Nullable
+        Object get(Object bean) throws Exception;
+
+    }
+
+    @FunctionalInterface
+
+    private interface ValueWriter {
+
+        void set(Object bean, @Nullable Object value) throws Exception;
+    }
+
+
     private static ObjectAccessor createMethodAccessors(final Class<?> beanClass) {
-        final Map<String, ValueReadAccessor> readerMap = _Collections.hashMap();
-        final Map<String, ValueWriteAccessor> writerMap = _Collections.hashMap();
+        final Map<String, ValueReader> readerMap = _Collections.hashMap();
+        final Map<String, ValueWriter> writerMap = _Collections.hashMap();
 
         final Map<String, Class<?>> fieldTypeMap = _Collections.hashMap();
 
-        final MethodHandles.Lookup lookup = MethodHandles.lookup();
-
         try {
-            MethodHandle mh;
+            final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
+            MethodHandle handle;
             CallSite site;
             String fieldName, methodName;
             int modifiers;
-            ValueReadAccessor readAccessor;
-            ValueWriteAccessor writeAccessor;
+            ValueReader readAccessor;
+            ValueWriter writeAccessor;
             Class<?> oldFieldType, fieldType;
-            int methodType, minLength, minusOne;
-            final int SET_METHOD = 1, GET_METHOD = 2;
+            boolean writerMethod;
+            int minLength, minusOne;
             for (Class<?> clazz = beanClass; clazz != Object.class; clazz = clazz.getSuperclass()) {
                 for (Method method : clazz.getDeclaredMethods()) {
-
+                    if (method.isBridge()) {
+                        continue;
+                    }
                     modifiers = method.getModifiers();
                     if (!Modifier.isPublic(modifiers)
                             || Modifier.isStatic(modifiers)) {
@@ -104,7 +122,7 @@ public abstract class ObjectAccessorFactory {
                         if (method.getParameterCount() != 1 || methodName.length() < 4) {
                             continue;
                         }
-                        methodType = SET_METHOD;
+                        writerMethod = true;
                     } else if (methodName.startsWith("get")) {
                         minLength = 4;
                         if (method.getParameterCount() != 0
@@ -112,14 +130,14 @@ public abstract class ObjectAccessorFactory {
                                 || methodName.length() < 4) {
                             continue;
                         }
-                        methodType = GET_METHOD;
+                        writerMethod = false;
                     } else if (methodName.startsWith("is")) {
                         minLength = 3;
                         if (method.getParameterCount() != 0 || method.getReturnType() != boolean.class
                                 || methodName.length() < 3) {
                             continue;
                         }
-                        methodType = GET_METHOD;
+                        writerMethod = false;
                     } else {
                         continue;
                     }
@@ -127,45 +145,43 @@ public abstract class ObjectAccessorFactory {
                     minusOne = minLength - 1;
                     if (methodName.length() == minLength) {
                         fieldName = String.valueOf(Character.toLowerCase(methodName.charAt(minusOne)));
-                    } else if (Character.isLowerCase(methodName.charAt(minusOne)) || Character.isUpperCase(methodName.charAt(minLength))) {
+                    } else if (Character.isUpperCase(methodName.charAt(minLength))) {
                         fieldName = methodName.substring(minusOne);
                     } else {
                         fieldName = Character.toLowerCase(methodName.charAt(minusOne)) + methodName.substring(minLength);
                     }
-                    mh = lookup.unreflect(method);
-                    switch (methodType) {
-                        case SET_METHOD: {
-                            fieldType = method.getParameterTypes()[0];
-                            site = LambdaMetafactory.metafactory(
-                                    lookup,
-                                    "set",
-                                    MethodType.methodType(ValueWriteAccessor.class),
-                                    MethodType.methodType(void.class, Object.class, Object.class),
-                                    mh,
-                                    MethodType.methodType(void.class, beanClass, fieldType)
-                            );
-                            writeAccessor = (ValueWriteAccessor) site.getTarget().invokeExact();
-                            writerMap.putIfAbsent(fieldName, writeAccessor);
 
-                        }
-                        break;
-                        case GET_METHOD: {
-                            fieldType = method.getReturnType();
-                            site = LambdaMetafactory.metafactory(
-                                    lookup,
-                                    "get",
-                                    MethodType.methodType(ValueReadAccessor.class),
-                                    MethodType.methodType(Object.class, Object.class),
-                                    mh,
-                                    MethodType.methodType(fieldType, beanClass)
-                            );
-                            readAccessor = (ValueReadAccessor) site.getTarget().invokeExact();
-                            readerMap.putIfAbsent(fieldName, readAccessor);
-                        }
-                        break;
-                        default:
-                            throw new IllegalStateException("unknown method type.");
-                    } // switch
+                    handle = lookup.unreflect(method);
+
+                    if (writerMethod && !writerMap.containsKey(fieldName)) {
+                        fieldType = method.getParameterTypes()[0];
+
+                        site = LambdaMetafactory.metafactory(
+                                lookup,
+                                "set",
+                                MethodType.methodType(ValueWriter.class),
+                                MethodType.methodType(void.class, Object.class, Object.class),
+                                handle,
+                                MethodType.methodType(void.class, beanClass, ClassUtils.wrapperClassIfNeed(fieldType))
+                        );
+                        writeAccessor = (ValueWriter) site.getTarget().invokeExact();
+                        writerMap.putIfAbsent(fieldName, writeAccessor);
+                    } else if (!writerMethod && !readerMap.containsKey(fieldName)) {
+                        fieldType = method.getReturnType();
+
+                        site = LambdaMetafactory.metafactory(
+                                lookup,
+                                "get",
+                                MethodType.methodType(ValueReader.class),
+                                MethodType.methodType(Object.class, Object.class),
+                                handle,
+                                MethodType.methodType(fieldType, beanClass)
+                        );
+                        readAccessor = (ValueReader) site.getTarget().invokeExact();
+                        readerMap.putIfAbsent(fieldName, readAccessor);
+                    } else {
+                        continue;
+                    }
 
                     oldFieldType = fieldTypeMap.putIfAbsent(fieldName, fieldType);
                     if (oldFieldType != null && oldFieldType != fieldType) {
@@ -173,10 +189,11 @@ public abstract class ObjectAccessorFactory {
                         throw new ObjectAccessException(m);
                     }
 
-                }
 
+                } // method loop
 
-            }
+            } // class loop
+
         } catch (ObjectAccessException e) {
             throw e;
         } catch (Throwable e) {
@@ -185,17 +202,21 @@ public abstract class ObjectAccessorFactory {
         return createAccessor(beanClass, fieldTypeMap, readerMap, writerMap);
     }
 
+
     private static ObjectAccessor createFieldAccessorPair(final Class<?> beanClass) {
-        final Map<String, ValueWriteAccessor> writerMap = _Collections.hashMap();
-        final Map<String, ValueReadAccessor> readerMap = _Collections.hashMap();
+        final Map<String, ValueWriter> writerMap = _Collections.hashMap();
+        final Map<String, ValueReader> readerMap = _Collections.hashMap();
 
         final Map<String, Class<?>> fieldTypeMap = _Collections.hashMap();
 
         try {
+            final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
             int modifiers;
             String fieldName;
-            ValueReadAccessor fieldReader;
-            ValueWriteAccessor fieldWriter;
+            ValueReader fieldReader;
+            ValueWriter fieldWriter;
+            VarHandle handle;
             for (Class<?> clazz = beanClass; clazz != Object.class; clazz = clazz.getSuperclass()) {
                 if (!FieldAccessBean.class.isAssignableFrom(clazz)) {
                     break;
@@ -208,10 +229,12 @@ public abstract class ObjectAccessorFactory {
                     }
                     fieldName = field.getName();
 
-                    fieldReader = field::get;
+                    handle = lookup.unreflectVarHandle(field);
+
+                    fieldReader = handle::get;
                     readerMap.putIfAbsent(fieldName, fieldReader);
 
-                    fieldWriter = field::set;
+                    fieldWriter = handle::set;
                     writerMap.putIfAbsent(fieldName, fieldWriter);
 
                     fieldTypeMap.putIfAbsent(fieldName, field.getType());
@@ -224,29 +247,34 @@ public abstract class ObjectAccessorFactory {
         return createAccessor(beanClass, fieldTypeMap, readerMap, writerMap);
     }
 
-    private static ObjectAccessor createAccessor(final Class<?> beanClass, Map<String, Class<?>> fieldTypeMap,
-                                                 final Map<String, ValueReadAccessor> readerMap,
-                                                 final Map<String, ValueWriteAccessor> writerMap) {
 
-        final Set<String> nameSet = new HashSet<>();
+    private static ObjectAccessor createAccessor(final Class<?> beanClass, Map<String, Class<?>> fieldTypeMap,
+                                                 final Map<String, ValueReader> readerMap,
+                                                 final Map<String, ValueWriter> writerMap) {
+
+        final Set<String> nameSet = _Collections.hashSetForSize(readerMap.size());
         nameSet.addAll(readerMap.keySet());
         nameSet.addAll(writerMap.keySet());
 
         final int nameCount = nameSet.size();
-        final Map<String, Integer> nameToIndexMap = _Collections.hashMap();
+        final Map<String, Integer> nameToIndexMap = _Collections.hashMapForSize(nameCount);
         final Class<?>[] classArray = new Class<?>[nameCount];
-        final ValueReadAccessor[] readerArray = new ValueReadAccessor[nameCount];
-        final ValueWriteAccessor[] writeArray = new ValueWriteAccessor[nameCount];
+        final ValueReader[] readerArray = new ValueReader[nameCount];
+        final ValueWriter[] writeArray = new ValueWriter[nameCount];
 
         int index = 0;
         boolean setterAndGetterMatch = true;
-        ValueReadAccessor reader;
-        ValueWriteAccessor writer;
+        ValueReader reader;
+        ValueWriter writer;
+        Class<?> type;
         for (String name : nameSet) {
 
             nameToIndexMap.put(name, index);
 
-            classArray[index] = fieldTypeMap.get(name);
+            type = fieldTypeMap.get(name);
+            assert type != null;
+            classArray[index] = type;
+
             reader = readerMap.get(name);
             writer = writerMap.get(name);
 
@@ -272,17 +300,17 @@ public abstract class ObjectAccessorFactory {
 
         private final Class<?>[] classArray;
 
-        private final ValueReadAccessor[] readerArray;
+        private final ValueReader[] readerArray;
 
-        private final ValueWriteAccessor[] writeArray;
+        private final ValueWriter[] writeArray;
 
         private final boolean setterAndGetterMatch;
 
         private BeanWriterAccessor(Class<?> beanClass, Map<String, Integer> nameToIndexMap,
-                                   Class<?>[] classArray, ValueReadAccessor[] readerArray,
-                                   ValueWriteAccessor[] writeArray, boolean setterAndGetterMatch) {
+                                   Class<?>[] classArray, ValueReader[] readerArray,
+                                   ValueWriter[] writeArray, boolean setterAndGetterMatch) {
             this.beanClass = beanClass;
-            this.nameToIndexMap = Collections.unmodifiableMap(nameToIndexMap);
+            this.nameToIndexMap = Map.copyOf(nameToIndexMap);
             this.classArray = classArray;
             this.readerArray = readerArray;
             this.writeArray = writeArray;
@@ -312,11 +340,11 @@ public abstract class ObjectAccessorFactory {
         @Nullable
         @Override
         public Object get(Object target, final int index) throws ObjectAccessException {
-            final ValueReadAccessor[] readerArray = this.readerArray;
+            final ValueReader[] readerArray = this.readerArray;
             if (index < 0 || index >= readerArray.length) {
                 throw invalidIndex(index);
             }
-            final ValueReadAccessor accessor = readerArray[index];
+            final ValueReader accessor = readerArray[index];
             if (accessor == null) {
                 String m = String.format("index[%s] is not readable for %s", index, this.beanClass.getName());
                 throw new ObjectAccessException(m);
@@ -331,11 +359,11 @@ public abstract class ObjectAccessorFactory {
         @Nullable
         @Override
         public Object get(final Object target, final String propertyName) throws ObjectAccessException {
-            final Integer index;
-            index = this.nameToIndexMap.get(propertyName);
-            final ValueReadAccessor accessor;
-            if (index == null || (accessor = this.readerArray[index]) == null) {
-                throw invalidProperty(propertyName);
+            final ValueReader accessor;
+            accessor = this.readerArray[safeIndex(propertyName)];
+            if (accessor == null) {
+                String m = String.format("%s.%s isn't readable", this.beanClass.getName(), propertyName);
+                throw new ObjectAccessException(m);
             }
             try {
                 return accessor.get(target);
@@ -350,7 +378,7 @@ public abstract class ObjectAccessorFactory {
                 return this.nameToIndexMap.keySet();
             }
             final Map<String, Integer> nameToIndexMap = this.nameToIndexMap;
-            final ValueReadAccessor[] readerArray = this.readerArray;
+            final ValueReader[] readerArray = this.readerArray;
             final Set<String> nameSet = new HashSet<>((int) (readerArray.length / 0.75f));
             for (Map.Entry<String, Integer> e : nameToIndexMap.entrySet()) {
                 if (readerArray[e.getValue()] != null) {
@@ -362,12 +390,7 @@ public abstract class ObjectAccessorFactory {
 
         @Override
         public Class<?> getJavaType(String propertyName) {
-            final int index;
-            index = getIndex(propertyName);
-            if (index < 0) {
-                throw invalidProperty(propertyName);
-            }
-            return this.classArray[index];
+            return this.classArray[safeIndex(propertyName)];
         }
 
         @Override
@@ -397,7 +420,7 @@ public abstract class ObjectAccessorFactory {
 
         @Override
         public boolean isWritable(final int index, Class<?> valueType) {
-            if (index < 0 || index >= this.classArray.length) {
+            if (index < 0 || index >= this.writeArray.length || this.writeArray[index] == null) {
                 return false;
             }
             return ClassUtils.isAssignableFrom(this.classArray[index], valueType);
@@ -405,24 +428,23 @@ public abstract class ObjectAccessorFactory {
 
         @Override
         public boolean isWritable(String propertyName, Class<?> valueType) {
-            final int index;
-            index = getIndex(propertyName);
-            if (index < 0) {
-                throw invalidProperty(propertyName);
-            }
-            return isWritable(index, valueType);
+            final Integer index;
+            index = this.nameToIndexMap.get(propertyName);
+            return index != null
+                    && this.writeArray[index] != null
+                    && ClassUtils.isAssignableFrom(this.classArray[index], valueType);
         }
 
 
         @Override
         public void set(Object target, int index, @Nullable Object value) throws ObjectAccessException {
-            final ValueWriteAccessor[] writeArray = this.writeArray;
+            final ValueWriter[] writeArray = this.writeArray;
             if (index < 0 || index >= writeArray.length) {
                 throw invalidIndex(index);
             }
-            final ValueWriteAccessor accessor = writeArray[index];
+            final ValueWriter accessor = writeArray[index];
             if (accessor == null) {
-                String m = String.format("index[%s] is not writeable for %s", index, this.beanClass.getName());
+                String m = String.format("index[%s] isn't writeable for %s", index, this.beanClass.getName());
                 throw new ObjectAccessException(m);
             }
             try {
@@ -436,11 +458,11 @@ public abstract class ObjectAccessorFactory {
         public void set(final Object target, final String propertyName, final @Nullable Object value)
                 throws ObjectAccessException {
 
-            final Integer index;
-            index = this.nameToIndexMap.get(propertyName);
-            final ValueWriteAccessor accessor;
-            if (index == null || (accessor = this.writeArray[index]) == null) {
-                throw invalidProperty(propertyName);
+            final ValueWriter accessor;
+            accessor = this.writeArray[safeIndex(propertyName)];
+            if (accessor == null) {
+                String m = String.format("%s.%s isn't writable", this.beanClass.getName(), propertyName);
+                throw new ObjectAccessException(m);
             }
             try {
                 accessor.set(target, value);
@@ -456,7 +478,7 @@ public abstract class ObjectAccessorFactory {
             if (this.setterAndGetterMatch) {
                 return this.nameToIndexMap.keySet();
             }
-            final ValueWriteAccessor[] writeArray = this.writeArray;
+            final ValueWriter[] writeArray = this.writeArray;
             final Map<String, Integer> nameToIndexMap = this.nameToIndexMap;
             final Set<String> nameSet = new HashSet<>((int) (writeArray.length / 0.75f));
             for (Map.Entry<String, Integer> e : nameToIndexMap.entrySet()) {
@@ -472,6 +494,14 @@ public abstract class ObjectAccessorFactory {
             return String.format("%s of %s.", ObjectAccessor.class.getName(), this.beanClass.getName());
         }
 
+        private int safeIndex(String propertyName) {
+            final Integer index;
+            index = this.nameToIndexMap.get(propertyName);
+            if (index == null) {
+                throw invalidProperty(propertyName);
+            }
+            return index;
+        }
 
         private ObjectAccessException invalidIndex(int index) {
             final Class<?> beanClass = this.beanClass;
@@ -485,18 +515,19 @@ public abstract class ObjectAccessorFactory {
             return new InvalidPropertyException(m, beanClass, propertyName);
         }
 
-        private ObjectAccessException accessError(Object propertyNameOrIndex, Throwable cause) {
+
+        private ObjectAccessException accessError(int index, Throwable cause) {
             final Class<?> beanClass = this.beanClass;
             final String m;
-            final ObjectAccessException e;
-            if (propertyNameOrIndex instanceof String) {
-                m = String.format("%s property of %s access occur error.", propertyNameOrIndex, beanClass.getName());
-                e = new InvalidPropertyException(m, beanClass, (String) propertyNameOrIndex, cause);
-            } else {
-                m = String.format("index[%s] of %s access occur error.", propertyNameOrIndex, beanClass.getName());
-                e = new ObjectAccessException(m, cause);
-            }
-            return e;
+            m = String.format("index[%s] of %s access occur error.", index, beanClass.getName());
+            return new ObjectAccessException(m, cause);
+        }
+
+        private ObjectAccessException accessError(String propertyName, Throwable cause) {
+            final Class<?> beanClass = this.beanClass;
+            final String m;
+            m = String.format("%s property of %s access occur error.", propertyName, beanClass.getName());
+            return new InvalidPropertyException(m, beanClass, propertyName, cause);
         }
 
 

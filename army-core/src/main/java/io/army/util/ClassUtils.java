@@ -95,9 +95,9 @@ public abstract class ClassUtils {
         if (left.isAssignableFrom(right)) {
             assignable = true;
         } else if (left.isPrimitive()) {
-            assignable = right == getWrapperClass(left);
+            assignable = right == wrapperClassOf(left);
         } else if (right.isPrimitive()) {
-            assignable = left.isAssignableFrom(getWrapperClass(right));
+            assignable = left.isAssignableFrom(wrapperClassOf(right));
         } else {
             assignable = false;
         }
@@ -108,15 +108,21 @@ public abstract class ClassUtils {
     public static boolean isWrapperClass(final Class<?> wrapperClass, final Class<?> primitiveClass) {
         final boolean match;
         if (primitiveClass.isPrimitive()) {
-            match = wrapperClass == getWrapperClass(primitiveClass);
+            match = wrapperClass == wrapperClassOf(primitiveClass);
         } else {
             match = false;
         }
         return match;
     }
 
+    public static Class<?> wrapperClassIfNeed(final Class<?> clazz) {
+        if (clazz.isPrimitive()) {
+            return wrapperClassOf(clazz);
+        }
+        return clazz;
+    }
 
-    public static Class<?> getWrapperClass(final Class<?> primitive) {
+    public static Class<?> wrapperClassOf(final Class<?> primitive) {
         final Class<?> wrapper;
         if (primitive == int.class) {
             wrapper = Integer.class;

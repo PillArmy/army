@@ -802,16 +802,11 @@ abstract class CriteriaContexts {
                 throw ContextStack.clearStackAndNullPointer();
             }
             final _Cte cte;
-            CriteriaContext left;
+            final CriteriaContext left;
             if (this.withCteContext != null) {
                 cte = this.doRefCte(this, cteName);
             } else if ((left = this.getLeftContext()) != null) {
-                CriteriaContext moreLeft = left;
-                while (moreLeft != null) {
-                    left = moreLeft;
-                    moreLeft = moreLeft.getLeftContext();
-                }
-                cte = left.refCte(cteName);
+                cte = refCteToFarLeftOrOuter(left, this, cteName);
             } else if (this.outerContext == null) {
                 throw unknownCte(cteName);
             } else {
@@ -1204,19 +1199,49 @@ abstract class CriteriaContexts {
             return null;
         }
 
+        /**
+         * @see StatementContext#refCteForSub(CriteriaContext, String)
+         * @see StatementContext#refCteFromRight(CriteriaContext, String)
+         */
+        final _Cte refCteToFarLeftOrOuter(CriteriaContext left, final CriteriaContext sourceContext, final String cteName) {
+            CriteriaContext moreLeft = left;
+            while (moreLeft != null) {
+                left = moreLeft;
+                moreLeft = moreLeft.getLeftContext();
+            }
+            return ((StatementContext) left).refCteFromRight(sourceContext, cteName);
+        }
 
         /**
          * @param sourceContext the context whose {@link CriteriaContext#refCte(String)} is invoked .
          */
         private _Cte refCteForSub(final CriteriaContext sourceContext, final String cteName) {
-            final StatementContext outerContext = this.outerContext;
+            final StatementContext outerContext;
+            final CriteriaContext left;
             final _Cte cte;
             if (this.withCteContext != null) {
                 cte = this.doRefCte(sourceContext, cteName);
-            } else if (outerContext == null) {
+            } else if ((left = this.getLeftContext()) != null) {
+                cte = refCteToFarLeftOrOuter(left, sourceContext, cteName);
+            } else if ((outerContext = this.outerContext) == null) {
                 throw unknownCte(cteName);
             } else {
-                cte = outerContext.refCteForSub(this, cteName);
+                cte = outerContext.refCteForSub(sourceContext, cteName);
+            }
+            return cte;
+        }
+
+
+        private _Cte refCteFromRight(final CriteriaContext sourceContext, final String cteName) {
+            // never ref left context
+            final StatementContext outerContext;
+            final _Cte cte;
+            if (this.withCteContext != null) {
+                cte = this.doRefCte(sourceContext, cteName);
+            } else if ((outerContext = this.outerContext) == null) {
+                throw unknownCte(cteName);
+            } else {
+                cte = outerContext.refCteForSub(sourceContext, cteName);
             }
             return cte;
         }
@@ -1256,13 +1281,8 @@ abstract class CriteriaContexts {
             CriteriaContext left;
             if (thisLevelCte != null) {
                 cte = thisLevelCte;
-            } else if ((left = getLeftContext()) != null) {
-                CriteriaContext moreLeft = left;
-                while (moreLeft != null) {
-                    left = moreLeft;
-                    moreLeft = moreLeft.getLeftContext();
-                }
-                cte = left.refCte(cteName);
+            } else if ((left = this.getLeftContext()) != null) {
+                cte = refCteToFarLeftOrOuter(left, sourceContext, cteName);
             } else if (this.outerContext == null) {
                 throw unknownCte(cteName);
             } else {
@@ -1345,7 +1365,7 @@ abstract class CriteriaContexts {
 
         }
 
-
+        @Nullable
         @Override
         public final TableMeta<?> getTable(final @Nullable String tableAlias) {
             if (tableAlias == null) {
@@ -1725,7 +1745,7 @@ abstract class CriteriaContexts {
 
             //4. assert nestedDerivedBufferMap
             final Map<String, _AliasDerivedBlock> nestedDerivedBufferMap = this.nestedDerivedBufferMap;
-            if (nestedDerivedBufferMap != null && nestedDerivedBufferMap.size() > 0) {
+            if (nestedDerivedBufferMap != null && !nestedDerivedBufferMap.isEmpty()) {
                 throw ContextStack.clearStackAndCastCriteriaApi();
             }
             this.nestedDerivedBufferMap = null; //clear
@@ -2008,7 +2028,7 @@ abstract class CriteriaContexts {
             } else if (tableItem instanceof DerivedTable) {
                 if (tableItem instanceof ArmyTabularFunction
                         && ((ArmyTabularFunction) tableItem).hasAnonymousField()
-                        && ((_AliasDerivedBlock) block).columnAliasList().size() == 0) {
+                        && ((_AliasDerivedBlock) block).columnAliasList().isEmpty()) {
                     throw noSpecifiedColumnFuncFieldAlias(block);
                 }
                 this.onAddDerived(block, (_SelectionMap) tableItem, alias);
@@ -2137,7 +2157,7 @@ abstract class CriteriaContexts {
                 } else if (tableItem instanceof DerivedTable) {
                     if (tableItem instanceof ArmyTabularFunction
                             && ((ArmyTabularFunction) tableItem).hasAnonymousField()
-                            && ((_AliasDerivedBlock) block).columnAliasList().size() == 0) {
+                            && ((_AliasDerivedBlock) block).columnAliasList().isEmpty()) {
                         throw noSpecifiedColumnFuncFieldAlias(block);
                     }
                     this.onAddDerived(block, (_SelectionMap) tableItem, alias);
@@ -2416,7 +2436,7 @@ abstract class CriteriaContexts {
                 final int columnSize;
                 columnSize = columnList.size();
 
-                columnMap = _Collections.hashMap((int) (columnSize / 0.75F));
+                columnMap = _Collections.hashMapForSize(columnSize);
                 FieldMeta<?> field;
                 for (int i = 0; i < columnSize; i++) {
                     field = columnList.get(i);
@@ -2820,6 +2840,7 @@ abstract class CriteriaContexts {
         }
 
 
+        @Nullable
         @Override
         public final CriteriaContext getLeftContext() {
             return this.leftContext;
@@ -2888,7 +2909,7 @@ abstract class CriteriaContexts {
                 this.selectItemList = selectItemList;
             } else if (!(selectItemList instanceof ArrayList)) {
                 final Map<Object, SelectionReference> selectionMap = this.refSelectionMap;
-                if (selectionMap != null && selectionMap.size() > 0) {
+                if (selectionMap != null && !selectionMap.isEmpty()) {
                     throw invokeRefSelectionInSelectionClause();
                 }
                 throw ContextStack.clearStackAndCastCriteriaApi();
@@ -2896,7 +2917,7 @@ abstract class CriteriaContexts {
 
             selectItemList.add((_SelectItem) selectItem);
 
-            if (!(selectItem instanceof _SelectionGroup)) {
+            if (!(selectItem instanceof _SelectionGroup group)) {
                 return this;
             }
 
@@ -2905,7 +2926,6 @@ abstract class CriteriaContexts {
                 throw ContextStack.criteriaError(this, String.format("unknown %s", selectItem));
             }
 
-            final _SelectionGroup group = (_SelectionGroup) selectItem;
             if (this.getOrCreateSelectionGroupMap().putIfAbsent(group.tableAlias(), group) != null) {
                 String m = String.format("%s group[%s] duplication", Selection.class.getName(),
                         group.tableAlias());
@@ -3067,7 +3087,7 @@ abstract class CriteriaContexts {
             }
 
             _SelectItem selectItem;
-            if (selectItemSize == 1 && (selectItem = selectItemList.get(0)) instanceof Selection) {
+            if (selectItemSize == 1 && (selectItem = selectItemList.getFirst()) instanceof Selection) {
                 selectionList = Collections.singletonList((Selection) selectItem);
             } else {
                 selectionList = _Collections.arrayList(selectItemSize);
@@ -3170,19 +3190,19 @@ abstract class CriteriaContexts {
 
             //validate DerivedGroup list
             final Map<String, _SelectionGroup> groupMap = this.selectionGroupMap;
-            if (groupMap != null && groupMap.size() > 0) {
+            if (groupMap != null && !groupMap.isEmpty()) {
                 this.validTableGroup();
             }
 
             final Map<String, Boolean> refWindowNameMap = this.refWindowNameMap;
-            if (refWindowNameMap != null && refWindowNameMap.size() > 0) {
+            if (refWindowNameMap != null && !refWindowNameMap.isEmpty()) {
                 throw unknownWindows(refWindowNameMap);
             }
 
             this.endSelectClauseIfNeed();
 
             final List<_SelectItem> selectItemList = this.selectItemList;
-            assert selectItemList != null && selectItemList.size() > 0;
+            assert selectItemList != null && !selectItemList.isEmpty();
 
             this.selectionGroupMap = null;
             this.refWindowNameMap = null;
@@ -3291,7 +3311,7 @@ abstract class CriteriaContexts {
             final _SelectItem selectItem;
             if (selectItemSize > 1) {
                 this.selectItemList = _Collections.unmodifiableList(selectItemList);
-            } else if ((selectItem = selectItemList.get(0)) instanceof Selection) {
+            } else if ((selectItem = selectItemList.getFirst()) instanceof Selection) {
                 final List<? extends SelectItem> list;
                 list = _Collections.singletonList((_Selection) selectItem);
                 this.selectItemList = (List<_SelectItem>) list;
