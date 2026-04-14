@@ -46,7 +46,7 @@ import java.util.function.Function;
  *
  * @since 0.6.0
  */
-public final class PostgreMultiRangeType extends PostgreRangeType implements PostgreRangeType.MultiRangeType {
+public final class PgMultiRangeType extends PgRangeType implements PgRangeType.MultiRangeType {
 
 
     /**
@@ -63,7 +63,7 @@ public final class PostgreMultiRangeType extends PostgreRangeType implements Pos
      * @throws IllegalArgumentException throw when javaType error
      * @throws MetaException            throw when param error.
      */
-    public static PostgreMultiRangeType from(final Class<?> javaType, final String param) throws MetaException {
+    public static PgMultiRangeType from(final Class<?> javaType, final String param) throws MetaException {
         final PostgreType sqlType;
         try {
             sqlType = PostgreType.valueOf(param);
@@ -89,25 +89,25 @@ public final class PostgreMultiRangeType extends PostgreRangeType implements Pos
      *                 <li>{@link PostgreType#TSTZMULTIRANGE}</li>
      *                 </ul>
      */
-    public static PostgreMultiRangeType from(final Class<?> javaType, final PostgreType sqlType)
+    public static PgMultiRangeType from(final Class<?> javaType, final PostgreType sqlType)
             throws IllegalArgumentException {
 
         final RangeFunction<?, ?> rangeFunc;
         final Class<?> componentType;
 
-        final PostgreMultiRangeType instance;
+        final PgMultiRangeType instance;
         if (isNotMultiRange(sqlType)) {
             throw new IllegalArgumentException(sqlTypeErrorMessage(sqlType));
         } else if (!javaType.isArray()) {
-            throw errorJavaType(PostgreMultiRangeType.class, javaType);
+            throw errorJavaType(PgMultiRangeType.class, javaType);
         } else if (javaType == String[].class) {
             instance = textInstance(sqlType);
         } else if ((componentType = javaType.getComponentType()).isArray()) {
-            throw errorJavaType(PostgreMultiRangeType.class, javaType);
+            throw errorJavaType(PgMultiRangeType.class, javaType);
         } else if ((rangeFunc = tryCreateDefaultRangeFunc(componentType, boundJavaType(sqlType))) == null) {
-            throw errorJavaType(PostgreMultiRangeType.class, javaType);
+            throw errorJavaType(PgMultiRangeType.class, javaType);
         } else {
-            instance = new PostgreMultiRangeType(sqlType, javaType, rangeFunc);
+            instance = new PgMultiRangeType(sqlType, javaType, rangeFunc);
         }
         return instance;
     }
@@ -126,18 +126,18 @@ public final class PostgreMultiRangeType extends PostgreRangeType implements Pos
      *                 </ul>
      * @throws IllegalArgumentException throw when javaType or sqlType error
      */
-    public static PostgreMultiRangeType fromFunc(final Class<?> javaType, final PostgreType sqlType,
-                                                 final RangeFunction<?, ?> rangeFunc)
+    public static PgMultiRangeType fromFunc(final Class<?> javaType, final PostgreType sqlType,
+                                            final RangeFunction<?, ?> rangeFunc)
             throws IllegalArgumentException {
         Objects.requireNonNull(rangeFunc);
         if (isNotMultiRange(sqlType)) {
             throw new IllegalArgumentException(sqlTypeErrorMessage(sqlType));
         } else if (javaType == String[].class || !javaType.isArray()) {
-            throw errorJavaType(PostgreMultiRangeType.class, javaType);
+            throw errorJavaType(PgMultiRangeType.class, javaType);
         } else if (javaType.getComponentType().isArray()) {
-            throw errorJavaType(PostgreMultiRangeType.class, javaType);
+            throw errorJavaType(PgMultiRangeType.class, javaType);
         }
-        return new PostgreMultiRangeType(sqlType, javaType, rangeFunc);
+        return new PgMultiRangeType(sqlType, javaType, rangeFunc);
     }
 
 
@@ -156,8 +156,8 @@ public final class PostgreMultiRangeType extends PostgreRangeType implements Pos
      * @throws IllegalArgumentException throw when javaType error
      * @throws MetaException            throw when param or methodName error.
      */
-    public static PostgreMultiRangeType fromMethod(final Class<?> javaType, final String param,
-                                                   final String methodName) throws MetaException {
+    public static PgMultiRangeType fromMethod(final Class<?> javaType, final String param,
+                                              final String methodName) throws MetaException {
 
         final PostgreType sqlType;
         try {
@@ -171,32 +171,32 @@ public final class PostgreMultiRangeType extends PostgreRangeType implements Pos
         if (isNotMultiRange(sqlType)) {
             throw new MetaException(sqlTypeErrorMessage(sqlType));
         } else if (javaType == String[].class || !javaType.isArray()) {
-            throw errorJavaType(PostgreMultiRangeType.class, javaType);
+            throw errorJavaType(PgMultiRangeType.class, javaType);
         } else if ((componentType = ArrayUtils.underlyingComponent(javaType)).isArray()) {
-            throw errorJavaType(PostgreMultiRangeType.class, javaType);
+            throw errorJavaType(PgMultiRangeType.class, javaType);
         }
         final RangeFunction<?, ?> rangeFunc;
-        rangeFunc = PostgreRangeType.createRangeFunction(componentType, boundJavaType(sqlType), methodName);
-        return new PostgreMultiRangeType(sqlType, javaType, rangeFunc);
+        rangeFunc = PgRangeType.createRangeFunction(componentType, boundJavaType(sqlType), methodName);
+        return new PgMultiRangeType(sqlType, javaType, rangeFunc);
     }
 
 
-    public static final PostgreMultiRangeType INT4_MULTI_RANGE_TEXT = new PostgreMultiRangeType(PostgreType.INT4MULTIRANGE, String[].class, null);
+    public static final PgMultiRangeType INT4_MULTI_RANGE_TEXT = new PgMultiRangeType(PostgreType.INT4MULTIRANGE, String[].class, null);
 
-    public static final PostgreMultiRangeType INT8_MULTI_RANGE_TEXT = new PostgreMultiRangeType(PostgreType.INT8MULTIRANGE, String[].class, null);
+    public static final PgMultiRangeType INT8_MULTI_RANGE_TEXT = new PgMultiRangeType(PostgreType.INT8MULTIRANGE, String[].class, null);
 
-    public static final PostgreMultiRangeType NUM_MULTI_RANGE_TEXT = new PostgreMultiRangeType(PostgreType.NUMMULTIRANGE, String[].class, null);
+    public static final PgMultiRangeType NUM_MULTI_RANGE_TEXT = new PgMultiRangeType(PostgreType.NUMMULTIRANGE, String[].class, null);
 
-    public static final PostgreMultiRangeType DATE_MULTI_RANGE_TEXT = new PostgreMultiRangeType(PostgreType.DATEMULTIRANGE, String[].class, null);
+    public static final PgMultiRangeType DATE_MULTI_RANGE_TEXT = new PgMultiRangeType(PostgreType.DATEMULTIRANGE, String[].class, null);
 
-    public static final PostgreMultiRangeType TS_MULTI_RANGE_TEXT = new PostgreMultiRangeType(PostgreType.TSMULTIRANGE, String[].class, null);
+    public static final PgMultiRangeType TS_MULTI_RANGE_TEXT = new PgMultiRangeType(PostgreType.TSMULTIRANGE, String[].class, null);
 
-    public static final PostgreMultiRangeType TS_TZ_MULTI_RANGE_TEXT = new PostgreMultiRangeType(PostgreType.TSTZMULTIRANGE, String[].class, null);
+    public static final PgMultiRangeType TS_TZ_MULTI_RANGE_TEXT = new PgMultiRangeType(PostgreType.TSTZMULTIRANGE, String[].class, null);
 
     /**
      * package method
      */
-    static PostgreMultiRangeType fromSingleType(final PostgreSingleRangeType type) {
+    static PgMultiRangeType fromSingleType(final PgSingleRangeType type) {
         final PostgreType sqlType;
         switch (type.dataType) {
             case INT4RANGE:
@@ -221,12 +221,12 @@ public final class PostgreMultiRangeType extends PostgreRangeType implements Pos
                 throw _Exceptions.unexpectedEnum(type.dataType);
         }
 
-        final PostgreMultiRangeType instance;
+        final PgMultiRangeType instance;
         if (type.javaType == String.class) {
             instance = textInstance(sqlType);
         } else {
             assert !type.javaType.isArray();
-            instance = new PostgreMultiRangeType(sqlType, ArrayUtils.arrayClassOf(type.javaType), type.rangeFunc);
+            instance = new PgMultiRangeType(sqlType, ArrayUtils.arrayClassOf(type.javaType), type.rangeFunc);
         }
         return instance;
     }
@@ -236,7 +236,7 @@ public final class PostgreMultiRangeType extends PostgreRangeType implements Pos
      * <p>
      * package constructor
      *     */
-    private PostgreMultiRangeType(PostgreType sqlType, Class<?> javaType, @Nullable RangeFunction<?, ?> rangeFunc) {
+    private PgMultiRangeType(PostgreType sqlType, Class<?> javaType, @Nullable RangeFunction<?, ?> rangeFunc) {
         super(sqlType, javaType, rangeFunc);
     }
 
@@ -257,7 +257,7 @@ public final class PostgreMultiRangeType extends PostgreRangeType implements Pos
         } else if ((rangeFunc = tryCreateDefaultRangeFunc(targetComponentType, boundJavaType(this.dataType))) == null) {
             throw noMatchCompatibleMapping(this, targetType);
         } else {
-            instance = new PostgreMultiRangeType(this.dataType, targetType, rangeFunc);
+            instance = new PgMultiRangeType(this.dataType, targetType, rangeFunc);
         }
         return instance;
     }
@@ -315,11 +315,11 @@ public final class PostgreMultiRangeType extends PostgreRangeType implements Pos
 
     @Override
     public MappingType rangeType() {
-        return PostgreSingleRangeType.fromMultiType(this);
+        return PgSingleRangeType.fromMultiType(this);
     }
 
     @Override
-    public PostgreMultiRangeType _fromMultiArray(final PostgreMultiRangeArrayType type) {
+    public PgMultiRangeType _fromMultiArray(final PostgreMultiRangeArrayType type) {
         final PostgreType sqlType;
         switch (type.dataType) {
             case INT4MULTIRANGE_ARRAY:
@@ -346,14 +346,14 @@ public final class PostgreMultiRangeType extends PostgreRangeType implements Pos
         final Class<?> javaType;
         javaType = type.javaType.getComponentType();
 
-        final PostgreMultiRangeType instance;
+        final PgMultiRangeType instance;
         final RangeFunction<?, ?> rangeFunc = type.rangeFunc;
         if (rangeFunc == null) {
             assert javaType == String[].class;
             instance = textInstance(sqlType);
         } else {
             assert !javaType.getComponentType().isArray();
-            instance = new PostgreMultiRangeType(sqlType, javaType, rangeFunc);
+            instance = new PgMultiRangeType(sqlType, javaType, rangeFunc);
         }
         return instance;
     }
@@ -462,8 +462,8 @@ public final class PostgreMultiRangeType extends PostgreRangeType implements Pos
         return match;
     }
 
-    private static PostgreMultiRangeType textInstance(final PostgreType sqlType) {
-        final PostgreMultiRangeType instance;
+    private static PgMultiRangeType textInstance(final PostgreType sqlType) {
+        final PgMultiRangeType instance;
         switch (sqlType) {
             case INT4MULTIRANGE:
                 instance = INT4_MULTI_RANGE_TEXT;

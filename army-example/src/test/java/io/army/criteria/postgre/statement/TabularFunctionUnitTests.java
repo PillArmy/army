@@ -23,7 +23,7 @@ import io.army.criteria.impl.Postgres;
 import io.army.criteria.impl.SQLs;
 import io.army.example.bank.domain.user.ChinaRegion_;
 import io.army.mapping.array.IntegerArrayType;
-import io.army.mapping.postgre.PostgreTsVectorType;
+import io.army.mapping.postgre.PgVectorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -43,8 +43,8 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
     public void unnestFunc() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space("a", PERIOD, ASTERISK))
-                .from(unnest(SQLs.literal(PostgreTsVectorType.INSTANCE, "cat:3 fat:2,4 rat:5A"))
+                .select(s -> s.space("a", DOT, ASTERISK))
+                .from(unnest(SQLs.literal(PgVectorType.INSTANCE, "cat:3 fat:2,4 rat:5A"))
                         ::withOrdinality
                 )
                 .as("a")
@@ -62,8 +62,8 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
     public void unnestArray() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space("a", PERIOD, ASTERISK)
-                        .comma("b", PERIOD, ASTERISK)
+                .select(s -> s.space("a", DOT, ASTERISK)
+                        .comma("b", DOT, ASTERISK)
                 )
                 .from(unnest(SQLs.literal(IntegerArrayType.LINEAR, new int[]{1, 2}))
                         ::withOrdinality
@@ -83,7 +83,7 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
     public void unnestMultiArray() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space("a", PERIOD, ASTERISK))
+                .select(s -> s.space("a", DOT, ASTERISK))
                 .from(unnest(array(1, 2, 3), array(1, 2, 3))::withOrdinality)
                 .as("a").parens("value1", "value2", "original")
                 .asQuery();
@@ -98,7 +98,7 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
     public void dynamicUnnestMultiArray() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space("a", PERIOD, ASTERISK))
+                .select(s -> s.space("a", DOT, ASTERISK))
                 .from(unnest(c -> {
                     c.accept(array(1, 2, 3));
                     c.accept(array(1, 2, 3));
@@ -113,7 +113,7 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
     public void unnestQueryArray() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space("a", PERIOD, ASTERISK))
+                .select(s -> s.space("a", DOT, ASTERISK))
                 .from(unnest(array(Postgres.subQuery()
                                 .select(ChinaRegion_.id)
                                 .from(ChinaRegion_.T, AS, "c")

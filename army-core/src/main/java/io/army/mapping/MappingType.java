@@ -89,7 +89,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem
         public final String toString() {
             return _StringUtils.builder()
                     .append(LengthType.class.getSimpleName())
-                    .append(_Constant.PERIOD)
+                    .append(_Constant.DOT)
                     .append(this.name())
                     .toString();
         }

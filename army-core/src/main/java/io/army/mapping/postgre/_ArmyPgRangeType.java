@@ -51,14 +51,14 @@ import java.util.function.Function;
  * <p>
  * Package class This class is base class of below:
  * <ul>
- *     <li>{@link PostgreRangeType}</li>
+ *     <li>{@link PgRangeType}</li>
  *     <li>{@link PostgreSingleRangeArrayType}</li>
  *     <li>{@link PostgreMultiRangeArrayType}</li>
  * </ul>
  *
  * @since 0.6.0
  */
-public abstract class _ArmyPostgreRangeType extends _ArmyNoInjectionType {
+public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
 
 
     public final PostgreType dataType;
@@ -69,15 +69,15 @@ public abstract class _ArmyPostgreRangeType extends _ArmyNoInjectionType {
 
     protected final RangeFunction<Object, ?> rangeFunc;
 
-    protected final PostgreSingleRangeType.MockRangeFunction<?> mockFunction;
+    protected final PgSingleRangeType.MockRangeFunction<?> mockFunction;
 
     /**
      * <p>
      * package constructor
      */
     @SuppressWarnings("unchecked")
-    protected _ArmyPostgreRangeType(final PostgreType dataType, final Class<?> javaType,
-                                    final @Nullable RangeFunction<?, ?> rangeFunc) {
+    protected _ArmyPgRangeType(final PostgreType dataType, final Class<?> javaType,
+                               final @Nullable RangeFunction<?, ?> rangeFunc) {
 
         if (javaType == String.class) {
             this.underlyingJavaType = javaType;
@@ -91,7 +91,7 @@ public abstract class _ArmyPostgreRangeType extends _ArmyNoInjectionType {
         if (this.underlyingJavaType == String.class || ArmyPostgreRange.class.isAssignableFrom(javaType)) {
             this.mockFunction = null;
         } else {
-            this.mockFunction = PostgreRangeType.createMockFunction(javaType, boundJavaType(dataType));
+            this.mockFunction = PgRangeType.createMockFunction(javaType, boundJavaType(dataType));
         }
     }
 
@@ -114,7 +114,7 @@ public abstract class _ArmyPostgreRangeType extends _ArmyNoInjectionType {
         if (type == this) {
             match = true;
         } else if (this.getClass().isInstance(type)) {
-            match = ((_ArmyPostgreRangeType) type).dataType == this.dataType;
+            match = ((_ArmyPgRangeType) type).dataType == this.dataType;
         } else {
             match = false;
         }
@@ -196,7 +196,7 @@ public abstract class _ArmyPostgreRangeType extends _ArmyNoInjectionType {
 
     @Nullable
     protected final Object deserialize(final String text) {
-        if (PostgreRangeType.INFINITY.equals(text)) {
+        if (PgRangeType.INFINITY.equals(text)) {
             return null;
         }
         final Object value;
@@ -247,14 +247,14 @@ public abstract class _ArmyPostgreRangeType extends _ArmyNoInjectionType {
     /**
      * army inner method
      */
-    public PostgreMultiRangeType _fromMultiArray(PostgreMultiRangeArrayType type) {
+    public PgMultiRangeType _fromMultiArray(PostgreMultiRangeArrayType type) {
         throw new UnsupportedOperationException();
     }
 
     /**
      * army inner method
      */
-    public PostgreSingleRangeType _fromSingleArray(PostgreSingleRangeArrayType type) {
+    public PgSingleRangeType _fromSingleArray(PostgreSingleRangeArrayType type) {
         throw new UnsupportedOperationException();
     }
 
@@ -314,7 +314,7 @@ public abstract class _ArmyPostgreRangeType extends _ArmyNoInjectionType {
     protected static RangeFunction<?, ?> tryCreateDefaultRangeFunc(final Class<?> targetType, final Class<?> elementType) {
         RangeFunction<?, ?> rangeFunc;
         try {
-            rangeFunc = PostgreRangeType.createRangeFunction(targetType, elementType, CREATE);
+            rangeFunc = PgRangeType.createRangeFunction(targetType, elementType, CREATE);
         } catch (Throwable e) {
             rangeFunc = null;
         }
@@ -327,11 +327,11 @@ public abstract class _ArmyPostgreRangeType extends _ArmyNoInjectionType {
         return (str, offset, end) -> {
             char ch;
             if (offset + 5 == end && ((ch = str.charAt(offset)) == 'e' || ch == 'E')
-                    && str.regionMatches(true, offset, PostgreRangeType.EMPTY, 0, 5)) {
+                    && str.regionMatches(true, offset, PgRangeType.EMPTY, 0, 5)) {
                 String m = "multi-range must be non-empty and non-null";
                 throw handler.apply(type, dataType, nonNull, new IllegalArgumentException(m));
             }
-            return PostgreRangeType.parseNonEmptyRange(str, offset, end, rangeFunc, parseFunc);
+            return PgRangeType.parseNonEmptyRange(str, offset, end, rangeFunc, parseFunc);
         };
     }
 
@@ -355,11 +355,11 @@ public abstract class _ArmyPostgreRangeType extends _ArmyNoInjectionType {
                 throw new IllegalArgumentException(m);
             }
             value = text;
-        } else if (PostgreRangeType.EMPTY.equalsIgnoreCase(text)) {
-            value = PostgreRangeType.emptyRange(javaType);
+        } else if (PgRangeType.EMPTY.equalsIgnoreCase(text)) {
+            value = PgRangeType.emptyRange(javaType);
         } else {
             try {
-                value = PostgreRangeType.parseNonEmptyRange(text, 0, text.length(), rangeFunc, parseFunc);
+                value = PgRangeType.parseNonEmptyRange(text, 0, text.length(), rangeFunc, parseFunc);
             } catch (Throwable e) {
                 throw handler.apply(type, dataType, text, e);
             }
@@ -373,7 +373,7 @@ public abstract class _ArmyPostgreRangeType extends _ArmyNoInjectionType {
         if (nonNull instanceof ArmyPostgreRange) {
             final ArmyPostgreRange<T> range = (ArmyPostgreRange<T>) nonNull;
             if (range.isEmpty()) {
-                builder.append(PostgreRangeType.EMPTY);
+                builder.append(PgRangeType.EMPTY);
             } else {
                 if (range.isIncludeLowerBound()) {
                     builder.append(_Constant.LEFT_SQUARE_BRACKET);
@@ -399,23 +399,23 @@ public abstract class _ArmyPostgreRangeType extends _ArmyNoInjectionType {
                 }
             }
         } else {
-            final PostgreRangeType.MockRangeFunction<T> mockFunction;
-            if (type instanceof PostgreSingleRangeType) {
-                mockFunction = (PostgreRangeType.MockRangeFunction<T>) ((PostgreSingleRangeType) type).mockFunction;
+            final PgRangeType.MockRangeFunction<T> mockFunction;
+            if (type instanceof PgSingleRangeType) {
+                mockFunction = (PgRangeType.MockRangeFunction<T>) ((PgSingleRangeType) type).mockFunction;
                 assert mockFunction != null;
-            } else if (type instanceof PostgreRangeType.UserDefinedRangeType) {
-                mockFunction = ((PostgreRangeType.UserDefinedRangeType<T>) type).mockFunction();
+            } else if (type instanceof PgRangeType.UserDefinedRangeType) {
+                mockFunction = ((PgRangeType.UserDefinedRangeType<T>) type).mockFunction();
             } else {
                 String m = String.format("either %s is %s type or %s is %s type.",
                         type.javaType().getName(),
                         ArmyPostgreRange.class.getName(),
                         type,
-                        PostgreRangeType.UserDefinedRangeType.class.getName()
+                        PgRangeType.UserDefinedRangeType.class.getName()
                 );
                 throw new IllegalArgumentException(m);
             }
             if (mockFunction.isEmpty.apply(nonNull)) {
-                builder.append(PostgreRangeType.EMPTY);
+                builder.append(PgRangeType.EMPTY);
             } else {
                 if (mockFunction.isIncludeLowerBound.apply(nonNull)) {
                     builder.append(_Constant.LEFT_SQUARE_BRACKET);

@@ -41,12 +41,12 @@ public interface SelectionConsumer extends Statement._DeferContextSpec {
 
     SelectionConsumer selection(SqlField field1, SqlField field2, SqlField field3, SqlField field4);
 
-    SelectionConsumer selection(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table);
+    SelectionConsumer selection(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table);
 
-    <P> SelectionConsumer selection(String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-                                    String childAlias, SQLs.SymbolPeriod period2, ComplexTableMeta<P, ?> child);
+    <P> SelectionConsumer selection(String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+                                    String childAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child);
 
-    SelectionConsumer selection(String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk star);
+    SelectionConsumer selection(String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk star);
 
 
 }

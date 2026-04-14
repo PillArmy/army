@@ -37,7 +37,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static io.army.criteria.impl.SQLs.AS;
-import static io.army.criteria.impl.SQLs.PERIOD;
+import static io.army.criteria.impl.SQLs.DOT;
 
 @Test(dataProvider = "localSessionProvider")
 public class InsertTests extends SessionTestsSupport {
@@ -196,7 +196,7 @@ public class InsertTests extends SessionTestsSupport {
                 .migration()
                 .insertInto(HistoryChinaRegion_.T)
                 .space()
-                .select("c", PERIOD, ChinaRegion_.T)
+                .select("c", DOT, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.regionType::equal, SQLs::literal, RegionType.NONE)
                 .and(SQLs::notExists, MySQLs.subQuery()

@@ -546,7 +546,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
         }
         return _StringUtils.builder()
                 .append(catalog)
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(schema)
                 .toString();
     }
@@ -764,7 +764,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
         sqlBuilder.append(_Constant.SPACE_RETURNING)
                 .append(_Constant.SPACE)
                 .append(safeChildTableAlias)
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(safeIdColumnName);
 
         sqlBuilder.append(_Constant.SPACE_AS_SPACE)
@@ -796,11 +796,11 @@ abstract class PostgreParser extends _ArmyDialectParser {
                     .append(safeChildTableAlias)
                     .append(_Constant.SPACE_ON_SPACE)
                     .append(safeChildTableAlias)
-                    .append(_Constant.PERIOD)
+                    .append(_Constant.DOT)
                     .append(safeIdColumnName)
                     .append(_Constant.SPACE_EQUAL_SPACE)
                     .append(childCte)
-                    .append(_Constant.PERIOD)
+                    .append(_Constant.DOT)
                     .append(_MetaBridge.ID);
 
         }
@@ -808,11 +808,11 @@ abstract class PostgreParser extends _ArmyDialectParser {
         sqlBuilder.append(_Constant.SPACE_WHERE)
                 .append(_Constant.SPACE)
                 .append(safeParentAlias)
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(safeIdColumnName)
                 .append(_Constant.SPACE_EQUAL_SPACE)
                 .append(childCte)
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(_MetaBridge.ID);
 
 
@@ -886,7 +886,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
         sqlBuilder.append(_Constant.SPACE_RETURNING)
                 .append(_Constant.SPACE)
                 .append(safeChildTableAlias)
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(safeIdColumnName);
 
         sqlBuilder.append(_Constant.SPACE_AS_SPACE)
@@ -910,11 +910,11 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 .append(_Constant.SPACE_WHERE)
                 .append(_Constant.SPACE)
                 .append(safeParentAlias)
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(safeIdColumnName)
                 .append(_Constant.SPACE_EQUAL_SPACE)
                 .append(deleteCte)
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(_MetaBridge.ID);
     }
 

@@ -21,20 +21,19 @@ import io.army.mapping.*;
 import io.army.mapping.array.IntegerArrayType;
 import io.army.mapping.array.ShortArrayType;
 import io.army.mapping.array.TextArrayType;
-import io.army.mapping.postgre.PostgreAclItemType;
-import io.army.mapping.postgre.PostgreInetType;
-import io.army.mapping.postgre.PostgreRangeType;
-import io.army.mapping.postgre.PostgreTsVectorType;
+import io.army.mapping.postgre.PgAclItemType;
+import io.army.mapping.postgre.PgInetType;
+import io.army.mapping.postgre.PgRangeType;
+import io.army.mapping.postgre.PgVectorType;
 import io.army.mapping.postgre.array.PostgreAclItemArrayType;
-import io.army.util.ArrayUtils;
 import io.army.util._Collections;
 
 import io.army.lang.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.UnaryOperator;
 
 @SuppressWarnings("unused")
 abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFunctions {
@@ -764,6 +763,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      *  quux
      *     </pre>
      *
+     * @param exp must be {@link TypedExpression}, see {@link TypedField} or  {@link Expression#mapTo(MappingType)} or {@link Expression#castTo(MappingType)}
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">unnest ( tsvector ) → setof record ( lexeme text, positions smallint[], weights text ) <br/>
      * Expands a tsvector into a set of rows, one per lexeme
      * </a>
@@ -777,23 +777,22 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * [3,4)
      * </a>
      */
-    public static _TabularWithOrdinalityFunction unnest(final Expression exp) {
-        final String name = "UNNEST";
+    public static _TabularWithOrdinalityFunction unnest(final TypedExpression exp) {  // here must be TypedExpression or error
+        final String name = "unnest";
 
         final MappingType type;
-        type = null; //TODO fix me exp.typeMeta().mappingType();
+        type = exp.typeMeta().mappingType();
         final _TabularWithOrdinalityFunction func;
         if (type instanceof MappingType.SqlArrayType) {
-            func = DialectFunctionUtils.oneArgColumnFunction(name, exp, null);
-        } else if (type instanceof PostgreTsVectorType) {
-            final List<Selection> fieldList = _Collections.arrayList(3);
-
-            fieldList.add(ArmySelections.forName("lexeme"));
-            fieldList.add(ArmySelections.forName("positions"));
-            fieldList.add(ArmySelections.forName("weights"));
-
+            func = DialectFunctionUtils.oneArgColumnFunction(name, exp, name); // postgre default function name as field name.
+        } else if (type instanceof PgVectorType) {
+            final List<Selection> fieldList = List.of(
+                    ArmySelections.forName("lexeme"),
+                    ArmySelections.forName("positions"),
+                    ArmySelections.forName("weights")
+            );
             func = DialectFunctionUtils.oneArgTabularFunc(name, exp, fieldList);
-        } else if (type instanceof PostgreRangeType.MultiRangeType) {
+        } else if (type instanceof PgRangeType.MultiRangeType) {
             func = DialectFunctionUtils.oneArgColumnFunction(name, exp, null);
         } else {
             throw CriteriaUtils.funcArgError(name, exp);
@@ -801,33 +800,6 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
         return func;
     }
 
-    /**
-     * <p>
-     * If exp is array,then the {@link MappingType} of function returned is the {@link MappingType} of the element.
-     * <pre><br/>
-     * unnest ( anyarray ) → setof anyelement
-     *
-     * Expands an array into a set of rows. The array's elements are read out in storage order.
-     *
-     * unnest(ARRAY[1,2]) →
-     *
-     *  1
-     *  2
-     * unnest(ARRAY[['foo','bar'],['baz','quux']]) →
-     *
-     *  foo
-     *  bar
-     *  baz
-     *  quux
-     *     </pre>
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">unnest ( anyarray ) → setof anyelement<br/>
-     * Expands an array into a set of rows. The array's elements are read out in storage order.
-     * </a>
-     */
-    public static _ColumnWithOrdinalityFunction unnest(final ArrayExpression exp) {
-        return DialectFunctionUtils.oneArgColumnFunction("UNNEST", exp, null);
-    }
 
     /**
      * <p>
@@ -848,11 +820,11 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * </a>
      */
     public static _TabularWithOrdinalityFunction unnest(ArrayExpression array1, ArrayExpression array2) {
-        final List<Selection> fieldList = _Collections.arrayList(2);
-
-        fieldList.add(ArmySelections.forAnonymous());
-        fieldList.add(ArmySelections.forAnonymous());
-        return DialectFunctionUtils.twoArgTabularFunc("UNNEST", array1, array2, fieldList);
+        final List<Selection> fieldList = List.of(
+                ArmySelections.forAnonymous(),
+                ArmySelections.forAnonymous()
+        );
+        return DialectFunctionUtils.twoArgTabularFunc("unnest", array1, array2, fieldList);
     }
 
     /**
@@ -875,7 +847,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      */
     public static _TabularWithOrdinalityFunction unnest(ArrayExpression array1, ArrayExpression array2,
                                                         ArrayExpression array3, ArrayExpression... restArray) {
-        final String name = "UNNEST";
+        final String name = "unnest";
 
         final List<Selection> fieldList = _Collections.arrayList(3 + restArray.length);
         fieldList.add(ArmySelections.forAnonymous());
@@ -1035,7 +1007,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
     /**
      * <p>
      * The {@link MappingType} of function return type: <ul>
-     * <li>If anyRange is {@link PostgreRangeType.SingleRangeType} ,then the multi range of the {@link MappingType} of anyRange.</li>
+     * <li>If anyRange is {@link PgRangeType.SingleRangeType} ,then the multi range of the {@link MappingType} of anyRange.</li>
      * <li>Else {@link TextType#INSTANCE}</li>
      * </ul>
      *
@@ -1055,8 +1027,9 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
 
     /**
      * <p>The {@link MappingType} of function return type: the {@link MappingType} of start
+     *
      * @param start literal or {@link Expression}
-     * @param stop literal or {@link Expression}
+     * @param stop  literal or {@link Expression}
      * @see <a href="https://www.postgresql.org/docs/current/functions-srf.html">Set Returning Functions<br/>
      * </a>
      */
@@ -1070,8 +1043,8 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * <p>The {@link MappingType} of function return type: the {@link MappingType} of start
      *
      * @param start literal or {@link Expression}
-     * @param stop literal or {@link Expression}
-     * @param step literal or {@link Expression}
+     * @param stop  literal or {@link Expression}
+     * @param step  literal or {@link Expression}
      * @see <a href="https://www.postgresql.org/docs/current/functions-srf.html">Set Returning Functions<br/>
      * </a>
      */
@@ -1084,6 +1057,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
 
     /**
      * <p>The {@link MappingType} of function return type:  {@link IntegerType#INSTANCE} rt
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-srf.html#FUNCTIONS-SRF-SUBSCRIPTS">Subscript Generating Functions<br/>
      * </a>
      */
@@ -1156,7 +1130,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
 
     /**
      * <p>
-     * The {@link MappingType} of function return type:  {@link PostgreInetType#INSTANCE}
+     * The {@link MappingType} of function return type:  {@link PgInetType#INSTANCE}
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">inet_client_addr () → inet<br/>
      * </a>
@@ -1179,7 +1153,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
 
     /**
      * <p>
-     * The {@link MappingType} of function return type:  {@link PostgreInetType#INSTANCE}
+     * The {@link MappingType} of function return type:  {@link PgInetType#INSTANCE}
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">inet_server_addr () → inet<br/>
      * </a>
@@ -1719,7 +1693,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
 
     /**
      * <p>
-     * The {@link MappingType} of function return type:  {@link PostgreAclItemType#TEXT}
+     * The {@link MappingType} of function return type:  {@link PgAclItemType#TEXT}
      *
      * @param isGrantable in most case {@link SQLs#TRUE} or {@link SQLs#FALSE}
      * @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-ACLITEM-FN-TABLE">makeaclitem ( grantee oid, grantor oid, privileges text, is_grantable boolean ) → aclitem<br/>

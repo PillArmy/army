@@ -17,7 +17,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static io.army.criteria.impl.SQLs.AS;
-import static io.army.criteria.impl.SQLs.PERIOD;
+import static io.army.criteria.impl.SQLs.DOT;
 
 @Test(dataProvider = "localSessionProvider")
 public class MergeTests extends SessionTestSupport {
@@ -125,7 +125,7 @@ public class MergeTests extends SessionTestSupport {
                 ).space()
                 .mergeInto(Captcha_.T, AS, "c")
                 .using(SQLs.subQuery()
-                        .select("t", PERIOD, RegisterRecord_.T)
+                        .select("t", DOT, RegisterRecord_.T)
                         .from(RegisterRecord_.T, AS, "t")
                         .orderBy(RegisterRecord_.id::desc)
                         .limit(SQLs::literal, 100)

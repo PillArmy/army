@@ -30,8 +30,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.*;
 
-import static io.army.dialect.Database.*;
-
 /**
  * <p>
  * This interface representing sql statement,this interface is base interface of below:
@@ -80,9 +78,9 @@ public interface Statement extends Item {
 
         _ElementCommaClause comma(SQLExpression exp);
 
-        _ElementCommaClause comma(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table);
+        _ElementCommaClause comma(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table);
 
-        _ElementCommaClause comma(String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk asterisk);
+        _ElementCommaClause comma(String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk asterisk);
 
     }
 
@@ -90,9 +88,9 @@ public interface Statement extends Item {
 
         _ElementCommaClause space(SQLExpression exp);
 
-        _ElementCommaClause space(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table);
+        _ElementCommaClause space(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table);
 
-        _ElementCommaClause space(String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk asterisk);
+        _ElementCommaClause space(String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk asterisk);
 
     }
 
@@ -100,9 +98,9 @@ public interface Statement extends Item {
 
         _ElementConsumer accept(SQLExpression exp);
 
-        _ElementConsumer accept(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table);
+        _ElementConsumer accept(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table);
 
-        _ElementConsumer accept(String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk asterisk);
+        _ElementConsumer accept(String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk asterisk);
 
     }
 
@@ -113,9 +111,9 @@ public interface Statement extends Item {
 
         _ElementObjectCommaClause comma(Expression key, SQLExpression exp);
 
-        _ElementObjectCommaClause comma(String keName, String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk asterisk);
+        _ElementObjectCommaClause comma(String keName, String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk asterisk);
 
-        _ElementObjectCommaClause comma(Expression key, String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk asterisk);
+        _ElementObjectCommaClause comma(Expression key, String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk asterisk);
     }
 
 
@@ -126,9 +124,9 @@ public interface Statement extends Item {
 
         _ElementObjectCommaClause space(Expression key, SQLExpression exp);
 
-        _ElementObjectCommaClause space(String keName, String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk asterisk);
+        _ElementObjectCommaClause space(String keName, String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk asterisk);
 
-        _ElementObjectCommaClause space(Expression key, String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk asterisk);
+        _ElementObjectCommaClause space(Expression key, String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk asterisk);
     }
 
 

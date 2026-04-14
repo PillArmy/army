@@ -42,7 +42,7 @@ import java.util.function.Function;
  * @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-BUILTIN">Built-in Range and Multirange Types</a>
  * @since 0.6.0
  */
-public class PostgreSingleRangeArrayType extends _ArmyPostgreRangeType implements MappingType.SqlArrayType {
+public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements MappingType.SqlArrayType {
 
 
     /**
@@ -172,7 +172,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPostgreRangeType implement
             throw errorJavaType(PostgreSingleRangeArrayType.class, javaType);
         }
         final RangeFunction<?, ?> rangeFunc;
-        rangeFunc = PostgreRangeType.createRangeFunction(componentType, boundJavaType(sqlType), methodName);
+        rangeFunc = PgRangeType.createRangeFunction(componentType, boundJavaType(sqlType), methodName);
         return new PostgreSingleRangeArrayType(sqlType, javaType, rangeFunc);
     }
 
@@ -254,8 +254,8 @@ public class PostgreSingleRangeArrayType extends _ArmyPostgreRangeType implement
         } else if (ArrayUtils.dimensionOf(this.javaType) > 1) {
             instance = new PostgreSingleRangeArrayType(this.dataType, this.javaType.getComponentType(), this.rangeFunc);
         } else {
-            final PostgreSingleRangeType rangeType;
-            rangeType = PostgreSingleRangeType.INT4_RANGE_TEXT._fromSingleArray(this);
+            final PgSingleRangeType rangeType;
+            rangeType = PgSingleRangeType.INT4_RANGE_TEXT._fromSingleArray(this);
             assert rangeType.dataType == this.dataType;
             instance = rangeType;
         }
@@ -293,7 +293,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPostgreRangeType implement
                                              final DataType dataType, final MappingType type,
                                              final ErrorHandler handler) {
         final BiConsumer<Object, StringBuilder> rangeSerializer;
-        rangeSerializer = (range, appender) -> PostgreRangeType.rangeToText(range, boundSerializer, type, appender);
+        rangeSerializer = (range, appender) -> PgRangeType.rangeToText(range, boundSerializer, type, appender);
         return PostgreArrays.arrayBeforeBind(nonNull, rangeSerializer, dataType, type, handler);
     }
 
@@ -327,10 +327,10 @@ public class PostgreSingleRangeArrayType extends _ArmyPostgreRangeType implement
                 final Object value;
                 char ch;
                 if (offset + 5 == end && ((ch = str.charAt(offset)) == 'e' || ch == 'E')
-                        && str.regionMatches(true, offset, PostgreRangeType.EMPTY, 0, 5)) {
-                    value = PostgreRangeType.emptyRange(rangeClass);
+                        && str.regionMatches(true, offset, PgRangeType.EMPTY, 0, 5)) {
+                    value = PgRangeType.emptyRange(rangeClass);
                 } else {
-                    value = PostgreRangeType.parseNonEmptyRange(str, offset, end, rangeFunc, parseFunc);
+                    value = PgRangeType.parseNonEmptyRange(str, offset, end, rangeFunc, parseFunc);
                 }
                 return value;
             };

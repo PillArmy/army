@@ -26,7 +26,7 @@ import io.army.lang.Nullable;
  * <p>
  * <strong>NOTE</strong> :This interface present only in DAO layer,not service layer,business layer,web layer.
  *
- * @see PostgreSingleRangeType
+ * @see PgSingleRangeType
  * @since 0.6.0
  */
 @DaoLayer

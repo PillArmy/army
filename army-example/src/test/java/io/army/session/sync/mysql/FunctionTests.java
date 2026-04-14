@@ -57,7 +57,7 @@ public class FunctionTests extends SessionTestSupport {
 
         final Select stmt;
         stmt = MySQLs.query()
-                .select(s -> s.space("t", PERIOD, ASTERISK))
+                .select(s -> s.space("t", DOT, ASTERISK))
                 .from(jsonTable(jsonDocument, "$[*]", COLUMNS, s -> s.space("rowId", FOR_ORDINALITY)
                                 .comma("ac", MySQLType.VARCHAR.parens(100).characterSet("utf8mb4").collate("utf8mb4_unicode_ci"),
                                         PATH, "$.a", o -> o.spaceDefault("111").onEmpty().spaceDefault("999").onError())
@@ -123,7 +123,7 @@ public class FunctionTests extends SessionTestSupport {
 
         final Select stmt;
         stmt = MySQLs.query()
-                .select(s -> s.space("t", PERIOD, ASTERISK))
+                .select(s -> s.space("t", DOT, ASTERISK))
                 .from(jsonTable(jsonDocument, "$[*]", COLUMNS, s -> s.space("rowId", FOR_ORDINALITY)
                                 .comma("a", MySQLType.INT, PATH, "$.a")
                                 .comma(NESTED, PATH, "$.b[*]", COLUMNS, ns -> ns.space("b1", MySQLType.INT, PATH, "$"))

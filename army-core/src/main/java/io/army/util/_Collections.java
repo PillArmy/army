@@ -50,6 +50,26 @@ public abstract class _Collections {
 
     }
 
+    public static <T> List<T> copyList(List<T> list) {
+        if (list.isEmpty()) {
+            list = List.of();
+        } else if (!isUnmodifiableList(list)) {
+            list = List.copyOf(list);
+        }
+        return list;
+    }
+
+    public static boolean isUnmodifiableList(final @Nullable List<?> list) {
+        if (list == null) {
+            return false;
+        }
+        final String className = list.getClass().getName();
+        return className.startsWith("java.util.ImmutableCollections$")
+                || className.equals("java.util.Collections$SingletonList")
+                || className.equals("java.util.Collections$UnmodifiableList")
+                || className.equals("java.util.Collections$UnmodifiableRandomAccessList");
+    }
+
     public static <T> List<T> unmodifiableListForDeveloper(List<T> list) {
         return unmodifiableList(list);
     }

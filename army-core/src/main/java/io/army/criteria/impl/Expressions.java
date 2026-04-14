@@ -22,7 +22,6 @@ import io.army.dialect.*;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.mapping.optional.JsonPathType;
-import io.army.mapping.optional.NoCastIntegerType;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TypeMeta;
 import io.army.util.ArrayUtils;
@@ -44,6 +43,7 @@ import java.util.function.Consumer;
  * @since 0.6.0
  */
 abstract class Expressions {
+
 
     private Expressions() {
     }
@@ -88,19 +88,6 @@ abstract class Expressions {
         return new CastTypeExpression(expression, typeMeta);
     }
 
-    static TypedArrayExpression castExpToArray(OperationExpression expression, @Nullable ArrayMappingType type) {
-        if (type == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        }
-        return new CastArrayTypeExpression(expression, type);
-    }
-
-    static JsonExpression castExpToJson(OperationExpression expression, @Nullable JsonMappingType type) {
-        if (type == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        }
-        return new CastJsonTypeExpression(expression, type);
-    }
 
     static SimpleExpression scalarExpression(final SubQuery subQuery) {
         validateScalarSubQuery(subQuery);
@@ -233,131 +220,53 @@ abstract class Expressions {
         }
         if (right instanceof SubQuery) {
             assertColumnSubQuery(operator, queryOperator, (SubQuery) right);
-        } else if (!(right instanceof ArrayExpression)) {
-            // no bug,never here
-            throw new IllegalArgumentException();
-        } else if (!(right instanceof OperationExpression)) {
+        }
+        //else if (!(right instanceof ArrayExpression)) {  // TODO 为什么 有这行
+//            // no bug,never here
+//            throw new IllegalArgumentException();
+//        }
+        else if (!(right instanceof OperationExpression)) {
             throw ContextStack.clearStackAndNonArmyItem(right);
         }
         return new SubQueryPredicate(left, operator, queryOperator, right);
     }
 
 
-    static SimpleExpression arrayElementExp(OperationExpression arrayExp, int index) {
-        if (!(arrayExp instanceof ArmyArrayExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new OneDimensionArrayElementExpression(arrayExp, index);
+    static Expression arraySliceExp(OperationExpression array, List<?> subscriptList) {
+        return new ArraySliceExpression(array, subscriptList);
     }
 
-    static SimpleExpression arrayElementExp(OperationExpression arrayExp, int index1, int index2) {
-        if (!(arrayExp instanceof ArmyArrayExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new TwoDimensionArrayElementExpression(arrayExp, index1, index2);
+    static Expression objectDotExp(OperationExpression object, List<?> subscriptList) {
+        return new DotOperatorExpression(object, subscriptList);
     }
 
-    static SimpleExpression arrayElementExp(OperationExpression arrayExp, int index1, int index2, int index3, int[] restIndex) {
-        if (!(arrayExp instanceof ArmyArrayExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new ThreeDimensionIndexArrayElementExpression(arrayExp, index1, index2, index3, restIndex);
+    static Expression objectBracketExp(OperationExpression object, List<?> subscriptList) {
+        return new BracketOperatorExpression(object, subscriptList);
     }
 
-    static SimpleExpression arrayElementExp(OperationExpression arrayExp, Expression index) {
-        if (!(arrayExp instanceof ArmyArrayExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new OneDimensionArrayElementExpression(arrayExp, index);
+
+    static <T> List<Expression> createSubscriptExpList(BiFunction<MappingType, T, Expression> func, List<T> subscriptList) {
+        final List<Expression> list = _Collections.arrayList(subscriptList.size());
+        for (T subscript : subscriptList) {
+            list.add(createSubscriptExp(func, subscript));
+        } // loop
+        return list;
     }
 
-    static SimpleExpression arrayElementExp(OperationExpression arrayExp, Expression index1, Expression index2) {
-        if (!(arrayExp instanceof ArmyArrayExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
+
+    static <T> Expression createSubscriptExp(BiFunction<MappingType, T, Expression> func, @Nullable T subscript) {
+        final Expression exp;
+        exp = switch (subscript) {
+            case null -> throw ContextStack.clearStackAndNullPointer();
+            case Integer _ -> func.apply(IntegerType.INSTANCE, subscript);
+            case String _ -> func.apply(StringType.INSTANCE, subscript);
+            default -> throw ContextStack.clearStackAndCriteriaError("subscript literal must be Integer or String");
+        };
+        if (exp == null) {
+            throw ContextStack.clearStackAndNullPointer();
         }
-        return new TwoDimensionArrayElementExpression(arrayExp, index1, index2);
-    }
 
-    static SimpleExpression arrayElementExp(OperationExpression arrayExp, Expression index1, Expression index2,
-                                            Expression index3, Expression[] restIndex) {
-        if (!(arrayExp instanceof ArmyArrayExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new ThreeDimensionArrayElementExpression(arrayExp, index1, index2, index3, restIndex);
-    }
-
-    /*-------------------below array element array expression -------------------*/
-
-
-    static ArrayExpression arrayElementArrayExp(OperationExpression arrayExp, int index) {
-        if (!(arrayExp instanceof ArmyArrayExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new OneDimensionArrayElementArrayExpression(arrayExp, index);
-    }
-
-    static ArrayExpression arrayElementArrayExp(OperationExpression arrayExp, int index1, int index2) {
-        if (!(arrayExp instanceof ArmyArrayExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new TwoDimensionArrayElementArrayExpression(arrayExp, index1, index2);
-    }
-
-    static ArrayExpression arrayElementArrayExp(OperationExpression arrayExp, int index1, int index2, int index3, int[] restIndex) {
-        if (!(arrayExp instanceof ArmyArrayExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new ThreeDimensionIndexArrayElementArrayExpression(arrayExp, index1, index2, index3, restIndex);
-    }
-
-    static ArrayExpression arrayElementArrayExp(OperationExpression arrayExp, ArraySubscript index) {
-        if (!(arrayExp instanceof ArmyArrayExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new OneDimensionArrayElementArrayExpression(arrayExp, index);
-    }
-
-    static ArrayExpression arrayElementArrayExp(OperationExpression arrayExp, ArraySubscript index1, ArraySubscript index2) {
-        if (!(arrayExp instanceof ArmyArrayExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new TwoDimensionArrayElementArrayExpression(arrayExp, index1, index2);
-    }
-
-    static ArrayExpression arrayElementArrayExp(OperationExpression arrayExp, ArraySubscript index1, ArraySubscript index2,
-                                                ArraySubscript index3, ArraySubscript[] restIndex) {
-        if (!(arrayExp instanceof ArmyArrayExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new ThreeDimensionArrayElementArrayExpression(arrayExp, index1, index2, index3, restIndex);
-    }
-
-    static JsonExpression jsonArrayElement(OperationExpression json, int index) {
-        if (!(json instanceof JsonExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new JsonArrayElementExpression(json, index);
-    }
-
-    static JsonExpression jsonObjectAttr(OperationExpression json, String keyName) {
-        if (!(json instanceof JsonExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new JsonObjectAttrExpression(json, keyName);
-    }
-
-    static JsonExpression jsonPathExtract(OperationExpression json, String jsonPath) {
-        if (!(json instanceof JsonExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new JsonPathExtractExpression(json, jsonPath);
-    }
-
-    static JsonExpression jsonPathExtract(OperationExpression json, Expression jsonPath) {
-        if (!(json instanceof JsonExpression)) {
-            throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
-        }
-        return new JsonPathExtractExpression(json, jsonPath);
+        return exp;
     }
 
 
@@ -367,19 +276,18 @@ abstract class Expressions {
     }
 
 
-    static ArrayExpression array(@Nullable List<?> elementList) {
+    static Expression array(@Nullable List<?> elementList) {
         if (elementList == null) {
             throw ContextStack.clearStackAndNullPointer();
         }
-        final List<?> list;
-        if (elementList.isEmpty()) {
-            list = List.of();
-        } else if (elementList.getClass().getName().startsWith("java.util.ImmutableCollections$")) {
-            list = elementList;
-        } else {
-            list = _Collections.unmodifiableList(elementList);
+        return new SimpleArrayExpression(_Collections.copyList(elementList));
+    }
+
+    static Expression array(@Nullable SubQuery subQuery) {
+        if (subQuery == null) {
+            throw ContextStack.clearStackAndNullPointer();
         }
-        return new SimpleArrayExpression(list);
+        return new SubQueryArrayExpression(subQuery);
     }
 
 
@@ -497,8 +405,6 @@ abstract class Expressions {
 
     /**
      * @see CastTypeExpression
-     * @see CastArrayTypeExpression
-     * @see CastJsonTypeExpression
      */
     private static void appendTypeCastExp(ArmySQLExpression expression, StringBuilder sqlBuilder, _SqlContext context, MappingType type) {
         final boolean outerParen = !(expression instanceof ArmySimpleSQLExpression);
@@ -561,6 +467,100 @@ abstract class Expressions {
         }
 
     }
+
+
+    ///
+    ///
+    /// @param nullAction 1. {@link Boolean#TRUE} : output the null as parameter or literal
+    /// 2. {@link Boolean#FALSE} : no action
+    /// 3. {@link String} : the error message when expression is null
+    ///
+    ///
+    static void appendRightExpression(Object expression, StringBuilder sqlBuilder, _SqlContext context, Object nullAction) {
+        if (expression instanceof SQLExpression) {
+            appendConcatenationExpression((SQLExpression) expression, sqlBuilder, context);
+        } else if (expression != SQLs.ABSENT) {
+            context.appendParam(SQLs.parameter(expression));
+        } else if (nullAction == Boolean.TRUE) {
+            context.appendParam(SQLs.param(StringType.INSTANCE, null));
+        } else if (nullAction == Boolean.FALSE) {
+            // no-op
+        } else {
+            throw new CriteriaException(nullAction.toString());
+        }
+    }
+
+    static void appendConcatenationExpression(SQLExpression expression, StringBuilder sqlBuilder, _SqlContext context) {
+        final boolean outerParen = !(expression instanceof ArmySimpleSQLExpression);
+        if (outerParen) {
+            sqlBuilder.append(_Constant.LEFT_PAREN);
+        }
+        ((ArmySQLExpression) expression).appendSql(sqlBuilder, context);
+        if (outerParen) {
+            sqlBuilder.append(_Constant.RIGHT_PAREN);
+        }
+    }
+
+    ///
+    ///
+    /// @param nullAction 1. {@link Boolean#TRUE} : output the null as parameter or literal
+    /// 2. {@link Boolean#FALSE} : no action
+    /// 3. {@link String} : the error message when expression is null
+    ///
+    ///
+    static void toStringRightExpression(@Nullable Object expression, StringBuilder builder, Object nullAction) {
+        switch (expression) {
+            case null:
+                if (nullAction == Boolean.TRUE) {
+                    builder.append(" ?");
+                } else if (nullAction == Boolean.FALSE) {
+                    // no-op
+                } else {
+                    throw new CriteriaException(nullAction.toString());
+                }
+                break;
+            case SQLExpression _:
+                toStringConcatenationExpression((SQLExpression) expression, builder);
+                break;
+            default:
+                builder.append(" ?");
+
+        }
+
+    }
+
+    static void toStringConcatenationExpression(SQLExpression expression, StringBuilder builder) {
+        final boolean outerParen = !(expression instanceof ArmySimpleSQLExpression);
+        if (outerParen) {
+            builder.append(_Constant.LEFT_PAREN);
+        }
+        builder.append(expression);
+        if (outerParen) {
+            builder.append(_Constant.RIGHT_PAREN);
+        }
+    }
+
+
+    static void assertSliceSubscriptListSize(List<?> subscriptList) {
+        final int size = subscriptList.size();
+        if ((size & 1) != 0) {
+            String s = String.format("array slice subscript list size[%s] is odd", size);
+            throw ContextStack.clearStackAndCriteriaError(s);
+        }
+    }
+
+
+    static void assertSubscriptListNotEmpty(List<?> subscriptList, String type) {
+        if (subscriptList.isEmpty()) {
+            throw ContextStack.clearStackAndCriteriaError(String.format("%s subscript list must non-empty.", type));
+        }
+    }
+
+
+    private static CriteriaException subscriptError(@Nullable Object subscript, String type) {
+        return new CriteriaException(String.format("subscript[%s] and bracket of %s not match", subscript, type));
+    }
+
 
     /**
      * @see #inPredicate(SQLExpression, boolean, SQLColumnSet)
@@ -1332,63 +1332,6 @@ abstract class Expressions {
     } // CastTypeExpression
 
 
-    /**
-     * @see #castExpToArray(OperationExpression, ArrayMappingType)
-     */
-    private static final class CastArrayTypeExpression extends OperationArrayExpression
-            implements TypedArrayExpression {
-
-        private final ArmySQLExpression expression;
-
-        private final ArrayMappingType type;
-
-        private CastArrayTypeExpression(ArmySQLExpression expression, ArrayMappingType type) {
-            this.expression = expression;
-            this.type = type;
-        }
-
-        @Override
-        public TypeMeta typeMeta() {
-            return this.type;
-        }
-
-        @Override
-        public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
-            appendTypeCastExp(this.expression, sqlBuilder, context, this.type);
-        }
-
-        @Override
-        public String toString() {
-            return this.expression.toString();
-        }
-
-    } // CastArrayTypeExpression
-
-    /**
-     * @see #castExpToJson(OperationExpression, JsonMappingType)
-     */
-    private static final class CastJsonTypeExpression extends OperationJsonExpression {
-
-        private final ArmySQLExpression expression;
-
-        private CastJsonTypeExpression(ArmySQLExpression expression, JsonMappingType type) {
-            super(type);
-            this.expression = expression;
-        }
-
-        @Override
-        public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
-            appendTypeCastExp(this.expression, sqlBuilder, context, this.type);
-        }
-
-        @Override
-        public String toString() {
-            return this.expression.toString();
-        }
-
-    } // CastJsonTypeExpression
-
-
     private static final class SubQueryPredicate extends OperationPredicate.OperationCompoundPredicate {
         private final ArmySQLExpression left;
 
@@ -1416,15 +1359,13 @@ abstract class Expressions {
             this.left.appendSql(sqlBuilder, context);
             sqlBuilder.append(this.operator.spaceOperator)
                     .append(this.queryOperator.spaceRender());
-            final RightOperand right = this.left;
+
+            final RightOperand right = this.right;
 
             if (right instanceof SubQuery) {
                 context.appendSubQuery((SubQuery) right);
-            } else if (right instanceof ArrayExpression) {
-                ((ArmyExpression) right).appendSql(sqlBuilder, context);
             } else {
-                //no bug,never here
-                throw new IllegalStateException();
+                ((ArmySQLExpression) right).appendSql(sqlBuilder, context);
             }
 
         }
@@ -1638,735 +1579,223 @@ abstract class Expressions {
     }//InOperationPredicate
 
 
-    private static abstract class ArrayElementExpression extends OperationExpression.OperationSimpleExpression {
+    ///
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
+    ///
+    private static final class ArraySliceExpression extends OperationExpression.OperationSimpleExpression {
 
-        private final ArmyArrayExpression arrayExp;
+        private final ArmyExpression expression;
 
+        private final List<?> subscriptList;
 
-        // private final TypeMeta type;
+        /**
+         * @see #arraySliceExp(OperationExpression, List)
+         */
+        private ArraySliceExpression(ArmyExpression expression, List<?> subscriptList) {
+            assertSliceSubscriptListSize(subscriptList);
+            this.expression = expression;
+            this.subscriptList = subscriptList;
 
-        private ArrayElementExpression(final OperationExpression arrayExp) {
-            this.arrayExp = (ArmyArrayExpression) arrayExp;
-//            final TypeMeta arrayType;
-//            arrayType = arrayExp.typeMeta();
-//
-//            if (this instanceof ArrayExpression) { // TODO  fix me bug ? ,在去类型化后,怎么表达
-//                if (arrayType instanceof MappingType) {
-//                    this.type = arrayType;
-//                } else {
-//                    // avoid to field codec
-//                    this.type = arrayType.mappingType();
-//                }
-//            } else if (arrayType instanceof MappingType) {
-//                this.type = ((MappingType.SqlArrayType) arrayType).elementType();
-//            } else {
-//                // avoid to field codec
-//                this.type = ((MappingType.SqlArrayType) arrayType.mappingType()).elementType();
-//            }
-        }
-
-        @Override
-        public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
-
-            final boolean outerParens;
-            outerParens = !(this.arrayExp instanceof io.army.criteria.impl.SimpleArrayExpression);
-
-            if (outerParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-
-            this.arrayExp.appendSql(sqlBuilder, context);
-
-            if (outerParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-
-            this.appendSubscripts(sqlBuilder, context);
         }
 
 
         @Override
-        public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // always false
-            return false;
-        }
-
-        @Override
-        public final String toString() {
-            final StringBuilder sqlBuilder;
-            sqlBuilder = new StringBuilder();
-
-            final boolean outerParens;
-            outerParens = this.arrayExp instanceof io.army.criteria.impl.SimpleArrayExpression;
-
-            if (outerParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-
-            sqlBuilder.append(this.arrayExp);
-
-            if (outerParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-            this.subscriptsToString(sqlBuilder);
-            return sqlBuilder.toString();
-        }
-
-
-        abstract void appendSubscripts(StringBuilder sqlBuilder, _SqlContext context);
-
-        abstract void subscriptsToString(StringBuilder builder);
-
-
-        static void appendSubscript(final Object index, final StringBuilder sqlBuilder,
-                                    final _SqlContext context) {
-            sqlBuilder.append(_Constant.LEFT_SQUARE_BRACKET);
-            if (index instanceof Integer) {
-                sqlBuilder.append(_Constant.SPACE)
-                        .append(index);
-            } else {
-                ((ArmyArraySubscript) index).appendSql(sqlBuilder, context);
-            }
-            sqlBuilder.append(_Constant.SPACE_RIGHT_SQUARE_BRACKET);
-        }
-
-        static void subscriptToString(final Object index, final StringBuilder builder) {
-            builder.append(_Constant.LEFT_SQUARE_BRACKET);
-            if (index instanceof Integer) {
-                builder.append(_Constant.SPACE);
-            }
-            builder.append(index);
-            builder.append(_Constant.SPACE_RIGHT_SQUARE_BRACKET);
-        }
-
-
-    }//ArrayElementExpression
-
-    private static class OneDimensionArrayElementExpression extends ArrayElementExpression {
-
-        private final Object index;
-
-        private OneDimensionArrayElementExpression(OperationExpression arrayExp, Object index) {
-            super(arrayExp);
-            assert index instanceof Integer || index instanceof ArmyArraySubscript;
-            this.index = index;
-        }
-
-        @Override
-        final void appendSubscripts(StringBuilder sqlBuilder, _SqlContext context) {
-            appendSubscript(this.index, sqlBuilder, context);
-        }
-
-        @Override
-        final void subscriptsToString(StringBuilder builder) {
-            subscriptToString(this.index, builder);
-        }
-
-    }//OneDimensionArrayElementExpression
-
-
-    private static class TwoDimensionArrayElementExpression extends ArrayElementExpression {
-
-        private final Object index1;
-
-        private final Object index2;
-
-        private TwoDimensionArrayElementExpression(OperationExpression arrayExp, Object index1, Object index2) {
-            super(arrayExp);
-            assert index1 instanceof Integer || index1 instanceof ArmyArraySubscript;
-            assert index2 instanceof Integer || index2 instanceof ArmyArraySubscript;
-            this.index1 = index1;
-            this.index2 = index2;
-        }
-
-        @Override
-        final void appendSubscripts(StringBuilder sqlBuilder, _SqlContext context) {
-            appendSubscript(this.index1, sqlBuilder, context);
-            appendSubscript(this.index2, sqlBuilder, context);
-        }
-
-        @Override
-        final void subscriptsToString(StringBuilder builder) {
-            subscriptToString(this.index1, builder);
-            subscriptToString(this.index2, builder);
-        }
-
-    }//TwoDimensionArrayElementExpression
-
-    private static class ThreeDimensionIndexArrayElementExpression extends ArrayElementExpression {
-
-        private final int index1;
-
-        private final int index2;
-
-        private final int index3;
-
-        private final int[] restIndex;
-
-        private ThreeDimensionIndexArrayElementExpression(OperationExpression arrayExp, int index1, int index2,
-                                                          int index3, int[] restIndex) {
-            super(arrayExp);
-
-            this.index1 = index1;
-            this.index2 = index2;
-            this.index3 = index3;
-            this.restIndex = restIndex;
-        }
-
-        @Override
-        final void appendSubscripts(StringBuilder sqlBuilder, _SqlContext context) {
-            appendSubscript(this.index1, sqlBuilder, context);
-            appendSubscript(this.index2, sqlBuilder, context);
-            appendSubscript(this.index3, sqlBuilder, context);
-
-            for (int index : this.restIndex) {
-                appendSubscript(index, sqlBuilder, context);
+        public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
+            // NOTE ,here don't output Leading space,because here output [] of array
+            appendConcatenationExpression(this.expression, sqlBuilder, context);
+            final List<?> list = this.subscriptList;
+            final int size = list.size();
+            for (int i = 0; i < size; i++) {
+                sqlBuilder.append('[');
+                appendRightExpression(list.get(i++), sqlBuilder, context, Boolean.FALSE);
+                sqlBuilder.append(':');
+                appendRightExpression(list.get(i), sqlBuilder, context, Boolean.FALSE);
+                sqlBuilder.append(']');
             }
 
         }
-
-        @Override
-        final void subscriptsToString(StringBuilder builder) {
-            subscriptToString(this.index1, builder);
-            subscriptToString(this.index2, builder);
-            subscriptToString(this.index3, builder);
-
-            for (int index : this.restIndex) {
-                subscriptToString(index, builder);
-            }
-        }
-
-
-    }//ThreeDimensionIndexArrayElementExpression
-
-
-    private static class ThreeDimensionArrayElementExpression extends ArrayElementExpression {
-
-        private final ArmyArraySubscript index1;
-
-        private final ArmyArraySubscript index2;
-
-        private final ArmyArraySubscript index3;
-
-        private final ArraySubscript[] restIndex;
-
-        private ThreeDimensionArrayElementExpression(OperationExpression arrayExp, ArraySubscript index1,
-                                                     ArraySubscript index2, ArraySubscript index3,
-                                                     ArraySubscript[] restIndex) {
-            super(arrayExp);
-            this.index1 = (ArmyArraySubscript) index1;
-            this.index2 = (ArmyArraySubscript) index2;
-            this.index3 = (ArmyArraySubscript) index3;
-            this.restIndex = restIndex;
-        }
-
-        @Override
-        void appendSubscripts(StringBuilder sqlBuilder, _SqlContext context) {
-            appendSubscript(this.index1, sqlBuilder, context);
-            appendSubscript(this.index2, sqlBuilder, context);
-            appendSubscript(this.index3, sqlBuilder, context);
-
-            for (ArraySubscript index : this.restIndex) {
-                if (!(index instanceof ArmyArraySubscript)) {
-                    String m = String.format("%s isn't %s", index, ArmyArraySubscript.class.getName());
-                    throw new CriteriaException(m);
-                }
-                appendSubscript(index, sqlBuilder, context);
-            }
-        }
-
-        @Override
-        void subscriptsToString(StringBuilder builder) {
-            subscriptToString(this.index1, builder);
-            subscriptToString(this.index2, builder);
-            subscriptToString(this.index3, builder);
-
-            for (ArraySubscript index : this.restIndex) {
-                subscriptToString(index, builder);
-            }
-
-        }
-
-
-    }//ThreeDimensionArrayElementExpression
-
-
-    private static final class OneDimensionArrayElementArrayExpression extends OneDimensionArrayElementExpression
-            implements ArmyArrayExpression {
-
-        private OneDimensionArrayElementArrayExpression(OperationExpression arrayExp, Object index) {
-            super(arrayExp, index);
-        }
-
-
-    }//OneDimensionArrayElementArrayExpression
-
-    private static final class TwoDimensionArrayElementArrayExpression extends TwoDimensionArrayElementExpression
-            implements ArmyArrayExpression {
-
-        private TwoDimensionArrayElementArrayExpression(OperationExpression arrayExp, Object index1, Object index2) {
-            super(arrayExp, index1, index2);
-        }
-
-    }//TwoDimensionArrayElementArrayExpression
-
-
-    private static final class ThreeDimensionIndexArrayElementArrayExpression
-            extends ThreeDimensionIndexArrayElementExpression
-            implements ArmyArrayExpression {
-
-        private ThreeDimensionIndexArrayElementArrayExpression(OperationExpression arrayExp, int index1, int index2,
-                                                               int index3, int[] restIndex) {
-            super(arrayExp, index1, index2, index3, restIndex);
-        }
-
-
-    }//ThreeDimensionIndexArrayElementArrayExpression
-
-
-    private static final class ThreeDimensionArrayElementArrayExpression extends ThreeDimensionArrayElementExpression
-            implements ArmyArrayExpression {
-
-        private ThreeDimensionArrayElementArrayExpression(OperationExpression arrayExp, ArraySubscript index1,
-                                                          ArraySubscript index2, ArraySubscript index3,
-                                                          ArraySubscript[] restIndex) {
-            super(arrayExp, index1, index2, index3, restIndex);
-        }
-
-    }//ThreeDimensionArrayElementArrayExpression
-
-    static MappingType jsonIdentityType(final MappingType type) {
-        final MappingType returnType;
-        if (type instanceof MappingType.SqlJsonType) {
-            returnType = JsonType.TEXT;
-        } else if (type instanceof MappingType.SqlJsonbType) {
-            returnType = JsonbType.TEXT;
-        } else {
-            String m = String.format("%s isn't json document type", type);
-            throw ContextStack.clearStackAndCriteriaError(m);
-        }
-        return returnType;
-    }
-
-
-    private static abstract class OperationJsonExpression extends OperationExpression.OperationTypedExpression
-            implements JsonExpression, ArmySimpleExpression {
-
-        final JsonMappingType type;
-
-
-        private OperationJsonExpression(final JsonMappingType type) {
-            this.type = type;
-        }
-
-        @Override
-        public final TypeMeta typeMeta() {
-            return this.type;
-        }
-
-        @Override
-        public final JsonExpression arrayElement(int index) {
-            return Expressions.jsonArrayElement(this, index);
-        }
-
-        @Override
-        public final JsonExpression objectAttr(String keyName) {
-            return Expressions.jsonObjectAttr(this, keyName);
-        }
-
-        @Override
-        public final JsonExpression atPath(String jsonPath) {
-            return Expressions.jsonPathExtract(this, jsonPath);
-        }
-
-        @Override
-        public final JsonExpression atPath(Expression jsonPath) {
-            return Expressions.jsonPathExtract(this, jsonPath);
-        }
-
-        @Override
-        public final <T> JsonExpression atPath(BiFunction<MappingType, T, Expression> funcRef, T jsonPath) {
-            return Expressions.jsonPathExtract(this, funcRef.apply(JsonPathType.INSTANCE, jsonPath));
-        }
-
-
-        @Override
-        public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // always false
-            return false;
-        }
-
-        final void jsonToString(StringBuilder builder) {
-
-            final boolean outerParens;
-            outerParens = !(this.json instanceof SimpleJsonExpression);
-
-            if (outerParens) {
-                builder.append(_Constant.LEFT_PAREN);
-            }
-            builder.append(this.json);
-            if (outerParens) {
-                builder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-
-        }
-
-        final void appendJson(final StringBuilder sqlBuilder, final _SqlContext context) {
-
-            final boolean outerParens;
-            outerParens = !(this.json instanceof SimpleJsonExpression);
-
-            if (outerParens) {
-                sqlBuilder.append(_Constant.LEFT_PAREN);
-            }
-            this.json.appendSql(sqlBuilder, context);
-            if (outerParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-        }
-
-
-    }//JsonOperatorExpression
-
-    private static final class JsonObjectAttrExpression extends OperationJsonExpression {
-
-        private final String key;
-
-        private JsonObjectAttrExpression(OperationExpression json, String key) {
-            super(json);
-            this.key = key;
-        }
-
-        @Override
-        public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
-
-            this.appendJson(sqlBuilder, context);
-
-            switch (context.dialectDatabase()) {
-                case MySQL: {
-                    if (context.dialect().compareWith(MySQLDialect.MySQL80) < 0) {
-                        throw dontSupportJsonObjectAttrError(context.dialect());
-                    }
-                    sqlBuilder.append(DualExpOperator.HYPHEN_GT.spaceOperator);
-                    context.appendLiteral(TextType.INSTANCE, "$." + this.key, false);
-                }
-                break;
-                case PostgreSQL: {
-                    sqlBuilder.append(DualExpOperator.HYPHEN_GT.spaceOperator);
-                    context.appendLiteral(TextType.INSTANCE, this.key, false);
-                }
-                break;
-                case Oracle:
-                case H2:
-                default: {
-                    //TODO add for new dialect
-                    throw dontSupportJsonObjectAttrError(context.dialect());
-                }
-
-            }//switch
-
-
-        }
-
 
         @Override
         public String toString() {
-            final StringBuilder sqlBuilder;
-            sqlBuilder = new StringBuilder();
-
-            this.jsonToString(sqlBuilder);
-
-            return sqlBuilder.append(DualExpOperator.HYPHEN_GT.spaceOperator)
-                    .append(_Constant.SPACE)
-                    .append(_Constant.QUOTE)
-                    .append(this.key)
-                    .append(_Constant.QUOTE)
-                    .toString();
+            // NOTE ,here don't output Leading space,because here output [] of array
+            final StringBuilder builder = _StringUtils.builder();
+            toStringConcatenationExpression(this.expression, builder);
+            final List<?> list = this.subscriptList;
+            final int size = list.size();
+            for (int i = 0; i < size; i++) {
+                builder.append('[');
+                toStringRightExpression(list.get(i++), builder, Boolean.FALSE);
+                builder.append(':');
+                toStringRightExpression(list.get(i), builder, Boolean.FALSE);
+                builder.append(']');
+            }
+            return builder.toString();
         }
 
-
-        private static CriteriaException dontSupportJsonObjectAttrError(Dialect dialect) {
-            String m = String.format("%s don't support json object access.", dialect);
-            return new CriteriaException(m);
-        }
+    } // ArraySliceExpression
 
 
-    }//JsonObjectAttrExpression
+    private static final class DotOperatorExpression extends OperationExpression.OperationSimpleExpression {
 
+        private final ArmyExpression expression;
 
-    private static final class JsonArrayElementExpression extends OperationJsonExpression implements ArmyJsonExpression {
+        private final List<?> subscriptList;
 
-        private final int index;
-
-        private JsonArrayElementExpression(OperationExpression json, int index) {
-            super(json);
-            this.index = index;
+        /// @see #objectDotExp(OperationExpression, List)
+        /// @see <a href="https://www.postgresql.org/docs/current/datatype-json.html#JSONB-SUBSCRIPTING">JSONB-SUBSCRIPTING</a>
+        private DotOperatorExpression(ArmyExpression expression, List<?> subscriptList) {
+            assertSubscriptListNotEmpty(subscriptList, "OBJECT");
+            this.expression = expression;
+            this.subscriptList = subscriptList;
         }
 
         @Override
-        public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
+        public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
+            // NOTE ,here don't output Leading space,because here output DOT of object
+            appendConcatenationExpression(this.expression, sqlBuilder, context);
+            String sub;
+            for (Object subscript : this.subscriptList) {
 
-            this.appendJson(sqlBuilder, context);
+                sqlBuilder.append('.');
 
-            switch (context.dialectDatabase()) {
-                case MySQL: {
-                    if (context.dialect().compareWith(MySQLDialect.MySQL80) < 0) {
-                        throw dontSupportJsonArrayError(context.dialect());
+                if (subscript == null || subscript == SQLs.ABSENT) {
+                    throw subscriptError(null, "OBJECT");
+                } else switch (subscript) {
+                    case Expression _:
+                        ((ArmyExpression) subscript).appendSql(sqlBuilder, context);
+                        break;
+                    case String _: {
+                        sub = (String) subscript;
+                        if (sub.equals("*") || sub.equals("**")) {
+                            sqlBuilder.append(sub);  // TODO fix me  优化确认
+                        } else {
+                            context.identifier(sub, sqlBuilder);
+                        }
                     }
-                    sqlBuilder.append(DualExpOperator.HYPHEN_GT.spaceOperator)
-                            .append(" '$.[")
-                            .append(this.index)
-                            .append("]'");
-                }
-                break;
-                case PostgreSQL:
-                    sqlBuilder.append(DualExpOperator.HYPHEN_GT.spaceOperator)
-                            .append(this.index);
                     break;
-                case Oracle:
-                case H2:
-                default: {
-                    //TODO add for new dialect
-                    throw dontSupportJsonArrayError(context.dialect());
-                }
+                    default:
+                        throw subscriptError(subscript, "OBJECT");
+                } // switch
 
-            }//switch
+            } // for loop
+
         }
-
 
         @Override
         public String toString() {
-            final StringBuilder sqlBuilder;
-            sqlBuilder = new StringBuilder();
+            // NOTE ,here don't output Leading space,because here output DOT of object
+            final StringBuilder builder = _StringUtils.builder();
+            toStringConcatenationExpression(this.expression, builder);
+            for (Object subscript : this.subscriptList) {
 
-            this.jsonToString(sqlBuilder);
-            return sqlBuilder.append(DualExpOperator.HYPHEN_GT.spaceOperator)
-                    .append(_Constant.SPACE)
-                    .append(this.index)
-                    .toString();
+                builder.append('.');
+
+                if (subscript == null || subscript == SQLs.ABSENT) {
+                    throw subscriptError(null, "OBJECT");
+                } else switch (subscript) {
+                    case Expression _:
+                        builder.append(subscript);
+                        break;
+                    case String _:
+                        builder.append((String) subscript);
+                        break;
+                    default:
+                        throw subscriptError(subscript, "OBJECT");
+                } // switch
+
+            } // for loop
+            return builder.toString();
         }
 
-        private static CriteriaException dontSupportJsonArrayError(Dialect dialect) {
-            String m = String.format("%s don't support json array access.", dialect);
-            return new CriteriaException(m);
-        }
+
+    } // DotOperatorExpression
 
 
-    }//JsonArrayElementExpression
+    private static final class BracketOperatorExpression extends OperationExpression.OperationSimpleExpression {
 
+        private final ArmyExpression expression;
 
-    private static final class JsonPathExtractExpression extends OperationJsonExpression implements ArmyJsonExpression {
+        private final List<?> subscriptList;
 
-        private final Object jsonPath;
-
-        private JsonPathExtractExpression(OperationExpression json, Object jsonPath) {
-            super(json);
-            assert jsonPath instanceof String || jsonPath instanceof ArmyExpression;
-            this.jsonPath = jsonPath;
+        /// @see #objectBracketExp(OperationExpression, List)
+        /// @see <a href="https://www.postgresql.org/docs/current/datatype-json.html#JSONB-SUBSCRIPTING">JSONB-SUBSCRIPTING</a>
+        private BracketOperatorExpression(ArmyExpression expression, List<?> subscriptList) {
+            assertSubscriptListNotEmpty(subscriptList, "OBJECT");
+            this.expression = expression;
+            this.subscriptList = subscriptList;
         }
 
         @Override
-        public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
+        public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
+            // NOTE ,here don't output Leading space,because here output bracket of object
+            appendConcatenationExpression(this.expression, sqlBuilder, context);
+            String sub;
+            for (Object subscript : this.subscriptList) {
 
-            switch (context.dialectDatabase()) {
-                case MySQL: {
-                    if (context.dialect().compareWith(MySQLDialect.MySQL80) < 0) {
-                        throw dontSupportJsonPathError(context.dialect());
-                    }
-                    this.appendJson(sqlBuilder, context);
-                    sqlBuilder.append(DualExpOperator.HYPHEN_GT.spaceOperator);
-                    if (this.jsonPath instanceof String) {
-                        context.appendLiteral(JsonPathType.INSTANCE, this.jsonPath, true);
-                    } else {
-                        ((ArmyExpression) this.jsonPath).appendSql(sqlBuilder, context);
-                    }
-                }
-                break;
-                case PostgreSQL: {
-                    // TODO fix me ,在去类型化后,怎么表达
-//                    final String funcName;
-//                    if (this.type.mappingType() instanceof MappingType.SqlJsonType) {
-//                        funcName = "JSON_PATH_QUERY";
-//                    } else {
-//                        funcName = "JSONB_PATH_QUERY";
-//                    }
-//
-//                    context.appendFuncName(true, funcName);
+                sqlBuilder.append('[');
 
-                    sqlBuilder.append(_Constant.LEFT_PAREN);
-                    this.json.appendSql(sqlBuilder, context);
-                    sqlBuilder.append(_Constant.SPACE_COMMA);
-                    if (this.jsonPath instanceof String) {
-                        context.appendLiteral(JsonPathType.INSTANCE, this.jsonPath, true);
-                    } else {
-                        ((ArmyExpression) this.jsonPath).appendSql(sqlBuilder, context);
+                if (subscript == null || subscript == SQLs.ABSENT) {
+                    throw subscriptError(null, "OBJECT");
+                } else switch (subscript) {
+                    case Expression _:
+                        ((ArmyExpression) subscript).appendSql(sqlBuilder, context);
+                        break;
+                    case String _: {
+                        sub = (String) subscript;
+                        if (sub.equals("*") || sub.equals("**")) {  // TODO fix me, Postgre don't support
+                            sqlBuilder.append(sub);
+                        } else {
+                            context.appendLiteral(StringType.INSTANCE, subscript, false);
+                        }
                     }
-                    sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-                }
-                break;
-                case Oracle:
-                case H2:
-                default: {
-                    //TODO add for new dialect
-                    throw dontSupportJsonPathError(context.dialect());
-                }
+                    break;
+                    case Integer _:
+                        sqlBuilder.append(subscript);
+                        break;
+                    default:
+                        throw subscriptError(subscript, "OBJECT");
+                } // switch
 
-            }//switch
+                sqlBuilder.append(']');
+
+            } // for loop
+
         }
-
 
         @Override
         public String toString() {
-            final StringBuilder sqlBuilder;
-            sqlBuilder = new StringBuilder();
+            // NOTE ,here don't output Leading space,because here output bracket of object
+            final StringBuilder builder = _StringUtils.builder();
+            toStringConcatenationExpression(this.expression, builder);
+            for (Object subscript : this.subscriptList) {
 
-            this.jsonToString(sqlBuilder);
+                builder.append('[');
 
-            sqlBuilder.append(DualExpOperator.HYPHEN_GT.spaceOperator);
-            sqlBuilder.append(_Constant.SPACE);
+                if (subscript == null || subscript == SQLs.ABSENT) {
+                    throw subscriptError(null, "OBJECT");
+                } else switch (subscript) {
+                    case Expression _:
+                        builder.append(subscript);
+                        break;
+                    case String _:
+                    case Integer _:
+                        builder.append(subscript);
+                        break;
+                    default:
+                        throw subscriptError(subscript, "OBJECT");
+                } // switch
 
-            if (this.jsonPath instanceof ArmyParamExpression) {
-                sqlBuilder.append(this.jsonPath);
-            } else {
-                sqlBuilder.append(_Constant.QUOTE)
-                        .append(this.jsonPath)
-                        .append(_Constant.QUOTE);
-            }
-            return sqlBuilder.toString();
-        }
+                builder.append(']');
 
-        private static CriteriaException dontSupportJsonPathError(Dialect dialect) {
-            String m = String.format("%s don't support json path.", dialect);
-            return new CriteriaException(m);
-        }
-
-
-    }//JsonPathExtractExpression
-
-
-    /**
-     * <p>
-     * This class is base class of below:
-     * <ul>
-     *     <li>{@link SimpleArrayExpression}</li>
-     *     <li>{@link CastArrayTypeExpression}</li>
-     * </ul>
-     */
-    private static abstract class OperationArrayExpression extends OperationExpression.OperationTypedExpression
-            implements ArrayExpression, ArmySimpleExpression {
-
-
-        /*-------------------below array operator method -------------------*/
-
-        @Override
-        public final SimpleExpression atElement(int index) {
-            return Expressions.arrayElementExp(this, index);
-        }
-
-        @Override
-        public final SimpleExpression atElement(int index1, int index2) {
-            return Expressions.arrayElementExp(this, index1, index2);
-        }
-
-        @Override
-        public final SimpleExpression atElement(int index1, int index2, int index3, int... restIndex) {
-            return Expressions.arrayElementExp(this, index1, index2, index3, restIndex);
-        }
-
-        @Override
-        public final SimpleExpression atElement(Expression index) {
-            return Expressions.arrayElementExp(this, index);
-        }
-
-        @Override
-        public final SimpleExpression atElement(Expression index1, Expression index2) {
-            return Expressions.arrayElementExp(this, index1, index2);
-        }
-
-        @Override
-        public final SimpleExpression atElement(Expression index1, Expression index2, Expression index3, Expression... restIndex) {
-            return Expressions.arrayElementExp(this, index1, index2, index3, restIndex);
-        }
-
-        @Override
-        public final ArrayExpression atArray(int index) {
-            return Expressions.arrayElementArrayExp(this, index);
-        }
-
-        @Override
-        public final ArrayExpression atArray(int index1, int index2) {
-            return Expressions.arrayElementArrayExp(this, index1, index2);
-        }
-
-        @Override
-        public final ArrayExpression atArray(int index1, int index2, int index3, int... restIndex) {
-            return Expressions.arrayElementArrayExp(this, index1, index2, index3, restIndex);
-        }
-
-        @Override
-        public final ArrayExpression atArray(ArraySubscript index) {
-            return Expressions.arrayElementArrayExp(this, index);
-        }
-
-        @Override
-        public final ArrayExpression atArray(ArraySubscript index1, ArraySubscript index2) {
-            return Expressions.arrayElementArrayExp(this, index1, index2);
-        }
-
-        @Override
-        public final ArrayExpression atArray(ArraySubscript index1, ArraySubscript index2, ArraySubscript index3, ArraySubscript... restIndex) {
-            return Expressions.arrayElementArrayExp(this, index1, index2, index3, restIndex);
-        }
-
-        @Override
-        public final <T> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef, T value) {
-            return Expressions.arrayElementArrayExp(this, funcRef.apply(NoCastIntegerType.INSTANCE, value));
-        }
-
-        @Override
-        public final <T> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef, T value1, T value2) {
-            return Expressions.arrayElementArrayExp(this, funcRef.apply(NoCastIntegerType.INSTANCE, value1),
-                    funcRef.apply(NoCastIntegerType.INSTANCE, value2)
-            );
-        }
-
-        @Override
-        public final <T> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef, T value1, T value2, T value3) {
-            return Expressions.arrayElementArrayExp(this, funcRef.apply(NoCastIntegerType.INSTANCE, value1),
-                    funcRef.apply(NoCastIntegerType.INSTANCE, value2),
-                    funcRef.apply(NoCastIntegerType.INSTANCE, value3),
-                    new ArraySubscript[0]
-            );
-        }
-
-        @Override
-        public final <T, U> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef1, T value1, BiFunction<MappingType, U, Expression> funcRef2, U value2) {
-            return Expressions.arrayElementArrayExp(this, funcRef1.apply(NoCastIntegerType.INSTANCE, value1),
-                    funcRef2.apply(NoCastIntegerType.INSTANCE, value2)
-            );
-        }
-
-        @Override
-        public final <T, U, V> ArrayExpression atArray(BiFunction<MappingType, T, Expression> funcRef1, T value1, BiFunction<MappingType, U, Expression> funcRef2, U value2, BiFunction<MappingType, V, Expression> funcRef3, V value3) {
-            return Expressions.arrayElementArrayExp(this, funcRef1.apply(NoCastIntegerType.INSTANCE, value1),
-                    funcRef2.apply(NoCastIntegerType.INSTANCE, value2),
-                    funcRef3.apply(NoCastIntegerType.INSTANCE, value3),
-                    new ArraySubscript[0]
-            );
+            } // for loop
+            return builder.toString();
         }
 
 
-        @Override
-        public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // always false
-            return false;
-        }
+    } // BracketOperatorExpression
 
 
-    } //ArrayConstructor
-
-
-    private static final class SimpleArrayExpression extends OperationArrayExpression {
+    private static final class SimpleArrayExpression extends OperationExpression.OperationSimpleExpression {
 
         private final List<?> elementList;
 
@@ -2378,12 +1807,6 @@ abstract class Expressions {
             this.elementList = elementList;
         }
 
-        @Override
-        public TypeMeta typeMeta() {
-            // user no cast ,never here
-            throw new UnsupportedOperationException("You couldn't cast Expression");
-        }
-
         /**
          * @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS">Array Constructors</a>
          */
@@ -2392,7 +1815,9 @@ abstract class Expressions {
             final List<?> elementList = this.elementList;
             final int elementSize = elementList.size();
 
-            sqlBuilder.append(" ARRAY[");
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("ARRAY")
+                    .append('[');
 
             Object element;
             MappingType elementType;
@@ -2423,7 +1848,9 @@ abstract class Expressions {
         public String toString() {
             final StringBuilder sqlBuilder;
             sqlBuilder = new StringBuilder()
-                    .append(" ARRAY[");
+                    .append(_Constant.SPACE)
+                    .append("ARRAY")
+                    .append('[');
 
             final List<?> elementList = this.elementList;
             final int elementSize = elementList.size();
@@ -2433,17 +1860,48 @@ abstract class Expressions {
                     sqlBuilder.append(_Constant.SPACE_COMMA);
                 }
                 element = elementList.get(i);
-                if (!(element instanceof Expression)) {
+                if (!(element instanceof SQLExpression)) {
                     sqlBuilder.append(_Constant.SPACE);
                 }
                 sqlBuilder.append(element);
             }
-            return sqlBuilder.append(_Constant.SPACE_RIGHT_SQUARE_BRACKET)
+            return sqlBuilder.append(']')
                     .toString();
         }
 
 
     } // SimpleArrayExpression
+
+    private static final class SubQueryArrayExpression extends OperationExpression.OperationSimpleExpression {
+
+        private final SubQuery subQuery;
+
+        /// @see #array(SubQuery)
+        private SubQueryArrayExpression(SubQuery subQuery) {
+            this.subQuery = subQuery;
+        }
+
+        @Override
+        public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("ARRAY")
+                    .append('[');
+            context.appendSubQuery(this.subQuery);
+            sqlBuilder.append(']');
+        }
+
+        @Override
+        public String toString() {
+            return _StringUtils.builder()
+                    .append(_Constant.SPACE)
+                    .append("ARRAY")
+                    .append('[')
+                    .append(this.subQuery)
+                    .append(']')
+                    .toString();
+        }
+
+    } // SubQueryArrayExpression
 
 
     private static final class CollateExpression extends OperationExpression.OperationSimpleExpression

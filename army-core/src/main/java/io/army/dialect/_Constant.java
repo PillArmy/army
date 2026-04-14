@@ -212,7 +212,7 @@ public interface _Constant {
 
     char COMMA = ',';
 
-    char PERIOD = '.';
+    char DOT = '.';
 
     char NUL_CHAR = '\0';
     char BACK_SLASH = '\\';

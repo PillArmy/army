@@ -20,7 +20,7 @@ import io.army.criteria.Expression;
 import io.army.criteria.Select;
 import io.army.criteria.impl.Postgres;
 import io.army.criteria.impl.SQLs;
-import io.army.mapping.postgre.PostgreSingleRangeType;
+import io.army.mapping.postgre.PgSingleRangeType;
 import io.army.sqltype.PostgreType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +36,13 @@ public class TypeUnitTests extends PostgreUnitTests {
     /**
      * @see Postgres#upper(Expression)
      * @see Postgres#lower(Expression)
-     * @see PostgreSingleRangeType#subtype()
-     * @see PostgreSingleRangeType.UserDefinedRangeType#subtype()
+     * @see PgSingleRangeType#subtype()
+     * @see PgSingleRangeType.UserDefinedRangeType#subtype()
      */
     @Test
     public void rangeSubtypeForLowerAndUpperFunc() {
-        final PostgreSingleRangeType int4RangeType;
-        int4RangeType = PostgreSingleRangeType.from(String.class, PostgreType.INT4RANGE);
+        final PgSingleRangeType int4RangeType;
+        int4RangeType = PgSingleRangeType.from(String.class, PostgreType.INT4RANGE);
         final Select stmt;
         stmt = Postgres.query()
                 .select(lower(SQLs.literal(int4RangeType, "[1,4]")).as("lower subtype"))

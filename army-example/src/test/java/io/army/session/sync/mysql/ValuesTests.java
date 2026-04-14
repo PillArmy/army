@@ -178,7 +178,7 @@ public class ValuesTests extends SessionTestSupport {
 
         final Select stmt;
         stmt = MySQLs.query()
-                .select(s -> s.space("v", PERIOD, ASTERISK))
+                .select(s -> s.space("v", DOT, ASTERISK))
                 .from(MySQLs.subValues()
                         .values()
                         .row(s -> s.space(1, "海问香", Decimals.valueOf("9999.88"), now)
@@ -216,7 +216,7 @@ public class ValuesTests extends SessionTestSupport {
 
         final Select stmt;
         stmt = MySQLs.query()
-                .select(s -> s.space("v", PERIOD, ASTERISK))
+                .select(s -> s.space("v", DOT, ASTERISK))
                 .from(MySQLs.subValues()
                         .parens(v -> v.values()
                                 .row(s -> s.space(1, "海问香", Decimals.valueOf("9999.88"), now)

@@ -25,7 +25,7 @@ import io.army.session.ReactiveLocalSession;
 import org.testng.annotations.Test;
 
 import static io.army.criteria.impl.SQLs.AS;
-import static io.army.criteria.impl.SQLs.PERIOD;
+import static io.army.criteria.impl.SQLs.DOT;
 
 @Test(dataProvider = "localSessionProvider")
 public class QueryTests extends SessionTestsSupport {
@@ -50,7 +50,7 @@ public class QueryTests extends SessionTestsSupport {
         final Select stmt;
 
         stmt = MySQLs.query()
-                .select("c", PERIOD, ChinaRegion_.T)
+                .select("c", DOT, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
                 .limit(SQLs::literal, 10)
                 .asQuery();

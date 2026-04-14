@@ -133,11 +133,13 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final SymbolAsterisk ASTERISK = new LiteralSymbolAsterisk();
 
-    public static final SymbolPeriod PERIOD = SqlWords.SQLSymbolPeriod.PERIOD;
+    public static final SymbolDot DOT = SqlWords.SQLSymbolDot.DOT;
 
     public static final SymbolSpace SPACE = SqlWords.SymbolSpaceEnum.SPACE;
 
     public static final SymbolEqual EQUAL = SqlWords.SymbolEqualEnum.EQUAL;
+
+    public static final SymbolColon COLON = SqlWords.SymColonEnum.COLON;
 
     public static final SymbolColonEqual COLON_EQUAL = SqlWords.SymbolColonEqualEnum.COLON_EQUAL;
 
@@ -149,6 +151,9 @@ public abstract class SQLs extends SQLSyntax {
     public static final WordDefault DEFAULT = new DefaultWord();
 
     public static final WordNull NULL = NonOperationExpression.nullWord();
+
+    /// ABSENT means the parameter is omitted, as distinct from null.
+    public static final WordAbsent ABSENT = SqlWords.WordAbsentEnum.ABSENT;
 
 
     public static final QuantifiedWord SOME = SqlWords.QueryOperator.SOME;
@@ -373,7 +378,6 @@ public abstract class SQLs extends SQLSyntax {
         CONST_DECIMAL_0 = SQLs.constant(BigDecimalType.INSTANCE, zero);
         PARAM_DECIMAL_0 = SQLs.param(BigDecimalType.INSTANCE, zero);
     }
-
 
 
     static final UnaryOperator<Select> SELECT_IDENTITY = SQLs::identity;
@@ -615,7 +619,7 @@ public abstract class SQLs extends SQLSyntax {
     static String keyWordsToString(Enum<?> wordEnum) {
         return _StringUtils.builder(20)
                 .append(SQLs.class.getSimpleName())
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(wordEnum.name())
                 .toString();
     }
@@ -646,7 +650,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface SymbolPeriod {
+    public sealed interface SymbolDot permits SqlWords.SQLSymbolDot {
 
     }
 
@@ -662,6 +666,16 @@ public abstract class SQLs extends SQLSyntax {
     }
 
     public interface SymbolColonEqual {
+
+    }
+
+
+    public sealed interface SymbolColon permits SqlWords.SymColonEnum {
+
+    }
+
+
+    public sealed interface WordAbsent permits SqlWords.WordAbsentEnum {
 
     }
 

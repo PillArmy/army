@@ -84,7 +84,7 @@ public class UpdateUnitTests extends PostgreUnitTests {
                 )
                 .from(HistoryChinaRegion_.T, AS, "hc")
                 .where(HistoryChinaRegion_.id::equal, ChinaRegion_.id)
-                .returning("c", PERIOD, ChinaRegion_.T)
+                .returning("c", DOT, ChinaRegion_.T)
                 .comma(HistoryChinaRegion_.id, SQLs.field("hc", HistoryChinaRegion_.regionGdp).as("myGdp"))
                 .asReturningUpdate();
 
@@ -158,7 +158,7 @@ public class UpdateUnitTests extends PostgreUnitTests {
                 .from(HistoryChinaRegion_.T, AS, "hc")
                 .where(HistoryChinaRegion_.id::equal, ChinaRegion_.id)
                 .and(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
-                .returning("c", PERIOD, ChinaRegion_.T)
+                .returning("c", DOT, ChinaRegion_.T)
                 .asReturningUpdate()
                 .namedParamList(paramList);
 

@@ -19,7 +19,7 @@ package io.army.criteria.impl;
 import io.army.criteria.*;
 import io.army.mapping.*;
 import io.army.mapping.array.TextArrayType;
-import io.army.mapping.postgre.PostgreRangeType;
+import io.army.mapping.postgre.PgRangeType;
 
 import io.army.lang.Nullable;
 import java.util.*;
@@ -1684,8 +1684,8 @@ abstract class PostgreStringFunctions extends Functions {
      */
     private static MappingType lowerOrUpperType(final MappingType type) {
         final MappingType returnType;
-        if (type instanceof PostgreRangeType.RangeType) {
-            returnType = ((PostgreRangeType.RangeType) type).subtype();
+        if (type instanceof PgRangeType.RangeType) {
+            returnType = ((PgRangeType.RangeType) type).subtype();
         } else {
             returnType = TextType.INSTANCE;
         }

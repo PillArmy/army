@@ -88,7 +88,7 @@ final class MultiTableContext implements _MultiTableContext,
             final StringBuilder sqlBuilder = this.stmtContext.sqlBuilder;
             sqlBuilder.append(_Constant.SPACE)
                     .append(safeTableAlias)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
             this.stmtContext.parser.safeObjectName(field, sqlBuilder);
         } else if (this.aliasToTable.containsValue(fieldTable)) {
             throw _Exceptions.selfJoinNonQualifiedField(field);
@@ -209,7 +209,7 @@ final class MultiTableContext implements _MultiTableContext,
             assert safeTableAlias != null;
             sqlBuilder.append(_Constant.SPACE)
                     .append(safeTableAlias)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
             parser.identifier(fieldName, sqlBuilder);
         } else if (dataField instanceof FieldMeta) {
             final FieldMeta<?> field = (FieldMeta<?>) dataField;
@@ -222,7 +222,7 @@ final class MultiTableContext implements _MultiTableContext,
             sqlBuilder.append(_Constant.SPACE);
             if (!(this.stmtContext instanceof _JoinableMergeContext)) {
                 sqlBuilder.append(safeTableAlias)
-                        .append(_Constant.PERIOD);
+                        .append(_Constant.DOT);
             }
             parser.safeObjectName(field, sqlBuilder);
         } else if (dataField instanceof QualifiedField) {
@@ -237,7 +237,7 @@ final class MultiTableContext implements _MultiTableContext,
             sqlBuilder
                     .append(_Constant.SPACE)
                     .append(safeTableAlias)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
             parser.safeObjectName(field, sqlBuilder);
         } else {
             throw _Exceptions.immutableField(dataField);
@@ -306,7 +306,7 @@ final class MultiTableContext implements _MultiTableContext,
 
             sqlBuilder.append(_Constant.SPACE_AND_SPACE)
                     .append(safeTableAlias)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
 
             if (field instanceof TableField) {
                 objectName = parser.safeObjectName((TableField) field);
@@ -328,7 +328,7 @@ final class MultiTableContext implements _MultiTableContext,
                             .append(_Constant.SPACE_LEFT_PAREN)
                             .append(_Constant.SPACE)
                             .append(safeTableAlias)
-                            .append(_Constant.PERIOD)
+                            .append(_Constant.DOT)
                             .append(objectName);
                     sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
 
@@ -372,7 +372,7 @@ final class MultiTableContext implements _MultiTableContext,
         sqlBuilder = this.stmtContext.sqlBuilder
                 .append(_Constant.SPACE)
                 .append(safeTableAlias)
-                .append(_Constant.PERIOD);
+                .append(_Constant.DOT);
         this.stmtContext.parser.safeObjectName(field, sqlBuilder);
     }
 

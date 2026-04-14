@@ -83,7 +83,7 @@ abstract class ArmySelections implements _Selection {
     }
 
     static Selection forAnonymous() {
-        return new AnonymousSelectionImpl();
+        return AnonymousSelectionImpl.INSTANCE;
     }
 
     static Selection forColumnFunc(Functions._ColumnFunction func, String alias) {
@@ -462,6 +462,8 @@ abstract class ArmySelections implements _Selection {
 
 
     private static final class AnonymousSelectionImpl implements AnonymousSelection {
+
+        private static final AnonymousSelectionImpl INSTANCE = new AnonymousSelectionImpl();
 
 
         private AnonymousSelectionImpl() {

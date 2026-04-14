@@ -209,8 +209,8 @@ interface CriteriaContext {
     void insertColumnList(List<FieldMeta<?>> columnList);
 
 
-    RowElement row(String alias, SQLs.SymbolPeriod period, TableMeta<?> table);
+    RowElement row(String alias, SQLs.SymbolDot period, TableMeta<?> table);
 
-    RowElement row(String alias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk asterisk);
+    RowElement row(String alias, SQLs.SymbolDot period, SQLs.SymbolAsterisk asterisk);
 
 }

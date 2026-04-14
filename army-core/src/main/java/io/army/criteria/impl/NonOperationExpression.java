@@ -23,13 +23,11 @@ import io.army.dialect._SqlContext;
 import io.army.function.OptionalClauseOperator;
 import io.army.function.TeFunction;
 import io.army.lang.Nullable;
-import io.army.mapping.ArrayMappingType;
-import io.army.mapping.JsonMappingType;
-import io.army.mapping.MappingType;
-import io.army.mapping.NullType;
+import io.army.mapping.*;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TypeMeta;
 
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -340,6 +338,158 @@ abstract class NonOperationExpression implements ArmyExpression {
     public final CompoundExpression leftShift(Expression bitNumber) {
         throw unsupportedOperation(this);
     }
+
+    @Override
+    public final Expression slice(Object lower, SQLs.SymbolColon colon, Object upper) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression slice(BiFunction<IntegerType, Integer, Expression> func, int lower, SQLs.SymbolColon colon, int upper) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression slice(Object lower, SQLs.SymbolColon colon) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression slice(SQLs.SymbolColon colon, Object upper) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression slice(SQLs.SymbolColon colon) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression slice(Object lower, SQLs.SymbolColon colon, Object upper, Object lower1, SQLs.SymbolColon colon1, Object upper1) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression slice(BiFunction<IntegerType, Integer, Expression> func, int lower, SQLs.SymbolColon colon, int upper, int lower1, SQLs.SymbolColon colon1, int upper1) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression slice(SQLs.SymbolColon colon, Object upper, Object lower1, SQLs.SymbolColon colon1, Object upper1) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression slice(Object lower, SQLs.SymbolColon colon, Object upper, Object lower1, SQLs.SymbolColon colon1) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression slice(SQLs.SymbolColon colon, SQLs.SymbolColon colon1) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression sliceAtSubs(List<?> indexList) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression sliceAtSubs(BiFunction<MappingType, Integer, Expression> func, List<Integer> indexList) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression dot(Object key) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression dot(Object key, Object key1) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression dot(Object key, Object key1, Object key2) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression dot(Object key, Object key1, Object key2, Object key3) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression dot(Object key, Object key1, Object key2, Object key3, Object key4) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression dots(List<?> subscriptList) {
+        throw unsupportedOperation(this);
+    }
+
+
+    @Override
+    public final Expression bracket(Object key) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression bracket(Object key, Object key1) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression bracket(Object key, Object key1, Object key2) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression bracket(Object key, Object key1, Object key2, Object key3) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression bracket(Object key, Object key1, Object key2, Object key3, Object key4) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key, Object key1) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key, Object key1, Object key2) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key, Object key1, Object key2, Object key3) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key, Object key1, Object key2, Object key3, Object key4) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression brackets(List<?> subscriptList) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression brackets(BiFunction<MappingType, Object, Expression> func, List<?> subscriptList) {
+        throw unsupportedOperation(this);
+    }
+
 
 
     @Override

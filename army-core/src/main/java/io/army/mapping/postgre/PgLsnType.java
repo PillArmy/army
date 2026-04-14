@@ -31,17 +31,17 @@ import io.army.sqltype.DataType;
  * This class representing Postgre pg_lsn type {@link MappingType}
  * * @see <a href="https://www.postgresql.org/docs/15/datatype-pg-lsn.html">pg_lsn</a>
  */
-public final class PostgrePgLsnType extends _ArmyNoInjectionType {
+public final class PgLsnType extends _ArmyNoInjectionType {
 
 
-    public static final PostgrePgLsnType TEXT = new PostgrePgLsnType(String.class);
-    public static final PostgrePgLsnType LONG = new PostgrePgLsnType(Long.class);
+    public static final PgLsnType TEXT = new PgLsnType(String.class);
+    public static final PgLsnType LONG = new PgLsnType(Long.class);
 
 
     private final Class<?> javaType;
 
 
-    private PostgrePgLsnType(Class<?> javaType) {
+    private PgLsnType(Class<?> javaType) {
         this.javaType = javaType;
     }
 

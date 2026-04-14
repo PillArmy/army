@@ -393,7 +393,7 @@ abstract class PostgreDeletes<I extends Item, Q extends Item> extends JoinableDe
     }
 
     @Override
-    public final _StaticReturningCommaSpec<Q> returning(String derivedAlias, SQLs.SymbolPeriod period,
+    public final _StaticReturningCommaSpec<Q> returning(String derivedAlias, SQLs.SymbolDot period,
                                                         SQLs.SymbolAsterisk star) {
         this.onAddSelection(SelectionGroups.derivedGroup(this.context.getNonNullDerived(derivedAlias), derivedAlias));
         return this;
@@ -401,15 +401,15 @@ abstract class PostgreDeletes<I extends Item, Q extends Item> extends JoinableDe
 
     @Override
     public final _StaticReturningCommaSpec<Q> returning(
-            String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table) {
+            String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) {
         this.onAddSelection(SelectionGroups.singleGroup(table, tableAlias));
         return this;
     }
 
     @Override
     public final <P> _StaticReturningCommaSpec<Q> returning(
-            String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-            String childAlias, SQLs.SymbolPeriod period2, ComplexTableMeta<P, ?> child) {
+            String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+            String childAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child) {
         if (child.parentMeta() != parent) {
             throw CriteriaUtils.childParentNotMatch(this.context, parent, child);
         }
@@ -480,7 +480,7 @@ abstract class PostgreDeletes<I extends Item, Q extends Item> extends JoinableDe
     }
 
     @Override
-    public final _StaticReturningCommaSpec<Q> comma(String derivedAlias, SQLs.SymbolPeriod period,
+    public final _StaticReturningCommaSpec<Q> comma(String derivedAlias, SQLs.SymbolDot period,
                                                     SQLs.SymbolAsterisk star) {
         this.onAddSelection(SelectionGroups.derivedGroup(this.context.getNonNullDerived(derivedAlias), derivedAlias));
         return this;
@@ -488,15 +488,15 @@ abstract class PostgreDeletes<I extends Item, Q extends Item> extends JoinableDe
 
     @Override
     public final _StaticReturningCommaSpec<Q> comma(
-            String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table) {
+            String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) {
         this.onAddSelection(SelectionGroups.singleGroup(table, tableAlias));
         return this;
     }
 
     @Override
     public final <P> _StaticReturningCommaSpec<Q> comma(
-            String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-            String childAlias, SQLs.SymbolPeriod period2, ComplexTableMeta<P, ?> child) {
+            String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+            String childAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child) {
         if (child.parentMeta() != parent) {
             throw CriteriaUtils.childParentNotMatch(this.context, parent, child);
         }

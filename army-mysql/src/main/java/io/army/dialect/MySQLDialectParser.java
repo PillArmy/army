@@ -1032,7 +1032,7 @@ final class MySQLDialectParser extends MySQLParser {
                     || scope == MySQLs.PERSIST_ONLY) {
                 sqlBuilder.append(" @@")
                         .append(scope.name())
-                        .append(_Constant.PERIOD);
+                        .append(_Constant.DOT);
             } else if (scope == SQLs.AT) {
                 if (varName.charAt(0) == _Constant.AT) {
                     throw _Exceptions.userVariableFirstCharIsAt(varName);

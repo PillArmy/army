@@ -55,7 +55,7 @@ abstract class SingleDmlContext extends SingleTableDmlContext {
         } else {
             sqlBuilder.append(this.safeTargetTableName);
         }
-        sqlBuilder.append(_Constant.PERIOD);
+        sqlBuilder.append(_Constant.DOT);
         this.parser.safeObjectName(field, sqlBuilder);
 
     }

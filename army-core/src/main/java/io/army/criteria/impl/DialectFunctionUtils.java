@@ -30,7 +30,6 @@ import io.army.mapping.optional.CompositeTypeField;
 import io.army.mapping.optional.NoCastTextType;
 import io.army.meta.FieldMeta;
 import io.army.meta.ParentTableMeta;
-import io.army.util.ArrayUtils;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
@@ -1129,7 +1128,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
                         .append(_Constant.QUOTE)
                         .append(_Constant.SPACE_COMMA_SPACE)
                         .append(tableAlias)
-                        .append(_Constant.PERIOD)
+                        .append(_Constant.DOT)
                         .append(field.columnName());
             }
 

@@ -18,34 +18,33 @@ package io.army.mapping.postgre;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
-import io.army.executor.DataAccessException;
 import io.army.sqltype.DataType;
-
 
 /**
  * <p>
- * This class representing Postgre tsquery type {@link MappingType}
+ * This class representing Postgre inet type {@link MappingType}
 *
- * @see <a href="https://www.postgresql.org/docs/current/datatype-textsearch.html#DATATYPE-TSQUERY">tsquery</a>
+ * @see <a href="https://www.postgresql.org/docs/current/datatype-net-types.html#DATATYPE-INET">inet</a>
  */
-public final class PostgreTsQueryType extends _ArmyNoInjectionType {
+public final class PgInetType extends _ArmyNoInjectionType {
 
 
-    public static final PostgreTsQueryType INSTANCE = new PostgreTsQueryType();
+    public static final PgInetType INSTANCE = new PgInetType();
 
-    public static PostgreTsQueryType from(final Class<?> javaType) {
+    public static PgInetType from(final Class<?> javaType) {
         if (javaType != String.class) {
-            throw errorJavaType(PostgreTsQueryType.class, javaType);
+            throw errorJavaType(PgInetType.class, javaType);
         }
         return INSTANCE;
     }
 
 
-    private PostgreTsQueryType() {
+    private PgInetType() {
     }
 
     @Override
@@ -58,7 +57,6 @@ public final class PostgreTsQueryType extends _ArmyNoInjectionType {
         //TODO
         throw new UnsupportedOperationException();
     }
-
 
     @Override
     public Object convert(MappingEnv env, Object source) throws CriteriaException {

@@ -61,7 +61,7 @@ final class SimpleSubQueryContext extends MultiTableQueryContext implements _Sub
             final StringBuilder sqlBuilder = this.sqlBuilder
                     .append(_Constant.SPACE)
                     .append(safeTableAlias)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
             this.parser.safeObjectName(field, sqlBuilder);
         } else if (this.multiTableContext.aliasToTable.containsValue(fieldTable)) {
             throw _Exceptions.selfJoinNonQualifiedField(field);

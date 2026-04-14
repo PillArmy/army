@@ -98,7 +98,7 @@ public class StandardQueryUnitTests extends StandardUnitTests {
         final Select stmt;
 
         stmt = SQLs.query()
-                .select("u", PERIOD, PillUser_.T)
+                .select("u", DOT, PillUser_.T)
                 .from(PillUser_.T, AS, "u")
                 .orderBy(PillUser_.id::desc)
                 .limit(SQLs::literal, 0, 10)
@@ -112,7 +112,7 @@ public class StandardQueryUnitTests extends StandardUnitTests {
     public void complexDomain() {
         final Select stmt;
         stmt = SQLs.query()
-                .select("u", PERIOD, PillUser_.T, "p", PERIOD, PillPerson_.T)
+                .select("u", DOT, PillUser_.T, "p", DOT, PillPerson_.T)
                 .from(PillPerson_.T, AS, "p")
                 .join(PillUser_.T, AS, "u").on(PillUser_.id::equal, PillPerson_.id)
                 .where(PillPerson_.id.equal(SQLs::literal, 1))
@@ -295,10 +295,10 @@ public class StandardQueryUnitTests extends StandardUnitTests {
         final Select stmt;
         stmt = SQLs.query()
                 .select(s -> s.space(SQLs.refField("us", "one"))
-                        .comma("us", PERIOD, ASTERISK)
+                        .comma("us", DOT, ASTERISK)
                 ).from(SQLs.subQuery()
                         .select(SQLs.literalValue(1)::as, "one")
-                        .comma("u", PERIOD, PillUser_.T)
+                        .comma("u", DOT, PillUser_.T)
                         .from(PillUser_.T, AS, "u")
                         .where(PillUser_.createTime::equal, SQLs::literal, LocalDateTime.now())
                         .limit(SQLs::literal, criteria::get, "offset", "rowCount")

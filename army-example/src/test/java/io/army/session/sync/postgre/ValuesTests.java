@@ -173,7 +173,7 @@ public class ValuesTests extends SessionTestSupport {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space("v", PERIOD, ASTERISK))
+                .select(s -> s.space("v", DOT, ASTERISK))
                 .from(Postgres.subValues()
                         .values()
                         .parens(s -> s.space(1, "海问香", Decimals.valueOf("9999.88"), now)
@@ -211,7 +211,7 @@ public class ValuesTests extends SessionTestSupport {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space("v", PERIOD, ASTERISK))
+                .select(s -> s.space("v", DOT, ASTERISK))
                 .from(Postgres.subValues()
                         .parens(v -> v.values()
                                 .parens(s -> s.space(1, "海问香", Decimals.valueOf("9999.88"), now)

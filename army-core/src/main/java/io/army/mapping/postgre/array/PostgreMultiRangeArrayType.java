@@ -42,7 +42,7 @@ import java.util.function.Function;
  * @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-BUILTIN">Built-in Range and Multirange Types</a>
  * @since 0.6.0
  */
-public class PostgreMultiRangeArrayType extends _ArmyPostgreRangeType implements MappingType.SqlArrayType {
+public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements MappingType.SqlArrayType {
 
 
     /**
@@ -177,7 +177,7 @@ public class PostgreMultiRangeArrayType extends _ArmyPostgreRangeType implements
             throw errorJavaType(PostgreMultiRangeArrayType.class, javaType);
         }
         final RangeFunction<?, ?> rangeFunc;
-        rangeFunc = PostgreRangeType.createRangeFunction(componentType, boundJavaType(sqlType), methodName);
+        rangeFunc = PgRangeType.createRangeFunction(componentType, boundJavaType(sqlType), methodName);
         return new PostgreMultiRangeArrayType(sqlType, javaType, rangeFunc);
     }
 
@@ -251,8 +251,8 @@ public class PostgreMultiRangeArrayType extends _ArmyPostgreRangeType implements
         } else if (ArrayUtils.dimensionOf(this.javaType) > 2) {
             instance = new PostgreMultiRangeArrayType(this.dataType, this.javaType.getComponentType(), this.rangeFunc);
         } else {
-            final PostgreMultiRangeType rangeType;
-            rangeType = PostgreMultiRangeType.INT4_MULTI_RANGE_TEXT._fromMultiArray(this);
+            final PgMultiRangeType rangeType;
+            rangeType = PgMultiRangeType.INT4_MULTI_RANGE_TEXT._fromMultiArray(this);
             assert rangeType.dataType == this.dataType;
             instance = rangeType;
         }
@@ -310,7 +310,7 @@ public class PostgreMultiRangeArrayType extends _ArmyPostgreRangeType implements
                                              final DataType dataType, final MappingType type,
                                              final ErrorHandler handler) {
         final BiConsumer<Object, StringBuilder> rangeSerializer;
-        rangeSerializer = (range, appender) -> PostgreRangeType.rangeToText(range, boundSerializer, type, appender);
+        rangeSerializer = (range, appender) -> PgRangeType.rangeToText(range, boundSerializer, type, appender);
         return PostgreArrays.arrayBeforeBind(nonNull, rangeSerializer, dataType, type, handler);
     }
 
@@ -342,7 +342,7 @@ public class PostgreMultiRangeArrayType extends _ArmyPostgreRangeType implements
                     UnaryGenericsMapping.ListMapping.ListMapping.class);
             throw handler.apply(type, dataType, text, new IllegalArgumentException(m));
         } else {
-            elementFunc = PostgreMultiRangeType.multiRangeParseFunc(text, rangeFunc, parseFunc, dataType, type, handler);
+            elementFunc = PgMultiRangeType.multiRangeParseFunc(text, rangeFunc, parseFunc, dataType, type, handler);
         }
         final Object array;
         array = PostgreArrays.parseArray(text, true, elementFunc, _Constant.COMMA, dataType, type, handler);

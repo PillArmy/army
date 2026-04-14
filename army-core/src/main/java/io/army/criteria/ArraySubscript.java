@@ -22,6 +22,7 @@ package io.army.criteria;
  *
  * @since 0.6.0
  */
+@Deprecated
 public interface ArraySubscript {
 
 

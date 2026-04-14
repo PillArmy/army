@@ -20,39 +20,32 @@ import io.army.criteria.CriteriaException;
 import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.mapping.MappingEnv;
-import io.army.mapping.MappingType;
 import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
 import io.army.executor.DataAccessException;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PostgreType;
 
+import java.util.UUID;
 
-/**
- * <p>
- * This class representing Postgre tsvector type {@link MappingType}
-*
- * @see <a href="https://www.postgresql.org/docs/current/datatype-textsearch.html#DATATYPE-TSVECTOR">tsvector</a>
- */
-public final class PostgreTsVectorType extends _ArmyNoInjectionType {
+public final class PgUuidType extends _ArmyNoInjectionType {
 
+    public static final PgUuidType INSTANCE = new PgUuidType();
 
-    public static final PostgreTsVectorType INSTANCE = new PostgreTsVectorType();
-
-    public static PostgreTsVectorType from(final Class<?> javaType) {
-        if (javaType != String.class) {
-            throw errorJavaType(PostgreTsVectorType.class, javaType);
+    public static PgUuidType from(Class<?> javaType) {
+        if (javaType != UUID.class) {
+            throw errorJavaType(PgUuidType.class, javaType);
         }
         return INSTANCE;
     }
 
 
-    private PostgreTsVectorType() {
+    private PgUuidType() {
     }
 
     @Override
     public Class<?> javaType() {
-        return String.class;
+        return UUID.class;
     }
 
     @Override
@@ -60,28 +53,35 @@ public final class PostgreTsVectorType extends _ArmyNoInjectionType {
         if (meta.serverDatabase() != Database.PostgreSQL) {
             throw MAP_ERROR_HANDLER.apply(this, meta);
         }
-        return PostgreType.TSVECTOR;
+        return PostgreType.UUID;
     }
 
+
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
+    public UUID convert(MappingEnv env, Object source) throws CriteriaException {
         //TODO
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        //TODO
-        if (source instanceof String) {
-            return source;
+    public UUID beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        final UUID value;
+        if (source instanceof UUID) {
+            value = (UUID) source;
+        } else if (source instanceof String) {
+
+        } else {
+            throw PARAM_ERROR_HANDLER_0.apply(this, source);
         }
+        //TODO
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+    public UUID afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         //TODO
         throw new UnsupportedOperationException();
     }
+
 
 }

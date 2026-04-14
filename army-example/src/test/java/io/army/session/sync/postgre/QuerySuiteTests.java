@@ -47,7 +47,7 @@ public class QuerySuiteTests extends SessionTestSupport {
     public void selectDomain(final SyncLocalSession syncSession) {
         final Select stmt;
         stmt = Postgres.query()
-                .select("c", PERIOD, ChinaRegion_.T)
+                .select("c", DOT, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
 //                .where(ChinaRegion_.name.equal(SQLs::param, "曲境"))
 //                .and(ChinaRegion_.createTime::equal, SQLs::literal, LocalDateTime.now().minusDays(1))
@@ -102,7 +102,7 @@ public class QuerySuiteTests extends SessionTestSupport {
                         .asQuery()
                 ).search(s -> s.breadthFirstBy(ChinaRegion_.ID, ChinaRegion_.CREATE_TIME).set("orderCol"))
                 .space()
-                .select(s -> s.space("cte", PERIOD, ASTERISK))
+                .select(s -> s.space("cte", DOT, ASTERISK))
                 .from("cte")
                 .asQuery();
 
@@ -154,7 +154,7 @@ public class QuerySuiteTests extends SessionTestSupport {
                         .asQuery()
                 ).search(s -> s.depthFirstBy(ChinaRegion_.ID).set("orderCol"))
                 .space()
-                .select(s -> s.space("cte", PERIOD, ASTERISK))
+                .select(s -> s.space("cte", DOT, ASTERISK))
                 .from("cte")
                 .asQuery();
 
@@ -207,7 +207,7 @@ public class QuerySuiteTests extends SessionTestSupport {
                         .asQuery()
                 ).search(s -> s.depthFirstBy("myId", "myCreateTime").set("orderCol"))
                 .space()
-                .select(s -> s.space("cte", PERIOD, ASTERISK))
+                .select(s -> s.space("cte", DOT, ASTERISK))
                 .from("cte")
                 .asQuery();
 
@@ -261,7 +261,7 @@ public class QuerySuiteTests extends SessionTestSupport {
                         .asQuery()
                 ).cycle(s -> s.space(ChinaRegion_.ID, ChinaRegion_.CREATE_TIME).set("isCycle").using("path"))
                 .space()
-                .select(s -> s.space("cte", PERIOD, ASTERISK))
+                .select(s -> s.space("cte", DOT, ASTERISK))
                 .from("cte")
                 .asQuery();
 
@@ -316,7 +316,7 @@ public class QuerySuiteTests extends SessionTestSupport {
                         .asQuery()
                 ).cycle(s -> s.space("myId", "myCreateTime").set("isCycle").to(SQLs.constValue(1), DEFAULT, SQLs.constValue(0)).using("path"))
                 .space()
-                .select(s -> s.space("cte", PERIOD, ASTERISK))
+                .select(s -> s.space("cte", DOT, ASTERISK))
                 .from("cte")
                 .asQuery();
 
@@ -374,7 +374,7 @@ public class QuerySuiteTests extends SessionTestSupport {
                 ).search(s -> s.depthFirstBy("myId", "myCreateTime").set("orderCol"))
                 .cycle(s -> s.space("myId", "myCreateTime").set("isCycle").to(LITERAL_1, DEFAULT, LITERAL_0).using("path"))
                 .space()
-                .select(s -> s.space("cte", PERIOD, ASTERISK))
+                .select(s -> s.space("cte", DOT, ASTERISK))
                 .from("cte")
                 .asQuery();
 

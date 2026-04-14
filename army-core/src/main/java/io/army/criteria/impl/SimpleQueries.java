@@ -183,14 +183,14 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final SR select(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table) {
+    public final SR select(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) {
         this.context.onAddSelectItem(SelectionGroups.singleGroup(table, tableAlias));
         return (SR) this;
     }
 
     @Override
-    public final <P> SR select(String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-                               String childAlias, SQLs.SymbolPeriod period2, ComplexTableMeta<P, ?> child) {
+    public final <P> SR select(String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+                               String childAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child) {
         if (child.parentMeta() != parent) {
             throw CriteriaUtils.childParentNotMatch(this.context, parent, child);
         }
@@ -347,14 +347,14 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final SR space(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table) {
+    public final SR space(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) {
         this.context.onAddSelectItem(SelectionGroups.singleGroup(table, tableAlias));
         return (SR) this;
     }
 
     @Override
-    public final <P> SR space(String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-                              String childAlias, SQLs.SymbolPeriod period2, ComplexTableMeta<P, ?> child) {
+    public final <P> SR space(String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+                              String childAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child) {
         return this.select(parenAlias, period1, parent, childAlias, period2, child);
     }
 
@@ -420,14 +420,14 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final SR comma(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table) {
+    public final SR comma(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) {
         this.context.onAddSelectItem(SelectionGroups.singleGroup(table, tableAlias));
         return (SR) this;
     }
 
     @Override
-    public final <P> SR comma(String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-                              String childAlias, SQLs.SymbolPeriod period2, ComplexTableMeta<P, ?> child) {
+    public final <P> SR comma(String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+                              String childAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child) {
         if (child.parentMeta() != parent) {
             throw CriteriaUtils.childParentNotMatch(this.context, parent, child);
         }
@@ -1852,13 +1852,13 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public final SR select(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table) {
+        public final SR select(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) {
             return this.createSelectClause().select(tableAlias, period, table);
         }
 
         @Override
-        public final <P> SR select(String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-                                   String childAlias, SQLs.SymbolPeriod period2, ComplexTableMeta<P, ?> child) {
+        public final <P> SR select(String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+                                   String childAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child) {
             return this.createSelectClause().select(parenAlias, period1, parent, childAlias, period2, child);
         }
 
@@ -2256,7 +2256,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public _DeferSelectCommaSpace space(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table) {
+        public _DeferSelectCommaSpace space(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) {
             if (this.spaceFirst) {
                 throw CriteriaUtils.spaceMethodNotFirst();
             }
@@ -2266,8 +2266,8 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public <P> _DeferSelectCommaSpace space(String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-                                                String childAlias, SQLs.SymbolPeriod period2,
+        public <P> _DeferSelectCommaSpace space(String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+                                                String childAlias, SQLs.SymbolDot period2,
                                                 ComplexTableMeta<P, ?> child) {
             if (this.spaceFirst) {
                 throw CriteriaUtils.spaceMethodNotFirst();
@@ -2282,7 +2282,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public _DeferSelectCommaSpace space(String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk star) {
+        public _DeferSelectCommaSpace space(String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk star) {
             if (this.spaceFirst) {
                 throw CriteriaUtils.spaceMethodNotFirst();
             }
@@ -2350,14 +2350,14 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public _DeferSelectCommaSpace comma(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table) {
+        public _DeferSelectCommaSpace comma(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) {
             this.context.onAddSelectItem(SelectionGroups.singleGroup(table, tableAlias));
             return this;
         }
 
         @Override
-        public <P> _DeferSelectCommaSpace comma(String parenAlias, SQLs.SymbolPeriod p1, ParentTableMeta<P> parent,
-                                                String childAlias, SQLs.SymbolPeriod p2, ComplexTableMeta<P, ?> child) {
+        public <P> _DeferSelectCommaSpace comma(String parenAlias, SQLs.SymbolDot p1, ParentTableMeta<P> parent,
+                                                String childAlias, SQLs.SymbolDot p2, ComplexTableMeta<P, ?> child) {
             if (child.parentMeta() != parent) {
                 throw CriteriaUtils.childParentNotMatch(this.context, parent, child);
             }
@@ -2367,7 +2367,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public _DeferSelectCommaSpace comma(String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk star) {
+        public _DeferSelectCommaSpace comma(String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk star) {
             this.context.onAddDerivedGroup(derivedAlias);
             return this;
         }
@@ -2431,14 +2431,14 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public SelectionConsumer selection(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table) {
+        public SelectionConsumer selection(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) {
             this.context.onAddSelectItem(SelectionGroups.singleGroup(table, tableAlias));
             return this;
         }
 
         @Override
-        public <P> SelectionConsumer selection(String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-                                               String childAlias, SQLs.SymbolPeriod period2,
+        public <P> SelectionConsumer selection(String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+                                               String childAlias, SQLs.SymbolDot period2,
                                                ComplexTableMeta<P, ?> child) {
             if (child.parentMeta() != parent) {
                 throw CriteriaUtils.childParentNotMatch(this.context, parent, child);
@@ -2449,7 +2449,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public SelectionConsumer selection(String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk star) {
+        public SelectionConsumer selection(String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk star) {
             this.context.onAddDerivedGroup(derivedAlias);
             return this;
         }

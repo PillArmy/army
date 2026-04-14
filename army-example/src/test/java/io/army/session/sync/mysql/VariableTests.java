@@ -19,7 +19,7 @@ import java.util.Map;
 import static io.army.criteria.impl.MySQLs.atAtGlobal;
 import static io.army.criteria.impl.MySQLs.atAtSession;
 import static io.army.criteria.impl.SQLs.AS;
-import static io.army.criteria.impl.SQLs.PERIOD;
+import static io.army.criteria.impl.SQLs.DOT;
 
 @Test(dataProvider = "localSessionProvider")
 public class VariableTests extends SessionTestSupport {
@@ -33,7 +33,7 @@ public class VariableTests extends SessionTestSupport {
         final Select stmt;
         stmt = MySQLs.query()
                 .select(s -> s.space(MySQLs.at("my_row_number").increment().as("rowNumber")) // NOTE : here is defer SELECT clause, so SELECT clause is executed after FROM clause
-                        .comma("t", PERIOD, ChinaRegion_.T)
+                        .comma("t", DOT, ChinaRegion_.T)
                 )
                 .from(ChinaRegion_.T, AS, "t")
                 .crossJoin(SQLs.subQuery()

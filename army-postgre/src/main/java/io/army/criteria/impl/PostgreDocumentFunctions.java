@@ -23,8 +23,8 @@ import io.army.mapping.array.TextArrayType;
 import io.army.mapping.array.XmlArrayType;
 import io.army.mapping.optional.JsonPathType;
 import io.army.mapping.optional.NoCastTextType;
-import io.army.mapping.postgre.PostgreTsQueryType;
-import io.army.mapping.postgre.PostgreTsVectorType;
+import io.army.mapping.postgre.PgTsQueryType;
+import io.army.mapping.postgre.PgVectorType;
 import io.army.meta.TableMeta;
 import io.army.util.ArrayUtils;
 import io.army.util._Collections;
@@ -60,7 +60,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -82,7 +82,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">array_to_tsvector ( text[] ) → tsvector</a>
@@ -93,7 +93,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @param funcRefForQuery the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -115,7 +115,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">plainto_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
@@ -126,7 +126,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @param funcRefForConfig the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -161,7 +161,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">plainto_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
@@ -172,7 +172,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @param funcRefForQuery the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -194,7 +194,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">phraseto_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
@@ -205,7 +205,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @param funcRefForConfig the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -240,7 +240,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">phraseto_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
@@ -251,7 +251,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @param funcRefForQuery the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -273,7 +273,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">websearch_to_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
@@ -284,7 +284,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @param funcRefForConfig the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -319,7 +319,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">websearch_to_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
@@ -341,7 +341,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @param funcRefForVector the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -352,7 +352,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                             <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
      *                             <li>developer custom method</li>
      *                         </ul>.
-     *                         The first argument of funcRefForVector always is {@link PostgreTsVectorType#INSTANCE}.
+     *                         The first argument of funcRefForVector always is {@link PgVectorType#INSTANCE}.
      * @param vector           non-null,it will be passed to funcRefForVector as the second argument of funcRefForVector
      * @param funcRefForWeight the reference of method,Note: it's the reference of method,not lambda. Valid method:
      *                         <ul>
@@ -372,14 +372,14 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      */
     public static <T, U> Expression setWeight(BiFunction<MappingType, T, Expression> funcRefForVector, T vector,
                                                     BiFunction<MappingType, U, Expression> funcRefForWeight, U weight) {
-        return setWeight(funcRefForVector.apply(PostgreTsVectorType.INSTANCE, vector),
+        return setWeight(funcRefForVector.apply(PgVectorType.INSTANCE, vector),
                 funcRefForWeight.apply(CharacterType.INSTANCE, weight)
         );
     }
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">setweight ( vector tsvector, weight "char" ) → tsvector<br/>
@@ -393,7 +393,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @param funcRefForVector  the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -404,7 +404,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                              <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
      *                              <li>developer custom method</li>
      *                          </ul>.
-     *                          The first argument of funcRefForVector always is {@link PostgreTsVectorType#INSTANCE}.
+     *                          The first argument of funcRefForVector always is {@link PgVectorType#INSTANCE}.
      * @param vector            non-null,it will be passed to funcRefForVector as the second argument of funcRefForVector
      * @param funcRefForWeight  the reference of method,Note: it's the reference of method,not lambda. Valid method:
      *                          <ul>
@@ -436,7 +436,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     public static <T, U, V> Expression setWeight(BiFunction<MappingType, T, Expression> funcRefForVector, T vector,
                                                        BiFunction<MappingType, U, Expression> funcRefForWeight, U weight,
                                                        BiFunction<MappingType, V, Expression> funcRefForLexemes, V lexemes) {
-        return setWeight(funcRefForVector.apply(PostgreTsVectorType.INSTANCE, vector),
+        return setWeight(funcRefForVector.apply(PgVectorType.INSTANCE, vector),
                 funcRefForWeight.apply(CharacterType.INSTANCE, weight),
                 funcRefForLexemes.apply(TextArrayType.from(String[].class), lexemes)
         );
@@ -444,7 +444,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">setweight ( vector tsvector, weight "char", lexemes text[] ) → tsvector<br/>
@@ -459,7 +459,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -470,18 +470,18 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                    <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
      *                    <li>developer custom method</li>
      *                </ul>.
-     *                The first argument of funcRef always is {@link PostgreTsVectorType} with one dimension array.
+     *                The first argument of funcRef always is {@link PgVectorType} with one dimension array.
      * @param value   non-null,it will be passed to funcRef as the second argument of funcRef
      * @see #strip(Expression)
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">array_to_tsvector ( text[] ) → tsvector</a>
      */
     public static <T> Expression strip(BiFunction<MappingType, T, Expression> funcRef, T value) {
-        return strip(funcRef.apply(PostgreTsVectorType.INSTANCE, value));
+        return strip(funcRef.apply(PgVectorType.INSTANCE, value));
     }
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">strip ( tsvector ) → tsvector<br/>
@@ -495,7 +495,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @param funcRefForQuery the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -517,7 +517,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
@@ -528,7 +528,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @param funcRefForConfig the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -563,7 +563,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
@@ -574,7 +574,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @see #toTsVector(Expression, Expression)
@@ -586,7 +586,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsvector ( [ config regconfig, ] document text ) → tsvector</a>
@@ -597,7 +597,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @param funcRefForDocument the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -632,7 +632,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">json_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
@@ -643,7 +643,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @param funcRefForConfig   the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -690,7 +690,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">json_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
@@ -701,7 +701,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @param funcRefForDocument the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -736,7 +736,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">jsonb_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
@@ -747,7 +747,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @param funcRefForConfig   the reference of method,Note: it's the reference of method,not lambda. Valid method:
@@ -794,7 +794,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">jsonb_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
@@ -805,7 +805,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">ts_delete ( vector tsvector, lexeme text ) → tsvector</a>
@@ -817,7 +817,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsVectorType}
+     * The {@link MappingType} of function return type: {@link  PgVectorType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">ts_filter ( vector tsvector, weights "char"[] ) → tsvector</a>
@@ -933,7 +933,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">ts_rewrite ( query tsquery, target tsquery, substitute tsquery ) → tsquery</a>
@@ -944,7 +944,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">ts_rewrite ( query tsquery, select text ) → tsquery</a>
@@ -955,7 +955,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">tsquery_phrase ( query1 tsquery, query2 tsquery ) → tsquery</a>
@@ -966,7 +966,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link  PostgreTsQueryType}
+     * The {@link MappingType} of function return type: {@link  PgTsQueryType}
      * *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">tsquery_phrase ( query1 tsquery, query2 tsquery, distance integer ) → tsquery</a>
@@ -2065,11 +2065,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      * The {@link MappingType} of function return type: {@link JsonType#TEXT}
      * *
      * <p>
-     * This method don't support {@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)},because it will output non-mapping column .
+     * This method don't support {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)},because it will output non-mapping column .
      * you should use
      * <ul>
-     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
-     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
+     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
      * </ul>
      * *
      *
@@ -2079,7 +2079,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *            <li>{@link Expression}</li>
      *            <li> {@link SQLs#row(Object)} </li>
      *            <li>{@link SQLs#row(Consumer)}</li>
-     *            <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *            <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *            </ul>
      * @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">to_json ( anyelement ) → json</a>
@@ -2094,11 +2094,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      * The {@link MappingType} of function return type: {@link JsonbType#TEXT}
      * *
      * <p>
-     * This method don't support {@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)},because it will output non-mapping column .
+     * This method don't support {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)},because it will output non-mapping column .
      * you should use
      * <ul>
-     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
-     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
+     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
      * </ul>
      *
      * @param arg valid type:<ul>
@@ -2107,7 +2107,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *            <li>{@link Expression}</li>
      *            <li> {@link SQLs#row(Object)} </li>
      *            <li>{@link SQLs#row(Consumer)}</li>
-     *            <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *            <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *            </ul>
      * @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">to_jsonb ( anyelement ) → jsonb</a>
@@ -2148,11 +2148,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      * <p>
      * The {@link MappingType} of function return type: {@link JsonType#TEXT}
      * *<p>
-     * This method don't support {@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)},because it will output non-mapping column .
+     * This method don't support {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)},because it will output non-mapping column .
      * you should use
      * <ul>
-     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
-     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
+     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
      * </ul>
      *
      * @param record valid type:<ul>
@@ -2160,7 +2160,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *               <li>{@link Expression}</li>
      *               <li> {@link SQLs#row(Object)} </li>
      *               <li>{@link SQLs#row(Consumer)}</li>
-     *               <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *               <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *               </ul>
      * @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">row_to_json ( record [, boolean ] ) → json<br/>
@@ -2175,11 +2175,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      * <p>
      * The {@link MappingType} of function return type: {@link JsonType#TEXT}
      * *<p>
-     * This method don't support {@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)},because it will output non-mapping column .
+     * This method don't support {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)},because it will output non-mapping column .
      * you should use
      * <ul>
-     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
-     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
+     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
      * </ul>
      *
      * @param record   valid type:<ul>
@@ -2187,7 +2187,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *                 </ul>
      * @param lineFeed in most case {@link SQLs#TRUE} or {@link SQLs#FALSE}
      * @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
@@ -2219,11 +2219,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      * <p>
      * The {@link MappingType} of function return type: {@link JsonType#TEXT}
      * * <p>
-     * This method don't support {@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)},because it will output non-mapping column .
+     * This method don't support {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)},because it will output non-mapping column .
      * you should use
      * <ul>
-     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
-     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
+     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
      * </ul>
      * *
      *
@@ -2233,7 +2233,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *            <li>{@link Expression}</li>
      *            <li> {@link SQLs#row(Object)} </li>
      *            <li>{@link SQLs#row(Consumer)}</li>
-     *            <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *            <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *            </ul>
      * @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">json_build_array ( VARIADIC "any" ) → json<br/>
@@ -2248,11 +2248,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      * <p>
      * The {@link MappingType} of function return type: {@link JsonType#TEXT}
      * * <p>
-     * This method don't support {@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)},because it will output non-mapping column .
+     * This method don't support {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)},because it will output non-mapping column .
      * you should use
      * <ul>
-     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
-     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
+     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
      * </ul>
      * *
      *
@@ -2262,7 +2262,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *             <li>{@link Expression}</li>
      *             <li> {@link SQLs#row(Object)} </li>
      *             <li>{@link SQLs#row(Consumer)}</li>
-     *             <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *             <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *             </ul>
      * @param arg2 valid type:<ul>
      *             <li>constant</li>
@@ -2270,7 +2270,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *             <li>{@link Expression}</li>
      *             <li> {@link SQLs#row(Object)} </li>
      *             <li>{@link SQLs#row(Consumer)}</li>
-     *             <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *             <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *             </ul>
      * @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">json_build_array ( VARIADIC "any" ) → json<br/>
@@ -2286,11 +2286,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      * <p>
      * The {@link MappingType} of function return type: {@link JsonType#TEXT}
      * * <p>
-     * This method don't support {@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)},because it will output non-mapping column .
+     * This method don't support {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)},because it will output non-mapping column .
      * you should use
      * <ul>
-     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
-     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
+     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
      * </ul>
      * *
      *
@@ -2300,7 +2300,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *                 </ul>
      * @param arg2     valid type:<ul>
      *                 <li>constant</li>
@@ -2308,7 +2308,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *                 </ul>
      * @param arg3     valid type:<ul>
      *                 <li>constant</li>
@@ -2316,7 +2316,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *                 </ul>
      * @param variadic valid type:<ul>
      *                 <li>constant</li>
@@ -2324,7 +2324,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *                 </ul>
      * @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">json_build_array ( VARIADIC "any" ) → json<br/>
@@ -2340,11 +2340,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      * <p>
      * The {@link MappingType} of function return type: {@link JsonType#TEXT}
      * * <p>
-     * This method don't support {@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)},because it will output non-mapping column .
+     * This method don't support {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)},because it will output non-mapping column .
      * you should use
      * <ul>
-     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
-     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
+     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
      * </ul>
      * *
      *
@@ -2354,13 +2354,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *                 </ul>
      * @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
-     * @see SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)
-     * @see SQLs#space(String, SQLs.SymbolPeriod, TableMeta)
-     * @see #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)
-     * @see #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)
+     * @see SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)
+     * @see SQLs#space(String, SQLs.SymbolDot, TableMeta)
+     * @see #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)
+     * @see #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">json_build_array ( VARIADIC "any" ) → json<br/>
      * Builds a possibly-heterogeneously-typed JSON array out of a variadic argument list. Each argument is converted as per to_json or to_jsonb.
      * </a>
@@ -2391,11 +2391,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      * <p>
      * The {@link MappingType} of function return type: {@link JsonbType#TEXT}
      * * <p>
-     * This method don't support {@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)},because it will output non-mapping column .
+     * This method don't support {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)},because it will output non-mapping column .
      * you should use
      * <ul>
-     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
-     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
+     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
      * </ul>
      * *
      *
@@ -2405,7 +2405,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *            <li>{@link Expression}</li>
      *            <li> {@link SQLs#row(Object)} </li>
      *            <li>{@link SQLs#row(Consumer)}</li>
-     *            <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *            <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *            </ul>
      * @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">jsonb_build_array ( VARIADIC "any" ) → json<br/>
@@ -2420,11 +2420,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      * <p>
      * The {@link MappingType} of function return type: {@link JsonbType#TEXT}
      * *<p>
-     * This method don't support {@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)},because it will output non-mapping column .
+     * This method don't support {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)},because it will output non-mapping column .
      * you should use
      * <ul>
-     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
-     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
+     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
      * </ul>
      *
      * @param arg1 valid type:<ul>
@@ -2433,7 +2433,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *             <li>{@link Expression}</li>
      *             <li> {@link SQLs#row(Object)} </li>
      *             <li>{@link SQLs#row(Consumer)}</li>
-     *             <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *             <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *             </ul>
      * @param arg2 valid type:<ul>
      *             <li>constant</li>
@@ -2441,7 +2441,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *             <li>{@link Expression}</li>
      *             <li> {@link SQLs#row(Object)} </li>
      *             <li>{@link SQLs#row(Consumer)}</li>
-     *             <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *             <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *             </ul>
      * @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">jsonb_build_array ( VARIADIC "any" ) → json<br/>
@@ -2457,11 +2457,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      * <p>
      * The {@link MappingType} of function return type: {@link JsonbType#TEXT}
      * *<p>
-     * This method don't support {@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)},because it will output non-mapping column .
+     * This method don't support {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)},because it will output non-mapping column .
      * you should use
      * <ul>
-     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
-     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
+     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
      * </ul>
      *
      * @param arg1     valid type:<ul>
@@ -2470,7 +2470,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *                 </ul>
      * @param arg2     valid type:<ul>
      *                 <li>constant</li>
@@ -2478,7 +2478,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *                 </ul>
      * @param arg3     valid type:<ul>
      *                 <li>constant</li>
@@ -2486,7 +2486,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *                 </ul>
      * @param variadic valid type:<ul>
      *                 <li>constant</li>
@@ -2494,7 +2494,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *                 </ul>
      * @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">jsonb_build_array ( VARIADIC "any" ) → json<br/>
@@ -2510,11 +2510,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      * <p>
      * The {@link MappingType} of function return type: {@link JsonbType#TEXT}
      * * <p>
-     * This method don't support {@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)},because it will output non-mapping column .
+     * This method don't support {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)},because it will output non-mapping column .
      * you should use
      * <ul>
-     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
-     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *     <li>{@link #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
+     *     <li>{@link #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)}</li>
      * </ul>
      * *
      *
@@ -2524,13 +2524,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
      *                 </ul>
      * @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
-     * @see SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)
-     * @see SQLs#space(String, SQLs.SymbolPeriod, TableMeta)
-     * @see #jsonBuildObject(String, SQLs.SymbolPeriod, TableMeta)
-     * @see #jsonbBuildObject(String, SQLs.SymbolPeriod, TableMeta)
+     * @see SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)
+     * @see SQLs#space(String, SQLs.SymbolDot, TableMeta)
+     * @see #jsonBuildObject(String, SQLs.SymbolDot, TableMeta)
+     * @see #jsonbBuildObject(String, SQLs.SymbolDot, TableMeta)
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">jsonb_build_array ( VARIADIC "any" ) → json<br/>
      * Builds a possibly-heterogeneously-typed JSON array out of a variadic argument list. Each argument is converted as per to_json or to_jsonb.
      * </a>
@@ -2548,11 +2548,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     }
 
 
-    public static SimpleExpression jsonBuildObject(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table) {
+    public static SimpleExpression jsonBuildObject(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) {
         return FunctionUtils.oneArgObjectElementFunc("json_build_object", ContextStack.peek().row(tableAlias, period, table));
     }
 
-    public static SimpleExpression jsonBuildObject(String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk asterisk) {
+    public static SimpleExpression jsonBuildObject(String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk asterisk) {
         return FunctionUtils.oneArgObjectElementFunc("json_build_object", ContextStack.peek().row(derivedAlias, period, asterisk));
     }
 
@@ -2568,8 +2568,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, TableMeta)}</li>
      *                 </ul>
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">json_build_object ( VARIADIC "any" ) → json<br/>
      * Builds a possibly-heterogeneously-typed JSON array out of a variadic argument list. Each argument is converted as per to_json or to_jsonb.
@@ -2592,8 +2592,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, TableMeta)}</li>
      *                 </ul>
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">json_build_object ( VARIADIC "any" ) → json<br/>
      * Builds a possibly-heterogeneously-typed JSON array out of a variadic argument list. Each argument is converted as per to_json or to_jsonb.
@@ -2603,11 +2603,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return FunctionUtils.objectElementFunc(space, "json_build_object", false, consumer);
     }
 
-    public static SimpleExpression jsonbBuildObject(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table) {
+    public static SimpleExpression jsonbBuildObject(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) {
         return FunctionUtils.oneArgObjectElementFunc("jsonb_build_object", ContextStack.peek().row(tableAlias, period, table));
     }
 
-    public static SimpleExpression jsonbBuildObject(String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk asterisk) {
+    public static SimpleExpression jsonbBuildObject(String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk asterisk) {
         return FunctionUtils.oneArgObjectElementFunc("jsonb_build_object", ContextStack.peek().row(derivedAlias, period, asterisk));
     }
 
@@ -2623,8 +2623,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, TableMeta)}</li>
      *                 </ul>
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">jsonb_build_object ( VARIADIC "any" ) → json<br/>
      * Builds a possibly-heterogeneously-typed JSON array out of a variadic argument list. Each argument is converted as per to_json or to_jsonb.
@@ -2647,8 +2647,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
      *                 <li>{@link Expression}</li>
      *                 <li> {@link SQLs#row(Object)} </li>
      *                 <li>{@link SQLs#row(Consumer)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)}</li>
-     *                 <li>{@link SQLs#space(String, SQLs.SymbolPeriod, TableMeta)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}</li>
+     *                 <li>{@link SQLs#space(String, SQLs.SymbolDot, TableMeta)}</li>
      *                 </ul>
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-CREATION-TABLE">jsonb_build_object ( VARIADIC "any" ) → json<br/>
      * Builds a possibly-heterogeneously-typed JSON array out of a variadic argument list. Each argument is converted as per to_json or to_jsonb.

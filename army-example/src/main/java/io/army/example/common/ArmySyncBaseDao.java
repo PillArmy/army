@@ -18,7 +18,6 @@ package io.army.example.common;
 
 import io.army.criteria.Expression;
 import io.army.criteria.Select;
-import io.army.criteria.SimpleExpression;
 import io.army.criteria.TypedExpression;
 import io.army.criteria.impl.SQLs;
 import io.army.criteria.standard.StandardQuery;
@@ -30,13 +29,12 @@ import io.army.session.SyncSession;
 import io.army.session.SyncSessionContext;
 import io.army.util.RowMaps;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
 import static io.army.criteria.impl.SQLs.AS;
-import static io.army.criteria.impl.SQLs.PERIOD;
+import static io.army.criteria.impl.SQLs.DOT;
 
 
 public abstract class ArmySyncBaseDao implements SyncBaseDao {
@@ -100,13 +98,13 @@ public abstract class ArmySyncBaseDao implements SyncBaseDao {
             final ComplexTableMeta<P, T> child = (ComplexTableMeta<P, T>) table;
             final ParentTableMeta<P> parent = child.parentMeta();
             clause = SQLs.query()
-                    .select("p", PERIOD, parent, "c", SQLs.PERIOD, child)
+                    .select("p", DOT, parent, "c", SQLs.DOT, child)
                     .from(child, AS, "c")
                     .join(parent, AS, "p").on(table.id().equal(parent.id()))
                     .where(child.id().equal(valueOperator, id));
         } else {
             clause = SQLs.query()
-                    .select("t", PERIOD, table)
+                    .select("t", DOT, table)
                     .from(table, AS, "t")
                     .where(table.id().equal(valueOperator, id));
         }

@@ -25,26 +25,27 @@ import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
+
 /**
  * <p>
- * This class representing Postgre inet type {@link MappingType}
+ * This class representing Postgre cidr type {@link MappingType}
 *
- * @see <a href="https://www.postgresql.org/docs/current/datatype-net-types.html#DATATYPE-INET">inet</a>
+ * @see <a href="https://www.postgresql.org/docs/current/datatype-net-types.html#DATATYPE-CIDR">cidr</a>
  */
-public final class PostgreInetType extends _ArmyNoInjectionType {
+public final class PgCidrType extends _ArmyNoInjectionType {
 
 
-    public static final PostgreInetType INSTANCE = new PostgreInetType();
+    public static final PgCidrType INSTANCE = new PgCidrType();
 
-    public static PostgreInetType from(final Class<?> javaType) {
+    public static PgCidrType from(final Class<?> javaType) {
         if (javaType != String.class) {
-            throw errorJavaType(PostgreInetType.class, javaType);
+            throw errorJavaType(PgCidrType.class, javaType);
         }
         return INSTANCE;
     }
 
 
-    private PostgreInetType() {
+    private PgCidrType() {
     }
 
     @Override

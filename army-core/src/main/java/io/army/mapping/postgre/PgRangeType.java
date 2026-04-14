@@ -32,20 +32,20 @@ import java.util.function.Function;
  * <p>
  * This class is base class of below:
  *     <ul>
- *         <li>{@link PostgreSingleRangeType}</li>
- *         <li>{@link PostgreMultiRangeType}</li>
+ *         <li>{@link PgSingleRangeType}</li>
+ *         <li>{@link PgMultiRangeType}</li>
  *     </ul>
 *
  * @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-BUILTIN">Built-in Range and Multirange Types</a>
  */
-public abstract class PostgreRangeType extends _ArmyPostgreRangeType {
+public abstract class PgRangeType extends _ArmyPgRangeType {
 
     public static final String INFINITY = "infinity";
     public static final String EMPTY = "empty";
     private static final Object INFINITY_BOUND = new Object();
 
 
-    PostgreRangeType(final PostgreType sqlType, final Class<?> javaType, final @Nullable RangeFunction<?, ?> rangeFunc) {
+    PgRangeType(final PostgreType sqlType, final Class<?> javaType, final @Nullable RangeFunction<?, ?> rangeFunc) {
         super(sqlType, javaType, rangeFunc);
     }
 

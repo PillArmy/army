@@ -506,7 +506,7 @@ abstract class InsertContext extends StatementContext
         final StringBuilder sqlBuilder;
         sqlBuilder = this.sqlBuilder.append(_Constant.SPACE)
                 .append(safeAlias)
-                .append(_Constant.PERIOD);
+                .append(_Constant.DOT);
         this.parser.safeObjectName(field, sqlBuilder);
 
     }
@@ -547,11 +547,11 @@ abstract class InsertContext extends StatementContext
             if ((this.outputFieldTableAlias || this.rowAlias != null)
                     && ((safeAlias = this.safeTableAlias) != null || (safeAlias = this.safeTableName) != null)) {
                 sqlBuilder.append(safeAlias)
-                        .append(_Constant.PERIOD);
+                        .append(_Constant.DOT);
             }
         } else {
             sqlBuilder.append(safeRelativeTableAlias)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
         }
         this.parser.safeObjectName(field, sqlBuilder);
 
@@ -582,7 +582,7 @@ abstract class InsertContext extends StatementContext
         final StringBuilder sqlBuilder;
         sqlBuilder = this.sqlBuilder.append(_Constant.SPACE)
                 .append(safeTableAlias)
-                .append(_Constant.PERIOD);
+                .append(_Constant.DOT);
         this.parser.safeObjectName(field, sqlBuilder);
     }
 
@@ -758,7 +758,7 @@ abstract class InsertContext extends StatementContext
             }
 
             sqlBuilder.append(safeTableAlias)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
 
             safeColumnName = parser.safeObjectName(field);
             sqlBuilder.append(safeColumnName);
@@ -772,7 +772,7 @@ abstract class InsertContext extends StatementContext
                             .append(_Constant.LEFT_PAREN)
                             .append(_Constant.SPACE)
                             .append(safeTableAlias)
-                            .append(_Constant.PERIOD)
+                            .append(_Constant.DOT)
                             .append(safeColumnName)
                             .append(_Constant.SPACE_RIGHT_PAREN);
 
@@ -805,7 +805,7 @@ abstract class InsertContext extends StatementContext
         final String safeTableAlias = this.safeTableAlias;
         if (safeTableAlias != null) {
             sqlBuilder.append(safeTableAlias)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
         }
         dialect.safeObjectName(returnId, sqlBuilder)
                 .append(_Constant.SPACE_AS_SPACE);

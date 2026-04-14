@@ -485,7 +485,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         } else if (object instanceof FieldMeta) {
             builder.append(" COLUMN ");
             this.parser.safeObjectName(((FieldMeta<?>) object).tableMeta(), builder);
-            builder.append(_Constant.PERIOD);
+            builder.append(_Constant.DOT);
             this.parser.safeObjectName(object, builder);
         } else {
             //no bug,never here
@@ -655,7 +655,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
                 .append(_Constant.SPACE);
 
         this.parser.safeObjectName(field.tableMeta(), builder);
-        builder.append(_Constant.PERIOD);
+        builder.append(_Constant.DOT);
         this.parser.safeObjectName(field, builder);
 
         builder.append(_Constant.SPACE)

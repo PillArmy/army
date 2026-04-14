@@ -21,10 +21,9 @@ import io.army.mapping.*;
 import io.army.mapping.array.BooleanArrayType;
 import io.army.mapping.array.StringArrayType;
 import io.army.mapping.array.TextArrayType;
-import io.army.mapping.postgre.PostgreCidrType;
-import io.army.mapping.postgre.PostgreInetType;
-import io.army.mapping.postgre.PostgrePgLsnType;
-import io.army.util.ArrayUtils;
+import io.army.mapping.postgre.PgCidrType;
+import io.army.mapping.postgre.PgInetType;
+import io.army.mapping.postgre.PgLsnType;
 import io.army.util._Collections;
 
 import java.util.List;
@@ -646,7 +645,7 @@ abstract class PostgreMiscellaneousFunctions extends PostgreGeometricFunctions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link PostgreInetType}
+     * The {@link MappingType} of function return type: {@link PgInetType}
      *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-net.html#CIDR-INET-FUNCTIONS-TABLE">broadcast ( inet ) → inet<br/>
@@ -688,7 +687,7 @@ abstract class PostgreMiscellaneousFunctions extends PostgreGeometricFunctions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link PostgreInetType}
+     * The {@link MappingType} of function return type: {@link PgInetType}
      *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-net.html#CIDR-INET-FUNCTIONS-TABLE">hostmask ( inet ) → inet<br/>
@@ -703,7 +702,7 @@ abstract class PostgreMiscellaneousFunctions extends PostgreGeometricFunctions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link PostgreCidrType}
+     * The {@link MappingType} of function return type: {@link PgCidrType}
      *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-net.html#CIDR-INET-FUNCTIONS-TABLE">inet_merge ( inet, inet ) → cidr<br/>
@@ -745,7 +744,7 @@ abstract class PostgreMiscellaneousFunctions extends PostgreGeometricFunctions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link PostgreInetType}
+     * The {@link MappingType} of function return type: {@link PgInetType}
      *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-net.html#CIDR-INET-FUNCTIONS-TABLE">netmask ( inet ) → inet<br/>
@@ -759,7 +758,7 @@ abstract class PostgreMiscellaneousFunctions extends PostgreGeometricFunctions {
 
     /**
      * <p>
-     * The {@link MappingType} of function return type: {@link PostgreCidrType}
+     * The {@link MappingType} of function return type: {@link PgCidrType}
      *
      *
      * @see <a href="https://www.postgresql.org/docs/current/functions-net.html#CIDR-INET-FUNCTIONS-TABLE">network ( inet ) → cidr<br/>
@@ -774,8 +773,8 @@ abstract class PostgreMiscellaneousFunctions extends PostgreGeometricFunctions {
     /**
      * <p>
      * The {@link MappingType} of function return type:<ul>
-     * <li>If exp1 type is {@link PostgreInetType},then {@link PostgreInetType}</li>
-     * <li>If exp1 type is {@link PostgreCidrType},then {@link PostgreCidrType}</li>
+     * <li>If exp1 type is {@link PgInetType},then {@link PgInetType}</li>
+     * <li>If exp1 type is {@link PgCidrType},then {@link PgCidrType}</li>
      * <li>Else The {@link MappingType} of exp1</li>
      * </ul>
      *
@@ -803,8 +802,8 @@ abstract class PostgreMiscellaneousFunctions extends PostgreGeometricFunctions {
     /**
      * <p>
      * The {@link MappingType} of function return type:<ul>
-     * <li>If exp1 type is {@link PostgreInetType},then {@link PostgreInetType}</li>
-     * <li>If exp1 type is {@link PostgreCidrType},then {@link PostgreCidrType}</li>
+     * <li>If exp1 type is {@link PgInetType},then {@link PgInetType}</li>
+     * <li>If exp1 type is {@link PgCidrType},then {@link PgCidrType}</li>
      * <li>Else The {@link MappingType} of exp1</li>
      * </ul>
      *
@@ -1211,8 +1210,8 @@ abstract class PostgreMiscellaneousFunctions extends PostgreGeometricFunctions {
      * <p>
      * The {@link MappingType} of function return type:
      * <ul>
-     *     <li>checkpoint_lsn : {@link PostgrePgLsnType#LONG}</li>
-     *     <li>redo_lsn : {@link PostgrePgLsnType#LONG}</li>
+     *     <li>checkpoint_lsn : {@link PgLsnType#LONG}</li>
+     *     <li>redo_lsn : {@link PgLsnType#LONG}</li>
      *     <li>redo_wal_file : {@link TextType#INSTANCE}</li>
      *     <li>timeline_id : {@link IntegerType#INSTANCE}</li>
      *
@@ -1247,8 +1246,8 @@ abstract class PostgreMiscellaneousFunctions extends PostgreGeometricFunctions {
         final List<Selection> fieldList;
         fieldList = _Collections.arrayList(18);
 
-        fieldList.add(ArmySelections.forName("checkpoint_lsn", PostgrePgLsnType.LONG));
-        fieldList.add(ArmySelections.forName("redo_lsn", PostgrePgLsnType.LONG));
+        fieldList.add(ArmySelections.forName("checkpoint_lsn", PgLsnType.LONG));
+        fieldList.add(ArmySelections.forName("redo_lsn", PgLsnType.LONG));
         fieldList.add(ArmySelections.forName("redo_wal_file", TextType.INSTANCE));
         fieldList.add(ArmySelections.forName("timeline_id", IntegerType.INSTANCE));
 
@@ -1355,10 +1354,10 @@ abstract class PostgreMiscellaneousFunctions extends PostgreGeometricFunctions {
      * <p>
      * The {@link MappingType} of function return type:
      * <ul>
-     *     <li>min_recovery_end_lsn : {@link PostgrePgLsnType#LONG}</li>
+     *     <li>min_recovery_end_lsn : {@link PgLsnType#LONG}</li>
      *     <li>min_recovery_end_timeline : {@link IntegerType#INSTANCE}</li>
-     *     <li>backup_start_lsn : {@link PostgrePgLsnType#LONG}</li>
-     *     <li>backup_end_lsn : {@link PostgrePgLsnType#LONG}</li>
+     *     <li>backup_start_lsn : {@link PgLsnType#LONG}</li>
+     *     <li>backup_end_lsn : {@link PgLsnType#LONG}</li>
      *
      *     <li>end_of_backup_record_required : {@link BooleanType#INSTANCE}</li>
      *
@@ -1375,10 +1374,10 @@ abstract class PostgreMiscellaneousFunctions extends PostgreGeometricFunctions {
         final List<Selection> fieldList;
         fieldList = _Collections.arrayList(5);
 
-        fieldList.add(ArmySelections.forName("min_recovery_end_lsn", PostgrePgLsnType.LONG));
+        fieldList.add(ArmySelections.forName("min_recovery_end_lsn", PgLsnType.LONG));
         fieldList.add(ArmySelections.forName("min_recovery_end_timeline", IntegerType.INSTANCE));
-        fieldList.add(ArmySelections.forName("backup_start_lsn", PostgrePgLsnType.LONG));
-        fieldList.add(ArmySelections.forName("backup_end_lsn", PostgrePgLsnType.LONG));
+        fieldList.add(ArmySelections.forName("backup_start_lsn", PgLsnType.LONG));
+        fieldList.add(ArmySelections.forName("backup_end_lsn", PgLsnType.LONG));
 
         fieldList.add(ArmySelections.forName("end_of_backup_record_required", BooleanType.INSTANCE));
 

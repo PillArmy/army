@@ -99,7 +99,7 @@ public abstract class _StringUtils {
         }
         return builder()
                 .append(clazz.getName())
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(words.name())
                 .toString();
     }

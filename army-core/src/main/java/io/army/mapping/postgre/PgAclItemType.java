@@ -34,20 +34,20 @@ import io.army.sqltype.PostgreType;
  * This class representing Postgre aclitem type {@link MappingType}
  * * @see <a href="https://www.postgresql.org/docs/current/ddl-priv.html">Privileges</a>
  */
-public final class PostgreAclItemType extends _ArmyBuildInType {
+public final class PgAclItemType extends _ArmyBuildInType {
 
-    public static PostgreAclItemType from(final Class<?> javaType) {
+    public static PgAclItemType from(final Class<?> javaType) {
         if (javaType != String.class) {
-            throw errorJavaType(PostgreAclItemType.class, javaType);
+            throw errorJavaType(PgAclItemType.class, javaType);
         }
         return TEXT;
     }
 
 
-    public static final PostgreAclItemType TEXT = new PostgreAclItemType();
+    public static final PgAclItemType TEXT = new PgAclItemType();
 
 
-    private PostgreAclItemType() {
+    private PgAclItemType() {
     }
 
     @Override

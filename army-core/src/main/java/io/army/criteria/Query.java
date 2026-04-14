@@ -93,10 +93,10 @@ public interface Query extends RowSet {
 
         SR select(SqlField field1, SqlField field2, SqlField field3, SqlField field4);
 
-        SR select(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table);
+        SR select(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table);
 
-        <P> SR select(String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-                      String childAlias, SQLs.SymbolPeriod period2, ComplexTableMeta<P, ?> child);
+        <P> SR select(String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+                      String childAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child);
 
 
     }
@@ -120,10 +120,10 @@ public interface Query extends RowSet {
 
         SR space(SqlField field1, SqlField field2, SqlField field3, SqlField field4);
 
-        SR space(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table);
+        SR space(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table);
 
-        <P> SR space(String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-                     String childAlias, SQLs.SymbolPeriod period2, ComplexTableMeta<P, ?> child);
+        <P> SR space(String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+                     String childAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child);
 
     }
 
@@ -203,23 +203,23 @@ public interface Query extends RowSet {
 
         SR comma(SqlField field1, SqlField field2, SqlField field3, SqlField field4);
 
-        SR comma(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table);
+        SR comma(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table);
 
-        <P> SR comma(String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-                     String childAlias, SQLs.SymbolPeriod period2, ComplexTableMeta<P, ?> child);
+        <P> SR comma(String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+                     String childAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child);
 
     }
 
 
     interface _DeferSelectCommaSpace extends _StaticSelectCommaClause<_DeferSelectCommaSpace> {
 
-        _DeferSelectCommaSpace comma(String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk star);
+        _DeferSelectCommaSpace comma(String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk star);
     }
 
 
     interface _DeferSelectSpaceClause extends _StaticSelectSpaceClause<_DeferSelectCommaSpace>, _DeferContextSpec {
 
-        _DeferSelectCommaSpace space(String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk star);
+        _DeferSelectCommaSpace space(String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk star);
 
 
     }

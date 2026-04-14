@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 
 import static io.army.criteria.impl.Postgres.*;
 import static io.army.criteria.impl.SQLs.ASTERISK;
-import static io.army.criteria.impl.SQLs.PERIOD;
+import static io.army.criteria.impl.SQLs.DOT;
 
 public class FuncUnitTests extends PostgreUnitTests {
 
@@ -129,7 +129,7 @@ public class FuncUnitTests extends PostgreUnitTests {
 
         try {
             Postgres.query()
-                    .select(s -> s.space("func", PERIOD, ASTERISK))
+                    .select(s -> s.space("func", DOT, ASTERISK))
                     .from(jsonbPathQuery(SQLs.literal(JsonbType.TEXT, json), SQLs::literal, path))
                     .as("func") // here no specified jsonbPathQuery function field alias
                     .asQuery();

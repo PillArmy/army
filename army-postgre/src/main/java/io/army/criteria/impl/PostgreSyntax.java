@@ -21,14 +21,11 @@ import io.army.criteria.*;
 import io.army.dialect.PostgreDialect;
 import io.army.dialect._Constant;
 import io.army.mapping.*;
-import io.army.mapping.array.TextArrayType;
 import io.army.mapping.optional.NoCastTextType;
 import io.army.meta.FieldMeta;
-import io.army.util.ArrayUtils;
 import io.army.util._StringUtils;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -50,13 +47,12 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
     }
 
 
-    /**
-     * <p>Construct an empty array,and you have to invoke {@link Expression#castToArray(ArrayMappingType)} method
-     * or database response error.
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS">Array Constructors</a>
-     */
-    public static ArrayExpression array() {
+    /// Construct an empty array,and you have to invoke {@link Expression#castTo(MappingType)} method
+    ///  or database response error.
+    ///
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS">Array Constructors</a>
+    ///
+    public static Expression array() {
         return Expressions.array(List.of());
     }
 
@@ -67,8 +63,12 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * @see List#of(Object)
      * @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS">Array Constructors</a>
      */
-    public static ArrayExpression array(List<?> elementList) {
+    public static Expression array(List<?> elementList) {
         return Expressions.array(elementList);
+    }
+
+    public static Expression array(SubQuery subQuery) {
+        return Expressions.array(subQuery);
     }
 
     /**
@@ -1157,7 +1157,7 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
     static String keyWordToString(Enum<?> keyWordEnum) {
         return _StringUtils.builder()
                 .append(Postgres.class.getSimpleName())
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(keyWordEnum.name())
                 .toString();
     }

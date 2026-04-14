@@ -20,14 +20,14 @@ import io.army.criteria.impl.SQLs;
 import io.army.function.OptionalClauseOperator;
 import io.army.function.TeFunction;
 import io.army.lang.Nullable;
-import io.army.mapping.ArrayMappingType;
-import io.army.mapping.JsonMappingType;
+import io.army.mapping.IntegerType;
 import io.army.mapping.MappingType;
+import io.army.mapping.StringType;
 import io.army.meta.FieldMeta;
-import io.army.meta.TypeMeta;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -48,7 +48,7 @@ import static io.army.dialect.Database.*;
  */
 @SuppressWarnings("unused")
 public interface Expression extends SQLExpression, SortItem,
-        GroupByItem.ExpressionItem, RightOperand, AssignmentItem, SelectionSpec, ArraySubscript {
+        GroupByItem.ExpressionItem, RightOperand, AssignmentItem, SelectionSpec {
 
 
     /**
@@ -71,7 +71,6 @@ public interface Expression extends SQLExpression, SortItem,
     /**
      * <p>
      * <strong>&lt;</strong> operator
-     *
      *
      * @param operand non-null
      * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
@@ -215,6 +214,240 @@ public interface Expression extends SQLExpression, SortItem,
      */
     CompoundExpression leftShift(Expression bitNumber);
 
+    ///
+    ///  Access the slice of 1D array
+    ///
+    /// @param lower lower is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @param colon see {@link SQLs#COLON}
+    /// @param upper upper is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
+    @Support({H2, PostgreSQL})
+    Expression slice(Object lower, SQLs.SymbolColon colon, Object upper);
+
+    ///
+    ///  Access the slice of 1D array
+    ///
+    /// @param func  a method reference of one of below:
+    /// 1. {@link SQLs#param(TypeInfer, Object)} : parameter function
+    /// 2. {@link SQLs#literal(TypeInfer, Object)}  : literal function
+    /// 3. {@link SQLs#constant(TypeInfer, Object)}  : constant function
+    /// 4. your custom function
+    /// @param colon see {@link SQLs#COLON}
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
+    @Support({H2, PostgreSQL})
+    Expression slice(BiFunction<IntegerType, Integer, Expression> func, int lower, SQLs.SymbolColon colon, int upper);
+
+    ///
+    ///  Access the slice of 1D array without upper
+    ///
+    /// @param lower lower is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @param colon see {@link SQLs#COLON}
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
+    @Support({H2, PostgreSQL})
+    Expression slice(Object lower, SQLs.SymbolColon colon);
+
+    ///
+    ///  Access the slice of 1D array without lower
+    ///
+    /// @param upper upper is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @param colon see {@link SQLs#COLON}
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
+    @Support({H2, PostgreSQL})
+    Expression slice(SQLs.SymbolColon colon, Object upper);
+
+    ///
+    ///  Access the slice of 1D array without lower and upper
+    ///
+    /// @param colon see {@link SQLs#COLON}
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
+    @Support({H2, PostgreSQL})
+    Expression slice(SQLs.SymbolColon colon);
+
+    ///
+    ///  Access the slice of 2D array
+    ///
+    /// @param lower  lower is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @param colon  see {@link SQLs#COLON}
+    /// @param upper  upper is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @param lower1 lower1 is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @param colon1 see {@link SQLs#COLON}
+    /// @param upper1 upper1 is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
+    @Support({H2, PostgreSQL})
+    Expression slice(Object lower, SQLs.SymbolColon colon, Object upper, Object lower1, SQLs.SymbolColon colon1, Object upper1);
+
+    ///
+    ///  Access the slice of 2D array
+    ///
+    /// @param func   a method reference of one of below:
+    /// 1. {@link SQLs#param(TypeInfer, Object)} : parameter function
+    /// 2. {@link SQLs#literal(TypeInfer, Object)}  : literal function
+    /// 3. {@link SQLs#constant(TypeInfer, Object)}  : constant function
+    /// 4. your custom function
+    /// @param colon  see {@link SQLs#COLON}
+    /// @param colon1 see {@link SQLs#COLON}
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
+    @Support({H2, PostgreSQL})
+    Expression slice(BiFunction<IntegerType, Integer, Expression> func, int lower, SQLs.SymbolColon colon, int upper, int lower1, SQLs.SymbolColon colon1, int upper1);
+
+    ///
+    ///  Access the slice of 2D array without the lower of 1D
+    ///
+    /// @param colon  see {@link SQLs#COLON}
+    /// @param upper  upper is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @param lower1 lower1 is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @param colon1 see {@link SQLs#COLON}
+    /// @param upper1 upper1 is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
+    @Support({H2, PostgreSQL})
+    Expression slice(SQLs.SymbolColon colon, Object upper, Object lower1, SQLs.SymbolColon colon1, Object upper1);
+
+    ///
+    ///  Access the slice of 2D array without the upper of 2D
+    ///
+    /// @param lower  lower is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @param colon  see {@link SQLs#COLON}
+    /// @param upper  upper is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @param lower1 lower1 is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @param colon1 see {@link SQLs#COLON}
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
+    @Support({H2, PostgreSQL})
+    Expression slice(Object lower, SQLs.SymbolColon colon, Object upper, Object lower1, SQLs.SymbolColon colon1);
+
+    ///
+    /// Access the slice of 2D array without all lower and upper
+    ///
+    /// @param colon  see {@link SQLs#COLON}
+    /// @param colon1 see {@link SQLs#COLON}
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
+    @Support({H2, PostgreSQL})
+    Expression slice(SQLs.SymbolColon colon, SQLs.SymbolColon colon1);
+
+    ///
+    /// Access the slice of nD array
+    ///
+    /// @param indexList a List with an even size,the element is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
+    /// 3. literal
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
+    @Support({H2, PostgreSQL})
+    Expression sliceAtSubs(List<?> indexList);
+
+    ///
+    /// dot operator.
+    ///
+    /// @param func      a method reference of one of below:
+    /// 1. {@link SQLs#param(TypeInfer, Object)} : parameter function
+    /// 2. {@link SQLs#literal(TypeInfer, Object)}  : literal function
+    /// 3. {@link SQLs#constant(TypeInfer, Object)}  : constant function
+    /// 4. your custom function
+    /// @param indexList a List with an even size
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
+    @Support({H2, PostgreSQL})
+    Expression sliceAtSubs(BiFunction<MappingType, Integer, Expression> func, List<Integer> indexList);
+
+
+    ///
+    /// dot operator.
+    ///
+    /// @param key key is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link String} literal
+    /// @see <a href="https://www.postgresql.org/docs/current/datatype-json.html#JSONB-SUBSCRIPTING">JSONB-SUBSCRIPTING</a>
+    Expression dot(Object key);
+
+    Expression dot(Object key, Object key1);
+
+    Expression dot(Object key, Object key1, Object key2);
+
+    Expression dot(Object key, Object key1, Object key2, Object key3);
+
+    Expression dot(Object key, Object key1, Object key2, Object key3, Object key4);
+
+    Expression dots(List<?> subscriptList);
+
+    ///
+    ///  bracket operator.
+    ///
+    /// @param key key is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link String} literal
+    /// 3. {@link Integer} literal
+    /// @see <a href="https://www.postgresql.org/docs/current/datatype-json.html#JSONB-SUBSCRIPTING">JSONB-SUBSCRIPTING</a>
+    Expression bracket(Object key);
+
+    Expression bracket(Object key, Object key1);
+
+    Expression bracket(Object key, Object key1, Object key2);
+
+    Expression bracket(Object key, Object key1, Object key2, Object key3);
+
+    Expression bracket(Object key, Object key1, Object key2, Object key3, Object key4);
+
+    ///
+    ///  bracket operator.
+    ///
+    /// @param key key is one of below:
+    /// 1. {@link Expression} : subscript expression
+    /// 2. {@link String} literal
+    /// 3. {@link Integer} literal
+    /// @see <a href="https://www.postgresql.org/docs/current/datatype-json.html#JSONB-SUBSCRIPTING">JSONB-SUBSCRIPTING</a>
+    Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key);
+
+    Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key, Object key1);
+
+    Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key, Object key1, Object key2);
+
+    Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key, Object key1, Object key2, Object key3);
+
+    Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key, Object key1, Object key2, Object key3, Object key4);
+
+    Expression brackets(List<?> subscriptList);
+
+    Expression brackets(BiFunction<MappingType, Object, Expression> func, List<?> subscriptList);
 
     /**
      * <p>Map the expression to a known type expression,but don't support codec.
@@ -249,7 +482,6 @@ public interface Expression extends SQLExpression, SortItem,
      * <p>
      * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
      *
-     *
      * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
      *                The first argument of funcRef always is <strong>this</strong>.
      *                For example: {@code Postgres.using(Expression)}
@@ -261,7 +493,6 @@ public interface Expression extends SQLExpression, SortItem,
      * <p>This method is designed for dialect operator.
      *
      * <p><strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
      *
      * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
      *                The first argument of funcRef always is <strong>this</strong>.
@@ -278,7 +509,6 @@ public interface Expression extends SQLExpression, SortItem,
      * <p>
      * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
      *
-     *
      * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
      *                The first argument of funcRef always is <strong>this</strong>.
      *                For example: {@code Postgres.pound(Expression,Expression)}
@@ -293,7 +523,6 @@ public interface Expression extends SQLExpression, SortItem,
      *
      * <p>
      * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
      *
      * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
      *                The first argument of funcRef always is <strong>this</strong>.
@@ -313,8 +542,6 @@ public interface Expression extends SQLExpression, SortItem,
      *
      * <p>
      *
-     *
-     *
      * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
      *                The first argument of funcRef always is <strong>this</strong>.
      *                For example: {@code Postgres.pound(Expression,Expression)}
@@ -333,8 +560,6 @@ public interface Expression extends SQLExpression, SortItem,
      *
      * <p>
      *
-     *
-     *
      * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
      *                The first argument of funcRef always is <strong>this</strong>.
      *                For example: {@code Postgres.pound(Expression,Expression)}
@@ -351,8 +576,6 @@ public interface Expression extends SQLExpression, SortItem,
      * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
      *
      * <p>
-     *
-     *
      *
      * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
      *                The first argument of funcRef always is <strong>this</strong>.
@@ -371,8 +594,6 @@ public interface Expression extends SQLExpression, SortItem,
      * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
      *
      * <p>
-     *
-     *
      *
      * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
      *                The first argument of funcRef always is <strong>this</strong>.

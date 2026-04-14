@@ -28,24 +28,24 @@ import io.army.sqltype.DataType;
 
 /**
  * <p>
- * This class representing Postgre cidr type {@link MappingType}
+ * This class representing Postgre macaddr8 type {@link MappingType}
 *
- * @see <a href="https://www.postgresql.org/docs/current/datatype-net-types.html#DATATYPE-CIDR">cidr</a>
+ * @see <a href="https://www.postgresql.org/docs/current/datatype-net-types.html#DATATYPE-MACADDR8">macaddr8</a>
  */
-public final class PostgreCidrType extends _ArmyNoInjectionType {
+public final class PgMacAddr8Type extends _ArmyNoInjectionType {
 
 
-    public static final PostgreCidrType INSTANCE = new PostgreCidrType();
+    public static final PgMacAddr8Type INSTANCE = new PgMacAddr8Type();
 
-    public static PostgreCidrType from(final Class<?> javaType) {
+    public static PgMacAddr8Type from(final Class<?> javaType) {
         if (javaType != String.class) {
-            throw errorJavaType(PostgreCidrType.class, javaType);
+            throw errorJavaType(PgMacAddr8Type.class, javaType);
         }
         return INSTANCE;
     }
 
 
-    private PostgreCidrType() {
+    private PgMacAddr8Type() {
     }
 
     @Override

@@ -52,12 +52,12 @@ public interface DialectStatement extends Statement {
 
     interface _StaticDmlReturningCommaClause<R extends Item> extends _StaticReturningCommaClause<R> {
 
-        R comma(String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk star);
+        R comma(String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk star);
 
-        R comma(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table);
+        R comma(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table);
 
-        <P> R comma(String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-                    String childAlias, SQLs.SymbolPeriod period2, ComplexTableMeta<P, ?> child);
+        <P> R comma(String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+                    String childAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child);
     }
 
 
@@ -89,12 +89,12 @@ public interface DialectStatement extends Statement {
 
     interface _StaticDmlReturningClause<R extends Item> extends _StaticReturningClause<R> {
 
-        R returning(String derivedAlias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk star);
+        R returning(String derivedAlias, SQLs.SymbolDot period, SQLs.SymbolAsterisk star);
 
-        R returning(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table);
+        R returning(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table);
 
-        <P> R returning(String parenAlias, SQLs.SymbolPeriod period1, ParentTableMeta<P> parent,
-                        String childAlias, SQLs.SymbolPeriod period2, ComplexTableMeta<P, ?> child);
+        <P> R returning(String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
+                        String childAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child);
     }
 
 

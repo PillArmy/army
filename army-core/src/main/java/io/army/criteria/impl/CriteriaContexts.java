@@ -411,6 +411,8 @@ abstract class CriteriaContexts {
         final DerivedField field;
         if (selection instanceof FieldSelection) {
             field = new FieldSelectionField(derivedAlias, (FieldSelection) selection);
+        } else if (selection instanceof TypedSelection) {
+            field = new TypedSelectionField(derivedAlias, (TypedSelection) selection);
         } else {
             field = new ImmutableDerivedField(derivedAlias, selection);
         }
@@ -1065,13 +1067,13 @@ abstract class CriteriaContexts {
         }
 
         @Override
-        public RowElement row(String alias, SQLs.SymbolPeriod period, TableMeta<?> table) {
+        public RowElement row(String alias, SQLs.SymbolDot period, TableMeta<?> table) {
             String m = "current context don't support row(String alias, SQLs.SymbolPeriod period, TableMeta<?> table)";
             throw ContextStack.clearStackAndCriteriaError(m);
         }
 
         @Override
-        public RowElement row(String alias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk asterisk) {
+        public RowElement row(String alias, SQLs.SymbolDot period, SQLs.SymbolAsterisk asterisk) {
             String m = "current context don't support row(String alias, SQLs.SymbolPeriod period, SQLs.SymbolAsterisk asterisk";
             throw ContextStack.clearStackAndCriteriaError(m);
         }
@@ -1577,9 +1579,9 @@ abstract class CriteriaContexts {
             if (aliasToBlock != null && (block = aliasToBlock.get(tableAlias)) != null) {
                 notExists = block.tableItem() != field.tableMeta();
             } else if (this instanceof JoinableSingleDmlContext) {
-                boolean aliasSame;
+                final boolean aliasSame;
                 aliasSame = tableAlias.equals(((JoinableSingleDmlContext) this).tableAlias);
-                notExists = aliasSame && field.tableMeta() != ((JoinableSingleDmlContext) this).targetTable;
+                notExists = !aliasSame || field.tableMeta() != ((JoinableSingleDmlContext) this).targetTable;
                 if (aliasSame && notExists) {
                     throw unknownQualifiedField(field);
                 }
@@ -2522,14 +2524,17 @@ abstract class CriteriaContexts {
                 throw ContextStack.clearStackAndNullPointer();
             }
 
+            final boolean thisLevelField;
+            thisLevelField = tableAlias.equals(this.targetAlias) && field.tableMeta() == this.targetTable;
+
             Map<FieldMeta<?>, QualifiedField<?>> fieldMap = this.fieldMap;
 
             final QualifiedField<T> qualifiedField;
 
             QualifiedField<?> tempField;
-            if (fieldMap != null && (tempField = fieldMap.get(field)) != null) {
+            if (thisLevelField && fieldMap != null && (tempField = fieldMap.get(field)) != null) {
                 qualifiedField = (QualifiedField<T>) tempField;
-            } else if (this.targetTable == field.tableMeta()) {
+            } else if (thisLevelField) {
                 qualifiedField = QualifiedFieldImpl.create(tableAlias, field);
                 if (fieldMap == null) {
                     this.fieldMap = fieldMap = _Collections.hashMap();
@@ -2935,7 +2940,7 @@ abstract class CriteriaContexts {
         }
 
         @Override
-        public final RowElement row(final @Nullable String alias, SQLs.SymbolPeriod period,
+        public final RowElement row(final @Nullable String alias, SQLs.SymbolDot period,
                                     final @Nullable TableMeta<?> table) {
             if (this.isSelectClauseEnd()) {
                 throw ContextStack.clearStackAndCriteriaError("Error,SELECT clause have ended.");
@@ -2959,7 +2964,7 @@ abstract class CriteriaContexts {
 
 
         @Override
-        public final RowElement row(final @Nullable String alias, SQLs.SymbolPeriod period,
+        public final RowElement row(final @Nullable String alias, SQLs.SymbolDot period,
                                     SQLs.SymbolAsterisk asterisk) {
             if (this.isSelectClauseEnd()) {
                 throw ContextStack.clearStackAndCriteriaError("Error,SELECT clause have ended.");
@@ -3330,7 +3335,7 @@ abstract class CriteriaContexts {
         }
 
         /**
-         * @see #row(String, SQLs.SymbolPeriod, SQLs.SymbolAsterisk)
+         * @see #row(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)
          * @see #onAddDerivedGroup(String)
          */
         private SelectionGroups.DerivedSelectionGroup createDerivedFieldGroup(final String derivedAlias) {
@@ -4039,7 +4044,7 @@ abstract class CriteriaContexts {
 
         private _TabularBlock sourceBlock;
 
-        private Map<String, DerivedField> derivedFieldMap;
+        private Map<String, Map<String, DerivedField>> derivedFieldMap;
 
         /**
          * can't validate field,because field possibly from outer context,{@link _SqlContext} validate this.
@@ -4159,12 +4164,15 @@ abstract class CriteriaContexts {
                 throw ContextStack.clearStackAndNullPointer();
             }
 
-            Map<String, DerivedField> derivedFieldMap = this.derivedFieldMap;
+            Map<String, Map<String, DerivedField>> derivedFieldMap = this.derivedFieldMap;
+            Map<String, DerivedField> aliasToField = null;
 
             final _SelectionMap selectionMap;
             final DerivedField field;
             DerivedField tempField;
-            if (derivedFieldMap != null && (tempField = derivedFieldMap.get(fieldName)) != null) {
+            if (derivedFieldMap != null
+                    && (aliasToField = derivedFieldMap.get(fieldName)) != null
+                    && (tempField = aliasToField.get(fieldName)) != null) {
                 field = tempField;
             } else if ((selectionMap = getDerived(derivedAlias)) == null) {
                 throw unknownDerivedField(derivedAlias, fieldName);
@@ -4173,7 +4181,11 @@ abstract class CriteriaContexts {
                 if (derivedFieldMap == null) {
                     this.derivedFieldMap = derivedFieldMap = _Collections.hashMap();
                 }
-                derivedFieldMap.put(fieldName, field);
+                if (aliasToField == null) {
+                    aliasToField = _Collections.hashMap();
+                    derivedFieldMap.put(derivedAlias, aliasToField);
+                }
+                aliasToField.put(fieldName, field);
             }
             return field;
         }
@@ -4210,24 +4222,35 @@ abstract class CriteriaContexts {
         }
 
 
-        @Nullable
         @Override
         DerivedField refOuterOrMoreOuterField(final String derivedAlias, final String fieldName) {
-            Map<String, DerivedField> derivedFieldMap = this.derivedFieldMap;
+            Map<String, Map<String, DerivedField>> derivedFieldMap = this.derivedFieldMap;
+            Map<String, DerivedField> aliasToField = null;
 
             final _SelectionMap selectionMap;
             final DerivedField field;
             DerivedField tempField;
-            if (derivedFieldMap != null && (tempField = derivedFieldMap.get(fieldName)) != null) {
+            if (derivedFieldMap != null
+                    && (aliasToField = derivedFieldMap.get(derivedAlias)) != null
+                    && (tempField = aliasToField.get(fieldName)) != null) {
                 field = tempField;
             } else if ((selectionMap = getDerived(derivedAlias)) == null) {
-                field = null;
+                final StatementContext outerContext = this.outerContext;
+                if (outerContext == null) {
+                    field = null;
+                } else {
+                    field = outerContext.refOuterOrMoreOuterField(derivedAlias, fieldName);
+                }
             } else {
                 field = createDerivedField(selectionMap, derivedAlias, fieldName);
                 if (derivedFieldMap == null) {
                     this.derivedFieldMap = derivedFieldMap = _Collections.hashMap();
                 }
-                derivedFieldMap.put(fieldName, field);
+                if (aliasToField == null) {
+                    aliasToField = _Collections.hashMap();
+                    derivedFieldMap.put(derivedAlias, aliasToField);
+                }
+                aliasToField.put(fieldName, field);
             }
             return field;
         }
@@ -4512,7 +4535,7 @@ abstract class CriteriaContexts {
             sqlBuilder.append(_Constant.SPACE);
 
             parser.identifier(this.tableName, sqlBuilder)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
             parser.identifier(this.selection.label(), sqlBuilder);
         }
 
@@ -4523,7 +4546,7 @@ abstract class CriteriaContexts {
             sqlBuilder.append(_Constant.SPACE);
 
             dialect.identifier(this.tableName, sqlBuilder)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
             dialect.identifier(this.selection.label(), sqlBuilder);
 
         }
@@ -4539,7 +4562,7 @@ abstract class CriteriaContexts {
             return _StringUtils.builder()
                     .append(_Constant.SPACE)
                     .append(this.tableName)
-                    .append(_Constant.PERIOD)
+                    .append(_Constant.DOT)
                     .append(this.selection.label())
                     .toString();
         }
@@ -4598,7 +4621,7 @@ abstract class CriteriaContexts {
             sqlBuilder.append(_Constant.SPACE);
 
             parser.identifier(this.tableName, sqlBuilder)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
             parser.identifier(this.selection.label(), sqlBuilder);
         }
 
@@ -4609,7 +4632,7 @@ abstract class CriteriaContexts {
             sqlBuilder.append(_Constant.SPACE);
 
             dialect.identifier(this.tableName, sqlBuilder)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
             dialect.identifier(this.selection.label(), sqlBuilder);
 
         }
@@ -4626,7 +4649,7 @@ abstract class CriteriaContexts {
             return _StringUtils.builder()
                     .append(_Constant.SPACE)
                     .append(this.tableName)
-                    .append(_Constant.PERIOD)
+                    .append(_Constant.DOT)
                     .append(this.selection.label())
                     .toString();
         }

@@ -542,7 +542,7 @@ abstract class ArmyParser implements DialectParser {
             } else {
                 schemaTableBuilder = new StringBuilder(schemaName.length() + 1 + objectName.length());
                 schemaTableBuilder.append(schemaName)
-                        .append(_Constant.PERIOD);
+                        .append(_Constant.DOT);
             }
         } else {
             // no bug,never here
@@ -629,7 +629,7 @@ abstract class ArmyParser implements DialectParser {
             final String schemaName;
             if ((schemaName = this.qualifiedSchemaName) != null) {
                 builder.append(schemaName)
-                        .append(_Constant.PERIOD);
+                        .append(_Constant.DOT);
             }
         } else {
             // no bug,never here
@@ -1737,11 +1737,11 @@ abstract class ArmyParser implements DialectParser {
         //2.1 on clause
         builder.append(_Constant.SPACE_ON_SPACE)
                 .append(safeChildTableAlias)
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(safeIdColumnName)
                 .append(_Constant.SPACE_EQUAL_SPACE)
                 .append(safeParentTableAlias)
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(safeIdColumnName);
     }
 
@@ -1859,7 +1859,7 @@ abstract class ArmyParser implements DialectParser {
         } else {
             sqlBuilder.append(safeTableAlias);
         }
-        sqlBuilder.append(_Constant.PERIOD);
+        sqlBuilder.append(_Constant.DOT);
 
         this.safeObjectName(field, sqlBuilder)
                 .append(_Constant.SPACE_EQUAL_SPACE);
@@ -1894,7 +1894,7 @@ abstract class ArmyParser implements DialectParser {
         } else {
             sqlBuilder.append(safeTableAlias);
         }
-        sqlBuilder.append(_Constant.PERIOD);
+        sqlBuilder.append(_Constant.DOT);
         this.safeObjectName(field, sqlBuilder)
                 .append(_Constant.SPACE_EQUAL_SPACE);
         this.safeLiteral(field.mappingType(), visibleValue, false, sqlBuilder);
@@ -1929,7 +1929,7 @@ abstract class ArmyParser implements DialectParser {
                 .append(_Constant.SPACE_SELECT_SPACE)
                 //below target parent column
                 .append(safeParentAlias)
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(_MetaBridge.ID)
                 .append(_Constant.SPACE_FROM_SPACE);
 
@@ -1945,18 +1945,18 @@ abstract class ArmyParser implements DialectParser {
                 .append(_Constant.SPACE)
 
                 .append(safeParentAlias)
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(_MetaBridge.ID)
 
                 .append(_Constant.SPACE_EQUAL_SPACE)
 
                 .append(safeChildAlias)
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(_MetaBridge.ID)
 
                 .append(_Constant.SPACE_AND_SPACE)
                 .append(safeParentAlias)
-                .append(_Constant.PERIOD);
+                .append(_Constant.DOT);
 
         // below discriminator predicate
         final FieldMeta<?> discriminator = parentTable.discriminator();
@@ -1971,7 +1971,7 @@ abstract class ArmyParser implements DialectParser {
 
         sqlBuilder.append(_Constant.SPACE_AND_SPACE)
                 .append(safeParentAlias)
-                .append(_Constant.PERIOD);
+                .append(_Constant.DOT);
 
         this.safeObjectName(visibleField, sqlBuilder)
                 .append(_Constant.SPACE_EQUAL_SPACE);
@@ -2122,7 +2122,7 @@ abstract class ArmyParser implements DialectParser {
 
             if (outputLeftItemAlias) {
                 sqlBuilder.append(safeTableAlias)
-                        .append(_Constant.PERIOD);
+                        .append(_Constant.DOT);
             }
             this.safeObjectName(updateTime, sqlBuilder)
                     .append(_Constant.SPACE_EQUAL);
@@ -2154,14 +2154,14 @@ abstract class ArmyParser implements DialectParser {
 
         if (outputLeftItemAlias) {
             sqlBuilder.append(safeTableAlias)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
         }
         sqlBuilder.append(versionColumnName)
                 .append(_Constant.SPACE_EQUAL_SPACE);
 
         if (safeTableAlias != null) {  // no setClauseTableAlias
             sqlBuilder.append(safeTableAlias)
-                    .append(_Constant.PERIOD);
+                    .append(_Constant.DOT);
         }
         sqlBuilder.append(versionColumnName)
                 .append(" + 1");

@@ -23,14 +23,13 @@ import io.army.bean.ObjectAccessorFactory;
 import io.army.criteria.CriteriaException;
 import io.army.criteria.Selection;
 import io.army.criteria.TypeInfer;
-import io.army.criteria.TypedSelection;
 import io.army.env.ArmyKey;
 import io.army.env.SqlLogMode;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.mapping.mysql.MySqlBitType;
-import io.army.mapping.postgre.PostgreMultiRangeType;
-import io.army.mapping.postgre.PostgreSingleRangeType;
+import io.army.mapping.postgre.PgMultiRangeType;
+import io.army.mapping.postgre.PgSingleRangeType;
 import io.army.meta.MetaException;
 import io.army.meta.TypeMeta;
 import io.army.option.Option;
@@ -604,52 +603,52 @@ public abstract class ExecutorSupport {
 
             case "INT4RANGE":
                 type = PostgreType.INT4RANGE;
-                typeArray[index] = PostgreSingleRangeType.INT4_RANGE_TEXT;
+                typeArray[index] = PgSingleRangeType.INT4_RANGE_TEXT;
                 break;
             case "INT8RANGE":
                 type = PostgreType.INT8RANGE;
-                typeArray[index] = PostgreSingleRangeType.INT8_RANGE_TEXT;
+                typeArray[index] = PgSingleRangeType.INT8_RANGE_TEXT;
                 break;
             case "NUMRANGE":
                 type = PostgreType.NUMRANGE;
-                typeArray[index] = PostgreSingleRangeType.NUM_RANGE_TEXT;
+                typeArray[index] = PgSingleRangeType.NUM_RANGE_TEXT;
                 break;
             case "TSRANGE":
                 type = PostgreType.TSRANGE;
-                typeArray[index] = PostgreSingleRangeType.TS_RANGE_TEXT;
+                typeArray[index] = PgSingleRangeType.TS_RANGE_TEXT;
                 break;
             case "DATERANGE":
                 type = PostgreType.DATERANGE;
-                typeArray[index] = PostgreSingleRangeType.DATE_RANGE_TEXT;
+                typeArray[index] = PgSingleRangeType.DATE_RANGE_TEXT;
                 break;
             case "TSTZRANGE":
                 type = PostgreType.TSTZRANGE;
-                typeArray[index] = PostgreSingleRangeType.TS_TZ_RANGE_TEXT;
+                typeArray[index] = PgSingleRangeType.TS_TZ_RANGE_TEXT;
                 break;
 
             case "INT4MULTIRANGE":
                 type = PostgreType.INT4MULTIRANGE;
-                typeArray[index] = PostgreMultiRangeType.INT4_MULTI_RANGE_TEXT;
+                typeArray[index] = PgMultiRangeType.INT4_MULTI_RANGE_TEXT;
                 break;
             case "INT8MULTIRANGE":
                 type = PostgreType.INT8MULTIRANGE;
-                typeArray[index] = PostgreMultiRangeType.INT8_MULTI_RANGE_TEXT;
+                typeArray[index] = PgMultiRangeType.INT8_MULTI_RANGE_TEXT;
                 break;
             case "NUMMULTIRANGE":
                 type = PostgreType.NUMMULTIRANGE;
-                typeArray[index] = PostgreMultiRangeType.NUM_MULTI_RANGE_TEXT;
+                typeArray[index] = PgMultiRangeType.NUM_MULTI_RANGE_TEXT;
                 break;
             case "DATEMULTIRANGE":
                 type = PostgreType.DATEMULTIRANGE;
-                typeArray[index] = PostgreMultiRangeType.DATE_MULTI_RANGE_TEXT;
+                typeArray[index] = PgMultiRangeType.DATE_MULTI_RANGE_TEXT;
                 break;
             case "TSMULTIRANGE":
                 type = PostgreType.TSMULTIRANGE;
-                typeArray[index] = PostgreMultiRangeType.TS_MULTI_RANGE_TEXT;
+                typeArray[index] = PgMultiRangeType.TS_MULTI_RANGE_TEXT;
                 break;
             case "TSTZMULTIRANGE":
                 type = PostgreType.TSTZMULTIRANGE;
-                typeArray[index] = PostgreMultiRangeType.TS_TZ_MULTI_RANGE_TEXT;
+                typeArray[index] = PgMultiRangeType.TS_TZ_MULTI_RANGE_TEXT;
                 break;
 
             case "UUID":

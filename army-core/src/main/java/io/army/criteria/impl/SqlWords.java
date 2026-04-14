@@ -38,10 +38,24 @@ abstract class SqlWords {
 
     }//SymbolSpaceEnum
 
-
     enum SymbolEqualEnum implements SQLs.SymbolEqual {
 
         EQUAL;
+
+        @Override
+        public final String toString() {
+            return SQLs.keyWordsToString(this);
+        }
+    }
+
+    enum SymColonEnum implements SQLs.SymbolColon {
+
+        COLON
+    }
+
+    enum WordAbsentEnum implements SQLs.WordAbsent {
+
+        ABSENT;
 
         @Override
         public final String toString() {
@@ -763,9 +777,9 @@ abstract class SqlWords {
 
     }//KeyWordSymmetric
 
-    enum SQLSymbolPeriod implements SQLs.SymbolPeriod {
+    enum SQLSymbolDot implements SQLs.SymbolDot {
 
-        PERIOD;
+        DOT;
 
         @Override
         public final String toString() {

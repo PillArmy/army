@@ -27,14 +27,12 @@ import io.army.function.TeFunction;
 import io.army.function.TeNamedParamsFunc;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
-import io.army.mapping.optional.JsonPathType;
-import io.army.mapping.optional.NoCastIntegerType;
 import io.army.mapping.optional.NoCastTextType;
 import io.army.meta.ParentTableMeta;
-import io.army.meta.TypeMeta;
 import io.army.util._StringUtils;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -46,6 +44,8 @@ import java.util.function.Function;
 abstract class OperationExpression extends OperationSQLExpression
         implements FunctionArg.SingleFunctionArg, ArmyExpression {
 
+
+    public static final SQLs.WordAbsent ABSENT = SQLs.ABSENT;
 
     /**
      * <p>
@@ -247,6 +247,194 @@ abstract class OperationExpression extends OperationSQLExpression
         return Expressions.dualExp(this, DualExpOperator.LEFT_SHIFT, operand);
     }
 
+
+    @Override
+    public final Expression slice(Object lower, SQLs.SymbolColon colon, Object upper) {
+        return Expressions.arraySliceExp(this, List.of(lower, upper));
+    }
+
+    @Override
+    public final Expression slice(BiFunction<IntegerType, Integer, Expression> func, int lower, SQLs.SymbolColon colon, int upper) {
+        final List<?> list = List.of(func.apply(IntegerType.INSTANCE, lower),
+                func.apply(IntegerType.INSTANCE, upper)
+        );
+        return Expressions.arraySliceExp(this, list);
+    }
+
+    @Override
+    public final Expression slice(Object lower, SQLs.SymbolColon colon) {
+        return Expressions.arraySliceExp(this, List.of(lower, SQLs.ABSENT));
+    }
+
+    @Override
+    public final Expression slice(SQLs.SymbolColon colon, Object upper) {
+        return Expressions.arraySliceExp(this, List.of(SQLs.ABSENT, upper));
+    }
+
+    @Override
+    public final Expression slice(SQLs.SymbolColon colon) {
+        return Expressions.arraySliceExp(this, List.of(SQLs.ABSENT, SQLs.ABSENT));
+    }
+
+    @Override
+    public final Expression slice(Object lower, SQLs.SymbolColon colon, Object upper, Object lower1, SQLs.SymbolColon colon1, Object upper1) {
+        return Expressions.arraySliceExp(this, List.of(lower, upper, lower1, upper1));
+    }
+
+    @Override
+    public final Expression slice(BiFunction<IntegerType, Integer, Expression> func, int lower, SQLs.SymbolColon colon, int upper, int lower1, SQLs.SymbolColon colon1, int upper1) {
+        final List<?> list = List.of(func.apply(IntegerType.INSTANCE, lower),
+                func.apply(IntegerType.INSTANCE, upper),
+                func.apply(IntegerType.INSTANCE, lower1),
+                func.apply(IntegerType.INSTANCE, upper1)
+        );
+        return Expressions.arraySliceExp(this, list);
+    }
+
+    @Override
+    public final Expression slice(SQLs.SymbolColon colon, Object upper, Object lower1, SQLs.SymbolColon colon1, Object upper1) {
+        return Expressions.arraySliceExp(this, List.of(ABSENT, upper, lower1, upper1));
+    }
+
+    @Override
+    public final Expression slice(Object lower, SQLs.SymbolColon colon, Object upper, Object lower1, SQLs.SymbolColon colon1) {
+        return Expressions.arraySliceExp(this, List.of(lower, upper, lower1, SQLs.ABSENT));
+    }
+
+    @Override
+    public final Expression slice(SQLs.SymbolColon colon, SQLs.SymbolColon colon1) {
+        return Expressions.arraySliceExp(this, List.of(SQLs.ABSENT, SQLs.ABSENT, SQLs.ABSENT, SQLs.ABSENT));
+    }
+
+    @Override
+    public final Expression sliceAtSubs(List<?> indexList) {
+        Expressions.assertSliceSubscriptListSize(indexList);
+        return Expressions.arraySliceExp(this, List.copyOf(indexList));
+    }
+
+    @Override
+    public final Expression sliceAtSubs(BiFunction<MappingType, Integer, Expression> func, List<Integer> indexList) {
+        Expressions.assertSliceSubscriptListSize(indexList);
+        return Expressions.arraySliceExp(this, Expressions.createSubscriptExpList(func, indexList));
+    }
+
+    @Override
+    public final Expression dot(Object key) {
+        return Expressions.objectDotExp(this, List.of(key));
+    }
+
+    @Override
+    public final Expression dot(Object key, Object key1) {
+        return Expressions.objectDotExp(this, List.of(key, key1));
+    }
+
+    @Override
+    public final Expression dot(Object key, Object key1, Object key2) {
+        return Expressions.objectDotExp(this, List.of(key, key1, key2));
+    }
+
+    @Override
+    public final Expression dot(Object key, Object key1, Object key2, Object key3) {
+        return Expressions.objectDotExp(this, List.of(key, key1, key2, key3));
+    }
+
+    @Override
+    public final Expression dot(Object key, Object key1, Object key2, Object key3, Object key4) {
+        return Expressions.objectDotExp(this, List.of(key, key1, key2, key3, key4));
+    }
+
+    @Override
+    public final Expression dots(List<?> subscriptList) {
+        return Expressions.objectDotExp(this, List.copyOf(subscriptList));
+    }
+
+    @Override
+    public final Expression bracket(Object key) {
+        return Expressions.objectBracketExp(this, List.of(key));
+    }
+
+    @Override
+    public final Expression bracket(Object key, Object key1) {
+        return Expressions.objectBracketExp(this, List.of(key, key1));
+    }
+
+    @Override
+    public final Expression bracket(Object key, Object key1, Object key2) {
+        return Expressions.objectBracketExp(this, List.of(key, key1, key2));
+    }
+
+    @Override
+    public final Expression bracket(Object key, Object key1, Object key2, Object key3) {
+        return Expressions.objectBracketExp(this, List.of(key, key1, key2, key3));
+    }
+
+    @Override
+    public final Expression bracket(Object key, Object key1, Object key2, Object key3, Object key4) {
+        return Expressions.objectBracketExp(this, List.of(key, key1, key2, key3, key4));
+    }
+
+    @Override
+    public final Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key) {
+        final List<Object> list = List.of(
+                Expressions.createSubscriptExp(func, key)
+        );
+        return Expressions.objectBracketExp(this, list);
+    }
+
+    @Override
+    public final Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key, Object key1) {
+        final List<Object> list = List.of(
+                Expressions.createSubscriptExp(func, key),
+                Expressions.createSubscriptExp(func, key1)
+        );
+        return Expressions.objectBracketExp(this, list);
+    }
+
+    @Override
+    public final Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key, Object key1, Object key2) {
+        final List<Object> list = List.of(
+                Expressions.createSubscriptExp(func, key),
+                Expressions.createSubscriptExp(func, key1),
+                Expressions.createSubscriptExp(func, key2)
+        );
+        return Expressions.objectBracketExp(this, list);
+    }
+
+    @Override
+    public final Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key, Object key1, Object key2, Object key3) {
+        final List<Object> list = List.of(
+                Expressions.createSubscriptExp(func, key),
+                Expressions.createSubscriptExp(func, key1),
+                Expressions.createSubscriptExp(func, key2),
+                Expressions.createSubscriptExp(func, key3)
+        );
+        return Expressions.objectBracketExp(this, list);
+    }
+
+    @Override
+    public final Expression bracket(BiFunction<MappingType, Object, Expression> func, Object key, Object key1, Object key2, Object key3, Object key4) {
+        final List<Object> list = List.of(
+                Expressions.createSubscriptExp(func, key),
+                Expressions.createSubscriptExp(func, key1),
+                Expressions.createSubscriptExp(func, key2),
+                Expressions.createSubscriptExp(func, key3),
+                Expressions.createSubscriptExp(func, key4)
+        );
+        return Expressions.objectBracketExp(this, list);
+    }
+
+    @Override
+    public final Expression brackets(List<?> subscriptList) {
+        return Expressions.objectBracketExp(this, List.copyOf(subscriptList));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public final Expression brackets(BiFunction<MappingType, Object, Expression> func, List<?> subscriptList) {
+        return Expressions.objectBracketExp(this, Expressions.createSubscriptExpList(func, (List<Object>) subscriptList));
+    }
+
+
     @Override
     public final <R extends UnaryResult> R space(Function<Expression, R> funcRef) {
         final R result;
@@ -417,8 +605,6 @@ abstract class OperationExpression extends OperationSQLExpression
 
 
         /*-------------------below json operator method -------------------*/
-
-
 
 
     } // OperationSimpleExpression

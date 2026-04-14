@@ -626,7 +626,7 @@ abstract class CriteriaUtils {
     static String enumToString(Enum<?> type) {
         return _StringUtils.builder()
                 .append(type.getClass().getSimpleName())
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(type.name())
                 .toString();
     }

@@ -25,7 +25,7 @@ import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping._ArmyBuildInType;
 import io.army.mapping.array.PostgreArrays;
-import io.army.mapping.postgre.PostgreAclItemType;
+import io.army.mapping.postgre.PgAclItemType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PostgreType;
@@ -73,7 +73,7 @@ public class PostgreAclItemArrayType extends _ArmyBuildInType implements Mapping
 
     @Override
     public MappingType elementType() {
-        return PostgreAclItemType.TEXT;
+        return PgAclItemType.TEXT;
     }
 
     @Override

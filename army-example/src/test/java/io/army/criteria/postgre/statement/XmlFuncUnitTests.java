@@ -155,7 +155,7 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space("x", PERIOD, ASTERISK))
+                .select(s -> s.space("x", DOT, ASTERISK))
                 .from(() -> xmlTable(xmlNamespaces(SQLs::literal, "http://example.com/myns", AS, "xz"),
                                 SQLs.literal(TextType.INSTANCE, "//ROWS/ROW"), PASSING, BY_VALUE, SQLs.literal(XmlType.TEXT, xmlDoc), BY_VALUE,
                         c -> c.columns("id", IntegerType.INSTANCE, PATH, SQLs.literal(TextType.INSTANCE, "@id"))
@@ -195,7 +195,7 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
     public void queryToXmlFunc() {
         final Select query, stmt;
         query = Postgres.query()
-                .select("c", PERIOD, ChinaRegion_.T)
+                .select("c", DOT, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
                 .asQuery();
 

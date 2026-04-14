@@ -139,7 +139,7 @@ final class QualifiedFieldImpl<T> extends OperationTypedField implements Qualifi
         return _StringUtils.builder()
                 .append(_Constant.SPACE)
                 .append(this.tableAlias)
-                .append(_Constant.PERIOD)
+                .append(_Constant.DOT)
                 .append(this.field)
                 .toString();
     }

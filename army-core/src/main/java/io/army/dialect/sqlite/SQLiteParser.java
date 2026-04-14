@@ -277,7 +277,7 @@ abstract class SQLiteParser extends _ArmyDialectParser {
         if (catalogHasText && schemaHasText) {
             name = _StringUtils.builder(catalog.length() + 1 + schema.length())
                     .append(catalog)
-                    .append(_Constant.PERIOD)
+                    .append(_Constant.DOT)
                     .append(schema)
                     .toString();
         } else if (catalogHasText) {

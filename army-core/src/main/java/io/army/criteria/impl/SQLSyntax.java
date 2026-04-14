@@ -671,12 +671,12 @@ abstract class SQLSyntax extends Functions {
         return RowExpressions.row(consumer);
     }
 
-    public static RowElement space(String derivedAlias, SQLs.SymbolPeriod period,
+    public static RowElement space(String derivedAlias, SQLs.SymbolDot period,
                                    SQLs.SymbolAsterisk asterisk) {
         return ContextStack.peek().row(derivedAlias, period, asterisk);
     }
 
-    public static RowElement space(String tableAlias, SQLs.SymbolPeriod period, TableMeta<?> table) {
+    public static RowElement space(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) {
         return ContextStack.peek().row(tableAlias, period, table); // register derived row
     }
 

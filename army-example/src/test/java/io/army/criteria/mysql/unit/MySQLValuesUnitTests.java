@@ -122,7 +122,7 @@ public class MySQLValuesUnitTests extends MySQLUnitTests {
     public void simpleSubValues() {
         Select stmt;
         stmt = MySQLs.query()
-                .select(s -> s.space("s", PERIOD, ASTERISK))
+                .select(s -> s.space("s", DOT, ASTERISK))
                 .from(createSimpleValues(MySQLs::subValues)
                         ::asValues
                 ).as("s")

@@ -493,7 +493,7 @@ public class MySQLCriteriaUnitTests extends MySQLUnitTests {
         List<Long> idList = Arrays.asList(1L, 2L);
         final Select stmt;
         stmt = MySQLs.query()
-                .select("c", SQLs.PERIOD, Captcha_.T)
+                .select("c", SQLs.DOT, Captcha_.T)
                 .from(Captcha_.T, AS, "c")
                 .where(Captcha_.id.in(SQLs::rowParam, idList))
                 .ifAnd(Captcha_.createTime::between, SQLs::literal, map::get, "startTime", AND, "endTime")
@@ -509,7 +509,7 @@ public class MySQLCriteriaUnitTests extends MySQLUnitTests {
         final Consumer<Map<String, Object>> mockDaoMethod = criteria -> {
             final Select stmt;
             stmt = MySQLs.query()
-                    .select("u", PERIOD, BankUser_.T)
+                    .select("u", DOT, BankUser_.T)
                     .from(BankUser_.T, AS, "u")
                     .join(BankAccount_.T, AS, "a").on(BankUser_.id::equal, BankAccount_.id)
                     .where(BankAccount_.id.equal(BankAccount_.id))
