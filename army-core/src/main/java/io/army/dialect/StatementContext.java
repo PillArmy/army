@@ -193,7 +193,7 @@ abstract class StatementContext implements _StmtContext, StmtParams {
             this.sqlBuilder.append(SPACE_PLACEHOLDER);
             paramList.add(sqlParam);
         } else if (sqlParam instanceof MultiParam) {
-            appendMultiParamPlaceholder(this.sqlBuilder, (SqlValueParam.MultiValue) sqlParam);
+            appendMultiParamPlaceholder(this.sqlBuilder, (SqlValueParam.MultiParamValue) sqlParam);
             paramList.add(sqlParam);
         } else if (sqlParam instanceof NamedParam.NamedSingle) {
             this.sqlBuilder.append(SPACE_PLACEHOLDER);
@@ -210,7 +210,7 @@ abstract class StatementContext implements _StmtContext, StmtParams {
                 paramList.add(SingleParam.build(sqlParam.typeMeta(), readNamedValue((NamedParam) sqlParam)));
             }
         } else if (sqlParam instanceof NamedParam.NamedRow) {
-            appendMultiParamPlaceholder(this.sqlBuilder, (SqlValueParam.MultiValue) sqlParam);
+            appendMultiParamPlaceholder(this.sqlBuilder, (SqlValueParam.MultiParamValue) sqlParam);
             if (this.paramAccepter.nameValueFunc == null) {
                 paramList.add(sqlParam);
                 if (!this.paramAccepter.hasNamedParam) {
@@ -218,7 +218,7 @@ abstract class StatementContext implements _StmtContext, StmtParams {
                 }
             } else {
                 final NamedParam.NamedRow namedMulti = (NamedParam.NamedRow) sqlParam;
-                paramList.add(MultiParam.build(namedMulti, readNamedMulti(namedMulti)));
+                paramList.add(io.army.stmt.MultiParam.build(namedMulti, readNamedMulti(namedMulti)));
             }
         } else {
             //no bug,never here
@@ -277,12 +277,12 @@ abstract class StatementContext implements _StmtContext, StmtParams {
         } else if (namedLiteral instanceof SqlValueParam.SingleValue) {
             sqlBuilder.append(_Constant.SPACE);
             this.parser.safeLiteral(namedLiteral.typeMeta(), value, typeName, sqlBuilder);
-        } else if (!(namedLiteral instanceof SqlValueParam.NamedMultiValue)) {
+        } else if (!(namedLiteral instanceof SqlValueParam.NamedMultiParam)) {
             //no bug,never here
             throw new IllegalArgumentException();
         } else if (!(value instanceof Collection)) {
-            throw _Exceptions.namedParamNotMatch((SqlValueParam.NamedMultiValue) namedLiteral, value);
-        } else if (((Collection<?>) value).size() == ((SqlValueParam.NamedMultiValue) namedLiteral).columnSize()) {
+            throw _Exceptions.namedParamNotMatch((SqlValueParam.NamedMultiParam) namedLiteral, value);
+        } else if (((Collection<?>) value).size() == ((SqlValueParam.NamedMultiParam) namedLiteral).columnSize()) {
 
             final ArmyParser parser = this.parser;
             final TypeMeta typeMeta = namedLiteral.typeMeta();
@@ -299,7 +299,7 @@ abstract class StatementContext implements _StmtContext, StmtParams {
             }
             sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
         } else {
-            throw _Exceptions.namedMultiParamSizeError((SqlValueParam.NamedMultiValue) namedLiteral,
+            throw _Exceptions.namedMultiParamSizeError((SqlValueParam.NamedMultiParam) namedLiteral,
                     ((Collection<?>) value).size());
         }
 
@@ -444,7 +444,7 @@ abstract class StatementContext implements _StmtContext, StmtParams {
 
 
     private static void appendMultiParamPlaceholder(final StringBuilder sqlBuilder,
-                                                    final SqlValueParam.MultiValue sqlParam) {
+                                                    final SqlValueParam.MultiParamValue sqlParam) {
         final int paramSize;
         paramSize = sqlParam.columnSize();
         assert paramSize > 0;

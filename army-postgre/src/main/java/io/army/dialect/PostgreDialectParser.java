@@ -37,7 +37,7 @@ import java.util.List;
 
 /**
  * <p>This class is the implementation of {@link DialectParser} for  PostgreSQL dialect criteria api.
- * <p>Below is chinese signature:<br/>
+ * <p>Below is chines signature:<br/>
  * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
  *
  * @since 0.6.0
@@ -509,7 +509,7 @@ final class PostgreDialectParser extends PostgreParser {
      */
     private void parseSetStmt(final _PostgreCommand._ParamValue pair, final _SqlContext context) {
         final StringBuilder sqlBuilder;
-        if ((sqlBuilder = context.sqlBuilder()).length() > 0) {
+        if (!(sqlBuilder = context.sqlBuilder()).isEmpty()) {
             sqlBuilder.append(_Constant.SPACE);
         }
 

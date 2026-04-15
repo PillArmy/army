@@ -24,7 +24,7 @@ package io.army.criteria.impl;
  *
  * @since 0.6.0
  */
-interface ArmySimpleRowExpression extends ArmyRowExpression, ArmySimpleSQLExpression {
+interface ArmySimpleRowExpression extends LengthTypedRowExpression, ArmySimpleSQLExpression {
 
 
 }

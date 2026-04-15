@@ -835,11 +835,6 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
 
         }
 
-        @Override
-        public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // function always false
-            return false;
-        }
 
         @Override
         public final String toString() {
@@ -898,10 +893,6 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
 
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            return this.predicate.currentLevelContainFieldOf(table);
-        }
 
     } //BracketPredicate
 
@@ -922,21 +913,6 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
             this.appendOrPredicate(sqlBuilder, context);
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(final ParentTableMeta<?> table) {
-            if (this.left.currentLevelContainFieldOf(table)) {
-                return true;
-            }
-
-            boolean contain = false;
-            for (OperationPredicate predicate : rightList) {
-                if (predicate.currentLevelContainFieldOf(table)) {
-                    contain = true;
-                    break;
-                }
-            }
-            return contain;
-        }
 
         @Override
         public String toString() {
@@ -1016,10 +992,6 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
 
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(final ParentTableMeta<?> table) {
-            return this.left.currentLevelContainFieldOf(table) || this.right.currentLevelContainFieldOf(table);
-        }
 
         @Override
         public String toString() {
@@ -1076,10 +1048,6 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
 
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            return this.predicate.currentLevelContainFieldOf(table);
-        }
 
         @Override
         public String toString() {
@@ -1135,11 +1103,6 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
             sqlBuilder.append(this.spaceWord);
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // key word , always false
-            return false;
-        }
 
         @Override
         public void appendSqlWithoutType(StringBuilder sqlBuilder, _SqlContext context) {

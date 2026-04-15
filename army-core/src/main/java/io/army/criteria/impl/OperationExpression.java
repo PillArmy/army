@@ -34,7 +34,6 @@ import io.army.util._StringUtils;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * this class is base class of most implementation of {@link Expression}
@@ -66,184 +65,198 @@ abstract class OperationExpression extends OperationSQLExpression
     }
 
     @Override
-    public final CompoundPredicate equal(Expression operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.EQUAL, operand);
+    public final IPredicate equal(Object operand) {
+        return Expressions.biPredicate(this, DualBooleanOperator.EQUAL, operand);
     }
 
     @Override
-    public final CompoundPredicate notEqual(Expression operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.NOT_EQUAL, operand);
+    public final IPredicate notEqual(Object operand) {
+        return Expressions.biPredicate(this, DualBooleanOperator.NOT_EQUAL, operand);
     }
 
     @Override
-    public final CompoundPredicate nullSafeEqual(Expression operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.NULL_SAFE_EQUAL, SQLs._nonNullExp(operand));
+    public final IPredicate nullSafeEqual(Object operand) {
+        return Expressions.biPredicate(this, DualBooleanOperator.NULL_SAFE_EQUAL, operand);
     }
 
     @Override
-    public final CompoundPredicate less(Expression operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.LESS, operand);
-    }
-
-
-    @Override
-    public final CompoundPredicate lessEqual(Expression operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.LESS_EQUAL, operand);
-    }
-
-    @Override
-    public final CompoundPredicate greater(Expression operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.GREATER, operand);
+    public final IPredicate less(Object operand) {
+        return Expressions.biPredicate(this, DualBooleanOperator.LESS, operand);
     }
 
 
     @Override
-    public final CompoundPredicate greaterEqual(Expression operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.GREATER_EQUAL, operand);
+    public final IPredicate lessEqual(Object operand) {
+        return Expressions.biPredicate(this, DualBooleanOperator.LESS_EQUAL, operand);
     }
 
     @Override
-    public final CompoundPredicate between(Expression first, SQLs.WordAnd and, Expression second) {
-        return Expressions.betweenPredicate(this, false, null, first, second);
+    public final IPredicate greater(Object operand) {
+        return Expressions.biPredicate(this, DualBooleanOperator.GREATER, operand);
     }
 
 
     @Override
-    public final CompoundPredicate notBetween(Expression first, SQLs.WordAnd and, Expression second) {
-        return Expressions.betweenPredicate(this, true, null, first, second);
+    public final IPredicate greaterEqual(Object operand) {
+        return Expressions.biPredicate(this, DualBooleanOperator.GREATER_EQUAL, operand);
     }
 
     @Override
-    public final CompoundPredicate between(@Nullable SQLs.BetweenModifier modifier, Expression first, SQLs.WordAnd and, Expression second) {
-        return Expressions.betweenPredicate(this, false, modifier, first, second);
+    public final IPredicate between(Object first, SQLs.WordAnd and, Object second) {
+        return Expressions.betweenPredicate(this, false, null, Expressions.wrapRight(this, first), Expressions.wrapRight(this, second));
+    }
+
+
+    @Override
+    public final IPredicate notBetween(Object first, SQLs.WordAnd and, Object second) {
+        return Expressions.betweenPredicate(this, true, null, Expressions.wrapRight(this, first), Expressions.wrapRight(this, second));
     }
 
     @Override
-    public final CompoundPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, Expression first, SQLs.WordAnd and, Expression second) {
-        return Expressions.betweenPredicate(this, true, modifier, first, second);
+    public final IPredicate between(@Nullable SQLs.BetweenModifier modifier, Object first, SQLs.WordAnd and, Object second) {
+        return Expressions.betweenPredicate(this, false, modifier, Expressions.wrapRight(this, first), Expressions.wrapRight(this, second));
     }
 
     @Override
-    public final CompoundPredicate is(SQLs.BooleanTestWord operand) {
+    public final IPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, Object first, SQLs.WordAnd and, Object second) {
+        return Expressions.betweenPredicate(this, true, modifier, Expressions.wrapRight(this, first), Expressions.wrapRight(this, second));
+    }
+
+    @Override
+    public final IPredicate is(SQLs.BoolTestWord operand) {
         return Expressions.booleanTestPredicate(this, false, operand);
     }
 
     @Override
-    public final CompoundPredicate isNot(SQLs.BooleanTestWord operand) {
+    public final IPredicate isNot(SQLs.BoolTestWord operand) {
         return Expressions.booleanTestPredicate(this, true, operand);
     }
 
     @Override
-    public final CompoundPredicate isNull() {
+    public final IPredicate isNull() {
         return Expressions.booleanTestPredicate(this, false, SQLs.NULL);
     }
 
     @Override
-    public final CompoundPredicate isNotNull() {
+    public final IPredicate isNotNull() {
         return Expressions.booleanTestPredicate(this, true, SQLs.NULL);
     }
 
     @Override
-    public final CompoundPredicate is(SQLs.IsComparisonWord operator, Expression operand) {
+    public final IPredicate is(SQLs.IsComparisonWord operator, Object operand) {
         return Expressions.isComparisonPredicate(this, false, operator, operand);
     }
 
     @Override
-    public final CompoundPredicate isNot(SQLs.IsComparisonWord operator, Expression operand) {
+    public final IPredicate isNot(SQLs.IsComparisonWord operator, Object operand) {
         return Expressions.isComparisonPredicate(this, true, operator, operand);
     }
 
 
     @Override
-    public final CompoundPredicate like(Expression pattern) {
+    public final IPredicate like(Object pattern) {
         return Expressions.likePredicate(this, DualBooleanOperator.LIKE, pattern, SQLs.ESCAPE, null);
     }
 
 
     @Override
-    public final CompoundPredicate like(Expression pattern, SQLs.WordEscape escape, char escapeChar) {
-        return Expressions.likePredicate(this, DualBooleanOperator.LIKE, pattern,
-                escape, SQLs.constant(TextType.INSTANCE, escapeChar)
-        );
-    }
-
-    @Override
-    public final CompoundPredicate like(Expression pattern, SQLs.WordEscape escape, Expression escapeChar) {
+    public final IPredicate like(Object pattern, SQLs.WordEscape escape, Object escapeChar) {
         return Expressions.likePredicate(this, DualBooleanOperator.LIKE, pattern, escape, escapeChar);
     }
 
-
     @Override
-    public final CompoundPredicate notLike(Expression pattern) {
-        return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, pattern, SQLs.ESCAPE, null);
+    public final <T> IPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value) {
+        return Expressions.likePredicate(this, DualBooleanOperator.LIKE, funcRef.apply(StringType.INSTANCE, value),
+                SQLs.ESCAPE, null);
     }
 
 
     @Override
-    public final CompoundPredicate notLike(Expression pattern, SQLs.WordEscape escape, char escapeChar) {
-        return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, pattern,
-                escape, SQLs.literal(StringType.INSTANCE, escapeChar)
+    public final <T> IPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value,
+                                     SQLs.WordEscape escape, T escapeChar) {
+        return Expressions.likePredicate(this, DualBooleanOperator.LIKE, funcRef.apply(StringType.INSTANCE, value),
+                escape, funcRef.apply(StringType.INSTANCE, escapeChar)
         );
     }
 
+
     @Override
-    public final CompoundPredicate notLike(Expression pattern, SQLs.WordEscape escape, Expression escapeChar) {
+    public final IPredicate notLike(Object pattern) {
+        return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, pattern, SQLs.ESCAPE, null);
+    }
+
+    @Override
+    public final IPredicate notLike(Object pattern, SQLs.WordEscape escape, Object escapeChar) {
         return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, pattern, escape, escapeChar);
     }
 
     @Override
-    public final CompoundExpression mod(Expression operand) {
+    public final <T> IPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value) {
+        return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, funcRef.apply(StringType.INSTANCE, value),
+                SQLs.ESCAPE, null);
+    }
+
+    @Override
+    public final <T> IPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value,
+                                        SQLs.WordEscape escape, T escapeChar) {
+        return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, funcRef.apply(StringType.INSTANCE, value),
+                escape, funcRef.apply(StringType.INSTANCE, escapeChar)
+        );
+    }
+
+    @Override
+    public final Expression mod(Object operand) {
         return Expressions.dualExp(this, DualExpOperator.MOD, operand);
     }
 
 
     @Override
-    public final CompoundExpression times(Expression operand) {
+    public final Expression times(Object operand) {
         return Expressions.dualExp(this, DualExpOperator.TIMES, operand);
     }
 
 
     @Override
-    public final CompoundExpression plus(Expression operand) {
+    public final Expression plus(Object operand) {
         return Expressions.dualExp(this, DualExpOperator.PLUS, operand);
     }
 
 
     @Override
-    public final CompoundExpression minus(Expression operand) {
+    public final Expression minus(Object operand) {
         return Expressions.dualExp(this, DualExpOperator.MINUS, operand);
     }
 
 
     @Override
-    public final CompoundExpression divide(Expression operand) {
+    public final Expression divide(Object operand) {
         return Expressions.dualExp(this, DualExpOperator.DIVIDE, operand);
     }
 
     @Override
-    public final CompoundExpression bitwiseAnd(Expression operand) {
+    public final Expression bitwiseAnd(Object operand) {
         return Expressions.dualExp(this, DualExpOperator.BITWISE_AND, operand);
     }
 
 
     @Override
-    public final CompoundExpression bitwiseOr(Expression operand) {
+    public final Expression bitwiseOr(Object operand) {
         return Expressions.dualExp(this, DualExpOperator.BITWISE_OR, operand);
     }
 
     @Override
-    public final CompoundExpression bitwiseXor(Expression operand) {
+    public final Expression bitwiseXor(Object operand) {
         return Expressions.dualExp(this, DualExpOperator.BITWISE_XOR, operand);
     }
 
 
     @Override
-    public final CompoundExpression rightShift(Expression operand) {
+    public final Expression rightShift(Object operand) {
         return Expressions.dualExp(this, DualExpOperator.RIGHT_SHIFT, operand);
     }
 
     @Override
-    public final CompoundExpression leftShift(Expression operand) {
+    public final Expression leftShift(Object operand) {
         return Expressions.dualExp(this, DualExpOperator.LEFT_SHIFT, operand);
     }
 
@@ -436,89 +449,18 @@ abstract class OperationExpression extends OperationSQLExpression
 
 
     @Override
-    public final <R extends UnaryResult> R space(Function<Expression, R> funcRef) {
-        final R result;
-        result = funcRef.apply(this);
-        if (result == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        }
-        return result;
+    public final Expression space(SQLs.DualOperator operator, Object right) {
+        return Expressions.dualExp(this, operator, right);
     }
 
     @Override
-    public final <T, R extends ResultExpression> R space(BiFunction<Expression, T, R> operator, T operand) {
-        final R result;
-        result = operator.apply(this, operand);
-        if (result == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        }
-        return result;
+    public final IPredicate space(SQLs.BiOperator operator, Object right) {
+        return Expressions.biPredicate(this, operator, right);
     }
 
     @Override
-    public final <M extends SQLToken, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> operator,
-                                                                          Expression right, M modifier, Expression optionalExp) {
-        final R result;
-        result = operator.apply(this, right, modifier, optionalExp);
-        if (result == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        }
-        return result;
-    }
-
-    @Override
-    public final <M extends SQLToken, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> operator,
-                                                                          Expression right, M modifier, char escapeChar) {
-        final R result;
-        result = operator.apply(this, right, modifier, SQLs.literal(StringType.INSTANCE, escapeChar));
-        if (result == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        }
-        return result;
-    }
-
-
-    @Override
-    public final <T> CompoundPredicate whiteSpace(BiFunction<Expression, T, CompoundPredicate> operator, T operand) {
-        final CompoundPredicate result;
-        result = operator.apply(this, operand);
-        if (result == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        }
-        return result;
-    }
-
-    @Override
-    public final <M extends SQLToken, T extends RightOperand> CompoundPredicate whiteSpace(TeFunction<Expression, M, T, CompoundPredicate> funcRef, M modifier, T right) {
-        final CompoundPredicate result;
-        result = funcRef.apply(this, modifier, right);
-        if (result == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        }
-        return result;
-    }
-
-    @Override
-    public final <M extends SQLToken> CompoundPredicate whiteSpace(
-            OptionalClauseOperator<M, Expression, CompoundPredicate> operator, Expression right, M modifier,
-            Expression optionalExp) {
-        final CompoundPredicate result;
-        result = operator.apply(this, right, modifier, optionalExp);
-        if (result == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        }
-        return result;
-    }
-
-    @Override
-    public final <M extends SQLToken> CompoundPredicate whiteSpace(
-            OptionalClauseOperator<M, Expression, CompoundPredicate> operator, Expression right, M modifier, char escapeChar) {
-        final CompoundPredicate result;
-        result = operator.apply(this, right, modifier, SQLs.literal(StringType.INSTANCE, escapeChar));
-        if (result == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        }
-        return result;
+    public final IPredicate space(SQLs.BiOperator operator, Object right, SQLToken modifier, Object optionalExp) {
+        return similarToPredicate(operator, right, modifier, optionalExp);
     }
 
 
@@ -573,10 +515,15 @@ abstract class OperationExpression extends OperationSQLExpression
     }
 
 
-    @Override
-    public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-        // default false
-        return false;
+    ///
+    /// @see OperationExpression#space(SQLs.BiOperator, Object, SQLToken, Object)
+    /// @see OperationTypedExpression#space(SQLs.BiOperator, BiFunction, Object, SQLToken, Object)
+    final IPredicate similarToPredicate(SQLs.BiOperator operator, Object right, SQLToken modifier, Object optionalExp) {
+        if (operator != DualBooleanOperator.SIMILAR_TO && operator != DualBooleanOperator.NOT_SIMILAR_TO) {
+            String m = String.format("operator[%s] is unknown", operator);
+            throw ContextStack.clearStackAndCriteriaError(m); // TODO add new
+        }
+        return Expressions.likePredicate(this, (DualBooleanOperator) operator, right, modifier, optionalExp);
     }
 
     static OperationExpression bracketExp(final @Nullable Expression expression) {
@@ -617,109 +564,109 @@ abstract class OperationExpression extends OperationSQLExpression
 
 
         @Override
-        public final <T> CompoundPredicate equal(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
-            return Expressions.dualPredicate(this, DualBooleanOperator.EQUAL, funcRef.apply(this, value));
+        public final <T> IPredicate equal(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.biPredicate(this, DualBooleanOperator.EQUAL, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundPredicate nullSafeEqual(BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value) {
-            return Expressions.dualPredicate(this, DualBooleanOperator.NULL_SAFE_EQUAL, funcRef.apply(this, value));
+        public final <T> IPredicate nullSafeEqual(BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value) {
+            return Expressions.biPredicate(this, DualBooleanOperator.NULL_SAFE_EQUAL, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundPredicate less(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
-            return Expressions.dualPredicate(this, DualBooleanOperator.LESS, funcRef.apply(this, value));
+        public final <T> IPredicate less(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.biPredicate(this, DualBooleanOperator.LESS, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundPredicate lessEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
-            return Expressions.dualPredicate(this, DualBooleanOperator.LESS_EQUAL, funcRef.apply(this, value));
+        public final <T> IPredicate lessEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.biPredicate(this, DualBooleanOperator.LESS_EQUAL, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundPredicate greater(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
-            return Expressions.dualPredicate(this, DualBooleanOperator.GREATER, funcRef.apply(this, value));
+        public final <T> IPredicate greater(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.biPredicate(this, DualBooleanOperator.GREATER, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundPredicate greaterEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
-            return Expressions.dualPredicate(this, DualBooleanOperator.GREATER_EQUAL, funcRef.apply(this, value));
+        public final <T> IPredicate greaterEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.biPredicate(this, DualBooleanOperator.GREATER_EQUAL, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundPredicate notEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
-            return Expressions.dualPredicate(this, DualBooleanOperator.NOT_EQUAL, funcRef.apply(this, value));
+        public final <T> IPredicate notEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.biPredicate(this, DualBooleanOperator.NOT_EQUAL, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundPredicate between(BiFunction<TypedExpression, T, Expression> funcRef, T first,
-                                                   SQLs.WordAnd and, T second) {
+        public final <T> IPredicate between(BiFunction<TypedExpression, T, Expression> funcRef, T first,
+                                            SQLs.WordAnd and, T second) {
             return Expressions.betweenPredicate(this, false, null, funcRef.apply(this, first),
                     funcRef.apply(this, second)
             );
         }
 
         @Override
-        public final <T, U> CompoundPredicate between(BiFunction<TypedExpression, T, Expression> firstFuncRef,
-                                                      T first, SQLs.WordAnd and,
-                                                      BiFunction<TypedExpression, U, Expression> secondFuncRef,
-                                                      U second) {
+        public final <T, U> IPredicate between(BiFunction<TypedExpression, T, Expression> firstFuncRef,
+                                               T first, SQLs.WordAnd and,
+                                               BiFunction<TypedExpression, U, Expression> secondFuncRef,
+                                               U second) {
             return Expressions.betweenPredicate(this, false, null, firstFuncRef.apply(this, first),
                     secondFuncRef.apply(this, second)
             );
         }
 
         @Override
-        public final <T> CompoundPredicate notBetween(BiFunction<TypedExpression, T, Expression> funcRef, T first,
-                                                      SQLs.WordAnd and, T second) {
+        public final <T> IPredicate notBetween(BiFunction<TypedExpression, T, Expression> funcRef, T first,
+                                               SQLs.WordAnd and, T second) {
             return Expressions.betweenPredicate(this, true, null, funcRef.apply(this, first),
                     funcRef.apply(this, second)
             );
         }
 
         @Override
-        public final <T, U> CompoundPredicate notBetween(BiFunction<TypedExpression, T, Expression> firstFuncRef,
-                                                         T first, SQLs.WordAnd and,
-                                                         BiFunction<TypedExpression, U, Expression> secondFuncRef,
-                                                         U second) {
+        public final <T, U> IPredicate notBetween(BiFunction<TypedExpression, T, Expression> firstFuncRef,
+                                                  T first, SQLs.WordAnd and,
+                                                  BiFunction<TypedExpression, U, Expression> secondFuncRef,
+                                                  U second) {
             return Expressions.betweenPredicate(this, true, null, firstFuncRef.apply(this, first),
                     secondFuncRef.apply(this, second)
             );
         }
 
         @Override
-        public final <T> CompoundPredicate between(@Nullable SQLs.BetweenModifier modifier,
-                                                   BiFunction<TypedExpression, T, Expression> funcRef, T first,
-                                                   SQLs.WordAnd and, T second) {
+        public final <T> IPredicate between(@Nullable SQLs.BetweenModifier modifier,
+                                            BiFunction<TypedExpression, T, Expression> funcRef, T first,
+                                            SQLs.WordAnd and, T second) {
             return Expressions.betweenPredicate(this, false, modifier, funcRef.apply(this, first),
                     funcRef.apply(this, second)
             );
         }
 
         @Override
-        public final <T, U> CompoundPredicate between(@Nullable SQLs.BetweenModifier modifier,
-                                                      BiFunction<TypedExpression, T, Expression> firstFuncRef,
-                                                      T first, SQLs.WordAnd and,
-                                                      BiFunction<TypedExpression, U, Expression> secondFuncRef,
-                                                      U second) {
+        public final <T, U> IPredicate between(@Nullable SQLs.BetweenModifier modifier,
+                                               BiFunction<TypedExpression, T, Expression> firstFuncRef,
+                                               T first, SQLs.WordAnd and,
+                                               BiFunction<TypedExpression, U, Expression> secondFuncRef,
+                                               U second) {
             return Expressions.betweenPredicate(this, false, modifier, firstFuncRef.apply(this, first),
                     secondFuncRef.apply(this, second)
             );
         }
 
         @Override
-        public final <T> CompoundPredicate notBetween(@Nullable SQLs.BetweenModifier modifier,
-                                                      BiFunction<TypedExpression, T, Expression> funcRef, T first,
-                                                      SQLs.WordAnd and, T second) {
+        public final <T> IPredicate notBetween(@Nullable SQLs.BetweenModifier modifier,
+                                               BiFunction<TypedExpression, T, Expression> funcRef, T first,
+                                               SQLs.WordAnd and, T second) {
             return Expressions.betweenPredicate(this, true, modifier, funcRef.apply(this, first), funcRef.apply(this, second));
         }
 
         @Override
-        public final <T, U> CompoundPredicate notBetween(@Nullable SQLs.BetweenModifier modifier,
-                                                         BiFunction<TypedExpression, T, Expression> firstFuncRef,
-                                                         T first, SQLs.WordAnd and,
-                                                         BiFunction<TypedExpression, U, Expression> secondFuncRef,
-                                                         U second) {
+        public final <T, U> IPredicate notBetween(@Nullable SQLs.BetweenModifier modifier,
+                                                  BiFunction<TypedExpression, T, Expression> firstFuncRef,
+                                                  T first, SQLs.WordAnd and,
+                                                  BiFunction<TypedExpression, U, Expression> secondFuncRef,
+                                                  U second) {
             return Expressions.betweenPredicate(this, true, modifier, firstFuncRef.apply(this, first),
                     secondFuncRef.apply(this, second)
             );
@@ -727,181 +674,104 @@ abstract class OperationExpression extends OperationSQLExpression
 
 
         @Override
-        public final <T> CompoundPredicate is(SQLs.IsComparisonWord operator,
-                                              BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value) {
+        public final <T> IPredicate is(SQLs.IsComparisonWord operator,
+                                       BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value) {
             return Expressions.isComparisonPredicate(this, false, operator, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundPredicate isNot(SQLs.IsComparisonWord operator,
-                                                 BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value) {
+        public final <T> IPredicate isNot(SQLs.IsComparisonWord operator,
+                                          BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value) {
             return Expressions.isComparisonPredicate(this, true, operator, funcRef.apply(this, value));
         }
 
         @Override
-        public final CompoundPredicate in(BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef,
-                                          Collection<?> value) {
+        public final IPredicate in(BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef,
+                                   Collection<?> value) {
             return Expressions.inPredicate(this, false, funcRef.apply(this, value));
         }
 
         @Override
-        public final CompoundPredicate notIn(BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef,
-                                             Collection<?> value) {
+        public final IPredicate notIn(BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef,
+                                      Collection<?> value) {
             return Expressions.inPredicate(this, true, funcRef.apply(this, value));
         }
 
         @Override
-        public final CompoundPredicate in(TeNamedParamsFunc<TypedExpression> funcRef, String paramName, int size) {
+        public final IPredicate in(TeNamedParamsFunc<TypedExpression> funcRef, String paramName, int size) {
             return Expressions.inPredicate(this, false, funcRef.apply(this, paramName, size));
         }
 
         @Override
-        public final CompoundPredicate notIn(TeNamedParamsFunc<TypedExpression> funcRef, String paramName, int size) {
+        public final IPredicate notIn(TeNamedParamsFunc<TypedExpression> funcRef, String paramName, int size) {
             return Expressions.inPredicate(this, true, funcRef.apply(this, paramName, size));
         }
 
-        @Override
-        public final <T> CompoundPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value) {
-            return Expressions.likePredicate(this, DualBooleanOperator.LIKE, funcRef.apply(NoCastTextType.INSTANCE, value),
-                    SQLs.ESCAPE, null);
-        }
-
 
         @Override
-        public final <T> CompoundPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value,
-                                                SQLs.WordEscape escape, char escapeChar) {
-            return Expressions.likePredicate(this, DualBooleanOperator.LIKE, funcRef.apply(TextType.INSTANCE, value),
-                    escape, SQLs.constant(TextType.INSTANCE, escapeChar)
-            );
-        }
-
-
-        @Override
-        public final <T> CompoundPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value) {
-            return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, funcRef.apply(TextType.INSTANCE, value),
-                    SQLs.ESCAPE, null);
-        }
-
-        @Override
-        public final <T> CompoundPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value,
-                                                   SQLs.WordEscape escape, char escapeChar) {
-            return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, funcRef.apply(TextType.INSTANCE, value),
-                    escape, SQLs.constant(TextType.INSTANCE, escapeChar)
-            );
-        }
-
-        @Override
-        public final <T> CompoundExpression mod(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+        public final <T> Expression mod(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
             return Expressions.dualExp(this, DualExpOperator.MOD, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundExpression times(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+        public final <T> Expression times(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
             return Expressions.dualExp(this, DualExpOperator.TIMES, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundExpression plus(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+        public final <T> Expression plus(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
             return Expressions.dualExp(this, DualExpOperator.PLUS, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundExpression minus(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+        public final <T> Expression minus(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
             return Expressions.dualExp(this, DualExpOperator.MINUS, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundExpression divide(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+        public final <T> Expression divide(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
             return Expressions.dualExp(this, DualExpOperator.DIVIDE, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundExpression bitwiseAnd(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+        public final <T> Expression bitwiseAnd(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
             return Expressions.dualExp(this, DualExpOperator.BITWISE_AND, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundExpression bitwiseOr(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+        public final <T> Expression bitwiseOr(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
             return Expressions.dualExp(this, DualExpOperator.BITWISE_OR, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundExpression bitwiseXor(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+        public final <T> Expression bitwiseXor(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
             return Expressions.dualExp(this, DualExpOperator.BITWISE_XOR, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundExpression rightShift(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+        public final <T> Expression rightShift(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
             return Expressions.dualExp(this, DualExpOperator.RIGHT_SHIFT, funcRef.apply(this, value));
         }
 
         @Override
-        public final <T> CompoundExpression leftShift(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+        public final <T> Expression leftShift(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
             return Expressions.dualExp(this, DualExpOperator.LEFT_SHIFT, funcRef.apply(this, value));
         }
 
-
         @Override
-        public final <T, R extends ResultExpression> R space(BiFunction<TypedExpression, Expression, R> operator,
-                                                             BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value) {
-            final R result;
-            result = operator.apply(this, funcRef.apply(this, value));
-            if (result == null) {
-                throw ContextStack.clearStackAndNullPointer();
-            }
-            return result;
+        public final <T> Expression space(SQLs.DualOperator operator, BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.dualExp(this, operator, funcRef.apply(this, value));
         }
 
         @Override
-        public final <M extends SQLToken, T, R extends ResultExpression> R space(
-                OptionalClauseOperator<M, Expression, R> operator, BiFunction<TypedExpression, T, Expression> funcRef,
-                @Nullable T value, M modifier, Expression optionalExp) {
-            final R result;
-            result = operator.apply(this, funcRef.apply(this, value), modifier, optionalExp);
-            if (result == null) {
-                throw ContextStack.clearStackAndNullPointer();
-            }
-            return result;
-        }
-
-
-        @Override
-        public final <M extends SQLToken, T, R extends ResultExpression> R space(
-                OptionalClauseOperator<M, Expression, R> operator, BiFunction<TypedExpression, T, Expression> funcRef,
-                @Nullable T value, M modifier, char escapeChar) {
-            return this.space(operator, funcRef, value, modifier, SQLs.constant(TextType.INSTANCE, escapeChar));
+        public final <T> IPredicate space(SQLs.BiOperator operator, BiFunction<TypedExpression, T, Expression> funcRef, T right) {
+            return Expressions.biPredicate(this, operator, funcRef.apply(this, right));
         }
 
         @Override
-        public final <T> CompoundPredicate whiteSpace(BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                                                      BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value) {
-            final CompoundPredicate result;
-            result = operator.apply(this, funcRef.apply(this, value));
-            if (result == null) {
-                throw ContextStack.clearStackAndNullPointer();
-            }
-            return result;
+        public final <T> IPredicate space(SQLs.BiOperator operator, BiFunction<StringType, T, Expression> funcRef, T right, SQLToken modifier, T optionalExp) {
+            return similarToPredicate(operator, funcRef.apply(StringType.INSTANCE, right), modifier, funcRef.apply(StringType.INSTANCE, optionalExp));
         }
-
-        @Override
-        public final <M extends SQLToken, T> CompoundPredicate whiteSpace(
-                OptionalClauseOperator<M, Expression, CompoundPredicate> operator,
-                BiFunction<MappingType, T, Expression> funcRef, @Nullable T value, M modifier, Expression optionalExp) {
-            final CompoundPredicate result;
-            result = operator.apply(this, funcRef.apply(TextType.INSTANCE, value), modifier, optionalExp);
-            if (result == null) {
-                throw ContextStack.clearStackAndNullPointer();
-            }
-            return result;
-        }
-
-        @Override
-        public final <M extends SQLToken, T> CompoundPredicate whiteSpace(
-                OptionalClauseOperator<M, Expression, CompoundPredicate> operator,
-                BiFunction<MappingType, T, Expression> funcRef, @Nullable T value, M modifier, char escapeChar) {
-            return this.whiteSpace(operator, funcRef, value, modifier, SQLs.constant(TextType.INSTANCE, escapeChar));
-        }
-
 
     } // OperationDefiniteExpression
 
@@ -957,11 +827,6 @@ abstract class OperationExpression extends OperationSQLExpression
 
         }
 
-        @Override
-        public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // function always false
-            return false;
-        }
 
         @Override
         public final String toString() {
@@ -1047,10 +912,6 @@ abstract class OperationExpression extends OperationSQLExpression
             sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            return this.expression.currentLevelContainFieldOf(table);
-        }
 
         @Override
         public String toString() {

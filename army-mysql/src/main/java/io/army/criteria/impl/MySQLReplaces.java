@@ -46,7 +46,7 @@ import java.util.function.Supplier;
  * <p>
  * This class hold the implementations of {@link MySQLReplace}.
  * <p>
- * Below is chinese signature:<br/>
+ * Below is chines signature:<br/>
  * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
  *
  * @since 0.6.0

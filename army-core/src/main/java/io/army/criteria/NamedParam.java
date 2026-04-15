@@ -19,7 +19,7 @@ package io.army.criteria;
 public interface NamedParam extends SQLParam, SqlValueParam.NamedValue {
 
 
-    interface NamedRow extends NamedParam, SqlValueParam.NamedMultiValue {
+    interface NamedRow extends NamedParam, NamedMultiParam {
 
     }
 

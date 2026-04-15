@@ -21,8 +21,6 @@ import io.army.criteria.impl.inner._DerivedTable;
 import io.army.dialect.*;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
-import io.army.mapping.optional.JsonPathType;
-import io.army.meta.ParentTableMeta;
 import io.army.meta.TypeMeta;
 import io.army.util.ArrayUtils;
 import io.army.util._Collections;
@@ -37,7 +35,7 @@ import java.util.function.Consumer;
  * <p>
  * This class hold the methods that create {@link Expression} and {@link IPredicate}.
  * <p>
- * Below is chinese signature:<br/>
+ * Below is chines signature:<br/>
  * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
  *
  * @since 0.6.0
@@ -48,24 +46,59 @@ abstract class Expressions {
     private Expressions() {
     }
 
-    static CompoundExpression dualExp(final Expression left, final DualExpOperator operator, final Expression right) {
-        if (!(left instanceof OperationExpression)) {
-            throw NonOperationExpression.nonOperationExpression(left);
-        } else if (!(right instanceof OperationExpression)) {
-            throw NonOperationExpression.nonOperationExpression(right);
+    static Expression dualExp(final Expression left, final SQLs.DualOperator operator, final Object right) {
+        final Expression result;
+        if (operator == SQLs.COLLATE) {
+            result = collateExp(left, right);
+        } else {
+            result = new DualExpression(left, operator, wrapRight(left, left));
         }
-        return new DualExpression(left, operator, right);
+        return result;
     }
 
-    static SimpleResultExpression collateExp(final Expression exp, final @Nullable String collation) {
-        if (!(exp instanceof OperationExpression)) {
-            throw NonOperationExpression.nonOperationExpression(exp);
-        } else if (collation == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        } else if (!_StringUtils.hasText(collation)) {
-            throw ContextStack.clearStackAndCriteriaError("collation must have text");
+    static Expression wrapRight(final Expression left, final @Nullable Object right) {
+        final Expression rightExp;
+        if (right == null) {
+            throw ContextStack.clearStackAndNullPointer("right operand must non-null");
+        } else if (right == SQLs.ABSENT) {
+            throw ContextStack.clearStackAndNullPointer("right operand couldn't be absent.");
+        } else if (right instanceof Expression) {
+            rightExp = (Expression) right;
+        } else if (left instanceof TypedExpression) {
+            rightExp = SQLs.param((TypedExpression) left, right);
+        } else {
+            rightExp = SQLs.parameter(right);
         }
-        return new CollateExpression(exp, collation);
+        return rightExp;
+    }
+
+    static Expression wrapRightForLike(final @Nullable Object right) {
+        final Expression rightExp;
+        if (right == null) {
+            throw ContextStack.clearStackAndNullPointer("right operand must non-null");
+        } else if (right == SQLs.ABSENT) {
+            throw ContextStack.clearStackAndNullPointer("right operand couldn't be absent.");
+        } else if (right instanceof Expression) {
+            rightExp = (Expression) right;
+        } else if (right instanceof String) {
+            rightExp = SQLs.param(StringType.INSTANCE, right);
+        } else {
+            throw ContextStack.clearStackAndNullPointer("LIKE operator right operand must be Expression or String.");
+        }
+        return rightExp;
+    }
+
+
+    /**
+     * @see #dualExp(Expression, SQLs.DualOperator, Object)
+     */
+    static SimpleResultExpression collateExp(final Expression exp, final Object collation) {
+        if (!(collation instanceof String)) {
+            throw ContextStack.clearStackAndCriteriaError("collation should be String");
+        } else if (_StringUtils.hasText((String) collation)) {
+            throw ContextStack.clearStackAndCriteriaError("collation should have text");
+        }
+        return new CollateExpression(exp, (String) collation);
     }
 
 
@@ -106,7 +139,7 @@ abstract class Expressions {
                                          final @Nullable SQLColumnSet right) {
         if (right == null) {
             throw ContextStack.clearStackAndNullPointer();
-        } else if (left instanceof RowExpression) {
+        } else if (left instanceof LengthTypedRowExpression) {
             RowExpressions.validateColumnSize((RowExpression) left, right);
         } else if (right instanceof SubQuery) {
             validateSubQueryContext((SubQuery) right);
@@ -117,7 +150,7 @@ abstract class Expressions {
                         selectionCount);
                 throw ContextStack.clearStackAndCriteriaError(m);
             }
-        } else if (!(right instanceof ArmyRowExpression)) {
+        } else if (!(right instanceof LengthTypedRowExpression)) {
             String m = String.format("don't right operand %s", right);
             throw ContextStack.clearStackAndCriteriaError(m);
         }
@@ -126,7 +159,7 @@ abstract class Expressions {
 
 
     static CompoundPredicate booleanTestPredicate(final OperationExpression expression,
-                                                  boolean not, SQLs.BooleanTestWord operand) {
+                                                  boolean not, SQLs.BoolTestWord operand) {
         if (!(operand == SQLs.NULL
                 || operand == SQLs.TRUE
                 || operand == SQLs.FALSE
@@ -139,17 +172,15 @@ abstract class Expressions {
     }
 
     static CompoundPredicate isComparisonPredicate(final OperationExpression left, boolean not,
-                                                   SQLs.IsComparisonWord operator, Expression right) {
-        if (!(right instanceof OperationExpression)) {
-            throw NonOperationExpression.nonOperationExpression(right);
-        } else if (!(operator instanceof SQLs.ArmyKeyWord)) {
-            throw CriteriaUtils.notArmyOperator(operator);
-        }
-        return new IsComparisonPredicate(left, not, operator, (ArmyExpression) right);
+                                                   SQLs.IsComparisonWord operator, Object right) {
+        return new IsComparisonPredicate(left, not, operator, (ArmyExpression) wrapRight(left, right));
     }
 
+    static IPredicate biPredicate(OperationExpression left, final SQLs.BiOperator operator, final Object right) {
+        return new DualPredicate(left, operator, wrapRight(left, right));
+    }
 
-    static CompoundPredicate dualPredicate(final OperationSQLExpression left, final DualBooleanOperator operator,
+    static CompoundPredicate dualPredicate(final OperationSQLExpression left, final SQLs.BiOperator operator,
                                            final @Nullable RightOperand right) {
         if (right == null) {
             throw ContextStack.clearStackAndNullPointer();
@@ -159,12 +190,13 @@ abstract class Expressions {
         } else if (left instanceof SQLColumnSet && right instanceof SQLColumnSet) {
             RowExpressions.validateColumnSize((SQLColumnSet) left, (SQLColumnSet) right);
         }
-        return new StandardDualPredicate(left, operator, right);
+        return new DualPredicate(left, operator, right);
     }
 
     static CompoundPredicate likePredicate(final Expression left, final DualBooleanOperator operator,
-                                           final @Nullable Expression right, SQLs.WordEscape escape,
-                                           @Nullable final Expression escapeChar) {
+                                           final Object right, SQLToken escape,
+                                           final @Nullable Object escapeChar) {
+
         switch (operator) {
             case LIKE:
             case NOT_LIKE:
@@ -179,10 +211,14 @@ abstract class Expressions {
             throw NonOperationExpression.nonOperationExpression(left);
         } else if (escape != SQLs.ESCAPE) {
             throw CriteriaUtils.errorModifier(escape);
-        } else if (!(right instanceof OperationExpression)) {
-            throw NonOperationExpression.nonOperationExpression(right);
         }
-        return new LikePredicate((OperationExpression) left, operator, right, escapeChar);
+        final Expression escapeExp;
+        if (escapeChar == null) {
+            escapeExp = null;
+        } else {
+            escapeExp = wrapRightForLike(escapeChar);
+        }
+        return new LikePredicate((OperationExpression) left, operator, wrapRightForLike(right), escapeExp);
     }
 
 
@@ -588,14 +624,14 @@ abstract class Expressions {
 
         final ArmyExpression left;
 
-        final DualExpOperator operator;
+        final SQLs.DualOperator operator;
 
         final ArmyExpression right;
 
         /**
-         * @see #dualExp(Expression, DualExpOperator, Expression)
+         * @see #dualExp(Expression, SQLs.DualOperator, Object)
          */
-        private DualExpression(final Expression left, final DualExpOperator operator, final Expression right) {
+        private DualExpression(final Expression left, final SQLs.DualOperator operator, final Expression right) {
             this.left = (ArmyExpression) left;
             this.operator = operator;
             this.right = (ArmyExpression) right;
@@ -604,28 +640,15 @@ abstract class Expressions {
         @Override
         public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
 
-            final DualExpOperator operator = this.operator;
-            switch (operator) {
-                case EXPONENTIATION:
-                case DOUBLE_VERTICAL:
-                case AT_TIME_ZONE:
-                case DOUBLE_AMP:
-                case POUND: {
-                    if (context.dialectDatabase() != Database.PostgreSQL) {
-                        throw unsupportedOperator(operator, context.dialectDatabase());
-                    }
-                }
-                break;
-                default:
-                    // no-op
-            }
+            final SQLs.DualOperator operator = this.operator;
 
-            final ArmyExpression left = this.left, right = this.right;
-            final boolean leftOuterParens, rightOuterParens;
+            final ArmyExpression left = this.left;
+
+            final boolean leftOuterParens;
             leftOuterParens = left instanceof OperationPredicate.OperationCompoundPredicate; // if CompoundPredicate must append outer parens
 
             //1. append left expression
-            if (leftOuterParens) {
+            if (leftOuterParens) {   // TODO 正确吗?
                 sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
             }
 
@@ -636,28 +659,10 @@ abstract class Expressions {
             }
 
             //2. append operator
-            if (operator == DualExpOperator.BITWISE_XOR && context.dialectDatabase() == Database.PostgreSQL) {
-                sqlBuilder.append(" #");
-            } else {
-                sqlBuilder.append(operator.spaceOperator);
-            }
+            sqlBuilder.append(operator.spaceRender(context.dialectDatabase()));
 
-            rightOuterParens = !(right instanceof ArmySimpleExpression);
-            if (rightOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            //3. append right expression
-            right.appendSql(sqlBuilder, context);
+            appendRightExpression(this.right, sqlBuilder, context, "right operand couldn't be absent.");
 
-            if (rightOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-
-        }
-
-        @Override
-        public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            return this.left.currentLevelContainFieldOf(table) || this.right.currentLevelContainFieldOf(table);
         }
 
         @Override
@@ -679,7 +684,7 @@ abstract class Expressions {
             }
 
             //2. append operator
-            sqlBuilder.append(this.operator.spaceOperator);
+            sqlBuilder.append(this.operator.spaceRender(Database.PostgreSQL));
 
             rightOuterParens = !(right instanceof ArmySimpleExpression);
             if (rightOuterParens) {
@@ -753,10 +758,6 @@ abstract class Expressions {
 
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            return this.operand.currentLevelContainFieldOf(table);
-        }
 
         @Override
         public final String toString() {
@@ -823,11 +824,6 @@ abstract class Expressions {
             context.appendSubQuery(this.subQuery);
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // always false
-            return false;
-        }
 
         @Override
         public String toString() {
@@ -879,11 +875,6 @@ abstract class Expressions {
             context.appendSubQuery(this.subQuery);
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // always false
-            return false;
-        }
 
         @Override
         public String toString() {
@@ -900,24 +891,24 @@ abstract class Expressions {
     }//UnaryPredicate
 
 
-    static abstract class DualPredicate extends OperationPredicate.OperationCompoundPredicate {
+    static final class DualPredicate extends OperationPredicate.OperationCompoundPredicate {
 
 
         final ArmySQLExpression left;
 
-        final Operator.SqlDualBooleanOperator operator;
+        final SQLs.BiOperator operator;
 
         final ArmyRightOperand right;
 
 
-        DualPredicate(OperationSQLExpression left, Operator.SqlDualBooleanOperator operator, RightOperand right) {
+        DualPredicate(OperationSQLExpression left, SQLs.BiOperator operator, RightOperand right) {
             this.left = left;
             this.operator = operator;
             this.right = (ArmyRightOperand) right;
         }
 
         @Override
-        public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
+        public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
 
             final ArmySQLExpression left = this.left;
             final boolean leftOuterParens;
@@ -950,20 +941,7 @@ abstract class Expressions {
         }
 
         @Override
-        public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            boolean contain = false;
-            if (this.left instanceof ArmyExpression) {
-                contain = ((ArmyExpression) this.left).currentLevelContainFieldOf(table);
-            }
-
-            if (!contain && this.right instanceof ArmyExpression) {
-                contain = ((ArmyExpression) this.right).currentLevelContainFieldOf(table);
-            }
-            return contain;
-        }
-
-        @Override
-        public final String toString() {
+        public String toString() {
 
             final StringBuilder sqlBuilder;
             sqlBuilder = new StringBuilder();
@@ -1002,17 +980,6 @@ abstract class Expressions {
 
     }//DualPredicate
 
-    private static final class StandardDualPredicate extends DualPredicate {
-
-        /**
-         * @see #dualPredicate(OperationSQLExpression, DualBooleanOperator, RightOperand)
-         */
-        private StandardDualPredicate(OperationSQLExpression left, DualBooleanOperator operator, RightOperand right) {
-            super(left, operator, right);
-        }
-
-    }//StandardDualPredicate
-
 
     private static final class LikePredicate extends OperationPredicate.OperationCompoundPredicate {
 
@@ -1025,7 +992,7 @@ abstract class Expressions {
         private final ArmyExpression escapeChar;
 
         /**
-         * @see #likePredicate(Expression, DualBooleanOperator, Expression, SQLs.WordEscape, Expression)
+         * @see #likePredicate(Expression, DualBooleanOperator, Object, SQLToken, Object)
          */
         private LikePredicate(OperationExpression left, DualBooleanOperator operator, Expression right,
                               @Nullable Expression escapeChar) {
@@ -1040,7 +1007,7 @@ abstract class Expressions {
 
             final ArmyExpression left = this.left, right = this.right, escapeChar = this.escapeChar;
             final boolean leftOuterParens, rightOuterParens, escapeCharOuterParens;
-            leftOuterParens = left instanceof IPredicate;// if predicate must append outer parens
+            leftOuterParens = left instanceof IPredicate;// TODO 正确吗? if predicate must append outer parens
             // 1. append left
             if (leftOuterParens) {
                 sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
@@ -1092,11 +1059,6 @@ abstract class Expressions {
             }
 
 
-        }
-
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            return this.left.currentLevelContainFieldOf(table) || this.right.currentLevelContainFieldOf(table);
         }
 
 
@@ -1195,12 +1157,6 @@ abstract class Expressions {
 
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(final ParentTableMeta<?> table) {
-            return this.left.currentLevelContainFieldOf(table)
-                    || this.center.currentLevelContainFieldOf(table)
-                    || this.right.currentLevelContainFieldOf(table);
-        }
 
         @Override
         public String toString() {
@@ -1275,11 +1231,6 @@ abstract class Expressions {
 
 
         @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            return this.expression.currentLevelContainFieldOf(table);
-        }
-
-        @Override
         public final String toString() {
             return this.expression.toString();
         }
@@ -1316,12 +1267,6 @@ abstract class Expressions {
             appendTypeCastExp(this.expression, sqlBuilder, context, this.type);
         }
 
-
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // TODO fix me ?
-            return false;
-        }
 
         @Override
         public final String toString() {
@@ -1370,10 +1315,6 @@ abstract class Expressions {
 
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            return this.left instanceof ArmyExpression && ((ArmyExpression) this.left).currentLevelContainFieldOf(table);
-        }
 
         @Override
         public String toString() {
@@ -1396,12 +1337,12 @@ abstract class Expressions {
         private final boolean not;
 
 
-        private final SQLs.BooleanTestWord operand;
+        private final SQLs.BoolTestWord operand;
 
         /**
-         * @see #booleanTestPredicate(OperationExpression, boolean, SQLs.BooleanTestWord)
+         * @see #booleanTestPredicate(OperationExpression, boolean, SQLs.BoolTestWord)
          */
-        private BooleanTestPredicate(OperationExpression expression, boolean not, SQLs.BooleanTestWord operand) {
+        private BooleanTestPredicate(OperationExpression expression, boolean not, SQLs.BoolTestWord operand) {
             this.expression = expression;
             this.not = not;
             this.operand = operand;
@@ -1416,11 +1357,6 @@ abstract class Expressions {
                 sqlBuilder.append(" IS");
             }
             sqlBuilder.append(this.operand.spaceRender());
-        }
-
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            return this.expression.currentLevelContainFieldOf(table);
         }
 
 
@@ -1490,11 +1426,6 @@ abstract class Expressions {
 
 
         @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            return this.left.currentLevelContainFieldOf(table) || this.right.currentLevelContainFieldOf(table);
-        }
-
-        @Override
         public String toString() {
             final StringBuilder builder = new StringBuilder();
             builder.append(this.left)
@@ -1553,14 +1484,10 @@ abstract class Expressions {
             if (right instanceof SubQuery) {
                 context.appendSubQuery((SubQuery) right);
             } else {
-                ((ArmyRowExpression) right).appendSql(sqlBuilder, context);
+                ((LengthTypedRowExpression) right).appendSql(sqlBuilder, context);
             }
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            return this.left instanceof ArmyExpression && ((ArmyExpression) this.left).currentLevelContainFieldOf(table);
-        }
 
         @Override
         public String toString() {
@@ -1652,22 +1579,34 @@ abstract class Expressions {
         @Override
         public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
             // NOTE ,here don't output Leading space,because here output DOT of object
-            appendConcatenationExpression(this.expression, sqlBuilder, context);
+
+            final int subscriptCount = this.subscriptList.size();
+            for (int i = 0; i < subscriptCount; i++) {
+                sqlBuilder.append(_Constant.LEFT_PAREN);  // https://www.postgresql.org/docs/current/rowtypes.html#ROWTYPES-ACCESSING
+            }
+
+            this.expression.appendSql(sqlBuilder, context);
+
+
             String sub;
             for (Object subscript : this.subscriptList) {
+
+                sqlBuilder.append(_Constant.RIGHT_PAREN);
 
                 sqlBuilder.append('.');
 
                 if (subscript == null || subscript == SQLs.ABSENT) {
-                    throw subscriptError(null, "OBJECT");
-                } else switch (subscript) {
+                    throw subscriptError(subscript, "OBJECT");
+                }
+
+                switch (subscript) {
                     case Expression _:
                         ((ArmyExpression) subscript).appendSql(sqlBuilder, context);
                         break;
                     case String _: {
                         sub = (String) subscript;
-                        if (sub.equals("*") || sub.equals("**")) {
-                            sqlBuilder.append(sub);  // TODO fix me  优化确认
+                        if (sub.equals("*")) {
+                            sqlBuilder.append(sub);
                         } else {
                             context.identifier(sub, sqlBuilder);
                         }
@@ -1685,8 +1624,14 @@ abstract class Expressions {
         public String toString() {
             // NOTE ,here don't output Leading space,because here output DOT of object
             final StringBuilder builder = _StringUtils.builder();
-            toStringConcatenationExpression(this.expression, builder);
+            final int subscriptCount = this.subscriptList.size();
+            for (int i = 0; i < subscriptCount; i++) {
+                builder.append(_Constant.LEFT_PAREN);  // https://www.postgresql.org/docs/current/rowtypes.html#ROWTYPES-ACCESSING
+            }
+
+
             for (Object subscript : this.subscriptList) {
+                builder.append(_Constant.RIGHT_PAREN);
 
                 builder.append('.');
 
@@ -1742,7 +1687,7 @@ abstract class Expressions {
                         break;
                     case String _: {
                         sub = (String) subscript;
-                        if (sub.equals("*") || sub.equals("**")) {  // TODO fix me, Postgre don't support
+                        if (sub.equals("*")) {
                             sqlBuilder.append(sub);
                         } else {
                             context.appendLiteral(StringType.INSTANCE, subscript, false);
@@ -1925,10 +1870,6 @@ abstract class Expressions {
             context.identifier(this.collation, sqlBuilder);
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            return this.exp.currentLevelContainFieldOf(table);
-        }
 
         @Override
         public String toString() {

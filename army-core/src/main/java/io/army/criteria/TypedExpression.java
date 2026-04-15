@@ -21,6 +21,7 @@ import io.army.function.OptionalClauseOperator;
 import io.army.function.TeNamedParamsFunc;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
+import io.army.mapping.StringType;
 
 import java.util.Collection;
 import java.util.function.BiFunction;
@@ -41,731 +42,100 @@ import static io.army.dialect.Database.PostgreSQL;
 public interface TypedExpression extends Expression , TypeInfer{
 
 
-    /**
-     * <p><strong>=</strong> operator. This method is similar to {@link #equal(Expression)},except that the operand
-     * of {@link #equal(Expression)} is returned by funcRef.
-     *
-     * <p><strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                <ul>
-     *                    <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>developer custom method</li>
-     *                </ul>.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     * @param value   non-null,it will be passed to funcRef as the second argument of funcRef
-     * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
-    <T> CompoundPredicate equal(BiFunction<TypedExpression, T, Expression> funcRef, T value);
-
-    /**
-     * <p>
-     * Operator <strong>!=</strong> . This method is similar to {@link #notEqual(Expression)},except that the operand
-     * {@link Expression} is returned by funcRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                <ul>
-     *                    <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>developer custom method</li>
-     *                </ul>.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     * @param value   non-null,it will be passed to funcRef as the second argument of funcRef
-     * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
-    <T> CompoundPredicate notEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value);
-
-    /**
-     * <p>
-     * <strong>=</strong> operator. This method is similar to {@link #equal(Expression)},except that the operand
-     * of {@link #equal(Expression)} is returned by funcRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                <ul>
-     *                    <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>developer custom method</li>
-     *                </ul>.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     * @param value   non-null,it will be passed to funcRef as the second argument of funcRef
-     * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html#operator_equal-to">NULL-safe equal.</a>
-     */
-    <T> CompoundPredicate nullSafeEqual(BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value);
+    <T> IPredicate equal(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
 
-    /**
-     * <p>
-     * Operator <strong>&lt;</strong> . This method is similar to {@link #less(Expression)},except that the operand
-     * {@link Expression} is returned by funcRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                <ul>
-     *                    <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>developer custom method</li>
-     *                </ul>.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     * @param value   non-null,it will be passed to funcRef as the second argument of funcRef
-     * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
-    <T> CompoundPredicate less(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+    <T> IPredicate notEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
 
-    /**
-     * <p>
-     * Operator <strong>&lt;=</strong> . This method is similar to {@link #lessEqual(Expression)},except that the operand
-     * {@link Expression} is returned by funcRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                <ul>
-     *                    <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>developer custom method</li>
-     *                </ul>.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     * @param value   non-null,it will be passed to funcRef as the second argument of funcRef
-     * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
-    <T> CompoundPredicate lessEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value);
-
-    /**
-     * <p>
-     * Operator <strong>></strong> . This method is similar to {@link #greater(Expression)},except that the operand
-     * {@link Expression} is returned by funcRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                <ul>
-     *                    <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>developer custom method</li>
-     *                </ul>.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     * @param value   non-null,it will be passed to funcRef as the second argument of funcRef
-     * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
-    <T> CompoundPredicate greater(BiFunction<TypedExpression, T, Expression> funcRef, T value);
-
-    /**
-     * <p>
-     * Operator <strong>>=</strong> . This method is similar to {@link #greaterEqual(Expression)},except that the operand
-     * {@link Expression} is returned by funcRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                <ul>
-     *                    <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>developer custom method</li>
-     *                </ul>.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     * @param value   non-null,it will be passed to funcRef as the second argument of funcRef
-     * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
-    <T> CompoundPredicate greaterEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+    <T> IPredicate nullSafeEqual(BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value);
 
 
-    /**
-     * <p>
-     * Operator <strong>BETWEEN AND</strong> . This method is similar to {@link #between(Expression, SQLs.WordAnd, Expression)},except that the operand
-     * {@link Expression} is returned by funcRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                <ul>
-     *                    <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>developer custom method</li>
-     *                </ul>.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     * @param first   non-null,it will be passed to funcRef as the second argument of funcRef
-     * @param and     {@link SQLs#AND}
-     * @param second  non-null,it will be passed to funcRef as the second argument of funcRef
-     * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
-    <T> CompoundPredicate between(BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
+    <T> IPredicate less(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
 
-    /**
-     * <p>
-     * Operator <strong>BETWEEN AND</strong> . This method is similar to {@link #between(Expression, SQLs.WordAnd, Expression)},except that the operand
-     * {@link Expression} is returned by firstFuncRef and secondFuncRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of firstFuncRef and secondFuncRef always is <strong>this</strong>.
-     *
-     * @param firstFuncRef  the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                      <ul>
-     *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>developer custom method</li>
-     *                      </ul>.
-     *                      The first argument of firstFuncRef always is <strong>this</strong>.
-     * @param first         non-null,it will be passed to firstFuncRef as the second argument of firstFuncRef
-     * @param and           {@link SQLs#AND}
-     * @param secondFuncRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                      <ul>
-     *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>developer custom method</li>
-     *                      </ul>.
-     *                      The first argument of secondFuncRef always is <strong>this</strong>.
-     * @param second        non-null,it will be passed to secondFuncRef as the second argument of secondFuncRef
-     * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
-    <T, U> CompoundPredicate between(BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
+    <T> IPredicate lessEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
 
-    /**
-     * <p>
-     * Operator <strong>NOT BETWEEN AND</strong> . This method is similar to {@link #notBetween(Expression, SQLs.WordAnd, Expression)},except that the operand
-     * {@link Expression} is returned by funcRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                <ul>
-     *                    <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                    <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                    and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>developer custom method</li>
-     *                </ul>.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     * @param first   non-null,it will be passed to funcRef as the second argument of funcRef
-     * @param and     {@link SQLs#AND}
-     * @param second  non-null,it will be passed to funcRef as the second argument of funcRef
-     * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
-    <T> CompoundPredicate notBetween(BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
-
-    /**
-     * <p>
-     * Operator <strong>BETWEEN AND</strong> . This method is similar to {@link #between(Expression, SQLs.WordAnd, Expression)},except that the operand
-     * {@link Expression} is returned by firstFuncRef and secondFuncRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of firstFuncRef and secondFuncRef always is <strong>this</strong>.
-     *
-     * @param firstFuncRef  the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                      <ul>
-     *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>developer custom method</li>
-     *                      </ul>.
-     *                      The first argument of firstFuncRef always is <strong>this</strong>.
-     * @param first         non-null,it will be passed to firstFuncRef as the second argument of firstFuncRef
-     * @param and           {@link SQLs#AND}
-     * @param secondFuncRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                      <ul>
-     *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>developer custom method</li>
-     *                      </ul>.
-     *                      The first argument of secondFuncRef always is <strong>this</strong>.
-     * @param second        non-null,it will be passed to secondFuncRef as the second argument of secondFuncRef
-     * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
-    <T, U> CompoundPredicate notBetween(BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
+    <T> IPredicate greater(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
 
-    /**
-     * <p>
-     * Operator <strong>BETWEEN [SYMMETRIC/ASYMMETRIC] AND</strong> . This method is similar to {@link #between(SQLs.BetweenModifier, Expression, SQLs.WordAnd, Expression)},except that the operand
-     * {@link Expression} is returned by funcRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param modifier {@link SQLs#SYMMETRIC} or {@link SQLs#ASYMMETRIC}
-     * @param funcRef  the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                 <ul>
-     *                     <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                     <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                     <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                     <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                     <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                     <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                     <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                     and in INSERT( or batch update/delete ) syntax</li>
-     *                     <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                     and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                     <li>developer custom method</li>
-     *                 </ul>.
-     *                 The first argument of funcRef always is <strong>this</strong>.
-     * @param first    non-null,it will be passed to funcRef as the second argument of funcRef
-     * @param and      {@link SQLs#AND}
-     * @param second   non-null,it will be passed to funcRef as the second argument of funcRef
-     * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
+    <T> IPredicate greaterEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+
+
+    <T> IPredicate between(BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
+
+
+    <T, U> IPredicate between(BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
+
+
+    <T> IPredicate notBetween(BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
+
+    <T, U> IPredicate notBetween(BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
+
+
     @Support({PostgreSQL, H2})
-    <T> CompoundPredicate between(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
+    <T> IPredicate between(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
 
-    /**
-     * <p>
-     * Operator <strong>BETWEEN AND</strong> . This method is similar to {@link #between(Expression, SQLs.WordAnd, Expression)},except that the operand
-     * {@link Expression} is returned by firstFuncRef and secondFuncRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of firstFuncRef and secondFuncRef always is <strong>this</strong>.
-     *
-     * @param firstFuncRef  the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                      <ul>
-     *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>developer custom method</li>
-     *                      </ul>.
-     *                      The first argument of firstFuncRef always is <strong>this</strong>.
-     * @param first         non-null,it will be passed to firstFuncRef as the second argument of firstFuncRef
-     * @param and           {@link SQLs#AND}
-     * @param secondFuncRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                      <ul>
-     *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>developer custom method</li>
-     *                      </ul>.
-     *                      The first argument of secondFuncRef always is <strong>this</strong>.
-     * @param second        non-null,it will be passed to secondFuncRef as the second argument of secondFuncRef
-     * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
     @Support({PostgreSQL, H2})
-    <T, U> CompoundPredicate between(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
+    <T, U> IPredicate between(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
 
 
-    /**
-     * <p>
-     * Operator <strong>NOT BETWEEN [SYMMETRIC/ASYMMETRIC] AND</strong> . This method is similar to {@link #notBetween(SQLs.BetweenModifier, Expression, SQLs.WordAnd, Expression)},except that the operand
-     * {@link Expression} is returned by funcRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param modifier {@link SQLs#SYMMETRIC} or {@link SQLs#ASYMMETRIC}
-     * @param funcRef  the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                 <ul>
-     *                     <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                     <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                     <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                     <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                     <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                     <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                     <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                     and in INSERT( or batch update/delete ) syntax</li>
-     *                     <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                     and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                     <li>developer custom method</li>
-     *                 </ul>.
-     *                 The first argument of funcRef always is <strong>this</strong>.
-     * @param first    non-null,it will be passed to funcRef as the second argument of funcRef
-     * @param and      {@link SQLs#AND}
-     * @param second   non-null,it will be passed to funcRef as the second argument of funcRef
-     * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
     @Support({PostgreSQL, H2})
-    <T> CompoundPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
+    <T> IPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
 
-    /**
-     * <p>
-     * Operator <strong>BETWEEN AND</strong> . This method is similar to {@link #between(Expression, SQLs.WordAnd, Expression)},except that the operand
-     * {@link Expression} is returned by firstFuncRef and secondFuncRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of firstFuncRef and secondFuncRef always is <strong>this</strong>.
-     *
-     * @param firstFuncRef  the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                      <ul>
-     *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>developer custom method</li>
-     *                      </ul>.
-     *                      The first argument of firstFuncRef always is <strong>this</strong>.
-     * @param first         non-null,it will be passed to firstFuncRef as the second argument of firstFuncRef
-     * @param and           {@link SQLs#AND}
-     * @param secondFuncRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                      <ul>
-     *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                          <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                          <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete ) syntax</li>
-     *                          <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                          and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                          <li>developer custom method</li>
-     *                      </ul>.
-     *                      The first argument of secondFuncRef always is <strong>this</strong>.
-     * @param second        non-null,it will be passed to secondFuncRef as the second argument of secondFuncRef
-     * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
+
     @Support({PostgreSQL, H2})
-    <T, U> CompoundPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
+    <T, U> IPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
 
 
-    /**
-     * <p>
-     * Operator <strong>IS </strong> . This method is similar to {@link #notEqual(Expression)},except that the operand
-     * {@link Expression} is returned by funcRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param operator see <ul>
-     *                 <li>{@link SQLs#DISTINCT_FROM}</li>
-     *                 </ul>
-     * @param funcRef  the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                 <ul>
-     *                     <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                     <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                     <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                     <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                     <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                     <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                     <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                     and in INSERT( or batch update/delete ) syntax</li>
-     *                     <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                     and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                     <li>developer custom method</li>
-     *                 </ul>.
-     *                 The first argument of funcRef always is <strong>this</strong>.
-     * @param value    non-null,it will be passed to funcRef as the second argument of funcRef
-     * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
+
     @Support({PostgreSQL, H2})
-    <T> CompoundPredicate is(SQLs.IsComparisonWord operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value);
+    <T> IPredicate is(SQLs.IsComparisonWord operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value);
 
-    /**
-     * <p>
-     * Operator <strong>IS </strong> . This method is similar to {@link #notEqual(Expression)},except that the operand
-     * {@link Expression} is returned by funcRef.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param operator see <ul>
-     *                 <li>{@link SQLs#DISTINCT_FROM}</li>
-     *                 </ul>
-     * @param funcRef  the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                 <ul>
-     *                     <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                     <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                     <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                     <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                     <li>{@link SQLs#encodingParam(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                     <li>{@link SQLs#encodingLiteral(TypeInfer, Object)},used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true</li>
-     *                     <li>{@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                     and in INSERT( or batch update/delete ) syntax</li>
-     *                     <li>{@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only <strong>this</strong> is instance of {@link TableField} and {@link TableField#codec()} is true
-     *                     and in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                     <li>developer custom method</li>
-     *                 </ul>.
-     *                 The first argument of funcRef always is <strong>this</strong>.
-     * @param value    non-null,it will be passed to funcRef as the second argument of funcRef
-     * @throws CriteriaException throw when operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
+
     @Support({PostgreSQL, H2})
-    <T> CompoundPredicate isNot(SQLs.IsComparisonWord operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value);
+    <T> IPredicate isNot(SQLs.IsComparisonWord operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value);
 
-    CompoundPredicate in(BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Collection<?> value);
+    IPredicate in(BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Collection<?> value);
 
-    CompoundPredicate notIn(BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Collection<?> value);
+    IPredicate notIn(BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Collection<?> value);
 
-    CompoundPredicate in(TeNamedParamsFunc<TypedExpression> funcRef, String paramName, int size);
+    IPredicate in(TeNamedParamsFunc<TypedExpression> funcRef, String paramName, int size);
 
-    CompoundPredicate notIn(TeNamedParamsFunc<TypedExpression> funcRef, String paramName, int size);
+    IPredicate notIn(TeNamedParamsFunc<TypedExpression> funcRef, String paramName, int size);
 
+    <T> Expression mod(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value);
+    <T> Expression times(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value, SQLs.WordEscape escape, char escapeChar);
+    <T> Expression plus(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value);
+    <T> Expression minus(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value, SQLs.WordEscape escape, char escapeChar);
+    <T> Expression divide(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression mod(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+    <T> Expression bitwiseAnd(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression times(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+    <T> Expression bitwiseOr(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression plus(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+    <T> Expression bitwiseXor(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression minus(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+    <T> Expression rightShift(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    <T> CompoundExpression divide(BiFunction<TypedExpression, T, Expression> funcRef, T value);
-
-    <T> CompoundExpression bitwiseAnd(BiFunction<TypedExpression, T, Expression> funcRef, T value);
-
-    <T> CompoundExpression bitwiseOr(BiFunction<TypedExpression, T, Expression> funcRef, T value);
-
-    <T> CompoundExpression bitwiseXor(BiFunction<TypedExpression, T, Expression> funcRef, T value);
-
-    <T> CompoundExpression rightShift(BiFunction<TypedExpression, T, Expression> funcRef, T value);
-
-    <T> CompoundExpression leftShift(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+    <T> Expression leftShift(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
 
     /*-------------------below dialect operator method-------------------*/
 
+    <T> Expression space(SQLs.DualOperator operator, BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-    /**
-     * <p>
-     * This method is designed for dialect operator.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.pound(Expression,Expression)}
-     * @param value   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
 
-    <T, R extends ResultExpression> R space(BiFunction<TypedExpression, Expression, R> operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value);
+    <T> IPredicate space(SQLs.BiOperator operator, BiFunction<TypedExpression, T, Expression> funcRef, T right);
 
-    /**
-     * <p>
-     * This method is designed for dialect operator.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.pound(Expression,Expression)}
-     * @param value   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-    <M extends SQLToken, T, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value, M modifier, Expression optionalExp);
-
-    /**
-     * <p>
-     * This method is designed for dialect operator.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.pound(Expression,Expression)}
-     * @param value   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-    <M extends SQLToken, T, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value, M modifier, char escapeChar);
-
-    /**
-     * <p>
-     * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, SQLs.SymbolSpace,IPredicate)} type infer.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * <p>
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.pound(Expression,Expression)}
-     * @param value   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-    <T> CompoundPredicate whiteSpace(BiFunction<TypedExpression, Expression, CompoundPredicate> operator, BiFunction<TypedExpression, T, Expression> funcRef, @Nullable T value);
-
-    /**
-     * <p>
-     * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, SQLs.SymbolSpace,IPredicate)} type infer.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * <p>
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.pound(Expression,Expression)}
-     * @param value   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-    <M extends SQLToken, T> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> operator, BiFunction<MappingType, T, Expression> funcRef, @Nullable T value, M modifier, Expression optionalExp);
-
-    /**
-     * <p>
-     * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, SQLs.SymbolSpace,IPredicate)} type infer.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * <p>
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.pound(Expression,Expression)}
-     * @param value   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-    <M extends SQLToken, T> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> operator, BiFunction<MappingType, T, Expression> funcRef, @Nullable T value, M modifier, char escapeChar);
-
+    ///
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP">SIMILAR TO Regular Expressions</a>
+    <T> IPredicate space(SQLs.BiOperator operator, BiFunction<StringType, T, Expression> funcRef, T right, SQLToken modifier, T optionalExp);
 
 
 }

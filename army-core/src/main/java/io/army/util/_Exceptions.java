@@ -757,13 +757,13 @@ public abstract class _Exceptions {
     }
 
 
-    public static CriteriaException namedParamNotMatch(SqlValueParam.NamedMultiValue param, @Nullable Object value) {
+    public static CriteriaException namedParamNotMatch(SqlValueParam.NamedMultiParam param, @Nullable Object value) {
         String m = String.format("named value[name:%s,size:%s] value[%s] isn't %s."
                 , param.name(), param.columnSize(), ClassUtils.safeClassName(value), Collection.class.getName());
         return new CriteriaException(m);
     }
 
-    public static CriteriaException namedMultiParamSizeError(SqlValueParam.NamedMultiValue param, int size) {
+    public static CriteriaException namedMultiParamSizeError(SqlValueParam.NamedMultiParam param, int size) {
         String m = String.format("named collection parameters[name:%s,size:%s] value size[%s] error."
                 , param.name(), param.columnSize(), size);
         return new CriteriaException(m);
@@ -1411,6 +1411,11 @@ public abstract class _Exceptions {
 
     public static DataAccessException primitiveNullColumn(String label,Class<?> beanClass) {
         String m = String.format("property[%s.%s] is primitive ,but database return null", beanClass.getName(),label);
+        return new DataAccessException(m);
+    }
+
+    public static DataAccessException notFoundBeanProp(String label, Class<?> beanClass) {
+        String m = String.format("property[%s.%s] not found", beanClass.getName(), label);
         return new DataAccessException(m);
     }
 

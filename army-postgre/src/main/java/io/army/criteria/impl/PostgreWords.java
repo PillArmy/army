@@ -280,7 +280,7 @@ abstract class PostgreWords {
         }
     }//KeyWordDistinct
 
-    enum FromNormalizedWord implements SQLs.BooleanTestWord, SQLs.ArmyKeyWord {
+    enum FromNormalizedWord implements SQLs.BoolTestWord, SQLs.ArmyKeyWord {
         FROM_NORMALIZED(" FROM NORMALIZED"),
         NORMALIZED(" NORMALIZED");
 

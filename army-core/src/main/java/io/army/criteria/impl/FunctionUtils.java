@@ -27,7 +27,6 @@ import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
 import io.army.mapping._MappingFactory;
 import io.army.meta.TypeMeta;
-import io.army.util.ArrayUtils;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
@@ -256,7 +255,7 @@ abstract class FunctionUtils {
         if (argument instanceof NamedNotation) {
             String m = String.format("argument[%s] of Named Notation[%s] couldn't be named Notation", name, argument);
             throw ContextStack.clearStackAndCriteriaError(m);
-        } else if (argument instanceof SqlValueParam.MultiValue) {
+        } else if (argument instanceof SqlValueParam.MultiParamValue) {
             throw namedNotationIsMultiValue();
         }
         return new NamedNotation(name, (ArmyExpression) argument);
@@ -327,7 +326,7 @@ abstract class FunctionUtils {
 
     static SimpleExpression twoOrMultiArgFunc(final String name, final Expression one, final Expression two,
                                               TypeMeta returnType) {
-        if (one instanceof SqlValueParam.MultiValue) {
+        if (one instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, one);
         }
         final List<ArmyExpression> argList;
@@ -336,7 +335,7 @@ abstract class FunctionUtils {
     }
 
     static SimpleExpression oneAndMultiArgFunc(final String name, final Expression exp, final List<Expression> expList) {
-        if (exp instanceof SqlValueParam.MultiValue) {
+        if (exp instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, exp);
         }
         final int size = expList.size();
@@ -539,7 +538,7 @@ abstract class FunctionUtils {
         argList = new ArrayList<>(2 + rest.length);
         appendTwoSingleExp(argList, name, one, two);
         for (Expression arg : rest) {
-            if (arg instanceof SqlValueParam.MultiValue) {
+            if (arg instanceof SqlValueParam.MultiParamValue) {
                 throw CriteriaUtils.funcArgError(name, arg);
             }
             argList.add((ArmyExpression) arg);
@@ -553,7 +552,7 @@ abstract class FunctionUtils {
         final List<ArmyExpression> argList = new ArrayList<>(1 + exps.length);
         argList.add((ArmyExpression) firstArg);
         for (Expression exp : exps) {
-            if (exp instanceof SqlValueParam.MultiValue) {
+            if (exp instanceof SqlValueParam.MultiParamValue) {
                 throw CriteriaUtils.funcArgError(name, exp);
             }
             argList.add((ArmyExpression) exp);
@@ -607,7 +606,7 @@ abstract class FunctionUtils {
     }
 
     static SimplePredicate oneArgPredicateFunc(final String name, final Expression argument) {
-        if (argument instanceof SqlValueParam.MultiValue) {
+        if (argument instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, argument);
         }
         return new OneArgFuncPredicate(name, true, argument);
@@ -643,7 +642,7 @@ abstract class FunctionUtils {
     }
 
     static SimplePredicate oneAndRestFuncPredicate(String name, Expression first, Expression... rest) {
-        if (first instanceof SqlValueParam.MultiValue) {
+        if (first instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, first);
         }
         final SimplePredicate func;
@@ -928,20 +927,20 @@ abstract class FunctionUtils {
 
 
     static List<ArmyExpression> twoExpList(final String name, Expression one, Expression two) {
-        if (one instanceof SqlValueParam.MultiValue) {
+        if (one instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, one);
-        } else if (two instanceof SqlValueParam.MultiValue) {
+        } else if (two instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, two);
         }
         return List.of((ArmyExpression) one, (ArmyExpression) two);
     }
 
     static List<ArmyExpression> threeExpList(final String name, Expression one, Expression two, Expression three) {
-        if (one instanceof SqlValueParam.MultiValue) {
+        if (one instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, one);
-        } else if (two instanceof SqlValueParam.MultiValue) {
+        } else if (two instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, two);
-        } else if (three instanceof SqlValueParam.MultiValue) {
+        } else if (three instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, three);
         }
         return List.of((ArmyExpression) one, (ArmyExpression) two, (ArmyExpression) three);
@@ -958,9 +957,9 @@ abstract class FunctionUtils {
      */
     static void appendTwoSingleExp(List<ArmyExpression> argList, String name
             , Expression one, Expression two) {
-        if (one instanceof SqlValueParam.MultiValue) {
+        if (one instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, one);
-        } else if (two instanceof SqlValueParam.MultiValue) {
+        } else if (two instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, two);
         }
         argList.add((ArmyExpression) one);
@@ -1122,7 +1121,7 @@ abstract class FunctionUtils {
          * @see #namedNotation(String, Expression)
          */
         private NamedNotation(String name, ArmyExpression argument) {
-            if (argument instanceof SqlValueParam.MultiValue) {
+            if (argument instanceof SqlValueParam.MultiParamValue) {
                 throw namedNotationIsMultiValue();
             }
             this.name = name;

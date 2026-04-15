@@ -34,7 +34,7 @@ import java.util.Objects;
  * <p>
  * This class representing multi-value literal expression.
  * <p>
- * Below is chinese signature:<br/>
+ * Below is chines signature:<br/>
  * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
  *
  * @see ArmyParamExpression
@@ -75,65 +75,23 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
      *                           <li>size less than 1</li>
      *                           <li>infer return codec {@link TableField}</li>
      *                           </ul>
-     * @see SQLs#namedRowLiteral(TypeInfer, String, int)
+     * @see SQLs#namedRowLiteral(TypeInfer, String)
      */
 
     static ArmyRowLiteralExpression named(final @Nullable TypeInfer infer, final @Nullable String name,
-                                          final int size, final boolean typeName) {
+                                          final boolean typeName) {
         final TypeMeta type;
         if (infer == null) {
             throw ContextStack.clearStackAndNullPointer();
         } else if (!_StringUtils.hasText(name)) {
             throw nameHaveNoText();
-        } else if (size < 1) {
-            throw sizeLessThanOne(size);
         } else if ((type = infer.typeMeta()) instanceof TableField && ((TableField) type).codec()) {
             throw ArmyParamExpression.typeInferReturnCodecField("encodingNamedMultiLiteral");
         }
-        return new NamedMultiLiteral(name, type, size, typeName);
+        return new ArmyNamedRowLiteral(name, type, typeName);
     }
 
-    /**
-     * @throws CriteriaException throw when <ul>
-     *                           <li>values is empty</li>
-     *                           <li>infer isn't codec {@link TableField}</li>
-     *                           </ul>
-     * @see SQLs#encodingRowLiteral(TypeInfer, Collection)
-     */
-    static ArmyRowLiteralExpression encodingMulti(final @Nullable TypeInfer infer,
-                                                  final @Nullable Collection<?> values, final boolean typeName) {
-        if (infer == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        } else if (values == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        } else if (values.size() == 0) {
-            throw valuesIsEmpty();
-        } else if (!(infer instanceof TableField && ((TableField) infer).codec())) {
-            throw ArmyParamExpression.typeInferIsNotCodecField("multiLiteral");
-        }
-        return new AnonymousRowLiteral((TableField) infer, values, typeName);
-    }
 
-    /**
-     * @throws CriteriaException throw when <ul>
-     *                           <li>name have no text</li>
-     *                           <li>size less than 1</li>
-     *                           <li>infer isn't codec {@link TableField}</li>
-     *                           </ul>
-     * @see SQLs#encodingNamedRowLiteral(TypeInfer, String, int)
-     */
-    static ArmyRowLiteralExpression encodingNamed(@Nullable TypeInfer infer, @Nullable String name, final int size, boolean typeName) {
-        if (infer == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        } else if (!_StringUtils.hasText(name)) {
-            throw nameHaveNoText();
-        } else if (size < 1) {
-            throw sizeLessThanOne(size);
-        } else if (!(infer instanceof TableField && ((TableField) infer).codec())) {
-            throw ArmyParamExpression.typeInferIsNotCodecField("namedMultiLiteral");
-        }
-        return new NamedMultiLiteral(name, (TableField) infer, size, typeName);
-    }
 
     private static CriteriaException valuesIsEmpty() {
         return ContextStack.clearStackAndCriteriaError("values must non-empty for multi-value literal.");
@@ -156,7 +114,7 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
     }
 
 
-    static final class AnonymousRowLiteral extends ArmyRowLiteralExpression {
+    static final class AnonymousRowLiteral extends ArmyRowLiteralExpression implements LengthTypedRowExpression {
 
         private final TypeMeta type;
 
@@ -175,7 +133,7 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
                 assert type instanceof FieldMeta || type instanceof MappingType;
                 this.type = type;
             }
-            this.valueList = _Collections.asUnmodifiableList(values);
+            this.valueList = List.copyOf(values);
             this.typeName = typeName;
         }
 
@@ -251,8 +209,7 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
             final boolean match;
             if (obj == this) {
                 match = true;
-            } else if (obj instanceof AnonymousRowLiteral) {
-                final AnonymousRowLiteral o = (AnonymousRowLiteral) obj;
+            } else if (obj instanceof AnonymousRowLiteral o) {
                 match = o.type.equals(this.type)
                         && o.valueList.equals(this.valueList);
             } else {
@@ -265,23 +222,20 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
     }//AnonymousMultiLiteral
 
 
-    private static final class NamedMultiLiteral extends ArmyRowLiteralExpression implements NamedLiteral,
-            SqlValueParam.NamedMultiValue {
+    private static final class ArmyNamedRowLiteral extends ArmyRowLiteralExpression implements NamedLiteral,
+            NamedMultiLiteral {
 
         private final String name;
 
         private final TypeMeta type;
 
-        private final int valueSize;
 
         private final boolean typeName;
 
         /**
-         * @see #named(TypeInfer, String, int)
-         * @see #encodingNamed(TypeInfer, String, int)
+         * @see #named(TypeInfer, String, boolean)
          */
-        private NamedMultiLiteral(String name, TypeMeta type, int valueSize, boolean typeName) {
-            assert valueSize > 0;
+        private ArmyNamedRowLiteral(String name, TypeMeta type, boolean typeName) {
             this.name = name;
             if (type instanceof QualifiedField) {
                 this.type = ((QualifiedField<?>) type).fieldMeta();
@@ -289,18 +243,12 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
                 assert type instanceof FieldMeta || type instanceof MappingType;
                 this.type = type;
             }
-            this.valueSize = valueSize;
             this.typeName = typeName;
         }
 
         @Override
         public TypeMeta typeMeta() {
             return this.type;
-        }
-
-        @Override
-        public int columnSize() {
-            return this.valueSize;
         }
 
         @Override
@@ -316,31 +264,20 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
 
         @Override
         public String toString() {
-            final int valueSize = this.valueSize;
-            final String name = this.name;
-            final StringBuilder builder;
-            builder = new StringBuilder()
-                    .append(_Constant.SPACE_LEFT_PAREN);
-
-            for (int i = 0; i < valueSize; i++) {
-                if (i > 0) {
-                    builder.append(_Constant.SPACE_COMMA_SPACE);
-                } else {
-                    builder.append(_Constant.SPACE);
-                }
-                builder.append(" ?:")
-                        .append(name)
-                        .append("{[")
-                        .append(i)
-                        .append("]}");
-            }
-            return builder.append(_Constant.SPACE_RIGHT_PAREN)
+            return _StringUtils.builder()
+                    .append(_Constant.SPACE_LEFT_PAREN)
+                    .append('{')
+                    .append("ROW_LITERAL")
+                    .append(':')
+                    .append(this.name)
+                    .append('}')
+                    .append(_Constant.SPACE_RIGHT_PAREN)
                     .toString();
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(this.type, this.name, this.valueSize);
+            return Objects.hash(this.type, this.name);
         }
 
         @Override
@@ -348,11 +285,9 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
             final boolean match;
             if (obj == this) {
                 match = true;
-            } else if (obj instanceof NamedMultiLiteral) {
-                final NamedMultiLiteral o = (NamedMultiLiteral) obj;
+            } else if (obj instanceof ArmyNamedRowLiteral o) {
                 match = o.type.equals(this.type)
-                        && o.name.equals(this.name)
-                        && o.valueSize == this.valueSize;
+                        && o.name.equals(this.name);
             } else {
                 match = false;
             }

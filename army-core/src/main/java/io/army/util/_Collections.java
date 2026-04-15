@@ -65,9 +65,7 @@ public abstract class _Collections {
         }
         final String className = list.getClass().getName();
         return className.startsWith("java.util.ImmutableCollections$")
-                || className.equals("java.util.Collections$SingletonList")
-                || className.equals("java.util.Collections$UnmodifiableList")
-                || className.equals("java.util.Collections$UnmodifiableRandomAccessList");
+                || className.equals("java.util.Collections$SingletonList");
     }
 
     public static <T> List<T> unmodifiableListForDeveloper(List<T> list) {

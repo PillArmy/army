@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 public interface DataRecord extends ResultItem, ResultItem.ResultAccessSpec {
 
-    ResultRecordMeta getRecordMeta();
+    RecordMeta getRecordMeta();
 
     @Nullable
     Object get(int indexBasedZero);

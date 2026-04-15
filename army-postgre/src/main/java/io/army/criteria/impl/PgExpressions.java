@@ -19,8 +19,6 @@ package io.army.criteria.impl;
 import io.army.criteria.*;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
-import io.army.mapping.*;
-import io.army.mapping.postgre.spatial.postgre.PostgrePointType;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
@@ -42,7 +40,7 @@ abstract class PgExpressions {
                                                    final @Nullable Expression endOrLength) {
         if (start == null || endOrLength == null) {
             throw ContextStack.clearStackAndNullPointer();
-        } else if (start instanceof SqlValueParam.MultiValue || endOrLength instanceof SqlValueParam.MultiValue) {
+        } else if (start instanceof SqlValueParam.MultiParamValue || endOrLength instanceof SqlValueParam.MultiParamValue) {
             throw overlapsDontSupportMultiValue();
         }
         return new PeriodOverlapsPredicate(start, endOrLength);
@@ -64,7 +62,7 @@ abstract class PgExpressions {
         return new PostgreUnaryPredicate(operator, operand);
     }
 
-    static <T extends SQLExpression> CompoundPredicate dualPredicate(final T left, final PostgreDualBooleanOperator operator,
+    static <T extends SQLExpression> CompoundPredicate dualPredicate(final T left, final PgDualBoolOperator operator,
                                                                      final T right) {
         if (!(left instanceof OperationSQLExpression)) {
             throw ContextStack.clearStackAndNonArmyItem(left);
@@ -74,7 +72,7 @@ abstract class PgExpressions {
         if (left instanceof RowExpression && right instanceof RowExpression) {
             RowExpressions.validateColumnSize((RowExpression) left, (RowExpression) right);
         }
-        return new PostgreDualPredicate(left, operator, right);
+        return new Expressions.DualPredicate((OperationSQLExpression) left, operator, right);
     }
 
 
@@ -111,7 +109,7 @@ abstract class PgExpressions {
         public IPredicate overlaps(final @Nullable Expression start, final @Nullable Expression endOrLength) {
             if (start == null || endOrLength == null) {
                 throw ContextStack.clearStackAndNullPointer();
-            } else if (start instanceof SqlValueParam.MultiValue || endOrLength instanceof SqlValueParam.MultiValue) {
+            } else if (start instanceof SqlValueParam.MultiParamValue || endOrLength instanceof SqlValueParam.MultiParamValue) {
                 throw overlapsDontSupportMultiValue();
             } else if (this.start2 != null || this.endOrLength2 != null) {
                 throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
@@ -205,17 +203,7 @@ abstract class PgExpressions {
 
     }//PeriodOverlapsPredicate
 
-    private static final class PostgreDualPredicate extends Expressions.DualPredicate {
 
-        /**
-         * @see #dualPredicate(SQLExpression, PostgreDualBooleanOperator, SQLExpression)
-         */
-        private PostgreDualPredicate(SQLExpression left, PostgreDualBooleanOperator operator, RightOperand right) {
-            super((OperationSQLExpression) left, operator, right);
-        }
-
-
-    }//PostgreDualPredicate
 
 
     private static final class PostgreUnaryExpression extends Expressions.UnaryExpression {

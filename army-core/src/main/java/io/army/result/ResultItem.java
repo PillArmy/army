@@ -29,7 +29,7 @@ public interface ResultItem {
 
 
     static boolean isRowOrStatesItem(ResultItem item) {
-        return !(item instanceof ResultRecordMeta);
+        return !(item instanceof RecordMeta);
     }
 
     static boolean isRowItem(ResultItem item) {

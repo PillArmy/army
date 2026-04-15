@@ -17,6 +17,7 @@
 package io.army.criteria.impl;
 
 import io.army.criteria.SQLToken;
+import io.army.dialect.Database;
 import io.army.dialect._Constant;
 
 abstract class SqlWords {
@@ -367,7 +368,7 @@ abstract class SqlWords {
      *
      * @since 0.6.0
      */
-    enum BooleanTestKeyWord implements SQLs.BooleanTestWord, SQLs.ArmyKeyWord {
+    enum BooleanTestKeyWord implements SQLs.BoolTestWord, SQLs.ArmyKeyWord {
 
         JSON(" JSON");
 
@@ -495,7 +496,7 @@ abstract class SqlWords {
 
     }//KeyWordPercent
 
-    enum KeyWordUnknown implements SQLs.BooleanTestWord, SQLs.ArmyKeyWord {
+    enum KeyWordUnknown implements SQLs.BoolTestWord, SQLs.ArmyKeyWord {
 
         UNKNOWN(" UNKNOWN");
 
@@ -584,14 +585,14 @@ abstract class SqlWords {
 
     }//KeyWordNext
 
-    enum KeyWordsNullsFirstLast implements SQLs.NullsFirstLast, SQLToken {
+    enum NullsFirstLastEnum implements SQLs.NullsFirstLast, SQLToken {
 
         NULLS_FIRST(" NULLS FIRST"),
         NULLS_LAST(" NULLS LAST");
 
         final String spaceWords;
 
-        KeyWordsNullsFirstLast(String spaceWords) {
+        NullsFirstLastEnum(String spaceWords) {
             this.spaceWords = spaceWords;
         }
 
@@ -605,7 +606,7 @@ abstract class SqlWords {
             return SQLs.keyWordsToString(this);
         }
 
-    }//KeyWordsNullsFirstLast
+    }//NullsFirstLastEnum
 
     enum KeyWordRow implements SQLs.WordRow, SQLToken {
 
@@ -872,29 +873,7 @@ abstract class SqlWords {
 
     }//KeyWordsCharacterSet
 
-    enum KeyWordsCollate implements SQLs.WordCollate, SQLs.ArmyKeyWord {
 
-        COLLATE(" COLLATE");
-
-
-        private final String spaceWord;
-
-        KeyWordsCollate(String spaceWord) {
-            this.spaceWord = spaceWord;
-        }
-
-        @Override
-        public final String spaceRender() {
-            return this.spaceWord;
-        }
-
-
-        @Override
-        public final String toString() {
-            return SQLs.keyWordsToString(this);
-        }
-
-    } // KeyWordsCollate
 
 
     enum KeyWordUsing implements SQLs.WordUsing {
@@ -1003,6 +982,11 @@ abstract class SqlWords {
         }
 
         @Override
+        public String spaceRender(Database database) {
+            return " AT TIME ZONE";
+        }
+
+        @Override
         public final String toString() {
             return SQLs.keyWordsToString(this);
         }
@@ -1052,6 +1036,29 @@ abstract class SqlWords {
 
 
     } // KeyWordMaterialized
+
+    enum WordCollate implements SQLs.WordCollate {
+
+        COLLATE;
+
+
+        @Override
+        public String spaceRender() {
+            return " COLLATE";
+        }
+
+        @Override
+        public String spaceRender(Database database) {
+            return " COLLATE";
+        }
+
+        @Override
+        public final String toString() {
+            return SQLs.keyWordsToString(this);
+        }
+
+
+    } //
 
 
 }

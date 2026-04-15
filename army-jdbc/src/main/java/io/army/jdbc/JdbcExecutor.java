@@ -1945,7 +1945,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                 type = this.rawTypeArray[indexBasedZero];
             }
             DataType dataType = null;
-            if (!columnClass.isAssignableFrom(type.javaType())) {
+            if (!ClassUtils.isAssignableFrom(columnClass, type.javaType())) {
                 dataType = this.dataTypeArray[indexBasedZero];
                 type = type.compatibleFor(dataType, columnClass);
                 this.compatibleTypeArray[indexBasedZero] = type;

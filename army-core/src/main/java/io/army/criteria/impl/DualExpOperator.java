@@ -19,7 +19,7 @@ package io.army.criteria.impl;
 import io.army.dialect.Database;
 import io.army.util._Exceptions;
 
-enum DualExpOperator implements Operator.SqlDualExpressionOperator {
+enum DualExpOperator implements Operator.SqlDualExpressionOperator, SQLs.DualOperator {
 
     /**
      * @see <a href="https://www.postgresql.org/docs/current/functions-math.html#FUNCTIONS-MATH-OP-TABLE">numeric ^ numeric → numeric <br/>
@@ -27,7 +27,7 @@ enum DualExpOperator implements Operator.SqlDualExpressionOperator {
      * Exponentiation</a>
      * @see <a href="https://www.postgresql.org/docs/15/sql-syntax-lexical.html#SQL-PRECEDENCE-TABLE">Operator Precedence (highest to lowest) </a>
      */
-    EXPONENTIATION(" ^", 90),// postgre only
+    CARET(" ^", 90),// postgre only
 
     BITWISE_XOR(" ^", 85),  // for MySQL , BITWISE_XOR > TIMES
 
@@ -54,11 +54,7 @@ enum DualExpOperator implements Operator.SqlDualExpressionOperator {
     /**
      * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">bytea || bytea → bytea</a>
      */
-    DOUBLE_VERTICAL(" ||", 20),// postgre only
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-ZONECONVERT-TABLE"> AT TIME ZONE Variants</a>
-     */
-    AT_TIME_ZONE(" AT TIME ZONE", 20),// postgre only
+    CONCAT(" ||", 20),// postgre only
 
     /**
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type # geometric_type → point<br>
@@ -104,7 +100,7 @@ enum DualExpOperator implements Operator.SqlDualExpressionOperator {
      * ANDs two tsquerys together, producing a query that matches documents that match both input queries.
      * </a>
      */
-    DOUBLE_AMP(" &&", 20),// postgre only
+    AMP_AMP(" &&", 20),// postgre only
 
     /**
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING">json -> integer → json<br>
@@ -113,7 +109,7 @@ enum DualExpOperator implements Operator.SqlDualExpressionOperator {
      * '[{"a":"foo"},{"b":"bar"},{"c":"baz"}]'::json -> 2 → {"c":"baz"}
      * </a>
      */
-    HYPHEN_GT(" ->", 20),// postgre mysql
+    ARROW(" ->", 20),// postgre mysql
 
     /**
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING">json ->> integer → text<br>
@@ -124,14 +120,15 @@ enum DualExpOperator implements Operator.SqlDualExpressionOperator {
      * jsonb ->> text → text<br/>
      * </a>
      */
-    HYPHEN_GT_GT(" ->>", 20),// postgre only
+    DARROW(" ->>", 20),// postgre only
 
     /**
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type &lt;-> geometric_type → double precision<br/>
      * Computes the distance between the objects. Available for all seven geometric types, for all combinations of point with another geometric type, and for these additional pairs of types: (box, lseg), (lseg, line), (polygon, circle) (and the commutator cases).
      * </a>
      */
-    LT_HYPHEN_GT(" <->", 20);// postgre only
+    BI_ARROW(" <->", 20);// postgre only
+
 
 
     final String spaceOperator;
@@ -152,44 +149,43 @@ enum DualExpOperator implements Operator.SqlDualExpressionOperator {
 
     @Override
     public final String spaceRender(final Database database) {
+        final String ope;
         switch (this) {
-            case PLUS:
-            case MINUS:
-            case MOD:
-            case TIMES:
-            case DIVIDE:
-            case LEFT_SHIFT:
-            case RIGHT_SHIFT:
-            case BITWISE_AND:
-            case BITWISE_OR:
             case BITWISE_XOR:
-            default:
+                if (database == Database.PostgreSQL) {
+                    ope = " #";
+                } else {
+                    ope = this.spaceOperator;
+                }
                 break;
             case DIV: {
                 if (database != Database.MySQL) {
                     throw _Exceptions.operatorError(this, database);
                 }
+                ope = this.spaceOperator;
             }
             break;
             case POUND:
             case POUND_GT:
-            case HYPHEN_GT:
-            case DOUBLE_AMP:
+            case ARROW:
+            case AMP_AMP:
             case POUND_GT_GT:
             case POUND_POUND:
-            case AT_TIME_ZONE:
-            case HYPHEN_GT_GT:
-            case LT_HYPHEN_GT:
+            case DARROW:
+            case BI_ARROW:
             case POUND_HYPHEN:
-            case EXPONENTIATION:
-            case DOUBLE_VERTICAL: {
+            case CARET:
+            case CONCAT: {
                 if (database != Database.PostgreSQL) {
                     throw _Exceptions.operatorError(this, database);
                 }
+                ope = this.spaceOperator;
             }
             break;
+            default:
+                ope = this.spaceOperator;
         }
-        return this.spaceOperator;
+        return ope;
     }
 
 

@@ -16,17 +16,20 @@
 
 package io.army.criteria.postgre.statement;
 
-import io.army.criteria.ArrayExpression;
 import io.army.criteria.Expression;
 import io.army.criteria.Select;
+import io.army.criteria.TypedExpression;
 import io.army.criteria.impl.Postgres;
 import io.army.criteria.impl.SQLs;
 import io.army.example.bank.domain.user.ChinaRegion_;
 import io.army.mapping.array.IntegerArrayType;
+import io.army.mapping.array.LongArrayType;
 import io.army.mapping.postgre.PgVectorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
+
+import java.util.List;
 
 import static io.army.criteria.impl.Postgres.array;
 import static io.army.criteria.impl.Postgres.unnest;
@@ -37,7 +40,7 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
     private static final Logger LOG = LoggerFactory.getLogger(TabularFunctionUnitTests.class);
 
     /**
-     * @see Postgres#unnest(Expression)
+     * @see Postgres#unnest(TypedExpression)
      */
     @Test
     public void unnestFunc() {
@@ -56,7 +59,7 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
     }
 
     /**
-     * @see Postgres#unnest(io.army.criteria.ArrayExpression)
+     * @see Postgres#unnest(TypedExpression)
      */
     @Test
     public void unnestArray() {
@@ -69,7 +72,7 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
                         ::withOrdinality
                 )
                 .as("a").parens("value", "ordinal")
-                .crossJoin(unnest(array(1, 2, 3).castTo(IntegerArrayType.LINEAR))::withOrdinality)
+                .crossJoin(unnest(array(List.of(1, 2, 3)).mapTo(IntegerArrayType.LINEAR))::withOrdinality)
                 .as("b").parens("value", "ordinal")
                 .asQuery();
 
@@ -77,37 +80,20 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
     }
 
     /**
-     * @see Postgres#unnest(ArrayExpression, ArrayExpression)
+     * @see Postgres#unnest(Expression, Expression)
      */
     @Test
     public void unnestMultiArray() {
         final Select stmt;
         stmt = Postgres.query()
                 .select(s -> s.space("a", DOT, ASTERISK))
-                .from(unnest(array(1, 2, 3), array(1, 2, 3))::withOrdinality)
+                .from(unnest(array(List.of(1, 2, 3)), array(List.of(1, 2, 3)))::withOrdinality)
                 .as("a").parens("value1", "value2", "original")
                 .asQuery();
 
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see Postgres#unnest(ArrayExpression, ArrayExpression)
-     */
-    @Test
-    public void dynamicUnnestMultiArray() {
-        final Select stmt;
-        stmt = Postgres.query()
-                .select(s -> s.space("a", DOT, ASTERISK))
-                .from(unnest(c -> {
-                    c.accept(array(1, 2, 3));
-                    c.accept(array(1, 2, 3));
-                })::withOrdinality)
-                .as("a").parens("value1", "value2", "original")
-                .asQuery();
-
-        printStmt(LOG, stmt);
-    }
 
     @Test
     public void unnestQueryArray() {
@@ -119,7 +105,7 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
                                 .from(ChinaRegion_.T, AS, "c")
                                 .limit(SQLs::literal, 10)
                                 .asQuery()
-                        )
+                        ).mapTo(LongArrayType.LINEAR)
                 )::withOrdinality)
                 .as("a").parens("value", "original")
                 .asQuery();

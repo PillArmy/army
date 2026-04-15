@@ -23,7 +23,7 @@ import io.army.criteria.SqlValueParam;
 import java.util.Collection;
 import java.util.List;
 
-public interface MultiParam extends SQLParam, SqlValueParam.MultiValue {
+public interface MultiParam extends SQLParam, SqlValueParam.MultiParamValue {
 
     List<?> valueList();
 

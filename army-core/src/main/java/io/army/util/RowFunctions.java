@@ -3,8 +3,9 @@ package io.army.util;
 import io.army.bean.ObjectAccessor;
 import io.army.bean.ObjectAccessorFactory;
 import io.army.criteria.Selection;
+import io.army.executor.ExecutorSupport;
 import io.army.result.DataRecord;
-import io.army.result.ResultRecordMeta;
+import io.army.result.RecordMeta;
 import io.army.stmt.SingleSqlStmt;
 import io.army.stmt.TwoStmtQueryStmt;
 import io.army.type.ImmutableSpec;
@@ -89,9 +90,71 @@ public abstract class RowFunctions {
     }
 
 
+    public static void readRowColumns(final Class<?>[] columnClassArray, final @Nullable String[] columnLabelArray,
+                                      final @Nullable int[] propIndexArray, final DataRecord record,
+                                      final Object row, final ObjectAccessor accessor) {
+
+        if ((columnLabelArray == null) == (propIndexArray == null)) {
+            throw new IllegalArgumentException();
+        }
+
+        final RecordMeta meta = record.getRecordMeta();
+        final int columnCount = record.getColumnCount();
+
+        if (columnCount != columnClassArray.length) {
+            throw _Exceptions.columnCountAndSelectionCountNotMatch(columnCount, columnClassArray.length);
+        } else if (propIndexArray != null && propIndexArray.length != columnCount) {
+            throw new IllegalArgumentException();
+        } else if (columnLabelArray != null && columnLabelArray.length != columnCount) {
+            throw new IllegalArgumentException();
+        }
+
+        final boolean pseudoAccessor = accessor == ExecutorSupport.RECORD_PSEUDO_ACCESSOR;
+
+        String propertyName;
+        Class<?> columnClass;
+        Object value;
+        for (int i = 0, propIndex; i < columnCount; i++) {
+
+            columnClass = columnClassArray[i];
+
+            if (columnClass == null) {
+                if (propIndexArray == null) {  // Map instance
+                    columnClass = meta.getMappingType(i).javaType();
+                    columnLabelArray[i] = meta.getColumnLabel(i);
+                } else {
+                    propertyName = meta.getColumnLabel(i);
+                    propIndexArray[i] = propIndex = accessor.getIndex(propertyName);
+                    if (propIndex < 0) {
+                        throw _Exceptions.notFoundBeanProp(propertyName, row.getClass());
+                    }
+                    columnClass = accessor.getJavaType(propIndex);
+                }
+                columnClassArray[i] = columnClass;
+            }
+
+            value = record.get(i, columnClass);
+
+            if (value == null && columnClass.isPrimitive()) {
+                throw _Exceptions.primitiveNullColumn(meta.getColumnLabel(i), row.getClass());
+            }
+
+            if (pseudoAccessor) {
+                continue;
+            }
+
+            if (propIndexArray == null) {
+                accessor.set(row, columnLabelArray[i], value);
+            } else {
+                accessor.set(row, propIndexArray[i], value);
+            }
+
+        } // for loop
+    }
+
     private static final class ObjectRowReader<R> {
 
-        private final Object constructor;
+        private final Supplier<R> constructor;
 
         private final boolean immutableMap;
 
@@ -99,9 +162,11 @@ public abstract class RowFunctions {
 
         private String[] columnLabelArray;
 
+        private int[] propIndexArray;
+
         private ObjectAccessor accessor;
 
-        private ObjectRowReader(Object constructor, @Nullable ObjectAccessor accessor, boolean immutableMap) {
+        private ObjectRowReader(Supplier<R> constructor, @Nullable ObjectAccessor accessor, boolean immutableMap) {
             this.constructor = constructor;
             this.accessor = accessor;
             this.immutableMap = immutableMap;
@@ -110,24 +175,11 @@ public abstract class RowFunctions {
 
         @SuppressWarnings("unchecked")
         private R readRow(final DataRecord record) {
-            final int columnCount = record.getColumnCount();
+            final RecordMeta meta = record.getRecordMeta();
+            final int columnCount = meta.getColumnCount();
 
-            String[] columnLabelArray = this.columnLabelArray;
-            Class<?>[] columnClassArray = this.columnClassArray;
-
-            if (columnLabelArray == null) {
-                this.columnLabelArray = columnLabelArray = new String[columnCount];
-                this.columnClassArray = columnClassArray = new Class<?>[columnCount];
-            }
-
-            final Object constructor = this.constructor;
             final R row;
-            if (constructor instanceof Supplier<?>) {
-                row = ((Supplier<R>) constructor).get();
-            } else {
-                row = ((IntFunction<R>) constructor).apply((int) (columnCount / 0.75f));
-            }
-
+            row = this.constructor.get();
             if (row == null) {
                 throw _Exceptions.objectConstructorError();
             }
@@ -136,37 +188,26 @@ public abstract class RowFunctions {
                 this.accessor = accessor = ObjectAccessorFactory.fromInstance(row);
             }
 
-            final ResultRecordMeta meta = record.getRecordMeta();
+            String[] columnLabelArray = this.columnLabelArray;
+            Class<?>[] columnClassArray = this.columnClassArray;
+            int[] propIndexArray = this.propIndexArray;
+            if (columnClassArray == null) {
+                this.columnClassArray = columnClassArray = new Class<?>[columnCount];
 
-            String propertyName;
-            Class<?> clumnClass;
-            Object value;
-            for (int i = 0; i < columnCount; i++) {
-                propertyName = columnLabelArray[i];
-                if (propertyName == null) {
-                    columnLabelArray[i] = propertyName = record.getColumnLabel(i);
-                }
-                clumnClass = columnClassArray[i];
-
-                if (clumnClass == null) {
-                    if (row instanceof Map) {
-                        clumnClass = meta.getMappingType(i).javaType();
-                    } else {
-                        clumnClass = accessor.getJavaType(propertyName);
-                    }
-                    columnClassArray[i] = clumnClass;
+                if (row instanceof Map<?, ?>) {
+                    this.columnLabelArray = columnLabelArray = new String[columnCount];
+                    this.propIndexArray = null;
+                } else {
+                    this.propIndexArray = propIndexArray = new int[columnCount];
+                    this.columnLabelArray = null;
                 }
 
-                value = record.get(i, clumnClass);
-
-                if (value == null && clumnClass.isPrimitive()) {
-                    throw _Exceptions.primitiveNullColumn(propertyName, clumnClass);
-                }
-                accessor.set(row, propertyName, value);
             }
 
+            RowFunctions.readRowColumns(columnClassArray, columnLabelArray, propIndexArray, record, row, accessor);
+
             final R finalRow;
-            if (row instanceof Map && (this.immutableMap || row instanceof ImmutableSpec)) {
+            if (this.immutableMap && row instanceof Map && row instanceof ImmutableSpec) {
                 finalRow = (R) _Collections.unmodifiableMap((Map<String, Object>) row);
             } else {
                 finalRow = row;

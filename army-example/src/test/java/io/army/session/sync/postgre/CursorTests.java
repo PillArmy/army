@@ -87,7 +87,7 @@ public class CursorTests extends SessionTestSupport {
         states = session.updateAsStates(stmt);
 
         try (SyncStmtCursor cursor = states.nonNullOf(SyncStmtCursor.SYNC_STMT_CURSOR)) {
-            final ResultRecordMeta[] recordMetaHolder = new ResultRecordMeta[1];
+            final RecordMeta[] recordMetaHolder = new RecordMeta[1];
             final ResultStates[] recordStatesHolder = new ResultStates[1];
             final int[] rowCountHolder = new int[]{0};
 
@@ -98,9 +98,9 @@ public class CursorTests extends SessionTestSupport {
                         } else if (item instanceof ResultStates) {
                             Assert.assertNull(recordStatesHolder[0]);
                             recordStatesHolder[0] = (ResultStates) item;
-                        } else if (item instanceof ResultRecordMeta) {
+                        } else if (item instanceof RecordMeta) {
                             Assert.assertNull(recordMetaHolder[0]);
-                            recordMetaHolder[0] = (ResultRecordMeta) item;
+                            recordMetaHolder[0] = (RecordMeta) item;
                         } else {
                             Assert.fail();
                         }

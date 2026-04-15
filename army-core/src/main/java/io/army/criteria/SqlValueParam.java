@@ -48,7 +48,11 @@ public interface SqlValueParam extends TypeInfer {
 
     }
 
-    interface MultiValue extends SqlValueParam, NonNullValue {
+    interface MultiValue extends SqlValueParam {
+
+    }
+
+    interface MultiParamValue extends MultiValue {
 
         int columnSize();
 
@@ -61,7 +65,12 @@ public interface SqlValueParam extends TypeInfer {
 
     }
 
-    interface NamedMultiValue extends NamedValue, MultiValue {
+
+    interface NamedMultiLiteral extends NamedValue, MultiValue {
+
+    }
+
+    interface NamedMultiParam extends NamedValue, MultiParamValue {
 
     }
 

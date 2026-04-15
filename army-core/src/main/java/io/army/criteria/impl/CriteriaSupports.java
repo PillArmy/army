@@ -847,7 +847,7 @@ abstract class CriteriaSupports {
     }//ReturningBuilderImpl
 
 
-    static final class RowExpressionImpl extends OperationRowExpression implements ArmyRowExpression, FunctionArg.SingleFunctionArg {
+    static final class RowExpressionImpl extends OperationRowExpression implements LengthTypedRowExpression, FunctionArg.SingleFunctionArg {
 
         private final List<ArmySQLExpression> columnList;
 

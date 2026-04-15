@@ -34,51 +34,51 @@ public interface SQLExpression extends RowElement, RightOperand {
      * <strong>= ANY</strong> operator
      *
      */
-    CompoundPredicate equalAny(SubQuery subQuery);
+    IPredicate equalAny(SubQuery subQuery);
 
     /**
      * <p>
      * <strong>= SOME</strong> operator
      *
      */
-    CompoundPredicate equalSome(SubQuery subQuery);
+    IPredicate equalSome(SubQuery subQuery);
 
-    CompoundPredicate equalAll(SubQuery subQuery);
+    IPredicate equalAll(SubQuery subQuery);
 
-    CompoundPredicate notEqualAny(SubQuery subQuery);
+    IPredicate notEqualAny(SubQuery subQuery);
 
-    CompoundPredicate notEqualSome(SubQuery subQuery);
+    IPredicate notEqualSome(SubQuery subQuery);
 
-    CompoundPredicate notEqualAll(SubQuery subQuery);
+    IPredicate notEqualAll(SubQuery subQuery);
 
-    CompoundPredicate lessAny(SubQuery subQuery);
+    IPredicate lessAny(SubQuery subQuery);
 
-    CompoundPredicate lessSome(SubQuery subQuery);
+    IPredicate lessSome(SubQuery subQuery);
 
-    CompoundPredicate lessAll(SubQuery subQuery);
+    IPredicate lessAll(SubQuery subQuery);
 
-    CompoundPredicate lessEqualAny(SubQuery subQuery);
+    IPredicate lessEqualAny(SubQuery subQuery);
 
-    CompoundPredicate lessEqualSome(SubQuery subQuery);
+    IPredicate lessEqualSome(SubQuery subQuery);
 
-    CompoundPredicate lessEqualAll(SubQuery subQuery);
+    IPredicate lessEqualAll(SubQuery subQuery);
 
-    CompoundPredicate greaterAny(SubQuery subQuery);
+    IPredicate greaterAny(SubQuery subQuery);
 
-    CompoundPredicate greaterSome(SubQuery subQuery);
+    IPredicate greaterSome(SubQuery subQuery);
 
-    CompoundPredicate greaterAll(SubQuery subQuery);
+    IPredicate greaterAll(SubQuery subQuery);
 
-    CompoundPredicate greaterEqualAny(SubQuery subQuery);
+    IPredicate greaterEqualAny(SubQuery subQuery);
 
-    CompoundPredicate greaterEqualSome(SubQuery subQuery);
+    IPredicate greaterEqualSome(SubQuery subQuery);
 
-    CompoundPredicate greaterEqualAll(SubQuery subQuery);
+    IPredicate greaterEqualAll(SubQuery subQuery);
 
 
-    CompoundPredicate in(SQLColumnSet row);
+    IPredicate in(SQLColumnSet row);
 
-    CompoundPredicate notIn(SQLColumnSet row);
+    IPredicate notIn(SQLColumnSet row);
 
 
 }

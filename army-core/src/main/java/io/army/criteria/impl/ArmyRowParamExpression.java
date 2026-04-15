@@ -24,7 +24,6 @@ import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.TypeMeta;
 import io.army.stmt.MultiParam;
-import io.army.util._Collections;
 import io.army.util._StringUtils;
 
 import java.util.Collection;
@@ -36,7 +35,7 @@ import java.util.Objects;
  * <p>
  * This class representing multi-value parameter expression.
  * <p>
- * Below is chinese signature:<br/>
+ * Below is chines signature:<br/>
  * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
  *
  * @see ArmyParamExpression
@@ -45,7 +44,7 @@ import java.util.Objects;
  * @since 0.6.0
  */
 abstract class ArmyRowParamExpression extends OperationRowExpression
-        implements RowParamExpression, ArmySimpleSQLExpression {
+        implements RowParamExpression, ArmySimpleSQLExpression, LengthTypedRowExpression {
 
     /**
      * @throws CriteriaException throw when <ul>
@@ -60,7 +59,7 @@ abstract class ArmyRowParamExpression extends OperationRowExpression
             throw ContextStack.clearStackAndNullPointer();
         } else if (values == null) {
             throw ContextStack.clearStackAndNullPointer();
-        } else if (values.size() == 0) {
+        } else if (values.isEmpty()) {
             throw valuesIsEmpty();
         } else if ((type = infer.typeMeta()) instanceof TableField && ((TableField) type).codec()) {
             throw ArmyParamExpression.typeInferReturnCodecField("encodingMultiParam");
@@ -87,49 +86,9 @@ abstract class ArmyRowParamExpression extends OperationRowExpression
         } else if ((type = infer.typeMeta()) instanceof TableField && ((TableField) type).codec()) {
             throw ArmyParamExpression.typeInferReturnCodecField("encodingNamedMultiParam");
         }
-        return new NamedMultiParam(type, name, size);
+        return new ArmyNamedRowParam(type, name, size);
     }
 
-    /**
-     * @throws CriteriaException throw when <ul>
-     *                           <li>values is empty</li>
-     *                           <li>infer isn't codec {@link TableField}</li>
-     *                           </ul>
-     * @see SQLs#encodingRowParam(TypeInfer, Collection)
-     */
-    static ArmyRowParamExpression encodingMulti(final @Nullable TypeInfer infer, final @Nullable Collection<?> values) {
-        if (infer == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        } else if (values == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        } else if (values.size() == 0) {
-            throw valuesIsEmpty();
-        } else if (!(infer instanceof TableField && ((TableField) infer).codec())) {
-            throw ArmyParamExpression.typeInferIsNotCodecField("multiParam");
-        }
-        return new AnonymousMultiParam((TableField) infer, values);
-    }
-
-    /**
-     * @throws CriteriaException throw when <ul>
-     *                           <li>name have no text</li>
-     *                           <li>size less than 1</li>
-     *                           <li>infer isn't codec {@link TableField}</li>
-     *                           </ul>
-     * @see SQLs#encodingNamedRowParam(TypeInfer, String, int)
-     */
-    static ArmyRowParamExpression encodingNamed(@Nullable TypeInfer infer, @Nullable String name, final int size) {
-        if (infer == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        } else if (!_StringUtils.hasText(name)) {
-            throw nameHaveNoText();
-        } else if (size < 1) {
-            throw sizeLessThanOne(size);
-        } else if (!(infer instanceof TableField && ((TableField) infer).codec())) {
-            throw ArmyParamExpression.typeInferIsNotCodecField("namedMultiParam");
-        }
-        return new NamedMultiParam((TableField) infer, name, size);
-    }
 
     private static CriteriaException valuesIsEmpty() {
         return ContextStack.clearStackAndCriteriaError("values must non-empty for multi-value parameter.");
@@ -168,7 +127,7 @@ abstract class ArmyRowParamExpression extends OperationRowExpression
                 assert type instanceof FieldMeta || type instanceof MappingType;
                 this.type = type;
             }
-            this.valueList = _Collections.asUnmodifiableList(values);
+            this.valueList = List.copyOf(values);
         }
 
         @Override
@@ -196,8 +155,7 @@ abstract class ArmyRowParamExpression extends OperationRowExpression
             final boolean match;
             if (obj == this) {
                 match = true;
-            } else if (obj instanceof AnonymousMultiParam) {
-                final AnonymousMultiParam o = (AnonymousMultiParam) obj;
+            } else if (obj instanceof AnonymousMultiParam o) {
                 match = o.type.equals(this.type)
                         && o.valueList.equals(this.valueList);
             } else {
@@ -228,7 +186,7 @@ abstract class ArmyRowParamExpression extends OperationRowExpression
     }//AnonymousMultiParam
 
 
-    private static final class NamedMultiParam extends ArmyRowParamExpression implements NamedParam.NamedRow {
+    private static final class ArmyNamedRowParam extends ArmyRowParamExpression implements NamedParam.NamedRow {
 
         private final String name;
 
@@ -238,9 +196,8 @@ abstract class ArmyRowParamExpression extends OperationRowExpression
 
         /**
          * @see #named(TypeInfer, String, int)
-         * @see #encodingNamed(TypeInfer, String, int)
          */
-        private NamedMultiParam(TypeMeta type, String name, int valueSize) {
+        private ArmyNamedRowParam(TypeMeta type, String name, int valueSize) {
             assert valueSize > 0;
             if (type instanceof QualifiedField) {
                 this.type = ((QualifiedField<?>) type).fieldMeta();
@@ -271,14 +228,18 @@ abstract class ArmyRowParamExpression extends OperationRowExpression
         public String toString() {
             final int valueSize = this.valueSize;
             final StringBuilder builder;
-            builder = new StringBuilder((5 + this.name.length()) * valueSize + 4)
+            builder = new StringBuilder((11 + this.name.length()) * valueSize + 4)
                     .append(_Constant.SPACE_LEFT_PAREN);
             for (int i = 0; i < valueSize; i++) {
                 if (i > 0) {
                     builder.append(_Constant.SPACE_COMMA);
                 }
                 builder.append(" ?:")
-                        .append(this.name);
+                        .append(this.name)
+                        .append('[')
+                        .append(i)
+                        .append(']')
+                ;
             }
             return builder.append(_Constant.SPACE_RIGHT_PAREN)
                     .toString();
@@ -294,8 +255,7 @@ abstract class ArmyRowParamExpression extends OperationRowExpression
             final boolean match;
             if (obj == this) {
                 match = true;
-            } else if (obj instanceof NamedMultiParam) {
-                final NamedMultiParam o = (NamedMultiParam) obj;
+            } else if (obj instanceof ArmyNamedRowParam o) {
                 match = o.type.equals(this.type)
                         && o.name.equals(this.name)
                         && o.valueSize == this.valueSize;

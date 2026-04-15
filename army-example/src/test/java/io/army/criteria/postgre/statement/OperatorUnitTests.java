@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import static io.army.criteria.impl.SQLs.AS;
+import static io.army.criteria.impl.SQLs.*;
 
 public class OperatorUnitTests extends PostgreUnitTests {
 
@@ -37,11 +37,10 @@ public class OperatorUnitTests extends PostgreUnitTests {
         stmt = Postgres.query()
                 .select(ChinaRegion_.id)
                 .from(ChinaRegion_.T, AS, "c")
-                .where(ChinaRegion_.name::whiteSpace, Postgres::notSimilarTo, SQLs::literal, "%(b|d)%")
-                .and(ChinaRegion_.name::whiteSpace, Postgres::similarTo, SQLs::literal, "%(b|d)%")
-                .and(ChinaRegion_.name.whiteSpace(Postgres::notSimilarTo, SQLs::literal, "%(b|d)%", SQLs.ESCAPE, '|'))
-                .and(ChinaRegion_.name.whiteSpace(Postgres::similarTo, SQLs::literal, "Hong Kong"))
-                .and(ChinaRegion_.name.whiteSpace(Postgres::similarTo, SQLs::literal, "Hong |_ong", SQLs.ESCAPE, '|'))
+                .where(ChinaRegion_.name.space(SIMILAR_TO, SQLs::constant, "%(b|d)%"))
+                .and(ChinaRegion_.name.space(NOT_SIMILAR_TO, SQLs::constant, "%(b|d)%"))
+                .and(ChinaRegion_.name.space(SIMILAR_TO, SQLs::constant, "%(b|d)%", SQLs.ESCAPE, '|'))
+                .and(ChinaRegion_.name.space(NOT_SIMILAR_TO, SQLs::constant, "Hong Kong", SQLs.ESCAPE, '|'))
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -54,7 +53,7 @@ public class OperatorUnitTests extends PostgreUnitTests {
     public void collateOpe() {
         Select stmt;
         stmt = Postgres.query()
-                .select(SQLs.literalValue("zoro").space(Postgres::collate, "de_DE").as("name"))
+                .select(SQLs.literalValue("zoro").space(COLLATE, "de_DE").as("name"))
                 .asQuery();
 
         printStmt(LOG, stmt);

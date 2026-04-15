@@ -24,7 +24,6 @@ import io.army.lang.Nullable;
 import io.army.mapping.BigDecimalType;
 import io.army.mapping.LongType;
 import io.army.mapping.MappingType;
-import io.army.meta.TypeMeta;
 
 import java.util.function.*;
 
@@ -60,7 +59,7 @@ abstract class LimitRowOrderByClause<OR, OD, LR, LO, LF> extends OrderByClause<O
     public final LR limit(final Expression rowCount) {
         if (!(rowCount instanceof ArmyExpression)) {
             throw ContextStack.nonArmyExp(this.context);
-        } else if (rowCount instanceof SqlValueParam.MultiValue) {
+        } else if (rowCount instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.dontSupportMultiParam(this.context);
         } else if (this.rowCountOrPercent != null) {
             throw ContextStack.clearStackAndCastCriteriaApi();

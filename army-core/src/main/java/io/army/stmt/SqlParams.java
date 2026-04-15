@@ -24,6 +24,7 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 
 import io.army.lang.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -36,7 +37,7 @@ abstract class SqlParams implements SQLParam {
 
     static MultiParam multi(final NamedParam.NamedRow namedParam, final Collection<?> values) {
         final List<?> valueList;
-        valueList = _Collections.asUnmodifiableList(values);
+        valueList = List.copyOf(values);
         if (valueList.size() != namedParam.columnSize()) {
             throw _Exceptions.namedMultiParamSizeError(namedParam, values.size());
         }
@@ -82,18 +83,18 @@ abstract class SqlParams implements SQLParam {
 
         private SqlMultiParam(TypeMeta paramMeta, List<?> valueList) {
             super(paramMeta);
-            assert valueList.size() > 0;
+            assert !valueList.isEmpty();
             this.valueList = valueList;
-        }
-
-        @Override
-        public int columnSize() {
-            return this.valueList.size();
         }
 
         @Override
         public List<?> valueList() {
             return this.valueList;
+        }
+
+        @Override
+        public int columnSize() {
+            return this.valueList.size();
         }
 
 

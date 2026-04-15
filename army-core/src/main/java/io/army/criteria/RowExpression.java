@@ -44,11 +44,11 @@ public interface RowExpression extends SQLExpression, SQLColumnSet {
      * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
-    CompoundPredicate equal(SQLColumnSet operand);
+    IPredicate equal(SQLColumnSet operand);
 
-    CompoundPredicate notEqual(SQLColumnSet operand);
+    IPredicate notEqual(SQLColumnSet operand);
 
-    CompoundPredicate nullSafeEqual(SQLColumnSet operand);
+    IPredicate nullSafeEqual(SQLColumnSet operand);
 
     /**
      * <p>
@@ -59,15 +59,15 @@ public interface RowExpression extends SQLExpression, SQLColumnSet {
      * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
-    CompoundPredicate less(SQLColumnSet operand);
+    IPredicate less(SQLColumnSet operand);
 
 
-    CompoundPredicate lessEqual(SQLColumnSet operand);
+    IPredicate lessEqual(SQLColumnSet operand);
 
 
-    CompoundPredicate greater(SQLColumnSet operand);
+    IPredicate greater(SQLColumnSet operand);
 
-    CompoundPredicate greaterEqual(SQLColumnSet operand);
+    IPredicate greaterEqual(SQLColumnSet operand);
 
 
     /**
@@ -83,7 +83,7 @@ public interface RowExpression extends SQLExpression, SQLColumnSet {
      *                For example: {@code Postgres.isDistinctFrom(RowExpression,RowExpression)}
      * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
      */
-    CompoundPredicate space(BiFunction<RowExpression, RowExpression, CompoundPredicate> funcRef, RowExpression right);
+    IPredicate space(BiFunction<RowExpression, RowExpression, CompoundPredicate> funcRef, RowExpression right);
 
 
 }

@@ -1135,7 +1135,7 @@ public abstract class ExecutorSupport {
     }
 
 
-    protected static abstract class ArmyResultRecordMeta implements ResultRecordMeta {
+    protected static abstract class ArmyResultRecordMeta implements RecordMeta {
 
         private final int resultNo;
 
@@ -1463,6 +1463,7 @@ public abstract class ExecutorSupport {
     private static abstract class ArmyStmtDataRecord extends ArmyDataRecord {
 
         @SuppressWarnings("unchecked")
+        @Nullable
         @Override
         public final <T> T get(int indexBasedZero, Class<T> columnClass) {
             Object value;

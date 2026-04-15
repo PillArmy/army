@@ -60,7 +60,7 @@ import java.util.function.Predicate;
 
 /**
  * <p>This class is base class of all implementation of {@link DialectParser}.
- * <p>Below is chinese signature:<br/>
+ * <p>Below is chines signature:<br/>
  * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
  *
  * @since 0.6.0
@@ -2699,7 +2699,7 @@ abstract class ArmyParser implements DialectParser {
                                               final SessionSpec sessionSpec, final @Nullable _UpdateContext prevContext) {
         final _UpdateContext context;
         final ChildUpdateMode mode = this.childUpdateMode;
-        if (!(stmt.table() instanceof ChildTableMeta) || stmt.childItemPairList().size() == 0) {
+        if (!(stmt.table() instanceof ChildTableMeta) || stmt.childItemPairList().isEmpty()) {
             if (prevContext == null) {
                 context = DomainUpdateContext.forSingle(outerContext, stmt, this, sessionSpec);
             } else {
@@ -3461,23 +3461,6 @@ abstract class ArmyParser implements DialectParser {
     }
 
 
-    /**
-     * @see #handleDomainUpdate(_SqlContext, _DomainUpdate, SessionSpec, _UpdateContext)
-     */
-    private static boolean containParentField(final _DomainUpdate stmt) {
-        final List<_Predicate> list = stmt.wherePredicateList();
-        final int size = list.size();
-        final ParentTableMeta<?> parent = ((ChildTableMeta<?>) stmt.table()).parentMeta();
-
-        boolean contain = false;
-        for (int i = 0; i < size; i++) {
-            if (list.get(i).currentLevelContainFieldOf(parent)) {
-                contain = true;
-                break;
-            }
-        }
-        return contain;
-    }
 
 
     protected static CriteriaException standardParserDontSupportDialect(Dialect dialect) {

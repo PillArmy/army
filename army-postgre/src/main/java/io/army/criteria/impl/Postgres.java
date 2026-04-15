@@ -44,8 +44,8 @@ public abstract class Postgres extends PostgreSyntax {
 
     public static final Modifier ALL = PostgreWords.SelectModifier.ALL;
     public static final WordDistinct DISTINCT = PostgreWords.KeyWordDistinct.DISTINCT;
-    public static final SQLs.BooleanTestWord FROM_NORMALIZED = PostgreWords.FromNormalizedWord.FROM_NORMALIZED;
-    public static final SQLs.BooleanTestWord NORMALIZED = PostgreWords.FromNormalizedWord.NORMALIZED;
+    public static final SQLs.BoolTestWord FROM_NORMALIZED = PostgreWords.FromNormalizedWord.FROM_NORMALIZED;
+    public static final SQLs.BoolTestWord NORMALIZED = PostgreWords.FromNormalizedWord.NORMALIZED;
 
 
     public static final WordName NAME = PostgreWords.KeyWordName.NAME;
@@ -103,6 +103,78 @@ public abstract class Postgres extends PostgreSyntax {
     public static final ExtractTimeField TIMEZONE_MINUTE = PostgreWords.WordExtractTimeField.TIMEZONE_MINUTE;
     public static final ExtractTimeField WEEK = PostgreWords.WordExtractTimeField.WEEK;
     public static final ExtractTimeField YEAR = PostgreWords.WordExtractTimeField.YEAR;
+
+
+    public static final SQLs.DualOperator DARROW = DualExpOperator.DARROW;
+    public static final SQLs.DualOperator BI_ARROW = DualExpOperator.BI_ARROW;
+    public static final SQLs.DualOperator AMP_AMP = DualExpOperator.AMP_AMP;
+
+    public static final SQLs.DualOperator POUND_POUND = DualExpOperator.POUND_POUND;
+
+    public static final SQLs.DualOperator POUND_GT_GT = DualExpOperator.POUND_GT_GT;
+
+    public static final SQLs.DualOperator POUND_HYPHEN = DualExpOperator.POUND_HYPHEN;
+
+    public static final SQLs.DualOperator POUND_GT = DualExpOperator.POUND_GT;
+
+    public static final SQLs.DualOperator POUND = DualExpOperator.POUND;
+
+
+    public static final SQLs.BiOperator AT_GT = PgDualBoolOperator.AT_GT;
+
+    public static final SQLs.BiOperator CARET_AT = PgDualBoolOperator.CARET_AT;
+
+    public static final SQLs.BiOperator TILDE = PgDualBoolOperator.TILDE;
+    public static final SQLs.BiOperator NOT_TILDE = PgDualBoolOperator.NOT_TILDE;
+    public static final SQLs.BiOperator TILDE_STAR = PgDualBoolOperator.TILDE_STAR;
+    public static final SQLs.BiOperator NOT_TILDE_STAR = PgDualBoolOperator.NOT_TILDE_STAR;
+    public static final SQLs.BiOperator LT_AT = PgDualBoolOperator.LT_AT;
+    public static final SQLs.BiOperator LT_LT = PgDualBoolOperator.LT_LT;
+
+    public static final SQLs.BiOperator GT_GT = PgDualBoolOperator.GT_GT;
+    public static final SQLs.BiOperator LT_LT_EQUAL = PgDualBoolOperator.LT_LT_EQUAL;
+    public static final SQLs.BiOperator GT_GT_EQUAL = PgDualBoolOperator.GT_GT_EQUAL;
+    public static final SQLs.BiOperator DOUBLE_AMP = PgDualBoolOperator.DOUBLE_AMP;
+    public static final SQLs.BiOperator AMP_LT = PgDualBoolOperator.AMP_LT;
+    public static final SQLs.BiOperator AMP_GT = PgDualBoolOperator.AMP_GT;
+    public static final SQLs.BiOperator LT_LT_VERTICAL = PgDualBoolOperator.LT_LT_VERTICAL;
+
+    public static final SQLs.BiOperator VERTICAL_GT_GT = PgDualBoolOperator.VERTICAL_GT_GT;
+
+    public static final SQLs.BiOperator AMP_LT_VERTICAL = PgDualBoolOperator.AMP_LT_VERTICAL;
+
+    public static final SQLs.BiOperator VERTICAL_AMP_GT = PgDualBoolOperator.VERTICAL_AMP_GT;
+
+    public static final SQLs.BiOperator LT_CARET = PgDualBoolOperator.LT_CARET;
+
+    public static final SQLs.BiOperator GT_CARET = PgDualBoolOperator.GT_CARET;
+
+    public static final SQLs.BiOperator QUESTION = PgDualBoolOperator.QUESTION;
+
+    public static final SQLs.BiOperator QUESTION_POUND = PgDualBoolOperator.QUESTION_POUND;
+
+    public static final SQLs.BiOperator QUESTION_HYPHEN = PgDualBoolOperator.QUESTION_HYPHEN;
+
+    public static final SQLs.BiOperator QUESTION_AMP = PgDualBoolOperator.QUESTION_AMP;
+
+    public static final SQLs.BiOperator QUESTION_VERTICAL = PgDualBoolOperator.QUESTION_VERTICAL;
+
+    public static final SQLs.BiOperator QUESTION_HYPHEN_VERTICAL = PgDualBoolOperator.QUESTION_HYPHEN_VERTICAL;
+
+    public static final SQLs.BiOperator QUESTION_VERTICAL_VERTICAL = PgDualBoolOperator.QUESTION_VERTICAL_VERTICAL;
+
+    public static final SQLs.BiOperator TILDE_EQUAL = PgDualBoolOperator.TILDE_EQUAL;
+
+    public static final SQLs.BiOperator HYPHEN_VERTICAL_HYPHEN = PgDualBoolOperator.HYPHEN_VERTICAL_HYPHEN;
+
+    public static final SQLs.BiOperator AT_QUESTION = PgDualBoolOperator.AT_QUESTION;
+
+    public static final SQLs.BiOperator AT_AT = PgDualBoolOperator.AT_AT;
+
+    public static final SQLs.BiOperator AT_AT_AT = PgDualBoolOperator.AT_AT_AT;
+
+
+
     /**
      * <p>
      * The {@link MappingType} of function return type: {@link  LocalDateType}

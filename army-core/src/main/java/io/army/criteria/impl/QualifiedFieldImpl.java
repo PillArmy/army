@@ -105,10 +105,6 @@ final class QualifiedFieldImpl<T> extends OperationTypedField implements Qualifi
         context.appendField(this.tableAlias, this.field);
     }
 
-    @Override
-    public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-        return this.field.table == table;
-    }
 
     @Override
     public String label() {

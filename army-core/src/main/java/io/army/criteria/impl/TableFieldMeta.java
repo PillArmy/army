@@ -471,10 +471,6 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
         context.appendField(this);
     }
 
-    @Override
-    public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-        return this.table == table;
-    }
 
 
     /*################################## blow private method ##################################*/

@@ -25,7 +25,7 @@ package io.army.criteria;
  * @see ParamExpression
  * @since 0.6.0
  */
-public interface RowParamExpression extends RowValueExpression, SQLParam {
+public interface RowParamExpression extends RowValueExpression, SQLParam, SqlValueParam.MultiParamValue {
 
 
 }

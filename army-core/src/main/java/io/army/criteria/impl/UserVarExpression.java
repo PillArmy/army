@@ -167,11 +167,6 @@ final class UserVarExpression extends OperationExpression.OperationTypedExpressi
 
     }
 
-    @Override
-    public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-        // always false
-        return false;
-    }
 
     @Override
     public int hashCode() {
@@ -240,11 +235,6 @@ final class UserVarExpression extends OperationExpression.OperationTypedExpressi
 
         } // VarOperationExpression
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // always false
-            return false;
-        }
 
         @Override
         public String toString() {

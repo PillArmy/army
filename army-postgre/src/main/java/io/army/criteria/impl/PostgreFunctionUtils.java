@@ -204,14 +204,6 @@ abstract class PostgreFunctionUtils extends DialectFunctionUtils {
         return new MultiArgWithGroupAggFunc(name, false, argList);
     }
 
-    static TypeMeta unaryOrderSetType(UnaryOperator<MappingType> function) {
-        return new UnaryOrderedSetType(function);
-    }
-
-    static TypeMeta biOrderedSetType(Expression exp, BinaryOperator<MappingType> function) {
-        //return new BiOrderedSetType(exp, function); // TODO fix me
-        throw new UnsupportedOperationException();
-    }
 
     static Functions._TabularWithOrdinalityFunction rowsFrom(Consumer<Postgres._RowsFromSpaceClause> consumer) {
         final PostgreRowsFromFunction func;

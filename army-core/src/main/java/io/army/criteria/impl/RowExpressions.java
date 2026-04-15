@@ -39,7 +39,7 @@ import java.util.function.Supplier;
  * <p>
  * This class hold the methods that create {@link io.army.criteria.RowExpression}.
  * <p>
- * Below is chinese signature:<br/>
+ * Below is chines signature:<br/>
  * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
  *
  * @since 0.6.0
@@ -139,22 +139,20 @@ abstract class RowExpressions {
     private static void doValidateColumnSize(final SQLColumnSet left, final SQLColumnSet right) {
         final int leftSize, rightSize;
 
-        if (left instanceof RowExpression) {
-            leftSize = ((ArmyRowExpression) left).columnSize();
+        if (left instanceof LengthTypedRowExpression) {
+            leftSize = ((LengthTypedRowExpression) left).columnSize();
         } else if (left instanceof SubQuery) {
             leftSize = ((ArmySubQuery) left).refAllSelection().size();
         } else {
-            // no bug,never here
-            throw new IllegalStateException();
+            return;
         }
 
-        if (right instanceof RowExpression) {
-            rightSize = ((ArmyRowExpression) right).columnSize();
+        if (right instanceof LengthTypedRowExpression) {
+            rightSize = ((LengthTypedRowExpression) right).columnSize();
         } else if (right instanceof SubQuery) {
             rightSize = ((ArmySubQuery) right).refAllSelection().size();
         } else {
-            // no bug,never here
-            throw new IllegalStateException();
+            return;
         }
 
         if (leftSize != rightSize) {
@@ -165,7 +163,7 @@ abstract class RowExpressions {
         }
     }
 
-    private static abstract class RowConstructorExpression extends OperationRowExpression {
+    private static abstract class RowConstructorExpression extends OperationRowExpression implements LengthTypedRowExpression {
 
         final List<Object> elementList;
 

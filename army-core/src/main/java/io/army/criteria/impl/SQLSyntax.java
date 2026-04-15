@@ -111,7 +111,7 @@ abstract class SQLSyntax extends Functions {
      *     <li>{@link java.time.MonthDay}</li>
      * </ul>
      *
-     * @param value non null
+     * @param value non-null
      * @return parameter expression
      * @see #literalValue(Object)
      */
@@ -139,23 +139,6 @@ abstract class SQLSyntax extends Functions {
         return result;
     }
 
-    /**
-     * <p>
-     * Create encoding parameter expression, parameter expression output parameter placeholder({@code ?})
-     *
-     * @param value nullable,if value is instance of {@link Supplier},then {@link Supplier#get()} will be invoked.
-     * @see #param(TypeInfer, Object)
-     * @see #literal(TypeInfer, Object)
-     */
-    public static ParamExpression encodingParam(final TypeInfer type, final @Nullable Object value) {
-        final ParamExpression result;
-        if (value instanceof Supplier) {
-            result = ArmyParamExpression.encodingSingle(type, ((Supplier<?>) value).get());
-        } else {
-            result = ArmyParamExpression.encodingSingle(type, value);
-        }
-        return result;
-    }
 
 
     /**
@@ -166,77 +149,14 @@ abstract class SQLSyntax extends Functions {
      *                           <li>infer is codec {@link FieldMeta}.</li>
      *                           <li>name have no text</li>
      *                           </ul>
-     * @see #namedNullableParam(TypeInfer, String)
      * @see #namedLiteral(TypeInfer, String)
      * @see #namedNullableLiteral(TypeInfer, String)
-     * @see #encodingNamedParam(TypeInfer, String)
-     * @see #encodingNamedNullableParam(TypeInfer, String)
-     * @see #encodingNamedLiteral(TypeInfer, String)
-     * @see #encodingNamedNullableLiteral(TypeInfer, String)
      */
     public static ParamExpression namedParam(final TypeInfer type, final String name) {
         return ArmyParamExpression.named(type, name);
     }
 
-    /**
-     * <p>
-     * Create named non-null parameter expression for batch update(delete) and values insert.
-     *
-     * @throws CriteriaException throw when <ul>
-     *                           <li>infer isn't codec {@link FieldMeta}.</li>
-     *                           <li>name have no text</li>
-     *                           </ul>
-     * @see #namedParam(TypeInfer, String)
-     * @see #namedNullableParam(TypeInfer, String)
-     * @see #namedLiteral(TypeInfer, String)
-     * @see #namedNullableLiteral(TypeInfer, String)
-     * @see #encodingNamedNullableParam(TypeInfer, String)
-     * @see #encodingNamedLiteral(TypeInfer, String)
-     * @see #encodingNamedNullableLiteral(TypeInfer, String)
-     */
-    public static ParamExpression encodingNamedParam(final TypeInfer type, final String name) {
-        return ArmyParamExpression.encodingNamed(type, name);
-    }
 
-    /**
-     * <p>
-     * Create named non-null parameter expression for batch update(delete) and values insert.
-     *
-     * @throws CriteriaException throw when <ul>
-     *                           <li>infer is codec {@link FieldMeta}.</li>
-     *                           <li>name have no text</li>
-     *                           </ul>
-     * @see #namedParam(TypeInfer, String)
-     * @see #namedLiteral(TypeInfer, String)
-     * @see #namedNullableLiteral(TypeInfer, String)
-     * @see #encodingNamedParam(TypeInfer, String)
-     * @see #encodingNamedNullableParam(TypeInfer, String)
-     * @see #encodingNamedLiteral(TypeInfer, String)
-     * @see #encodingNamedNullableLiteral(TypeInfer, String)
-     */
-    public static ParamExpression namedNullableParam(final TypeInfer type, final String name) {
-        return ArmyParamExpression.namedNullable(type, name);
-    }
-
-    /**
-     * <p>
-     * Create named non-null parameter expression for batch update(delete) and values insert.
-     *
-     * @throws CriteriaException throw when <ul>
-     *                           <li>infer isn't codec {@link FieldMeta}.</li>
-     *                           <li>name have no text</li>
-     *                           </ul>
-     * @see #namedParam(TypeInfer, String)
-     * @see #namedNullableParam(TypeInfer, String)
-     * @see #namedLiteral(TypeInfer, String)
-     * @see #namedNullableLiteral(TypeInfer, String)
-     * @see #encodingNamedParam(TypeInfer, String)
-     * @see #encodingNamedLiteral(TypeInfer, String)
-     * @see #encodingNamedNullableLiteral(TypeInfer, String)
-     */
-    public static ParamExpression encodingNamedNullableParam(final TypeInfer type, final String name) {
-        return ArmyParamExpression.encodingNamedNullable(type, name);
-    }
 
 
     /**
@@ -323,34 +243,6 @@ abstract class SQLSyntax extends Functions {
         return result;
     }
 
-    /**
-     * <p>
-     * Create literal expression,literal expression will output literal of value
-     *
-     * @param type  non-null
-     * @param value nullable,if value is instance of {@link Supplier},then {@link Supplier#get()} will invoked.
-     * @see #param(TypeInfer, Object)
-     * @see #literal(TypeInfer, Object)
-     */
-    public static LiteralExpression encodingLiteral(final TypeInfer type, final @Nullable Object value) {
-        final LiteralExpression result;
-        if (value instanceof Supplier) {
-            result = ArmyLiteralExpression.encodingSingle(type, ((Supplier<?>) value).get(), true);
-        } else {
-            result = ArmyLiteralExpression.encodingSingle(type, value, true);
-        }
-        return result;
-    }
-
-    public static LiteralExpression encodingConst(final TypeInfer type, final @Nullable Object value) {
-        final LiteralExpression result;
-        if (value instanceof Supplier) {
-            result = ArmyLiteralExpression.encodingSingle(type, ((Supplier<?>) value).get(), false);
-        } else {
-            result = ArmyLiteralExpression.encodingSingle(type, value, false);
-        }
-        return result;
-    }
 
 
     /**
@@ -368,12 +260,6 @@ abstract class SQLSyntax extends Functions {
      *                           <li>name have no text</li>
      *                           </ul>
      * @see #namedParam(TypeInfer, String)
-     * @see #namedNullableParam(TypeInfer, String)
-     * @see #namedNullableLiteral(TypeInfer, String)
-     * @see #encodingNamedParam(TypeInfer, String)
-     * @see #encodingNamedNullableParam(TypeInfer, String)
-     * @see #encodingNamedLiteral(TypeInfer, String)
-     * @see #encodingNamedNullableLiteral(TypeInfer, String)
      */
     public static LiteralExpression namedLiteral(final TypeInfer type, final String name) {
         return ArmyLiteralExpression.named(type, name, true);
@@ -384,93 +270,8 @@ abstract class SQLSyntax extends Functions {
     }
 
 
-    /**
-     * <p>
-     * Create named non-null literal expression. This expression can only be used in values insert statement.
-     *
-     * <p>
-     * Note: this method couldn't be used in batch update(delete) statement.
-     *
-     * @param type non-null
-     * @param name non-null and non-empty
-     * @return non-null named literal expression
-     * @throws CriteriaException throw when <ul>
-     *                           <li>infer isn't codec {@link TableField}.</li>
-     *                           <li>name have no text</li>
-     *                           </ul>
-     * @see #namedParam(TypeInfer, String)
-     * @see #namedNullableParam(TypeInfer, String)
-     * @see #namedLiteral(TypeInfer, String)
-     * @see #namedNullableLiteral(TypeInfer, String)
-     * @see #encodingNamedParam(TypeInfer, String)
-     * @see #encodingNamedNullableParam(TypeInfer, String)
-     * @see #encodingNamedNullableLiteral(TypeInfer, String)
-     */
-    public static LiteralExpression encodingNamedLiteral(final TypeInfer type, final String name) {
-        return ArmyLiteralExpression.encodingNamed(type, name, true);
-    }
 
-    public static LiteralExpression encodingNamedConst(final TypeInfer type, final String name) {
-        return ArmyLiteralExpression.encodingNamed(type, name, false);
-    }
 
-    /**
-     * <p>
-     * Create named non-null literal expression. This expression can only be used in values insert statement.
-     *
-     * <p>
-     * Note: this method couldn't be used in batch update(delete) statement.
-     *
-     * @param type non-null
-     * @param name non-null and non-empty
-     * @return non-null named literal expression
-     * @throws CriteriaException throw when <ul>
-     *                           <li>infer is codec {@link FieldMeta}.</li>
-     *                           <li>name have no text</li>
-     *                           </ul>
-     * @see #namedParam(TypeInfer, String)
-     * @see #namedNullableParam(TypeInfer, String)
-     * @see #namedLiteral(TypeInfer, String)
-     * @see #encodingNamedParam(TypeInfer, String)
-     * @see #encodingNamedNullableParam(TypeInfer, String)
-     * @see #encodingNamedLiteral(TypeInfer, String)
-     * @see #encodingNamedNullableLiteral(TypeInfer, String)
-     */
-    public static LiteralExpression namedNullableLiteral(final TypeInfer type, final String name) {
-        return ArmyLiteralExpression.namedNullable(type, name, true);
-    }
-
-    public static LiteralExpression namedNullableConst(final TypeInfer type, final String name) {
-        return ArmyLiteralExpression.namedNullable(type, name, false);
-    }
-
-    /**
-     * <p>Create named non-null literal expression. This expression can only be used in values insert statement.
-     *
-     * <p>Note: this method couldn't be used in batch update(delete) statement.
-     *
-     * @param type non-null
-     * @param name non-null and non-empty
-     * @return non-null named literal expression
-     * @throws CriteriaException throw when <ul>
-     *                           <li>infer isn't codec {@link TableField}.</li>
-     *                           <li>name have no text</li>
-     *                           </ul>
-     * @see #namedParam(TypeInfer, String)
-     * @see #namedNullableParam(TypeInfer, String)
-     * @see #namedLiteral(TypeInfer, String)
-     * @see #namedNullableLiteral(TypeInfer, String)
-     * @see #encodingNamedParam(TypeInfer, String)
-     * @see #encodingNamedNullableParam(TypeInfer, String)
-     * @see #encodingNamedLiteral(TypeInfer, String)
-     */
-    public static LiteralExpression encodingNamedNullableLiteral(final TypeInfer type, final String name) {
-        return ArmyLiteralExpression.encodingNamedNullable(type, name, true);
-    }
-
-    public static LiteralExpression encodingNamedNullableConst(final TypeInfer type, final String name) {
-        return ArmyLiteralExpression.encodingNamedNullable(type, name, false);
-    }
 
     /**
      * <p>Create multi parameter expression, multi parameter expression will output multi parameter placeholders like below:
@@ -525,7 +326,7 @@ abstract class SQLSyntax extends Functions {
      *                           <li>size less than 1</li>
      *                           <li>infer return codec {@link TableField}</li>
      *                           </ul>
-     * @see #namedRowLiteral(TypeInfer, String, int)
+     * @see #namedRowLiteral(TypeInfer, String)
      */
     public static RowParamExpression namedRowParam(final TypeInfer type, final String name, final int size) {
         return ArmyRowParamExpression.named(type, name, size);
@@ -542,110 +343,18 @@ abstract class SQLSyntax extends Functions {
      *
      * @param type non-null,the type of element of {@link Collection}
      * @param name non-null,the key name of {@link Map} or the field name of java bean.
-     * @param size positive,the size of {@link Collection}
      * @return named non-null multi literal expression
      * @see #namedRowParam(TypeInfer, String, int)
      */
-    public static RowLiteralExpression namedRowLiteral(final TypeInfer type, final String name, final int size) {
-        return ArmyRowLiteralExpression.named(type, name, size, true);
+    public static RowLiteralExpression namedRowLiteral(final TypeInfer type, final String name) {
+        return ArmyRowLiteralExpression.named(type, name, true);
     }
 
-    public static RowLiteralExpression namedRowConst(final TypeInfer type, final String name, final int size) {
-        return ArmyRowLiteralExpression.named(type, name, size, false);
-    }
-
-    /**
-     * <p>
-     * Create multi parameter expression, multi parameter expression will output multi parameter placeholders like below:
-     * ? , ? , ? ...
-     * but as right operand of  IN(or NOT IN) operator, will output (  ? , ? , ? ... )
-     *
-     * @param type   non-null,the type of element of values.
-     * @param values non-null and non-empty
-     * @throws CriteriaException throw when <ul>
-     *                           <li>values is empty</li>
-     *                           <li>infer isn't codec {@link TableField}</li>
-     *                           </ul>
-     * @see #encodingRowLiteral(TypeInfer, Collection)
-     */
-    public static RowParamExpression encodingRowParam(final TypeInfer type, final Collection<?> values) {
-        return ArmyRowParamExpression.encodingMulti(type, values);
-    }
-
-    /**
-     * <p>
-     * Create multi literal expression, multi literal expression will output multi LITERAL like below:
-     * LITERAL , LITERAL , LITERAL ...
-     * but as right operand of  IN(or NOT IN) operator, will output (  LITERAL , LITERAL , LITERAL ... )
-     *
-     * @param type   non-null,the type of element of values.
-     * @param values non-null and non-empty
-     * @throws CriteriaException throw when <ul>
-     *                           <li>values is empty</li>
-     *                           <li>infer isn't codec {@link TableField}</li>
-     *                           </ul>
-     * @see #encodingRowParam(TypeInfer, Collection)
-     */
-    public static RowLiteralExpression encodingRowLiteral(final TypeInfer type, final Collection<?> values) {
-        return ArmyRowLiteralExpression.encodingMulti(type, values, true);
-    }
-
-    public static RowLiteralExpression encodingRowConst(final TypeInfer type, final Collection<?> values) {
-        return ArmyRowLiteralExpression.encodingMulti(type, values, false);
-    }
-
-    /**
-     * <p>
-     * Create named non-null multi parameter expression, multi parameter expression will output multi parameter placeholders like below:
-     * ? [, ...]
-     * but as the right operand of  IN(or NOT IN) operator, will output (  ? [, ...] )
-     *
-     * <p>
-     * Named multi parameter expression is used in batch update(or delete) and values insert.
-     *
-     * @param type non-null,the type of element of {@link Collection}
-     * @param name non-null,the key name of {@link Map} or the field name of java bean.
-     * @param size positive,the size of {@link Collection}
-     * @return named non-null multi parameter expression
-     * @throws CriteriaException throw when <ul>
-     *                           <li>name have no text</li>
-     *                           <li>size less than 1</li>
-     *                           <li>infer isn't codec {@link TableField}</li>
-     *                           </ul>
-     * @see #encodingNamedRowLiteral(TypeInfer, String, int)
-     */
-    public static RowParamExpression encodingNamedRowParam(final TypeInfer type, final String name, final int size) {
-        return ArmyRowParamExpression.encodingNamed(type, name, size);
+    public static RowLiteralExpression namedRowConst(final TypeInfer type, final String name) {
+        return ArmyRowLiteralExpression.named(type, name, false);
     }
 
 
-    /**
-     * <p>
-     * Create named non-null multi literal expression, multi literal expression will output multi LITERAL like below:
-     * LITERAL [, ...]
-     * but as the right operand of  IN(or NOT IN) operator, will output ( LITERAL  [, ...] )
-     *
-     * <p>
-     * This expression can only be used in values insert statement,this method couldn't be used in batch update(delete) statement.
-     *
-     * @param type non-null,the type of element of {@link Collection}
-     * @param name non-null,the key name of {@link Map} or the field name of java bean.
-     * @param size positive,the size of {@link Collection}
-     * @return named non-null multi literal expression
-     * @throws CriteriaException throw when <ul>
-     *                           <li>name have no text</li>
-     *                           <li>size less than 1</li>
-     *                           <li>infer isn't codec {@link TableField}</li>
-     *                           </ul>
-     * @see #encodingNamedRowParam(TypeInfer, String, int)
-     */
-    public static RowLiteralExpression encodingNamedRowLiteral(final TypeInfer type, final String name, final int size) {
-        return ArmyRowLiteralExpression.encodingNamed(type, name, size, true);
-    }
-
-    public static RowLiteralExpression encodingNamedRowConst(final TypeInfer type, final String name, final int size) {
-        return ArmyRowLiteralExpression.encodingNamed(type, name, size, false);
-    }
 
     public static RowExpression row(SubQuery subQuery) {
         return RowExpressions.row(subQuery);

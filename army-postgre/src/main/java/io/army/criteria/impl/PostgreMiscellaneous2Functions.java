@@ -819,7 +819,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * Expands multiple arrays (possibly of different data types) into a set of rows. If the arrays are not all the same length then the shorter ones are padded with NULLs. This form is only allowed in a query's FROM clause;
      * </a>
      */
-    public static _TabularWithOrdinalityFunction unnest(ArrayExpression array1, ArrayExpression array2) {
+    public static _TabularWithOrdinalityFunction unnest(Expression array1, Expression array2) {
         final List<Selection> fieldList = List.of(
                 ArmySelections.forAnonymous(),
                 ArmySelections.forAnonymous()
@@ -845,8 +845,8 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * Expands multiple arrays (possibly of different data types) into a set of rows. If the arrays are not all the same length then the shorter ones are padded with NULLs. This form is only allowed in a query's FROM clause;
      * </a>
      */
-    public static _TabularWithOrdinalityFunction unnest(ArrayExpression array1, ArrayExpression array2,
-                                                        ArrayExpression array3, ArrayExpression... restArray) {
+    public static _TabularWithOrdinalityFunction unnest(Expression array1, Expression array2,
+                                                        Expression array3, Expression... restArray) {
         final String name = "unnest";
 
         final List<Selection> fieldList = _Collections.arrayList(3 + restArray.length);
@@ -864,7 +864,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
             argList.add((ArmyExpression) array2);
             argList.add((ArmyExpression) array3);
 
-            for (ArrayExpression array : restArray) {
+            for (Expression array : restArray) {
                 argList.add((ArmyExpression) array);
                 fieldList.add(ArmySelections.forAnonymous());
             }
@@ -891,18 +891,18 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
      * Expands multiple arrays (possibly of different data types) into a set of rows. If the arrays are not all the same length then the shorter ones are padded with NULLs. This form is only allowed in a query's FROM clause;
      * </a>
      */
-    public static _TabularWithOrdinalityFunction unnest(final Consumer<Consumer<ArrayExpression>> consumer) {
-        final String name = "UNNEST";
-        final List<ArmyExpression> argList = _Collections.arrayList();
-        final List<Selection> fieldList = _Collections.arrayList();
-        consumer.accept(exp -> {
-            argList.add((ArmyExpression) exp);
-            fieldList.add(ArmySelections.forAnonymous());
-        });
-
-        if (argList.size() == 0) {
+    public static _TabularWithOrdinalityFunction unnest(final List<Expression> arrayList) {
+        if (arrayList.isEmpty()) {
             throw CriteriaUtils.dontAddAnyItem();
         }
+        final String name = "unnest";
+        final List<Expression> argList = _Collections.copyList(arrayList);
+        final List<Selection> fieldList = _Collections.arrayList();
+        final int size = argList.size();
+        for (int i = 0; i < size; i++) {
+            fieldList.add(ArmySelections.forAnonymous());
+        }
+
         return DialectFunctionUtils.multiArgTabularFunc(name, argList, fieldList);
     }
 

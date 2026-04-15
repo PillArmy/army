@@ -39,7 +39,7 @@ import java.util.function.Function;
 
 /**
  * <p>This class is utils class for creating {@link CriteriaContext}
- * <p>Below is chinese signature:<br/>
+ * <p>Below is chines signature:<br/>
  * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
  *
  * @since 0.6.0
@@ -4551,11 +4551,6 @@ abstract class CriteriaContexts {
 
         }
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // false
-            return false;
-        }
 
         @Override
         public String toString() {
@@ -4638,11 +4633,6 @@ abstract class CriteriaContexts {
         }
 
 
-        @Override
-        public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // TODO check ?
-            return false;
-        }
 
         @Override
         public String toString() {
@@ -4705,11 +4695,6 @@ abstract class CriteriaContexts {
             context.parser().identifier(this.selection.label(), sqlBuilder);
         }
 
-        @Override
-        public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // always false
-            return false;
-        }
 
         @Override
         public final String toString() {

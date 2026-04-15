@@ -1354,7 +1354,7 @@ abstract class Functions {
                 argList.add(SqlWords.FuncWord.COMMA);
             }
             expression = expList.get(i);
-            if (expression instanceof SqlValueParam.MultiValue) {
+            if (expression instanceof SqlValueParam.MultiParamValue) {
                 String m = "support multi parameter or literal";
                 throw ContextStack.criteriaError(ContextStack.peek(), m);
             }
@@ -1367,10 +1367,10 @@ abstract class Functions {
     @Deprecated
     static SimpleExpression _simpleTowArgFunc(final String name, final Expression g1,
                                               final Expression g2, final TypeMeta returnType) {
-        if (g1 instanceof SqlValueParam.MultiValue) {
+        if (g1 instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, g1);
         }
-        if (g2 instanceof SqlValueParam.MultiValue) {
+        if (g2 instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, g2);
         }
         final List<Object> argList = new ArrayList<>(3);
@@ -1383,13 +1383,13 @@ abstract class Functions {
     @Deprecated
     static Expression _simpleThreeArgFunc(final String name, final Expression e1
             , final Expression e2, final Expression e3, final TypeMeta returnType) {
-        if (e1 instanceof SqlValueParam.MultiValue) {
+        if (e1 instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, e1);
         }
-        if (e2 instanceof SqlValueParam.MultiValue) {
+        if (e2 instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, e2);
         }
-        if (e3 instanceof SqlValueParam.MultiValue) {
+        if (e3 instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, e3);
         }
         final List<Object> argList = new ArrayList<>(5);
@@ -1443,7 +1443,7 @@ abstract class Functions {
     @Deprecated
     static Expression _singleAndMultiArgFunc(final String name, final Expression single, final Expression multi
             , final TypeMeta returnType) {
-        if (single instanceof SqlValueParam.MultiValue) {
+        if (single instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, single);
         }
         final List<Object> argLit = new ArrayList<>(3);
@@ -1456,7 +1456,7 @@ abstract class Functions {
     @Deprecated
     static Expression _singleAndListFunc(final String name, final Expression expr
             , final TypeMeta elementType, final Object exprList, final TypeMeta returnType) {
-        if (expr instanceof SqlValueParam.MultiValue) {
+        if (expr instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, expr);
         }
         final List<Object> argList;

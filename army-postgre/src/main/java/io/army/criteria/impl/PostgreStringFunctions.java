@@ -200,7 +200,7 @@ abstract class PostgreStringFunctions extends Functions {
     public static SimpleExpression normalize(final Expression exp, final WordNormalizeForm form) {
         final String name = "NORMALIZE";
         final SimpleExpression func;
-        if (exp instanceof SqlValueParam.MultiValue) {
+        if (exp instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, exp);
         } else if (!(form instanceof KeyWordNormalizeForm)) {
             throw CriteriaUtils.funcArgError(name, form);
@@ -270,9 +270,9 @@ abstract class PostgreStringFunctions extends Functions {
     public static SimpleExpression position(Expression substring, SQLs.WordIn in, Expression string) {
         final String name = "POSITION";
         final SimpleExpression func;
-        if (substring instanceof SqlValueParam.MultiValue) {
+        if (substring instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, substring);
-        } else if (string instanceof SqlValueParam.MultiValue) {
+        } else if (string instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, string);
         } else if (in != SQLs.IN) {
             throw CriteriaUtils.funcArgError(name, in);
@@ -352,11 +352,11 @@ abstract class PostgreStringFunctions extends Functions {
 
         final String name = "SUBSTRING";
         final SimpleExpression func;
-        if (string instanceof SqlValueParam.MultiValue) {
+        if (string instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, string);
-        } else if (pattern instanceof SqlValueParam.MultiValue) {
+        } else if (pattern instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, pattern);
-        } else if (escape instanceof SqlValueParam.MultiValue) {
+        } else if (escape instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, escape);
         } else if (similar != SQLs.SIMILAR) {
             throw CriteriaUtils.funcArgError(name, similar);
@@ -391,7 +391,7 @@ abstract class PostgreStringFunctions extends Functions {
         final String name = "TRIM";
         if (from != SQLs.FROM) {
             throw CriteriaUtils.funcArgError(name, from);
-        } else if (string instanceof SqlValueParam.MultiValue) {
+        } else if (string instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, string);
         }
         return LiteralFunctions.compositeFunc(name, List.of(from, string));
@@ -414,7 +414,7 @@ abstract class PostgreStringFunctions extends Functions {
      */
     public static SimpleExpression trim(SQLs.TrimSpec position, SQLs.WordFrom from, Expression string) {
         final String name = "TRIM";
-        if (string instanceof SqlValueParam.MultiValue) {
+        if (string instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, string);
         } else if (!(position instanceof SqlWords.WordTrimPosition)) {
             throw CriteriaUtils.funcArgError(name, position);
@@ -436,9 +436,9 @@ abstract class PostgreStringFunctions extends Functions {
      */
     public static SimpleExpression trim(Expression characters, SQLs.WordFrom from, Expression string) {
         final String name = "TRIM";
-        if (characters instanceof SqlValueParam.MultiValue) {
+        if (characters instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, characters);
-        } else if (string instanceof SqlValueParam.MultiValue) {
+        } else if (string instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, string);
         } else if (from != SQLs.FROM) {
             throw CriteriaUtils.funcArgError(name, from);
@@ -464,9 +464,9 @@ abstract class PostgreStringFunctions extends Functions {
      */
     public static SimpleExpression trim(SQLs.TrimSpec position, Expression characters, SQLs.WordFrom from, Expression string) {
         final String name = "TRIM";
-        if (characters instanceof SqlValueParam.MultiValue) {
+        if (characters instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, characters);
-        } else if (string instanceof SqlValueParam.MultiValue) {
+        } else if (string instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, string);
         } else if (!(position instanceof SqlWords.WordTrimPosition)) {
             throw CriteriaUtils.funcArgError(name, position);
@@ -486,9 +486,9 @@ abstract class PostgreStringFunctions extends Functions {
      */
     public static SimpleExpression trim(Expression string, Expression characters) {
         final String name = "TRIM";
-        if (string instanceof SqlValueParam.MultiValue) {
+        if (string instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, string);
-        } else if (characters instanceof SqlValueParam.MultiValue) {
+        } else if (characters instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, characters);
         }
         return LiteralFunctions.twoArgFunc(name, string, characters);
@@ -506,9 +506,9 @@ abstract class PostgreStringFunctions extends Functions {
         final String name = "TRIM";
         if (from != SQLs.FROM) {
             throw CriteriaUtils.funcArgError(name, from);
-        } else if (string instanceof SqlValueParam.MultiValue) {
+        } else if (string instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, string);
-        } else if (characters instanceof SqlValueParam.MultiValue) {
+        } else if (characters instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, characters);
         }
         return LiteralFunctions.compositeFunc(name, List.of(from, string, SqlWords.FuncWord.COMMA, characters));
@@ -532,9 +532,9 @@ abstract class PostgreStringFunctions extends Functions {
      */
     public static SimpleExpression trim(SQLs.TrimSpec position, SQLs.WordFrom from, Expression string, Expression characters) {
         final String name = "TRIM";
-        if (string instanceof SqlValueParam.MultiValue) {
+        if (string instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, string);
-        } else if (characters instanceof SqlValueParam.MultiValue) {
+        } else if (characters instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, characters);
         } else if (!(position instanceof SqlWords.WordTrimPosition)) {
             throw CriteriaUtils.funcArgError(name, position);
@@ -1622,13 +1622,13 @@ abstract class PostgreStringFunctions extends Functions {
                                              @Nullable Expression count) {
         final String name = "OVERLAY";
         final SimpleExpression func;
-        if (string instanceof SqlValueParam.MultiValue) {
+        if (string instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, string);
-        } else if (newSubstring instanceof SqlValueParam.MultiValue) {
+        } else if (newSubstring instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, newSubstring);
-        } else if (start instanceof SqlValueParam.MultiValue) {
+        } else if (start instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, start);
-        } else if (count instanceof SqlValueParam.MultiValue) {
+        } else if (count instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, count);
         } else if (placing != PLACING) {
             throw CriteriaUtils.funcArgError(name, placing);
@@ -1654,11 +1654,11 @@ abstract class PostgreStringFunctions extends Functions {
                                                SQLs.WordFor wordFor, @Nullable Expression count) {
         final String name = "SUBSTRING";
         final SimpleExpression func;
-        if (string instanceof SqlValueParam.MultiValue) {
+        if (string instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, string);
-        } else if (start instanceof SqlValueParam.MultiValue) {
+        } else if (start instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, start);
-        } else if (count instanceof SqlValueParam.MultiValue) {
+        } else if (count instanceof SqlValueParam.MultiParamValue) {
             throw CriteriaUtils.funcArgError(name, count);
         } else if (from != SQLs.FROM) {
             throw CriteriaUtils.funcArgError(name, from);

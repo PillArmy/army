@@ -36,10 +36,7 @@ import io.army.meta.PrimaryFieldMeta;
 import io.army.meta.TableMeta;
 import io.army.meta.TypeMeta;
 import io.army.option.Option;
-import io.army.result.ChildDmlNoTractionException;
-import io.army.result.ChildUpdateException;
-import io.army.result.CurrentRecord;
-import io.army.result.ResultStates;
+import io.army.result.*;
 import io.army.stmt.GeneratedKeyStmt;
 import io.army.stmt.SingleSqlStmt;
 import io.army.stmt.Stmt;
@@ -549,7 +546,6 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
         assert info.inTransaction(); // fail,executor bug
         assert info.isReadOnly() == option.isReadOnly();
         assert isolation == null || isolation.equals(info.isolation());
-        assert info.valueOf(Option.START_MILLIS) != null;
 
         assert (option.isolation() == null) == info.nonNullOf(Option.DEFAULT_ISOLATION);
 
@@ -730,9 +726,13 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
 
         private final String[] columnLabelArray;
 
+        private final int[] propIndexArray;
+
         private final int idSelectionIndex;
 
         private final Map<Object, R> idToRowMap;
+
+        private Class<?> idClass;
 
 
         private SecondRecordReader(Session session, ChildTableMeta<?> childTable,
@@ -742,45 +742,36 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
             this.stmt = stmt;
             this.firstList = firstList;
 
-            final R row = firstList.get(0);
-            final ObjectAccessor accessor;
-            if (row instanceof Map || stmt.maxColumnSize() > 1) {
-                this.accessor = accessor = ObjectAccessorFactory.fromInstance(row);
+            final R row = firstList.getFirst();
+
+            this.idSelectionIndex = stmt.idSelectionIndex();
+            final List<? extends Selection> selectionList = stmt.selectionList();
+
+            if (stmt.maxColumnSize() > 1) {
+                this.accessor = ObjectAccessorFactory.fromInstance(row);
             } else {
-                this.accessor = accessor = ExecutorSupport.SINGLE_COLUMN_PSEUDO_ACCESSOR;
+                this.accessor = ExecutorSupport.SINGLE_COLUMN_PSEUDO_ACCESSOR;
             }
 
-            final List<? extends Selection> selectionList = stmt.selectionList();
-            final int selectionSize = selectionList.size();
-            final Class<?>[] columnClassArray;
-            final String[] columnLabelArray;
-            this.columnClassArray = columnClassArray = new Class<?>[selectionSize];
-            this.columnLabelArray = columnLabelArray = new String[selectionSize];
-            this.idSelectionIndex = stmt.idSelectionIndex();
-            if (accessor == ExecutorSupport.SINGLE_COLUMN_PSEUDO_ACCESSOR) {
-                columnClassArray[0] = row.getClass();
-                columnLabelArray[0] = selectionList.get(0).label();
-            } else if (row instanceof Map) {
-                Selection selection;
-                TypeMeta typeMeta;
-                for (int i = 0; i < selectionSize; i++) {
-                    selection = selectionList.get(i);
-                    typeMeta = null; //selection.typeMeta();
-                    // TODO fix me
-                    if (!(typeMeta instanceof MappingType)) {
-                        typeMeta = typeMeta.mappingType();
-                    }
-                    columnClassArray[i] = ((MappingType) typeMeta).javaType();
-                    columnLabelArray[i] = selection.label();
-                }
+            final Selection selection = selectionList.get(this.idSelectionIndex);
+            if (selection instanceof TypedSelection) {
+                this.idClass = ((TypedSelection) selection).typeMeta().mappingType().javaType();
             } else {
-                String columnLabel;
-                for (int i = 0; i < selectionSize; i++) {
-                    columnLabel = selectionList.get(i).label();
-                    columnClassArray[i] = accessor.getJavaType(columnLabel);
-                    columnLabelArray[i] = columnLabel;
-                }
+                this.idClass = null;
             }
+
+
+            final int selectionSize = selectionList.size();
+
+            this.columnClassArray = new Class<?>[selectionSize];
+            if (row instanceof Map<?, ?>) {
+                this.propIndexArray = null;
+                this.columnLabelArray = new String[selectionSize];
+            } else {
+                this.propIndexArray = new int[selectionSize];
+                this.columnLabelArray = null;
+            }
+
             // finally
             this.idToRowMap = createIdToRowMap();
         }
@@ -788,17 +779,18 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
 
         @SuppressWarnings("unchecked")
         public final R readRecord(final CurrentRecord record) {
-            final int columnCount = record.getColumnCount();
-            final Class<?>[] columnClassArray = this.columnClassArray;
-            if (columnCount != columnClassArray.length) {
-                throw _Exceptions.columnCountAndSelectionCountNotMatch(columnCount, columnCount);
-            }
+
 
             final Map<Object, R> idToRowMap = this.idToRowMap;
             final int idSelectionIndex = this.idSelectionIndex;
 
+            Class<?> idClass = this.idClass;
+            if (idClass == null) {
+                this.idClass = idClass = record.getRecordMeta().getMappingType(idSelectionIndex).javaType();
+            }
+
             final Object id;
-            id = record.get(idSelectionIndex, columnClassArray[idSelectionIndex]);
+            id = record.get(idSelectionIndex, idClass);
             if (id == null) {
                 throw _Exceptions.secondStmtIdIsNull(this.stmt.selectionList().get(idSelectionIndex));
             }
@@ -808,18 +800,7 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
                 throw new DataAccessException(m);
             }
 
-            final ObjectAccessor accessor = this.accessor;
-            final String[] columnLabelArray = this.columnLabelArray;
-            final boolean singleColumnRow;
-            singleColumnRow = accessor == ExecutorSupport.SINGLE_COLUMN_PSEUDO_ACCESSOR;
-
-            assert columnCount > 1 || singleColumnRow;
-            for (int i = 0; i < columnCount; i++) {
-                if (i == idSelectionIndex) {
-                    continue;
-                }
-                accessor.set(row, columnLabelArray[i], record.get(i, columnClassArray[i]));
-            }
+            RowFunctions.readRowColumns(this.columnClassArray, this.columnLabelArray, this.propIndexArray, record, row, this.accessor);
 
             final R finalRow;
             if (row instanceof Map && row instanceof ImmutableSpec) {

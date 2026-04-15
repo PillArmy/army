@@ -36,7 +36,7 @@ interface FunctionArg extends ArmySQLExpression {
      *     <ul>
      *         <li>{@link OperationExpression}</li>
      *         <li>{@link SQLs#ASTERISK}</li>
-     *         <li>{@link ArmyRowExpression}</li>
+     *         <li>{@link LengthTypedRowExpression}</li>
      *     </ul>
      *
      *

@@ -526,11 +526,6 @@ abstract class MySQLExpressions {
         }
 
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // always false
-            return false;
-        }
 
         @Override
         public String toString() {
@@ -571,16 +566,6 @@ abstract class MySQLExpressions {
             this.type = type;
         }
 
-        //@Override
-        public MappingType typeMeta() {
-            return this.type;
-        }
-
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // always false
-            return false;
-        }
 
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {

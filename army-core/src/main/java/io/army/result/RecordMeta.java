@@ -29,7 +29,7 @@ import io.army.lang.Nullable;
 import java.util.List;
 import java.util.Set;
 
-public interface ResultRecordMeta extends ResultItem, ResultItem.ResultAccessSpec {
+public interface RecordMeta extends ResultItem, ResultItem.ResultAccessSpec {
 
     List<String> columnLabelList();
 

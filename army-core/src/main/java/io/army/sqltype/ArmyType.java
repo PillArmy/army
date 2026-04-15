@@ -19,13 +19,13 @@ package io.army.sqltype;
 import io.army.option.Option;
 import io.army.result.Cursor;
 import io.army.result.DataRecord;
-import io.army.result.ResultRecordMeta;
+import io.army.result.RecordMeta;
 import io.army.result.ResultStates;
 
 /**
  * <p>This enum is a implementation of {@link DataType} for the convenience that application get column type meta by ResultRecordMeta#getArmyType(int) .
  *
- * @see ResultRecordMeta#getArmyType(int)
+ * @see RecordMeta#getArmyType(int)
  * @since 0.6.0
  */
 public enum ArmyType {
@@ -274,7 +274,7 @@ public enum ArmyType {
 
     /**
      * Identifies the generic SQL type {@code REF_CURSOR}.
-     * <p>If {@link ResultRecordMeta#getArmyType(int)} is this enum instance,then {@link DataRecord#get(int)} always is {@link String} instance.
+     * <p>If {@link RecordMeta#getArmyType(int)} is this enum instance,then {@link DataRecord#get(int)} always is {@link String} instance.
      * <p>Application developer can get the instance of {@link Cursor} by {@link ResultStates#valueOf(Option)}
      *
      * @see Cursor
@@ -283,20 +283,20 @@ public enum ArmyType {
 
     /**
      * <p>Identifies the generic SQL type {@code ARRAY}.
-     * <p> This enum instance is only returned by {@link ResultRecordMeta#getArmyType(int)}
+     * <p> This enum instance is only returned by {@link RecordMeta#getArmyType(int)}
      */
     ARRAY,
 
     /**
      * <p>Identifies the generic SQL type {@code COMPOSITE}.
-     * <p> This enum instance is only returned by {@link ResultRecordMeta#getArmyType(int)}
+     * <p> This enum instance is only returned by {@link RecordMeta#getArmyType(int)}
      */
     COMPOSITE,
 
 
     /**
      * Indicates that the dialect data type  .
-     * <p> This enum instance is only returned by {@link ResultRecordMeta#getArmyType(int)}
+     * <p> This enum instance is only returned by {@link RecordMeta#getArmyType(int)}
      */
     DIALECT_TYPE;
 

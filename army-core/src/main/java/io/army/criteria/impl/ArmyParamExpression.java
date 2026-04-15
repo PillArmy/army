@@ -33,7 +33,7 @@ import java.util.Objects;
  * <p>
  * This class representing single-value parameter expression.
  * * <p>
- * Below is chinese signature:<br/>
+ * Below is chines signature:<br/>
  * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
  * * @see ArmyLiteralExpression
  *
@@ -42,7 +42,7 @@ import java.util.Objects;
  * @since 0.6.0
  */
 abstract class ArmyParamExpression extends OperationExpression.OperationTypedExpression
-        implements ParamExpression {
+        implements ParamExpression, ArmySimpleExpression {
 
     /**
      * @see SQLs#parameter(Object)
@@ -194,11 +194,6 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
         context.appendParam(this);
     }
 
-    @Override
-    public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-        // always false
-        return false;
-    }
 
     private static final class AnonymousParam extends ArmyParamExpression
             implements SingleParam, SingleAnonymousValue {

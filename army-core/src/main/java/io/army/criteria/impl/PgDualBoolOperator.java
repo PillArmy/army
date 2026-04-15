@@ -19,7 +19,7 @@ package io.army.criteria.impl;
 import io.army.dialect.Database;
 import io.army.util._Exceptions;
 
-enum PostgreDualBooleanOperator implements Operator.SqlDualBooleanOperator {
+enum PgDualBoolOperator implements Operator.SqlDualBooleanOperator, SQLs.BiOperator {
 
     /**
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">text ^@ text → boolean</a>
@@ -229,30 +229,34 @@ enum PostgreDualBooleanOperator implements Operator.SqlDualBooleanOperator {
      * text @@ tsquery → boolean<br/>
      * </a>
      */
-    DOUBLE_AT(" @@"),
+    AT_AT(" @@"),
 
     /**
      * @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-OPERATORS-TABLE">tsvector @@@ tsquery → boolean<br/>
      * tsquery @@@ tsvector → boolean<br/>
      * </a>
      */
-    TRIPLE_AT(" @@@"),
+    AT_AT_AT(" @@@"),
 
     /**
      * @see <a href="https://www.postgresql.org/docs/15/functions-comparisons.html#ROW-WISE-COMPARISON">row_constructor IS DISTINCT FROM row_constructor<br/>
      * </a>
+     * @deprecated {@link DualBooleanOperator#IS_DISTINCT_FROM}
      */
+    @Deprecated
     IS_DISTINCT_FROM(" IS DISTINCT FROM"),
 
     /**
      * @see <a href="https://www.postgresql.org/docs/15/functions-comparisons.html#ROW-WISE-COMPARISON">row_constructor IS NOT DISTINCT FROM row_constructor<br/>
      * </a>
+     * @deprecated {@link DualBooleanOperator#IS_NOT_DISTINCT_FROM}
      */
+    @Deprecated
     IS_NOT_DISTINCT_FROM(" IS NOT DISTINCT FROM");
 
     private final String spaceOperator;
 
-    PostgreDualBooleanOperator(String spaceOperator) {
+    PgDualBoolOperator(String spaceOperator) {
         this.spaceOperator = spaceOperator;
     }
 

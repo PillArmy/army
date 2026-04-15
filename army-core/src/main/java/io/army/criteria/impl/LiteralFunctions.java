@@ -571,11 +571,6 @@ abstract class LiteralFunctions {
         }
 
 
-        @Override
-        public boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // function always false
-            return false;
-        }
 
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {

@@ -22,14 +22,12 @@ import io.army.function.TeFunction;
 import io.army.lang.Nullable;
 import io.army.mapping.IntegerType;
 import io.army.mapping.MappingType;
-import io.army.mapping.StringType;
 import io.army.meta.FieldMeta;
 
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import static io.army.dialect.Database.*;
@@ -51,22 +49,23 @@ public interface Expression extends SQLExpression, SortItem,
         GroupByItem.ExpressionItem, RightOperand, AssignmentItem, SelectionSpec {
 
 
-    /**
-     * <p>
-     * <strong>=</strong> operator
-     *
-     * @param operand non-null
-     * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     * @see TypedExpression#equal(BiFunction, Object)
-     * @see TypedField#spaceEqual(BiFunction)
-     */
-    CompoundPredicate equal(Expression operand);
+    ///
+    /// {@code =} operator
+    ///
+    /// @param operand right operand , one of below :
+    /// 1. {@link Expression}
+    /// 2. java literal,if this is {@link TypedExpression} ,then invoke {@link SQLs#param(TypeInfer, Object)} else invoke {@link SQLs#parameter(Object)}
+    /// @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
+    ///                          {@link SQLs#rowParam(TypeInfer, Collection)}
+    /// @see TypedExpression#equal(BiFunction, Object)
+    /// @see TypedField#spaceEqual(BiFunction)
+    ///
+    IPredicate equal(Object operand);
 
-    CompoundPredicate notEqual(Expression operand);
+    IPredicate notEqual(Object operand);
 
     @Support({MySQL, PostgreSQL, H2})
-    CompoundPredicate nullSafeEqual(Expression operand);
+    IPredicate nullSafeEqual(Object operand);
 
     /**
      * <p>
@@ -76,39 +75,39 @@ public interface Expression extends SQLExpression, SortItem,
      * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
      *                           {@link SQLs#rowParam(TypeInfer, Collection)}
      */
-    CompoundPredicate less(Expression operand);
+    IPredicate less(Object operand);
 
 
-    CompoundPredicate lessEqual(Expression operand);
+    IPredicate lessEqual(Object operand);
 
 
-    CompoundPredicate greater(Expression operand);
+    IPredicate greater(Object operand);
 
-    CompoundPredicate greaterEqual(Expression operand);
-
-
-    /**
-     * @param and {@link SQLs#AND}
-     */
-    CompoundPredicate between(Expression first, SQLs.WordAnd and, Expression second);
+    IPredicate greaterEqual(Object operand);
 
 
     /**
      * @param and {@link SQLs#AND}
      */
-    CompoundPredicate notBetween(Expression first, SQLs.WordAnd and, Expression second);
+    IPredicate between(Object first, SQLs.WordAnd and, Object second);
+
 
     /**
      * @param and {@link SQLs#AND}
      */
-    @Support({PostgreSQL, H2})
-    CompoundPredicate between(@Nullable SQLs.BetweenModifier modifier, Expression first, SQLs.WordAnd and, Expression second);
+    IPredicate notBetween(Object first, SQLs.WordAnd and, Object second);
 
     /**
      * @param and {@link SQLs#AND}
      */
     @Support({PostgreSQL, H2})
-    CompoundPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, Expression first, SQLs.WordAnd and, Expression second);
+    IPredicate between(@Nullable SQLs.BetweenModifier modifier, Object first, SQLs.WordAnd and, Object second);
+
+    /**
+     * @param and {@link SQLs#AND}
+     */
+    @Support({PostgreSQL, H2})
+    IPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, Object first, SQLs.WordAnd and, Object second);
 
     /**
      * @param operand <ul>
@@ -119,7 +118,7 @@ public interface Expression extends SQLExpression, SortItem,
      *                <li>other</li>
      *                </ul>
      */
-    CompoundPredicate is(SQLs.BooleanTestWord operand);
+    IPredicate is(SQLs.BoolTestWord operand);
 
     /**
      * @param operand <ul>
@@ -130,19 +129,11 @@ public interface Expression extends SQLExpression, SortItem,
      *                <li>other</li>
      *                </ul>
      */
-    CompoundPredicate isNot(SQLs.BooleanTestWord operand);
+    IPredicate isNot(SQLs.BoolTestWord operand);
 
-    CompoundPredicate isNull();
+    IPredicate isNull();
 
-    CompoundPredicate isNotNull();
-
-    /**
-     * @param operator see <ul>
-     *                 <li>{@link SQLs#DISTINCT_FROM}</li>
-     *                 </ul>
-     */
-    @Support({PostgreSQL, H2})
-    CompoundPredicate is(SQLs.IsComparisonWord operator, Expression operand);
+    IPredicate isNotNull();
 
     /**
      * @param operator see <ul>
@@ -150,29 +141,42 @@ public interface Expression extends SQLExpression, SortItem,
      *                 </ul>
      */
     @Support({PostgreSQL, H2})
-    CompoundPredicate isNot(SQLs.IsComparisonWord operator, Expression operand);
+    IPredicate is(SQLs.IsComparisonWord operator, Object operand);
 
-    CompoundPredicate like(Expression pattern);
+    /**
+     * @param operator see <ul>
+     *                 <li>{@link SQLs#DISTINCT_FROM}</li>
+     *                 </ul>
+     */
+    @Support({PostgreSQL, H2})
+    IPredicate isNot(SQLs.IsComparisonWord operator, Object operand);
 
-    CompoundPredicate like(Expression pattern, SQLs.WordEscape escape, char escapeChar);
+    IPredicate like(Object pattern);
 
-    CompoundPredicate like(Expression pattern, SQLs.WordEscape escape, Expression escapeChar);
+    IPredicate like(Object pattern, SQLs.WordEscape escape, Object escapeChar);
 
-    CompoundPredicate notLike(Expression pattern);
+    <T> IPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value);
 
-    CompoundPredicate notLike(Expression pattern, SQLs.WordEscape escape, char escapeChar);
+    <T> IPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value, SQLs.WordEscape escape, T escapeChar);
 
-    CompoundPredicate notLike(Expression pattern, SQLs.WordEscape escape, Expression escapeChar);
+    IPredicate notLike(Object pattern);
 
-    CompoundExpression mod(Expression operand);
+    IPredicate notLike(Object pattern, SQLs.WordEscape escape, Object escapeChar);
 
-    CompoundExpression times(Expression operand);
+    <T> IPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value);
 
-    CompoundExpression plus(Expression operand);
+    <T> IPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value, SQLs.WordEscape escape, T escapeChar);
 
-    CompoundExpression minus(Expression minuend);
 
-    CompoundExpression divide(Expression divisor);
+    Expression mod(Object operand);
+
+    Expression times(Object operand);
+
+    Expression plus(Object operand);
+
+    Expression minus(Object minuend);
+
+    Expression divide(Object divisor);
 
 
     /**
@@ -180,23 +184,23 @@ public interface Expression extends SQLExpression, SortItem,
      *
      * @return {@link BigInteger} expression
      */
-    CompoundExpression bitwiseAnd(Expression operand);
+    Expression bitwiseAnd(Object operand);
 
     /**
      * Bitwise OR
      *
      * @return {@link BigInteger} expression
-     * @see #bitwiseAnd(Expression)
+     * @see #bitwiseAnd(Object)
      * @see SQLs#bitwiseNot(Expression)
      */
-    CompoundExpression bitwiseOr(Expression operand);
+    Expression bitwiseOr(Object operand);
 
     /**
      * Bitwise XOR
      *
      * @return {@link BigInteger} expression
      */
-    CompoundExpression bitwiseXor(Expression operand);
+    Expression bitwiseXor(Object operand);
 
 
     /**
@@ -204,7 +208,7 @@ public interface Expression extends SQLExpression, SortItem,
      *
      * @return {@link BigInteger} expression
      */
-    CompoundExpression rightShift(Expression bitNumber);
+    Expression rightShift(Object bitNumber);
 
 
     /**
@@ -212,7 +216,7 @@ public interface Expression extends SQLExpression, SortItem,
      *
      * @return {@link BigInteger} expression
      */
-    CompoundExpression leftShift(Expression bitNumber);
+    Expression leftShift(Object bitNumber);
 
     ///
     ///  Access the slice of 1D array
@@ -475,133 +479,17 @@ public interface Expression extends SQLExpression, SortItem,
 
     /*-------------------below dialect operator method -------------------*/
 
-    /**
-     * <p>
-     * This method is designed for dialect key word syntax. For example : postgre using key word
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.using(Expression)}
-     */
-    <R extends UnaryResult> R space(Function<Expression, R> funcRef);
+    ///
+    /// @param operator dialect operator
+    /// @param right    {@link Expression} or java literal
+    Expression space(SQLs.DualOperator operator, Object right);
 
 
-    /**
-     * <p>This method is designed for dialect operator.
-     *
-     * <p><strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.pound(Expression,Expression)}
-     * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-    <T, R extends ResultExpression> R space(BiFunction<Expression, T, R> funcRef, T right);
+    IPredicate space(SQLs.BiOperator operator, Object right);
 
-
-    /**
-     * <p>
-     * This method is designed for dialect operator.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.pound(Expression,Expression)}
-     * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-
-    <M extends SQLToken, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> funcRef, Expression right, M modifier, Expression optionalExp);
-
-    /**
-     * <p>
-     * This method is designed for dialect operator.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.pound(Expression,Expression)}
-     * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-    <M extends SQLToken, R extends ResultExpression> R space(OptionalClauseOperator<M, Expression, R> funcRef, Expression right, M modifier, char escapeChar);
-
-
-    /**
-     * <p>
-     * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, io.army.criteria.impl.SQLs.SymbolSpace, IPredicate)} type infer.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * <p>
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.pound(Expression,Expression)}
-     * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-    <T> CompoundPredicate whiteSpace(BiFunction<Expression, T, CompoundPredicate> funcRef, T right);
-
-
-    /**
-     * <p>
-     * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, io.army.criteria.impl.SQLs.SymbolSpace, IPredicate)} type infer.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * <p>
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.pound(Expression,Expression)}
-     * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-    <M extends SQLToken, T extends RightOperand> CompoundPredicate whiteSpace(TeFunction<Expression, M, T, CompoundPredicate> funcRef, final M modifier, T right);
-
-    /**
-     * <p>
-     * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, io.army.criteria.impl.SQLs.SymbolSpace, IPredicate)} type infer.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * <p>
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.pound(Expression,Expression)}
-     * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-
-    <M extends SQLToken> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> funcRef, Expression right, M modifier, Expression optionalExp);
-
-    /**
-     * <p>
-     * This method is designed for dialect operator that produce boolean type expression.
-     * This method name is 'whiteSpace' not 'space' ,because of {@link Statement._WhereAndClause#and(UnaryOperator, io.army.criteria.impl.SQLs.SymbolSpace, IPredicate)} type infer.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     * <p>
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.pound(Expression,Expression)}
-     * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-
-    <M extends SQLToken> CompoundPredicate whiteSpace(OptionalClauseOperator<M, Expression, CompoundPredicate> funcRef, Expression right, M modifier, char escapeChar);
+    ///
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP">SIMILAR TO Regular Expressions</a>
+    IPredicate space(SQLs.BiOperator operator, Object right, SQLToken modifier, Object optionalExp);
 
 
 }

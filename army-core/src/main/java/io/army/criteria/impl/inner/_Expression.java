@@ -25,9 +25,4 @@ public interface _Expression extends Expression, _SelfDescribed {
     boolean isNullValue();
 
 
-    /**
-     * <p>Don't search in sub statement
-     */
-    boolean currentLevelContainFieldOf(ParentTableMeta<?> table);
-
 }

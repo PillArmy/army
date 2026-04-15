@@ -89,7 +89,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
 
 
     static Functions._TabularWithOrdinalityFunction multiArgTabularFunc(final String name,
-                                                                        final List<ArmyExpression> argList,
+                                                                        final List<? extends Expression> argList,
                                                                         final List<Selection> funcFieldList) {
         return new MultiArgTabularFunction(name, true, argList, funcFieldList);
     }
@@ -857,32 +857,31 @@ abstract class DialectFunctionUtils extends FunctionUtils {
 
     private static final class MultiArgTabularFunction extends MultiFieldTabularFunction {
 
-        private final List<? extends ArmyExpression> argList;
+        private final List<? extends Expression> argList;
 
-        private MultiArgTabularFunction(String name, boolean buildIn, List<? extends ArmyExpression> argList,
+        private MultiArgTabularFunction(String name, boolean buildIn, List<? extends Expression> argList,
                                         List<Selection> funcFieldList) {
             super(name, buildIn, funcFieldList);
-            assert argList.size() > 0;
             this.argList = argList;
         }
 
         @Override
         void appendArg(final StringBuilder sqlBuilder, final _SqlContext context) {
-            final List<? extends ArmyExpression> argList = this.argList;
+            final List<? extends Expression> argList = this.argList;
             final int argSize;
             argSize = argList.size();
             for (int i = 0; i < argSize; i++) {
                 if (i > 0) {
                     sqlBuilder.append(_Constant.SPACE_COMMA);
                 }
-                this.argList.get(i).appendSql(sqlBuilder, context);
+                ((ArmyExpression) argList.get(i)).appendSql(sqlBuilder, context);
             }
 
         }
 
         @Override
         void argToString(final StringBuilder builder) {
-            final List<? extends ArmyExpression> argList = this.argList;
+            final List<? extends Expression> argList = this.argList;
             final int argSize;
             argSize = argList.size();
             for (int i = 0; i < argSize; i++) {
@@ -986,11 +985,6 @@ abstract class DialectFunctionUtils extends FunctionUtils {
             throw new UnsupportedOperationException("invoking error");
         }
 
-        @Override
-        public final boolean currentLevelContainFieldOf(ParentTableMeta<?> table) {
-            // always false
-            return false;
-        }
 
         @Override
         public final String fieldName() {

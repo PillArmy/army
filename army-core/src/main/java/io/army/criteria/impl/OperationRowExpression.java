@@ -17,6 +17,7 @@
 package io.army.criteria.impl;
 
 import io.army.criteria.CompoundPredicate;
+import io.army.criteria.IPredicate;
 import io.army.criteria.RowExpression;
 import io.army.criteria.SQLColumnSet;
 
@@ -28,7 +29,7 @@ import java.util.function.BiFunction;
  *
  * @since 0.6.0
  */
-abstract class OperationRowExpression extends OperationSQLExpression implements ArmyRowExpression {
+abstract class OperationRowExpression extends OperationSQLExpression implements ArmySQLExpression, RowExpression {
 
 
     /**
@@ -38,44 +39,44 @@ abstract class OperationRowExpression extends OperationSQLExpression implements 
     }
 
     @Override
-    public final CompoundPredicate equal(SQLColumnSet operand) {
+    public final IPredicate equal(SQLColumnSet operand) {
         return Expressions.dualPredicate(this, DualBooleanOperator.EQUAL, operand);
     }
 
     @Override
-    public final CompoundPredicate notEqual(SQLColumnSet operand) {
+    public final IPredicate notEqual(SQLColumnSet operand) {
         return Expressions.dualPredicate(this, DualBooleanOperator.NOT_EQUAL, operand);
     }
 
     @Override
-    public final CompoundPredicate nullSafeEqual(SQLColumnSet operand) {
+    public final IPredicate nullSafeEqual(SQLColumnSet operand) {
         return Expressions.dualPredicate(this, DualBooleanOperator.NULL_SAFE_EQUAL, operand);
     }
 
     @Override
-    public final CompoundPredicate less(SQLColumnSet operand) {
+    public final IPredicate less(SQLColumnSet operand) {
         return Expressions.dualPredicate(this, DualBooleanOperator.LESS, operand);
     }
 
     @Override
-    public final CompoundPredicate lessEqual(SQLColumnSet operand) {
+    public final IPredicate lessEqual(SQLColumnSet operand) {
         return Expressions.dualPredicate(this, DualBooleanOperator.LESS_EQUAL, operand);
     }
 
     @Override
-    public final CompoundPredicate greater(SQLColumnSet operand) {
+    public final IPredicate greater(SQLColumnSet operand) {
         return Expressions.dualPredicate(this, DualBooleanOperator.GREATER, operand);
     }
 
     @Override
-    public final CompoundPredicate greaterEqual(SQLColumnSet operand) {
+    public final IPredicate greaterEqual(SQLColumnSet operand) {
         return Expressions.dualPredicate(this, DualBooleanOperator.GREATER_EQUAL, operand);
     }
 
     @Override
-    public final CompoundPredicate space(BiFunction<RowExpression, RowExpression, CompoundPredicate> funcRef,
+    public final IPredicate space(BiFunction<RowExpression, RowExpression, CompoundPredicate> funcRef,
                                          RowExpression right) {
-        final CompoundPredicate predicate;
+        final IPredicate predicate;
         predicate = funcRef.apply(this, right);
         if (predicate == null) {
             throw ContextStack.clearStackAndNullPointer();

@@ -24,6 +24,7 @@ import io.army.criteria.standard.StandardDelete;
 import io.army.criteria.standard.StandardInsert;
 import io.army.criteria.standard.StandardQuery;
 import io.army.criteria.standard.StandardUpdate;
+import io.army.dialect.Database;
 import io.army.dialect._Constant;
 import io.army.dialect._SetClauseContext;
 import io.army.dialect._SqlContext;
@@ -69,9 +70,9 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final WordPercent PERCENT = SqlWords.KeyWordPercent.PERCENT;
 
-    public static final NullsFirstLast NULLS_FIRST = SqlWords.KeyWordsNullsFirstLast.NULLS_FIRST;
+    public static final NullsFirstLast NULLS_FIRST = SqlWords.NullsFirstLastEnum.NULLS_FIRST;
 
-    public static final NullsFirstLast NULLS_LAST = SqlWords.KeyWordsNullsFirstLast.NULLS_LAST;
+    public static final NullsFirstLast NULLS_LAST = SqlWords.NullsFirstLastEnum.NULLS_LAST;
 
     public static final WordOnly ONLY = SqlWords.KeyWordOny.ONLY;
 
@@ -85,7 +86,7 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final WordsWithTies WITH_TIES = SqlWords.KeyWordWithTies.WITH_TIES;
 
-    public static final BooleanTestWord UNKNOWN = SqlWords.KeyWordUnknown.UNKNOWN;
+    public static final BoolTestWord UNKNOWN = SqlWords.KeyWordUnknown.UNKNOWN;
 
 
     public static final WordMaterialized MATERIALIZED = SqlWords.KeyWordMaterialized.MATERIALIZED;
@@ -187,7 +188,22 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final WordsCharacterSet CHARACTER_SET = SqlWords.KeyWordsCharacterSet.CHARACTER_SET;
 
-    public static final WordCollate COLLATE = SqlWords.KeyWordsCollate.COLLATE;
+    public static final WordCollate COLLATE = SqlWords.WordCollate.COLLATE;
+
+    public static final SQLs.DualOperator CONCAT = DualExpOperator.CONCAT;
+
+    public static final SQLs.DualOperator ARROW = DualExpOperator.ARROW;
+
+    public static final SQLs.DualOperator CARET = DualExpOperator.CARET;
+
+
+    /// SIMILAR TO is a regular match predicate defined in the SQL:1999 standard.
+    public static final SQLs.BiOperator SIMILAR_TO = DualBooleanOperator.SIMILAR_TO;
+
+    /// NOT SIMILAR TO is a regular match predicate defined in the SQL:1999 standard.
+    public static final SQLs.BiOperator NOT_SIMILAR_TO = DualBooleanOperator.NOT_SIMILAR_TO;
+
+
 
     public static final WordUsing USING = SqlWords.KeyWordUsing.USING;
 
@@ -216,6 +232,7 @@ public abstract class SQLs extends SQLSyntax {
      * @see <a href="https://www.postgresql.org/docs/current/sql-set.html">Postgre SET Syntax for Variable Assignment</a>
      */
     public static final VarScope LOCAL = SqlWords.KeyWordVarScope.LOCAL;
+
 
     /*-------------------below placeholder -------------------*/
 
@@ -679,7 +696,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordNull extends BooleanTestWord, Expression, NullOption { // extends Expression not SimpleExpression
+    public interface WordNull extends BoolTestWord, Expression, NullOption { // extends Expression not SimpleExpression
 
     }
 
@@ -695,7 +712,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordBoolean extends BooleanTestWord, SimplePredicate, LiteralExpression {
+    public interface WordBoolean extends BoolTestWord, SimplePredicate, LiteralExpression {
 
     }
 
@@ -703,11 +720,11 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordAnd {
+    public sealed interface WordAnd permits SqlWords.KeyWordAnd {
 
     }
 
-    public interface WordEscape extends SQLToken {
+    public sealed interface WordEscape extends SQLToken permits SqlWords.KeyWordEscape {
 
     }
 
@@ -715,7 +732,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface BooleanTestWord extends SQLToken {
+    public interface BoolTestWord extends SQLToken {
 
     }
 
@@ -723,7 +740,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordDocument extends BooleanTestWord, DocumentValueOption {
+    public interface WordDocument extends BoolTestWord, DocumentValueOption {
 
     }
 
@@ -732,7 +749,7 @@ public abstract class SQLs extends SQLSyntax {
     }
 
 
-    public interface IsComparisonWord extends SQLToken {
+    public sealed interface IsComparisonWord extends SQLToken permits SqlWords.IsComparisonKeyWord {
 
     }
 
@@ -840,9 +857,6 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordCollate extends SQLToken {
-
-    }
 
     public interface WordUsing extends SQLToken {
 
@@ -876,7 +890,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface NullsFirstLast extends SQLToken {
+    public sealed interface NullsFirstLast extends SQLToken permits SqlWords.NullsFirstLastEnum {
 
     }
 
@@ -897,11 +911,11 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordsAtTimeZone extends SQLToken {
+    public sealed interface WordsAtTimeZone extends DualOperator permits SqlWords.KeyWordsAtTimeZone {
 
     }
 
-    public interface VarScope {
+    public sealed interface VarScope permits SqlWords.KeyWordVarScope {
 
         String name();
     }
@@ -910,6 +924,34 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
+
+    public sealed interface Operator permits DualOperator, BiOperator {
+
+        String name();
+
+        String spaceRender(Database database);
+    }
+
+    /// This interface representing binary operator that result is {@link Expression}
+    ///
+    /// @see BiOperator
+    public sealed interface DualOperator extends Operator permits DualExpOperator, WordsAtTimeZone, WordCollate {
+
+
+    }
+
+
+    /// This interface representing binary operator that result is {@link IPredicate}
+    ///
+    /// @see DualOperator
+    public sealed interface BiOperator extends Operator permits DualBooleanOperator, PgDualBoolOperator {
+
+
+    }
+
+    public sealed interface WordCollate extends SQLToken, DualOperator permits SqlWords.WordCollate {
+
+    }
 
 
 
