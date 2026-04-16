@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ package io.army.criteria.impl;
 import io.army.criteria.*;
 import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
+import io.army.mapping.BooleanType;
 import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
 import io.army.meta.FieldMeta;
-import io.army.meta.ParentTableMeta;
 import io.army.meta.TypeMeta;
 import io.army.stmt.SingleParam;
 import io.army.util._StringUtils;
@@ -47,7 +47,7 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
     /**
      * @see SQLs#parameter(Object)
      */
-    static ArmyParamExpression from(final @Nullable Object value) {
+    static ParamExpression from(final @Nullable Object value) {
         if (value == null) {
             throw ContextStack.clearStackAndNullPointer();
         }
@@ -56,6 +56,20 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
         if (type == null) {
             throw CriteriaUtils.clearStackAndNonDefaultType(value);
         }
+        final ParamExpression result;
+        if (type != BooleanType.INSTANCE) {
+            result = new AnonymousParam(type, value);
+        } else if (Boolean.TRUE.equals(value)) {
+            result = SQLs.PARAM_TRUE;
+        } else if (Boolean.FALSE.equals(value)) {
+            result = SQLs.PARAM_FALSE;
+        } else {
+            result = new AnonymousParam(type, value);
+        }
+        return result;
+    }
+
+    static ParamExpression unsafeParam(MappingType type, Object value){
         return new AnonymousParam(type, value);
     }
 

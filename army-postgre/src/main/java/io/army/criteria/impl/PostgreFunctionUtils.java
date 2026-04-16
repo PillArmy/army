@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,28 +136,28 @@ abstract class PostgreFunctionUtils extends DialectFunctionUtils {
     }
 
     static PostgreWindowFunctions._PgAggFunc oneArgAggFunc(final String name, final @Nullable SQLs.ArgDistinct modifier,
-                                                           final Expression one,
-                                                           final @Nullable Consumer<Statement._SimpleOrderByClause> consumer) {
+                                                               final Expression one,
+                                                               final @Nullable Consumer<Statement._SimpleOrderByClause> consumer) {
 
         return _oneArgAggFunc(name, true, modifier, one, consumer);
     }
 
     static PostgreWindowFunctions._PgAggFunc twoArgAggFunc(final String name, final @Nullable SQLs.ArgDistinct modifier,
-                                                           final Expression one, final Expression two,
-                                                           final @Nullable Consumer<Statement._SimpleOrderByClause> consumer) {
+                                                               final Expression one, final Expression two,
+                                                               final @Nullable Consumer<Statement._SimpleOrderByClause> consumer) {
         return _twoArgAggFunc(name, true, modifier, one, two, consumer);
     }
 
     static PostgreWindowFunctions._PgAggFunc oneUserArgAggFunc(final String name, final @Nullable SQLs.ArgDistinct modifier,
-                                                               final Expression one,
-                                                               final @Nullable Consumer<Statement._SimpleOrderByClause> consumer) {
+                                                                   final Expression one,
+                                                                   final @Nullable Consumer<Statement._SimpleOrderByClause> consumer) {
 
         return _oneArgAggFunc(name, false, modifier, one, consumer);
     }
 
     static PostgreWindowFunctions._PgAggFunc twoUserArgAggFunc(final String name, final @Nullable SQLs.ArgDistinct modifier,
-                                                               final Expression one, final Expression two,
-                                                               final @Nullable Consumer<Statement._SimpleOrderByClause> consumer) {
+                                                                   final Expression one, final Expression two,
+                                                                   final @Nullable Consumer<Statement._SimpleOrderByClause> consumer) {
         return _twoArgAggFunc(name, false, modifier, one, two, consumer);
     }
 
@@ -226,9 +226,9 @@ abstract class PostgreFunctionUtils extends DialectFunctionUtils {
      * @see #oneArgAggFunc(String, SQLs.ArgDistinct, Expression, Consumer)
      */
     private static PostgreWindowFunctions._PgAggFunc _oneArgAggFunc(final String name, final boolean buildIn,
-                                                                    final @Nullable SQLs.ArgDistinct modifier,
-                                                                    final Expression one,
-                                                                    final @Nullable Consumer<Statement._SimpleOrderByClause> consumer) {
+                                                                        final @Nullable SQLs.ArgDistinct modifier,
+                                                                        final Expression one,
+                                                                        final @Nullable Consumer<Statement._SimpleOrderByClause> consumer) {
         if (!(one instanceof FunctionArg.SingleFunctionArg)) {
             throw CriteriaUtils.funcArgError(name, one);
         }
@@ -239,9 +239,9 @@ abstract class PostgreFunctionUtils extends DialectFunctionUtils {
      * @see #twoArgAggFunc(String, SQLs.ArgDistinct, Expression, Expression, Consumer)
      */
     private static PostgreWindowFunctions._PgAggFunc _twoArgAggFunc(final String name, final boolean buildIn,
-                                                                    final @Nullable SQLs.ArgDistinct modifier,
-                                                                    final Expression one, final Expression two,
-                                                                    final @Nullable Consumer<Statement._SimpleOrderByClause> consumer) {
+                                                                        final @Nullable SQLs.ArgDistinct modifier,
+                                                                        final Expression one, final Expression two,
+                                                                        final @Nullable Consumer<Statement._SimpleOrderByClause> consumer) {
         if (!(one instanceof FunctionArg.SingleFunctionArg)) {
             throw CriteriaUtils.funcArgError(name, one);
         } else if (!(two instanceof FunctionArg.SingleFunctionArg)) {
@@ -1096,7 +1096,7 @@ abstract class PostgreFunctionUtils extends DialectFunctionUtils {
         public Item filter(Consumer<Statement._SimpleWhereClause> consumer) {
             this.ifFilter(consumer);
             final List<_Predicate> whereList = this.whereList;
-            if (whereList == null || whereList.size() == 0) {
+            if (whereList == null || whereList.isEmpty()) {
                 throw CriteriaUtils.dontAddAnyItem();
             }
             return this;
@@ -1106,7 +1106,7 @@ abstract class PostgreFunctionUtils extends DialectFunctionUtils {
         public Item ifFilter(Consumer<Statement._SimpleWhereClause> consumer) {
             final WhereClause.SimpleWhereClause whereClause;
             whereClause = new WhereClause.SimpleWhereClause(this.outerContext);
-            consumer.accept(whereClause);
+            ClauseUtils.invokeConsumer(whereClause,consumer);
             if (this.whereList != null) {
                 throw ContextStack.clearStackAndCastCriteriaApi();
             }
@@ -1456,6 +1456,7 @@ abstract class PostgreFunctionUtils extends DialectFunctionUtils {
 
     }//TwoArgAggFunc
 
+    ///@see  <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-AGGREGATES">Aggregate Expressions</a>
     private static abstract class PgWithGroupAggFunc extends PostgreAggregateFunction
             implements PostgreWindowFunctions._AggWithGroupClause {
 
@@ -1472,11 +1473,10 @@ abstract class PostgreFunctionUtils extends DialectFunctionUtils {
             }
             final OrderByOptionClause clause;
             clause = FunctionUtils.orderByOptionClause(this.outerContext);
-            consumer.accept(clause);
+             ClauseUtils.invokeConsumer(clause,consumer);
 
             final List<ArmySortItem> list;
-            list = clause.endOrderByClauseIfNeed();
-            this.orderByItemList = list;
+            this.orderByItemList = list = clause.endOrderByClauseIfNeed();
             if (list.isEmpty()) {
                 throw CriteriaUtils.dontAddAnyItem();
             }

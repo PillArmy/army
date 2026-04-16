@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -196,15 +196,6 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final SQLs.DualOperator CARET = DualExpOperator.CARET;
 
-
-    /// SIMILAR TO is a regular match predicate defined in the SQL:1999 standard.
-    public static final SQLs.BiOperator SIMILAR_TO = DualBooleanOperator.SIMILAR_TO;
-
-    /// NOT SIMILAR TO is a regular match predicate defined in the SQL:1999 standard.
-    public static final SQLs.BiOperator NOT_SIMILAR_TO = DualBooleanOperator.NOT_SIMILAR_TO;
-
-
-
     public static final WordUsing USING = SqlWords.KeyWordUsing.USING;
 
     public static final SQLToken COMMA = SqlWords.FuncWord.COMMA;
@@ -241,44 +232,44 @@ public abstract class SQLs extends SQLSyntax {
 
     /*-------------------below literal -------------------*/
 
-    public static final LiteralExpression LITERAL_MINUS_1 = SQLs.literal(IntegerType.INSTANCE, -1);
+    public static final LiteralExpression LITERAL_MINUS_1 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, -1);
 
-    public static final LiteralExpression LITERAL_0 = SQLs.literal(IntegerType.INSTANCE, 0);
+    public static final LiteralExpression LITERAL_0 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, 0);
 
-    public static final LiteralExpression LITERAL_1 = SQLs.literal(IntegerType.INSTANCE, 1);
+    public static final LiteralExpression LITERAL_1 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, 1);
 
-    public static final LiteralExpression LITERAL_2 = SQLs.literal(IntegerType.INSTANCE, 2);
+    public static final LiteralExpression LITERAL_2 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, 2);
 
-    public static final LiteralExpression LITERAL_3 = SQLs.literal(IntegerType.INSTANCE, 3);
+    public static final LiteralExpression LITERAL_3 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, 3);
 
-    public static final LiteralExpression LITERAL_4 = SQLs.literal(IntegerType.INSTANCE, 4);
+    public static final LiteralExpression LITERAL_4 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, 4);
 
-    public static final LiteralExpression LITERAL_5 = SQLs.literal(IntegerType.INSTANCE, 5);
+    public static final LiteralExpression LITERAL_5 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, 5);
 
-    public static final LiteralExpression LITERAL_6 = SQLs.literal(IntegerType.INSTANCE, 6);
+    public static final LiteralExpression LITERAL_6 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, 6);
 
-    public static final LiteralExpression LITERAL_7 = SQLs.literal(IntegerType.INSTANCE, 7);
+    public static final LiteralExpression LITERAL_7 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, 7);
 
-    public static final LiteralExpression LITERAL_8 = SQLs.literal(IntegerType.INSTANCE, 8);
+    public static final LiteralExpression LITERAL_8 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, 8);
 
-    public static final LiteralExpression LITERAL_9 = SQLs.literal(IntegerType.INSTANCE, 9);
+    public static final LiteralExpression LITERAL_9 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, 9);
 
-    public static final LiteralExpression LITERAL_10 = SQLs.literal(IntegerType.INSTANCE, 10);
+    public static final LiteralExpression LITERAL_10 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, 10);
 
-    public static final LiteralExpression LITERAL_100 = SQLs.literal(IntegerType.INSTANCE, 100);
+    public static final LiteralExpression LITERAL_100 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, 100);
 
-    public static final LiteralExpression LITERAL_1000 = SQLs.literal(IntegerType.INSTANCE, 1000);
+    public static final LiteralExpression LITERAL_1000 = ArmyLiteralExpression.unsafeLiteral(IntegerType.INSTANCE, 1000);
 
-    public static final LiteralExpression LITERAL_POINT_5 = SQLs.literal(DoubleType.INSTANCE, 0.5D);
+    public static final LiteralExpression LITERAL_POINT_5 = ArmyLiteralExpression.unsafeLiteral(DoubleType.INSTANCE, 0.5D);
 
     public static final LiteralExpression LITERAL_DECIMAL_0;
 
     /**
      * @see #PARAM_EMPTY_STRING
      */
-    public static final LiteralExpression LITERAL_EMPTY_STRING = SQLs.literal(StringType.INSTANCE, "");
+    public static final LiteralExpression LITERAL_EMPTY_STRING = ArmyLiteralExpression.unsafeLiteral(StringType.INSTANCE, "");
 
-    public static final LiteralExpression LITERAL_SPACE = SQLs.literal(StringType.INSTANCE, " ");
+    public static final LiteralExpression LITERAL_SPACE = ArmyLiteralExpression.unsafeLiteral(StringType.INSTANCE, " ");
 
     /**
      * @see #BATCH_NO_PARAM
@@ -287,44 +278,44 @@ public abstract class SQLs extends SQLSyntax {
 
     /*-------------------below const-------------------*/
 
-    public static final LiteralExpression CONST_MINUS_1 = SQLs.constant(IntegerType.INSTANCE, -1);
+    public static final LiteralExpression CONST_MINUS_1 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, -1);
 
-    public static final LiteralExpression CONST_0 = SQLs.constant(IntegerType.INSTANCE, 0);
+    public static final LiteralExpression CONST_0 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, 0);
 
-    public static final LiteralExpression CONST_1 = SQLs.constant(IntegerType.INSTANCE, 1);
+    public static final LiteralExpression CONST_1 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, 1);
 
-    public static final LiteralExpression CONST_2 = SQLs.constant(IntegerType.INSTANCE, 2);
+    public static final LiteralExpression CONST_2 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, 2);
 
-    public static final LiteralExpression CONST_3 = SQLs.constant(IntegerType.INSTANCE, 3);
+    public static final LiteralExpression CONST_3 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, 3);
 
-    public static final LiteralExpression CONST_4 = SQLs.constant(IntegerType.INSTANCE, 4);
+    public static final LiteralExpression CONST_4 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, 4);
 
-    public static final LiteralExpression CONST_5 = SQLs.constant(IntegerType.INSTANCE, 5);
+    public static final LiteralExpression CONST_5 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, 5);
 
-    public static final LiteralExpression CONST_6 = SQLs.constant(IntegerType.INSTANCE, 6);
+    public static final LiteralExpression CONST_6 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, 6);
 
-    public static final LiteralExpression CONST_7 = SQLs.constant(IntegerType.INSTANCE, 7);
+    public static final LiteralExpression CONST_7 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, 7);
 
-    public static final LiteralExpression CONST_8 = SQLs.constant(IntegerType.INSTANCE, 8);
+    public static final LiteralExpression CONST_8 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, 8);
 
-    public static final LiteralExpression CONST_9 = SQLs.constant(IntegerType.INSTANCE, 9);
+    public static final LiteralExpression CONST_9 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, 9);
 
-    public static final LiteralExpression CONST_10 = SQLs.constant(IntegerType.INSTANCE, 10);
+    public static final LiteralExpression CONST_10 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, 10);
 
-    public static final LiteralExpression CONST_100 = SQLs.constant(IntegerType.INSTANCE, 100);
+    public static final LiteralExpression CONST_100 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, 100);
 
-    public static final LiteralExpression CONST_1000 = SQLs.constant(IntegerType.INSTANCE, 1000);
+    public static final LiteralExpression CONST_1000 = ArmyLiteralExpression.unsafeConst(IntegerType.INSTANCE, 1000);
 
-    public static final LiteralExpression CONST_POINT_5 = SQLs.constant(DoubleType.INSTANCE, 0.5D);
+    public static final LiteralExpression CONST_POINT_5 = ArmyLiteralExpression.unsafeConst(DoubleType.INSTANCE, 0.5D);
 
     public static final LiteralExpression CONST_DECIMAL_0;
 
     /**
      * @see #PARAM_EMPTY_STRING
      */
-    public static final LiteralExpression CONST_EMPTY_STRING = SQLs.constant(StringType.INSTANCE, "");
+    public static final LiteralExpression CONST_EMPTY_STRING = ArmyLiteralExpression.unsafeConst(StringType.INSTANCE, "");
 
-    public static final LiteralExpression CONST_SPACE = SQLs.constant(StringType.INSTANCE, " ");
+    public static final LiteralExpression CONST_SPACE = ArmyLiteralExpression.unsafeConst(StringType.INSTANCE, " ");
 
     /**
      * @see #BATCH_NO_PARAM
@@ -335,52 +326,52 @@ public abstract class SQLs extends SQLSyntax {
 
     /*-------------------below param -------------------*/
 
-    public static final ParamExpression PARAM_MINUS_1 = SQLs.param(IntegerType.INSTANCE, -1);
+    public static final ParamExpression PARAM_MINUS_1 = ArmyParamExpression.unsafeParam(IntegerType.INSTANCE, -1);
 
-    public static final ParamExpression PARAM_0 = SQLs.param(IntegerType.INSTANCE, 0);
+    public static final ParamExpression PARAM_0 = ArmyParamExpression.unsafeParam(IntegerType.INSTANCE, 0);
 
-    public static final ParamExpression PARAM_1 = SQLs.param(IntegerType.INSTANCE, 1);
+    public static final ParamExpression PARAM_1 = ArmyParamExpression.unsafeParam(IntegerType.INSTANCE, 1);
 
-    public static final ParamExpression PARAM_2 = SQLs.param(IntegerType.INSTANCE, 2);
+    public static final ParamExpression PARAM_2 = ArmyParamExpression.unsafeParam(IntegerType.INSTANCE, 2);
 
-    public static final ParamExpression PARAM_3 = SQLs.param(IntegerType.INSTANCE, 3);
+    public static final ParamExpression PARAM_3 = ArmyParamExpression.unsafeParam(IntegerType.INSTANCE, 3);
 
-    public static final ParamExpression PARAM_5 = SQLs.param(IntegerType.INSTANCE, 5);
+    public static final ParamExpression PARAM_5 = ArmyParamExpression.unsafeParam(IntegerType.INSTANCE, 5);
 
-    public static final ParamExpression PARAM_6 = SQLs.param(IntegerType.INSTANCE, 6);
+    public static final ParamExpression PARAM_6 = ArmyParamExpression.unsafeParam(IntegerType.INSTANCE, 6);
 
-    public static final ParamExpression PARAM_7 = SQLs.param(IntegerType.INSTANCE, 7);
+    public static final ParamExpression PARAM_7 = ArmyParamExpression.unsafeParam(IntegerType.INSTANCE, 7);
 
-    public static final ParamExpression PARAM_8 = SQLs.param(IntegerType.INSTANCE, 8);
+    public static final ParamExpression PARAM_8 = ArmyParamExpression.unsafeParam(IntegerType.INSTANCE, 8);
 
-    public static final ParamExpression PARAM_9 = SQLs.param(IntegerType.INSTANCE, 9);
+    public static final ParamExpression PARAM_9 = ArmyParamExpression.unsafeParam(IntegerType.INSTANCE, 9);
 
-    public static final ParamExpression PARAM_10 = SQLs.param(IntegerType.INSTANCE, 10);
+    public static final ParamExpression PARAM_10 = ArmyParamExpression.unsafeParam(IntegerType.INSTANCE, 10);
 
-    public static final ParamExpression PARAM_100 = SQLs.param(IntegerType.INSTANCE, 100);
+    public static final ParamExpression PARAM_100 = ArmyParamExpression.unsafeParam(IntegerType.INSTANCE, 100);
 
-    public static final ParamExpression PARAM_1000 = SQLs.param(IntegerType.INSTANCE, 1000);
+    public static final ParamExpression PARAM_1000 = ArmyParamExpression.unsafeParam(IntegerType.INSTANCE, 1000);
 
-    public static final ParamExpression PARAM_POINT_5 = SQLs.param(DoubleType.INSTANCE, 0.5D);
+    public static final ParamExpression PARAM_POINT_5 = ArmyParamExpression.unsafeParam(DoubleType.INSTANCE, 0.5D);
 
     public static final ParamExpression PARAM_DECIMAL_0;
 
     /**
      * @see #TRUE
      */
-    public static final ParamExpression PARAM_TRUE = SQLs.param(BooleanType.INSTANCE, Boolean.TRUE);
+    public static final ParamExpression PARAM_TRUE = ArmyParamExpression.unsafeParam(BooleanType.INSTANCE, Boolean.TRUE);
 
     /**
      * @see #FALSE
      */
-    public static final ParamExpression PARAM_FALSE = SQLs.param(BooleanType.INSTANCE, Boolean.FALSE);
+    public static final ParamExpression PARAM_FALSE = ArmyParamExpression.unsafeParam(BooleanType.INSTANCE, Boolean.FALSE);
 
     /**
      * @see #LITERAL_EMPTY_STRING
      */
-    public static final ParamExpression PARAM_EMPTY_STRING = SQLs.param(StringType.INSTANCE, "");
+    public static final ParamExpression PARAM_EMPTY_STRING = ArmyParamExpression.unsafeParam(StringType.INSTANCE, "");
 
-    public static final ParamExpression PARAM_SPACE = SQLs.param(StringType.INSTANCE, " ");
+    public static final ParamExpression PARAM_SPACE = ArmyParamExpression.unsafeParam(StringType.INSTANCE, " ");
 
 
     /**
@@ -391,9 +382,9 @@ public abstract class SQLs extends SQLSyntax {
 
     static {
         final BigDecimal zero = new BigDecimal("0.00");
-        LITERAL_DECIMAL_0 = SQLs.literal(BigDecimalType.INSTANCE, zero);
-        CONST_DECIMAL_0 = SQLs.constant(BigDecimalType.INSTANCE, zero);
-        PARAM_DECIMAL_0 = SQLs.param(BigDecimalType.INSTANCE, zero);
+        LITERAL_DECIMAL_0 = ArmyLiteralExpression.unsafeLiteral(BigDecimalType.INSTANCE, zero);
+        CONST_DECIMAL_0 = ArmyLiteralExpression.unsafeConst(BigDecimalType.INSTANCE, zero);
+        PARAM_DECIMAL_0 = ArmyParamExpression.unsafeParam(BigDecimalType.INSTANCE, zero);
     }
 
 
@@ -1068,7 +1059,7 @@ public abstract class SQLs extends SQLSyntax {
                     tempList.add(field);
                     continue;
                 }
-                if (((TableField) field).updateMode() == UpdateMode.IMMUTABLE) {
+                if (!((TableField) field).updatable()) {
                     throw _Exceptions.immutableField(field);
                 }
                 final String fieldName = field.fieldName();

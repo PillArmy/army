@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,9 @@ public class ArmyKey<T> {
 
     public static final ArmyKey<Boolean> LITERAL_TYPE_NAME_ENABLE = new ArmyKey<>("literal.type_name_enable", Boolean.class, Boolean.TRUE);
 
+    public static final ArmyKey<Boolean> CACHE_IDENTIFIER = new ArmyKey<>("cache_identifier", Boolean.class, Boolean.TRUE);
+
+    public static final ArmyKey<ObjectNameCacheMode> OBJECT_NAME_CACHE_MODE = new ArmyKey<>("object_name_cache_mode", ObjectNameCacheMode.class, ObjectNameCacheMode.DEFAULT);
 
     /**
      * @see Column#scale()

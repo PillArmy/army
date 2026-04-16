@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,14 @@ abstract class ArmyLiteralExpression extends OperationExpression.OperationTypedE
             throw CriteriaUtils.clearStackAndNonDefaultType(value);
         }
         return forMappingType(type, value, typeName);
+    }
+
+    static LiteralExpression unsafeConst(MappingType type, Object value) {
+        return new AnonymousLiteral(type, value, false);
+    }
+
+    static LiteralExpression unsafeLiteral(MappingType type, Object value) {
+        return new AnonymousLiteral(type, value, true);
     }
 
 

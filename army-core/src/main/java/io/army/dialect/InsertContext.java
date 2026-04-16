@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -603,7 +603,6 @@ abstract class InsertContext extends StatementContext
     public void appendSetLeftItem(final SqlField dataField, final @Nullable Expression updateTimePlaceholder) {
         final FieldMeta<?> field;
         final String fieldName = dataField.fieldName();
-        final UpdateMode mode;
         if (!(dataField instanceof FieldMeta)) {
             String m = String.format("Insert statement conflict clause don't support %s", dataField);
             throw new CriteriaException(m);
@@ -615,30 +614,8 @@ abstract class InsertContext extends StatementContext
             throw _Exceptions.armyManageField(field);
         } else if (_MetaBridge.VERSION.equals(fieldName)) {
             throw _Exceptions.armyManageField(field);
-        } else switch ((mode = field.updateMode())) {
-            case IMMUTABLE:
-                throw _Exceptions.immutableField(field);
-            case ONLY_NULL:
-            case ONLY_DEFAULT: {
-                if (!this.conflictPredicateClause) {
-                    String m = String.format("%s don't support update the field with %s mode.",
-                            this.parser.dialect, mode);
-                    throw new CriteriaException(m);
-                } else if (mode == UpdateMode.ONLY_DEFAULT && this.parser.supportOnlyDefault) {
-                    throw _Exceptions.dontSupportOnlyDefault(this.parser.dialect);
-                }
-                List<FieldMeta<?>> conditionFieldList = this.conditionFieldList;
-                if (conditionFieldList == null) {
-                    conditionFieldList = _Collections.arrayList();
-                    this.conditionFieldList = conditionFieldList;
-                }
-                conditionFieldList.add(field);
-            }
-            break;
-            case UPDATABLE:
-                break;
-            default:
-                throw _Exceptions.unexpectedEnum(mode);
+        } else if (! field.updatable()) {
+            throw _Exceptions.immutableField(field);
         }
 
         final StringBuilder sqlBuilder;
@@ -729,7 +706,7 @@ abstract class InsertContext extends StatementContext
     @Override
     public final boolean hasConditionPredicate() {
         final List<FieldMeta<?>> conditionFieldList = this.conditionFieldList;
-        return conditionFieldList != null && conditionFieldList.size() > 0;
+        return conditionFieldList != null && !conditionFieldList.isEmpty();
     }
 
     @Override
@@ -738,52 +715,7 @@ abstract class InsertContext extends StatementContext
         if (conditionFieldList == null) {
             return;
         }
-        final ArmyParser parser = this.parser;
-        final StringBuilder sqlBuilder = this.sqlBuilder;
-        final int fieldSize = conditionFieldList.size();
-        final String safeTableAlias;
-        if (this.safeTableAlias == null) {
-            safeTableAlias = parser.safeObjectName(this.insertTable);
-        } else {
-            safeTableAlias = this.safeTableAlias;
-        }
-        String safeColumnName;
-        FieldMeta<?> field;
-        for (int i = 0; i < fieldSize; i++) {
-            field = conditionFieldList.get(i);
-            if (i == 0 && firstPredicate) {
-                sqlBuilder.append(_Constant.SPACE);
-            } else {
-                sqlBuilder.append(_Constant.SPACE_AND_SPACE);
-            }
-
-            sqlBuilder.append(safeTableAlias)
-                    .append(_Constant.DOT);
-
-            safeColumnName = parser.safeObjectName(field);
-            sqlBuilder.append(safeColumnName);
-            switch (field.updateMode()) {
-                case ONLY_NULL:
-                    sqlBuilder.append(_Constant.SPACE_IS_NULL);
-                    break;
-                case ONLY_DEFAULT: {
-                    sqlBuilder.append(_Constant.SPACE)
-                            .append(parser.defaultFuncName())
-                            .append(_Constant.LEFT_PAREN)
-                            .append(_Constant.SPACE)
-                            .append(safeTableAlias)
-                            .append(_Constant.DOT)
-                            .append(safeColumnName)
-                            .append(_Constant.SPACE_RIGHT_PAREN);
-
-                }
-                break;
-                default:
-                    throw _Exceptions.unexpectedEnum(field.updateMode());
-
-            }
-        }
-
+         throw new UnsupportedOperationException();
     }
 
 

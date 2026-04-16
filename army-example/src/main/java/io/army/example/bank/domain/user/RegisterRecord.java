@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,34 +31,34 @@ public class RegisterRecord extends BaseVersionDomain<RegisterRecord> {
     @Column
     private Long id;
 
-    @Column(insertable = false, updateMode = UpdateMode.ONLY_NULL
+    @Column(insertable = false
             , comment = "user id ,primary key of u_user table,when register success.")
     private Long userId;
 
     @Column(notNull = true, defaultValue = "0", comment = "record handle status")
     private RecordStatus status;
 
-    @Column(notNull = true, updateMode = UpdateMode.IMMUTABLE
+    @Column(notNull = true, updatable = false
             , comment = "partner user id,0 representing bank self,@see u_user table")
     private Long partnerId;
 
     @Generator(value = SNOWFLAKE, params = {@Param(name = START_TIME, value = startTime), @Param(name = DEPEND, value = "partnerId")})
-    @Column(precision = 30, notNull = true, updateMode = UpdateMode.IMMUTABLE, comment = "provide to partner request number")
+    @Column(precision = 30, notNull = true, updatable = false, comment = "provide to partner request number")
     private String requestNo;
 
-    @Column(notNull = true, updateMode = UpdateMode.IMMUTABLE, comment = "deadline,reject handle request after this")
+    @Column(notNull = true, updatable = false, comment = "deadline,reject handle request after this")
     private LocalDateTime deadline;
 
-    @Column(insertable = false, updateMode = UpdateMode.ONLY_NULL, comment = "record handle time")
+    @Column(insertable = false, comment = "record handle time")
     private LocalDateTime handleTime;
 
-    @Column(insertable = false, updateMode = UpdateMode.ONLY_NULL, comment = "record completion time")
+    @Column(insertable = false, comment = "record completion time")
     private LocalDateTime completionTime;
 
-    @Column(insertable = false, updateMode = UpdateMode.ONLY_NULL, comment = "error code")
+    @Column(insertable = false, comment = "error code")
     private BankCode bankCode;
 
-    @Column(precision = 125, insertable = false, updateMode = UpdateMode.ONLY_NULL, comment = "error message")
+    @Column(precision = 125, insertable = false, comment = "error message")
     private String failureMessage;
 
 

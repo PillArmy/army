@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,13 @@ import java.time.LocalDate;
 @DiscriminatorValue(CertificateType.Constant.PERSON)
 public class PersonCertificate extends Certificate<PersonCertificate> {
 
-    @Column(updateMode = UpdateMode.IMMUTABLE, comment = "person user birthday")
+    @Column(updatable = false, comment = "person user birthday")
     private LocalDate birthday;
 
-    @Column(updateMode = UpdateMode.IMMUTABLE, precision = 50, comment = "person user nation")
+    @Column(updatable = false, precision = 50, comment = "person user nation")
     private String nation;
 
-    @Column(updateMode = UpdateMode.IMMUTABLE, comment = "user gender")
+    @Column(updatable = false, comment = "user gender")
     private Gender gender;
 
     public LocalDate getBirthday() {

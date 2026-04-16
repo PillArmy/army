@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,14 +152,12 @@ abstract class SingleTableDmlContext extends NarrowDmlStmtContext implements _Si
     @Override
     public final void appendSetLeftItem(final SqlField dataField, final @Nullable Expression updateTimePlaceholder) {
         assert this instanceof _UpdateContext;
-        if (!(dataField instanceof TableField)) {
+        if (!(dataField instanceof TableField field)) {
             throw _Exceptions.immutableField(dataField);
         }
-        final TableField field = (TableField) dataField;
-        final UpdateMode updateMode;
         if (field.tableMeta() != this.targetTable) {
             throw _Exceptions.unknownColumn(field);
-        } else if ((updateMode = field.updateMode()) == UpdateMode.IMMUTABLE) {
+        } else if (!field.updatable()) {
             throw _Exceptions.immutableField(field);
         } else if (this.targetTable instanceof SingleTableMeta) {
             final String fieldName = field.fieldName();
@@ -189,18 +187,6 @@ abstract class SingleTableDmlContext extends NarrowDmlStmtContext implements _Si
             this.parser.safeObjectName(field.fieldMeta(), sqlBuilder);
         } else {
             throw _Exceptions.unknownColumn(field);
-        }
-        switch (updateMode) {
-            case ONLY_NULL:
-            case ONLY_DEFAULT: {
-                if (updateMode == UpdateMode.ONLY_DEFAULT && !this.parser.supportOnlyDefault) {
-                    throw _Exceptions.dontSupportOnlyDefault(this.parser.dialect);
-                }
-                this.onAddConditionField(field);
-            }
-            break;
-            default:
-                //no-op
         }
 
         if (updateTimePlaceholder != null) {

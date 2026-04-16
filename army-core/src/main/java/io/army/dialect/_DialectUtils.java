@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -244,45 +244,13 @@ public abstract class _DialectUtils {
         return match;
     }
 
+    @Deprecated
     static void appendConditionFields(final _SingleUpdateContext context
             , final @Nullable List<? extends TableField> conditionFieldList) {
-        if (conditionFieldList == null || conditionFieldList.size() == 0) {
+        if (conditionFieldList == null || conditionFieldList.isEmpty()) {
             return;
         }
-        final String safeTableAlias = context.safeTargetTableAlias();
-        final ArmyParser dialect = (ArmyParser) context.parser();
-        final StringBuilder sqlBuilder = context.sqlBuilder();
-
-        String safeColumnName;
-        for (TableField field : conditionFieldList) {
-            sqlBuilder.append(_Constant.SPACE_AND_SPACE)
-                    .append(safeTableAlias)
-                    .append(_Constant.DOT);
-
-            safeColumnName = dialect.safeObjectName(field);
-            sqlBuilder.append(safeColumnName);
-            switch (field.updateMode()) {
-                case ONLY_NULL:
-                    sqlBuilder.append(_Constant.SPACE_IS_NULL);
-                    break;
-                case ONLY_DEFAULT: {
-                    sqlBuilder.append(_Constant.SPACE)
-                            .append(dialect.defaultFuncName())
-                            .append(_Constant.LEFT_PAREN)
-                            .append(_Constant.SPACE)
-                            .append(safeTableAlias)
-                            .append(_Constant.DOT)
-                            .append(safeColumnName)
-                            .append(_Constant.SPACE_RIGHT_PAREN);
-
-                }
-                break;
-                default:
-                    throw _Exceptions.unexpectedEnum(field.updateMode());
-
-            }
-
-        }
+         throw new UnsupportedOperationException();
     }
 
     static boolean isIllegalConflict(final _Insert stmt, final Visible visible) {
@@ -343,7 +311,7 @@ public abstract class _DialectUtils {
         for (String keyWord : fieldCoreKeyWordMap().keySet()) {
             map.putIfAbsent(keyWord.toUpperCase(Locale.ROOT), Boolean.TRUE);
         }
-        return Collections.unmodifiableMap(map);
+        return map;
     }
 
 

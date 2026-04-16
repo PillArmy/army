@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ import java.time.LocalDate;
 @DiscriminatorValue(CertificateType.Constant.ENTERPRISE)
 public class EnterpriseCertificate extends Certificate<EnterpriseCertificate> {
 
-    @Column(notNull = true, updateMode = UpdateMode.IMMUTABLE, comment = "enterprise user register day")
+    @Column(notNull = true, updatable = false, comment = "enterprise user register day")
     private LocalDate registerDay;
 
-    @Column(precision = 40, notNull = true, updateMode = UpdateMode.IMMUTABLE, comment = "enterprise Unified social credit code")
+    @Column(precision = 40, notNull = true, updatable = false, comment = "enterprise Unified social credit code")
     private String creditCode;
 
     @Column(notNull = true, defaultValue = "0", comment = "enterprise legal person name")

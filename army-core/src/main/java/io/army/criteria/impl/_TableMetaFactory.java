@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,7 +115,7 @@ public abstract class _TableMetaFactory {
                 } // while
                 url = null;
             }
-            return Collections.unmodifiableMap(tableMetaMap);
+            return Map.copyOf(tableMetaMap);
         } catch (TableMetaLoadException e) {
             throw e;
         } catch (Exception e) {
@@ -345,7 +345,6 @@ public abstract class _TableMetaFactory {
     private static IllegalArgumentException classFileFormatError() {
         return new IllegalArgumentException("class file format error");
     }
-
 
 
 }

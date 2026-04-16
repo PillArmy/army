@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,21 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.time.*;
 import java.time.temporal.Temporal;
 import java.util.BitSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 public abstract class _MappingFactory {
+
+    private static final Map<Class<?>, MappingType> DEFAULT_TYPE_MAP;
+
+    private static final Map<Class<?>, Function<Class<?>, MappingType>> DEFAULT_ARRAY_FUNC_MAP;
+
+    static {
+        DEFAULT_TYPE_MAP = Map.copyOf(createDefaultMappingMap());
+        DEFAULT_ARRAY_FUNC_MAP = Map.copyOf(createDefaultArrayFuncMap());
+    }
 
     private _MappingFactory() {
         throw new UnsupportedOperationException();
@@ -58,6 +70,8 @@ public abstract class _MappingFactory {
     public static MappingType getDefaultIfMatch(final Class<?> javaType) {
         final MappingType type;
 
+        final Class<?> componentClass;
+
         if (javaType == byte[].class) {
             type = VarBinaryType.INSTANCE;
         } else if (Enum.class.isAssignableFrom(javaType)) {
@@ -72,96 +86,35 @@ public abstract class _MappingFactory {
             } else {
                 type = NameEnumType.from(javaType);
             }
-        } else if (javaType.isArray()) {
-            type = getDefaultArrayType(javaType);
-        } else if (javaType == String.class) {
-            type = StringType.INSTANCE;
-        } else if (javaType == Boolean.class || javaType == boolean.class) {
-            type = BooleanType.INSTANCE;
-        } else if (Number.class.isAssignableFrom(javaType)) {
-            if (javaType == Integer.class) {
-                type = IntegerType.INSTANCE;
-            } else if (javaType == Long.class) {
-                type = LongType.INSTANCE;
-            } else if (javaType == BigDecimal.class) {
-                type = BigDecimalType.INSTANCE;
-            } else if (javaType == BigInteger.class) {
-                type = BigIntegerType.INSTANCE;
-            } else if (javaType == Double.class) {
-                type = DoubleType.INSTANCE;
-            } else if (javaType == Float.class) {
-                type = FloatType.INSTANCE;
-            } else if (javaType == Short.class) {
-                type = ShortType.INSTANCE;
-            } else if (javaType == Byte.class) {
-                type = ByteType.INSTANCE;
-            } else {
+        } else if (!javaType.isArray()) {
+            type = DEFAULT_TYPE_MAP.get(javaType);
+        } else if (!Enum.class.isAssignableFrom(componentClass = ArrayUtils.underlyingComponent(javaType))) {
+            final Function<Class<?>, MappingType> func;
+            func = DEFAULT_ARRAY_FUNC_MAP.get(componentClass);
+            if (func == null) {
                 type = null;
-            }
-        } else if (Temporal.class.isAssignableFrom(javaType)) {
-            if (javaType == LocalDateTime.class) {
-                type = LocalDateTimeType.INSTANCE;
-            } else if (javaType == LocalDate.class) {
-                type = LocalDateType.INSTANCE;
-            } else if (javaType == LocalTime.class) {
-                type = LocalTimeType.INSTANCE;
-            } else if (javaType == OffsetDateTime.class) {
-                type = OffsetDateTimeType.INSTANCE;
-            } else if (javaType == ZonedDateTime.class) {
-                type = ZonedDateTimeType.INSTANCE;
-            } else if (javaType == OffsetTime.class) {
-                type = OffsetTimeType.INSTANCE;
-            } else if (javaType == Instant.class) {
-                type = InstantType.INSTANCE;
-            } else if (javaType == Year.class) {
-                type = YearType.INSTANCE;
-            } else if (javaType == YearMonth.class) {
-                type = YearMonthType.INSTANCE;
             } else {
-                type = null;
+                type = func.apply(javaType);
             }
-        } else if (ZoneId.class.isAssignableFrom(javaType)) {
-            type = ZoneIdType.INSTANCE;
-        } else if (BitSet.class.isAssignableFrom(javaType)) {
-            type = BitSetType.INSTANCE;
-        } else if (javaType == Character.class || javaType == char.class) {
-            type = CharacterType.INSTANCE;
-        } else if (javaType == MonthDay.class) {
-            type = MonthDayType.INSTANCE;
-        } else if (javaType == UUID.class) {
-            type = UUIDType.INSTANCE;
-        } else if (javaType.isPrimitive()) {
-            if (javaType == int.class) {
-                type = IntegerType.INSTANCE;
-            } else if (javaType == long.class) {
-                type = LongType.INSTANCE;
-            } else if (javaType == double.class) {
-                type = DoubleType.INSTANCE;
-            } else if (javaType == float.class) {
-                type = FloatType.INSTANCE;
-            } else if (javaType == short.class) {
-                type = ShortType.INSTANCE;
-            } else if (javaType == byte.class) {
-                type = ByteType.INSTANCE;
-            } else {
-                type = null;
-            }
+        } else if (CodeEnum.class.isAssignableFrom(componentClass)) {
+            type = CodeEnumArrayType.from(javaType);
+        } else if (TextEnumType.class.isAssignableFrom(componentClass)) {
+            type = TextEnumArrayType.from(javaType);
+        } else if (Month.class.isAssignableFrom(componentClass)) {
+            type = MonthArrayType.from(javaType);
+        } else if (DayOfWeek.class.isAssignableFrom(componentClass)) {
+            type = DayOfWeekArrayType.from(javaType);
         } else {
-            type = null;
+            type = NameEnumArrayType.from(javaType);
         }
         return type;
     }
 
 
-
     public static MappingType map(final Mapping mapping, final Field field) {
         final Class<?> mappingClass;
         mappingClass = getMappingClass(mapping, field);
-        if (!MappingType.class.isAssignableFrom(mappingClass)) {
-            String m = String.format("%s.%s mapping type %s error."
-                    , field.getDeclaringClass().getName(), field.getName(), mapping.value());
-            throw new MetaException(m);
-        }
+
         final boolean textMapping, elementMapping;
         textMapping = TextMappingType.class.isAssignableFrom(mappingClass);
         elementMapping = MultiGenericsMappingType.class.isAssignableFrom(mappingClass);
@@ -209,21 +162,6 @@ public abstract class _MappingFactory {
     }
 
 
-    public static MappingType map(Class<?> mappingClass, Class<?> javaType) throws MetaException {
-        final MappingType mappingType;
-        if (CodeEnum.class.isAssignableFrom(javaType)) {
-            if (!javaType.isEnum()) {
-                String m = String.format("%s isn't enum.", javaType.getName());
-                throw new MetaException(m);
-            }
-            mappingType = CodeEnumType.from(javaType);
-        } else if (javaType.isEnum()) {
-            mappingType = NameEnumType.from(javaType);
-        } else {
-            mappingType = createMappingType(mappingClass, javaType);
-        }
-        return mappingType;
-    }
 
     private static Class<?> getMappingClass(final Mapping mapping, final Field field) {
         Class<?> mappingClass;
@@ -236,7 +174,9 @@ public abstract class _MappingFactory {
                         field.getDeclaringClass().getName(), field.getName(), mapping.value());
                 throw new MetaException(m);
             }
-        } else if (!MappingType.class.isAssignableFrom(mappingClass)) {
+        }
+
+        if (!MappingType.class.isAssignableFrom(mappingClass)) {
             String m = String.format("Mapping type[%s] of %s.%s isn't sub class of %s .", mappingClass.getName(),
                     field.getDeclaringClass().getName(), field.getName(), MappingType.class.getName());
             throw new MetaException(m);
@@ -244,39 +184,6 @@ public abstract class _MappingFactory {
         return mappingClass;
     }
 
-    private static MappingType createMappingType(Class<?> mappingClass, Class<?> javaType) throws MetaException {
-        if (!MappingType.class.isAssignableFrom(mappingClass)) {
-            String m = String.format("%s isn't %s instance.", mappingClass.getName(), MappingType.class.getName());
-            throw new MetaException(m);
-        }
-        try {
-            final Method method;
-            method = mappingClass.getMethod("create", Class.class);
-            if (!(Modifier.isPublic(method.getModifiers())
-                    && Modifier.isStatic(method.getModifiers())
-                    && mappingClass == method.getReturnType())) {
-                String m = String.format("%s create(Class<?> typeClass) method definite error."
-                        , mappingClass.getName());
-                throw new MetaException(m);
-            }
-            final MappingType mappingType;
-            mappingType = (MappingType) method.invoke(null, javaType);
-            if (mappingType == null) {
-                String m = String.format("%s create(Class<?> javaType) method return null.", mappingClass.getName());
-                throw new MetaException(m);
-            }
-            final Class<?> actualType = mappingType.javaType();
-            if (!actualType.isAssignableFrom(javaType)) {
-                String m = String.format("%s javaType() return value[%s] and java type[%s] not match."
-                        , mappingClass.getName(), actualType.getName(), javaType.getName());
-                throw new MetaException(m);
-            }
-            return mappingType;
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new MetaException(e.getMessage(), e);
-        }
-
-    }
 
 
     private static void assertFactoryMethod(final Method method) {
@@ -292,100 +199,99 @@ public abstract class _MappingFactory {
 
     }
 
-    @Nullable
-    private static MappingType getDefaultArrayType(final Class<?> arrayJavaType) {
-        final Class<?> componentType;
-        componentType = ArrayUtils.underlyingComponent(arrayJavaType);
+    private static Map<Class<?>, MappingType> createDefaultMappingMap() {
+        final Map<Class<?>, MappingType> map = new HashMap<>();
 
-        final MappingType type;
-        if (componentType == byte.class) {
-            type = VarBinaryArrayType.from(arrayJavaType);
-        } else if (Enum.class.isAssignableFrom(componentType)) {
-            if (CodeEnum.class.isAssignableFrom(componentType)) {
-                type = CodeEnumArrayType.from(arrayJavaType);
-            } else if (TextEnumType.class.isAssignableFrom(componentType)) {
-                type = TextEnumArrayType.from(arrayJavaType);
-            } else if (Month.class == componentType) {
-                type = MonthArrayType.from(arrayJavaType);
-            } else if (DayOfWeek.class == componentType) {
-                type = DayOfWeekArrayType.from(arrayJavaType);
-            } else {
-                type = NameEnumArrayType.from(arrayJavaType);
-            }
-        } else if (componentType == String.class) {
-            type = StringArrayType.from(arrayJavaType);
-        } else if (componentType == Boolean.class || componentType == boolean.class) {
-            type = BooleanArrayType.from(arrayJavaType);
-        } else if (Number.class.isAssignableFrom(componentType)) {
-            if (componentType == Integer.class) {
-                type = IntegerArrayType.from(arrayJavaType);
-            } else if (componentType == Long.class) {
-                type = LongArrayType.from(arrayJavaType);
-            } else if (componentType == BigDecimal.class) {
-                type = BigDecimalArrayType.from(arrayJavaType);
-            } else if (componentType == BigInteger.class) {
-                type = BigIntegerArrayType.from(arrayJavaType);
-            } else if (componentType == Double.class) {
-                type = DoubleArrayType.from(arrayJavaType);
-            } else if (componentType == Float.class) {
-                type = FloatArrayType.from(arrayJavaType);
-            } else if (componentType == Short.class) {
-                type = ShortArrayType.from(arrayJavaType);
-            } else if (componentType == Byte.class) {
-                type = ByteArrayType.from(arrayJavaType);
-            } else {
-                type = null;
-            }
-        } else if (Temporal.class.isAssignableFrom(componentType)) {
-            if (componentType == LocalDateTime.class) {
-                type = LocalDateTimeArrayType.from(arrayJavaType);
-            } else if (componentType == LocalDate.class) {
-                type = LocalDateArrayType.from(arrayJavaType);
-            } else if (componentType == LocalTime.class) {
-                type = LocalTimeArrayType.from(arrayJavaType);
-            } else if (componentType == OffsetDateTime.class) {
-                type = OffsetDateTimeArrayType.from(arrayJavaType);
-            } else if (componentType == ZonedDateTime.class) {
-                type = ZonedDateTimeArrayType.from(arrayJavaType);
-            } else if (componentType == OffsetTime.class) {
-                type = OffsetTimeArrayType.from(arrayJavaType);
-            } else if (componentType == Instant.class) {
-                type = InstantArrayType.from(arrayJavaType);
-            } else if (componentType == Year.class) {
-                type = YearArrayType.from(arrayJavaType);
-            } else if (componentType == YearMonth.class) {
-                type = YearMonthArrayType.from(arrayJavaType);
-            } else {
-                type = null;
-            }
-        } else if (ZoneId.class.isAssignableFrom(componentType)) {
-            type = ZoneIdArrayType.from(arrayJavaType);
-        } else if (BitSet.class.isAssignableFrom(componentType)) {
-            type = BitSetArrayType.from(arrayJavaType);
-        } else if (componentType == Character.class || componentType == char.class) {
-            type = CharacterArrayType.from(arrayJavaType);
-        } else if (componentType == MonthDay.class) {
-            type = MonthDayArrayType.from(arrayJavaType);
-        } else if (componentType == UUID.class) {
-            type = UUIDArrayType.from(arrayJavaType);
-        } else if (componentType.isPrimitive()) {
-            if (componentType == int.class) {
-                type = IntegerArrayType.from(arrayJavaType);
-            } else if (componentType == long.class) {
-                type = LongArrayType.from(arrayJavaType);
-            } else if (componentType == double.class) {
-                type = DoubleArrayType.from(arrayJavaType);
-            } else if (componentType == float.class) {
-                type = FloatArrayType.from(arrayJavaType);
-            } else if (componentType == short.class) {
-                type = ShortArrayType.from(arrayJavaType);
-            } else {
-                type = null;
-            }
-        } else {
-            type = null;
-        }
-        return type;
+        // map.put( byte[].class,VarBinaryType.INSTANCE);
+        map.put(String.class, StringType.INSTANCE);
+
+        map.put(boolean.class, BooleanType.INSTANCE);
+        map.put(Boolean.class, BooleanType.INSTANCE);
+        map.put(int.class, IntegerType.INSTANCE);
+        map.put(Integer.class, IntegerType.INSTANCE);
+
+        map.put(long.class, LongType.INSTANCE);
+        map.put(Long.class, LongType.INSTANCE);
+        map.put(float.class, FloatType.INSTANCE);
+        map.put(Float.class, FloatType.INSTANCE);
+
+        map.put(double.class, DoubleType.INSTANCE);
+        map.put(Double.class, DoubleType.INSTANCE);
+        map.put(short.class, ShortType.INSTANCE);
+        map.put(Short.class, ShortType.INSTANCE);
+
+        map.put(byte.class, ByteType.INSTANCE);
+        map.put(Byte.class, ByteType.INSTANCE);
+        map.put(char.class, SqlCharType.INSTANCE);
+        map.put(Character.class, SqlCharType.INSTANCE);
+
+        map.put(BigInteger.class, BigIntegerType.INSTANCE);
+        map.put(BigDecimal.class, BigDecimalType.INSTANCE);
+        map.put(LocalDateTime.class, LocalDateTimeType.INSTANCE);
+        map.put(OffsetDateTime.class, OffsetDateTimeType.INSTANCE);
+
+        map.put(ZonedDateTime.class, ZonedDateTimeType.INSTANCE);
+        map.put(LocalDate.class, LocalDateType.INSTANCE);
+        map.put(LocalTime.class, LocalTimeType.INSTANCE);
+        map.put(OffsetTime.class, OffsetTimeType.INSTANCE);
+
+        map.put(Instant.class, InstantType.INSTANCE);
+        map.put(Year.class, YearType.INSTANCE);
+        map.put(YearMonth.class, YearMonthType.INSTANCE);
+        map.put(MonthDay.class, MonthDayType.INSTANCE);
+
+        map.put(ZoneId.class, ZoneIdType.INSTANCE);
+        map.put(BitSet.class, BitSetType.INSTANCE);
+        map.put(UUID.class, UUIDType.INSTANCE);
+
+        return map;
+    }
+
+    private static Map<Class<?>, Function<Class<?>, MappingType>> createDefaultArrayFuncMap() {
+        final Map<Class<?>, Function<Class<?>, MappingType>> map = new HashMap<>();
+
+        map.put(String.class, StringArrayType::from);
+
+        map.put(boolean.class, BooleanArrayType::from);
+        map.put(Boolean.class, BooleanArrayType::from);
+        map.put(int.class, IntegerArrayType::from);
+        map.put(Integer.class, IntegerArrayType::from);
+
+        map.put(long.class, LongArrayType::from);
+        map.put(Long.class, LongArrayType::from);
+        map.put(float.class, FloatArrayType::from);
+        map.put(Float.class, FloatArrayType::from);
+
+        map.put(double.class, DoubleArrayType::from);
+        map.put(Double.class, DoubleArrayType::from);
+        map.put(short.class, ShortArrayType::from);
+        map.put(Short.class, ShortArrayType::from);
+
+        map.put(byte.class, ByteArrayType::from);
+        map.put(Byte.class, ByteArrayType::from);
+        map.put(char.class, SqlCharArrayType::from);
+        map.put(Character.class, SqlCharArrayType::from);
+
+        map.put(BigInteger.class, BigIntegerArrayType::from);
+        map.put(BigDecimal.class, BigDecimalArrayType::from);
+        map.put(LocalDateTime.class, LocalDateTimeArrayType::from);
+        map.put(OffsetDateTime.class, OffsetDateTimeArrayType::from);
+
+        map.put(ZonedDateTime.class, ZonedDateTimeArrayType::from);
+        map.put(LocalDate.class, LocalDateArrayType::from);
+        map.put(LocalTime.class, LocalTimeArrayType::from);
+        map.put(OffsetTime.class, OffsetTimeArrayType::from);
+
+        map.put(Instant.class, InstantArrayType::from);
+        map.put(Year.class, YearArrayType::from);
+        map.put(YearMonth.class, YearMonthArrayType::from);
+        map.put(MonthDay.class, MonthDayArrayType::from);
+
+        map.put(ZoneId.class, ZoneIdArrayType::from);
+        map.put(BitSet.class, BitSetArrayType::from);
+        map.put(UUID.class, UUIDArrayType::from);
+
+        return map;
     }
 
 

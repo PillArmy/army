@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class Certificate<T extends Certificate<T>> extends BaseVersionDomain<T> 
     @Column(notNull = false)
     private CertificateType certificateType;
 
-    @Column(precision = 30, notNull = true, updateMode = UpdateMode.IMMUTABLE, comment = "user certificate number.")
+    @Column(precision = 30, notNull = true, updatable = false, comment = "user certificate number.")
     private String certificateNo;
 
     @Column(precision = 50, notNull = true, comment = "person or enterprise name")

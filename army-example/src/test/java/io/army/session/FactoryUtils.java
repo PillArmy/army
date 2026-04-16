@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,6 +119,8 @@ public abstract class FactoryUtils {
         map.put(ArmyKey.DATABASE_NAME_MODE.name, NameMode.DEFAULT);
         map.put(ArmyKey.TABLE_NAME_MODE.name, NameMode.DEFAULT);
         map.put(ArmyKey.COLUMN_NAME_MODE.name, NameMode.DEFAULT);
+
+        map.put(ArmyKey.OBJECT_NAME_CACHE_MODE.name, ObjectNameCacheMode.ALL);
         return StandardEnvironment.from(map);
     }
 

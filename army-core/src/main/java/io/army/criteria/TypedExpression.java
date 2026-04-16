@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,6 +124,26 @@ public interface TypedExpression extends Expression , TypeInfer{
     <T> Expression rightShift(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
     <T> Expression leftShift(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+
+    <T> IPredicate like(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+
+    <T> IPredicate like(BiFunction<TypedExpression, T, Expression> funcRef, T value, SQLs.WordEscape escape, T escapeChar);
+
+    <T> IPredicate notLike(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+
+    <T> IPredicate notLike(BiFunction<TypedExpression, T, Expression> funcRef, T value, SQLs.WordEscape escape, T escapeChar);
+
+    @Support({PostgreSQL})
+    <T> IPredicate similarTo(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+
+    @Support({PostgreSQL})
+    <T> IPredicate similarTo(BiFunction<TypedExpression, T, Expression> funcRef, T value, SQLs.WordEscape escape, T escapeChar);
+
+    @Support({PostgreSQL})
+    <T> IPredicate notSimilarTo(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+
+    @Support({PostgreSQL})
+    <T> IPredicate notSimilarTo(BiFunction<TypedExpression, T, Expression> funcRef, T value, SQLs.WordEscape escape, T escapeChar);
 
 
     /*-------------------below dialect operator method-------------------*/

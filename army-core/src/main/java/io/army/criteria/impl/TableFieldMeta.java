@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,16 +144,6 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
         return CODEC_MAP.keySet();
     }
 
-    private static void assertNotParentFiled(TableMeta<?> table, Field field) {
-        if ((table instanceof ChildTableMeta) && !_MetaBridge.ID.equals(field.getName())) {
-            final ChildTableMeta<?> childMeta = (ChildTableMeta<?>) table;
-            if (childMeta.parentMeta().containField(field.getName())) {
-                String m = String.format("mapping field belong to ParentTableMeta[%s]"
-                        , childMeta.parentMeta());
-                throw new MetaException(m);
-            }
-        }
-    }
 
 
     final DefaultTableMeta<T> table;
@@ -174,7 +164,7 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
     final boolean insertable;
 
-    final UpdateMode updateMode;
+    final boolean updatable;
 
     private final int precision;
 
@@ -228,7 +218,7 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
                 generator = field.getAnnotation(Generator.class);
                 this.insertable = FieldMetaUtils.columnInsertable(this, generator, column, isDiscriminator);
             }
-            this.updateMode = FieldMetaUtils.columnUpdatable(this, column, isDiscriminator);
+            this.updatable = FieldMetaUtils.columnUpdatable(this, column, isDiscriminator);
             this.comment = FieldMetaUtils.columnComment(column, this, isDiscriminator);
             this.notNull = table.allColumnNotNull()
                     || _MetaBridge.RESERVED_FIELDS.contains(this.fieldName)
@@ -322,8 +312,8 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
     }
 
     @Override
-    public final UpdateMode updateMode() {
-        return this.updateMode;
+    public final boolean updatable() {
+        return this.updatable;
     }
 
     @Override

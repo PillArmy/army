@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,10 +34,10 @@ abstract class EnumHelper {
     }
 
     private static final ConcurrentMap<Class<?>, Map<Integer, ? extends CodeEnum>> CODE_MAP_HOLDER =
-            new FinalConcurrentHashMap<>();
+            new ConcurrentHashMap<>();
 
     private static final ConcurrentMap<Class<?>, Map<String, ? extends TextEnum>> TEXT_MAP_HOLDER =
-            new FinalConcurrentHashMap<>();
+            new ConcurrentHashMap<>();
 
 
     @SuppressWarnings("unchecked")
@@ -72,7 +72,7 @@ abstract class EnumHelper {
         assertFieldIsFinal(javaType);
         final Class<T> enumClass = (Class<T>) javaType;
         final T[] types = enumClass.getEnumConstants();
-        final Map<Integer, CodeEnum> map = new FinalHashMap<>((int) (types.length / 0.75f));
+        final Map<Integer, CodeEnum> map = new HashMap<>((int) (types.length / 0.75f));
         for (T type : types) {
             if (map.putIfAbsent(type.code(), type) != null) {
                 String m;
@@ -80,7 +80,7 @@ abstract class EnumHelper {
                 throw new IllegalArgumentException(m);
             }
         }
-        return Collections.unmodifiableMap(map);
+        return Map.copyOf(map);
     }
 
 
@@ -94,7 +94,7 @@ abstract class EnumHelper {
 
         final Class<T> enumClass = (Class<T>) javaType;
         final T[] types = enumClass.getEnumConstants();
-        final Map<String, T> map = new FinalHashMap<>((int) (types.length / 0.75f));
+        final Map<String, T> map = new HashMap<>((int) (types.length / 0.75f));
         String text;
         for (T type : types) {
             text = type.text();
@@ -104,7 +104,7 @@ abstract class EnumHelper {
                 throw new IllegalArgumentException(m);
             }
         }
-        return Collections.unmodifiableMap(map);
+        return Map.copyOf(map);
     }
 
 
@@ -119,22 +119,7 @@ abstract class EnumHelper {
     }
 
 
-    private static final class FinalHashMap<K, V> extends HashMap<K, V> {
 
-        private FinalHashMap(int initialCapacity) {
-            super(initialCapacity);
-        }
-
-
-    }//FinalHashMap
-
-
-    private static final class FinalConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> {
-
-        private FinalConcurrentHashMap() {
-        }
-
-    }//FinalConcurrentHashMap
 
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import io.army.util._StringUtils;
 import io.army.util._TimeUtils;
 
 import io.army.lang.Nullable;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.*;
@@ -290,72 +291,72 @@ abstract class SQLiteParser extends _ArmyDialectParser {
         return name;
     }
 
-    @Override
-    protected final boolean isUseObjectNameModeMethod() {
-        // don't use object name mode
-        return false;
-    }
 
     /**
      * @see <a href="https://sqlite.org/lang_naming.html">Database Object Name Resolution</a>
      * @see <a href="https://www.sqlite.org/lang_keywords.html">SQLite Keywords</a>
      */
     @Override
-    protected final IdentifierMode identifierMode(final String identifier) {
-        final int length = identifier.length();
-        if (length == 0) {
-            return IdentifierMode.ERROR;
+    protected final void handleIdentifier(final @Nullable DatabaseObject object, final String effectiveName, final StringBuilder sqlBuilder) {
+        final int length,startIndex;
+        length = effectiveName.length();
+        startIndex = sqlBuilder.length();
 
-        }
-
-        IdentifierMode mode = null;
+        final char boundaryChar = this.identifierQuote;
+        int lastWritten = 0,writtenIndex = startIndex;
         char ch;
+
         for (int i = 0; i < length; i++) {
-            ch = identifier.charAt(i);
-            if (ch == _Constant.DOUBLE_QUOTE) {
-                mode = IdentifierMode.ESCAPES;
-                break;
-            } else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') {
+            ch = effectiveName.charAt(i);
+
+           if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') {
                 continue;
             } else if (ch >= '0' && ch <= '9') {
                 if (i == 0) {
-                    mode = IdentifierMode.QUOTING;
+                    sqlBuilder.append(boundaryChar);
+                    writtenIndex ++;
                 }
                 continue;
             }
 
-            if (mode == null) {
-                mode = IdentifierMode.QUOTING;
+            if (ch == _Constant.NUL_CHAR) {
+                if(object == null){
+                    throw _Exceptions.identifierError(effectiveName, this.dialect);
+                }else {
+                    throw _Exceptions.objectNameError(object, this.dialect);
+                }
             }
 
-        } // loop for
+            if(writtenIndex == startIndex){
+                sqlBuilder.append(boundaryChar);
+                writtenIndex++;
+            }
 
-        if (mode == null) {
-            mode = IdentifierMode.SIMPLE;
+            if (ch != boundaryChar) {
+                continue;
+            }
+
+            if (i > lastWritten) {
+                sqlBuilder.append(effectiveName, lastWritten, i);
+            }
+            sqlBuilder.append(boundaryChar);
+            lastWritten = i; // not i + 1 as current char wasn't written
+
+
+        } // for loop
+
+        if (lastWritten < length) {
+            sqlBuilder.append(effectiveName, lastWritten, length);
         }
-        return mode;
+
+        if(writtenIndex > startIndex){
+            sqlBuilder.append(boundaryChar);
+        }
+
     }
 
 
-    /**
-     * @see #isUseObjectNameModeMethod()
-     * @see <a href="https://sqlite.org/lang_naming.html">Database Object Name Resolution</a>
-     * @see <a href="https://www.sqlite.org/lang_keywords.html">SQLite Keywords</a>
-     */
-    @Override
-    protected final IdentifierMode objectNameMode(final DatabaseObject object, final String effectiveName) {
-        // no bug never here
-        throw new UnsupportedOperationException();
-    }
 
-    /**
-     * @see <a href="https://sqlite.org/lang_naming.html">Database Object Name Resolution</a>
-     * @see <a href="https://www.sqlite.org/lang_keywords.html">SQLite Keywords</a>
-     */
-    @Override
-    protected final void escapesIdentifier(final String identifier, final StringBuilder sqlBuilder) {
-        simplyEscapeIdentifier(identifier, _Constant.DOUBLE_QUOTE, sqlBuilder);
-    }
 
 
     /**

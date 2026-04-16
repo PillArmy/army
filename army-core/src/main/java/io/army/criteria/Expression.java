@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,18 +155,21 @@ public interface Expression extends SQLExpression, SortItem,
 
     IPredicate like(Object pattern, SQLs.WordEscape escape, Object escapeChar);
 
-    <T> IPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value);
-
-    <T> IPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value, SQLs.WordEscape escape, T escapeChar);
-
     IPredicate notLike(Object pattern);
 
     IPredicate notLike(Object pattern, SQLs.WordEscape escape, Object escapeChar);
 
-    <T> IPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value);
+    @Support({PostgreSQL})
+    IPredicate similarTo(Object pattern);
 
-    <T> IPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value, SQLs.WordEscape escape, T escapeChar);
+    @Support({PostgreSQL})
+    IPredicate similarTo(Object pattern, SQLs.WordEscape escape, Object escapeChar);
 
+    @Support({PostgreSQL})
+    IPredicate notSimilarTo(Object pattern);
+
+    @Support({PostgreSQL})
+    IPredicate notSimilarTo(Object pattern, SQLs.WordEscape escape, Object escapeChar);
 
     Expression mod(Object operand);
 
@@ -400,7 +403,7 @@ public interface Expression extends SQLExpression, SortItem,
     /// @param key key is one of below:
     /// 1. {@link Expression} : subscript expression
     /// 2. {@link String} literal
-    /// @see <a href="https://www.postgresql.org/docs/current/datatype-json.html#JSONB-SUBSCRIPTING">JSONB-SUBSCRIPTING</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/rowtypes.html#ROWTYPES-ACCESSING">Accessing Composite Types</a>
     Expression dot(Object key);
 
     Expression dot(Object key, Object key1);

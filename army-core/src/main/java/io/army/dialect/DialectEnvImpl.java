@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
 import io.army.meta.FieldMeta;
 import io.army.meta.ServerMeta;
+import io.army.meta.TableMeta;
 import io.army.util._Collections;
 
 import java.time.ZoneOffset;
@@ -51,6 +52,8 @@ final class DialectEnvImpl implements DialectEnv {
 
     private final XmlCodec xmlCodec;
 
+    private Map<Class<?>, TableMeta<?>> tableMetaMap;
+
     private DialectEnvImpl(EnvBuilder builder) {
         this.factoryName = builder.factoryName;
         this.environment = builder.env;
@@ -62,7 +65,9 @@ final class DialectEnvImpl implements DialectEnv {
         this.jsonCodec = builder.jsonCodec;
         this.xmlCodec = builder.xmlCodec;
 
-        if (this.serverMeta == null) {
+        this.tableMetaMap = builder.tableMetaMap;
+
+        if (this.serverMeta == null || this.tableMetaMap == null) {
             throw new IllegalArgumentException();
         }
 
@@ -113,6 +118,11 @@ final class DialectEnvImpl implements DialectEnv {
     }
 
     @Override
+    public Map<Class<?>, TableMeta<?>> tableMap() {
+        return this.tableMetaMap;
+    }
+
+    @Override
     public String toString() {
         return String.format("%s factory:%s", DialectEnvImpl.class.getSimpleName(), this.factoryName);
     }
@@ -135,6 +145,8 @@ final class DialectEnvImpl implements DialectEnv {
         private JsonCodec jsonCodec;
 
         private XmlCodec xmlCodec;
+
+        private Map<Class<?>, TableMeta<?>> tableMetaMap;
 
         @Override
         public Builder factoryName(String name) {
@@ -181,6 +193,12 @@ final class DialectEnvImpl implements DialectEnv {
         @Override
         public Builder xmlCodec(@Nullable XmlCodec codec) {
             this.xmlCodec = codec;
+            return this;
+        }
+
+        @Override
+        public Builder tableMap(Map<Class<?>, TableMeta<?>> map) {
+            this.tableMetaMap = map;
             return this;
         }
 

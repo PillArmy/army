@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ abstract class Expressions {
         return rightExp;
     }
 
-    static Expression wrapRightForLike(final @Nullable Object right) {
+    static Expression wrapRightForEscape(final @Nullable Object right) {
         final Expression rightExp;
         if (right == null) {
             throw ContextStack.clearStackAndNullPointer("right operand must non-null");
@@ -80,10 +80,10 @@ abstract class Expressions {
             throw ContextStack.clearStackAndNullPointer("right operand couldn't be absent.");
         } else if (right instanceof Expression) {
             rightExp = (Expression) right;
-        } else if (right instanceof String) {
+        } else if (right instanceof String || right instanceof Character) {
             rightExp = SQLs.param(StringType.INSTANCE, right);
         } else {
-            throw ContextStack.clearStackAndNullPointer("LIKE operator right operand must be Expression or String.");
+            throw ContextStack.clearStackAndCriteriaError("escape of LIKE/SIMILAR TO operator right operand must be Expression or String.");
         }
         return rightExp;
     }
@@ -216,9 +216,9 @@ abstract class Expressions {
         if (escapeChar == null) {
             escapeExp = null;
         } else {
-            escapeExp = wrapRightForLike(escapeChar);
+            escapeExp = wrapRightForEscape(escapeChar);
         }
-        return new LikePredicate((OperationExpression) left, operator, wrapRightForLike(right), escapeExp);
+        return new LikePredicate((OperationExpression) left, operator, wrapRight(left,right), escapeExp);
     }
 
 
@@ -529,7 +529,8 @@ abstract class Expressions {
     static void appendConcatenationExpression(SQLExpression expression, StringBuilder sqlBuilder, _SqlContext context) {
         final boolean outerParen = !(expression instanceof ArmySimpleSQLExpression);
         if (outerParen) {
-            sqlBuilder.append(_Constant.LEFT_PAREN);
+            sqlBuilder.append(_Constant.SPACE)
+                    .append(_Constant.LEFT_PAREN);
         }
         ((ArmySQLExpression) expression).appendSql(sqlBuilder, context);
         if (outerParen) {
@@ -568,7 +569,8 @@ abstract class Expressions {
     static void toStringConcatenationExpression(SQLExpression expression, StringBuilder builder) {
         final boolean outerParen = !(expression instanceof ArmySimpleSQLExpression);
         if (outerParen) {
-            builder.append(_Constant.LEFT_PAREN);
+            builder.append(_Constant.SPACE)
+                    .append(_Constant.LEFT_PAREN);
         }
         builder.append(expression);
         if (outerParen) {
@@ -1528,7 +1530,6 @@ abstract class Expressions {
 
         @Override
         public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
-            // NOTE ,here don't output Leading space,because here output [] of array
             appendConcatenationExpression(this.expression, sqlBuilder, context);
             final List<?> list = this.subscriptList;
             final int size = list.size();
@@ -1544,7 +1545,6 @@ abstract class Expressions {
 
         @Override
         public String toString() {
-            // NOTE ,here don't output Leading space,because here output [] of array
             final StringBuilder builder = _StringUtils.builder();
             toStringConcatenationExpression(this.expression, builder);
             final List<?> list = this.subscriptList;
@@ -1578,7 +1578,7 @@ abstract class Expressions {
 
         @Override
         public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
-            // NOTE ,here don't output Leading space,because here output DOT of object
+            sqlBuilder.append(_Constant.SPACE);
 
             final int subscriptCount = this.subscriptList.size();
             for (int i = 0; i < subscriptCount; i++) {
@@ -1622,8 +1622,8 @@ abstract class Expressions {
 
         @Override
         public String toString() {
-            // NOTE ,here don't output Leading space,because here output DOT of object
             final StringBuilder builder = _StringUtils.builder();
+            builder.append(_Constant.SPACE);
             final int subscriptCount = this.subscriptList.size();
             for (int i = 0; i < subscriptCount; i++) {
                 builder.append(_Constant.LEFT_PAREN);  // https://www.postgresql.org/docs/current/rowtypes.html#ROWTYPES-ACCESSING

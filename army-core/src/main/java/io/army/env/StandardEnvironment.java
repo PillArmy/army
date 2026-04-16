@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public final class StandardEnvironment implements ArmyEnvironment {
     private final Map<String, Object> map;
 
     private StandardEnvironment(Map<String, Object> map) {
-        this.map = Collections.unmodifiableMap(_Collections.hashMap(map));
+        this.map = Map.copyOf(map);
     }
 
     @SuppressWarnings("unchecked")

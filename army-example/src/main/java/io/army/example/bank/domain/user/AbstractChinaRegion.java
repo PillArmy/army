@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class AbstractChinaRegion<T extends AbstractChinaRegion<T>> extends BaseV
     private BigDecimal regionGdp;
 
 
-    @Column(notNull = true, defaultValue = "0", updateMode = UpdateMode.IMMUTABLE, comment = "china region parent level id")
+    @Column(notNull = true, defaultValue = "0", updatable = false, comment = "china region parent level id")
     private Long parentId;
 
     @Column(defaultValue = "0", notNull = true, comment = "china region population")

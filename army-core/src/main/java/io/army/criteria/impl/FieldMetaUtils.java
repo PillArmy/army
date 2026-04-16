@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -190,23 +190,22 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         return insertable;
     }
 
-    static UpdateMode columnUpdatable(FieldMeta<?> field, final Column column, boolean isDiscriminator) {
+    static boolean columnUpdatable(FieldMeta<?> field, final Column column, boolean isDiscriminator) {
         final String fieldName = field.fieldName();
-        final UpdateMode mode;
+        final boolean able;
         if (isDiscriminator
+                || field.tableMeta().immutable()
                 || _MetaBridge.ID.equals(fieldName)
                 || _MetaBridge.CREATE_TIME.equals(fieldName)) {
-            mode = UpdateMode.IMMUTABLE;
-        } else if (field.tableMeta().immutable()) {
-            mode = UpdateMode.IMMUTABLE;
+            able = false;
         } else if (_MetaBridge.UPDATE_TIME.equals(fieldName)
                 || _MetaBridge.VERSION.equals(fieldName)
                 || _MetaBridge.VISIBLE.equals(fieldName)) {
-            mode = UpdateMode.UPDATABLE;
+            able = true;
         } else {
-            mode = column.updateMode();
+            able = column.updatable();
         }
-        return mode;
+        return able;
     }
 
 

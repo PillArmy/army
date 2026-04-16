@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,24 +132,7 @@ public class DomainUpdateUnitTests extends StandardUnitTests {
     }
 
 
-    /**
-     * @see io.army.annotation.UpdateMode
-     */
-    @Test
-    public void updateParentWithOnlyNullMode() {
-        assert PillUser_.identityId.updateMode() == UpdateMode.ONLY_NULL;
-        final Update stmt;
-        stmt = SQLs.domainUpdate()
-                .update(PillUser_.T, AS, "u")
-                .set(PillUser_.identityType, SQLs::literal, IdentityType.PERSON)
-                .set(PillUser_.identityId, SQLs::literal, 888)
-                .set(PillUser_.nickName, SQLs::param, "令狐冲")
-                .where(PillUser_.id::equal, SQLs::literal, "1")
-                .and(PillUser_.nickName::equal, SQLs::param, "zoro")
-                .asUpdate();
 
-        printStmt(LOG, stmt);
-    }
 
     @Test
     public void updateOnlyParentField() {

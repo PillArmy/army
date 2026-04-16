@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -308,7 +308,7 @@ abstract class SetWhereClause<F extends TableField, SR, WR, WA, OR, OD, LR, LO, 
             throw ContextStack.criteriaError(this.context, String.format("unknown %s", ItemPair.class.getName()));
         } else if (!((fieldPair = (SQLs.FieldItemPair) pair).field instanceof TableField)) {
             throw ContextStack.clearStackAndCastCriteriaApi();
-        } else if ((field = (TableField) fieldPair.field).updateMode() == UpdateMode.IMMUTABLE) {
+        } else if (!(field = (TableField) fieldPair.field).updatable()) {
             throw ContextStack.criteriaError(this.context, _Exceptions::immutableField, field);
         } else if (field.notNull() && ((ArmyExpression) fieldPair.right).isNullValue()) {
             throw ContextStack.criteriaError(this.context, _Exceptions::nonNullField, field);

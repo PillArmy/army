@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,12 +37,11 @@ public class OperatorUnitTests extends PostgreUnitTests {
         stmt = Postgres.query()
                 .select(ChinaRegion_.id)
                 .from(ChinaRegion_.T, AS, "c")
-                .where(ChinaRegion_.name.space(SIMILAR_TO, SQLs::constant, "%(b|d)%"))
-                .and(ChinaRegion_.name.space(NOT_SIMILAR_TO, SQLs::constant, "%(b|d)%"))
-                .and(ChinaRegion_.name.space(SIMILAR_TO, SQLs::constant, "%(b|d)%", SQLs.ESCAPE, '|'))
-                .and(ChinaRegion_.name.space(NOT_SIMILAR_TO, SQLs::constant, "Hong Kong", SQLs.ESCAPE, '|'))
+                .where(ChinaRegion_.name.similarTo(SQLs::constant, "%(b|d)%"))
+                .and(ChinaRegion_.name.notSimilarTo(SQLs::constant, "%(b|d)%"))
+                .and(ChinaRegion_.name.similarTo(SQLs::constant, "%(b|d)%", SQLs.ESCAPE, '|'))
+                .and(ChinaRegion_.name.notSimilarTo(SQLs::constant, "Hong Kong", SQLs.ESCAPE, '|'))
                 .asQuery();
-
         printStmt(LOG, stmt);
     }
 

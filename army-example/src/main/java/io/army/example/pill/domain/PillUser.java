@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,10 +49,10 @@ public class PillUser<T extends PillUser<T>> extends VersionDomain {
     @Column(precision = 64, defaultValue = "''", comment = "user nick name")
     private String nickName;
 
-    @Column(comment = "user identity type", updateMode = UpdateMode.ONLY_NULL)
+    @Column(comment = "user identity type")
     private IdentityType identityType;
 
-    @Column(defaultValue = "0", comment = "user identity id", updateMode = UpdateMode.ONLY_NULL)
+    @Column(defaultValue = "0", comment = "user identity id")
     private Long identityId;
 
 

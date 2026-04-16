@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,10 +40,6 @@ import java.util.Set;
 
 abstract class MySQLParser extends _ArmyDialectParser {
 
-    static MySQLParser standard(DialectEnv environment, MySQLDialect dialect) {
-        return new Standard(environment, dialect);
-    }
-
 
     static final char BACKTICK = '`';
 
@@ -65,7 +61,7 @@ abstract class MySQLParser extends _ArmyDialectParser {
         }
 
         // Prior to / as of
-        this.asOf80 = ((MySQLDialect) this.dialect).compareWith(MySQLDialect.MySQL80) >= 0;
+        this.asOf80 = this.dialect.compareWith(MySQLDialect.MySQL80) >= 0;
     }
 
 
@@ -366,7 +362,7 @@ abstract class MySQLParser extends _ArmyDialectParser {
 
         // 1. UPDATE clause
         final StringBuilder sqlBuilder = context.sqlBuilder();
-        if (sqlBuilder.length() > 0) {
+        if (!sqlBuilder.isEmpty()) {
             sqlBuilder.append(_Constant.SPACE);
         }
         sqlBuilder.append(_Constant.UPDATE);
@@ -406,7 +402,7 @@ abstract class MySQLParser extends _ArmyDialectParser {
 
         // 1. delete clause
         final StringBuilder sqlBuilder;
-        if ((sqlBuilder = context.sqlBuilder()).length() > 0) {
+        if (!(sqlBuilder = context.sqlBuilder()).isEmpty()) {
             sqlBuilder.append(_Constant.SPACE);
         }
         sqlBuilder.append(_Constant.DELETE_SPACE);
@@ -596,88 +592,80 @@ abstract class MySQLParser extends _ArmyDialectParser {
         }
     }
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifiers.html"> Schema Object Names</a>
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html">Identifier Case Sensitivity</a>
-     */
+    ///
+    ///  @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifiers.html"> Schema Object Names</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html">Identifier Case Sensitivity</a>
     @Override
-    protected final IdentifierMode identifierMode(final String identifier) {
+    protected final void handleIdentifier(final @Nullable DatabaseObject object,final String effectiveName,final StringBuilder sqlBuilder) {
         // 1. 列名   : MySQL列名不区分大小写,即使使用引用也不区分,故此算法正确
         // 2. 列别名 : 虽然MySQL列别名不区分大小写,但MySQL原样返回了列别名,故此算法正确
         // 3. 表名   : MySQL 的表名的大小写规则依赖服务器的操作系统,若必要,开发者可通过 ArmyKey.TABLE_NAME_MODE 控制大小写
         // 4. 表别名 : MySQL 的表别名的大小写规则依赖服务器的操作系统,但由于表别名只是语句内引用,并不返回客户端,故此算法正确
-        final int length = identifier.length();
-        if (length == 0) {
-            return IdentifierMode.ERROR;
-        }
-        IdentifierMode mode = null;
+
+        final int length,startIndex;
+        length = effectiveName.length();
+        startIndex = sqlBuilder.length();
+
+        final char boundaryChar = this.identifierQuote;
+        int lastWritten = 0,writtenIndex = startIndex;
         char ch;
-        outerFor:
         for (int i = 0; i < length; i++) {
-            ch = identifier.charAt(i);
+            ch = effectiveName.charAt(i);
             if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') {
                 continue;
-            } else if (ch >= '0' && ch <= '9') {
+            }else if (ch >= '0' && ch <= '9') {
                 if (i == 0) {
                     // Identifiers may begin with a digit but unless quoted may not consist solely of digits.
-                    mode = IdentifierMode.QUOTING;
+                    sqlBuilder.append(boundaryChar);
+                    writtenIndex ++;
                 }
                 continue;
             } else if (ch == '$') {
                 if (i > 0 || this.asOf80) {
                     continue;
                 }
-                mode = IdentifierMode.QUOTING;
+                sqlBuilder.append(boundaryChar);
+                writtenIndex++;
                 continue;
             }
 
-            switch (ch) {
-                case BACKTICK: {
-                    if (mode != IdentifierMode.ESCAPES) {
-                        mode = IdentifierMode.ESCAPES;
-                    }
+            if (ch == _Constant.NUL_CHAR) {
+                if(object == null){
+                    throw _Exceptions.identifierError(effectiveName, this.dialect);
+                }else {
+                    throw _Exceptions.objectNameError(object, this.dialect);
                 }
-                break;
-                case _Constant.NUL_CHAR:
-                    mode = IdentifierMode.ERROR;
-                    break outerFor;
-                default: {
-                    if (mode == null && (ch < '\u0080' || Character.isWhitespace(ch))) {
-                        mode = IdentifierMode.QUOTING;
-                    }
-                }
-            }// switch
+            }
+
+            if(writtenIndex == startIndex){
+                sqlBuilder.append(boundaryChar);
+                writtenIndex++;
+            }
+
+            if (ch != boundaryChar) {
+                continue;
+            }
+
+            if (i > lastWritten) {
+                sqlBuilder.append(effectiveName, lastWritten, i);
+            }
+            sqlBuilder.append(boundaryChar);
+            lastWritten = i; // not i + 1 as current char wasn't written
 
 
-        } // for
+        } // for loop
 
-        if (mode == null) {
-            mode = IdentifierMode.SIMPLE;
+        if (lastWritten < length) {
+            sqlBuilder.append(effectiveName, lastWritten, length);
         }
-        return mode;
-    }
 
-    /**
-     * @see #identifierMode(String)
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifiers.html"> Schema Object Names</a>
-     */
-    @Override
-    protected final void escapesIdentifier(final String identifier, final StringBuilder sqlBuilder) {
-        simplyEscapeIdentifier(identifier, BACKTICK, sqlBuilder);
-    }
+        if(writtenIndex > startIndex){
+            sqlBuilder.append(boundaryChar);
+        }
 
 
-    @Override
-    protected final boolean isUseObjectNameModeMethod() {
-        // false,MySQL use identifierMode() method.
-        return false;
     }
 
-    @Override
-    protected final IdentifierMode objectNameMode(final DatabaseObject object, final String effectiveName) {
-        // no bug,never here
-        throw new UnsupportedOperationException();
-    }
 
 
     @Override

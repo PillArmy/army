@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class Captcha extends Domain {
     @Column
     private LocalDateTime updateTime;
 
-    @Column(notNull = true, updateMode = UpdateMode.IMMUTABLE
+    @Column(notNull = true, updatable = false
             , comment = "partner user id,@see table u_user,0 representing bank self")
     private Long partnerId;
 
@@ -46,7 +46,7 @@ public class Captcha extends Domain {
     @Column(notNull = true, comment = "deadline,invalid after this")
     private LocalDateTime deadline;
 
-    @Column(precision = 30, notNull = true, updateMode = UpdateMode.IMMUTABLE
+    @Column(precision = 30, notNull = true, updatable = false
             , comment = "request number that provide to partner")
     private String requestNo;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ abstract class StatementContext implements _StmtContext, StmtParams {
             this.parser = parser;
             this.sessionSpec = sessionSpec;
             this.visible = sessionSpec.visible();
-            this.sqlBuilder = new StringBuilder(128);
+            this.sqlBuilder = new StringBuilder(1024);
         } else {
             this.parser = parentOrOuterContext.parser;
             this.visible = parentOrOuterContext.visible;
@@ -475,7 +475,7 @@ abstract class StatementContext implements _StmtContext, StmtParams {
 
         private ParamAccepter(@Nullable Function<String, Object> nameValueFunc, @Nullable IntSupplier batchIndexFunc) {
             assert (nameValueFunc == null) == (batchIndexFunc == null);
-            this.paramList = _Collections.arrayList();
+            this.paramList = _Collections.arrayList(20);
             this.nameValueFunc = nameValueFunc;
             this.batchIndexFunc = batchIndexFunc;
         }

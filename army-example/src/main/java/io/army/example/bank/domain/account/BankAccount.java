@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,18 +33,18 @@ public class BankAccount extends BaseVersionDomain<BankAccount> {
     @Generator(value = SNOWFLAKE, params = {@Param(name = START_TIME, value = startTime)})
     private Long id;
 
-    @Column(notNull = true, updateMode = UpdateMode.IMMUTABLE, comment = "account type")
+    @Column(notNull = true, updatable = false, comment = "account type")
     private BankAccountType accountType;
 
-    @Column(notNull = true, precision = 40, updateMode = UpdateMode.IMMUTABLE, comment = "provide to partner account number")
+    @Column(notNull = true, precision = 40, updatable = false, comment = "provide to partner account number")
     @Generator(value = SNOWFLAKE, params = {
             @Param(name = START_TIME, value = startTime), @Param(name = DEPEND, value = "userId")})
     private String accountNo;
 
-    @Column(notNull = true, updateMode = UpdateMode.IMMUTABLE, comment = "user id of account")
+    @Column(notNull = true, updatable = false, comment = "user id of account")
     private Long userId;
 
-    @Column(notNull = true, updateMode = UpdateMode.IMMUTABLE, comment = "user type of account")
+    @Column(notNull = true, updatable = false, comment = "user type of account")
     private BankUserType userType;
 
     @Column(notNull = true, precision = 14, scale = 2, defaultValue = "0.00", comment = "balance of account")
@@ -53,7 +53,7 @@ public class BankAccount extends BaseVersionDomain<BankAccount> {
     @Column(notNull = true, precision = 14, scale = 2, defaultValue = "0.00", comment = "frozen account of account")
     private BigDecimal frozenAmount;
 
-    @Column(notNull = true, updateMode = UpdateMode.IMMUTABLE, comment = "r_register_record primary key")
+    @Column(notNull = true, updatable = false, comment = "r_register_record primary key")
     private Long registerRecordId;
 
 

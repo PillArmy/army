@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,10 @@ public interface TypedField extends SqlField, TypedExpression, SimpleExpression 
     /// 4. Your custom method
     IPredicate spaceEqual(BiFunction<TypedField, String, Expression> namedOperator);
 
+    IPredicate spaceNotEqual(BiFunction<TypedField, String, Expression> namedOperator);
+
+    IPredicate spaceNullSafeEqual(BiFunction<TypedField, String, Expression> namedOperator);
+
     ///
     /// {@code <} operator for batch statement
     /// The implementation of this method is equivalent to following:
@@ -68,7 +72,6 @@ public interface TypedField extends SqlField, TypedExpression, SimpleExpression 
 
     IPredicate spaceGreaterEqual(BiFunction<TypedField, String, Expression> namedOperator);
 
-    IPredicate spaceNotEqual(BiFunction<TypedField, String, Expression> namedOperator);
 
     IPredicate spaceLike(BiFunction<TypedField, String, Expression> namedOperator);
 
@@ -128,6 +131,68 @@ public interface TypedField extends SqlField, TypedExpression, SimpleExpression 
     /// 2. {@link String} literal
     /// 3. char literal
     IPredicate spaceNotLike(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar);
+
+
+    IPredicate spaceSimilarTo(BiFunction<TypedField, String, Expression> namedOperator);
+
+    ///
+    /// SIMILAR TO operator for batch statement.
+    ///
+    /// The implementation of this method is equivalent to following:
+    ///
+    /// ```java
+    /// IPredicate spaceSimilarTo(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar) {
+    ///     final Expression operand; // the right operand of SIMILAR TO .
+    ///     operand = namedOperator.apply(this, this.fieldName());
+    ///     if (operand instanceof LiteralExpression && !(escapeChar instanceof Expression)) {
+    ///             escapeChar = SQLs.constant(StringType.INSTANCE, escapeChar);
+    ///     }
+    ///     return this.similarTo(operand,escape,escapeChar)
+    /// }
+    /// ```
+    ///
+    /// @param namedOperator one of below:
+    /// 1. {@link SQLs#namedParam(TypeInfer, String)} named parameter
+    /// 2. {@link SQLs#namedLiteral(TypeInfer, String)} named literal
+    /// 3. {@link SQLs#namedConst(TypeInfer, String)} named const
+    /// 4. Your custom method
+    /// @param escape        {@link SQLs#ESCAPE}
+    /// @param escapeChar    one of blow:
+    /// 1. {@link Expression} expression
+    /// 2. {@link String} literal
+    /// 3. char literal
+    IPredicate spaceSimilarTo(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar);
+
+    IPredicate spaceNotSimilarTo(BiFunction<TypedField, String, Expression> namedOperator);
+
+    ///
+    /// NOT SIMILAR TO operator for batch statement.
+    ///
+    /// The implementation of this method is equivalent to following:
+    ///
+    /// ```java
+    /// IPredicate spaceNotSimilarTo(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar) {
+    ///     final Expression operand; // the right operand of NOT SIMILAR TO .
+    ///     operand = namedOperator.apply(this, this.fieldName());
+    ///     if (operand instanceof LiteralExpression && !(escapeChar instanceof Expression)) {
+    ///             escapeChar = SQLs.constant(StringType.INSTANCE, escapeChar);
+    ///     }
+    ///     return this.notSimilarTo(operand,escape,escapeChar)
+    /// }
+    /// ```
+    ///
+    /// @param namedOperator one of below:
+    /// 1. {@link SQLs#namedParam(TypeInfer, String)} named parameter
+    /// 2. {@link SQLs#namedLiteral(TypeInfer, String)} named literal
+    /// 3. {@link SQLs#namedConst(TypeInfer, String)} named const
+    /// @param escape        {@link SQLs#ESCAPE}
+    /// @param escapeChar    one of blow:
+    /// 1. {@link Expression} expression
+    /// 2. {@link String} literal
+    /// 3. char literal
+    IPredicate spaceNotSimilarTo(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar);
+
+
 
     /// IN operator  for batch statement
     ///
@@ -199,8 +264,8 @@ public interface TypedField extends SqlField, TypedExpression, SimpleExpression 
     /// ```
     ///
     /// @param operator      one of below:
-    /// 1. {@link SQLs#SIMILAR_TO}  key word
-    /// 2. {@link SQLs#NOT_SIMILAR_TO} key word
+    /// 1. {@code  Postgres#SIMILAR_TO}  key word
+    /// 2. {@code  Postgres#NOT_SIMILAR_TO} key word
     /// @param namedOperator one of below:
     /// 1. {@link SQLs#namedParam(TypeInfer, String)} named parameter
     /// 2. {@link SQLs#namedLiteral(TypeInfer, String)} named literal

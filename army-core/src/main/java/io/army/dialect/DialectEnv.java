@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
 import io.army.meta.FieldMeta;
 import io.army.meta.ServerMeta;
+import io.army.meta.TableMeta;
 import io.army.session.FactoryBuilder;
 
 import java.time.ZoneOffset;
@@ -64,6 +65,8 @@ public interface DialectEnv {
     @Nullable
     XmlCodec xmlCodec();
 
+    Map<Class<?>, TableMeta<?>> tableMap();
+
 
     static Builder builder() {
         return DialectEnvImpl.builder();
@@ -87,7 +90,10 @@ public interface DialectEnv {
 
         Builder xmlCodec(@Nullable XmlCodec codec);
 
+        Builder tableMap(Map<Class<?>, TableMeta<?>> map);
+
         DialectEnv build();
+
     }
 
 

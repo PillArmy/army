@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -276,7 +276,7 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         if (fieldList.size() != fieldNameToField.size()) {
             throw new IllegalStateException("field count not match.");
         }
-        return _Collections.unmodifiableList(fieldList);
+        return fieldList;
     }
 
 
@@ -326,9 +326,9 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
             final TableMetaUtils.FieldMetaPair<T> pair;
             pair = TableMetaUtils.createFieldMetaPair(this);
 
-            this.fieldNameToFields = pair.fieldMap;
-            this.indexMetaList = pair.indexMetaList;
-            this.fieldList = createFieldList(domainClass, this.fieldNameToFields);
+            this.fieldNameToFields = Map.copyOf(pair.fieldMap);
+            this.indexMetaList = List.copyOf(pair.indexMetaList);
+            this.fieldList = List.copyOf(createFieldList(domainClass, this.fieldNameToFields));
             this.generatorChain = TableMetaUtils.createGeneratorChain(this.fieldNameToFields);
 
             this.primaryField = (PrimaryFieldMeta<T>) this.fieldNameToFields.get(_MetaBridge.ID);
@@ -383,7 +383,6 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
     public final PrimaryFieldMeta<T> id() {
         return this.primaryField;
     }
-
 
 
     @Override

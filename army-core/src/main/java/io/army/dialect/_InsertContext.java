@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ public interface _InsertContext extends _DmlContext, _SetClauseContext {
     boolean hasConditionPredicate();
 
 
+    @Deprecated
     void appendConditionPredicate(boolean firstPredicate);
 
     @Override

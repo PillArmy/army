@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,6 +105,7 @@ public abstract class Postgres extends PostgreSyntax {
     public static final ExtractTimeField YEAR = PostgreWords.WordExtractTimeField.YEAR;
 
 
+
     public static final SQLs.DualOperator DARROW = DualExpOperator.DARROW;
     public static final SQLs.DualOperator BI_ARROW = DualExpOperator.BI_ARROW;
     public static final SQLs.DualOperator AMP_AMP = DualExpOperator.AMP_AMP;
@@ -172,7 +173,6 @@ public abstract class Postgres extends PostgreSyntax {
     public static final SQLs.BiOperator AT_AT = PgDualBoolOperator.AT_AT;
 
     public static final SQLs.BiOperator AT_AT_AT = PgDualBoolOperator.AT_AT_AT;
-
 
 
     /**

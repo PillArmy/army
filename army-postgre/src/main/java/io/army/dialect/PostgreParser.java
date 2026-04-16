@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import io.army.sqltype.SQLType;
 import io.army.util.*;
 
 import io.army.lang.Nullable;
+
 import java.math.BigDecimal;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -551,142 +552,79 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 .toString();
     }
 
+
+
+
+    ///
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS">Identifiers and Keywords</a>
     @Override
-    protected final IdentifierMode identifierMode(String identifier) {
-        final int length = identifier.length();
-        if (length == 0) {
-            return IdentifierMode.ERROR;
-        }
-        IdentifierMode mode = null;
+    protected final void handleIdentifier(final @Nullable DatabaseObject object, final String effectiveName, final StringBuilder sqlBuilder) {
+        final int length,startIndex;
+         length = effectiveName.length();
+        startIndex = sqlBuilder.length();
+
+        final char boundaryChar = this.identifierQuote;
+        int lastWritten = 0,writtenIndex = startIndex;
         char ch;
-        boolean upperCase = false;
 
-        outerFor:
-        for (int i = 0; i < length; i++) {
-            ch = identifier.charAt(i);
-            if ((ch >= 'a' && ch <= 'z') || ch == '_') {
-                continue;
-            } else if (ch >= 'A' && ch <= 'Z') {
-                if (!upperCase) {
-                    upperCase = true;
-                }
-                continue;
-            } else if ((ch >= '0' && ch <= '9') || ch == '$') {
-                if (i == 0) {
-                    mode = IdentifierMode.QUOTING;
-                }
-                continue;
-            }
-
-            switch (ch) {
-                case _Constant.NUL_CHAR:
-                    mode = IdentifierMode.ERROR;
-                    break outerFor;
-                case '\b':
-                case '\f':
-                case '\n':
-                case '\r':
-                case '\t':
-                case _Constant.DOUBLE_QUOTE:
-                case _Constant.BACK_SLASH: {
-                    if (mode != IdentifierMode.ESCAPES) {
-                        mode = IdentifierMode.ESCAPES;
-                    }
-                }
-                break;
-                default: {
-                    if (mode == null) {
-                        mode = IdentifierMode.QUOTING;
-                    }
-                    break;
-                } // default
-            } // switch
-
-
-        } // for
-
-        if (mode == null) {
-            if (upperCase) {
-                mode = IdentifierMode.QUOTING;
-            } else {
-                mode = IdentifierMode.SIMPLE;
-            }
-        }
-        return mode;
-    }
-
-    @Override
-    protected final void escapesIdentifier(final String identifier, final StringBuilder sqlBuilder) {
-        switch (this.identifierEscapeMode) {
-            case DEFAULT:
-                simplyEscapeIdentifier(identifier, _Constant.DOUBLE_QUOTE, sqlBuilder);
-                break;
-            case UNICODE:
-                _PostgreLiterals.unicodeEscape(identifier, 0, identifier.length(), _Constant.BACK_SLASH, sqlBuilder);
-                break;
-            default:
-                throw _Exceptions.identifierEscapeModeError(this.identifierEscapeMode, this.dialect);
-        }
-
-    }
-
-
-    @Override
-    protected final boolean isUseObjectNameModeMethod() {
-        // true ,Postgre use objectNameMode() method
-        return true;
-    }
-
-    @Override
-    protected final IdentifierMode objectNameMode(final DatabaseObject object, final String effectiveName) {
-        final int length = effectiveName.length();
-        if (length == 0) {
-            return IdentifierMode.ERROR;
-        }
-        IdentifierMode mode = null;
-        char ch;
-        outerFor:
         for (int i = 0; i < length; i++) {
             ch = effectiveName.charAt(i);
-            if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') {
+            if ((ch >= 'a' && ch <= 'z')  || ch == '_') {
                 continue;
-            } else if ((ch >= '0' && ch <= '9') || ch == '$') {
-                if (i == 0) {
-                    mode = IdentifierMode.QUOTING;
-                    break;
+            }
+
+            if ( ch >= 'A' && ch <= 'Z') {
+                // Quoting an identifier also makes it case-sensitive, whereas unquoted names are always folded to lower case.
+                if(writtenIndex == startIndex){
+                    sqlBuilder.append(boundaryChar);
+                    writtenIndex++;
                 }
                 continue;
             }
 
-            switch (ch) {
-                case _Constant.NUL_CHAR:
-                    mode = IdentifierMode.ERROR;
-                    break outerFor;
-                case '\b':
-                case '\f':
-                case '\n':
-                case '\r':
-                case '\t':
-                case _Constant.DOUBLE_QUOTE:
-                case _Constant.BACK_SLASH:
-                    mode = IdentifierMode.ESCAPES;
-                    break outerFor;
-                default: {
-                    if (mode == null) {
-                        mode = IdentifierMode.QUOTING;
-                    }
+            if ((ch >= '0' && ch <= '9') || ch == '$') {
+                if (i == 0) {
+                    sqlBuilder.append(boundaryChar);
+                    writtenIndex ++;
                 }
-                break;
-            }// switch
+                continue;
+            }
 
+            if (ch == _Constant.NUL_CHAR) {
+                if(object == null){
+                    throw _Exceptions.identifierError(effectiveName, this.dialect);
+                }else {
+                    throw _Exceptions.objectNameError(object, this.dialect);
+                }
+            }
 
-        } // for
+            if(writtenIndex == startIndex){
+                sqlBuilder.append(boundaryChar);
+                writtenIndex++;
+            }
 
-        if (mode == null) {
-            mode = IdentifierMode.SIMPLE;
+            if (ch != boundaryChar) {
+                continue;
+            }
+
+            if (i > lastWritten) {
+                sqlBuilder.append(effectiveName, lastWritten, i);
+            }
+            sqlBuilder.append(boundaryChar);
+            lastWritten = i; // not i + 1 as current char wasn't written
+
+        } // for loop
+
+        if (lastWritten < length) {
+            sqlBuilder.append(effectiveName, lastWritten, length);
         }
-        return mode;
+
+        if(writtenIndex > startIndex){
+            sqlBuilder.append(boundaryChar);
+        }
+
     }
+
 
 
     @Override

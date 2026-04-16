@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class HistoryChinaProvince extends HistoryChinaRegion<HistoryChinaProvinc
     @Column(precision = 80, notNull = true, defaultValue = "''", comment = "china provincial governor")
     private String governor;
 
-    @Column(defaultValue = "0", notNull = true, updateMode = UpdateMode.IMMUTABLE, comment = "relation Id")
+    @Column(defaultValue = "0", notNull = true, updatable = false, comment = "relation Id")
     private Long relationId;
 
 

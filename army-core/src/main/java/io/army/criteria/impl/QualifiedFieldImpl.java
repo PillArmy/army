@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
-import io.army.meta.ParentTableMeta;
 import io.army.meta.TableMeta;
 import io.army.meta.TypeMeta;
 import io.army.modelgen._MetaBridge;
@@ -53,8 +52,8 @@ final class QualifiedFieldImpl<T> extends OperationTypedField implements Qualifi
     }
 
     @Override
-    public UpdateMode updateMode() {
-        return this.field.updateMode;
+    public boolean updatable() {
+        return this.field.updatable;
     }
 
     @Override

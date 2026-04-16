@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,22 +165,6 @@ abstract class OperationExpression extends OperationSQLExpression
     }
 
     @Override
-    public final <T> IPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value) {
-        return Expressions.likePredicate(this, DualBooleanOperator.LIKE, funcRef.apply(StringType.INSTANCE, value),
-                SQLs.ESCAPE, null);
-    }
-
-
-    @Override
-    public final <T> IPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value,
-                                     SQLs.WordEscape escape, T escapeChar) {
-        return Expressions.likePredicate(this, DualBooleanOperator.LIKE, funcRef.apply(StringType.INSTANCE, value),
-                escape, funcRef.apply(StringType.INSTANCE, escapeChar)
-        );
-    }
-
-
-    @Override
     public final IPredicate notLike(Object pattern) {
         return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, pattern, SQLs.ESCAPE, null);
     }
@@ -191,18 +175,29 @@ abstract class OperationExpression extends OperationSQLExpression
     }
 
     @Override
-    public final <T> IPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value) {
-        return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, funcRef.apply(StringType.INSTANCE, value),
+    public final IPredicate similarTo(Object pattern) {
+        return Expressions.likePredicate(this, DualBooleanOperator.SIMILAR_TO, pattern,
                 SQLs.ESCAPE, null);
     }
 
     @Override
-    public final <T> IPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value,
-                                        SQLs.WordEscape escape, T escapeChar) {
-        return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, funcRef.apply(StringType.INSTANCE, value),
-                escape, funcRef.apply(StringType.INSTANCE, escapeChar)
-        );
+    public final IPredicate similarTo(Object pattern, SQLs.WordEscape escape, Object escapeChar) {
+        return Expressions.likePredicate(this, DualBooleanOperator.SIMILAR_TO, pattern,
+                escape, escapeChar);
     }
+
+    @Override
+    public final IPredicate notSimilarTo(Object pattern) {
+        return Expressions.likePredicate(this, DualBooleanOperator.NOT_SIMILAR_TO, pattern,
+                SQLs.ESCAPE, null);
+    }
+
+    @Override
+    public final IPredicate notSimilarTo(Object pattern, SQLs.WordEscape escape, Object escapeChar) {
+        return Expressions.likePredicate(this, DualBooleanOperator.NOT_SIMILAR_TO, pattern,
+                escape, escapeChar);
+    }
+
 
     @Override
     public final Expression mod(Object operand) {
@@ -754,6 +749,70 @@ abstract class OperationExpression extends OperationSQLExpression
         }
 
         @Override
+        public final <T> IPredicate like(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.likePredicate(this, DualBooleanOperator.LIKE, funcRef.apply(this, value),
+                    SQLs.ESCAPE, null);
+        }
+
+
+        @Override
+        public final <T> IPredicate like(BiFunction<TypedExpression, T, Expression> funcRef, T value,
+                                         SQLs.WordEscape escape, T escapeChar) {
+            final Expression operand;
+            operand = funcRef.apply(this, value);
+            return Expressions.likePredicate(this, DualBooleanOperator.LIKE, operand,
+                    escape, wrapEscapeIfNeed(operand, escapeChar)
+            );
+        }
+
+
+        @Override
+        public final <T> IPredicate notLike(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, funcRef.apply(this, value),
+                    SQLs.ESCAPE, null);
+        }
+
+        @Override
+        public final <T> IPredicate notLike(BiFunction<TypedExpression, T, Expression> funcRef, T value,
+                                            SQLs.WordEscape escape, T escapeChar) {
+            final Expression operand;
+            operand = funcRef.apply(this, value);
+            return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, operand,
+                    escape, wrapEscapeIfNeed(operand, escapeChar)
+            );
+        }
+
+        @Override
+        public final <T> IPredicate similarTo(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.likePredicate(this, DualBooleanOperator.SIMILAR_TO, funcRef.apply(this, value),
+                    SQLs.ESCAPE, null);
+        }
+
+        @Override
+        public final <T> IPredicate similarTo(BiFunction<TypedExpression, T, Expression> funcRef, T value, SQLs.WordEscape escape, T escapeChar) {
+            final Expression operand;
+            operand = funcRef.apply(this, value);
+            return Expressions.likePredicate(this, DualBooleanOperator.SIMILAR_TO, operand,
+                    escape, wrapEscapeIfNeed(operand, escapeChar)
+            );
+        }
+
+        @Override
+        public final <T> IPredicate notSimilarTo(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.likePredicate(this, DualBooleanOperator.NOT_SIMILAR_TO, funcRef.apply(this, value),
+                    SQLs.ESCAPE, null);
+        }
+
+        @Override
+        public final <T> IPredicate notSimilarTo(BiFunction<TypedExpression, T, Expression> funcRef, T value, SQLs.WordEscape escape, T escapeChar) {
+            final Expression operand;
+            operand = funcRef.apply(this, value);
+            return Expressions.likePredicate(this, DualBooleanOperator.NOT_SIMILAR_TO, operand,
+                    escape, wrapEscapeIfNeed(operand, escapeChar)
+            );
+        }
+
+        @Override
         public final <T> Expression leftShift(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
             return Expressions.dualExp(this, DualExpOperator.LEFT_SHIFT, funcRef.apply(this, value));
         }
@@ -772,6 +831,14 @@ abstract class OperationExpression extends OperationSQLExpression
         public final <T> IPredicate space(SQLs.BiOperator operator, BiFunction<StringType, T, Expression> funcRef, T right, SQLToken modifier, T optionalExp) {
             return similarToPredicate(operator, funcRef.apply(StringType.INSTANCE, right), modifier, funcRef.apply(StringType.INSTANCE, optionalExp));
         }
+
+        static Object wrapEscapeIfNeed(Expression operand, Object escapeChar) {
+            if (operand instanceof LiteralExpression && !(escapeChar instanceof Expression)) {
+                escapeChar = SQLs.constant(StringType.INSTANCE, escapeChar);
+            }
+            return escapeChar;
+        }
+
 
     } // OperationDefiniteExpression
 

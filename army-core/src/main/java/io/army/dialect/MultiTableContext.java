@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,21 +172,21 @@ final class MultiTableContext implements _MultiTableContext,
         final ArmyParser parser = this.stmtContext.parser;
         final StringBuilder sqlBuilder = this.stmtContext.sqlBuilder;
 
-        final UpdateMode updateMode;
+        final boolean updatable;
         if (dataField instanceof TableField) {
-            updateMode = ((TableField) dataField).updateMode();
+            updatable = ((TableField) dataField).updatable();
         } else if (parser.supportUpdateDerivedField) {
             final TableField f;
             f = ((_Selection) dataField).tableField();
             if (f == null) {
                 throw _Exceptions.immutableField(dataField);
             }
-            updateMode = f.updateMode();
+            updatable = f.updatable();
         } else {
             throw _Exceptions.immutableField(dataField);
         }
 
-        if (updateMode == UpdateMode.IMMUTABLE) {
+        if (!updatable) {
             throw _Exceptions.immutableField(dataField);
         }
 
@@ -243,24 +243,6 @@ final class MultiTableContext implements _MultiTableContext,
             throw _Exceptions.immutableField(dataField);
         }
 
-        switch (updateMode) {
-            case ONLY_NULL:
-            case ONLY_DEFAULT: {
-                if (updateMode == UpdateMode.ONLY_DEFAULT && !parser.isSupportOnlyDefault()) {
-                    throw _Exceptions.dontSupportOnlyDefault(parser.dialect());
-                }
-                List<SqlField> conditionFieldList = this.conditionFieldList;
-                if (conditionFieldList == null) {
-                    conditionFieldList = _Collections.arrayList();
-                    this.conditionFieldList = conditionFieldList;
-                }
-                conditionFieldList.add(dataField);
-            }
-            break;
-            default:
-                //no-op
-        }
-
         if (updateTimePlaceholder != null) {
             this.appendedUpdateTime = true;
             if (dataField instanceof FieldMeta) {
@@ -283,63 +265,10 @@ final class MultiTableContext implements _MultiTableContext,
     @Override
     public void appendConditionFields() {
         final List<SqlField> conditionFieldList = this.conditionFieldList;
-        if (conditionFieldList == null || conditionFieldList.size() == 0) {
+        if (conditionFieldList == null || conditionFieldList.isEmpty()) {
             return;
         }
-        final ArmyParser parser = this.stmtContext.parser;
-        final StringBuilder sqlBuilder = this.stmtContext.sqlBuilder;
-        String safeTableAlias, objectName;
-        UpdateMode updateMode;
-        TableField tableField;
-        for (SqlField field : conditionFieldList) {
-
-            if (field instanceof FieldMeta) {
-                safeTableAlias = this.tableToSafeAlias.get(((FieldMeta<?>) field).tableMeta());
-            } else if (field instanceof QualifiedField) {
-                safeTableAlias = this.getAliasToSafeAlias()
-                        .get(((QualifiedField<?>) field).tableAlias());
-            } else {
-                safeTableAlias = this.getAliasToSafeAlias()
-                        .get(((DerivedField) field).tableAlias());
-            }
-            assert safeTableAlias != null;
-
-            sqlBuilder.append(_Constant.SPACE_AND_SPACE)
-                    .append(safeTableAlias)
-                    .append(_Constant.DOT);
-
-            if (field instanceof TableField) {
-                objectName = parser.safeObjectName((TableField) field);
-                updateMode = ((TableField) field).updateMode();
-            } else {
-                objectName = parser.identifier(field.fieldName());
-                tableField = ((_Selection) field).tableField();
-                assert tableField != null;
-                updateMode = tableField.updateMode();
-            }
-            sqlBuilder.append(objectName);
-            switch (updateMode) {
-                case ONLY_NULL:
-                    sqlBuilder.append(_Constant.SPACE_IS_NULL);
-                    break;
-                case ONLY_DEFAULT: {
-                    sqlBuilder.append(_Constant.SPACE)
-                            .append(parser.defaultFuncName())
-                            .append(_Constant.SPACE_LEFT_PAREN)
-                            .append(_Constant.SPACE)
-                            .append(safeTableAlias)
-                            .append(_Constant.DOT)
-                            .append(objectName);
-                    sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-
-                }
-                break;
-                default:
-                    throw _Exceptions.unexpectedEnum(updateMode);
-
-            }
-
-        }
+         throw new UnsupportedOperationException();
     }
 
 

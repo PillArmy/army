@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,16 @@ abstract class OperationTypedField extends OperationExpression.OperationTypedExp
     }
 
     @Override
+    public final IPredicate spaceNotEqual(BiFunction<TypedField, String, Expression> namedOperator) {
+        return Expressions.biPredicate(this, DualBooleanOperator.NOT_EQUAL, namedOperator.apply(this, this.fieldName()));
+    }
+
+    @Override
+    public final IPredicate spaceNullSafeEqual(BiFunction<TypedField, String, Expression> namedOperator) {
+        return Expressions.biPredicate(this, DualBooleanOperator.NULL_SAFE_EQUAL, namedOperator.apply(this, this.fieldName()));
+    }
+
+    @Override
     public final IPredicate spaceLess(BiFunction<TypedField, String, Expression> namedOperator) {
         return Expressions.biPredicate(this, DualBooleanOperator.LESS, namedOperator.apply(this, this.fieldName()));
     }
@@ -59,11 +69,6 @@ abstract class OperationTypedField extends OperationExpression.OperationTypedExp
     @Override
     public final IPredicate spaceGreaterEqual(BiFunction<TypedField, String, Expression> namedOperator) {
         return Expressions.biPredicate(this, DualBooleanOperator.GREATER_EQUAL, namedOperator.apply(this, this.fieldName()));
-    }
-
-    @Override
-    public final IPredicate spaceNotEqual(BiFunction<TypedField, String, Expression> namedOperator) {
-        return Expressions.biPredicate(this, DualBooleanOperator.NOT_EQUAL, namedOperator.apply(this, this.fieldName()));
     }
 
     @Override
@@ -89,6 +94,30 @@ abstract class OperationTypedField extends OperationExpression.OperationTypedExp
         final Expression operand;
         operand = namedOperator.apply(this, this.fieldName());
         return Expressions.likePredicate(this, DualBooleanOperator.NOT_LIKE, operand, escape, wrapEscapeIfNeed(operand, escapeChar));
+    }
+
+    @Override
+    public final  IPredicate spaceSimilarTo(BiFunction<TypedField, String, Expression> namedOperator) {
+        return Expressions.likePredicate(this, DualBooleanOperator.SIMILAR_TO, namedOperator.apply(this, this.fieldName()), SQLs.ESCAPE, null);
+    }
+
+    @Override
+    public final  IPredicate spaceSimilarTo(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar) {
+        final Expression operand;
+        operand = namedOperator.apply(this, this.fieldName());
+        return Expressions.likePredicate(this, DualBooleanOperator.SIMILAR_TO, operand, escape, wrapEscapeIfNeed(operand, escapeChar));
+    }
+
+    @Override
+    public final  IPredicate spaceNotSimilarTo(BiFunction<TypedField, String, Expression> namedOperator) {
+        return Expressions.likePredicate(this, DualBooleanOperator.NOT_SIMILAR_TO, namedOperator.apply(this, this.fieldName()), SQLs.ESCAPE, null);
+    }
+
+    @Override
+    public final  IPredicate spaceNotSimilarTo(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar) {
+        final Expression operand;
+        operand = namedOperator.apply(this, this.fieldName());
+        return Expressions.likePredicate(this, DualBooleanOperator.NOT_SIMILAR_TO, operand, escape, wrapEscapeIfNeed(operand, escapeChar));
     }
 
     @Override
@@ -178,12 +207,5 @@ abstract class OperationTypedField extends OperationExpression.OperationTypedExp
         return similarToPredicate(operator, operand, modifier, wrapEscapeIfNeed(operand, optionalExp));
     }
 
-
-    private Object wrapEscapeIfNeed(Expression operand, Object escapeChar) {
-        if (operand instanceof LiteralExpression && !(escapeChar instanceof Expression)) {
-            escapeChar = SQLs.constant(StringType.INSTANCE, escapeChar);
-        }
-        return escapeChar;
-    }
 
 }

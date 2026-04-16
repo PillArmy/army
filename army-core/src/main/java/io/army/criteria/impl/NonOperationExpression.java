@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -263,15 +263,6 @@ abstract class NonOperationExpression implements ArmyExpression {
         throw unsupportedOperation(this);
     }
 
-    @Override
-    public final <T> IPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value) {
-        throw unsupportedOperation(this);
-    }
-
-    @Override
-    public final <T> IPredicate like(BiFunction<MappingType, T, Expression> funcRef, T value, SQLs.WordEscape escape, T escapeChar) {
-        throw unsupportedOperation(this);
-    }
 
     @Override
     public final IPredicate notLike(Object pattern) {
@@ -284,16 +275,26 @@ abstract class NonOperationExpression implements ArmyExpression {
         throw unsupportedOperation(this);
     }
 
+
     @Override
-    public final <T> IPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value) {
+    public final IPredicate similarTo(Object pattern) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final <T> IPredicate notLike(BiFunction<MappingType, T, Expression> funcRef, T value, SQLs.WordEscape escape, T escapeChar) {
+    public final IPredicate similarTo(Object pattern, SQLs.WordEscape escape, Object escapeChar) {
         throw unsupportedOperation(this);
     }
 
+    @Override
+    public final IPredicate notSimilarTo(Object pattern) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final IPredicate notSimilarTo(Object pattern, SQLs.WordEscape escape, Object escapeChar) {
+        throw unsupportedOperation(this);
+    }
 
     @Override
     public final Expression mod(Object operand) {

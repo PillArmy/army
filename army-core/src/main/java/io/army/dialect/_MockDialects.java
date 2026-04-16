@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
 import io.army.meta.FieldMeta;
 import io.army.meta.ServerMeta;
+import io.army.meta.TableMeta;
 import io.army.option.Option;
 import io.army.session.SessionSpec;
 import io.army.util._Collections;
@@ -158,6 +159,11 @@ public abstract class _MockDialects implements DialectEnv {
         @Override
         public ArmyEnvironment environment() {
             return this.env;
+        }
+
+        @Override
+        public Map<Class<?>, TableMeta<?>> tableMap() {
+            return Map.of();
         }
 
 

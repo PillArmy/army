@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -721,7 +721,7 @@ abstract class CriteriaSupports {
                 throw ContextStack.clearStackAndCastCriteriaApi();
             } else if ((field = (TableField) fieldPair.field).tableMeta() != this.updateTable) {
                 throw ContextStack.criteriaError(this.context, _Exceptions::unknownColumn, field);
-            } else if (field.updateMode() == UpdateMode.IMMUTABLE) {
+            } else if (!field.updatable() ) {
                 throw ContextStack.criteriaError(this.context, _Exceptions::immutableField, field);
             } else if (field.notNull() && ((ArmyExpression) fieldPair.right).isNullValue()) {
                 throw ContextStack.criteriaError(this.context, _Exceptions::nonNullField, field);

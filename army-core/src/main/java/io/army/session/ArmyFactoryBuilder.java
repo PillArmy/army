@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2043 the original author or authors.
+ * Copyright 2023-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -249,6 +249,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 .zoneOffset(env.get(ArmyKey.ZONE_OFFSET))
                 .jsonCodec(this.jsonCodec)
                 .xmlCodec(this.xmlCodec)
+                .tableMap(this.tableMap)
                 .build();
 
         final DialectParser dialectParser;
@@ -271,7 +272,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     protected final Map<FieldMeta<?>, FieldGenerator> createFieldGeneratorMap() {
         Map<FieldMeta<?>, FieldGenerator> map = this.generatorMap;
         if (map == null) {
-            map = Collections.emptyMap();
+            map = Map.of();
         }
         return map;
     }
@@ -311,7 +312,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         FieldGenerator generator;
         for (TableMeta<?> table : tableMetaMap.values()) {
             fieldChain = table.fieldChain();
-            if (fieldChain.size() == 0) {
+            if (fieldChain.isEmpty()) {
                 continue;
             }
             for (FieldMeta<?> field : fieldChain) {
@@ -327,8 +328,8 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 generatorMap.put(field, generator);
             }
         }
-        if (generatorMap.size() > 0) {
-            this.generatorMap = Collections.unmodifiableMap(generatorMap);
+        if (!generatorMap.isEmpty()) {
+            this.generatorMap = Map.copyOf(generatorMap);
         }
         this.tableMap = tableMetaMap;
     }
