@@ -16,7 +16,6 @@
 
 package io.army.criteria;
 
-import io.army.criteria.impl.TableField;
 import io.army.meta.TableMeta;
 
 public interface TypeTableField<T> extends TableField {

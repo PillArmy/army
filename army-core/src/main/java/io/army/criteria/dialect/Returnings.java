@@ -17,7 +17,7 @@
 package io.army.criteria.dialect;
 
 import io.army.criteria.Selection;
-import io.army.criteria.impl.TableField;
+import io.army.criteria.TableField;
 
 import java.util.function.Function;
 

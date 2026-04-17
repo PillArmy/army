@@ -17,11 +17,10 @@
 package io.army.dialect;
 
 import io.army.criteria.*;
-import io.army.criteria.impl.FieldMeta;
-import io.army.criteria.impl.TableField;
 import io.army.criteria.impl.inner._DerivedTable;
 import io.army.criteria.impl.inner._Selection;
 import io.army.lang.Nullable;
+import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.util._Collections;

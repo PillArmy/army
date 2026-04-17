@@ -16,9 +16,9 @@
 
 package io.army.dialect;
 
-import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.inner._SingleDml;
 import io.army.lang.Nullable;
+import io.army.meta.FieldMeta;
 import io.army.session.SessionSpec;
 import io.army.util._Exceptions;
 

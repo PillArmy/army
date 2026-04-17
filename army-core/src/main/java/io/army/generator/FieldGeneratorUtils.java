@@ -16,7 +16,7 @@
 
 package io.army.generator;
 
-import io.army.criteria.impl.FieldMeta;
+import io.army.meta.FieldMeta;
 import io.army.meta.GeneratorMeta;
 
 public abstract class FieldGeneratorUtils {

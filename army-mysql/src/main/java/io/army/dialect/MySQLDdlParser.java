@@ -17,8 +17,8 @@
 package io.army.dialect;
 
 import io.army.annotation.GeneratorType;
-import io.army.criteria.impl.FieldMeta;
 import io.army.mapping.StringType;
+import io.army.meta.FieldMeta;
 import io.army.meta.IndexMeta;
 import io.army.meta.PrimaryFieldMeta;
 import io.army.meta.TableMeta;

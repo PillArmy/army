@@ -17,10 +17,13 @@
 package io.army.criteria.impl;
 
 import io.army.criteria.Expression;
+import io.army.criteria.FieldSelection;
+import io.army.criteria.TableField;
 import io.army.criteria.Visible;
 import io.army.criteria.impl.inner._Selection;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
+import io.army.meta.FieldMeta;
 import io.army.meta.TypeMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.util._Exceptions;

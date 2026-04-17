@@ -16,7 +16,7 @@
 
 package io.army.dialect;
 
-import io.army.criteria.impl.FieldMeta;
+import io.army.meta.FieldMeta;
 
 public interface _ParenRowSetContext extends _SqlContext {
 

@@ -17,11 +17,11 @@
 package io.army.criteria.standard;
 
 import io.army.criteria.Item;
+import io.army.criteria.TableField;
 import io.army.criteria.UpdateStatement;
-import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.SQLs;
-import io.army.criteria.impl.TableField;
 import io.army.meta.ChildTableMeta;
+import io.army.meta.FieldMeta;
 import io.army.meta.SingleTableMeta;
 import io.army.meta.TableMeta;
 

@@ -17,7 +17,7 @@
 package io.army.schema;
 
 
-import io.army.criteria.impl.FieldMeta;
+import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
 
 import java.util.List;

@@ -16,7 +16,6 @@
 
 package io.army.dialect.sqlite;
 
-import io.army.criteria.impl.FieldMeta;
 import io.army.dialect.ArmyDdlParser;
 import io.army.dialect._Constant;
 import io.army.meta.*;

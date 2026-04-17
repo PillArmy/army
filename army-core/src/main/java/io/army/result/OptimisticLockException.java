@@ -18,7 +18,7 @@ package io.army.result;
 
 
 import io.army.criteria.Expression;
-import io.army.criteria.impl.TableField;
+import io.army.criteria.TableField;
 import io.army.executor.DataAccessException;
 import io.army.stmt.Stmt;
 

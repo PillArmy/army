@@ -16,11 +16,11 @@
 
 package io.army.criteria;
 
-import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.SQLs;
 import io.army.lang.Nullable;
 import io.army.mapping.IntegerType;
 import io.army.mapping.MappingType;
+import io.army.meta.FieldMeta;
 
 import java.math.BigInteger;
 import java.util.Collection;

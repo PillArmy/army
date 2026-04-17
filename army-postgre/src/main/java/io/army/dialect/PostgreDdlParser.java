@@ -17,13 +17,9 @@
 package io.army.dialect;
 
 import io.army.annotation.GeneratorType;
-import io.army.criteria.impl.FieldMeta;
 import io.army.mapping.StringType;
 import io.army.mapping.TextType;
-import io.army.meta.DatabaseObject;
-import io.army.meta.IndexMeta;
-import io.army.meta.PrimaryFieldMeta;
-import io.army.meta.TableMeta;
+import io.army.meta.*;
 import io.army.schema.FieldResult;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PostgreType;

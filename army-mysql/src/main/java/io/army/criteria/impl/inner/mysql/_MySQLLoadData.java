@@ -17,13 +17,13 @@
 package io.army.criteria.impl.inner.mysql;
 
 import io.army.criteria.SQLToken;
-import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.MySQLs;
 import io.army.criteria.impl._Pair;
 import io.army.criteria.impl.inner._DialectStatement;
 import io.army.criteria.impl.inner._Expression;
 import io.army.criteria.impl.inner._Statement;
 import io.army.lang.Nullable;
+import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
 
 import java.nio.file.Path;

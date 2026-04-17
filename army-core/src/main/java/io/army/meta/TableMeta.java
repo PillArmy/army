@@ -17,7 +17,6 @@
 package io.army.meta;
 
 import io.army.criteria.TabularItem;
-import io.army.criteria.impl.FieldMeta;
 import io.army.lang.Nullable;
 import io.army.struct.CodeEnum;
 import io.army.util.SQLStmts;

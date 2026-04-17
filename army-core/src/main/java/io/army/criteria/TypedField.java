@@ -16,7 +16,6 @@
 package io.army.criteria;
 
 import io.army.criteria.impl.SQLs;
-import io.army.criteria.impl.TableField;
 import io.army.function.TeNamedParamsFunc;
 
 import java.util.function.BiFunction;

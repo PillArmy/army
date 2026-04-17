@@ -17,9 +17,9 @@
 package io.army.dialect;
 
 import io.army.criteria.*;
-import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.SQLs;
 import io.army.lang.Nullable;
+import io.army.meta.FieldMeta;
 import io.army.meta.TypeMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.option.Option;

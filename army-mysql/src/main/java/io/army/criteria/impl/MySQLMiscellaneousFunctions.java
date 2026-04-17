@@ -19,6 +19,7 @@ package io.army.criteria.impl;
 
 import io.army.criteria.*;
 import io.army.mapping.*;
+import io.army.meta.FieldMeta;
 
 import java.util.ArrayList;
 import java.util.List;

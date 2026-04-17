@@ -17,10 +17,10 @@
 package io.army.env;
 
 import io.army.annotation.Column;
-import io.army.criteria.impl.FieldMeta;
 import io.army.dialect.Database;
 import io.army.dialect.Dialect;
 import io.army.lang.Nullable;
+import io.army.meta.FieldMeta;
 import io.army.session.DdlMode;
 import io.army.util.ClassUtils;
 import io.army.util._Collections;

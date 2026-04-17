@@ -18,11 +18,11 @@ package io.army.dialect;
 
 import io.army.criteria.SelectStatement;
 import io.army.criteria.Selection;
-import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.inner._PrimaryRowSet;
 import io.army.criteria.impl.inner._SelectItem;
 import io.army.criteria.impl.inner._Statement;
 import io.army.lang.Nullable;
+import io.army.meta.FieldMeta;
 import io.army.session.SessionSpec;
 import io.army.stmt.SimpleStmt;
 import io.army.stmt.StmtType;

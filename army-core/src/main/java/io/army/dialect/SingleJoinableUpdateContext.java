@@ -17,7 +17,7 @@
 package io.army.dialect;
 
 import io.army.criteria.SubStatement;
-import io.army.criteria.impl.TableField;
+import io.army.criteria.TableField;
 import io.army.criteria.impl.inner._DomainUpdate;
 import io.army.criteria.impl.inner._JoinableUpdate;
 import io.army.criteria.impl.inner._SingleDml;

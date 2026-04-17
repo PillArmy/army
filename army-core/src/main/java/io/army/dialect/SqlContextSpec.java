@@ -17,7 +17,7 @@
 package io.army.dialect;
 
 import io.army.criteria.QualifiedField;
-import io.army.criteria.impl.FieldMeta;
+import io.army.meta.FieldMeta;
 
 /**
  * <p>

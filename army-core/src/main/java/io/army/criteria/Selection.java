@@ -16,12 +16,12 @@
 
 package io.army.criteria;
 
-import io.army.criteria.impl.FieldMeta;
+import io.army.meta.FieldMeta;
 
 /**
  * <p>
  * This interface representing single select item in select list clause.
- * * @see io.army.criteria.impl.FieldMeta
+ * * @see io.army.meta.FieldMeta
  *
  * @see QualifiedField
  * @see Expression#as(String)

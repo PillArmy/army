@@ -16,15 +16,11 @@
 
 package io.army.dialect;
 
-import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.inner._Delete;
 import io.army.criteria.impl.inner._DomainUpdate;
 import io.army.criteria.impl.inner._SingleDml;
 import io.army.lang.Nullable;
-import io.army.meta.ChildTableMeta;
-import io.army.meta.ParentTableMeta;
-import io.army.meta.PrimaryFieldMeta;
-import io.army.meta.TableMeta;
+import io.army.meta.*;
 import io.army.session.SessionSpec;
 import io.army.util._Exceptions;
 

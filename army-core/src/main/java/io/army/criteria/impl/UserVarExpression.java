@@ -16,10 +16,7 @@
 
 package io.army.criteria.impl;
 
-import io.army.criteria.Expression;
-import io.army.criteria.SimpleExpression;
-import io.army.criteria.TypeInfer;
-import io.army.criteria.TypedExpression;
+import io.army.criteria.*;
 import io.army.criteria.dialect.VarExpression;
 import io.army.dialect.Database;
 import io.army.dialect._Constant;

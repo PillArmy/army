@@ -16,7 +16,7 @@
 
 package io.army.dialect;
 
-import io.army.criteria.impl.TableField;
+import io.army.criteria.TableField;
 import io.army.criteria.impl.inner._SingleUpdate;
 import io.army.lang.Nullable;
 import io.army.session.SessionSpec;

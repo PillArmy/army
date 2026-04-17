@@ -16,10 +16,10 @@
 
 package io.army.dialect;
 
-import io.army.criteria.impl.FieldMeta;
-import io.army.criteria.impl.TableField;
+import io.army.criteria.TableField;
 import io.army.criteria.impl.inner._DomainUpdate;
 import io.army.lang.Nullable;
+import io.army.meta.FieldMeta;
 import io.army.session.SessionSpec;
 import io.army.util._Collections;
 import io.army.util._Exceptions;

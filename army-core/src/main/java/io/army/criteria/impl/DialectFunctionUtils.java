@@ -18,6 +18,7 @@ package io.army.criteria.impl;
 
 import io.army.criteria.Expression;
 import io.army.criteria.Selection;
+import io.army.criteria.TableField;
 import io.army.criteria.UndoneFunction;
 import io.army.criteria.impl.inner._DerivedTable;
 import io.army.criteria.impl.inner._FunctionField;
@@ -30,6 +31,7 @@ import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.mapping.optional.CompositeTypeField;
 import io.army.mapping.optional.NoCastTextType;
+import io.army.meta.FieldMeta;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;

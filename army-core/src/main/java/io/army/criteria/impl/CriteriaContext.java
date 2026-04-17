@@ -21,6 +21,7 @@ import io.army.criteria.dialect.VarExpression;
 import io.army.criteria.impl.inner.*;
 import io.army.dialect.Dialect;
 import io.army.lang.Nullable;
+import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
 
 import java.util.List;

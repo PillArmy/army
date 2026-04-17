@@ -18,8 +18,6 @@ package io.army.dialect;
 
 import io.army.annotation.GeneratorType;
 import io.army.criteria.*;
-import io.army.criteria.impl.FieldMeta;
-import io.army.criteria.impl.TableField;
 import io.army.criteria.impl.inner.*;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;

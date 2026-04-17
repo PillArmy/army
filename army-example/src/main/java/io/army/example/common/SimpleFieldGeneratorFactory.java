@@ -16,13 +16,13 @@
 
 package io.army.example.common;
 
-import io.army.criteria.impl.FieldMeta;
 import io.army.generator.FieldGenerator;
 import io.army.generator.FieldGeneratorFactory;
 import io.army.generator.FieldGeneratorUtils;
 import io.army.generator.UUIDGenerator;
 import io.army.generator.snowflake.SingleJvmSnowflakeClient;
 import io.army.generator.snowflake.SnowflakeGenerator;
+import io.army.meta.FieldMeta;
 import io.army.meta.GeneratorMeta;
 
 public final class SimpleFieldGeneratorFactory implements FieldGeneratorFactory {

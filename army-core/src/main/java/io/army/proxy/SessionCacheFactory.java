@@ -17,8 +17,8 @@
 package io.army.proxy;
 
 
-import io.army.criteria.impl.FieldMeta;
 import io.army.meta.ChildTableMeta;
+import io.army.meta.FieldMeta;
 import io.army.meta.PrimaryFieldMeta;
 import io.army.meta.TableMeta;
 import io.army.session.SessionFactory;
