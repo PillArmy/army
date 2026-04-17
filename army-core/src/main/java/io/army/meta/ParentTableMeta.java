@@ -17,9 +17,9 @@
 package io.army.meta;
 
 
-import io.army.struct.CodeEnum;
-
+import io.army.criteria.impl.FieldMeta;
 import io.army.lang.NonNull;
+import io.army.struct.CodeEnum;
 
 public interface ParentTableMeta<T> extends SingleTableMeta<T> {
 

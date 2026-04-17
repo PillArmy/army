@@ -18,6 +18,7 @@ package io.army.result;
 
 
 import io.army.criteria.Expression;
+import io.army.criteria.impl.TableField;
 import io.army.executor.DataAccessException;
 import io.army.stmt.Stmt;
 
@@ -25,7 +26,7 @@ import io.army.stmt.Stmt;
  * Throw when satisfy following all conditions :
  * <ul>
  *     <li>domain contain version field</li>
- *     <li>{@link io.army.criteria.Statement} WHERE clause contain version predicate with {@link io.army.criteria.TableField#equal(Expression)}</li>
+ *     <li>{@link io.army.criteria.Statement} WHERE clause contain version predicate with {@link TableField#equal(Expression)}</li>
  *     <li>update affectedRows is zero</li>
  * </ul>
  *

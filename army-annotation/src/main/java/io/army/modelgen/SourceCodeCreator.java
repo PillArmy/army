@@ -308,7 +308,7 @@ final class SourceCodeCreator {
                 .append(((PackageElement) element.getEnclosingElement()).getQualifiedName())
                 .append(";\n\n");
 
-        builder.append("import io.army.meta.FieldMeta;\n")
+        builder.append("import io.army.criteria.impl.FieldMeta;\n")
                 .append("import io.army.criteria.impl._TableMetaFactory;\n")
                 .append("import io.army.meta.PrimaryFieldMeta;\n");
 

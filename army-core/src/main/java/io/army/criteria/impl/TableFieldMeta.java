@@ -19,7 +19,6 @@ package io.army.criteria.impl;
 import io.army.ArmyException;
 import io.army.annotation.*;
 import io.army.criteria.Expression;
-import io.army.criteria.TableField;
 import io.army.criteria.Visible;
 import io.army.criteria.impl.inner._Selection;
 import io.army.dialect._Constant;

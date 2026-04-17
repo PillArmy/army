@@ -17,10 +17,10 @@
 package io.army.dialect;
 
 
+import io.army.criteria.impl.FieldMeta;
 import io.army.example.bank.domain.account.BankAccount_;
 import io.army.example.bank.domain.user.*;
 import io.army.example.pill.domain.PillUser_;
-import io.army.meta.FieldMeta;
 import io.army.meta.MetaException;
 import io.army.meta.TableMeta;
 import io.army.schema.FieldResult;

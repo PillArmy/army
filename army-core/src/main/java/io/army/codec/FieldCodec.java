@@ -16,7 +16,7 @@
 
 package io.army.codec;
 
-import io.army.meta.FieldMeta;
+import io.army.criteria.impl.FieldMeta;
 
 import java.util.Set;
 

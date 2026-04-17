@@ -16,16 +16,20 @@
 
 package io.army.criteria.mysql;
 
-import io.army.criteria.*;
+import io.army.criteria.DerivedTable;
+import io.army.criteria.Item;
+import io.army.criteria.Statement;
+import io.army.criteria.UpdateStatement;
 import io.army.criteria.dialect.Hint;
+import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.MySQLs;
 import io.army.criteria.impl.SQLs;
+import io.army.criteria.impl.TableField;
+import io.army.lang.Nullable;
 import io.army.meta.ComplexTableMeta;
-import io.army.meta.FieldMeta;
 import io.army.meta.SingleTableMeta;
 import io.army.meta.TableMeta;
 
-import io.army.lang.Nullable;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;

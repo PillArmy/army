@@ -17,10 +17,10 @@
 package io.army.dialect;
 
 import io.army.bean.ReadWrapper;
-import io.army.meta.FieldMeta;
+import io.army.criteria.impl.FieldMeta;
+import io.army.lang.Nullable;
 import io.army.meta.TableMeta;
 
-import io.army.lang.Nullable;
 import java.time.temporal.Temporal;
 
 /**

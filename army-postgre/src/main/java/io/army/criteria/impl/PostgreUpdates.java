@@ -28,7 +28,6 @@ import io.army.dialect._DialectUtils;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.meta.ComplexTableMeta;
-import io.army.meta.FieldMeta;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TableMeta;
 import io.army.util._Assert;

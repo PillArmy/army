@@ -17,15 +17,15 @@
 package io.army.executor;
 
 import io.army.codec.FieldCodec;
+import io.army.criteria.impl.FieldMeta;
 import io.army.env.ArmyEnvironment;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
-import io.army.meta.FieldMeta;
 import io.army.meta.SchemaMeta;
 import io.army.meta.ServerMeta;
 import io.army.result.ResultRecord;
 import io.army.session.FactoryBuilder;
 
-import io.army.lang.Nullable;
 import java.util.Map;
 import java.util.function.Function;
 

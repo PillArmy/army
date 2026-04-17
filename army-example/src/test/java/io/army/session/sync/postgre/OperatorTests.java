@@ -24,6 +24,7 @@ public class OperatorTests extends SessionTestSupport {
                 .and(ChinaRegion_.name.notSimilarTo(SQLs::literal, "Hong Kong", SQLs.ESCAPE, '|'))
                 .and(ChinaRegion_.name.similarTo(SQLs::param, "%(b|d)%", SQLs.ESCAPE, '|'))
                 .and(ChinaRegion_.name.notSimilarTo(SQLs::param, "Hong Kong", SQLs.ESCAPE, '|'))
+                .and(ChinaRegion_.id.equal(1))
                 .asQuery();
 
          session.queryOne(stmt,Long.class);

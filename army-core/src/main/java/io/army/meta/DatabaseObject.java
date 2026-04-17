@@ -17,13 +17,15 @@
 package io.army.meta;
 
 import io.army.criteria.SQLElement;
+import io.army.criteria.impl.FieldMeta;
+import io.army.criteria.impl.TableField;
 
 /**
  * <p>
  * This interface representing database object ,this interface is base interface of below:
  * <ul>
  *     <li>{@link  TableMeta}</li>
- *     <li>{@link  io.army.criteria.TableField}</li>
+ *     <li>{@link  TableField}</li>
  * </ul>
  *
  * @since 0.6.0

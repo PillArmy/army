@@ -16,14 +16,13 @@
 
 package io.army.dialect;
 
-import io.army.meta.FieldMeta;
+import io.army.criteria.impl.FieldMeta;
+import io.army.lang.Nullable;
 import io.army.session.SessionSpec;
 import io.army.stmt.SimpleStmt;
 import io.army.stmt.StmtType;
 import io.army.stmt.Stmts;
 import io.army.util._Exceptions;
-
-import io.army.lang.Nullable;
 
 final class ParenSubRowSetContext extends StatementContext implements _ParenRowSetContext {
 

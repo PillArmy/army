@@ -17,8 +17,8 @@
 package io.army.dialect;
 
 import io.army.criteria.LiteralMode;
+import io.army.criteria.impl.FieldMeta;
 import io.army.lang.Nullable;
-import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
 import io.army.stmt.SimpleStmt;
 

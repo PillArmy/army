@@ -17,6 +17,7 @@
 package io.army.meta;
 
 
+import io.army.criteria.impl.FieldMeta;
 import io.army.lang.NonNull;
 import io.army.struct.CodeEnum;
 

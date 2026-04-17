@@ -17,7 +17,7 @@
 package io.army.generator;
 
 import io.army.bean.ReadWrapper;
-import io.army.meta.FieldMeta;
+import io.army.criteria.impl.FieldMeta;
 
 import java.util.UUID;
 

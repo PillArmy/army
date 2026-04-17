@@ -18,10 +18,10 @@ package io.army.generator.snowflake;
 
 import io.army.annotation.Param;
 import io.army.bean.ReadWrapper;
+import io.army.criteria.impl.FieldMeta;
 import io.army.generator.FieldGenerator;
 import io.army.generator.FieldGeneratorUtils;
 import io.army.generator.GeneratorException;
-import io.army.meta.FieldMeta;
 import io.army.meta.GeneratorMeta;
 import io.army.meta.MetaException;
 import io.army.util.ClassUtils;

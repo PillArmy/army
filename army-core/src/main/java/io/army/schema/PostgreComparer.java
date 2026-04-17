@@ -16,7 +16,11 @@
 
 package io.army.schema;
 
-import io.army.meta.*;
+import io.army.criteria.impl.FieldMeta;
+import io.army.meta.IndexFieldMeta;
+import io.army.meta.SchemaMeta;
+import io.army.meta.ServerMeta;
+import io.army.meta.TableMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PostgreType;
 import io.army.util._Exceptions;

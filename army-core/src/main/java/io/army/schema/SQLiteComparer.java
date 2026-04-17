@@ -16,7 +16,7 @@
 
 package io.army.schema;
 
-import io.army.meta.FieldMeta;
+import io.army.criteria.impl.FieldMeta;
 import io.army.meta.SchemaMeta;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;

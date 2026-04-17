@@ -16,16 +16,16 @@
 
 package io.army.criteria.impl;
 
-import io.army.criteria.*;
+import io.army.criteria.BatchUpdate;
+import io.army.criteria.Item;
+import io.army.criteria.Update;
+import io.army.criteria.UpdateStatement;
 import io.army.criteria.impl.inner.*;
 import io.army.criteria.standard.StandardCtes;
 import io.army.criteria.standard.StandardQuery;
 import io.army.criteria.standard.StandardUpdate;
-import io.army.dialect.Dialect;
-import io.army.dialect.MySQLDialect;
 import io.army.lang.Nullable;
 import io.army.meta.ChildTableMeta;
-import io.army.meta.FieldMeta;
 import io.army.meta.SingleTableMeta;
 import io.army.meta.TableMeta;
 import io.army.util._Collections;

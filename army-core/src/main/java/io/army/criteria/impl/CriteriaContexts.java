@@ -25,8 +25,6 @@ import io.army.dialect.DialectParser;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
-import io.army.meta.FieldMeta;
-import io.army.meta.ParentTableMeta;
 import io.army.meta.TableMeta;
 import io.army.meta.TypeMeta;
 import io.army.util.ClassUtils;

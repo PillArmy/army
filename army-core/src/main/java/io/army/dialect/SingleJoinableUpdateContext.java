@@ -17,15 +17,14 @@
 package io.army.dialect;
 
 import io.army.criteria.SubStatement;
-import io.army.criteria.TableField;
+import io.army.criteria.impl.TableField;
 import io.army.criteria.impl.inner._DomainUpdate;
 import io.army.criteria.impl.inner._JoinableUpdate;
 import io.army.criteria.impl.inner._SingleDml;
 import io.army.criteria.impl.inner._SingleUpdate;
+import io.army.lang.Nullable;
 import io.army.meta.ChildTableMeta;
 import io.army.session.SessionSpec;
-
-import io.army.lang.Nullable;
 
 final class SingleJoinableUpdateContext extends SingleJoinableDmlContext implements _SingleUpdateContext {
 

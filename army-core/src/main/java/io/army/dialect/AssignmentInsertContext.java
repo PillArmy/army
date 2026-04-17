@@ -19,6 +19,7 @@ package io.army.dialect;
 import io.army.annotation.GeneratorType;
 import io.army.criteria.LiteralMode;
 import io.army.criteria.SqlValueParam;
+import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl._Pair;
 import io.army.criteria.impl.inner._Expression;
 import io.army.criteria.impl.inner._Insert;

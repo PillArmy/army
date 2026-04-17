@@ -22,7 +22,10 @@ import io.army.lang.Nullable;
 import io.army.mapping.CodeEnumType;
 import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
-import io.army.meta.*;
+import io.army.meta.ChildTableMeta;
+import io.army.meta.GeneratorMeta;
+import io.army.meta.MetaException;
+import io.army.meta.PrimaryFieldMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.struct.CodeEnum;
 import io.army.util._Collections;
@@ -36,7 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @see io.army.meta.FieldMeta
+ * @see FieldMeta
  * @see TableFieldMeta
  */
 abstract class FieldMetaUtils extends TableMetaUtils {

@@ -16,17 +16,21 @@
 
 package io.army.dialect;
 
-import io.army.criteria.*;
+import io.army.criteria.Expression;
+import io.army.criteria.QualifiedField;
+import io.army.criteria.SqlField;
+import io.army.criteria.TabularItem;
+import io.army.criteria.impl.FieldMeta;
+import io.army.criteria.impl.TableField;
 import io.army.criteria.impl.inner._MultiUpdate;
 import io.army.criteria.impl.inner._SingleUpdate;
 import io.army.criteria.impl.inner._Update;
+import io.army.lang.Nullable;
 import io.army.meta.ChildTableMeta;
-import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
 import io.army.session.SessionSpec;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.Map;
 
 final class MultiUpdateContext extends MultiTableDmlContext implements _MultiUpdateContext {

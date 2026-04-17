@@ -22,7 +22,6 @@ import io.army.lang.Nullable;
 import io.army.mapping.BooleanType;
 import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
-import io.army.meta.FieldMeta;
 import io.army.meta.TypeMeta;
 import io.army.stmt.SingleParam;
 import io.army.util._StringUtils;

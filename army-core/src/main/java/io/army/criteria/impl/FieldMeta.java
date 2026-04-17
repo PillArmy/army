@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package io.army.meta;
+package io.army.criteria.impl;
 
 import io.army.criteria.TypeTableField;
+import io.army.lang.Nullable;
+import io.army.meta.GeneratorMeta;
 import io.army.modelgen._MetaBridge;
 
-import io.army.lang.Nullable;
 import java.util.List;
 
 /**

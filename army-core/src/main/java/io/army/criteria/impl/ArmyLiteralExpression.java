@@ -21,7 +21,6 @@ import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
-import io.army.meta.FieldMeta;
 import io.army.meta.TypeMeta;
 import io.army.util._StringUtils;
 
@@ -199,7 +198,6 @@ abstract class ArmyLiteralExpression extends OperationExpression.OperationTypedE
 
         /**
          * @see #single(TypeInfer, Object, boolean)
-         * @see #encodingSingle(TypeInfer, Object, boolean)
          */
         private AnonymousLiteral(TypeMeta type, @Nullable Object value, boolean typeName) {
             super(type, typeName);

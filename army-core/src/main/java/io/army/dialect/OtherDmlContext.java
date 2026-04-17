@@ -16,14 +16,14 @@
 
 package io.army.dialect;
 
-import io.army.meta.FieldMeta;
+import io.army.criteria.impl.FieldMeta;
+import io.army.lang.Nullable;
 import io.army.session.SessionSpec;
 import io.army.stmt.Stmt;
 import io.army.stmt.StmtType;
 import io.army.stmt.Stmts;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.function.Predicate;
 
 final class OtherDmlContext extends StatementContext implements _OtherDmlContext {

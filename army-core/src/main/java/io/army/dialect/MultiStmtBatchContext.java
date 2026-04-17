@@ -17,7 +17,8 @@
 package io.army.dialect;
 
 import io.army.criteria.Selection;
-import io.army.meta.FieldMeta;
+import io.army.criteria.impl.FieldMeta;
+import io.army.lang.Nullable;
 import io.army.session.SessionSpec;
 import io.army.stmt.MultiStmt;
 import io.army.stmt.MultiStmtBatchStmt;
@@ -25,7 +26,6 @@ import io.army.stmt.StmtType;
 import io.army.stmt.Stmts;
 import io.army.util._Collections;
 
-import io.army.lang.Nullable;
 import java.util.List;
 
 final class MultiStmtBatchContext extends StatementContext implements MultiStmtContext {

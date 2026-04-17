@@ -17,10 +17,12 @@
 package io.army.dialect;
 
 import io.army.annotation.GeneratorType;
-import io.army.annotation.UpdateMode;
 import io.army.bean.ObjectAccessException;
 import io.army.bean.ReadWrapper;
 import io.army.criteria.*;
+import io.army.criteria.impl.FieldMeta;
+import io.army.criteria.impl.FieldSelection;
+import io.army.criteria.impl.TableField;
 import io.army.criteria.impl.inner.*;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;

@@ -18,7 +18,9 @@ package io.army.criteria.impl;
 
 import io.army.criteria.*;
 import io.army.criteria.impl.inner._DerivedTable;
-import io.army.dialect.*;
+import io.army.dialect.Database;
+import io.army.dialect._Constant;
+import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.meta.TypeMeta;
@@ -26,8 +28,16 @@ import io.army.util.ArrayUtils;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Properties;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -41,6 +51,35 @@ import java.util.function.Consumer;
  * @since 0.6.0
  */
 abstract class Expressions {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Expressions.class);
+
+    private static final LiteralMode LITERAL_MODE;
+
+    static {
+        try {
+            final String location;
+            location = String.format("META-INF/army/%s.properties", Expressions.class.getSimpleName());
+            final Enumeration<URL> enumeration;
+            enumeration = Thread.currentThread().getContextClassLoader().getResources(location);
+            URL url = null;
+            final Properties properties = new Properties();
+            while (enumeration.hasMoreElements()) {
+                url = enumeration.nextElement();
+                properties.load(new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8)));
+            } // while loop
+
+            final String key = "expression.literal.mode";
+            final String modeValue;
+            modeValue = properties.getProperty(key, LiteralMode.DEFAULT.name());
+            if (url != null) {
+                LOG.debug("Army {} is {} , effective url {}", key, modeValue, url);
+            }
+            LITERAL_MODE = LiteralMode.valueOf(modeValue);
+        } catch (Exception e) {
+            throw new RuntimeException("expression config load failure", e);
+        }
+    }
 
 
     private Expressions() {
@@ -65,14 +104,14 @@ abstract class Expressions {
         } else if (right instanceof Expression) {
             rightExp = (Expression) right;
         } else if (left instanceof TypedExpression) {
-            rightExp = SQLs.param((TypedExpression) left, right);
+            rightExp = wrapValue((TypedExpression) left, right);
         } else {
-            rightExp = SQLs.parameter(right);
+            rightExp = wrapValue(_MappingFactory.getDefault(right.getClass()), right);
         }
         return rightExp;
     }
 
-    static Expression wrapRightForEscape(final @Nullable Object right) {
+    static Expression wrapEscape(final @Nullable Object right) {
         final Expression rightExp;
         if (right == null) {
             throw ContextStack.clearStackAndNullPointer("right operand must non-null");
@@ -81,11 +120,48 @@ abstract class Expressions {
         } else if (right instanceof Expression) {
             rightExp = (Expression) right;
         } else if (right instanceof String || right instanceof Character) {
-            rightExp = SQLs.param(StringType.INSTANCE, right);
+            rightExp = wrapValue(StringType.INSTANCE, right);
         } else {
             throw ContextStack.clearStackAndCriteriaError("escape of LIKE/SIMILAR TO operator right operand must be Expression or String.");
         }
         return rightExp;
+    }
+
+    /// @see #wrapRight(Expression, Object)
+    /// @see #wrapEscape(Object)
+    static Expression wrapValue(final TypeInfer infer, final @Nullable Object value) {
+        final Expression valueExp;
+        switch (LITERAL_MODE) {
+            case DEFAULT:
+                valueExp = SQLs.param(infer, value);
+                break;
+            case LITERAL:
+                valueExp = SQLs.literal(infer, value);
+                break;
+            case CONST:
+                valueExp = SQLs.constant(infer, value);
+                break;
+            case PREFERENCE: {
+                final MappingType type;
+                if (infer instanceof MappingType) {
+                    type = (MappingType) infer;
+                } else if (infer instanceof TypeMeta) {
+                    type = ((TypeMeta) infer).mappingType();
+                } else {
+                    type = infer.typeMeta().mappingType();
+                }
+
+                if (type instanceof _ArmyNoInjectionType) {
+                    valueExp = SQLs.literal(infer, value);
+                } else {
+                    valueExp = SQLs.param(infer, value);
+                }
+            }
+            break;
+            default:
+                throw _Exceptions.unexpectedEnum(LITERAL_MODE);
+        }
+        return valueExp;
     }
 
 
@@ -216,9 +292,9 @@ abstract class Expressions {
         if (escapeChar == null) {
             escapeExp = null;
         } else {
-            escapeExp = wrapRightForEscape(escapeChar);
+            escapeExp = wrapEscape(escapeChar);
         }
-        return new LikePredicate((OperationExpression) left, operator, wrapRight(left,right), escapeExp);
+        return new LikePredicate((OperationExpression) left, operator, wrapRight(left, right), escapeExp);
     }
 
 
@@ -1392,7 +1468,7 @@ abstract class Expressions {
 
 
         /**
-         * @see #isComparisonPredicate(OperationExpression, boolean, SQLs.IsComparisonWord, Expression)
+         * @see #isComparisonPredicate(OperationExpression, boolean, SQLs.IsComparisonWord, Object)
          */
         private IsComparisonPredicate(OperationExpression left, boolean not, SQLs.IsComparisonWord operator,
                                       ArmyExpression right) {

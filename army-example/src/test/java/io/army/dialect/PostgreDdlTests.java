@@ -16,11 +16,11 @@
 
 package io.army.dialect;
 
+import io.army.criteria.impl.FieldMeta;
 import io.army.example.bank.domain.account.BankAccount_;
 import io.army.example.bank.domain.user.BankPerson_;
 import io.army.mapping.PostgreFullType;
 import io.army.mapping.PostgreFullType_;
-import io.army.meta.FieldMeta;
 import io.army.meta.IndexMeta;
 import io.army.meta.MetaException;
 import io.army.meta.TableMeta;

@@ -16,18 +16,17 @@
 
 package io.army.criteria.impl;
 
-import io.army.annotation.UpdateMode;
 import io.army.criteria.*;
 import io.army.criteria.impl.inner._DomainUpdate;
 import io.army.criteria.impl.inner._ItemPair;
 import io.army.criteria.impl.inner._Statement;
 import io.army.dialect.Dialect;
+import io.army.lang.Nullable;
 import io.army.meta.ChildTableMeta;
 import io.army.meta.TableMeta;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

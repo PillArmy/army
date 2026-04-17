@@ -18,13 +18,13 @@ package io.army.dialect;
 
 import io.army.criteria.SubQuery;
 import io.army.criteria.Visible;
+import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.inner._Insert;
 import io.army.criteria.impl.inner._RowSet;
+import io.army.lang.Nullable;
 import io.army.meta.ChildTableMeta;
-import io.army.meta.FieldMeta;
 import io.army.session.SessionSpec;
 
-import io.army.lang.Nullable;
 import java.util.List;
 import java.util.function.ObjIntConsumer;
 

@@ -16,17 +16,17 @@
 
 package io.army.dialect;
 
-import io.army.annotation.UpdateMode;
 import io.army.criteria.*;
+import io.army.criteria.impl.FieldMeta;
+import io.army.criteria.impl.TableField;
 import io.army.criteria.impl.inner._DerivedTable;
 import io.army.criteria.impl.inner._Selection;
-import io.army.meta.FieldMeta;
+import io.army.lang.Nullable;
 import io.army.meta.TableMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

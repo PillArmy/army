@@ -19,6 +19,7 @@ package io.army.dialect;
 import io.army.annotation.GeneratorType;
 import io.army.bean.ReadWrapper;
 import io.army.criteria.CriteriaException;
+import io.army.criteria.impl.FieldMeta;
 import io.army.generator.FieldGenerator;
 import io.army.generator.GeneratorException;
 import io.army.meta.*;

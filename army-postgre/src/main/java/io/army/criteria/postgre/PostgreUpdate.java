@@ -18,11 +18,10 @@ package io.army.criteria.postgre;
 
 import io.army.criteria.Item;
 import io.army.criteria.UpdateStatement;
+import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.SQLs;
-import io.army.meta.FieldMeta;
-import io.army.meta.TableMeta;
-
 import io.army.lang.Nullable;
+import io.army.meta.TableMeta;
 
 /**
  * <p>This interface representing Postgre UPDATE syntax.

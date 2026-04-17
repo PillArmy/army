@@ -18,7 +18,11 @@ package io.army.criteria.postgre;
 
 import io.army.criteria.*;
 import io.army.criteria.dialect.ReturningInsert;
-import io.army.meta.*;
+import io.army.criteria.impl.FieldMeta;
+import io.army.meta.ComplexTableMeta;
+import io.army.meta.IndexFieldMeta;
+import io.army.meta.ParentTableMeta;
+import io.army.meta.TableMeta;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;

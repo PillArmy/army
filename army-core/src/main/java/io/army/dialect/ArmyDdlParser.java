@@ -17,6 +17,7 @@
 package io.army.dialect;
 
 import io.army.annotation.GeneratorType;
+import io.army.criteria.impl.FieldMeta;
 import io.army.mapping.StringType;
 import io.army.mapping.TextType;
 import io.army.meta.*;

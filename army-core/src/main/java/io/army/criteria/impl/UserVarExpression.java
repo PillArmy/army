@@ -16,7 +16,10 @@
 
 package io.army.criteria.impl;
 
-import io.army.criteria.*;
+import io.army.criteria.Expression;
+import io.army.criteria.SimpleExpression;
+import io.army.criteria.TypeInfer;
+import io.army.criteria.TypedExpression;
 import io.army.criteria.dialect.VarExpression;
 import io.army.dialect.Database;
 import io.army.dialect._Constant;
@@ -24,7 +27,6 @@ import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
-import io.army.meta.ParentTableMeta;
 import io.army.meta.TypeMeta;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;

@@ -21,7 +21,6 @@ import io.army.criteria.dialect.VarExpression;
 import io.army.criteria.impl.inner.*;
 import io.army.dialect.Dialect;
 import io.army.lang.Nullable;
-import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
 
 import java.util.List;
@@ -103,7 +102,7 @@ interface CriteriaContext {
     /**
      * <p>This method is invoked by {@link SQLs#field(String, FieldMeta)}
      */
-    <T> QualifiedField<T> field(String tableAlias, FieldMeta<T> field);
+    <T> QualifiedField<T> field(String tableAlia, FieldMeta<T> field);
 
     /**
      * @see SQLs#refField(String, String)

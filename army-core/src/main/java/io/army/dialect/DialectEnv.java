@@ -19,10 +19,10 @@ package io.army.dialect;
 
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
+import io.army.criteria.impl.FieldMeta;
 import io.army.env.ArmyEnvironment;
 import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
-import io.army.meta.FieldMeta;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
 import io.army.session.FactoryBuilder;

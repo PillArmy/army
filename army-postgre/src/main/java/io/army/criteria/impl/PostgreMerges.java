@@ -26,7 +26,6 @@ import io.army.criteria.postgre.PostgreInsert;
 import io.army.criteria.postgre.PostgreMerge;
 import io.army.criteria.postgre.PostgreQuery;
 import io.army.lang.Nullable;
-import io.army.meta.FieldMeta;
 import io.army.meta.SimpleTableMeta;
 import io.army.meta.TableMeta;
 import io.army.util._Assert;

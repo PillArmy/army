@@ -17,6 +17,7 @@
 package io.army.schema;
 
 
+import io.army.criteria.impl.FieldMeta;
 import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.sqltype.DataType;

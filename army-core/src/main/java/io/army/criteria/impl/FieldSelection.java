@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package io.army.criteria;
+package io.army.criteria.impl;
 
-import io.army.meta.FieldMeta;
+import io.army.criteria.QualifiedField;
+import io.army.criteria.TypedSelection;
 
 /**
  * see {@code io.army.criteria.impl.FieldSelectionImpl}

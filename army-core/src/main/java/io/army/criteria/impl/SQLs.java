@@ -16,7 +16,6 @@
 
 package io.army.criteria.impl;
 
-import io.army.annotation.UpdateMode;
 import io.army.criteria.*;
 import io.army.criteria.dialect.Window;
 import io.army.criteria.impl.inner.*;

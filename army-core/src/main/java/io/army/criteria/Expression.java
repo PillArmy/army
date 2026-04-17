@@ -16,19 +16,16 @@
 
 package io.army.criteria;
 
+import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.SQLs;
-import io.army.function.OptionalClauseOperator;
-import io.army.function.TeFunction;
 import io.army.lang.Nullable;
 import io.army.mapping.IntegerType;
 import io.army.mapping.MappingType;
-import io.army.meta.FieldMeta;
 
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.UnaryOperator;
 
 import static io.army.dialect.Database.*;
 

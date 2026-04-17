@@ -3,13 +3,12 @@ package io.army.criteria.impl;
 import io.army.criteria.*;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
+import io.army.lang.Nullable;
 import io.army.mapping.*;
-import io.army.meta.ParentTableMeta;
 import io.army.meta.TypeMeta;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.Locale;
 
 /**

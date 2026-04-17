@@ -16,6 +16,8 @@
 
 package io.army.meta;
 
+import io.army.criteria.impl.FieldMeta;
+
 import java.util.Map;
 
 public interface GeneratorMeta extends Meta {

@@ -22,7 +22,6 @@ import io.army.dialect.PostgreDialect;
 import io.army.dialect._Constant;
 import io.army.mapping.*;
 import io.army.mapping.optional.NoCastTextType;
-import io.army.meta.FieldMeta;
 import io.army.util._StringUtils;
 
 import java.util.Collection;

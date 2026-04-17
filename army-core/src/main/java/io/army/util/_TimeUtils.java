@@ -16,7 +16,7 @@
 
 package io.army.util;
 
-import io.army.meta.FieldMeta;
+import io.army.criteria.impl.FieldMeta;
 import io.army.meta.TypeMeta;
 
 import java.time.*;

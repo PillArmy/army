@@ -21,6 +21,7 @@ import io.army.bean.ObjectAccessorFactory;
 import io.army.criteria.IPredicate;
 import io.army.criteria.Update;
 import io.army.criteria.UpdateStatement;
+import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.SQLs;
 import io.army.lang.Nullable;
 import io.army.meta.*;

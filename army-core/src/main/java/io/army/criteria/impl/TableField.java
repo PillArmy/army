@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package io.army.criteria;
+package io.army.criteria.impl;
 
 import io.army.annotation.GeneratorType;
+import io.army.criteria.QualifiedField;
+import io.army.criteria.TypedField;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.meta.DatabaseObject;
-import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
 import io.army.meta.TypeMeta;
 
-import io.army.lang.Nullable;
 import java.lang.reflect.Field;
 
 /**

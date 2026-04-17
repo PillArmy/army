@@ -23,6 +23,7 @@ import io.army.bean.ObjectAccessorFactory;
 import io.army.bean.ReadWrapper;
 import io.army.criteria.LiteralMode;
 import io.army.criteria.NullMode;
+import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.inner._Expression;
 import io.army.criteria.impl.inner._Insert;
 import io.army.lang.Nullable;

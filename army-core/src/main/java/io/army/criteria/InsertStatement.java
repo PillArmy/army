@@ -16,10 +16,10 @@
 
 package io.army.criteria;
 
+import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.SQLs;
-import io.army.meta.FieldMeta;
-
 import io.army.lang.Nullable;
+
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;

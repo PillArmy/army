@@ -16,7 +16,8 @@
 
 package io.army.meta;
 
-import io.army.criteria.TableField;
+import io.army.criteria.impl.FieldMeta;
+import io.army.criteria.impl.TableField;
 import io.army.mapping.MappingType;
 
 /**

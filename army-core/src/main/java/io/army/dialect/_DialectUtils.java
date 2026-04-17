@@ -18,6 +18,8 @@ package io.army.dialect;
 
 import io.army.annotation.GeneratorType;
 import io.army.criteria.*;
+import io.army.criteria.impl.FieldMeta;
+import io.army.criteria.impl.TableField;
 import io.army.criteria.impl.inner.*;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
@@ -27,7 +29,10 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;

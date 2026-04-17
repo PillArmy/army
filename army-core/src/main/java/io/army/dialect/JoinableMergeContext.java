@@ -20,15 +20,15 @@ import io.army.criteria.CriteriaException;
 import io.army.criteria.Expression;
 import io.army.criteria.SqlField;
 import io.army.criteria.TabularItem;
+import io.army.criteria.impl.FieldMeta;
 import io.army.criteria.impl.inner._Merge;
-import io.army.meta.FieldMeta;
+import io.army.lang.Nullable;
 import io.army.meta.TableMeta;
 import io.army.session.SessionSpec;
 import io.army.stmt.Stmt;
 import io.army.stmt.StmtType;
 import io.army.stmt.Stmts;
 
-import io.army.lang.Nullable;
 import java.util.List;
 
 final class JoinableMergeContext extends StatementContext implements _JoinableMergeContext {

@@ -17,7 +17,7 @@
 package io.army.dialect;
 
 
-import io.army.meta.FieldMeta;
+import io.army.criteria.impl.FieldMeta;
 import io.army.meta.TableMeta;
 import io.army.schema.FieldResult;
 import io.army.schema.SchemaResult;
