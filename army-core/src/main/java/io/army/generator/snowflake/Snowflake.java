@@ -16,43 +16,23 @@
 
 package io.army.generator.snowflake;
 
-import java.lang.ref.SoftReference;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public final class Snowflake {
 
-    private static final ConcurrentMap<Snowflake, SnowflakeReference> INSTANCE_MAP = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Long, Snowflake> INSTANCE_MAP = new ConcurrentHashMap<>();
 
 
     // private static final Logger LOG = LoggerFactory.getLogger(Snowflake.class);
 
-    public static synchronized Snowflake create(final long startTime, final long dataCenterId, final long workerId) {
+    public static synchronized Snowflake create(final long startTime) {
         if (startTime < 0) {
             throw new IllegalArgumentException("startTime must great than or equals 0");
         }
-        if (dataCenterId > MAX_DATA_CENTER_ID || dataCenterId < 0) {
-            String m = String.format("Data center id[%s] couldn't be greater than %s or less than 0"
-                    , dataCenterId, MAX_DATA_CENTER_ID);
-            throw new IllegalArgumentException(m);
-        }
-        if (workerId > MAX_WORKER_ID || workerId < 0) {
-            String m = String.format("Worker id[%s] couldn't be greater than %s or less than 0"
-                    , workerId, MAX_WORKER_ID);
-            throw new IllegalArgumentException(m);
-        }
 
-        final Snowflake newInstance, currentInstance;
-        newInstance = new Snowflake(startTime, dataCenterId, workerId);
-
-        final SnowflakeReference reference;
-        reference = INSTANCE_MAP.computeIfAbsent(newInstance, SnowflakeReference::new);
-        currentInstance = reference.get();
-        if (currentInstance == null) {
-            INSTANCE_MAP.put(newInstance, new SnowflakeReference(newInstance));
-        }
-        return currentInstance == null ? newInstance : currentInstance;
+        return INSTANCE_MAP.computeIfAbsent(startTime, Snowflake::new);
     }
 
 
@@ -76,31 +56,35 @@ public final class Snowflake {
 
     public final long startTime;
 
-    public final long workerId;
-
-    public final long dataCenterId;
-
     /** (0~4095) */
     private long sequence = 0L;
 
     private long lastTimestamp;
 
 
-    private Snowflake(final long startTime, final long dataCenterId, final long workerId) {
+    private Snowflake(final long startTime) {
         this.startTime = startTime;
-        this.workerId = workerId;
-        this.dataCenterId = dataCenterId;
-
-        this.lastTimestamp = SystemClock.now();
+        this.lastTimestamp = System.currentTimeMillis();  // don't use  SystemClock.now();
     }
 
-    public long next() {
+    public long next(final long dataCenterId, final long workerId) {
+        if (dataCenterId > MAX_DATA_CENTER_ID || dataCenterId < 0) {
+            String m = String.format("Data center id[%s] couldn't be greater than %s or less than 0",
+                    dataCenterId, MAX_DATA_CENTER_ID);
+            throw new IllegalArgumentException(m);
+        }
+        if (workerId > MAX_WORKER_ID || workerId < 0) {
+            String m = String.format("Worker id[%s] couldn't be greater than %s or less than 0",
+                    workerId, MAX_WORKER_ID);
+            throw new IllegalArgumentException(m);
+        }
+
         synchronized (this) {
             long timestamp;
-            timestamp = System.currentTimeMillis();
+            timestamp = SystemClock.now();
             final long lastTimestamp = this.lastTimestamp;
 
-            if (timestamp < lastTimestamp) {
+            if (timestamp < lastTimestamp && (timestamp = System.currentTimeMillis()) < lastTimestamp) {
                 timestamp = waitClock(lastTimestamp, timestamp);
             }
             long sequence = this.sequence;
@@ -110,14 +94,14 @@ public final class Snowflake {
                 sequence = 0L;
             } else if ((sequence = (++sequence) & SEQUENCE_MASK) == 0) {
                 // block util then millis
-                timestamp = System.currentTimeMillis();
+                timestamp = System.currentTimeMillis(); // don't use  SystemClock.now();
                 if (timestamp <= lastTimestamp) {
                     try {
                         this.wait(1L);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                    timestamp = System.currentTimeMillis();
+                    timestamp = System.currentTimeMillis(); // don't use  SystemClock.now();
 
                 }
                 sequence = (++sequence) & SEQUENCE_MASK;
@@ -125,18 +109,17 @@ public final class Snowflake {
             this.lastTimestamp = timestamp;
             this.sequence = sequence;
             return ((timestamp - this.startTime) << TIMESTAMP_LEFT_SHIFT)
-                    | (this.dataCenterId << DATA_CENTER_SHIFT)
-                    | (this.workerId << SEQUENCE_BITS)
+                    | (dataCenterId << DATA_CENTER_SHIFT)
+                    | (workerId << SEQUENCE_BITS)
                     | sequence;
         }
-
 
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.startTime, this.dataCenterId, this.workerId);
+        return Objects.hash(this.startTime);
     }
 
     @Override
@@ -145,9 +128,7 @@ public final class Snowflake {
         if (obj == this) {
             match = true;
         } else if (obj instanceof Snowflake s) {
-            match = s.startTime == this.startTime
-                    && s.dataCenterId == this.dataCenterId
-                    && s.workerId == this.workerId;
+            match = s.startTime == this.startTime;
         } else {
             match = false;
         }
@@ -157,11 +138,7 @@ public final class Snowflake {
 
     @Override
     public String toString() {
-        return String.format("[%s startTime:%s,dataCenterId:%s,workerId:%s]"
-                , Snowflake.class.getName()
-                , this.startTime
-                , this.dataCenterId
-                , this.workerId);
+        return String.format("[%s startTime:%s]", Snowflake.class.getName(), this.startTime);
     }
 
 
@@ -172,7 +149,7 @@ public final class Snowflake {
         if (offset <= 5L) {
             try {
                 this.wait(offset << 1L);
-                timestamp = System.currentTimeMillis();
+                timestamp = System.currentTimeMillis(); // don't use  SystemClock.now();
                 if (timestamp < lastTimestamp) {
                     throw clockMovedBackwards(offset);
                 }
@@ -192,22 +169,6 @@ public final class Snowflake {
     }
 
 
-    private static final class SnowflakeReference extends SoftReference<Snowflake> {
-
-        private SnowflakeReference(Snowflake referent) {
-            super(referent);
-        }
-
-        @Override
-        public void clear() {
-            final Snowflake referent = this.get();
-            if (referent != null) {
-                INSTANCE_MAP.remove(referent, this);
-            }
-            super.clear();
-        }
-
-    }//SnowflakeReference
 
 
 }

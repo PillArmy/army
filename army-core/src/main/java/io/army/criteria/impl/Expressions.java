@@ -1148,6 +1148,7 @@ abstract class Expressions {
 
         private final boolean not;
 
+
         private final SQLs.BetweenModifier modifier;
 
         private final ArmyExpression left;
@@ -1157,7 +1158,7 @@ abstract class Expressions {
         private final ArmyExpression right;
 
         /**
-         * @see #betweenPredicate(OperationExpression, boolean, SQLs.BetweenModifier, Expression, Expression)
+         * @see #betweenPredicate(OperationExpression, boolean, SQLs.BetweenModifier, Object, Object)
          */
         private BetweenPredicate(Expression left, boolean not, @Nullable SQLs.BetweenModifier modifier,
                                  Expression center, Expression right) {

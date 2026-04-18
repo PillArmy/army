@@ -21,6 +21,7 @@ import io.army.bean.ReadWrapper;
 import io.army.generator.FieldGenerator;
 import io.army.generator.FieldGeneratorUtils;
 import io.army.generator.GeneratorException;
+import io.army.lang.Nullable;
 import io.army.meta.FieldMeta;
 import io.army.meta.GeneratorMeta;
 import io.army.meta.MetaException;
@@ -86,12 +87,13 @@ public final class SnowflakeGenerator implements FieldGenerator {
             }
         }
         return INSTANCE_MAP.computeIfAbsent(startTime, time -> {
-            final Worker worker;
-            worker = client.currentWorker();
             final Snowflake snowflake;
-            snowflake = Snowflake.create(time, worker.dataCenterId, worker.workerId);
+            snowflake = Snowflake.create(time);
             final SnowflakeGenerator generator = new SnowflakeGenerator(snowflake);
             client.registerGenerator(generator, generator::updateWorker);
+            if (generator.worker == null) {
+                throw new IllegalStateException("client error");
+            }
             return generator;
         });
 
@@ -103,6 +105,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
 
     /**
      * <p>mills
+     *
      * @see Param
      */
     public static final String START_TIME = "startTime";
@@ -118,22 +121,24 @@ public final class SnowflakeGenerator implements FieldGenerator {
             .appendValue(DAY_OF_MONTH, 2)
             .toFormatter(Locale.ENGLISH);
 
-    public final long startTime;
 
+    private final Snowflake snowflake;
 
-    private Snowflake snowflake;
+    private volatile Worker worker;
 
     private SnowflakeGenerator(Snowflake snowflake) {
         this.snowflake = snowflake;
-        this.startTime = snowflake.startTime;
+        this.worker = null;
     }
+
 
     @Override
     public Object next(final FieldMeta<?> field, final ReadWrapper domain) throws GeneratorException {
         final Class<?> javaType = field.javaType();
         final Object nextSequence;
         if (javaType == Long.class || javaType == long.class) {
-            nextSequence = this.snowflake.next();
+            final Worker worker = this.worker;
+            nextSequence = this.snowflake.next(worker.dataCenterId, worker.workerId);
         } else if (javaType == BigInteger.class) {
             nextSequence = new BigInteger(this.nextAsString(field, domain));
         } else if (javaType == String.class) {
@@ -160,8 +165,9 @@ public final class SnowflakeGenerator implements FieldGenerator {
             suffix = getSuffix(field, dependField, paramMap, domain);
         }
 
+        final Worker worker = this.worker;
         final String snowSequence;
-        snowSequence = Long.toString(this.snowflake.next());
+        snowSequence = Long.toString(this.snowflake.next(worker.dataCenterId, worker.workerId));
         final boolean hasDate;
         hasDate = "true".equals(meta.params().get(DATE));
         final String sequence;
@@ -188,13 +194,12 @@ public final class SnowflakeGenerator implements FieldGenerator {
         return sequence;
     }
 
-    private void updateWorker(final Worker worker) {
+    private void updateWorker(final @Nullable Worker worker) {
+        if (worker == null) {
+            throw new IllegalArgumentException();
+        }
         synchronized (this) {
-            final Snowflake snowflake = this.snowflake;
-            if (worker.dataCenterId == snowflake.dataCenterId && worker.workerId == snowflake.workerId) {
-                return;
-            }
-            this.snowflake = Snowflake.create(this.startTime, worker.dataCenterId, worker.workerId);
+            this.worker = worker;
         }
     }
 

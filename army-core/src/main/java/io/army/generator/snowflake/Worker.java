@@ -58,8 +58,7 @@ public final class Worker {
         final boolean match;
         if (obj == this) {
             match = true;
-        } else if (obj instanceof Worker) {
-            final Worker w = (Worker) obj;
+        } else if (obj instanceof Worker w) {
             match = w.dataCenterId == this.dataCenterId
                     && w.workerId == this.workerId;
         } else {

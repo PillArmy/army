@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+@io.army.lang.NonNullApi
 package io.army.generator.snowflake;
 

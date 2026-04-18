@@ -19,25 +19,29 @@ package io.army.generator.snowflake;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 
-public final class SystemClock {
+final class SystemClock {
 
 
     public static long now() {
-        return Holder.INSTANCE.nowMills.get();
+        return Holder.INSTANCE.getNow();
     }
 
-    private final AtomicLong nowMills;
+    private volatile long nowMills;
 
     private SystemClock() {
-        this.nowMills = new AtomicLong(System.currentTimeMillis());
+        this.nowMills = System.currentTimeMillis();
 
     }
 
-    private void updateNow() {
-        this.nowMills.set(System.currentTimeMillis());
+
+    private synchronized long getNow() {
+        return this.nowMills;
+    }
+
+    private synchronized void updateNow() {
+        this.nowMills = System.currentTimeMillis();
     }
 
 

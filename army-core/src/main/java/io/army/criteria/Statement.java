@@ -847,11 +847,6 @@ public interface Statement extends Item {
          * @param operator      row param/literal method :
          *                      <ul>
          *                          <li>{@link SQLs#namedRowParam(TypeInfer, String, int)}</li>
-         *                          <li>{@link SQLs#namedRowLiteral(TypeInfer, String, int)}</li>
-         *                          <li>{@link SQLs#namedRowConst(TypeInfer, String, int)}</li>
-         *                          <li>{@link SQLs#encodingNamedRowParam(TypeInfer, String, int)} (TypeInfer, String, int)}</li>
-         *                          <li>{@link SQLs#encodingNamedRowLiteral(TypeInfer, String, int)} (TypeInfer, String, int)}</li>
-         *                          <li>{@link SQLs#encodingNamedRowConst(TypeInfer, String, int)} (TypeInfer, String, int)}</li>
          *                      </ul>
          */
         WA where(Function<BiFunction<TypedField, String, Expression>, IPredicate> fieldOperator,
