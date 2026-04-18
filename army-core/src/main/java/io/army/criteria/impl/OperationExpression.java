@@ -22,13 +22,12 @@ import io.army.criteria.*;
 import io.army.criteria.impl.inner._Predicate;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
-import io.army.function.OptionalClauseOperator;
-import io.army.function.TeFunction;
 import io.army.function.TeNamedParamsFunc;
 import io.army.lang.Nullable;
-import io.army.mapping.*;
-import io.army.mapping.optional.NoCastTextType;
-import io.army.meta.ParentTableMeta;
+import io.army.mapping.BooleanType;
+import io.army.mapping.IntegerType;
+import io.army.mapping.MappingType;
+import io.army.mapping.StringType;
 import io.army.util._StringUtils;
 
 import java.util.Collection;
@@ -103,23 +102,23 @@ abstract class OperationExpression extends OperationSQLExpression
 
     @Override
     public final IPredicate between(Object first, SQLs.WordAnd and, Object second) {
-        return Expressions.betweenPredicate(this, false, null, Expressions.wrapRight(this, first), Expressions.wrapRight(this, second));
+        return Expressions.betweenPredicate(this, false, null, first, second);
     }
 
 
     @Override
     public final IPredicate notBetween(Object first, SQLs.WordAnd and, Object second) {
-        return Expressions.betweenPredicate(this, true, null, Expressions.wrapRight(this, first), Expressions.wrapRight(this, second));
+        return Expressions.betweenPredicate(this, true, null, first, second);
     }
 
     @Override
     public final IPredicate between(@Nullable SQLs.BetweenModifier modifier, Object first, SQLs.WordAnd and, Object second) {
-        return Expressions.betweenPredicate(this, false, modifier, Expressions.wrapRight(this, first), Expressions.wrapRight(this, second));
+        return Expressions.betweenPredicate(this, false, modifier, first, second);
     }
 
     @Override
     public final IPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, Object first, SQLs.WordAnd and, Object second) {
-        return Expressions.betweenPredicate(this, true, modifier, Expressions.wrapRight(this, first), Expressions.wrapRight(this, second));
+        return Expressions.betweenPredicate(this, true, modifier, first, second);
     }
 
     @Override

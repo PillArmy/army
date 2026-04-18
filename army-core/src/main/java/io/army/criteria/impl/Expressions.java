@@ -236,14 +236,6 @@ abstract class Expressions {
 
     static CompoundPredicate booleanTestPredicate(final OperationExpression expression,
                                                   boolean not, SQLs.BoolTestWord operand) {
-        if (!(operand == SQLs.NULL
-                || operand == SQLs.TRUE
-                || operand == SQLs.FALSE
-                || operand == SQLs.UNKNOWN
-                || operand instanceof SqlWords.BooleanTestKeyWord)) {
-            String m = String.format("unknown operand[%s]", operand);
-            throw ContextStack.criteriaError(ContextStack.peek(), m);
-        }
         return new BooleanTestPredicate(expression, not, operand);
     }
 
@@ -300,14 +292,8 @@ abstract class Expressions {
 
     static CompoundPredicate betweenPredicate(OperationExpression left, boolean not,
                                               @Nullable SQLs.BetweenModifier modifier,
-                                              Expression center, Expression right) {
-        if (!(center instanceof OperationExpression)) {
-            throw NonOperationExpression.nonOperationExpression(center);
-        } else if (!(right instanceof OperationExpression)) {
-            throw NonOperationExpression.nonOperationExpression(right);
-        }
-        //TODO validate modifier
-        return new BetweenPredicate(left, not, modifier, center, right);
+                                              Object center, Object right) {
+        return new BetweenPredicate(left, not, modifier, wrapRight(left, center), wrapRight(left, right));
     }
 
     static CompoundPredicate compareQueryPredicate(final SQLExpression left, final DualBooleanOperator operator,

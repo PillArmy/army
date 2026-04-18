@@ -21,13 +21,18 @@ import io.army.criteria.impl.inner._Predicate;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.function.*;
-import io.army.meta.*;
+import io.army.lang.Nullable;
+import io.army.meta.ChildTableMeta;
+import io.army.meta.FieldMeta;
+import io.army.meta.PrimaryFieldMeta;
+import io.army.meta.TableMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.util._Collections;
 
-import io.army.lang.Nullable;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.*;
 
 /**
@@ -1077,7 +1082,7 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
      * @see SQLs#TRUE
      * @see SQLs#FALSE
      */
-    private static final class BooleanWord extends OperationSimplePredicate
+    static final class BooleanWord extends OperationSimplePredicate
             implements SQLs.WordBoolean, SQLs.ArmyKeyWord, _LiteralExpression, SqlValueParam.SingleAnonymousValue {
 
         private static final BooleanWord TRUE = new BooleanWord(true);

@@ -44,8 +44,8 @@ public abstract class Postgres extends PostgreSyntax {
 
     public static final Modifier ALL = PostgreWords.SelectModifier.ALL;
     public static final WordDistinct DISTINCT = PostgreWords.KeyWordDistinct.DISTINCT;
-    public static final SQLs.BoolTestWord FROM_NORMALIZED = PostgreWords.FromNormalizedWord.FROM_NORMALIZED;
-    public static final SQLs.BoolTestWord NORMALIZED = PostgreWords.FromNormalizedWord.NORMALIZED;
+    public static final SQLs.BoolTestWord FROM_NORMALIZED = SqlWords.BooleanTestKeyWord.FROM_NORMALIZED;
+    public static final SQLs.BoolTestWord NORMALIZED = SqlWords.BooleanTestKeyWord.NORMALIZED;
 
 
     public static final WordName NAME = PostgreWords.KeyWordName.NAME;
@@ -103,7 +103,6 @@ public abstract class Postgres extends PostgreSyntax {
     public static final ExtractTimeField TIMEZONE_MINUTE = PostgreWords.WordExtractTimeField.TIMEZONE_MINUTE;
     public static final ExtractTimeField WEEK = PostgreWords.WordExtractTimeField.WEEK;
     public static final ExtractTimeField YEAR = PostgreWords.WordExtractTimeField.YEAR;
-
 
 
     public static final SQLs.DualOperator DARROW = DualExpOperator.DARROW;

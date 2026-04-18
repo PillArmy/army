@@ -370,7 +370,9 @@ abstract class SqlWords {
      */
     enum BooleanTestKeyWord implements SQLs.BoolTestWord, SQLs.ArmyKeyWord {
 
-        JSON(" JSON");
+        JSON(" JSON"),
+        FROM_NORMALIZED(" FROM NORMALIZED"),
+        NORMALIZED(" NORMALIZED");
 
         final String spaceOperator;
 

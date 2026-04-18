@@ -686,7 +686,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordNull extends BoolTestWord, Expression, NullOption { // extends Expression not SimpleExpression
+    public sealed interface WordNull extends BoolTestWord, Expression, NullOption permits NonOperationExpression.NullWord { // extends Expression not SimpleExpression
 
     }
 
@@ -702,7 +702,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordBoolean extends BoolTestWord, SimplePredicate, LiteralExpression {
+    public sealed interface WordBoolean extends BoolTestWord, SimplePredicate, LiteralExpression permits OperationPredicate.BooleanWord {
 
     }
 
@@ -722,7 +722,8 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface BoolTestWord extends SQLToken {
+    public sealed interface BoolTestWord extends SQLToken permits WordBoolean,
+            WordDocument, WordNull, SqlWords.BooleanTestKeyWord, SqlWords.KeyWordUnknown {
 
     }
 
@@ -730,7 +731,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface WordDocument extends BoolTestWord, DocumentValueOption {
+    public sealed interface WordDocument extends BoolTestWord, DocumentValueOption permits SqlWords.KeyWordDocument {
 
     }
 
@@ -743,7 +744,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    public interface BetweenModifier extends SQLToken {
+    public sealed interface BetweenModifier extends SQLToken permits SqlWords.KeyWordSymmetric {
 
     }
 

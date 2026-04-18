@@ -280,30 +280,6 @@ abstract class PostgreWords {
         }
     }//KeyWordDistinct
 
-    enum FromNormalizedWord implements SQLs.BoolTestWord, SQLs.ArmyKeyWord {
-        FROM_NORMALIZED(" FROM NORMALIZED"),
-        NORMALIZED(" NORMALIZED");
-
-        private final String spaceWords;
-
-        FromNormalizedWord(String spaceWords) {
-            this.spaceWords = spaceWords;
-        }
-
-        @Override
-        public final String spaceRender() {
-            return this.spaceWords;
-        }
-
-
-        @Override
-        public String toString() {
-            return PostgreSyntax.keyWordToString(this);
-        }
-
-
-    }//FromNormalizedWord
-
     static final class NullTreatModeExpression extends NonOperationExpression
             implements PostgreDocumentFunctions.NullTreatMode,
             FunctionArg.SingleFunctionArg {

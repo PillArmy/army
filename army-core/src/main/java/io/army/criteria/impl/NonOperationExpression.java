@@ -20,11 +20,10 @@ import io.army.annotation.SortOrder;
 import io.army.criteria.*;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
-import io.army.function.OptionalClauseOperator;
-import io.army.function.TeFunction;
 import io.army.lang.Nullable;
-import io.army.mapping.*;
-import io.army.meta.ParentTableMeta;
+import io.army.mapping.IntegerType;
+import io.army.mapping.MappingType;
+import io.army.mapping.NullType;
 import io.army.meta.TypeMeta;
 
 import java.util.List;
@@ -619,7 +618,7 @@ abstract class NonOperationExpression implements ArmyExpression {
      *
      * @see SQLs#NULL
      */
-    private static final class NullWord extends NonOperationExpression
+    static final class NullWord extends NonOperationExpression
             implements SqlValueParam.SingleAnonymousValue,
             ArmySimpleExpression,
             SQLs.WordNull,
