@@ -43,6 +43,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
+import static io.army.criteria.impl.Postgres.excluded;
 import static io.army.criteria.impl.SQLs.*;
 
 @Test(dataProvider = "localSessionProvider")
@@ -344,7 +345,7 @@ public class InsertTests extends SessionTestSupport {
                         .comma(ChinaRegion_.regionType)
                 )
                 .doUpdate()
-                .set(ChinaRegion_.name, Postgres::excluded)
+                .set(ChinaRegion_.name, excluded(ChinaRegion_.name))
                 .returningAll()
                 .asReturningInsert();
 
@@ -677,7 +678,7 @@ public class InsertTests extends SessionTestSupport {
                         .comma(ChinaRegion_.regionType)
                 )
                 .doUpdate()
-                .set(ChinaRegion_.name, Postgres::excluded)
+                .set(ChinaRegion_.name, excluded(ChinaRegion_.name))
                 .returningAll()
                 .asReturningInsert();
 
@@ -955,7 +956,7 @@ public class InsertTests extends SessionTestSupport {
                 .select("c", DOT, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.regionType::equal, SQLs::param, RegionType.NONE)
+                .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.NONE))
                 .asQuery()
                 .asInsert();
 
@@ -978,7 +979,7 @@ public class InsertTests extends SessionTestSupport {
                 .select("c", DOT, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.regionType::equal, SQLs::param, RegionType.NONE)
+                .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.NONE))
                 .asQuery()
                 .returningAll()
                 .asReturningInsert();
@@ -1007,8 +1008,8 @@ public class InsertTests extends SessionTestSupport {
                 .space()
                 .select("c", DOT, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
-                .where(ChinaRegion_.id::in, SPACE, SQLs::rowParam, reginIdList)
-                .and(ChinaRegion_.regionType::equal, SQLs::literal, RegionType.PROVINCE)
+                .where(ChinaRegion_.id.in(SQLs::rowParam, reginIdList))
+                .and(ChinaRegion_.regionType.equal(SQLs::literal, RegionType.PROVINCE))
                 .orderBy(ChinaRegion_.id)
                 .asQuery()
                 .returningAll()

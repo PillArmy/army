@@ -2,7 +2,6 @@ package io.army.session.sync.standard;
 
 
 import io.army.criteria.BatchUpdate;
-import io.army.criteria.Expression;
 import io.army.criteria.Update;
 import io.army.criteria.impl.SQLs;
 import io.army.example.bank.domain.user.ChinaProvince;
@@ -23,7 +22,8 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import static io.army.criteria.impl.SQLs.*;
+import static io.army.criteria.impl.SQLs.AND;
+import static io.army.criteria.impl.SQLs.AS;
 
 @Test(dataProvider = "localSessionProvider")
 public class DomainUpdateTests extends SessionSupport {
@@ -43,8 +43,8 @@ public class DomainUpdateTests extends SessionSupport {
                 .update(ChinaRegion_.T, AS, "c")
                 .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, gdpAmount)
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, gdpAmount, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, gdpAmount).greaterEqual(0))
                 .asUpdate();
 
         statementCostTimeLog(session, LOG, startNanoSecond);
@@ -70,9 +70,9 @@ public class DomainUpdateTests extends SessionSupport {
                 .update(ChinaRegion_.T, AS, "c")
                 .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, gdpAmount)
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, gdpAmount, Expression::greaterEqual, LITERAL_DECIMAL_0)
-                .and(ChinaRegion_.version::equal, SQLs::param, 20) // error version
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, gdpAmount).greaterEqual(0))
+                .and(ChinaRegion_.version.equal(SQLs::param, 20)) // error version
                 .asUpdate();
 
         statementCostTimeLog(session, LOG, startNanoSecond);
@@ -111,8 +111,8 @@ public class DomainUpdateTests extends SessionSupport {
                 .update(ChinaRegion_.T, AS, "c")
                 .setSpace(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::namedParam)
                 .where(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::namedParam, ChinaRegion_.REGION_GDP, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::namedParam, ChinaRegion_.REGION_GDP).greaterEqual(0))
                 .and(ChinaRegion_.version::spaceEqual, SQLs::namedParam)
                 .asUpdate()
                 .namedParamList(paramList);
@@ -164,8 +164,8 @@ public class DomainUpdateTests extends SessionSupport {
                 .update(ChinaRegion_.T, AS, "c")
                 .setSpace(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::namedParam)
                 .where(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::namedParam, ChinaRegion_.REGION_GDP, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::namedParam, ChinaRegion_.REGION_GDP).greaterEqual(0))
                 .and(ChinaRegion_.version::spaceEqual, SQLs::namedParam)
                 .asUpdate()
                 .namedParamList(paramList);
@@ -211,8 +211,8 @@ public class DomainUpdateTests extends SessionSupport {
                 .update(ChinaRegion_.T, AS, "c")
                 .setSpace(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::namedParam)
                 .where(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::namedParam, ChinaRegion_.REGION_GDP, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::namedParam, ChinaRegion_.REGION_GDP).greaterEqual(0))
                 .and(ChinaRegion_.version::spaceEqual, SQLs::namedParam)
                 .asUpdate()
                 .namedParamList(paramList);
@@ -278,8 +278,8 @@ public class DomainUpdateTests extends SessionSupport {
                 .update(ChinaRegion_.T, AS, "c")
                 .setSpace(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::namedParam)
                 .where(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::namedParam, ChinaRegion_.REGION_GDP, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::namedParam, ChinaRegion_.REGION_GDP).greaterEqual(0))
                 .and(ChinaRegion_.version::spaceEqual, SQLs::namedParam)
                 .asUpdate()
                 .namedParamList(paramList);
@@ -311,8 +311,8 @@ public class DomainUpdateTests extends SessionSupport {
                 .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, gdpAmount)
                 .set(ChinaProvince_.governor, SQLs::param, randomPerson())
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, gdpAmount, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, gdpAmount).greaterEqual(0))
                 .and(ChinaProvince_.governor.isNotNull())
                 .asUpdate();
 
@@ -342,10 +342,10 @@ public class DomainUpdateTests extends SessionSupport {
                 .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, gdpAmount)
                 .set(ChinaProvince_.governor, SQLs::param, randomPerson())
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, gdpAmount, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, gdpAmount).greaterEqual(0))
                 .and(ChinaProvince_.governor.isNotNull())
-                .and(ChinaRegion_.version::equal, SQLs::param, 20) // error version
+                .and(ChinaRegion_.version.equal(SQLs::param, 20)) // error version
                 .asUpdate();
 
         statementCostTimeLog(session, LOG, startNanoSecond);
@@ -387,8 +387,8 @@ public class DomainUpdateTests extends SessionSupport {
                 .setSpace(ChinaProvince_.governor, SQLs::namedParam)
                 .setSpace(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::namedParam)
                 .where(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::namedParam, ChinaRegion_.REGION_GDP, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::namedParam, ChinaRegion_.REGION_GDP).greaterEqual(0))
                 .asUpdate()
                 .namedParamList(paramList);
 
@@ -442,8 +442,8 @@ public class DomainUpdateTests extends SessionSupport {
                 .setSpace(ChinaProvince_.governor, SQLs::namedParam)
                 .setSpace(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::namedParam)
                 .where(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::namedParam, ChinaRegion_.REGION_GDP, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::namedParam, ChinaRegion_.REGION_GDP).greaterEqual(0))
                 .and(ChinaRegion_.version::spaceEqual, SQLs::namedParam)
                 .asUpdate()
                 .namedParamList(paramList);
@@ -499,8 +499,8 @@ public class DomainUpdateTests extends SessionSupport {
                 .setSpace(ChinaProvince_.governor, SQLs::namedParam)
                 .setSpace(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::namedParam)
                 .where(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::namedParam, ChinaRegion_.REGION_GDP, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::namedParam, ChinaRegion_.REGION_GDP).greaterEqual(0))
                 .and(ChinaRegion_.version::spaceEqual, SQLs::namedParam)
                 .asUpdate()
                 .namedParamList(paramList);

@@ -44,8 +44,8 @@ public class StandardUserDao extends BankSyncBaseDao implements BankUserDao {
                 .from(Certificate_.T, AS, "c")
                 .join(BankUser_.T, AS, "u").on(Certificate_.id::equal, BankUser_.certificateId)
                 .where(Certificate_.certificateNo.equal(SQLs::param, certificateNo))
-                .and(Certificate_.certificateType::equal, SQLs::literal, certificateType)
-                .and(BankUser_.userType::equal, SQLs::literal, userType)
+                .and(Certificate_.certificateNo.equal(SQLs::literal, certificateNo))
+                .and(BankUser_.userType.equal(SQLs::literal, userType))
                 .limit(SQLs::literal,1)
                 .asQuery();
         return this.sessionContext.currentSession().queryOne(stmt, Long.class) != null;
@@ -63,7 +63,7 @@ public class StandardUserDao extends BankSyncBaseDao implements BankUserDao {
                     .select("t", DOT, Certificate_.T)
                     .from(Certificate_.T, AS, "t")
                     .where(Certificate_.certificateNo.equal(SQLs::param, certificateNo))
-                    .and(Certificate_.certificateType::equal, SQLs::literal, certificateType)
+                    .and(Certificate_.certificateType.equal(SQLs::literal, certificateType))
                     .asQuery();
         } else {
             final ComplexTableMeta<P, T> child = (ComplexTableMeta<P, T>) session.tableMeta(domainType);
@@ -72,7 +72,7 @@ public class StandardUserDao extends BankSyncBaseDao implements BankUserDao {
                     .from(child, AS, "c")
                     .join(Certificate_.T, AS, "p").on(child.id()::equal, Certificate_.id)
                     .where(Certificate_.certificateNo.equal(SQLs::param, certificateNo))
-                    .and(Certificate_.certificateType::equal, SQLs::literal, certificateType)
+                    .and(Certificate_.certificateType.equal(SQLs::literal, certificateType))
                     .asQuery();
         }
         return session.queryOne(stmt, domainType);

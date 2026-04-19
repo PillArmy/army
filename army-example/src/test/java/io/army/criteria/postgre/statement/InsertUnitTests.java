@@ -50,7 +50,7 @@ public class InsertUnitTests extends PostgreUnitTests {
                 )
                 .where(ChinaRegion_.parentId.less(SQLs::literal, 1))
                 .doUpdate()
-                .set(ChinaRegion_.name, Postgres::excluded)
+                .set(ChinaRegion_.name, Postgres.excluded(ChinaRegion_.name))
                 .asInsert();
 
         printStmt(LOG, stmt);
@@ -71,7 +71,7 @@ public class InsertUnitTests extends PostgreUnitTests {
                 )
                 .where(ChinaRegion_.parentId.less(SQLs::literal, 1))
                 .doUpdate()
-                .set(ChinaRegion_.name, Postgres::excluded)
+                .set(ChinaRegion_.name, Postgres.excluded(ChinaRegion_.name))
                 .returning(ChinaRegion_.id, ChinaRegion_.createTime)
                 .comma(ChinaRegion_.parentId)
                 .asReturningInsert();
@@ -95,7 +95,7 @@ public class InsertUnitTests extends PostgreUnitTests {
                 )
                 .where(ChinaRegion_.parentId.less(SQLs::literal, 1))
                 .doUpdate()
-                .set(ChinaRegion_.name, Postgres::excluded)
+                .set(ChinaRegion_.name, Postgres.excluded(ChinaRegion_.name))
                 .asInsert()
 
                 .child()
@@ -129,7 +129,7 @@ public class InsertUnitTests extends PostgreUnitTests {
                 .onConflict()
                 .onConstraint("id")
                 .doUpdate()
-                .set(ChinaCity_.mayorName, Postgres::excluded)
+                .set(ChinaCity_.mayorName, Postgres.excluded(ChinaCity_.mayorName))
                 .asInsert();
 
     }

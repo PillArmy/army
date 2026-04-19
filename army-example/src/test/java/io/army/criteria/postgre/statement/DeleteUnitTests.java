@@ -52,7 +52,7 @@ public class DeleteUnitTests extends PostgreUnitTests {
                 .deleteFrom(ChinaRegion_.T, AS, "c")
                 .using(HistoryChinaRegion_.T, AS, "hc")
                 .where(HistoryChinaRegion_.id::equal, ChinaRegion_.id)
-                .and(ChinaRegion_.id::equal, SQLs::literal, 1)
+                .and(ChinaRegion_.id.equal(SQLs::literal, 1))
                 .asDelete();
 
         printStmt(LOG, stmt);
@@ -65,7 +65,7 @@ public class DeleteUnitTests extends PostgreUnitTests {
                 .deleteFrom(ChinaRegion_.T, ASTERISK, AS, "c")
                 .using(HistoryChinaRegion_.T, AS, "hc")
                 .where(HistoryChinaRegion_.id::equal, ChinaRegion_.id)
-                .and(ChinaRegion_.id::equal, SQLs::literal, 1)
+                .and(ChinaRegion_.id.equal(SQLs::literal, 1))
                 .returning("c", DOT, ChinaRegion_.T)
                 .comma(HistoryChinaRegion_.id)
                 .asReturningDelete();

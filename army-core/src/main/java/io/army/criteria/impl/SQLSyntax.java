@@ -149,7 +149,6 @@ abstract class SQLSyntax extends Functions {
      *                           <li>name have no text</li>
      *                           </ul>
      * @see #namedLiteral(TypeInfer, String)
-     * @see #namedNullableLiteral(TypeInfer, String)
      */
     public static ParamExpression namedParam(final TypeInfer type, final String name) {
         return ArmyParamExpression.named(type, name);
@@ -508,23 +507,23 @@ abstract class SQLSyntax extends Functions {
         return Expressions.existsPredicate(true, subQuery);
     }
 
-    public static ItemPair plusEqual(final SqlField field, final Expression value) {
+    public static ItemPair plusEqual(final SqlField field, final Object value) {
         return SQLs._itemPair(field, AssignOperator.PLUS_EQUAL, value);
     }
 
-    public static ItemPair minusEqual(final SqlField field, final Expression value) {
+    public static ItemPair minusEqual(final SqlField field, final Object value) {
         return SQLs._itemPair(field, AssignOperator.MINUS_EQUAL, value);
     }
 
-    public static ItemPair timesEqual(final SqlField field, final Expression value) {
+    public static ItemPair timesEqual(final SqlField field, final Object value) {
         return SQLs._itemPair(field, AssignOperator.TIMES_EQUAL, value);
     }
 
-    public static ItemPair divideEqual(final SqlField field, final Expression value) {
+    public static ItemPair divideEqual(final SqlField field, final Object value) {
         return SQLs._itemPair(field, AssignOperator.DIVIDE_EQUAL, value);
     }
 
-    public static ItemPair modeEqual(final SqlField field, final Expression value) {
+    public static ItemPair modeEqual(final SqlField field, final Object value) {
         return SQLs._itemPair(field, AssignOperator.MODE_EQUAL, value);
     }
 

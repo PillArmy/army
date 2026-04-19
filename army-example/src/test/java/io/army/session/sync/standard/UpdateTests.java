@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static io.army.criteria.impl.SQLs.*;
+import static io.army.criteria.impl.SQLs.AND;
+import static io.army.criteria.impl.SQLs.AS;
 
 @Test(dataProvider = "localSessionProvider")
 public class UpdateTests extends SessionSupport {
@@ -36,8 +37,8 @@ public class UpdateTests extends SessionSupport {
                 .update(ChinaRegion_.T, AS, "c")
                 .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, gdpAmount)
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, gdpAmount, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, gdpAmount).greaterEqual(0))
                 .asUpdate();
 
         final long rows;
@@ -72,8 +73,8 @@ public class UpdateTests extends SessionSupport {
                 .update(ChinaRegion_.T, AS, "c")
                 .setSpace(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::namedParam)
                 .where(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::namedParam, ChinaRegion_.REGION_GDP, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::namedParam, ChinaRegion_.REGION_GDP).greaterEqual(0))
                 .asUpdate()
                 .namedParamList(paramList);
 
@@ -96,10 +97,10 @@ public class UpdateTests extends SessionSupport {
         stmt = SQLs.singleUpdate()
                 .update(ChinaRegion_.T, AS, "c")
                 .set(ChinaRegion_.population, SQLs::plusEqual, SQLs::param, 999)
-                .ifSet(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, criteria::getRegionGdp)
+                .ifSet(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, criteria.getRegionGdp())
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .ifAnd(ChinaRegion_.regionGdp::plus, SQLs::param, criteria.getRegionGdp(), Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .ifAnd(ChinaRegion_.regionGdp::plus, SQLs::param, criteria.getRegionGdp(), Expression::greaterEqual, 0)
                 .asUpdate();
 
         final long rows;
@@ -123,7 +124,7 @@ public class UpdateTests extends SessionSupport {
         stmt = SQLs.singleUpdate()
                 .update(ChinaRegion_.T, AS, "c")
                 .set(ChinaRegion_.population, SQLs::plusEqual, SQLs::param, 999)
-                .ifSet(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, criteria::getRegionGdp)
+                .ifSet(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, criteria.getRegionGdp())
                 .where(c -> {
                     c.accept(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)));
                     c.accept(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now));
@@ -152,8 +153,8 @@ public class UpdateTests extends SessionSupport {
         stmt = SQLs.singleUpdate()
                 .with("cte").as(c -> c.select(ChinaRegion_.id)
                         .from(ChinaRegion_.T, AS, "c")
-                        .where(ChinaRegion_.id::in, SQLs.SPACE, SQLs::rowParam, extractRegionIdList(regionList))
-                        .and(ChinaRegion_.regionType::equal, SQLs::param, RegionType.NONE)
+                        .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
+                        .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.NONE))
                         .asQuery()
                 ).space()
                 .update(ChinaRegion_.T, AS, "c")
@@ -161,10 +162,10 @@ public class UpdateTests extends SessionSupport {
                 .where(ChinaRegion_.id::in, SQLs.subQuery()
                         .select(s -> s.space(SQLs.refField("cte", "id")))
                         .from("cte")
-                        ::asQuery
+                        .asQuery()
                 )
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now)
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, gdpAmount, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, gdpAmount).greaterEqual(0))
                 .asUpdate();
 
         statementCostTimeLog(session, LOG, startNanoSecond);

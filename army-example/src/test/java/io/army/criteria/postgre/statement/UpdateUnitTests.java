@@ -54,8 +54,8 @@ public class UpdateUnitTests extends PostgreUnitTests {
                 .setRow(ChinaRegion_.regionGdp, ChinaRegion_.population, Postgres.subQuery()
                         .select(HistoryChinaRegion_.regionGdp, HistoryChinaRegion_.population)
                         .from(HistoryChinaRegion_.T, AS, "h")
-                        .where(HistoryChinaRegion_.id::equal, SQLs::literal, 1)
-                        ::asQuery
+                        .where(HistoryChinaRegion_.id.equal(SQLs::literal, 1))
+                        .asQuery()
                 )
                 .from(HistoryChinaRegion_.T, AS, "hc")
                 .where(HistoryChinaRegion_.id::equal, ChinaRegion_.id)
@@ -74,12 +74,12 @@ public class UpdateUnitTests extends PostgreUnitTests {
                 .setRow(ChinaRegion_.regionGdp, ChinaRegion_.population, Postgres.subQuery()
                         .select(HistoryChinaRegion_.regionGdp, HistoryChinaRegion_.population)
                         .from(HistoryChinaRegion_.T, AS, "h")
-                        .where(HistoryChinaRegion_.id::equal, SQLs::literal, 1)
-                        ::asQuery
+                        .where(HistoryChinaRegion_.id.equal(SQLs::literal, 1))
+                        .asQuery()
                 ).ifSetRow(ChinaRegion_.regionGdp, ChinaRegion_.population, Postgres.subQuery()
                         .select(HistoryChinaRegion_.regionGdp, HistoryChinaRegion_.population)
                         .from(HistoryChinaRegion_.T, AS, "h")
-                        .where(HistoryChinaRegion_.id::equal, SQLs::literal, 1)
+                        .where(HistoryChinaRegion_.id.equal(SQLs::literal, 1))
                         ::asQuery
                 )
                 .from(HistoryChinaRegion_.T, AS, "hc")
@@ -116,8 +116,8 @@ public class UpdateUnitTests extends PostgreUnitTests {
                 .setRow(ChinaRegion_.regionGdp, ChinaRegion_.population, Postgres.subQuery()
                         .select(HistoryChinaRegion_.regionGdp, HistoryChinaRegion_.population)
                         .from(HistoryChinaRegion_.T, AS, "h")
-                        .where(HistoryChinaRegion_.id::equal, SQLs::literal, 1)
-                        ::asQuery
+                        .where(HistoryChinaRegion_.id.equal(SQLs::literal, 1))
+                        .asQuery()
                 )
                 .from(HistoryChinaRegion_.T, AS, "hc")
                 .where(HistoryChinaRegion_.id::equal, ChinaRegion_.id)
@@ -152,8 +152,8 @@ public class UpdateUnitTests extends PostgreUnitTests {
                 .setRow(ChinaRegion_.regionGdp, ChinaRegion_.population, Postgres.subQuery()
                         .select(HistoryChinaRegion_.regionGdp, HistoryChinaRegion_.population)
                         .from(HistoryChinaRegion_.T, AS, "h")
-                        .where(HistoryChinaRegion_.id::equal, SQLs::literal, 1)
-                        ::asQuery
+                        .where(HistoryChinaRegion_.id.equal(SQLs::literal, 1))
+                        .asQuery()
                 )
                 .from(HistoryChinaRegion_.T, AS, "hc")
                 .where(HistoryChinaRegion_.id::equal, ChinaRegion_.id)

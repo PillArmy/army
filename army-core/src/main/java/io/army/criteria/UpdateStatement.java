@@ -20,6 +20,8 @@ package io.army.criteria;
 import io.army.function.ExpressionOperator;
 
 import io.army.lang.Nullable;
+
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -59,47 +61,20 @@ public interface UpdateStatement extends NarrowDmlStatement {
      */
     interface _StaticSetClause<F extends SqlField, SR> extends Item {
 
-        SR set(F field, Expression value);
+        SR set(F field, @Nullable Object value);
 
-        <R extends AssignmentItem> SR set(F field, Supplier<R> supplier);
+        <E> SR set(F field, BiFunction<F, E, AssignmentItem> valueOperator, @Nullable E value);
 
-        <R extends AssignmentItem> SR set(F field, Function<F, R> function);
+        <E> SR set(F field, BiFunction<F, Expression, AssignmentItem> fieldOperator, BiFunction<F, E, Expression> valueOperator, @Nullable E value);
 
-        <E, R extends AssignmentItem> SR set(F field, BiFunction<F, E, R> valueOperator, @Nullable E value);
+        SR ifSet(F field, @Nullable Object value);
 
-        <K, V, R extends AssignmentItem> SR set(F field, BiFunction<F, V, R> valueOperator, Function<K, V> function, K key);
+        <E> SR ifSet(F field, BiFunction<F, E, AssignmentItem> valueOperator, @Nullable E value);
 
-        <E, V, R extends AssignmentItem> SR set(F field, BiFunction<F, V, R> fieldOperator,
-                                                BiFunction<F, E, V> valueOperator, E value);
-
-        <K, V, U, R extends AssignmentItem> SR set(F field, BiFunction<F, U, R> fieldOperator,
-                                                   BiFunction<F, V, U> valueOperator, Function<K, V> function, K key);
-
-        <R extends AssignmentItem> SR ifSet(F field, Supplier<R> supplier);
-
-        <R extends AssignmentItem> SR ifSet(F field, Function<F, R> function);
-
-        <E, R extends AssignmentItem> SR ifSet(F field, BiFunction<F, E, R> valueOperator, Supplier<E> supplier);
-
-        <K, V, R extends AssignmentItem> SR ifSet(F field, BiFunction<F, V, R> valueOperator,
-                                                  Function<K, V> function, K key);
-
-        <E, V, R extends AssignmentItem> SR ifSet(F field, BiFunction<F, V, R> fieldOperator,
-                                                  BiFunction<F, E, V> valueOperator, Supplier<E> getter);
-
-        <K, V, U, R extends AssignmentItem> SR ifSet(F field, BiFunction<F, U, R> fieldOperator,
-                                                     BiFunction<F, V, U> valueOperator, Function<K, V> function, K key);
+        <E> SR ifSet(F field, BiFunction<F, Expression, AssignmentItem> fieldOperator, BiFunction<F, E, Expression> valueOperator, @Nullable E value);
 
     }
 
-
-    /**
-     * @param <SR> java type of next clause.
-     */
-    @Deprecated
-    interface _SimpleSetClause<F extends SqlField, SR> extends _StaticSetClause<F, SR> {
-
-    }
 
 
     /**
@@ -110,26 +85,30 @@ public interface UpdateStatement extends NarrowDmlStatement {
 
         SR setSpace(F field, BiFunction<F, String, Expression> valueOperator);
 
-        <R extends AssignmentItem> SR setSpace(F field, BiFunction<F, Expression, R> fieldOperator, BiFunction<F, String, Expression> valueOperator);
+        SR setSpace(F field, BiFunction<F, Expression, AssignmentItem> fieldOperator, BiFunction<F, String, Expression> valueOperator);
 
     }
 
 
     interface _StaticRowSetClause<F extends SqlField, SR> extends _StaticSetClause<F, SR> {
 
-        SR setRow(F field1, F field2, Supplier<SubQuery> supplier);
+        SR setRow(F field1, F field2, SubQuery subQuery);
 
-        SR setRow(F field1, F field2, F field3, Supplier<SubQuery> supplier);
+        SR setRow(F field1, F field2, F field3, SubQuery subQuery);
 
-        SR setRow(F field1, F field2, F field3, F field4, Supplier<SubQuery> supplier);
+        SR setRow(F field1, F field2, F field3, F field4, SubQuery subQuery);
 
-        SR setRow(Consumer<Consumer<F>> consumer, Supplier<SubQuery> supplier);
+        SR setRow(List<F> fieldList, SubQuery subQuery);
+
+        SR setRow(Consumer<Consumer<F>> consumer, SubQuery subQuery);
 
         SR ifSetRow(F field1, F field2, Supplier<SubQuery> supplier);
 
         SR ifSetRow(F field1, F field2, F field3, Supplier<SubQuery> supplier);
 
         SR ifSetRow(F field1, F field2, F field3, F field4, Supplier<SubQuery> supplier);
+
+        SR ifSetRow(List<F> fieldList, Supplier<SubQuery> supplier);
 
         SR ifSetRow(Consumer<Consumer<F>> consumer, Supplier<SubQuery> supplier);
 
@@ -177,9 +156,8 @@ public interface UpdateStatement extends NarrowDmlStatement {
          *                      <li>{@link io.army.criteria.impl.SQLs#PARAM_DECIMAL_0}</li>
          *                      </ul>
          */
-        <T> WA and(ExpressionOperator<TypedExpression, T, Expression> expOperator1,
-                   BiFunction<TypedExpression, T, Expression> operator, T operand1,
-                   BiFunction<Expression, Expression, IPredicate> expOperator2, ValueExpression numberOperand);
+        <T> WA ifAnd(Function<T, Expression> expOperator1, @Nullable T operand1,
+                     BiFunction<Expression, Object, IPredicate> expOperator2, Object numberOperand);
 
         /**
          * @param numberOperand see <ul>
@@ -191,19 +169,8 @@ public interface UpdateStatement extends NarrowDmlStatement {
          */
         <T> WA ifAnd(ExpressionOperator<TypedExpression, T, Expression> expOperator1,
                      BiFunction<TypedExpression, T, Expression> operator, @Nullable T operand1,
-                     BiFunction<Expression, Expression, IPredicate> expOperator2, ValueExpression numberOperand);
+                     BiFunction<Expression, Object, IPredicate> expOperator2, Object numberOperand);
 
-        /**
-         * @param numberOperand see <ul>
-         *                      <li>{@link io.army.criteria.impl.SQLs#LITERAL_0}</li>
-         *                      <li>{@link io.army.criteria.impl.SQLs#LITERAL_DECIMAL_0}</li>
-         *                      <li>{@link io.army.criteria.impl.SQLs#PARAM_0}</li>
-         *                      <li>{@link io.army.criteria.impl.SQLs#PARAM_DECIMAL_0}</li>
-         *                      </ul>
-         */
-        WA and(Function<BiFunction<TypedField, String, Expression>, Expression> fieldOperator,
-               BiFunction<TypedField, String, Expression> operator,
-               BiFunction<Expression, Expression, IPredicate> expOperator2, ValueExpression numberOperand);
 
     } // _UpdateWhereAndClause
 

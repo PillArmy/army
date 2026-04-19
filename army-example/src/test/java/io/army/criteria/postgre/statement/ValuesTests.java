@@ -115,7 +115,7 @@ public class ValuesTests extends PostgreUnitTests {
                         ::asValues
                 ).as("s")
                 .join(ChinaRegion_.T, AS, "c").on(SQLs.refField("s", "column1")::equal, ChinaRegion_.id)
-                .where(ChinaRegion_.id::equal, SQLs::literal, "1")
+                .where(ChinaRegion_.id.equal(SQLs::literal, "1"))
                 .asQuery();
 
         final String sql, expectedSql;

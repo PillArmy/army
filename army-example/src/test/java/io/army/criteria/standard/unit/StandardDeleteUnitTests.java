@@ -40,7 +40,7 @@ public class StandardDeleteUnitTests extends StandardUnitTests {
         final Delete stmt;
         stmt = SQLs.singleDelete()
                 .deleteFrom(ChinaRegion_.T, SQLs.AS, "r")
-                .where(ChinaRegion_.id::equal, SQLs::param, 1)
+                .where(ChinaRegion_.id.equal(1))
                 .and(ChinaRegion_.name.equal(SQLs::param, "马鱼腮角"))
                 .and(ChinaRegion_.version.equal(SQLs::param, 2))
                 .asDelete();
@@ -60,7 +60,7 @@ public class StandardDeleteUnitTests extends StandardUnitTests {
         final BatchDelete stmt;
         stmt = SQLs.batchSingleDelete()
                 .deleteFrom(ChinaRegion_.T, SQLs.AS, "c")
-                .where(ChinaRegion_.createTime::less, SQLs::literal, LocalDateTime.now())
+                .where(ChinaRegion_.createTime.less(SQLs::literal, LocalDateTime.now()))
                 .and(ChinaRegion_.name.spaceEqual(SQLs::namedParam))
                 .and(ChinaRegion_.version.equal(SQLs::param, 2))
                 .asDelete()

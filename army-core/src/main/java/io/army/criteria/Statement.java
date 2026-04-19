@@ -20,13 +20,15 @@ import io.army.criteria.dialect.BatchReturningDelete;
 import io.army.criteria.dialect.BatchReturningUpdate;
 import io.army.criteria.impl.SQLs;
 import io.army.dialect.Dialect;
-import io.army.function.*;
+import io.army.function.BetweenDualOperator;
+import io.army.function.BetweenValueOperator;
+import io.army.function.ExpressionOperator;
+import io.army.function.TeFunction;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.meta.TableMeta;
 import io.army.stmt.Stmt;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.*;
 
@@ -808,8 +810,6 @@ public interface Statement extends Item {
 
         WA where(IPredicate predicate);
 
-        WA where(Supplier<IPredicate> supplier);
-
         WA whereIf(Supplier<IPredicate> supplier);
 
     }
@@ -834,101 +834,27 @@ public interface Statement extends Item {
      */
     interface _WhereClause<WR, WA> extends _MinWhereClause<WR, WA> {
 
+        <T> WA where(Function<T, IPredicate> expOperator, T operand);
 
-        WA where(Function<Expression, IPredicate> expOperator, Expression operand);
-
-        WA where(UnaryOperator<IPredicate> expOperator, SQLs.SymbolSpace space, IPredicate operand);
-
-        <T> WA where(Function<T, IPredicate> expOperator, Supplier<T> supplier);
-
-
-        /**
-         * @param fieldOperator batch operator method of {@link TypedField},for example {@link TypedField#spaceEqual(BiFunction)}
-         * @param operator      row param/literal method :
-         *                      <ul>
-         *                          <li>{@link SQLs#namedRowParam(TypeInfer, String, int)}</li>
-         *                      </ul>
-         */
-        WA where(Function<BiFunction<TypedField, String, Expression>, IPredicate> fieldOperator,
-                 BiFunction<TypedField, String, Expression> operator);
-
-        //below ordinary operator
-        <T> WA where(ExpressionOperator<TypedExpression, T, IPredicate> expOperator,
-                     BiFunction<TypedExpression, T, Expression> valueOperator, @Nullable T value);
-
-        <T> WA where(ExpressionOperator<TypedExpression, T, IPredicate> expOperator, SQLs.SymbolSpace space,
-                     BiFunction<TypedExpression, T, Expression> valueOperator, Supplier<T> supplier);
-
-        WA where(InOperator inOperator, SQLs.SymbolSpace space,
-                 BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Collection<?> value);
-
-        <K, V> WA where(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
-                        BiFunction<TypedExpression, V, Expression> operator, Function<K, V> function, K key);
-
-        <T> WA where(DialectBooleanOperator<T> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                     BiFunction<TypedExpression, T, Expression> func, @Nullable T value);
-
-        <K, V> WA where(DialectBooleanOperator<V> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                        BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key);
-
-        // below in operator
-        WA where(BiFunction<TeNamedParamsFunc<TypedField>, Integer, IPredicate> expOperator,
-                 TeNamedParamsFunc<TypedField> namedOperator, int size);
-
-
-        WA where(InNamedOperator expOperator, TeNamedParamsFunc<TypedField> namedOperator, String paramName, int size);
-
-        //below between operator
-
-        WA where(BetweenOperator expOperator, Expression first, SQLs.WordAnd and, Expression second);
-
-        <T> WA where(BetweenValueOperator<T> expOperator, BiFunction<TypedExpression, T, Expression> operator,
-                     T firstValue, SQLs.WordAnd and, T secondValue);
-
-        <T, U> WA where(BetweenDualOperator<T, U> expOperator, BiFunction<TypedExpression, T, Expression> firstFuncRef,
-                        T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondRef, U second);
-
-        <T> WA whereIf(Function<T, IPredicate> expOperator, Supplier<T> supplier);
+        <T> WA whereIf(Function<T, IPredicate> expOperator, @Nullable T value);
 
         <T> WA whereIf(ExpressionOperator<TypedExpression, T, IPredicate> expOperator,
-                       BiFunction<TypedExpression, T, Expression> operator, Supplier<T> suppler);
+                       BiFunction<TypedExpression, T, Expression> operator, @Nullable T value);
 
-        WA whereIf(InOperator inOperator, SQLs.SymbolSpace space,
-                   BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Supplier<Collection<?>> suppler);
+        /// @param expOperator see {@link TypedExpression#space(SQLs.BiOperator, Object)}
+        <T> WA whereIf(BiFunction<SQLs.BiOperator, T, IPredicate> expOperator, SQLs.BiOperator operator, @Nullable T value);
 
+        /// @param expOperator see {@link TypedExpression#space(SQLs.BiOperator, BiFunction, Object)}
+        <T> WA whereIf(TeFunction<SQLs.BiOperator, BiFunction<TypedExpression, T, Expression>, T, IPredicate> expOperator, SQLs.BiOperator operator,
+                       BiFunction<TypedExpression, T, Expression> func, @Nullable T value);
 
-        <T> WA whereIf(DialectBooleanOperator<T> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                       BiFunction<TypedExpression, T, Expression> func, Supplier<T> getter);
-
-        WA whereIf(BiFunction<TeNamedParamsFunc<TypedField>, Integer, IPredicate> expOperator,
-                   TeNamedParamsFunc<TypedField> namedOperator, Supplier<Integer> supplier);
-
-        //below four argument method
-
-        <K, V> WA whereIf(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
-                          BiFunction<TypedExpression, V, Expression> operator, Function<K, V> function, K key);
-
-        <K, V> WA whereIf(InOperator inOperator, SQLs.SymbolSpace space,
-                          BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Function<K, V> function, K key);
-
-        <K, V> WA whereIf(DialectBooleanOperator<V> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                          BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key);
-
-        WA whereIf(InNamedOperator expOperator, TeNamedParamsFunc<TypedField> namedOperator, String paramName,
-                   Supplier<Integer> supplier);
-
-        //below between where if
 
         <T> WA whereIf(BetweenValueOperator<T> expOperator, BiFunction<TypedExpression, T, Expression> operator,
-                       Supplier<T> firstGetter, SQLs.WordAnd and, Supplier<T> secondGetter);
+                       @Nullable T value1, SQLs.WordAnd and, @Nullable T value2);
 
         <T, U> WA whereIf(BetweenDualOperator<T, U> expOperator, BiFunction<TypedExpression, T, Expression> firstFuncRef,
-                          Supplier<T> firstGetter, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef,
-                          Supplier<U> secondGetter);
-
-        <K, V> WA whereIf(BetweenValueOperator<V> expOperator, BiFunction<TypedExpression, V, Expression> operator,
-                          Function<K, V> function, K firstKey, SQLs.WordAnd and, K secondKey);
-
+                          @Nullable T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef,
+                          @Nullable U second);
 
     }
 
@@ -954,8 +880,6 @@ public interface Statement extends Item {
 
         WA and(IPredicate predicate);
 
-        WA and(Supplier<IPredicate> supplier);
-
         WA ifAnd(Supplier<IPredicate> supplier);
 
     }
@@ -975,96 +899,27 @@ public interface Statement extends Item {
      */
     interface _WhereAndClause<WA> extends _MinWhereAndClause<WA> {
 
+        <T> WA and(Function<T, IPredicate> expOperator, T operand);
 
-        WA and(Function<Expression, IPredicate> expOperator, Expression operand);
-
-        WA and(UnaryOperator<IPredicate> expOperator, SQLs.SymbolSpace space, IPredicate operand);
-
-
-        <T> WA and(Function<T, IPredicate> expOperator, Supplier<T> supplier);
-
-
-        WA and(Function<BiFunction<TypedField, String, Expression>, IPredicate> fieldOperator,
-               BiFunction<TypedField, String, Expression> operator);
-
-        //below ordinary operator
-        <T> WA and(ExpressionOperator<TypedExpression, T, IPredicate> expOperator,
-                   BiFunction<TypedExpression, T, Expression> valueOperator, @Nullable T value);
-
-        <T> WA and(ExpressionOperator<TypedExpression, T, IPredicate> expOperator, SQLs.SymbolSpace space,
-                   BiFunction<TypedExpression, T, Expression> valueOperator, Supplier<T> supplier);
-
-        WA and(InOperator inOperator, SQLs.SymbolSpace space,
-               BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Collection<?> value);
-
-        <K, V> WA and(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
-                      BiFunction<TypedExpression, V, Expression> operator, Function<K, V> function, K key);
-
-        <T> WA and(DialectBooleanOperator<T> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                   BiFunction<TypedExpression, T, Expression> func, @Nullable T value);
-
-        <K, V> WA and(DialectBooleanOperator<V> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                      BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key);
-
-
-        // below in operator
-        WA and(BiFunction<TeNamedParamsFunc<TypedField>, Integer, IPredicate> expOperator,
-               TeNamedParamsFunc<TypedField> namedOperator, int size);
-
-
-        WA and(InNamedOperator expOperator, TeNamedParamsFunc<TypedField> namedOperator, String paramName, int size);
-
-        //below between operator
-
-        WA and(BetweenOperator expOperator, Expression first, SQLs.WordAnd and, Expression second);
-
-        <T> WA and(BetweenValueOperator<T> expOperator, BiFunction<TypedExpression, T, Expression> operator,
-                   T firstValue, SQLs.WordAnd and, T secondValue);
-
-        <T, U> WA and(BetweenDualOperator<T, U> expOperator, BiFunction<TypedExpression, T, Expression> firstFuncRef,
-                      T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondRef, U second);
-
-        <T> WA ifAnd(Function<T, IPredicate> expOperator, Supplier<T> supplier);
+        <T> WA ifAnd(Function<T, IPredicate> expOperator, @Nullable T value);
 
         <T> WA ifAnd(ExpressionOperator<TypedExpression, T, IPredicate> expOperator,
-                     BiFunction<TypedExpression, T, Expression> operator, Supplier<T> getter);
+                     BiFunction<TypedExpression, T, Expression> operator, @Nullable T value);
 
-        WA ifAnd(InOperator inOperator, SQLs.SymbolSpace space,
-                 BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Supplier<Collection<?>> suppler);
+        /// @param expOperator see {@link TypedExpression#space(SQLs.BiOperator, Object)}
+        <T> WA ifAnd(BiFunction<SQLs.BiOperator, T, IPredicate> expOperator, SQLs.BiOperator operator, @Nullable T value);
 
+        /// @param expOperator see {@link TypedExpression#space(SQLs.BiOperator, BiFunction, Object)}
+        <T> WA ifAnd(TeFunction<SQLs.BiOperator, BiFunction<TypedExpression, T, Expression>, T, IPredicate> expOperator, SQLs.BiOperator operator,
+                     BiFunction<TypedExpression, T, Expression> func, @Nullable T value);
 
-        <K, V> WA ifAnd(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
-                        BiFunction<TypedExpression, V, Expression> operator, Function<K, V> function, K key);
-
-        <K, V> WA ifAnd(InOperator inOperator, SQLs.SymbolSpace space,
-                        BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Function<K, V> function, K key);
-
-        <T> WA ifAnd(DialectBooleanOperator<T> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                     BiFunction<TypedExpression, T, Expression> func, Supplier<T> getter);
-
-        <K, V> WA ifAnd(DialectBooleanOperator<V> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                        BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key);
-
-        WA ifAnd(BiFunction<TeNamedParamsFunc<TypedField>, Integer, IPredicate> expOperator,
-                 TeNamedParamsFunc<TypedField> namedOperator, Supplier<Integer> supplier);
-
-        //below four argument method
-
-
-        WA ifAnd(InNamedOperator expOperator, TeNamedParamsFunc<TypedField> namedOperator, String paramName,
-                 Supplier<Integer> supplier);
-
-        //below between where if
 
         <T> WA ifAnd(BetweenValueOperator<T> expOperator, BiFunction<TypedExpression, T, Expression> operator,
-                     Supplier<T> firstGetter, SQLs.WordAnd and, Supplier<T> secondGetter);
+                     @Nullable T value1, SQLs.WordAnd and, @Nullable T value2);
 
         <T, U> WA ifAnd(BetweenDualOperator<T, U> expOperator, BiFunction<TypedExpression, T, Expression> firstFuncRef,
-                        Supplier<T> firstGetter, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef,
-                        Supplier<U> secondGetter);
-
-        <K, V> WA ifAnd(BetweenValueOperator<V> expOperator, BiFunction<TypedExpression, V, Expression> operator,
-                        Function<K, V> function, K firstKey, SQLs.WordAnd and, K secondKey);
+                        @Nullable T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef,
+                        @Nullable U second);
 
     }
 
@@ -1747,9 +1602,6 @@ public interface Statement extends Item {
     interface DqlInsert extends Item {
 
     }
-
-
-
 
 
     interface _DynamicWithClause<B extends CteBuilderSpec, WE extends Item> extends Item {

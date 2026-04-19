@@ -16,7 +16,6 @@
 
 package io.army.criteria.standard.unit;
 
-import io.army.annotation.UpdateMode;
 import io.army.criteria.BatchUpdate;
 import io.army.criteria.Expression;
 import io.army.criteria.Update;
@@ -27,7 +26,6 @@ import io.army.example.bank.domain.user.ChinaRegion;
 import io.army.example.bank.domain.user.ChinaRegion_;
 import io.army.example.pill.domain.PillUser_;
 import io.army.example.pill.struct.IdentityType;
-import io.army.mapping.BigDecimalType;
 import io.army.util._Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +33,6 @@ import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import static io.army.criteria.impl.SQLs.*;
 
@@ -56,9 +53,9 @@ public class StandardUpdateUnitTests extends StandardUnitTests {
                 .update(ChinaRegion_.T, AS, "c")
                 .set(ChinaRegion_.name, SQLs::param, "武侠江湖")
                 .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, addGdp)
-                .where(ChinaRegion_.id::between, SQLs::literal, map.get("firstId"), AND, map.get("secondId"))
+                .where(ChinaRegion_.id.between(SQLs::literal, map.get("firstId"), AND, map.get("secondId")))
                 .and(SQLs.bracket(ChinaRegion_.name.equal(SQLs::literal, "江湖")))
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, addGdp, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, addGdp).greaterEqual(0))
                 .asUpdate();
 
         printStmt(LOG, stmt);
@@ -68,19 +65,18 @@ public class StandardUpdateUnitTests extends StandardUnitTests {
     public void updateChild() {
         final BigDecimal gdpAmount = new BigDecimal("888.8");
         final ChinaRegion<?> criteria = new ChinaRegion<>();
-        final Supplier<Expression> amountSupplier = () -> SQLs.literal(BigDecimalType.INSTANCE, gdpAmount);
 
         criteria.setRegionGdp(gdpAmount);
         final Update stmt;
         stmt = SQLs.domainUpdate()
                 .update(ChinaProvince_.T, AS, "p")
-                .set(ChinaRegion_.regionGdp, amountSupplier)  // test method infer
-                .set(ChinaRegion_.regionGdp, SQLs::negate) // test method infer
+                .set(ChinaRegion_.regionGdp, gdpAmount)  // test method infer
+                .set(ChinaRegion_.regionGdp, negate(ChinaRegion_.regionGdp)) // test method infer
                 .set(ChinaRegion_.name, SQLs::param, "武侠江湖")
-                .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, gdpAmount)
+                .set(ChinaRegion_.regionGdp, SQLs::plusEqual, gdpAmount)
                 .where(ChinaRegion_.id.equal(SQLs::literal, 1))
-                .and(ChinaRegion_.name::equal, SQLs::param, "江湖")
-                .and(ChinaRegion_.regionGdp::plus, SQLs::literal, gdpAmount, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.name.equal(SQLs::param, "江湖"))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::literal, gdpAmount).greaterEqual(0))
                 .asUpdate();
 
         printStmt(LOG, stmt);
@@ -94,10 +90,10 @@ public class StandardUpdateUnitTests extends StandardUnitTests {
                 .update(ChinaRegion_.T, AS, "p") // update only parent table field: ChinaRegion_.*
                 .setSpace(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::namedParam)
                 .where(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
-                .and(ChinaRegion_.regionGdp::spacePlus, SQLs::namedParam, Expression::greaterEqual, LITERAL_DECIMAL_0) // test method infer
-                .and(ChinaRegion_.regionGdp::plus, SQLs::namedParam, ChinaRegion_.REGION_GDP, Expression::greaterEqual, LITERAL_DECIMAL_0) // test method infer
+                .and(ChinaRegion_.regionGdp.spacePlus(SQLs::namedParam).greaterEqual(0)) // test method infer
+                .and(ChinaRegion_.regionGdp.plus(SQLs::namedParam, ChinaRegion_.REGION_GDP).greaterEqual(0)) // test method infer
                 .ifAnd(ChinaRegion_.regionGdp::plus, SQLs::namedParam, ChinaRegion_.REGION_GDP, Expression::greaterEqual, LITERAL_DECIMAL_0) // test method infer
-                .and(ChinaRegion_.version::equal, SQLs::param, "0")
+                .and(ChinaRegion_.version.equal(SQLs::param, "0"))
                 .asUpdate()
                 .namedParamList(this.createProvinceList());
 
@@ -116,7 +112,7 @@ public class StandardUpdateUnitTests extends StandardUnitTests {
                 .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, gdpAmount)
                 .where(ChinaRegion_.id.equal(SQLs::namedParam, ChinaRegion_.ID))
                 .and(ChinaRegion_.name.equal(SQLs::namedParam, ChinaRegion_.NAME))
-                .and(ChinaRegion_.regionGdp::plus, SQLs::literal, gdpAmount, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.regionGdp.plus(SQLs::literal, gdpAmount).greaterEqual(0))
                 .asUpdate()
                 .namedParamList(this.createProvinceList());
 
@@ -135,8 +131,8 @@ public class StandardUpdateUnitTests extends StandardUnitTests {
                 .set(PillUser_.identityType, SQLs::literal, IdentityType.PERSON)
                 .set(PillUser_.identityId, SQLs::literal, 888)
                 .set(PillUser_.nickName, SQLs::param, "令狐冲")
-                .where(PillUser_.id::equal, SQLs::literal, "1")
-                .and(PillUser_.nickName::equal, SQLs::param, "zoro")
+                .where(PillUser_.id.equal(SQLs::literal, "1"))
+                .and(PillUser_.nickName.equal(SQLs::param, "zoro"))
                 .asUpdate();
 
         printStmt(LOG, stmt);
@@ -151,8 +147,8 @@ public class StandardUpdateUnitTests extends StandardUnitTests {
                         .set(PillUser_.identityId, SQLs::literal, 888)
                         .set(PillUser_.nickName, SQLs::param, "令狐冲"))
 
-                .where(PillUser_.id::equal, SQLs::literal, "1")
-                .and(PillUser_.nickName::equal, SQLs::param, "zoro")
+                .where(PillUser_.id.equal(SQLs::literal, "1"))
+                .and(PillUser_.nickName.equal(SQLs::param, "zoro"))
                 .asUpdate();
 
         printStmt(LOG, stmt);

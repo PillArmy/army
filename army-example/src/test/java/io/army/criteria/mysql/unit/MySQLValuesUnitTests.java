@@ -127,7 +127,7 @@ public class MySQLValuesUnitTests extends MySQLUnitTests {
                         ::asValues
                 ).as("s")
                 .join(ChinaRegion_.T, AS, "c").on(SQLs.refField("s", "column_0")::equal, ChinaRegion_.id)
-                .where(ChinaRegion_.id::equal, SQLs::literal, "1")
+                .where(ChinaRegion_.id.equal(SQLs::literal, "1"))
                 .asQuery();
 
         final String sql, expectedSql;

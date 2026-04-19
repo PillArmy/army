@@ -34,7 +34,7 @@ public class DeleteTests extends SessionSupport {
         stmt = SQLs.singleDelete()
                 .deleteFrom(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1))
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1)))
                 .asDelete();
 
         final long rows;
@@ -55,7 +55,7 @@ public class DeleteTests extends SessionSupport {
         stmt = SQLs.batchSingleDelete()
                 .deleteFrom(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1))
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1)))
                 .asDelete()
                 .namedParamList(extractRegionIdMapList(regionList));
 
@@ -79,16 +79,16 @@ public class DeleteTests extends SessionSupport {
                 .with("idListCte").as(c -> c.select(ChinaRegion_.id)
                         .from(ChinaRegion_.T, AS, "t")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                        .and(ChinaRegion_.regionType::equal, SQLs::param, RegionType.NONE)
+                        .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.NONE))
                         .asQuery()
                 ).space()
                 .deleteFrom(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id::in, SQLs.subQuery()
                         .select(s -> s.space(SQLs.refField("cte", "id")))
                         .from("idListCte", AS, "cte")
-                        ::asQuery
+                        .asQuery()
                 )
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1))
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1)))
                 .asDelete();
 
         final long rows;
@@ -111,7 +111,7 @@ public class DeleteTests extends SessionSupport {
                 .with("cte").as(c -> c.select(ChinaRegion_.id)
                         .from(ChinaRegion_.T, AS, "t")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                        .and(ChinaRegion_.regionType::equal, SQLs::param, RegionType.NONE)
+                        .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.NONE))
                         .asQuery()
                 ).space()
                 .deleteFrom(ChinaRegion_.T, AS, "c")
@@ -119,9 +119,9 @@ public class DeleteTests extends SessionSupport {
                         .select(s -> s.space(SQLs.refField("cte", "id")))
                         .from("cte")
                         .where(SQLs.refField("cte", "id").equal(SQLs.namedParam(LongType.INSTANCE, "id")))
-                        ::asQuery
+                        .asQuery()
                 )
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1))
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1)))
                 .asDelete()
                 .namedParamList(extractRegionIdMapList(regionList));
 
@@ -143,7 +143,7 @@ public class DeleteTests extends SessionSupport {
         stmt = SQLs.singleDelete()
                 .deleteFrom(ChinaRegion_.T, AS, "c")
                 .where(SQLs.field("c", ChinaRegion_.id).in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(SQLs.field("c", ChinaRegion_.createTime)::between, SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1))
+                .and(SQLs.field("c", ChinaRegion_.createTime).between(SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1)))
                 .asDelete();
 
         final long rows;

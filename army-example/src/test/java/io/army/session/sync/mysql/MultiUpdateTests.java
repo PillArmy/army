@@ -2,7 +2,6 @@ package io.army.session.sync.mysql;
 
 
 import io.army.criteria.BatchUpdate;
-import io.army.criteria.Expression;
 import io.army.criteria.Update;
 import io.army.criteria.dialect.Hint;
 import io.army.criteria.impl.MySQLs;
@@ -48,7 +47,7 @@ public class MultiUpdateTests extends SessionTestSupport {
                 .with("cte").as(sw -> sw.select(ChinaRegion_.id)
                         .from(ChinaRegion_.T, AS, "c")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                        .and(ChinaRegion_.regionType::equal, SQLs::param, RegionType.PROVINCE)
+                        .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.PROVINCE))
                         .asQuery()
                 ).space()
                 .update(ChinaProvince_.T, AS, "p").useIndex(FOR, JOIN, "PRIMARY")
@@ -58,10 +57,10 @@ public class MultiUpdateTests extends SessionTestSupport {
                 .where(ChinaRegion_.id::in, SQLs.subQuery()
                         .select(s -> s.space(SQLs.refField("subCte", ChinaRegion_.ID)))
                         .from("cte", AS, "subCte")
-                        ::asQuery
+                        .asQuery()
                 )
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1))
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, gdpAmount, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1)))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, gdpAmount).greaterEqual(0))
                 .asUpdate();
 
         statementCostTimeLog(session, LOG, startNanoSecond);
@@ -89,7 +88,7 @@ public class MultiUpdateTests extends SessionTestSupport {
                 .with("cte").as(sw -> sw.select(ChinaRegion_.id)
                         .from(ChinaRegion_.T, AS, "c")
                         .where(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
-                        .and(ChinaRegion_.regionType::equal, SQLs::param, RegionType.PROVINCE)
+                        .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.PROVINCE))
                         .asQuery()
                 ).space()
                 .update(ChinaProvince_.T, AS, "p").useIndex(FOR, JOIN, "PRIMARY")
@@ -99,10 +98,10 @@ public class MultiUpdateTests extends SessionTestSupport {
                 .where(ChinaRegion_.id::equal, SQLs.scalarSubQuery()
                         .select(s -> s.space(SQLs.refField("subCte", ChinaRegion_.ID)))
                         .from("cte", AS, "subCte")
-                        ::asQuery
+                        .asQuery()
                 )
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1))
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, gdpAmount, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1)))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, gdpAmount).greaterEqual(0))
                 .asUpdate()
                 .namedParamList(idMapList);
 
@@ -134,13 +133,13 @@ public class MultiUpdateTests extends SessionTestSupport {
                         .select(ChinaRegion_.id)
                         .from(ChinaRegion_.T, AS, "ss")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, idList))
-                        .and(ChinaRegion_.regionType::equal, SQLs::param, RegionType.NONE)
+                        .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.NONE))
                         .asQuery()
                 ).as("sc").on(ChinaRegion_.id::equal, SQLs.refField("sc", ChinaRegion_.ID))
                 .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, gdpAmount)
                 .where(ChinaRegion_.id.in(SQLs::rowParam, idList))
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1))
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, gdpAmount, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1)))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, gdpAmount).greaterEqual(0))
                 .asUpdate();
 
         statementCostTimeLog(session, LOG, startNanoSecond);
@@ -168,7 +167,7 @@ public class MultiUpdateTests extends SessionTestSupport {
                 .with("cte").as(sw -> sw.select(ChinaRegion_.id)
                         .from(ChinaRegion_.T, AS, "c")
                         .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                        .and(ChinaRegion_.regionType::equal, SQLs::param, RegionType.PROVINCE)
+                        .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.PROVINCE))
                         .asQuery()
                 ).space()
                 .update(hintSupplier, Collections.singletonList(MySQLs.LOW_PRIORITY))
@@ -179,10 +178,10 @@ public class MultiUpdateTests extends SessionTestSupport {
                 .where(ChinaRegion_.id::in, SQLs.subQuery()
                         .select(s -> s.space(SQLs.refField("subCte", ChinaRegion_.ID)))
                         .from("cte", AS, "subCte")
-                        ::asQuery
+                        .asQuery()
                 )
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1))
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, gdpAmount, Expression::greaterEqual, LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1)))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, gdpAmount).greaterEqual(0))
                 .asUpdate();
 
         statementCostTimeLog(session, LOG, startNanoSecond);

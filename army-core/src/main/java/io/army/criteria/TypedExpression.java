@@ -17,15 +17,12 @@
 package io.army.criteria;
 
 import io.army.criteria.impl.SQLs;
-import io.army.function.OptionalClauseOperator;
 import io.army.function.TeNamedParamsFunc;
 import io.army.lang.Nullable;
-import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
 
 import java.util.Collection;
 import java.util.function.BiFunction;
-import java.util.function.UnaryOperator;
 
 import static io.army.dialect.Database.H2;
 import static io.army.dialect.Database.PostgreSQL;
@@ -39,9 +36,25 @@ import static io.army.dialect.Database.PostgreSQL;
  *     <li>{@link IPredicate}</li>
  * </ul>
  */
-public interface TypedExpression extends Expression , TypeInfer{
+public interface TypedExpression extends Expression, TypeInfer {
 
 
+    ///
+    /// {@code =} operator
+    ///
+    /// @param funcRef right operand , one of below :
+    /// 1. {@link SQLs#param(TypeInfer, Object)}
+    /// 2. {@link SQLs#literal(TypeInfer, Object)}
+    /// 3. {@link SQLs#constant(TypeInfer, Object)}
+    /// 4. {@link SQLs#namedParam(TypeInfer, String)}
+    /// 5. {@link SQLs#namedLiteral(TypeInfer, String)}
+    /// 6. {@link SQLs#namedConst(TypeInfer, String)}
+    /// 7. Your custom function
+    /// @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
+    ///                          {@link SQLs#rowParam(TypeInfer, Collection)}
+    /// @see Expression#equal(Object)
+    /// @see TypedField#spaceEqual(BiFunction)
+    ///
     <T> IPredicate equal(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
 
@@ -87,7 +100,6 @@ public interface TypedExpression extends Expression , TypeInfer{
 
     @Support({PostgreSQL, H2})
     <T, U> IPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
-
 
 
     @Support({PostgreSQL, H2})

@@ -14,28 +14,11 @@
  * limitations under the License.
  */
 
-package io.army.generator.snowflake;
-
-import java.util.function.Consumer;
-
-public final class SingleJvmSnowflakeClient implements SnowflakeClient {
-
-    public static final SingleJvmSnowflakeClient INSTANCE = new SingleJvmSnowflakeClient();
-
-    private SingleJvmSnowflakeClient() {
-    }
-
-    @Override
-    public boolean registerGenerator(long startTime, Consumer<Worker> workerConsumer)
-            throws SnowflakeWorkerException {
-        workerConsumer.accept(Worker.ZERO);
-        return false;
-    }
-
-    @Override
-    public Worker currentWorker() {
-        return Worker.ZERO;
-    }
+package io.army.function;
 
 
+@FunctionalInterface
+public interface QuFunction<T, U, V, W, R> {
+
+    R apply(T t, U u, V v, W w);
 }

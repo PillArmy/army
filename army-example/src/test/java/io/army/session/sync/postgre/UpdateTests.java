@@ -1,18 +1,16 @@
 package io.army.session.sync.postgre;
 
 
-import io.army.criteria.Expression;
+import io.army.criteria.BatchUpdate;
 import io.army.criteria.Update;
 import io.army.criteria.dialect.ReturningUpdate;
 import io.army.criteria.impl.Postgres;
 import io.army.criteria.impl.SQLs;
 import io.army.criteria.impl.inner._ReturningDml;
-import io.army.example.bank.domain.user.ChinaProvince;
-import io.army.example.bank.domain.user.ChinaProvince_;
-import io.army.example.bank.domain.user.ChinaRegion;
-import io.army.example.bank.domain.user.ChinaRegion_;
+import io.army.example.bank.domain.user.*;
 import io.army.result.ResultStates;
 import io.army.session.SyncLocalSession;
+import io.army.session.SyncSession;
 import io.army.session.SyncStmtOption;
 import io.army.util.Decimals;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,8 +44,8 @@ public class UpdateTests extends SessionTestSupport {
                 .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, amount)
                 .set(ChinaRegion_.population, SQLs::plusEqual, SQLs::param, 8888)
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(1), AND, now.plusSeconds(1))
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, amount, Expression::greaterEqual, SQLs.LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(1), AND, now.plusSeconds(1)))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, amount).greaterEqual(0))
                 .asUpdate();
 
         statementCostTimeLog(session, LOG, startNanoSecond);
@@ -74,8 +72,8 @@ public class UpdateTests extends SessionTestSupport {
                 .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, amount)
                 .set(ChinaRegion_.population, SQLs::plusEqual, SQLs::param, 8888)
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(1), AND, now.plusSeconds(1))
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, amount, Expression::greaterEqual, SQLs.LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(1), AND, now.plusSeconds(1)))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, amount).greaterEqual(0))
                 .asUpdate();
 
         statementCostTimeLog(session, LOG, startNanoSecond);
@@ -110,8 +108,8 @@ public class UpdateTests extends SessionTestSupport {
                 .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, amount)
                 .set(ChinaRegion_.population, SQLs::plusEqual, SQLs::param, 8888)
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(1), AND, now.plusSeconds(1))
-                .and(ChinaRegion_.regionGdp::plus, SQLs::param, amount, Expression::greaterEqual, SQLs.LITERAL_DECIMAL_0)
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(1), AND, now.plusSeconds(1)))
+                .and(ChinaRegion_.regionGdp.plus(SQLs::param, amount).greaterEqual(0))
                 .returningAll()
                 .asReturningUpdate();
 
@@ -227,6 +225,26 @@ public class UpdateTests extends SessionTestSupport {
 
         statementCostTimeLog(session, LOG, startNanoSecond);
         Assert.assertEquals(session.update(stmt), 3L);
+    }
+
+    @Test
+    public void batchUpdate(SyncSession session) {
+        final BankUser<?> u;
+        ;
+        u = new BankUser<>();
+        u.setNickName("索隆");
+        u.setId(2L);
+
+        final BatchUpdate stmt;
+        stmt = Postgres.batchSingleUpdate()
+                .update(BankUser_.T, AS, "t")
+                .setSpace(BankUser_.nickName, SQLs::namedParam)
+                .where(BankUser_.id::spaceEqual, SQLs::namedParam)
+                .asUpdate()
+                .namedParamList(List.of(u));
+
+        session.batchUpdate(stmt);
+
     }
 
 

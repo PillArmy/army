@@ -35,7 +35,7 @@ public class CursorTests extends SessionTestSupport {
                 .forSpace()
                 .select("c", DOT, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
-                .where(ChinaRegion_.id::in, SPACE, SQLs::rowLiteral, extractRegionIdList(regionList))
+                .where(ChinaRegion_.id.in(SQLs::rowLiteral, extractRegionIdList(regionList)))
                 .orderBy(ChinaRegion_.id)
                 .limit(SQLs::literal, regionList.size())
                 .asQuery()

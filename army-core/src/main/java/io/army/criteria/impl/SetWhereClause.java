@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -68,101 +67,43 @@ abstract class SetWhereClause<F extends TableField, SR, WR, WA, OR, OD, LR, LO, 
 
 
     @Override
-    public final SR set(F field, Expression value) {
-        return this.onAddItemPair(SQLs._itemPair(field, null, value));
+    public final SR set(F field, @Nullable Object value) {
+        return this.onAddItemPair(SQLs._itemPair(field, null, Expressions.wrapRight(field, value)));
     }
 
     @Override
-    public final <R extends AssignmentItem> SR set(F field, Supplier<R> supplier) {
-        return this.onAddAssignmentItemPair(field, supplier.get());
-    }
-
-
-    @Override
-    public final <R extends AssignmentItem> SR set(F field, Function<F, R> function) {
-        return this.onAddAssignmentItemPair(field, function.apply(field));
-    }
-
-
-    @Override
-    public final <E, R extends AssignmentItem> SR set(final F field, final BiFunction<F, E, R> valueOperator,
+    public final <E> SR set(final F field, final BiFunction<F, E, AssignmentItem> valueOperator,
                                                       final @Nullable E value) {
         return this.onAddAssignmentItemPair(field, valueOperator.apply(field, value));
     }
 
-
     @Override
-    public final <K, V, R extends AssignmentItem> SR set(final F field, final BiFunction<F, V, R> valueOperator,
-                                                         final Function<K, V> function, final K key) {
-        return this.onAddAssignmentItemPair(field, valueOperator.apply(field, function.apply(key)));
-    }
-
-    @Override
-    public final <E, V, R extends AssignmentItem> SR set(F field, BiFunction<F, V, R> fieldOperator,
-                                                         BiFunction<F, E, V> valueOperator, E value) {
+    public final <E> SR set(F field, BiFunction<F, Expression, AssignmentItem> fieldOperator,
+                            BiFunction<F, E, Expression> valueOperator, E value) {
         return this.onAddAssignmentItemPair(field, fieldOperator.apply(field, valueOperator.apply(field, value)));
     }
 
     @Override
-    public final <K, V, U, R extends AssignmentItem> SR set(F field, BiFunction<F, U, R> fieldOperator,
-                                                            BiFunction<F, V, U> valueOperator, Function<K, V> function,
-                                                            K key) {
-        return this.onAddAssignmentItemPair(field, fieldOperator.apply(field, valueOperator.apply(field, function.apply(key))));
-    }
-
-    @Override
-    public final <R extends AssignmentItem> SR ifSet(final F field, Supplier<R> supplier) {
-        final R item;
-        if ((item = supplier.get()) != null) {
-            this.onAddAssignmentItemPair(field, item);
+    public final SR ifSet(final F field, @Nullable Object value) {
+        if (value != null) {
+            this.onAddAssignmentItemPair(field, Expressions.wrapRight(field, value));
         }
         return (SR) this;
     }
 
-    @Override
-    public final <R extends AssignmentItem> SR ifSet(final F field, Function<F, R> function) {
-        final R item;
-        if ((item = function.apply(field)) != null) {
-            this.onAddAssignmentItemPair(field, item);
-        }
-        return (SR) this;
-    }
 
     @Override
-    public final <E, R extends AssignmentItem> SR ifSet(F field, BiFunction<F, E, R> valueOperator, Supplier<E> supplier) {
-        final E value;
-        if ((value = supplier.get()) != null) {
+    public final <E> SR ifSet(F field, BiFunction<F, E, AssignmentItem> valueOperator, @Nullable E value) {
+        if (value != null) {
             this.onAddAssignmentItemPair(field, valueOperator.apply(field, value));
         }
         return (SR) this;
     }
 
     @Override
-    public final <K, V, R extends AssignmentItem> SR ifSet(F field, BiFunction<F, V, R> valueOperator,
-                                                           Function<K, V> function, K key) {
-        final V value;
-        if ((value = function.apply(key)) != null) {
-            this.onAddAssignmentItemPair(field, valueOperator.apply(field, value));
-        }
-        return (SR) this;
-    }
-
-    @Override
-    public final <E, V, R extends AssignmentItem> SR ifSet(F field, BiFunction<F, V, R> fieldOperator,
-                                                           BiFunction<F, E, V> valueOperator, Supplier<E> getter) {
-        final E value;
-        if ((value = getter.get()) != null) {
-            this.onAddAssignmentItemPair(field, fieldOperator.apply(field, valueOperator.apply(field, value)));
-        }
-        return (SR) this;
-    }
-
-    @Override
-    public final <K, V, U, R extends AssignmentItem> SR ifSet(F field, BiFunction<F, U, R> fieldOperator,
-                                                              BiFunction<F, V, U> valueOperator,
-                                                              Function<K, V> function, K key) {
-        final V value;
-        if ((value = function.apply(key)) != null) {
+    public final <E> SR ifSet(F field, BiFunction<F, Expression, AssignmentItem> fieldOperator,
+                              BiFunction<F, E, Expression> valueOperator, @Nullable E value) {
+        if (value != null) {
             this.onAddAssignmentItemPair(field, fieldOperator.apply(field, valueOperator.apply(field, value)));
         }
         return (SR) this;
@@ -174,37 +115,41 @@ abstract class SetWhereClause<F extends TableField, SR, WR, WA, OR, OD, LR, LO, 
     }
 
     @Override
-    public final <R extends AssignmentItem> SR setSpace(F field, BiFunction<F, Expression, R> fieldOperator
-            , BiFunction<F, String, Expression> valueOperator) {
+    public final SR setSpace(F field, BiFunction<F, Expression, AssignmentItem> fieldOperator, BiFunction<F, String, Expression> valueOperator) {
         return this.onAddAssignmentItemPair(field, fieldOperator.apply(field, valueOperator.apply(field, field.fieldName())));
     }
 
     @Override
-    public final SR setRow(F field1, F field2, Supplier<SubQuery> supplier) {
+    public final SR setRow(F field1, F field2, SubQuery subQuery) {
         final List<F> fieldList;
-        fieldList = Arrays.asList(field1, field2);
-        return this.onAddItemPair(SQLs._itemPair(fieldList, supplier.get()));
+        fieldList = List.of(field1, field2);
+        return this.onAddItemPair(SQLs._itemPair(fieldList, subQuery));
     }
 
     @Override
-    public final SR setRow(F field1, F field2, F field3, Supplier<SubQuery> supplier) {
+    public final SR setRow(F field1, F field2, F field3, SubQuery subQuery) {
         final List<F> fieldList;
-        fieldList = Arrays.asList(field1, field2, field3);
-        return this.onAddItemPair(SQLs._itemPair(fieldList, supplier.get()));
+        fieldList = List.of(field1, field2, field3);
+        return this.onAddItemPair(SQLs._itemPair(fieldList, subQuery));
     }
 
     @Override
-    public final SR setRow(F field1, F field2, F field3, F field4, Supplier<SubQuery> supplier) {
+    public final SR setRow(F field1, F field2, F field3, F field4, SubQuery subQuery) {
         final List<F> fieldList;
-        fieldList = Arrays.asList(field1, field2, field3, field4);
-        return this.onAddItemPair(SQLs._itemPair(fieldList, supplier.get()));
+        fieldList = List.of(field1, field2, field3, field4);
+        return this.onAddItemPair(SQLs._itemPair(fieldList, subQuery));
     }
 
     @Override
-    public final SR setRow(Consumer<Consumer<F>> consumer, Supplier<SubQuery> supplier) {
+    public final SR setRow(List<F> fieldList, SubQuery subQuery) {
+        return this.onAddItemPair(SQLs._itemPair(List.copyOf(fieldList), subQuery));
+    }
+
+    @Override
+    public final SR setRow(Consumer<Consumer<F>> consumer, SubQuery subQuery) {
         final List<F> fieldList = _Collections.arrayList();
-        consumer.accept(fieldList::add);
-        return this.onAddItemPair(SQLs._itemPair(fieldList, supplier.get()));
+        ClauseUtils.invokeConsumer(fieldList::add, consumer);
+        return this.onAddItemPair(SQLs._itemPair(fieldList, subQuery));
     }
 
     @Override
@@ -212,7 +157,7 @@ abstract class SetWhereClause<F extends TableField, SR, WR, WA, OR, OD, LR, LO, 
         final SubQuery query;
         if ((query = supplier.get()) != null) {
             final List<F> fieldList;
-            fieldList = Arrays.asList(field1, field2);
+            fieldList = List.of(field1, field2);
             this.onAddItemPair(SQLs._itemPair(fieldList, query));
         }
         return (SR) this;
@@ -240,12 +185,22 @@ abstract class SetWhereClause<F extends TableField, SR, WR, WA, OR, OD, LR, LO, 
         return (SR) this;
     }
 
+
+    @Override
+    public final SR ifSetRow(List<F> fieldList, Supplier<SubQuery> supplier) {
+        final SubQuery query;
+        if (!fieldList.isEmpty() && (query = supplier.get()) != null) {
+            this.onAddItemPair(SQLs._itemPair(List.copyOf(fieldList), query));
+        }
+        return (SR) this;
+    }
+
     @Override
     public final SR ifSetRow(Consumer<Consumer<F>> consumer, Supplier<SubQuery> supplier) {
         final List<F> fieldList = _Collections.arrayList();
         consumer.accept(fieldList::add);
         final SubQuery query;
-        if (fieldList.size() > 0 && (query = supplier.get()) != null) {
+        if (!fieldList.isEmpty() && (query = supplier.get()) != null) {
             this.onAddItemPair(SQLs._itemPair(fieldList, query));
         }
         return (SR) this;

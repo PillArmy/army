@@ -90,7 +90,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
             final Snowflake snowflake;
             snowflake = Snowflake.create(time);
             final SnowflakeGenerator generator = new SnowflakeGenerator(snowflake);
-            client.registerGenerator(generator, generator::updateWorker);
+            client.registerGenerator(generator.snowflake.startTime, generator::updateWorker);
             if (generator.worker == null) {
                 throw new IllegalStateException("client error");
             }

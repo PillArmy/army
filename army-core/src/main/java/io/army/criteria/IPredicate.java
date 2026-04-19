@@ -17,11 +17,13 @@
 package io.army.criteria;
 
 import io.army.criteria.impl.SQLs;
-import io.army.function.*;
+import io.army.function.BetweenDualOperator;
+import io.army.function.BetweenValueOperator;
+import io.army.function.ExpressionOperator;
+import io.army.function.TeFunction;
+import io.army.lang.Nullable;
 import io.army.mapping.BooleanType;
 
-import io.army.lang.Nullable;
-import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -42,109 +44,39 @@ public interface IPredicate extends TypedExpression, Statement._WhereAndClause<I
     @Override
     BooleanType typeMeta();
 
-    /**
-     * Logical OR
-     * <p>
-     * This method representing expression (this OR predicate)
-     *     */
-    SimplePredicate or(IPredicate predicate);
+    IPredicate or(IPredicate predicate);
 
-    SimplePredicate or(Supplier<IPredicate> supplier);
+    <T> IPredicate or(Function<T, IPredicate> expOperator, T operand);
 
-    SimplePredicate or(Function<Expression, IPredicate> expOperator, Expression operand);
+    IPredicate orGroup(Consumer<Consumer<IPredicate>> consumer);
 
-    <E extends RightOperand> SimplePredicate or(Function<E, IPredicate> expOperator, Supplier<E> supplier);
+    IPredicate orGroup(IPredicate t, IPredicate u);
 
-    <T> SimplePredicate or(ExpressionOperator<TypedExpression, T, IPredicate> expOperator,
-                           BiFunction<TypedExpression, T, Expression> operator, @Nullable T value);
+    IPredicate orGroup(IPredicate t, IPredicate u, IPredicate v);
 
-    <T> SimplePredicate or(ExpressionOperator<TypedExpression, T, IPredicate> expOperator, SQLs.SymbolSpace space,
-                           BiFunction<TypedExpression, T, Expression> valueOperator, Supplier<T> supplier);
-
-    SimplePredicate or(InOperator inOperator, SQLs.SymbolSpace space,
-                       BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Collection<?> value);
-
-    SimplePredicate or(BiFunction<TeNamedParamsFunc<TypedField>, Integer, IPredicate> expOperator,
-                       TeNamedParamsFunc<TypedField> namedOperator, int size);
-
-    <T> SimplePredicate or(BetweenValueOperator<T> expOperator, BiFunction<TypedExpression, T, Expression> operator,
-                           T firstValue, SQLs.WordAnd and, T secondValue);
-
-    <T, U> SimplePredicate or(BetweenDualOperator<T, U> expOperator, BiFunction<TypedExpression, T, Expression> firstFunc,
-                              T firstValue, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFunc, U secondValue);
-
-    SimplePredicate or(BetweenOperator expOperator, Expression first, SQLs.WordAnd and, Expression second);
-
-    SimplePredicate or(InNamedOperator expOperator, TeNamedParamsFunc<TypedField> namedOperator, String paramName, int size);
-
-    SimplePredicate or(Consumer<Consumer<IPredicate>> consumer);
+    IPredicate ifOrGroup(Consumer<Consumer<IPredicate>> consumer);
 
     IPredicate ifOr(Supplier<IPredicate> supplier);
 
-    <T> IPredicate ifOr(Function<T, IPredicate> expOperator, Supplier<T> supplier);
+    <T> IPredicate ifOr(Function<T, IPredicate> expOperator, @Nullable T value);
 
     <T> IPredicate ifOr(ExpressionOperator<TypedExpression, T, IPredicate> expOperator,
-                        BiFunction<TypedExpression, T, Expression> operator, Supplier<T> getter);
+                        BiFunction<TypedExpression, T, Expression> operator, @Nullable T value);
 
-    IPredicate ifOr(InOperator inOperator, SQLs.SymbolSpace space,
-                    BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Supplier<Collection<?>> suppler);
+    /// @param expOperator see {@link TypedExpression#space(SQLs.BiOperator, Object)}
+    <T> IPredicate ifOr(BiFunction<SQLs.BiOperator, T, IPredicate> expOperator, SQLs.BiOperator operator, @Nullable T value);
 
-    <K, V> IPredicate ifOr(InOperator inOperator, SQLs.SymbolSpace space,
-                           BiFunction<TypedExpression, Collection<?>, RowExpression> funcRef, Function<K, V> function, K key);
-
-    IPredicate ifOr(BiFunction<TeNamedParamsFunc<TypedField>, Integer, IPredicate> expOperator,
-                    TeNamedParamsFunc<TypedField> namedOperator, Supplier<Integer> supplier);
-
-
-    <K, V> IPredicate ifOr(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
-                           BiFunction<TypedExpression, V, Expression> operator, Function<K, V> function, K keyName);
+    /// @param expOperator see {@link TypedExpression#space(SQLs.BiOperator, BiFunction, Object)}
+    <T> IPredicate ifOr(TeFunction<SQLs.BiOperator, BiFunction<TypedExpression, T, Expression>, T, IPredicate> expOperator, SQLs.BiOperator operator,
+                        BiFunction<TypedExpression, T, Expression> func, @Nullable T value);
 
 
     <T> IPredicate ifOr(BetweenValueOperator<T> expOperator, BiFunction<TypedExpression, T, Expression> operator,
-                        Supplier<T> firstGetter, SQLs.WordAnd and, Supplier<T> secondGetter);
+                        @Nullable T value1, SQLs.WordAnd and, @Nullable T value2);
 
-    <T, U> IPredicate ifOr(BetweenDualOperator<T, U> expOperator, BiFunction<TypedExpression, T, Expression> firstFunc,
-                           Supplier<T> firstGetter, SQLs.WordAnd and,
-                           BiFunction<TypedExpression, U, Expression> secondFunc, Supplier<U> secondGetter);
-
-    IPredicate ifOr(InNamedOperator expOperator, TeNamedParamsFunc<TypedField> namedOperator, String paramName,
-                    Supplier<Integer> supplier);
-
-    IPredicate ifOr(Consumer<Consumer<IPredicate>> consumer);
-
-
-    /**
-     * <p>
-     * This method is designed for dialect logical operator.
-     * This method name is 'blank' not 'whiteSpace' , because of distinguishing logical operator and other operator.
-     *     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *     * <p>
-     *
-     *     *
-     * @param funcRef the reference of the method of dialect logical operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code MySQL.xor(IPredicate,IPredicate)}
-     * @param right   the right operand of dialect logical operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-    LogicalPredicate blank(BiFunction<IPredicate, IPredicate, LogicalPredicate> funcRef, IPredicate right);
-
-
-    /**
-     * <p>
-     * This method is designed for dialect logical operator.
-     * This method name is 'blank' not 'whiteSpace' , because of distinguishing logical operator and other operator.
-     *     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *     * <p>
-     *
-     *     *
-     * @param funcRef  the reference of the method of dialect logical operator,<strong>NOTE</strong>: not lambda.
-     *                 The first argument of funcRef always is <strong>this</strong>.
-     *                 For example: {@code MySQL.xor(IPredicate,IPredicate)}
-     * @param consumer the right operand of dialect logical operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-    LogicalPredicate blank(BiFunction<IPredicate, Consumer<Consumer<IPredicate>>, LogicalPredicate> funcRef, Consumer<Consumer<IPredicate>> consumer);
+    <T, U> IPredicate ifOr(BetweenDualOperator<T, U> expOperator, BiFunction<TypedExpression, T, Expression> firstFuncRef,
+                           @Nullable T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef,
+                           @Nullable U second);
 
 
 }

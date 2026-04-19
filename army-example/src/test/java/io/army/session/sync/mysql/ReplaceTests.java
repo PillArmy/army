@@ -590,7 +590,7 @@ public class ReplaceTests extends SessionTestSupport {
                 .select("c", DOT, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(parentList)))
-                .and(ChinaRegion_.regionType::equal, SQLs::param, RegionType.NONE)
+                .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.NONE))
                 .asQuery()
                 .asInsert();
 
@@ -620,7 +620,7 @@ public class ReplaceTests extends SessionTestSupport {
                 .select("c", DOT, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id.in(SQLs::rowParam, regionIdList))
-                .and(ChinaRegion_.regionType::equal, SQLs::param, RegionType.PROVINCE)
+                .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.PROVINCE))
                 .asQuery()
                 .asInsert()
 

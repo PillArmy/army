@@ -29,7 +29,7 @@ public interface SnowflakeClient {
      *
      * @return the {@link Worker} that assigned by snowflake server
      */
-    boolean registerGenerator(SnowflakeGenerator generator, Consumer<Worker> workerConsumer)
+    boolean registerGenerator(long startTime, Consumer<Worker> workerConsumer)
             throws SnowflakeWorkerException;
 
     Worker currentWorker();

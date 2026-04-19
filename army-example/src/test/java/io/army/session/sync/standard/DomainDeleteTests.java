@@ -35,7 +35,7 @@ public class DomainDeleteTests extends SessionSupport {
         stmt = SQLs.domainDelete()
                 .deleteFrom(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1))
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1)))
                 .asDelete();
 
         final long rows;
@@ -57,7 +57,7 @@ public class DomainDeleteTests extends SessionSupport {
         stmt = SQLs.batchDomainDelete()
                 .deleteFrom(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id::spaceEqual, SQLs::namedParam)
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1))
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1)))
                 .asDelete()
                 .namedParamList(extractRegionIdMapList(regionList));
 
@@ -81,7 +81,7 @@ public class DomainDeleteTests extends SessionSupport {
         stmt = SQLs.domainDelete()
                 .deleteFrom(ChinaProvince_.T, AS, "p")
                 .where(ChinaProvince_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1))
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1)))
                 .asDelete();
 
         final long rows;
@@ -106,7 +106,7 @@ public class DomainDeleteTests extends SessionSupport {
         stmt = SQLs.batchDomainDelete()
                 .deleteFrom(ChinaProvince_.T, AS, "p")
                 .where(ChinaProvince_.id::spaceEqual, SQLs::namedParam)
-                .and(ChinaRegion_.createTime::between, SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1))
+                .and(ChinaRegion_.createTime.between(SQLs::param, now.minusMinutes(10), AND, now.plusSeconds(1)))
                 .asDelete()
                 .namedParamList(extractRegionIdMapList(regionList));
 

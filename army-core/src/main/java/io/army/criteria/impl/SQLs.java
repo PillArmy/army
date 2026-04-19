@@ -546,19 +546,19 @@ public abstract class SQLs extends SQLSyntax {
      * *
      *
      * @param value {@link Expression} or parameter.
-     * @see #plusEqual(SqlField, Expression)
+     * @see #plusEqual(SqlField, Object)
      */
     static SQLs.ArmyItemPair _itemPair(final @Nullable SqlField field, final @Nullable AssignOperator operator,
-                                       final @Nullable Expression value) {
+                                       final @Nullable Object value) {
         if (field == null || value == null) {
             throw ContextStack.clearStackAndNullPointer();
         }
         //TODO right operand non-null validate
         final SQLs.ArmyItemPair itemPair;
         if (operator == null) {
-            itemPair = new SQLs.FieldItemPair(field, (ArmyExpression) value);
+            itemPair = new SQLs.FieldItemPair(field, (ArmyExpression) Expressions.wrapRight(field, value));
         } else {
-            itemPair = new SQLs.OperatorItemPair(field, operator, (ArmyExpression) value);
+            itemPair = new SQLs.OperatorItemPair(field, operator, (ArmyExpression) Expressions.wrapRight(field, value));
         }
         return itemPair;
     }
