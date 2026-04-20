@@ -24,8 +24,9 @@ import io.army.criteria.RowExpression;
  * Package interface and must be package interface.
  * * @since 0.6.0
  */
-interface LengthTypedRowExpression extends ArmySQLExpression, RowExpression {
+interface LengthTypedRowExpression extends ArmySimpleExpression, RowExpression {
 
+    /// @return negative : unknown
     int columnSize();
 
 

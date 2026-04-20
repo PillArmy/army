@@ -16,72 +16,22 @@
 
 package io.army.criteria.impl;
 
-import io.army.criteria.CompoundPredicate;
-import io.army.criteria.IPredicate;
 import io.army.criteria.RowExpression;
-import io.army.criteria.SQLColumnSet;
-
-import java.util.function.BiFunction;
 
 /**
  * <p>
- * This class is a abstract implementation of {@link io.army.criteria.RowExpression}.
+ * This class is an abstract implementation of {@link io.army.criteria.RowExpression}.
  *
  * @since 0.6.0
  */
-abstract class OperationRowExpression extends OperationSQLExpression implements ArmySQLExpression, RowExpression {
+abstract class OperationRowExpression extends OperationExpression
+        implements RowExpression {
 
 
     /**
      * package constructor
      */
     OperationRowExpression() {
-    }
-
-    @Override
-    public final IPredicate equal(SQLColumnSet operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.EQUAL, operand);
-    }
-
-    @Override
-    public final IPredicate notEqual(SQLColumnSet operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.NOT_EQUAL, operand);
-    }
-
-    @Override
-    public final IPredicate nullSafeEqual(SQLColumnSet operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.NULL_SAFE_EQUAL, operand);
-    }
-
-    @Override
-    public final IPredicate less(SQLColumnSet operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.LESS, operand);
-    }
-
-    @Override
-    public final IPredicate lessEqual(SQLColumnSet operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.LESS_EQUAL, operand);
-    }
-
-    @Override
-    public final IPredicate greater(SQLColumnSet operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.GREATER, operand);
-    }
-
-    @Override
-    public final IPredicate greaterEqual(SQLColumnSet operand) {
-        return Expressions.dualPredicate(this, DualBooleanOperator.GREATER_EQUAL, operand);
-    }
-
-    @Override
-    public final IPredicate space(BiFunction<RowExpression, RowExpression, CompoundPredicate> funcRef,
-                                         RowExpression right) {
-        final IPredicate predicate;
-        predicate = funcRef.apply(this, right);
-        if (predicate == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        }
-        return predicate;
     }
 
 

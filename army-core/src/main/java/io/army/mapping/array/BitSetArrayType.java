@@ -25,7 +25,7 @@ import io.army.mapping.MappingType;
 import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 import io.army.util._StringUtils;
@@ -113,7 +113,7 @@ public class BitSetArrayType extends _ArmyNoInjectionType implements MappingType
         final SQLType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = PostgreType.VARBIT_ARRAY;
+                dataType = PgType.VARBIT_ARRAY;
                 break;
             case MySQL:
             case SQLite:

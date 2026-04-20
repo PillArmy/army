@@ -54,6 +54,8 @@ abstract class Expressions {
 
     private static final Logger LOG = LoggerFactory.getLogger(Expressions.class);
 
+    private static final String RIGHT_REQUIRED = "right operand is required";
+
     private static final LiteralMode LITERAL_MODE;
 
     static {
@@ -106,12 +108,12 @@ abstract class Expressions {
         } else if (left instanceof TypedExpression) {
             rightExp = wrapValue((TypedExpression) left, right);
         } else {
-            rightExp = wrapValue(_MappingFactory.getDefault(right.getClass()), right);
+            rightExp = wrapNonNull(right);
         }
         return rightExp;
     }
 
-    static Expression wrapEscape(final @Nullable Object right) {
+    static ArmyExpression wrapEscape(final @Nullable Object right) {
         final Expression rightExp;
         if (right == null) {
             throw ContextStack.clearStackAndNullPointer("right operand must non-null");
@@ -124,12 +126,23 @@ abstract class Expressions {
         } else {
             throw ContextStack.clearStackAndCriteriaError("escape of LIKE/SIMILAR TO operator right operand must be Expression or String.");
         }
-        return rightExp;
+        return (ArmyExpression) rightExp;
     }
+
+
+    static ArmyExpression wrapNonNull(final Object value) {
+        final MappingType type;
+        type = _MappingFactory.getDefaultIfMatch(value.getClass());
+        if (type == null) {
+            throw ContextStack.clearStackAndCriteriaError(String.format("Not found MappingType of %s", value.getClass()));
+        }
+        return wrapValue(type, value);
+    }
+
 
     /// @see #wrapRight(Expression, Object)
     /// @see #wrapEscape(Object)
-    static Expression wrapValue(final TypeInfer infer, final @Nullable Object value) {
+    static ArmyExpression wrapValue(final TypeInfer infer, final @Nullable Object value) {
         final Expression valueExp;
         switch (LITERAL_MODE) {
             case DEFAULT:
@@ -161,7 +174,40 @@ abstract class Expressions {
             default:
                 throw _Exceptions.unexpectedEnum(LITERAL_MODE);
         }
-        return valueExp;
+        return (ArmyExpression) valueExp;
+    }
+
+    static void writeNonNull(final Object value, final StringBuilder sqlBuilder, final _SqlContext context) {
+        final MappingType type;
+        type = _MappingFactory.getDefaultIfMatch(value.getClass());
+        if (type == null) {
+            throw ContextStack.clearStackAndCriteriaError(String.format("Not found MappingType of %s", value.getClass()));
+        }
+
+        writeNonNull(type, value, sqlBuilder, context);
+    }
+
+    static void writeNonNull(MappingType type, final Object value, final StringBuilder sqlBuilder, final _SqlContext context) {
+        switch (LITERAL_MODE) {
+            case DEFAULT:
+                context.appendParam(SQLs.param(type, value));
+                break;
+            case LITERAL:
+                context.appendLiteral(type, sqlBuilder, true);
+                break;
+            case CONST:
+                context.appendLiteral(type, sqlBuilder, false);
+                break;
+            case PREFERENCE:
+                if (type instanceof _ArmyNoInjectionType) {
+                    context.appendLiteral(type, sqlBuilder, true);
+                } else {
+                    context.appendParam(SQLs.param(type, value));
+                }
+                break;
+            default:
+                throw _Exceptions.unexpectedEnum(LITERAL_MODE);
+        }
     }
 
 
@@ -170,11 +216,13 @@ abstract class Expressions {
      */
     static SimpleResultExpression collateExp(final Expression exp, final Object collation) {
         if (!(collation instanceof String)) {
-            throw ContextStack.clearStackAndCriteriaError("collation should be String");
+            if (!(collation instanceof NonOperationExpression.IdentifierExpression)) {
+                throw ContextStack.clearStackAndCriteriaError("collation should be String or identifier expression");
+            }
         } else if (_StringUtils.hasText((String) collation)) {
             throw ContextStack.clearStackAndCriteriaError("collation should have text");
         }
-        return new CollateExpression(exp, (String) collation);
+        return new CollateExpression(exp, collation);
     }
 
 
@@ -182,7 +230,7 @@ abstract class Expressions {
         if (!(operand instanceof OperationExpression)) {
             throw NonOperationExpression.nonOperationExpression(operand);
         }
-        return new StandardUnaryExpression(operator, operand);
+        return new UnaryExpression(operator, operand);
     }
 
 
@@ -193,8 +241,8 @@ abstract class Expressions {
         return new MappingExpression(expression, type);
     }
 
-    static TypedExpression castExpToType(OperationExpression expression, TypeMeta typeMeta) {
-        return new CastTypeExpression(expression, typeMeta);
+    static TypedExpression castExpToType(OperationExpression expression, MappingType type) {
+        return new CastTypeExpression(expression, type);
     }
 
 
@@ -211,11 +259,11 @@ abstract class Expressions {
         return new ExistsPredicate(not, operand);
     }
 
-    static CompoundPredicate inPredicate(final SQLExpression left, final boolean not,
-                                         final @Nullable SQLColumnSet right) {
+    static CompoundPredicate inPredicate(final OperationExpression left, final boolean not,
+                                         final @Nullable SQLColumnList right) {
         if (right == null) {
             throw ContextStack.clearStackAndNullPointer();
-        } else if (left instanceof LengthTypedRowExpression) {
+        } else if (left instanceof RowExpression) {
             RowExpressions.validateColumnSize((RowExpression) left, right);
         } else if (right instanceof SubQuery) {
             validateSubQueryContext((SubQuery) right);
@@ -226,7 +274,7 @@ abstract class Expressions {
                         selectionCount);
                 throw ContextStack.clearStackAndCriteriaError(m);
             }
-        } else if (!(right instanceof LengthTypedRowExpression)) {
+        } else if (!(right instanceof RowExpression)) {
             String m = String.format("don't right operand %s", right);
             throw ContextStack.clearStackAndCriteriaError(m);
         }
@@ -248,18 +296,6 @@ abstract class Expressions {
         return new DualPredicate(left, operator, wrapRight(left, right));
     }
 
-    static CompoundPredicate dualPredicate(final OperationSQLExpression left, final SQLs.BiOperator operator,
-                                           final @Nullable RightOperand right) {
-        if (right == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        } else if (!(right instanceof ArmyRightOperand)) {
-            String m = String.format("don't support right operand %s", right);
-            throw ContextStack.clearStackAndCriteriaError(m);
-        } else if (left instanceof SQLColumnSet && right instanceof SQLColumnSet) {
-            RowExpressions.validateColumnSize((SQLColumnSet) left, (SQLColumnSet) right);
-        }
-        return new DualPredicate(left, operator, right);
-    }
 
     static CompoundPredicate likePredicate(final Expression left, final DualBooleanOperator operator,
                                            final Object right, SQLToken escape,
@@ -290,17 +326,14 @@ abstract class Expressions {
     }
 
 
-    static CompoundPredicate betweenPredicate(OperationExpression left, boolean not,
+    static IPredicate betweenPredicate(OperationExpression left, boolean not,
                                               @Nullable SQLs.BetweenModifier modifier,
                                               Object center, Object right) {
         return new BetweenPredicate(left, not, modifier, wrapRight(left, center), wrapRight(left, right));
     }
 
-    static CompoundPredicate compareQueryPredicate(final SQLExpression left, final DualBooleanOperator operator,
-                                                   final SQLs.QuantifiedWord queryOperator, final RightOperand right) {
-        if (!(left instanceof OperationSQLExpression)) {
-            throw ContextStack.clearStackAndNonArmyItem(left);
-        }
+    static IPredicate compareQueryPredicate(final OperationExpression left, final DualBooleanOperator operator,
+                                            final SQLs.QuantifiedWord queryOperator, final SQLColumnList right) {
         switch (operator) {
             case LESS:
             case LESS_EQUAL:
@@ -316,15 +349,10 @@ abstract class Expressions {
         if (queryOperator != SQLs.ALL && queryOperator != SQLs.SOME && queryOperator != SQLs.ANY) {
             throw CriteriaUtils.notArmyOperator(queryOperator);
         }
-        if (right instanceof SubQuery) {
+        if (left instanceof RowExpression) {
+            RowExpressions.validateColumnSize((RowExpression) left, right);
+        } else if (right instanceof SubQuery) {
             assertColumnSubQuery(operator, queryOperator, (SubQuery) right);
-        }
-        //else if (!(right instanceof ArrayExpression)) {  // TODO 为什么 有这行
-//            // no bug,never here
-//            throw new IllegalArgumentException();
-//        }
-        else if (!(right instanceof OperationExpression)) {
-            throw ContextStack.clearStackAndNonArmyItem(right);
         }
         return new SubQueryPredicate(left, operator, queryOperator, right);
     }
@@ -378,14 +406,14 @@ abstract class Expressions {
         if (elementList == null) {
             throw ContextStack.clearStackAndNullPointer();
         }
-        return new SimpleArrayExpression(_Collections.copyList(elementList));
+        return new SimpleArrayExpression(elementList);
     }
 
     static Expression array(@Nullable SubQuery subQuery) {
         if (subQuery == null) {
             throw ContextStack.clearStackAndNullPointer();
         }
-        return new SubQueryArrayExpression(subQuery);
+        return new SimpleArrayExpression(List.of(subQuery));
     }
 
 
@@ -504,22 +532,6 @@ abstract class Expressions {
     /**
      * @see CastTypeExpression
      */
-    private static void appendTypeCastExp(ArmySQLExpression expression, StringBuilder sqlBuilder, _SqlContext context, MappingType type) {
-        final boolean outerParen = !(expression instanceof ArmySimpleSQLExpression);
-        if (outerParen) {
-            sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-        }
-        expression.appendSql(sqlBuilder, context);
-        if (outerParen) {
-            sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-        }
-        appendTypeCastSuffix(sqlBuilder, context, type);
-    }
-
-    /**
-     * @see #appendTypeCastExp(ArmySQLExpression, StringBuilder, _SqlContext, MappingType)
-     * @see SimpleArrayExpression
-     */
     private static void appendTypeCastSuffix(StringBuilder sqlBuilder, _SqlContext context, MappingType type) {
         switch (context.dialectDatabase()) {
             case PostgreSQL: {
@@ -548,9 +560,7 @@ abstract class Expressions {
     }
 
 
-    /**
-     * @see #compareQueryPredicate(SQLExpression, DualBooleanOperator, SQLs.QuantifiedWord, RightOperand)
-     */
+    /// @see #compareQueryPredicate(OperationExpression, DualBooleanOperator, SQLs.QuantifiedWord, SQLColumnList)
     private static void assertColumnSubQuery(final DualBooleanOperator operator
             , final SQLs.QuantifiedWord queryOperator, final SubQuery subQuery) {
         validateSubQueryContext(subQuery);
@@ -569,74 +579,66 @@ abstract class Expressions {
 
     ///
     ///
-    /// @param nullAction 1. {@link Boolean#TRUE} : output the null as parameter or literal
+    /// @param absentAction when expression is {@link SQLs#ABSENT} ,
+    /// 1. {@link Boolean#TRUE} : throw {@link CriteriaException}
     /// 2. {@link Boolean#FALSE} : no action
     /// 3. {@link String} : the error message when expression is null
     ///
     ///
-    static void appendRightExpression(Object expression, StringBuilder sqlBuilder, _SqlContext context, Object nullAction) {
-        if (expression instanceof SQLExpression) {
-            appendConcatenationExpression((SQLExpression) expression, sqlBuilder, context);
+    static void writeRight(@Nullable Object expression, StringBuilder sqlBuilder, _SqlContext context, Object absentAction) {
+        if (expression == null) {
+            throw new CriteriaException(RIGHT_REQUIRED);
+        } else if (expression instanceof Expression) {
+            writeConcatenationExpression((Expression) expression, sqlBuilder, context);
         } else if (expression != SQLs.ABSENT) {
-            context.appendParam(SQLs.parameter(expression));
-        } else if (nullAction == Boolean.TRUE) {
-            context.appendParam(SQLs.param(StringType.INSTANCE, null));
-        } else if (nullAction == Boolean.FALSE) {
-            // no-op
-        } else {
-            throw new CriteriaException(nullAction.toString());
+            writeNonNull(expression, sqlBuilder, context);
+        } else if (absentAction == Boolean.TRUE) {
+            throw new CriteriaException(RIGHT_REQUIRED);
+        } else if (absentAction != Boolean.FALSE) {
+            throw new CriteriaException(absentAction.toString());
         }
     }
 
-    static void appendConcatenationExpression(SQLExpression expression, StringBuilder sqlBuilder, _SqlContext context) {
-        final boolean outerParen = !(expression instanceof ArmySimpleSQLExpression);
+    static void writeConcatenationExpression(Expression expression, StringBuilder sqlBuilder, _SqlContext context) {
+        final boolean outerParen = !(expression instanceof ArmySimpleExpression);
         if (outerParen) {
-            sqlBuilder.append(_Constant.SPACE)
-                    .append(_Constant.LEFT_PAREN);
+            sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
         }
-        ((ArmySQLExpression) expression).appendSql(sqlBuilder, context);
+        ((ArmyExpression) expression).appendSql(sqlBuilder, context);
         if (outerParen) {
-            sqlBuilder.append(_Constant.RIGHT_PAREN);
+            sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
         }
     }
 
+
     ///
     ///
-    /// @param nullAction 1. {@link Boolean#TRUE} : output the null as parameter or literal
+    /// @param absentAction 1. {@link Boolean#TRUE} : throw {@link CriteriaException}
     /// 2. {@link Boolean#FALSE} : no action
-    /// 3. {@link String} : the error message when expression is null
-    ///
-    ///
-    static void toStringRightExpression(@Nullable Object expression, StringBuilder builder, Object nullAction) {
-        switch (expression) {
-            case null:
-                if (nullAction == Boolean.TRUE) {
-                    builder.append(" ?");
-                } else if (nullAction == Boolean.FALSE) {
-                    // no-op
-                } else {
-                    throw new CriteriaException(nullAction.toString());
-                }
-                break;
-            case SQLExpression _:
-                toStringConcatenationExpression((SQLExpression) expression, builder);
-                break;
-            default:
-                builder.append(" ?");
-
+    /// 3. {@link String} : the error message when expression is null or {@link SQLs#ABSENT}
+    static void toStringRight(@Nullable Object expression, StringBuilder builder, Object absentAction) {
+        if (expression == null) {
+            throw new CriteriaException(RIGHT_REQUIRED);
+        } else if (expression instanceof Expression) {
+            toStringConcatenationExpression((Expression) expression, builder);
+        } else if (expression != SQLs.ABSENT) {
+            builder.append(_Constant.SPACE)
+                    .append(expression);
+        } else if (absentAction == Boolean.TRUE) {
+            throw new CriteriaException(RIGHT_REQUIRED);
+        } else if (absentAction != Boolean.FALSE) {
+            throw new CriteriaException(absentAction.toString());
         }
-
     }
 
-    static void toStringConcatenationExpression(SQLExpression expression, StringBuilder builder) {
-        final boolean outerParen = !(expression instanceof ArmySimpleSQLExpression);
+    static void toStringConcatenationExpression(Expression expression, StringBuilder sqlBuilder) {
+        final boolean outerParen = !(expression instanceof ArmySimpleExpression);
         if (outerParen) {
-            builder.append(_Constant.SPACE)
-                    .append(_Constant.LEFT_PAREN);
+            sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
         }
-        builder.append(expression);
+        sqlBuilder.append(expression);
         if (outerParen) {
-            builder.append(_Constant.RIGHT_PAREN);
+            sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
         }
     }
 
@@ -658,12 +660,12 @@ abstract class Expressions {
 
 
     private static CriteriaException subscriptError(@Nullable Object subscript, String type) {
-        return new CriteriaException(String.format("subscript[%s] and bracket of %s not match", subscript, type));
+        return new CriteriaException(String.format("subscript[%s] and bracket/dot of %s not match", subscript, type));
     }
 
 
     /**
-     * @see #inPredicate(SQLExpression, boolean, SQLColumnSet)
+     * @see #inPredicate(OperationExpression, boolean, SQLColumnList)
      */
     private static CriteriaException inOpeRowAndSubQueryNotMatch(int leftSize, int rightSize) {
         String m = String.format("Left operand of IN  is row expression and column size is %s, but subquery selection count is %s",
@@ -679,7 +681,7 @@ abstract class Expressions {
 
 
     /**
-     * This class is a implementation of {@link Expression}.
+     * This class is an implementation of {@link Expression}.
      * The expression consist of a left {@link Expression} ,a {@link DualBooleanOperator} and right {@link Expression}.
      *
      * @since 0.6.0
@@ -704,62 +706,23 @@ abstract class Expressions {
         @Override
         public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
 
-            final SQLs.DualOperator operator = this.operator;
-
-            final ArmyExpression left = this.left;
-
-            final boolean leftOuterParens;
-            leftOuterParens = left instanceof OperationPredicate.OperationCompoundPredicate; // if CompoundPredicate must append outer parens
-
-            //1. append left expression
-            if (leftOuterParens) {   // TODO 正确吗?
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-
-            left.appendSql(sqlBuilder, context);
-
-            if (leftOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
+            this.left.appendSql(sqlBuilder, context);
 
             //2. append operator
-            sqlBuilder.append(operator.spaceRender(context.dialectDatabase()));
+            sqlBuilder.append(this.operator.spaceRender(context.dialectDatabase()));
 
-            appendRightExpression(this.right, sqlBuilder, context, "right operand couldn't be absent.");
+            writeConcatenationExpression(this.right, sqlBuilder, context);
 
         }
 
         @Override
         public final String toString() {
             final StringBuilder sqlBuilder = new StringBuilder();
-            final ArmyExpression left = this.left, right = this.right;
-            final boolean leftOuterParens, rightOuterParens;
-            leftOuterParens = left instanceof OperationPredicate.OperationCompoundPredicate; // if CompoundPredicate must append outer parens
 
-            //1. append left expression
-            if (leftOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
+            sqlBuilder.append(this.left)
+                    .append(this.operator.spaceRender(Database.PostgreSQL));
 
-            sqlBuilder.append(left);
-
-            if (leftOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-
-            //2. append operator
-            sqlBuilder.append(this.operator.spaceRender(Database.PostgreSQL));
-
-            rightOuterParens = !(right instanceof ArmySimpleExpression);
-            if (rightOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            //3. append right expression
-            sqlBuilder.append(right);
-
-            if (rightOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
+            toStringConcatenationExpression(this.right, sqlBuilder);
 
             return sqlBuilder.toString();
         }
@@ -793,82 +756,25 @@ abstract class Expressions {
         @Override
         public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
 
-            final Operator.SqlUnaryExpOperator operator = this.operator;
-            final boolean outerParens;
-            outerParens = operator != UnaryExpOperator.NEGATE;
+            sqlBuilder.append(this.operator.spaceRender(context.dialectDatabase()));
 
-
-            if (outerParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            sqlBuilder.append(operator.spaceRender(context.dialectDatabase()));
-
-            final ArmyExpression operand = this.operand;
-            final boolean operandOuterParens = !(operand instanceof ArmySimpleExpression);
-
-            if (operandOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            // append expression
-            operand.appendSql(sqlBuilder, context);
-
-            if (operandOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-
-            if (outerParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-
+            writeConcatenationExpression(this.operand, sqlBuilder, context);
         }
 
 
         @Override
         public final String toString() {
-            final Operator.SqlUnaryExpOperator operator = this.operator;
-            final boolean outerParens;
-            outerParens = operator != UnaryExpOperator.NEGATE;
 
             final StringBuilder builder = new StringBuilder();
 
-            if (outerParens) {
-                builder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            builder.append(operator.spaceRender());
+            builder.append(this.operator.spaceRender());
 
-            final ArmyExpression operand = this.operand;
-            final boolean operandOuterParens = !(operand instanceof ArmySimpleExpression);
-
-            if (operandOuterParens) {
-                builder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            // append expression
-            builder.append(operand);
-
-            if (operandOuterParens) {
-                builder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-
-            if (outerParens) {
-                builder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
+            toStringConcatenationExpression(this.operand, builder);
             return builder.toString();
         }
 
 
     }//UnaryExpression
-
-
-    private static final class StandardUnaryExpression extends UnaryExpression {
-
-        /**
-         * @see #unaryExp(UnaryExpOperator, Expression)
-         */
-        private StandardUnaryExpression(UnaryExpOperator operator, Expression operand) {
-            super(operator, operand);
-        }
-
-    }//StandardUnaryExpression
 
 
     static final class ScalarExpression extends OperationExpression.OperationSimpleExpression {
@@ -958,85 +864,47 @@ abstract class Expressions {
     static final class DualPredicate extends OperationPredicate.OperationCompoundPredicate {
 
 
-        final ArmySQLExpression left;
+        final ArmyExpression left;
 
         final SQLs.BiOperator operator;
 
-        final ArmyRightOperand right;
+        final RightOperand right;
 
 
-        DualPredicate(OperationSQLExpression left, SQLs.BiOperator operator, RightOperand right) {
+        DualPredicate(ArmyExpression left, SQLs.BiOperator operator, RightOperand right) {
             this.left = left;
             this.operator = operator;
-            this.right = (ArmyRightOperand) right;
+            this.right = right;
         }
 
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
 
-            final ArmySQLExpression left = this.left;
-            final boolean leftOuterParens;
-            leftOuterParens = left instanceof OperationCompoundPredicate;
-
-            if (leftOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            left.appendSql(sqlBuilder, context);
-            if (leftOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
+            this.left.appendSql(sqlBuilder, context);
 
             sqlBuilder.append(this.operator.spaceRender(context.dialectDatabase()));
 
-            final ArmyRightOperand right = this.right;
+            final RightOperand right = this.right;
             if (right instanceof SubQuery) {
                 context.appendSubQuery((SubQuery) right);
             } else {
-                final boolean rightOuterParens = !(right instanceof ArmySimpleSQLExpression);
-                if (rightOuterParens) {
-                    sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-                }
-                ((ArmySQLExpression) right).appendSql(sqlBuilder, context);
-                if (rightOuterParens) {
-                    sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-                }
+                writeConcatenationExpression((Expression) right, sqlBuilder, context);
             }
 
         }
 
         @Override
         public String toString() {
-
             final StringBuilder sqlBuilder;
             sqlBuilder = new StringBuilder();
 
-            final ArmySQLExpression left = this.left;
+            sqlBuilder.append(this.left);
 
-            final boolean leftOuterParens;
-            leftOuterParens = left instanceof OperationCompoundPredicate;
-
-            if (leftOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            sqlBuilder.append(left);
-            if (leftOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-
-            final ArmyRightOperand right = this.right;
+            final RightOperand right = this.right;
             if (right instanceof SubQuery) {
                 sqlBuilder.append(right);
             } else {
-                final boolean rightOuterParens = !(right instanceof ArmySimpleExpression);
-
-                if (rightOuterParens) {
-                    sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-                }
-                sqlBuilder.append(right);
-
-                if (rightOuterParens) {
-                    sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-                }
+                toStringConcatenationExpression((Expression) right, sqlBuilder);
             }
             return sqlBuilder.toString();
         }
@@ -1069,17 +937,7 @@ abstract class Expressions {
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
 
-            final ArmyExpression left = this.left, right = this.right, escapeChar = this.escapeChar;
-            final boolean leftOuterParens, rightOuterParens, escapeCharOuterParens;
-            leftOuterParens = left instanceof IPredicate;// TODO 正确吗? if predicate must append outer parens
-            // 1. append left
-            if (leftOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            left.appendSql(sqlBuilder, context);
-            if (leftOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
+            this.left.appendSql(sqlBuilder, context);
 
             // 2. append operator
             switch (this.operator) {
@@ -1100,26 +958,11 @@ abstract class Expressions {
 
             sqlBuilder.append(this.operator.spaceOperator);
 
-            rightOuterParens = !(right instanceof ArmySimpleExpression);
-            // 3. append right
-            if (rightOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            right.appendSql(sqlBuilder, context);
-            if (rightOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-            // 4. append ESCAPES clause
-            if (escapeChar != null) {
+            writeConcatenationExpression(this.right, sqlBuilder, context);
+
+            if (this.escapeChar != null) {
                 sqlBuilder.append(SQLs.ESCAPE.spaceRender());
-                escapeCharOuterParens = !(escapeChar instanceof ArmySimpleExpression);
-                if (escapeCharOuterParens) {
-                    sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-                }
-                escapeChar.appendSql(sqlBuilder, context);
-                if (escapeCharOuterParens) {
-                    sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-                }
+                writeConcatenationExpression(this.escapeChar, sqlBuilder, context);
             }
 
 
@@ -1130,12 +973,13 @@ abstract class Expressions {
         public String toString() {
             final StringBuilder builder = new StringBuilder();
             builder.append(this.left)
-                    .append(this.operator.spaceOperator)
-                    .append(this.right);
+                    .append(this.operator.spaceOperator);
+
+            toStringConcatenationExpression(this.right, builder);
 
             if (this.escapeChar != null) {
-                builder.append(SQLs.ESCAPE.spaceRender())
-                        .append(this.escapeChar);
+                builder.append(SQLs.ESCAPE.spaceRender());
+                toStringConcatenationExpression(this.escapeChar, builder);
             }
             return builder.toString();
         }
@@ -1147,7 +991,6 @@ abstract class Expressions {
     private static class BetweenPredicate extends OperationPredicate.OperationCompoundPredicate {
 
         private final boolean not;
-
 
         private final SQLs.BetweenModifier modifier;
 
@@ -1169,56 +1012,28 @@ abstract class Expressions {
             this.right = (ArmyExpression) right;
         }
 
+        /// @see <a href="https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE">Postgres BETWEEN</a>
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
 
-            final ArmyExpression left = this.left, center = this.center, right = this.right;
-            final boolean leftOuterParens, centerOuterParens, rightOuterParens;
-            leftOuterParens = left instanceof OperationCompoundPredicate; // if predicate must append outer parens
-            // 1. append left
-            if (leftOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            left.appendSql(sqlBuilder, context);
-            if (leftOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
+            this.left.appendSql(sqlBuilder, context);
 
-            // 2. append NOT operator(or not)
             if (this.not) {
                 sqlBuilder.append(" NOT");
             }
-            // 3. append BETWEEN operator
+
             sqlBuilder.append(" BETWEEN");
 
-            // 4. append modifier (or not)
             if (this.modifier != null) {
                 //TODO validate database support
                 sqlBuilder.append(this.modifier.spaceRender());
             }
 
-            centerOuterParens = !(center instanceof ArmySimpleExpression);
-            rightOuterParens = !(right instanceof ArmySimpleExpression);
+            writeConcatenationExpression(this.center, sqlBuilder, context);
 
-            // 5. append center operand
-            if (centerOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            center.appendSql(sqlBuilder, context);
-            if (centerOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-            // 6. append AND operator
             sqlBuilder.append(_Constant.SPACE_AND);
 
-            // 7. append right operand
-            if (rightOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            right.appendSql(sqlBuilder, context);
-            if (rightOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
+            writeConcatenationExpression(this.right, sqlBuilder, context);
 
         }
 
@@ -1237,34 +1052,14 @@ abstract class Expressions {
 
             // 4. append modifier (or not)
             if (this.modifier != null) {
-                //TODO validate database support
                 builder.append(this.modifier.spaceRender());
             }
-            final ArmyExpression center = this.center, right = this.right;
 
-            final boolean centerOuterParens, rightOuterParens;
-            centerOuterParens = !(center instanceof ArmySimpleExpression);
-            rightOuterParens = !(right instanceof ArmySimpleExpression);
+            toStringConcatenationExpression(this.center, builder);
 
-            // 5. append center operand
-            if (centerOuterParens) {
-                builder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            builder.append(center);
-            if (centerOuterParens) {
-                builder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-            // 6. append AND operator
             builder.append(_Constant.SPACE_AND);
 
-            // 7. append right operand
-            if (rightOuterParens) {
-                builder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            builder.append(right);
-            if (rightOuterParens) {
-                builder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
+            toStringConcatenationExpression(this.right, builder);
             return builder.toString();
         }
 
@@ -1276,7 +1071,7 @@ abstract class Expressions {
 
         private final ArmyExpression expression;
 
-        private final TypeMeta type;
+        private final MappingType type;
 
 
         private MappingExpression(OperationExpression expression, MappingType type) {
@@ -1285,15 +1080,14 @@ abstract class Expressions {
         }
 
         @Override
-        public MappingType typeMeta() {
-            return this.type.mappingType();
+        public TypeMeta typeMeta() {
+            return this.type;
         }
 
         @Override
         public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
             this.expression.appendSql(sqlBuilder, context);
         }
-
 
         @Override
         public final String toString() {
@@ -1307,18 +1101,14 @@ abstract class Expressions {
     private static class CastTypeExpression extends OperationExpression.OperationTypedExpression
             implements ArmySimpleExpression {
 
-        private final ArmySQLExpression expression;
+        private final ArmyExpression expression;
 
         private final MappingType type;
 
 
-        private CastTypeExpression(ArmySQLExpression expression, TypeMeta type) {
+        private CastTypeExpression(ArmyExpression expression, MappingType type) {
             this.expression = expression;
-            if (type instanceof MappingType) {
-                this.type = (MappingType) type;
-            } else {
-                this.type = type.mappingType();
-            }
+            this.type = type;
         }
 
 
@@ -1329,13 +1119,18 @@ abstract class Expressions {
 
         @Override
         public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
-            appendTypeCastExp(this.expression, sqlBuilder, context, this.type);
+            writeConcatenationExpression(this.expression, sqlBuilder, context);
+            appendTypeCastSuffix(sqlBuilder, context, this.type);
         }
 
 
         @Override
         public final String toString() {
-            return this.expression.toString();
+            final StringBuilder builder = new StringBuilder();
+            toStringConcatenationExpression(this.expression, builder);
+            return builder.append("::")
+                    .append(this.type.getClass())
+                    .toString();
         }
 
 
@@ -1343,20 +1138,21 @@ abstract class Expressions {
 
 
     private static final class SubQueryPredicate extends OperationPredicate.OperationCompoundPredicate {
-        private final ArmySQLExpression left;
+
+        private final OperationExpression left;
 
         private final DualBooleanOperator operator;
 
         private final SQLs.QuantifiedWord queryOperator;
 
-        private final RightOperand right;
+        private final SQLColumnList right;
 
         /**
-         * @see #compareQueryPredicate(SQLExpression, DualBooleanOperator, SQLs.QuantifiedWord, RightOperand)
+         * @see #compareQueryPredicate(OperationExpression, DualBooleanOperator, SQLs.QuantifiedWord, SQLColumnList)
          */
-        private SubQueryPredicate(SQLExpression left, DualBooleanOperator operator,
-                                  SQLs.QuantifiedWord queryOperator, RightOperand right) {
-            this.left = (ArmySQLExpression) left;
+        private SubQueryPredicate(OperationExpression left, DualBooleanOperator operator,
+                                  SQLs.QuantifiedWord queryOperator, SQLColumnList right) {
+            this.left = left;
             this.operator = operator;
             this.queryOperator = queryOperator;
             this.right = right;
@@ -1375,7 +1171,7 @@ abstract class Expressions {
             if (right instanceof SubQuery) {
                 context.appendSubQuery((SubQuery) right);
             } else {
-                ((ArmySQLExpression) right).appendSql(sqlBuilder, context);
+                writeConcatenationExpression((Expression) this.right, sqlBuilder, context);
             }
 
         }
@@ -1383,12 +1179,19 @@ abstract class Expressions {
 
         @Override
         public String toString() {
-            return _StringUtils.builder()
-                    .append(this.left)
+            final StringBuilder builder = new StringBuilder();
+
+            builder.append(this.left)
                     .append(this.operator.spaceOperator)
-                    .append(this.queryOperator.spaceRender())
-                    .append(this.right)
-                    .toString();
+                    .append(this.queryOperator.spaceRender());
+
+            if (this.right instanceof SubQuery) {
+                builder.append(this.right);
+            } else {
+                toStringConcatenationExpression((Expression) this.right, builder);
+            }
+
+            return builder.toString();
         }
 
 
@@ -1397,7 +1200,7 @@ abstract class Expressions {
 
     private static final class BooleanTestPredicate extends OperationPredicate.OperationCompoundPredicate {
 
-        private final OperationExpression expression;
+        private final ArmyExpression expression;
 
         private final boolean not;
 
@@ -1407,8 +1210,8 @@ abstract class Expressions {
         /**
          * @see #booleanTestPredicate(OperationExpression, boolean, SQLs.BoolTestWord)
          */
-        private BooleanTestPredicate(OperationExpression expression, boolean not, SQLs.BoolTestWord operand) {
-            this.expression = expression;
+        private BooleanTestPredicate(Expression expression, boolean not, SQLs.BoolTestWord operand) {
+            this.expression = (ArmyExpression) expression;
             this.not = not;
             this.operand = operand;
         }
@@ -1416,10 +1219,10 @@ abstract class Expressions {
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
             this.expression.appendSql(sqlBuilder, context);
+
+            sqlBuilder.append(" IS");
             if (this.not) {
-                sqlBuilder.append(" IS NOT");
-            } else {
-                sqlBuilder.append(" IS");
+                sqlBuilder.append(" NOT");
             }
             sqlBuilder.append(this.operand.spaceRender());
         }
@@ -1430,12 +1233,11 @@ abstract class Expressions {
             final StringBuilder sqlBuilder;
             sqlBuilder = new StringBuilder()
                     .append(this.expression);
-            if (this.not) {
-                sqlBuilder.append(" IS NOT");
-            } else {
-                sqlBuilder.append(" IS");
-            }
 
+            sqlBuilder.append(" IS");
+            if (this.not) {
+                sqlBuilder.append(" NOT");
+            }
             return sqlBuilder.append(this.operand.spaceRender())
                     .toString();
         }
@@ -1445,7 +1247,7 @@ abstract class Expressions {
 
     private static final class IsComparisonPredicate extends OperationPredicate.OperationCompoundPredicate {
 
-        private final ArmyExpression left;
+        private final OperationExpression left;
 
         private final boolean not;
 
@@ -1473,44 +1275,26 @@ abstract class Expressions {
             sqlBuilder.append(" IS");
 
             if (this.not) {
-                sqlBuilder.append(" NOT");
+                sqlBuilder.append(_Constant.SPACE_NOT);
             }
             sqlBuilder.append(this.operator.spaceRender());
 
-            final ArmyExpression right = this.right;
-            final boolean rightOuterParens = !(right instanceof ArmySimpleExpression);
-            if (rightOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            right.appendSql(sqlBuilder, context);
-
-            if (rightOuterParens) {
-                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
+            writeConcatenationExpression(this.right, sqlBuilder, context);
         }
 
 
         @Override
         public String toString() {
-            final StringBuilder builder = new StringBuilder();
-            builder.append(this.left)
+            final StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.append(this.left)
                     .append(" IS");
             if (this.not) {
-                builder.append(" NOT");
+                sqlBuilder.append(_Constant.SPACE_NOT);
             }
-            builder.append(this.operator.spaceRender());
+            sqlBuilder.append(this.operator.spaceRender());
 
-            final ArmyExpression right = this.right;
-            final boolean rightOuterParens = !(right instanceof ArmySimpleExpression);
-            if (rightOuterParens) {
-                builder.append(_Constant.SPACE_LEFT_PAREN);
-            }
-            builder.append(right);
-
-            if (rightOuterParens) {
-                builder.append(_Constant.SPACE_RIGHT_PAREN);
-            }
-            return builder.toString();
+            toStringConcatenationExpression(this.right, sqlBuilder);
+            return sqlBuilder.toString();
         }
 
 
@@ -1519,18 +1303,18 @@ abstract class Expressions {
 
     static final class InOperationPredicate extends OperationPredicate.OperationCompoundPredicate {
 
-        final ArmySQLExpression left;
+        final OperationExpression left;
 
         final boolean not;
 
-        final SQLColumnSet right;
+        final SQLColumnList right;
 
 
         /**
-         * @see #inPredicate(SQLExpression, boolean, SQLColumnSet)
+         * @see #inPredicate(OperationExpression, boolean, SQLColumnList)
          */
-        private InOperationPredicate(SQLExpression left, boolean not, SQLColumnSet right) {
-            this.left = (ArmySQLExpression) left;
+        private InOperationPredicate(OperationExpression left, boolean not, SQLColumnList right) {
+            this.left = left;
             this.not = not;
             this.right = right;
         }
@@ -1545,26 +1329,30 @@ abstract class Expressions {
             }
             sqlBuilder.append(" IN");
 
-            final SQLColumnSet right = this.right;
+            final SQLColumnList right = this.right;
             if (right instanceof SubQuery) {
                 context.appendSubQuery((SubQuery) right);
             } else {
-                ((LengthTypedRowExpression) right).appendSql(sqlBuilder, context);
+                writeConcatenationExpression((Expression) right, sqlBuilder, context);
             }
         }
 
 
         @Override
         public String toString() {
-            final StringBuilder builder = new StringBuilder();
-            builder.append(this.left);
+            final StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.append(this.left);
 
             if (this.not) {
-                builder.append(" NOT");
+                sqlBuilder.append(_Constant.SPACE_NOT);
             }
-            builder.append(" IN");
-            return builder.append(this.right)
-                    .toString();
+            sqlBuilder.append(" IN");
+            if (this.right instanceof SubQuery) {
+                sqlBuilder.append(this.right);
+            } else {
+                toStringConcatenationExpression((Expression) this.right, sqlBuilder);
+            }
+            return sqlBuilder.toString();
         }
 
 
@@ -1573,17 +1361,16 @@ abstract class Expressions {
 
     ///
     /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
-    ///
     private static final class ArraySliceExpression extends OperationExpression.OperationSimpleExpression {
 
-        private final ArmyExpression expression;
+        private final OperationExpression expression;
 
         private final List<?> subscriptList;
 
         /**
          * @see #arraySliceExp(OperationExpression, List)
          */
-        private ArraySliceExpression(ArmyExpression expression, List<?> subscriptList) {
+        private ArraySliceExpression(OperationExpression expression, List<?> subscriptList) {
             assertSliceSubscriptListSize(subscriptList);
             this.expression = expression;
             this.subscriptList = subscriptList;
@@ -1591,16 +1378,17 @@ abstract class Expressions {
         }
 
 
+        /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
         @Override
         public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
-            appendConcatenationExpression(this.expression, sqlBuilder, context);
+            this.expression.appendSql(sqlBuilder, context);
             final List<?> list = this.subscriptList;
             final int size = list.size();
             for (int i = 0; i < size; i++) {
                 sqlBuilder.append('[');
-                appendRightExpression(list.get(i++), sqlBuilder, context, Boolean.FALSE);
+                writeRight(list.get(i++), sqlBuilder, context, Boolean.FALSE);
                 sqlBuilder.append(':');
-                appendRightExpression(list.get(i), sqlBuilder, context, Boolean.FALSE);
+                writeRight(list.get(i), sqlBuilder, context, Boolean.FALSE);
                 sqlBuilder.append(']');
             }
 
@@ -1609,14 +1397,14 @@ abstract class Expressions {
         @Override
         public String toString() {
             final StringBuilder builder = _StringUtils.builder();
-            toStringConcatenationExpression(this.expression, builder);
+            builder.append(this.expression);
             final List<?> list = this.subscriptList;
             final int size = list.size();
             for (int i = 0; i < size; i++) {
                 builder.append('[');
-                toStringRightExpression(list.get(i++), builder, Boolean.FALSE);
+                toStringRight(list.get(i++), builder, Boolean.FALSE);
                 builder.append(':');
-                toStringRightExpression(list.get(i), builder, Boolean.FALSE);
+                toStringRight(list.get(i), builder, Boolean.FALSE);
                 builder.append(']');
             }
             return builder.toString();
@@ -1627,13 +1415,14 @@ abstract class Expressions {
 
     private static final class DotOperatorExpression extends OperationExpression.OperationSimpleExpression {
 
-        private final ArmyExpression expression;
+        private final OperationExpression expression;
 
         private final List<?> subscriptList;
 
         /// @see #objectDotExp(OperationExpression, List)
         /// @see <a href="https://www.postgresql.org/docs/current/datatype-json.html#JSONB-SUBSCRIPTING">JSONB-SUBSCRIPTING</a>
-        private DotOperatorExpression(ArmyExpression expression, List<?> subscriptList) {
+        /// @see <a href="https://www.postgresql.org/docs/current/rowtypes.html#ROWTYPES-ACCESSING">Accessing Composite Types</a>
+        private DotOperatorExpression(OperationExpression expression, List<?> subscriptList) {
             assertSubscriptListNotEmpty(subscriptList, "OBJECT");
             this.expression = expression;
             this.subscriptList = subscriptList;
@@ -1659,13 +1448,17 @@ abstract class Expressions {
                 sqlBuilder.append('.');
 
                 if (subscript == null || subscript == SQLs.ABSENT) {
-                    throw subscriptError(subscript, "OBJECT");
+                    throw subscriptError(subscript, "COMPOSITE");
                 }
 
                 switch (subscript) {
-                    case Expression _:
+                    case Expression _: {
+                        if (!(subscript instanceof NonOperationExpression.IdentifierExpression)) {
+                            throw subscriptError(subscript, "COMPOSITE");
+                        }
                         ((ArmyExpression) subscript).appendSql(sqlBuilder, context);
-                        break;
+                    }
+                    break;
                     case String _: {
                         sub = (String) subscript;
                         if (sub.equals("*")) {
@@ -1676,7 +1469,7 @@ abstract class Expressions {
                     }
                     break;
                     default:
-                        throw subscriptError(subscript, "OBJECT");
+                        throw subscriptError(subscript, "COMPOSITE");
                 } // switch
 
             } // for loop
@@ -1692,15 +1485,16 @@ abstract class Expressions {
                 builder.append(_Constant.LEFT_PAREN);  // https://www.postgresql.org/docs/current/rowtypes.html#ROWTYPES-ACCESSING
             }
 
-
             for (Object subscript : this.subscriptList) {
                 builder.append(_Constant.RIGHT_PAREN);
 
                 builder.append('.');
 
                 if (subscript == null || subscript == SQLs.ABSENT) {
-                    throw subscriptError(null, "OBJECT");
-                } else switch (subscript) {
+                    throw subscriptError(subscript, "COMPOSITE");
+                }
+
+                switch (subscript) {
                     case Expression _:
                         builder.append(subscript);
                         break;
@@ -1708,7 +1502,7 @@ abstract class Expressions {
                         builder.append((String) subscript);
                         break;
                     default:
-                        throw subscriptError(subscript, "OBJECT");
+                        throw subscriptError(subscript, "COMPOSITE");
                 } // switch
 
             } // for loop
@@ -1735,16 +1529,18 @@ abstract class Expressions {
 
         @Override
         public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
-            // NOTE ,here don't output Leading space,because here output bracket of object
-            appendConcatenationExpression(this.expression, sqlBuilder, context);
+            this.expression.appendSql(sqlBuilder, context);
+
             String sub;
             for (Object subscript : this.subscriptList) {
 
                 sqlBuilder.append('[');
 
                 if (subscript == null || subscript == SQLs.ABSENT) {
-                    throw subscriptError(null, "OBJECT");
-                } else switch (subscript) {
+                    throw subscriptError(subscript, "OBJECT");
+                }
+
+                switch (subscript) {
                     case Expression _:
                         ((ArmyExpression) subscript).appendSql(sqlBuilder, context);
                         break;
@@ -1753,7 +1549,7 @@ abstract class Expressions {
                         if (sub.equals("*")) {
                             sqlBuilder.append(sub);
                         } else {
-                            context.appendLiteral(StringType.INSTANCE, subscript, false);
+                            writeNonNull(StringType.INSTANCE, sub, sqlBuilder, context);
                         }
                     }
                     break;
@@ -1774,17 +1570,15 @@ abstract class Expressions {
         public String toString() {
             // NOTE ,here don't output Leading space,because here output bracket of object
             final StringBuilder builder = _StringUtils.builder();
-            toStringConcatenationExpression(this.expression, builder);
+            builder.append(this.expression);
             for (Object subscript : this.subscriptList) {
 
                 builder.append('[');
 
                 if (subscript == null || subscript == SQLs.ABSENT) {
-                    throw subscriptError(null, "OBJECT");
+                    throw subscriptError(subscript, "OBJECT");
                 } else switch (subscript) {
                     case Expression _:
-                        builder.append(subscript);
-                        break;
                     case String _:
                     case Integer _:
                         builder.append(subscript);
@@ -1812,7 +1606,7 @@ abstract class Expressions {
          * @see #array(List)
          */
         private SimpleArrayExpression(List<?> elementList) {
-            this.elementList = elementList;
+            this.elementList = List.copyOf(elementList);
         }
 
         /**
@@ -1828,7 +1622,6 @@ abstract class Expressions {
                     .append('[');
 
             Object element;
-            MappingType elementType;
             for (int i = 0; i < elementSize; i++) {
                 if (i > 0) {
                     sqlBuilder.append(_Constant.COMMA);
@@ -1836,14 +1629,12 @@ abstract class Expressions {
                 element = elementList.get(i);
                 if (element == null) {
                     sqlBuilder.append(_Constant.NULL);
-                } else if (element instanceof SQLExpression) {
-                    ((ArmySQLExpression) element).appendSql(sqlBuilder, context);
-                } else if ((elementType = _MappingFactory.getDefaultIfMatch(element.getClass())) == null) {
-                    String m = String.format("Not found %s for %s", MappingType.class.getName(),
-                            element.getClass().getName());
-                    throw new CriteriaException(m);
+                } else if (element instanceof Expression) {
+                    ((ArmyExpression) element).appendSql(sqlBuilder, context);
+                } else if (element instanceof SubQuery) {
+                    context.appendSubQuery((SubQuery) element);
                 } else {
-                    context.appendLiteral(elementType, element, true);
+                    writeNonNull(element, sqlBuilder, context);
                 }
             }
 
@@ -1868,7 +1659,7 @@ abstract class Expressions {
                     sqlBuilder.append(_Constant.SPACE_COMMA);
                 }
                 element = elementList.get(i);
-                if (!(element instanceof SQLExpression)) {
+                if (!(element instanceof RowElement)) {
                     sqlBuilder.append(_Constant.SPACE);
                 }
                 sqlBuilder.append(element);
@@ -1880,46 +1671,15 @@ abstract class Expressions {
 
     } // SimpleArrayExpression
 
-    private static final class SubQueryArrayExpression extends OperationExpression.OperationSimpleExpression {
-
-        private final SubQuery subQuery;
-
-        /// @see #array(SubQuery)
-        private SubQueryArrayExpression(SubQuery subQuery) {
-            this.subQuery = subQuery;
-        }
-
-        @Override
-        public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
-            sqlBuilder.append(_Constant.SPACE)
-                    .append("ARRAY")
-                    .append('[');
-            context.appendSubQuery(this.subQuery);
-            sqlBuilder.append(']');
-        }
-
-        @Override
-        public String toString() {
-            return _StringUtils.builder()
-                    .append(_Constant.SPACE)
-                    .append("ARRAY")
-                    .append('[')
-                    .append(this.subQuery)
-                    .append(']')
-                    .toString();
-        }
-
-    } // SubQueryArrayExpression
-
 
     private static final class CollateExpression extends OperationExpression.OperationSimpleExpression
             implements SimpleResultExpression {
 
         private final ArmyExpression exp;
 
-        private final String collation;
+        private final Object collation;
 
-        private CollateExpression(Expression exp, String collation) {
+        private CollateExpression(Expression exp, Object collation) {
             this.exp = (ArmyExpression) exp;
             this.collation = collation;
         }
@@ -1930,7 +1690,16 @@ abstract class Expressions {
             this.exp.appendSql(sqlBuilder, context);
 
             sqlBuilder.append(" COLLATE ");
-            context.identifier(this.collation, sqlBuilder);
+
+            final Object collation = this.collation;
+            if (collation instanceof String) {
+                context.identifier((String) collation, sqlBuilder);
+            } else if (collation instanceof NonOperationExpression.IdentifierExpression) {
+                ((ArmyExpression) collation).appendSql(sqlBuilder, context);
+            } else {
+                throw new CriteriaException("collation error");
+            }
+
         }
 
 
@@ -1994,7 +1763,7 @@ abstract class Expressions {
         private final List<? extends ArmyGroupByItem> itemList;
 
         private ParensGroupByItem(@Nullable GroupingModifier modifier, List<? extends ArmyGroupByItem> itemList) {
-            assert modifier == null || itemList.size() > 0;
+            assert modifier == null || !itemList.isEmpty();
             this.modifier = modifier;
             this.itemList = itemList;
         }

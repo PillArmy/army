@@ -124,7 +124,7 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final Window.ExpModifier FOLLOWING = SQLWindow.WindowExpModifier.FOLLOWING;
 
-
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE">Postgres BETWEEN</a>
     @Support({PostgreSQL, H2})
     public static final BetweenModifier SYMMETRIC = SqlWords.KeyWordSymmetric.SYMMETRIC;
 

@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
@@ -58,10 +57,6 @@ public final class ZoneIdType extends _ArmyNoInjectionType implements MappingTyp
         return StringType.mapToDataType(this, meta);
     }
 
-    @Override
-    public ZoneId convert(MappingEnv env, Object source) throws CriteriaException {
-        return toZoneId(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
 
     @Override
     public String beforeBind(DataType dataType, MappingEnv env, Object source) {

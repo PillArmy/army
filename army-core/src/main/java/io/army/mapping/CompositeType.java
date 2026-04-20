@@ -1,0 +1,381 @@
+/*
+ * Copyright 2023-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+package io.army.mapping;
+
+import io.army.annotation.Column;
+import io.army.annotation.DefinedType;
+import io.army.annotation.MappedSuperclass;
+import io.army.bean.ObjectAccessor;
+import io.army.bean.ObjectAccessorFactory;
+import io.army.criteria.CriteriaException;
+import io.army.criteria.impl.TableMetaUtils;
+import io.army.dialect.UnsupportedDialectException;
+import io.army.dialect._Constant;
+import io.army.executor.DataAccessException;
+import io.army.function.DecodeLiteralFunc;
+import io.army.function.SafeLiteralFunc;
+import io.army.mapping.optional.CompositeField;
+import io.army.meta.MetaException;
+import io.army.meta.ServerMeta;
+import io.army.meta.TypeMeta;
+import io.army.sqltype.DataType;
+import io.army.sqltype.PgType;
+import io.army.sqltype.SQLType;
+import io.army.util.*;
+
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.function.Supplier;
+
+/// Mapping the pojo annotated by {@link DefinedType} to sql composite type
+///
+/// @see <a href="https://www.postgresql.org/docs/current/rowtypes.html">Composite Types</a>
+public final class CompositeType extends _ArmyBuildInType implements MappingType.SqlComposite {
+
+    public static CompositeType from(Class<?> javaType) {
+        return CLASS_VALUE.get(javaType);
+    }
+
+
+    private static final ClassValue<CompositeType> CLASS_VALUE = new ClassValue<>() {
+        @Override
+        protected CompositeType computeValue(Class<?> type) {
+            return createCompositeType(type);
+        }
+    };
+
+
+    private final Class<?> javaType;
+
+    private final String name;
+
+    private final List<CompositeField> fieldList;
+
+
+    private CompositeType(Class<?> javaType, String name, List<CompositeField> fieldList) {
+        this.javaType = javaType;
+        this.name = name;
+        this.fieldList = List.copyOf(fieldList);
+    }
+
+    @Override
+    public Class<?> javaType() {
+        return this.javaType;
+    }
+
+    @Override
+    public String typeName() {
+        return this.name;
+    }
+
+    @Override
+    public List<CompositeField> fieldList() {
+        return this.fieldList;
+    }
+
+    @Override
+    public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
+        final SQLType dataType;
+        switch (meta.serverDatabase()) {
+            case PostgreSQL:
+                dataType = PgType.RECORD;
+                break;
+            case SQLite:
+            case MySQL:
+            default:
+                throw mapError(this, meta);
+        }
+        return dataType;
+    }
+
+
+    @Override
+    public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        if (!this.javaType.isInstance(source)) {
+            String m = String.format("%s is instance of %s", ClassUtils.safeClassName(source), this.javaType.getName());
+            throw paramError(this, dataType, source, new CriteriaException(m));
+        }
+
+        final SafeLiteralFunc func = env.safeLiteralFunc();
+        final ObjectAccessor accessor = ObjectAccessorFactory.forBean(this.javaType);
+        final List<CompositeField> fieldList = this.fieldList;
+
+        final int size = fieldList.size();
+
+        final StringBuilder sqlBuilder = new StringBuilder(2 + size + (size * 10));
+
+        CompositeField field;
+        Object value;
+        sqlBuilder.append(_Constant.LEFT_PAREN);
+        for (int i = 0; i < size; i++) {
+            if (i > 0) {
+                sqlBuilder.append(_Constant.COMMA);
+            }
+            field = fieldList.get(i);
+            value = accessor.get(source, field.fieldName);
+            if (value == null) {
+                sqlBuilder.append(_Constant.NULL);
+                continue;
+            }
+
+            func.safeLiteral(field.typeMeta, value, false, sqlBuilder);
+        }
+        sqlBuilder.append(_Constant.RIGHT_PAREN);
+        return sqlBuilder.toString();
+    }
+
+    @Override
+    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        if (this.javaType.isInstance(source)) {
+            return source;
+        }
+        if (!(source instanceof String)) {
+            throw dataAccessError(this, dataType, source, null);
+        }
+
+        final String text = ((String) source).trim();
+        final int length = text.length();
+        if (!_StringUtils.hasText(text)
+                || text.charAt(0) != _Constant.LEFT_PAREN
+                || text.charAt(length - 1) != _Constant.RIGHT_PAREN) {
+            throw dataAccessError(this, dataType, source, null);
+        }
+
+        final ObjectAccessor accessor = ObjectAccessorFactory.forBean(this.javaType);
+        final Supplier<?> constructor = ObjectAccessorFactory.beanConstructor(this.javaType);
+        final FieldParser fieldParser = new FieldParser(accessor, constructor.get(), this.fieldList, env);
+
+        try {
+            ItemsParser.defaultParser()
+                    .parseItems(text, 0, length, fieldParser::parseField);
+
+            if (fieldParser.fieldIndex != fieldParser.fieldCount) {
+                throw dataAccessError(this, dataType, source, null);
+            }
+        } catch (DataAccessException e) {
+            throw e;
+        } catch (Exception e) {
+            throw dataAccessError(this, dataType, source, e);
+        }
+
+        return fieldParser.object;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.javaType);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof CompositeType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
+    }
+
+
+    private static CompositeType createCompositeType(final Class<?> javaType) {
+        final DefinedType definedType = javaType.getAnnotation(DefinedType.class);
+        if (definedType == null) {
+            throw definedTypeError(javaType, "no Annotation");
+        }
+
+        final String typeName = definedType.name().trim();
+
+        if (_StringUtils.hasText(typeName)) {
+            throw definedTypeError(javaType, "type name no text");
+        }
+
+        if (_StringUtils.isCamelCase(typeName)) {
+            throw definedTypeError(javaType, "typeName is camel");
+        }
+
+        final String[] fieldOrder = definedType.fieldOrder();
+        final Map<String, Integer> fieldToOrder;
+        if (fieldOrder.length == 0) {
+            fieldToOrder = new HashMap<>();
+        } else {
+            fieldToOrder = null;
+        }
+
+        Column column;
+
+        final List<Pair<Field, Column>> columnList = new ArrayList<>();
+
+        for (Class<?> clazz = javaType; clazz != Object.class; clazz = clazz.getSuperclass()) {
+            if (clazz != javaType && clazz.getAnnotation(MappedSuperclass.class) == null) {
+                break;
+            }
+
+            for (Field field : clazz.getDeclaredFields()) {
+                column = field.getAnnotation(Column.class);
+                if (column == null) {
+                    continue;
+                }
+                // compile-time verification io.army.annotation.Column
+                if (fieldToOrder != null && fieldToOrder.putIfAbsent(field.getName(), column.order()) != null) {
+                    throw definedTypeError(javaType, String.format("field[%s] duplicate", field.getName()));
+                }
+                columnList.add(Pair.create(field, column));
+
+            } // field loop
+
+        } // class loop
+
+        final int columnCount = columnList.size();
+        if (columnCount == 0) {
+            throw definedTypeError(javaType, "no field");
+        }
+
+
+        final Map<String, Integer> orderMap;
+        if (fieldToOrder != null) {
+            orderMap = fieldToOrder;
+        } else if (fieldOrder.length == columnCount) {
+            orderMap = _Collections.hashMapForSize(columnCount);
+            for (int i = 0; i < columnCount; i++) {
+                if (orderMap.putIfAbsent(fieldOrder[i], i) != null) {
+                    String m = String.format("fieldOrder[%s] duplicate", fieldOrder[i]);
+                    throw definedTypeError(javaType, m);
+                }
+            }
+        } else {
+            throw definedTypeError(javaType, "fieldOrder length error");
+        }
+
+        columnList.sort(Comparator.comparingInt(pair -> {
+            final Integer order;
+            order = orderMap.get(pair.first.getName());
+            if (order == null) {
+                String m = String.format("%s not in fieldOrder", pair.first.getName());
+                throw definedTypeError(javaType, m);
+            }
+            return order;
+        }));
+
+
+        Pair<Field, Column> pair;
+        Field field;
+        String columnName;
+
+
+        orderMap.clear();  // clear
+        final List<CompositeField> fieldList = new ArrayList<>(columnCount);
+
+        for (int i = 0, order; i < columnCount; i++) {
+
+            pair = columnList.get(i);
+            field = pair.first;
+            column = pair.second;
+
+            order = column.order();
+            if (order != i) {
+                String m = String.format("field[%s] order error[%s]", field.getName(), order);
+                throw definedTypeError(javaType, m);
+            }
+            columnName = TableMetaUtils.columnName(column, field);
+            if (orderMap.putIfAbsent(columnName, i) != null) {
+                String m = String.format("column[%s] duplicate", columnName);
+                throw definedTypeError(javaType, m);
+            }
+            fieldList.add(CompositeField.from(field.getName(), columnName, _MappingFactory.map(field)));
+
+        } // column lop
+
+        return new CompositeType(javaType, typeName, fieldList);
+    }
+
+
+    private static MetaException definedTypeError(Class<?> javaType, String suffixMsg) {
+        String m = String.format("%s[%s] %s", DefinedType.class.getSimpleName(), javaType.getName(), suffixMsg);
+        return new MetaException(m);
+    }
+
+
+    private static final class FieldParser {
+
+        private final ObjectAccessor accessor;
+
+        private final Object object;
+
+        private final List<CompositeField> fieldList;
+
+        private final MappingEnv env;
+
+        private final DecodeLiteralFunc decodeFunc;
+
+        private final ServerMeta serverMeta;
+
+        private final int fieldCount;
+
+        private int fieldIndex = 0;
+
+        private FieldParser(ObjectAccessor accessor, Object object, List<CompositeField> fieldList, MappingEnv env) {
+            this.accessor = accessor;
+            this.object = object;
+            this.fieldList = fieldList;
+            this.env = env;
+            this.decodeFunc = env.decodeLiteralFunc();
+            this.serverMeta = env.serverMeta();
+            this.fieldCount = fieldList.size();
+        }
+
+        Object parseField(final String text, final int offest, final int endIndex) {
+            final int fieldIndex = this.fieldIndex;
+            if (fieldIndex >= this.fieldCount) {
+                throw new IllegalArgumentException("composite filed count error");
+            }
+            final CompositeField field = this.fieldList.get(fieldIndex);
+            final TypeMeta typeMeta = field.typeMeta;
+
+            final MappingType type;
+            if (typeMeta instanceof MappingType) {
+                type = (MappingType) typeMeta;
+            } else {
+                type = typeMeta.mappingType();
+            }
+
+            String literal;
+            if (offest == 0 && endIndex == text.length()) {
+                literal = text;
+            } else {
+                literal = text.substring(offest, endIndex);
+            }
+
+            if (type != typeMeta) {
+                literal = this.decodeFunc.decodeLiteral(typeMeta, literal);
+            }
+
+            final Object value;
+            value = type.afterGet(type.map(this.serverMeta), this.env, literal);
+            this.accessor.set(this.object, field.fieldName, value);
+            this.fieldIndex++;
+            return Boolean.TRUE;
+        }
+
+    } // FieldParser
+
+
+}

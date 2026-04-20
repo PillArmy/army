@@ -19,12 +19,12 @@ package io.army.sqltype;
 import io.army.criteria.TypeDef;
 import io.army.criteria.impl._SQLConsultant;
 import io.army.dialect.Database;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.type.SqlRecord;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.BitSet;
@@ -32,7 +32,7 @@ import java.util.BitSet;
 /**
  * @see <a href="https://www.postgresql.org/docs/current/datatype.html">Postgre Data Types</a>
  */
-public enum PostgreType implements SQLType {
+public enum PgType implements SQLType {
 
 
     /**
@@ -209,9 +209,9 @@ public enum PostgreType implements SQLType {
 
     private final Class<?> javaType;
 
-    private final PostgreType elementType;
+    private final PgType elementType;
 
-    PostgreType(String typeName, ArmyType armyType, Class<?> javaType) {
+    PgType(String typeName, ArmyType armyType, Class<?> javaType) {
         assert armyType != ArmyType.ARRAY;
 
         this.typeName = typeName;
@@ -220,7 +220,7 @@ public enum PostgreType implements SQLType {
         this.elementType = null;
     }
 
-    PostgreType(PostgreType elementType) {
+    PgType(PgType elementType) {
         this.typeName = elementType.typeName + "[]";
         this.armyType = ArmyType.ARRAY;
         this.javaType = Object.class;
@@ -304,7 +304,7 @@ public enum PostgreType implements SQLType {
     @Override
     public final TypeDef parens(final int precision, final int scale) {
         final TypeDef typeDef;
-        if (this == PostgreType.DECIMAL) {
+        if (this == PgType.DECIMAL) {
             typeDef = _SQLConsultant.precisionAndScale(this, precision, scale, 131072 + 16383, 16383);
         } else {
             throw _SQLConsultant.dontSupportPrecisionAndScale(this);

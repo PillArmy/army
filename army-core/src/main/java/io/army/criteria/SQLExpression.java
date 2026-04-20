@@ -26,59 +26,10 @@ package io.army.criteria;
  *
  * @since 0.6.0
  */
+@Deprecated
 public interface SQLExpression extends RowElement, RightOperand {
 
 
-    /**
-     * <p>
-     * <strong>= ANY</strong> operator
-     *
-     */
-    IPredicate equalAny(SubQuery subQuery);
-
-    /**
-     * <p>
-     * <strong>= SOME</strong> operator
-     *
-     */
-    IPredicate equalSome(SubQuery subQuery);
-
-    IPredicate equalAll(SubQuery subQuery);
-
-    IPredicate notEqualAny(SubQuery subQuery);
-
-    IPredicate notEqualSome(SubQuery subQuery);
-
-    IPredicate notEqualAll(SubQuery subQuery);
-
-    IPredicate lessAny(SubQuery subQuery);
-
-    IPredicate lessSome(SubQuery subQuery);
-
-    IPredicate lessAll(SubQuery subQuery);
-
-    IPredicate lessEqualAny(SubQuery subQuery);
-
-    IPredicate lessEqualSome(SubQuery subQuery);
-
-    IPredicate lessEqualAll(SubQuery subQuery);
-
-    IPredicate greaterAny(SubQuery subQuery);
-
-    IPredicate greaterSome(SubQuery subQuery);
-
-    IPredicate greaterAll(SubQuery subQuery);
-
-    IPredicate greaterEqualAny(SubQuery subQuery);
-
-    IPredicate greaterEqualSome(SubQuery subQuery);
-
-    IPredicate greaterEqualAll(SubQuery subQuery);
-
-
-    IPredicate in(SQLColumnSet row);
-
-    IPredicate notIn(SQLColumnSet row);
 
 
 }

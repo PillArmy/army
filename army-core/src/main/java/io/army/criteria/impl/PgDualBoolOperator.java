@@ -241,7 +241,7 @@ enum PgDualBoolOperator implements Operator.SqlDualBooleanOperator, SQLs.BiOpera
     /**
      * @see <a href="https://www.postgresql.org/docs/15/functions-comparisons.html#ROW-WISE-COMPARISON">row_constructor IS DISTINCT FROM row_constructor<br/>
      * </a>
-     * @deprecated {@link DualBooleanOperator#IS_DISTINCT_FROM}
+     * @deprecated {@link SQLs#DISTINCT_FROM}
      */
     @Deprecated
     IS_DISTINCT_FROM(" IS DISTINCT FROM"),
@@ -249,7 +249,7 @@ enum PgDualBoolOperator implements Operator.SqlDualBooleanOperator, SQLs.BiOpera
     /**
      * @see <a href="https://www.postgresql.org/docs/15/functions-comparisons.html#ROW-WISE-COMPARISON">row_constructor IS NOT DISTINCT FROM row_constructor<br/>
      * </a>
-     * @deprecated {@link DualBooleanOperator#IS_NOT_DISTINCT_FROM}
+     * @deprecated {@link SQLs#DISTINCT_FROM}
      */
     @Deprecated
     IS_NOT_DISTINCT_FROM(" IS NOT DISTINCT FROM");

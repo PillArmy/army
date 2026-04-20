@@ -19,10 +19,10 @@ package io.army.criteria.impl;
 import io.army.criteria.*;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
+import io.army.lang.Nullable;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
@@ -62,17 +62,10 @@ abstract class PgExpressions {
         return new PostgreUnaryPredicate(operator, operand);
     }
 
-    static <T extends SQLExpression> CompoundPredicate dualPredicate(final T left, final PgDualBoolOperator operator,
+    static <T extends Expression> IPredicate dualPredicate(final T left, final PgDualBoolOperator operator,
                                                                      final T right) {
-        if (!(left instanceof OperationSQLExpression)) {
-            throw ContextStack.clearStackAndNonArmyItem(left);
-        } else if (!(right instanceof OperationSQLExpression)) {
-            throw ContextStack.clearStackAndNonArmyItem(right);
-        }
-        if (left instanceof RowExpression && right instanceof RowExpression) {
-            RowExpressions.validateColumnSize((RowExpression) left, (RowExpression) right);
-        }
-        return new Expressions.DualPredicate((OperationSQLExpression) left, operator, right);
+
+        return Expressions.biPredicate((OperationExpression) left, operator, right);
     }
 
 

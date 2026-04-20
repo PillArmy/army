@@ -29,7 +29,7 @@ import io.army.result.DataRecord;
 import io.army.result.Direction;
 import io.army.session.*;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.transaction.*;
 import io.army.util._Exceptions;
@@ -199,9 +199,9 @@ abstract class PostgreExecutor extends JdbcExecutor {
 
         if (!(dataType instanceof SQLType)) {
             stmt.setObject(indexBasedOne, createPgObject(type, dataType, value));
-        } else if (!(dataType instanceof PostgreType)) {
+        } else if (!(dataType instanceof PgType)) {
             throw mapMethodError(type, dataType);
-        } else switch ((PostgreType) dataType) {
+        } else switch ((PgType) dataType) {
             case UUID: {
                 if (!(value instanceof UUID)) {
                     throw beforeBindMethodError(type, dataType, value);
@@ -280,7 +280,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
                 stmt.setObject(indexBasedOne, createPgObject(type, dataType, value));
                 break;
             default:
-                bindArmyType(stmt, indexBasedOne, type, dataType, ((PostgreType) dataType).armyType(), value);
+                bindArmyType(stmt, indexBasedOne, type, dataType, ((PgType) dataType).armyType(), value);
 
         }
 
@@ -300,7 +300,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
 
         if (!(dataType instanceof SQLType)) {
             value = resultSet.getObject(indexBasedOne);
-        } else switch ((PostgreType) dataType) {
+        } else switch ((PgType) dataType) {
             case BOOLEAN:
                 value = resultSet.getObject(indexBasedOne, Boolean.class);
                 break;
@@ -490,7 +490,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
             case UNKNOWN:
             case REF_CURSOR:
             default:
-                throw _Exceptions.unexpectedEnum((PostgreType) dataType);
+                throw _Exceptions.unexpectedEnum((PgType) dataType);
 
         }
 

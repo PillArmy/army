@@ -430,6 +430,7 @@ abstract class SqlWords {
             this.spaceWord = spaceWord;
         }
 
+
         @Override
         public final String spaceRender() {
             return this.spaceWord;

@@ -20,7 +20,7 @@ import io.army.criteria.CriteriaException;
 import io.army.mapping.MappingType;
 import io.army.mapping.TextType;
 import io.army.meta.ServerMeta;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
@@ -85,7 +85,7 @@ public class TextArrayType extends ArmyTextArrayType implements MappingType.SqlA
         final SQLType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = PostgreType.TEXT_ARRAY;
+                dataType = PgType.TEXT_ARRAY;
                 break;
             case Oracle:
             case H2:

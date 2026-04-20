@@ -21,16 +21,16 @@ import io.army.criteria.CriteriaException;
 import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.function.TextFunction;
+import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.mapping.array.PostgreArrays;
 import io.army.mapping.postgre.*;
 import io.army.meta.MetaException;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -49,20 +49,20 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
      * @param javaType 2 dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
      *                 see {@link ArmyPostgreRange}
      * @param param    from {@link Mapping#params()} ,it's the name of <ul>
-     *                 <li>{@link PostgreType#INT4MULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#INT8MULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#NUMMULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#DATEMULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#TSMULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#TSTZMULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#INT4MULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#INT8MULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#NUMMULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#DATEMULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#TSMULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#TSTZMULTIRANGE_ARRAY}</li>
      *                 </ul>
      * @throws IllegalArgumentException throw when javaType error
      * @throws MetaException            throw when param error.
      */
     public static PostgreMultiRangeArrayType from(final Class<?> javaType, final String param) throws MetaException {
-        final PostgreType sqlType;
+        final PgType sqlType;
         try {
-            sqlType = PostgreType.valueOf(param);
+            sqlType = PgType.valueOf(param);
         } catch (IllegalArgumentException e) {
             throw new MetaException(e.getMessage(), e);
         }
@@ -77,15 +77,15 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
      * @param javaType 2 dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
      *                 see {@link ArmyPostgreRange}
      * @param sqlType  <ul>
-     *                 <li>{@link PostgreType#INT4MULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#INT8MULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#NUMMULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#DATEMULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#TSMULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#TSTZMULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#INT4MULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#INT8MULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#NUMMULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#DATEMULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#TSMULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#TSTZMULTIRANGE_ARRAY}</li>
      *                 </ul>
      */
-    public static PostgreMultiRangeArrayType from(final Class<?> javaType, final PostgreType sqlType)
+    public static PostgreMultiRangeArrayType from(final Class<?> javaType, final PgType sqlType)
             throws IllegalArgumentException {
 
         final RangeFunction<?, ?> rangeFunc;
@@ -115,16 +115,16 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
      * @param javaType 2 dimension or higher dimension non-string array class
      *                 see {@link ArmyPostgreRange}
      * @param sqlType  <ul>
-     *                 <li>{@link PostgreType#INT4MULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#INT8MULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#NUMMULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#DATEMULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#TSMULTIRANGE_ARRAY}</li>
-     *                 <li>{@link PostgreType#TSTZMULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#INT4MULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#INT8MULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#NUMMULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#DATEMULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#TSMULTIRANGE_ARRAY}</li>
+     *                 <li>{@link PgType#TSTZMULTIRANGE_ARRAY}</li>
      *                 </ul>
      * @throws IllegalArgumentException throw when javaType or sqlType error
      */
-    public static PostgreMultiRangeArrayType fromFunc(final Class<?> javaType, final PostgreType sqlType,
+    public static PostgreMultiRangeArrayType fromFunc(final Class<?> javaType, final PgType sqlType,
                                                       final RangeFunction<?, ?> rangeFunc)
             throws IllegalArgumentException {
         Objects.requireNonNull(rangeFunc);
@@ -145,12 +145,12 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
      * @param javaType   2 dimension or higher dimension non-string array class
      *                   see {@link ArmyPostgreRange}
      * @param param      from {@link Mapping#params()} ,it's the name of <ul>
-     *                   <li>{@link PostgreType#INT4MULTIRANGE_ARRAY}</li>
-     *                   <li>{@link PostgreType#INT8MULTIRANGE_ARRAY}</li>
-     *                   <li>{@link PostgreType#NUMMULTIRANGE_ARRAY}</li>
-     *                   <li>{@link PostgreType#DATEMULTIRANGE_ARRAY}</li>
-     *                   <li>{@link PostgreType#TSMULTIRANGE_ARRAY}</li>
-     *                   <li>{@link PostgreType#TSTZMULTIRANGE_ARRAY}</li>
+     *                   <li>{@link PgType#INT4MULTIRANGE_ARRAY}</li>
+     *                   <li>{@link PgType#INT8MULTIRANGE_ARRAY}</li>
+     *                   <li>{@link PgType#NUMMULTIRANGE_ARRAY}</li>
+     *                   <li>{@link PgType#DATEMULTIRANGE_ARRAY}</li>
+     *                   <li>{@link PgType#TSMULTIRANGE_ARRAY}</li>
+     *                   <li>{@link PgType#TSTZMULTIRANGE_ARRAY}</li>
      *                   </ul>
      * @param methodName from {@link Mapping#func()}
      * @throws IllegalArgumentException throw when javaType error
@@ -159,9 +159,9 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
     public static PostgreMultiRangeArrayType fromMethod(final Class<?> javaType, final String param,
                                                         final String methodName) throws MetaException {
 
-        final PostgreType sqlType;
+        final PgType sqlType;
         try {
-            sqlType = PostgreType.valueOf(param);
+            sqlType = PgType.valueOf(param);
         } catch (IllegalArgumentException e) {
             throw new MetaException(e.getMessage(), e);
         }
@@ -182,17 +182,17 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
     }
 
 
-    public static final PostgreMultiRangeArrayType INT4_MULTI_RANGE_LINEAR = new PostgreMultiRangeArrayType(PostgreType.INT4MULTIRANGE_ARRAY, String[][].class, null);
+    public static final PostgreMultiRangeArrayType INT4_MULTI_RANGE_LINEAR = new PostgreMultiRangeArrayType(PgType.INT4MULTIRANGE_ARRAY, String[][].class, null);
 
-    public static final PostgreMultiRangeArrayType INT8_MULTI_RANGE_LINEAR = new PostgreMultiRangeArrayType(PostgreType.INT8MULTIRANGE_ARRAY, String[][].class, null);
+    public static final PostgreMultiRangeArrayType INT8_MULTI_RANGE_LINEAR = new PostgreMultiRangeArrayType(PgType.INT8MULTIRANGE_ARRAY, String[][].class, null);
 
-    public static final PostgreMultiRangeArrayType NUM_MULTI_RANGE_LINEAR = new PostgreMultiRangeArrayType(PostgreType.NUMMULTIRANGE_ARRAY, String[][].class, null);
+    public static final PostgreMultiRangeArrayType NUM_MULTI_RANGE_LINEAR = new PostgreMultiRangeArrayType(PgType.NUMMULTIRANGE_ARRAY, String[][].class, null);
 
-    public static final PostgreMultiRangeArrayType DATE_MULTI_RANGE_LINEAR = new PostgreMultiRangeArrayType(PostgreType.DATEMULTIRANGE_ARRAY, String[][].class, null);
+    public static final PostgreMultiRangeArrayType DATE_MULTI_RANGE_LINEAR = new PostgreMultiRangeArrayType(PgType.DATEMULTIRANGE_ARRAY, String[][].class, null);
 
-    public static final PostgreMultiRangeArrayType TS_MULTI_RANGE_LINEAR = new PostgreMultiRangeArrayType(PostgreType.TSMULTIRANGE_ARRAY, String[][].class, null);
+    public static final PostgreMultiRangeArrayType TS_MULTI_RANGE_LINEAR = new PostgreMultiRangeArrayType(PgType.TSMULTIRANGE_ARRAY, String[][].class, null);
 
-    public static final PostgreMultiRangeArrayType TS_TZ_MULTI_RANGE_LINEAR = new PostgreMultiRangeArrayType(PostgreType.TSTZMULTIRANGE_ARRAY, String[][].class, null);
+    public static final PostgreMultiRangeArrayType TS_TZ_MULTI_RANGE_LINEAR = new PostgreMultiRangeArrayType(PgType.TSTZMULTIRANGE_ARRAY, String[][].class, null);
 
 
     /**
@@ -200,7 +200,7 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
      * package constructor
      *
      */
-    private PostgreMultiRangeArrayType(final PostgreType sqlType, final Class<?> javaType,
+    private PostgreMultiRangeArrayType(final PgType sqlType, final Class<?> javaType,
                                        final @Nullable RangeFunction<?, ?> rangeFunc) {
         super(sqlType, javaType, rangeFunc);
     }
@@ -353,7 +353,7 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
     }
 
 
-    private static PostgreMultiRangeArrayType linearInstance(final PostgreType sqlType) {
+    private static PostgreMultiRangeArrayType linearInstance(final PgType sqlType) {
         final PostgreMultiRangeArrayType instance;
         switch (sqlType) {
             case INT4MULTIRANGE_ARRAY:
@@ -380,7 +380,7 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
         return instance;
     }
 
-    private static boolean isNotMultiRangeType(final PostgreType sqlType) {
+    private static boolean isNotMultiRangeType(final PgType sqlType) {
         final boolean match;
         switch (sqlType) {
             case INT4MULTIRANGE_ARRAY:
@@ -397,7 +397,7 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
         return match;
     }
 
-    private static String sqlTypeErrorMessage(PostgreType sqlType) {
+    private static String sqlTypeErrorMessage(PgType sqlType) {
         return String.format("%s isn't postgre multi-range array type", sqlType);
     }
 

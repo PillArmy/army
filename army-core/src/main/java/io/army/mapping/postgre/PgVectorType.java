@@ -19,13 +19,13 @@ package io.army.mapping.postgre;
 import io.army.criteria.CriteriaException;
 import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
-import io.army.executor.DataAccessException;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 
 
 /**
@@ -60,7 +60,7 @@ public final class PgVectorType extends _ArmyNoInjectionType {
         if (meta.serverDatabase() != Database.PostgreSQL) {
             throw MAP_ERROR_HANDLER.apply(this, meta);
         }
-        return PostgreType.TSVECTOR;
+        return PgType.TSVECTOR;
     }
 
     @Override

@@ -71,7 +71,7 @@ public final class MediumBlobType extends _ArmyBuildInType implements MappingTyp
                 dataType = MySQLType.MEDIUMBLOB;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.BYTEA;
+                dataType = PgType.BYTEA;
                 break;
             case SQLite:
                 dataType = SQLiteType.BLOB;

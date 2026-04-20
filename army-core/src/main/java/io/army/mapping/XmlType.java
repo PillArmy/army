@@ -20,7 +20,7 @@ import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 import io.army.util._Collections;
 
@@ -65,7 +65,7 @@ public final class XmlType extends _ArmyBuildInType {
                 dataType = MySQLType.TEXT;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.XML;
+                dataType = PgType.XML;
                 break;
             case SQLite:
                 dataType = SQLiteType.TEXT;

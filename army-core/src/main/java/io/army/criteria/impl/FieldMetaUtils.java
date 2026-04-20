@@ -19,12 +19,10 @@ package io.army.criteria.impl;
 import io.army.annotation.*;
 import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
-import io.army.mapping.CodeEnumType;
 import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
-import io.army.struct.CodeEnum;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
@@ -141,22 +139,12 @@ abstract class FieldMetaUtils extends TableMetaUtils {
     static MappingType fieldMappingType(final Field field, final boolean isDiscriminator) {
 
         final Class<?> fieldJavaType = field.getType();
-        final Mapping mapping;
-        mapping = field.getAnnotation(Mapping.class);
 
-        final MappingType mappingType;
-        if (mapping == null) {
-            if (isDiscriminator && !CodeEnum.class.isAssignableFrom(fieldJavaType)) {
-                throw discriminatorNotCodeEnum(null, field);
-            }
-            mappingType = _MappingFactory.getDefault(fieldJavaType);
-        } else {
-            if (isDiscriminator && CodeEnumType.class.getName().equals(mapping.value())) {
-                throw discriminatorNotCodeEnum(mapping, field);
-            }
-            mappingType = _MappingFactory.map(mapping, field);
+        if (isDiscriminator && !Enum.class.isAssignableFrom(fieldJavaType)) {
+            String m = String.format("%s.%s is discriminator,but isn't enum.", field.getDeclaringClass().getName(), field.getName());
+            throw new MetaException(m);
         }
-        return mappingType;
+        return _MappingFactory.map(field);
 
     }
 
@@ -227,21 +215,6 @@ abstract class FieldMetaUtils extends TableMetaUtils {
 
 
     /*################################## blow private method ##################################*/
-
-
-    private static MetaException discriminatorNotCodeEnum(final @Nullable Mapping mapping, final Field field) {
-        final String m;
-        if (mapping == null) {
-            m = String.format("Discriminator %s.%s type %s don't implements %s."
-                    , field.getDeclaringClass().getName(), field.getName()
-                    , field.getType().getName(), CodeEnum.class.getName());
-        } else {
-            m = String.format("Discriminator %s.%s %s.value() isn't %s."
-                    , field.getDeclaringClass().getName(), field.getName()
-                    , Mapping.class.getName(), CodeEnumType.class.getName());
-        }
-        return new MetaException(m);
-    }
 
 
     private static String commentManagedByArmy(FieldMeta<?> fieldMeta) {

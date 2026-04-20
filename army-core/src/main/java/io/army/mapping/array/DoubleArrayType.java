@@ -25,7 +25,7 @@ import io.army.mapping.MappingType;
 import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 
 public class DoubleArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
@@ -120,7 +120,7 @@ public class DoubleArrayType extends _ArmyNoInjectionType implements MappingType
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = PostgreType.FLOAT8_ARRAY;
+                dataType = PgType.FLOAT8_ARRAY;
                 break;
             case MySQL:
             case SQLite:

@@ -19,6 +19,8 @@ package io.army.criteria.impl;
 import io.army.annotation.*;
 import io.army.dialect._Constant;
 import io.army.generator.FieldGenerator;
+import io.army.lang.NonNull;
+import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.struct.CodeEnum;
@@ -26,15 +28,13 @@ import io.army.util.Pair;
 import io.army.util._Collections;
 import io.army.util._StringUtils;
 
-import io.army.lang.NonNull;
-import io.army.lang.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-abstract class TableMetaUtils {
+public abstract class TableMetaUtils {
 
     TableMetaUtils() {
         throw new UnsupportedOperationException();
@@ -324,7 +324,7 @@ abstract class TableMetaUtils {
         if (!createdPrimaryIndex) {
             final IndexMeta<T> indexMeta;
             indexMeta = new DefaultIndexMeta<>(tableMeta, null, indexFieldToFieldMap, columnNameSet);
-            final IndexFieldMeta<T> fieldMeta = indexMeta.fieldList().get(0);
+            final IndexFieldMeta<T> fieldMeta = indexMeta.fieldList().getFirst();
             if (fieldMetaMap.putIfAbsent(fieldMeta.fieldName(), fieldMeta) != null) {
                 throw fieldMetaDuplication(fieldMeta);
             }
@@ -334,15 +334,13 @@ abstract class TableMetaUtils {
     }
 
 
-    static String columnName(final Column column, final Field field) throws MetaException {
-        final String customColumnName = column.name(), fieldName = field.getName();
+    public static String columnName(final Column column, final Field field) throws MetaException {
+        final String customColumnName = column.name().trim(), fieldName = field.getName();
         final String columnName;
         if (customColumnName.isEmpty()) {
             columnName = _MetaBridge.camelToLowerCase(fieldName);
-        } else if (!customColumnName.trim().equals(customColumnName)) {
-            String m = String.format("Mapped class [%s] required prop[%s] column name contain space.",
-                    field.getDeclaringClass().getName(),
-                    fieldName);
+        } else if (_StringUtils.isCamelCase(customColumnName)) {
+            String m = String.format("%s.%s column name is camel.", field.getDeclaringClass().getName(), field.getName());
             throw new MetaException(m);
         } else {
             columnName = customColumnName;

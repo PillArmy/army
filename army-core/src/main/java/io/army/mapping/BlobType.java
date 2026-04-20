@@ -71,7 +71,7 @@ public final class BlobType extends _ArmyBuildInType implements MappingType.SqlB
                 dataType = MySQLType.BLOB;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.BYTEA;
+                dataType = PgType.BYTEA;
                 break;
             case SQLite:
                 dataType = SQLiteType.BLOB;

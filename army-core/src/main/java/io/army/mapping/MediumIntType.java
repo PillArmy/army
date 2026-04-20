@@ -21,7 +21,7 @@ import io.army.mapping.array.MediumIntArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
 /**
@@ -86,7 +86,7 @@ public final class MediumIntType extends _NumericType._IntegerType {
                 dataType = MySQLType.MEDIUMINT;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.INTEGER;
+                dataType = PgType.INTEGER;
                 break;
             case SQLite:
                 dataType = SQLiteType.MEDIUMINT;

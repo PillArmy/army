@@ -97,7 +97,7 @@ public final class OffsetDateTimeType extends _ArmyNoInjectionType implements Ma
                 dataType = MySQLType.DATETIME;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.TIMESTAMPTZ;
+                dataType = PgType.TIMESTAMPTZ;
                 break;
             case SQLite:
                 dataType = SQLiteType.TIMESTAMP_WITH_TIMEZONE;

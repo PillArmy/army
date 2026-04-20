@@ -22,7 +22,7 @@ import io.army.mapping.JsonType;
 import io.army.mapping.MappingType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 
 public class JsonArrayType extends ArmyJsonArrayType {
@@ -90,7 +90,7 @@ public class JsonArrayType extends ArmyJsonArrayType {
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = PostgreType.JSON_ARRAY;
+                dataType = PgType.JSON_ARRAY;
                 break;
             case MySQL:
             case SQLite:

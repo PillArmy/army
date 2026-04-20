@@ -17,6 +17,7 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
+import io.army.lang.Nullable;
 import io.army.mapping.array.NameEnumArrayType;
 import io.army.meta.MetaException;
 import io.army.meta.ServerMeta;
@@ -28,7 +29,6 @@ import io.army.util.ClassUtils;
 import io.army.util._Collections;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
@@ -188,7 +188,7 @@ public final class NameEnumType extends _ArmyNoInjectionType {
                 break;
             case PostgreSQL: {
                 if (enumName == null) {
-                    dataType = PostgreType.VARCHAR;
+                    dataType = PgType.VARCHAR;
                 } else {
                     dataType = DataType.from(enumName);
                 }

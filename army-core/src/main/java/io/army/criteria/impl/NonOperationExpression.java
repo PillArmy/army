@@ -25,8 +25,10 @@ import io.army.mapping.IntegerType;
 import io.army.mapping.MappingType;
 import io.army.mapping.NullType;
 import io.army.meta.TypeMeta;
+import io.army.util._StringUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
@@ -242,12 +244,12 @@ abstract class NonOperationExpression implements ArmyExpression {
 
 
     @Override
-    public final IPredicate in(SQLColumnSet row) {
+    public final IPredicate in(SQLColumnList row) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate notIn(SQLColumnSet row) {
+    public final IPredicate notIn(SQLColumnList row) {
         throw unsupportedOperation(this);
     }
 
@@ -294,6 +296,7 @@ abstract class NonOperationExpression implements ArmyExpression {
     public final IPredicate notSimilarTo(Object pattern, SQLs.WordEscape escape, Object escapeChar) {
         throw unsupportedOperation(this);
     }
+
 
     @Override
     public final Expression mod(Object operand) {
@@ -593,6 +596,13 @@ abstract class NonOperationExpression implements ArmyExpression {
         return UpdateTimePlaceHolderExpression.PLACEHOLDER;
     }
 
+    static Expression identifier(String identity) {
+        if (!_StringUtils.hasText(identity)) {
+            throw ContextStack.clearStackAndCriteriaError("identifier must have text");
+        }
+        return new IdentifierExpression(identity);
+    }
+
 
     static CriteriaException unsupportedOperation(NonOperationExpression expression) {
         return ContextStack.clearStackAndCriteriaError(expression.operationErrorMessage());
@@ -610,6 +620,47 @@ abstract class NonOperationExpression implements ArmyExpression {
         }
         return e;
     }
+
+
+    static final class IdentifierExpression extends NonOperationExpression implements ArmySimpleExpression {
+
+        private final String identifier;
+
+        private IdentifierExpression(String identifier) {
+            this.identifier = identifier;
+        }
+
+        @Override
+        public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
+            sqlBuilder.append(_Constant.SPACE);
+            context.identifier(this.identifier, sqlBuilder);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.identifier);
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            final boolean match;
+            if (obj == this) {
+                match = true;
+            } else if (obj instanceof IdentifierExpression) {
+                match = ((IdentifierExpression) obj).identifier.equals(this.identifier);
+            } else {
+                match = false;
+            }
+            return match;
+        }
+
+        @Override
+        public String toString() {
+            return _Constant.SPACE + this.identifier;
+        }
+
+
+    } // SQLIdentifierImpl
 
 
     /**

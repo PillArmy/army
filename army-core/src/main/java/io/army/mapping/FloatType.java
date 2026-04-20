@@ -21,7 +21,7 @@ import io.army.mapping.array.FloatArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
 import java.math.BigDecimal;
@@ -77,7 +77,7 @@ public final class FloatType extends _NumericType._FloatNumericType {
                 dataType = MySQLType.FLOAT;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.REAL;
+                dataType = PgType.REAL;
                 break;
             case SQLite:
                 dataType = SQLiteType.FLOAT;

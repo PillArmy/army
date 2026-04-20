@@ -19,10 +19,10 @@ package io.army.criteria.impl;
 import io.army.criteria.*;
 import io.army.criteria.mysql.MySQLCastType;
 import io.army.criteria.mysql.MySQLCharset;
+import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -558,7 +558,7 @@ abstract class MySQLOtherFunctions extends MySQLMiscellaneousFunctions {
         final String name = "CAST";
         if (charType != MySQLCastType.CHAR) {
             throw new IllegalArgumentException(String.format("support only %s", MySQLCastType.CHAR));
-        } else if (!(charset instanceof MySQLCharset || charset instanceof SQLs.SQLIdentifierImpl)) {
+        } else if (!(charset instanceof MySQLCharset || charset instanceof NonOperationExpression.IdentifierExpression)) {
             throw CriteriaUtils.funcArgError(name, charset);
         }
         final List<Object> argList = new ArrayList<>(n == null ? 5 : 8);

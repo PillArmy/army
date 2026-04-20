@@ -21,7 +21,7 @@ import io.army.function.TextFunction;
 import io.army.mapping.MappingType;
 import io.army.mapping.UnaryGenericsMapping;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.type.ImmutableSpec;
 import io.army.util.*;
 
@@ -206,7 +206,7 @@ public abstract class PostgreArrays extends ArrayMappings {
         final Class<?> javaType = type.javaType(), sourceType = source.getClass();
         if (source instanceof String) {
             final char delimiter;
-            if (dataType == PostgreType.BOX_ARRAY) {
+            if (dataType == PgType.BOX_ARRAY) {
                 delimiter = ';';
             } else {
                 delimiter = _Constant.COMMA;

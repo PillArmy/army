@@ -18,9 +18,6 @@ package io.army.criteria;
 
 import io.army.criteria.impl.SQLs;
 
-import java.util.Collection;
-import java.util.function.BiFunction;
-
 /**
  * <p>
  * This interface representing one row in SQL.
@@ -32,58 +29,15 @@ import java.util.function.BiFunction;
  * @see <a href="https://www.postgresql.org/docs/current/functions-comparisons.html#ROW-WISE-COMPARISON">Row Constructor Comparison</a>
  * @since 0.6.0
  */
-public interface RowExpression extends SQLExpression, SQLColumnSet {
+public interface RowExpression extends Expression, SQLColumnList {
 
 
-    /**
-     * <p>
-     * <strong>=</strong> operator
-     *
-     *
-     * @param operand non-null
-     * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
-    IPredicate equal(SQLColumnSet operand);
-
-    IPredicate notEqual(SQLColumnSet operand);
-
-    IPredicate nullSafeEqual(SQLColumnSet operand);
-
-    /**
-     * <p>
-     * <strong>&lt;</strong> operator
-     *
-     *
-     * @param operand non-null
-     * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
-    IPredicate less(SQLColumnSet operand);
-
-
-    IPredicate lessEqual(SQLColumnSet operand);
-
-
-    IPredicate greater(SQLColumnSet operand);
-
-    IPredicate greaterEqual(SQLColumnSet operand);
-
-
-    /**
-     * <p>
-     * This method is designed for dialect operator.
-     *
-     * <p>
-     * <strong>Note</strong>: The first argument of funcRef always is <strong>this</strong>.
-     *
-     *
-     * @param funcRef the reference of the method of dialect operator,<strong>NOTE</strong>: not lambda.
-     *                The first argument of funcRef always is <strong>this</strong>.
-     *                For example: {@code Postgres.isDistinctFrom(RowExpression,RowExpression)}
-     * @param right   the right operand of dialect operator.  It will be passed to funcRef as the second argument of funcRef
-     */
-    IPredicate space(BiFunction<RowExpression, RowExpression, CompoundPredicate> funcRef, RowExpression right);
-
+    /// Get column size , if return negative then representing unknown,
+    /// for example : named row literal expression, see
+    /// 1. {@link SQLs#namedRowLiteral(TypeInfer, String)}
+    /// 2. {@link SQLs#namedRowConst(TypeInfer, String)}
+    ///
+    /// @return negative : unknown
+    int columnSize();
 
 }

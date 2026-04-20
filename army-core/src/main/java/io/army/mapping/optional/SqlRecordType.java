@@ -20,14 +20,14 @@ import io.army.criteria.CriteriaException;
 import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.dialect._Constant;
+import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.ObjectType;
 import io.army.mapping.array.SqlRecordArrayType;
 import io.army.meta.ServerMeta;
-import io.army.executor.DataAccessException;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.type.ArraySqlRecord;
 import io.army.type.SqlRecord;
 import io.army.util._Collections;
@@ -85,7 +85,7 @@ public final class SqlRecordType extends _SqlRecordSupport implements MappingTyp
         if (meta.serverDatabase() != Database.PostgreSQL) {
             throw MAP_ERROR_HANDLER.apply(this, meta);
         }
-        return PostgreType.RECORD;
+        return PgType.RECORD;
     }
 
     @Override

@@ -535,7 +535,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
     }
 
     @Override
-    public final int hashCode() {
+    public int hashCode() {
         return System.identityHashCode(this);
     }
 
@@ -543,7 +543,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
      * @see #isSameType(MappingType)
      */
     @Override
-    public final boolean equals(Object obj) {
+    public boolean equals(Object obj) {
         return this == obj;
     }
 
@@ -697,8 +697,8 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         return new CriteriaException(createConvertErrorMessage(type, nonNull));
     }
 
-    private static CriteriaException paramError(final MappingType type, DataType sqlType,
-                                                final Object nonNull, final @Nullable Throwable cause) {
+    public static CriteriaException paramError(final MappingType type, DataType sqlType,
+                                               final Object nonNull, final @Nullable Throwable cause) {
         final CriteriaException e;
         if (cause == null) {
             e = new CriteriaException(createConvertErrorMessage(type, nonNull));
@@ -708,8 +708,9 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         return e;
     }
 
-    private static DataAccessException dataAccessError(final MappingType type, DataType sqlType,
-                                                       final Object nonNull, final @Nullable Throwable cause) {
+
+    public static DataAccessException dataAccessError(final MappingType type, DataType sqlType,
+                                                      final Object nonNull, final @Nullable Throwable cause) {
         final DataAccessException e;
         if (cause == null) {
             e = new DataAccessException(createConvertErrorMessage(type, nonNull));
@@ -723,7 +724,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         return new DataAccessException(createConvertErrorMessage(type, nonNull));
     }
 
-    private static UnsupportedDialectException mapError(final MappingType type, final ServerMeta meta) {
+    public static UnsupportedDialectException mapError(final MappingType type, final ServerMeta meta) {
         String m = String.format("%s don't support %s", type, meta);
         return new UnsupportedDialectException(m);
     }

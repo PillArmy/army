@@ -19,6 +19,7 @@ package io.army.mapping.array;
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.NameEnumType;
@@ -26,14 +27,13 @@ import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.struct.CodeEnum;
 import io.army.struct.TextEnum;
 import io.army.util.ArrayUtils;
 import io.army.util.ClassUtils;
 import io.army.util._Collections;
 
-import io.army.lang.Nullable;
 import java.util.concurrent.ConcurrentMap;
 
 
@@ -159,7 +159,7 @@ public class NameEnumArrayType extends _ArmyBuildInType implements MappingType.S
                 break;
             case PostgreSQL: {
                 if (enumName == null) {
-                    dataType = PostgreType.VARCHAR;
+                    dataType = PgType.VARCHAR;
                 } else {
                     dataType = DataType.from(enumName);
                 }

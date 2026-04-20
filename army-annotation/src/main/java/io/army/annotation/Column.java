@@ -113,5 +113,8 @@ public @interface Column {
      */
     String defaultValue() default "";
 
+    /// @return index based-zero
+    int order() default -1;
+
 
 }

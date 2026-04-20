@@ -100,20 +100,6 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
     }
 
 
-    /**
-     * <p>
-     * create empty row. non-empty row see {@link SQLs#row(Object)}
-     *
-     * @see SQLs#row(Object)
-     * @see SQLs#row(SubQuery)
-     * @see SQLs#row(Consumer)
-     * @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ROW-CONSTRUCTORS">Row Constructors</a>
-     */
-    public static RowExpression row() {
-        return RowExpressions.emptyRow();
-    }
-
-
 
 
     /*-------------------below operator method -------------------*/
@@ -367,7 +353,6 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * @param left  not {@link SQLs#DEFAULT} etc.
      * @param right not {@link SQLs#DEFAULT} etc.
      * @see Expression#space(SQLs.DualOperator, Object)
-     * @see TypedExpression#space(BiFunction, BiFunction, Object)
      * @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-OP-TABLE">bit || bit → bit</a>
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">text || text → text <br/>
      * text || anynonarray → text <br/>
@@ -381,7 +366,7 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html">anycompatiblearray || anycompatiblearray → anycompatiblearray</a>
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html">anycompatible || anycompatiblearray → anycompatiblearray</a>
      */
-    public static Expression doubleVertical(final Expression left, final Expression right) {
+    private static Expression doubleVertical(final Expression left, final Expression right) {
         return Expressions.dualExp(left, DualExpOperator.CONCAT, right);
     }
 
@@ -442,8 +427,6 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
 
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type @> geometric_type → boolean<br/>
      * Does first object contain second? Available for these pairs of types: (box, point), (box, box), (path, point), (polygon, point), (polygon, polygon), (circle, point), (circle, circle).
      * </a>
@@ -454,25 +437,21 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html">anyarray @> anyarray → boolean<br/>
      * </a>
      */
-    public static CompoundPredicate atGt(Expression left, Expression right) {
+    private static IPredicate atGt(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.AT_GT, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE">jsonb @? jsonpath → boolean<br/>
      * Does JSON path return any item for the specified JSON value?<br/>
      * '{"a":[1,2,3,4,5]}'::jsonb @? '$.a[*] ? (@ > 2)' → t
      * </a>
      */
-    public static CompoundPredicate atQuestion(Expression left, Expression right) {
+    private static IPredicate atQuestion(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.AT_QUESTION, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type &lt;&#64; geometric_type → boolean<br/>
      * Is first object contained in or on second? Available for these pairs of types: (point, box), (point, lseg), (point, line), (point, path), (point, polygon), (point, circle), (box, box), (lseg, box), (lseg, line), (polygon, polygon), (circle, circle).
      * </a>
@@ -483,13 +462,13 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html">anyarray &lt;&#64; anyarray → boolean<br/>
      * </a>
      */
-    public static CompoundPredicate ltAt(Expression left, Expression right) {
+    private static IPredicate ltAt(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.LT_AT, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type &amp;&amp; geometric_type → boolean<br/>
      * Do these objects overlap? (One point in common makes this true.) Available for box, polygon, circle.</a>
      * @see <a href="https://www.postgresql.org/docs/current/functions-net.html#CIDR-INET-OPERATORS-TABLE">inet &amp;&amp; inet → boolean<br/>
@@ -500,13 +479,13 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-array.html">anyarray &amp;&amp; anyarray → boolean<br/>
      * </a>
      */
-    public static CompoundPredicate doubleAmp(Expression left, Expression right) {
+    private static IPredicate doubleAmp(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.DOUBLE_AMP, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type &lt;&lt; geometric_type → boolean<br/>
      * Is first object strictly left of second? Available for point, box, polygon, circle.<br/>
      * inet &lt;&lt; inet → boolean<br/>
@@ -524,174 +503,174 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * inet '192.168.1/24' &lt;&lt; inet '192.168.1/24' → f
      * </a>
      */
-    public static CompoundPredicate ltLt(Expression left, Expression right) {
+    private static IPredicate ltLt(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.LT_LT, right);
     }
 
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type >> geometric_type → boolean<br/>
      * Is first object strictly right of second? Available for point, box, polygon, circle.</a>
      */
-    public static CompoundPredicate gtGt(Expression left, Expression right) {
+    private static IPredicate gtGt(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.GT_GT, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-net.html#CIDR-INET-OPERATORS-TABLE">inet &lt;&lt;= inet → boolean<br/>
      * Is subnet contained by or equal to subnet?<br/>
      * inet '192.168.1/24' &lt;&lt;= inet '192.168.1/24' → t
      * </a>
      */
-    public static CompoundPredicate ltLtEqual(Expression left, Expression right) {
+    private static IPredicate ltLtEqual(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.LT_LT_EQUAL, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-net.html#CIDR-INET-OPERATORS-TABLE">inet >>= inet → boolean<br/>
      * Does subnet contain or equal subnet?<br/>
      * inet '192.168.1/24' >>= inet '192.168.1/24' → t
      * </a>
      */
-    public static CompoundPredicate gtGtEqual(Expression left, Expression right) {
+    private static IPredicate gtGtEqual(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.GT_GT_EQUAL, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type &amp;&lt; geometric_type → boolean<br/>
      * Does first object not extend to the right of second? Available for box, polygon, circle.</a>
      */
-    public static CompoundPredicate ampLt(Expression left, Expression right) {
+    private static IPredicate ampLt(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.AMP_LT, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type &amp;&gt; geometric_type → boolean<br/>
      * Does first object not extend to the left of second? Available for box, polygon, circle.</a>
      */
-    public static CompoundPredicate ampGt(Expression left, Expression right) {
+    private static IPredicate ampGt(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.AMP_GT, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type &lt;&lt;| geometric_type → boolean<br/>
      * Is first object strictly below second? Available for point, box, polygon, circle.</a>
      */
-    public static CompoundPredicate ltLtVertical(Expression left, Expression right) {
+    private static IPredicate ltLtVertical(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.LT_LT_VERTICAL, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type |>> geometric_type → boolean<br/>
      * Is first object strictly above second? Available for point, box, polygon, circle.</a>
      */
-    public static CompoundPredicate verticalGtGt(Expression left, Expression right) {
+    private static IPredicate verticalGtGt(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.VERTICAL_GT_GT, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type &amp;&lt;| geometric_type → boolean<br/>
      * Does first object not extend above second? Available for box, polygon, circle.</a>
      */
-    public static CompoundPredicate ampLtVertical(Expression left, Expression right) {
+    private static IPredicate ampLtVertical(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.AMP_LT_VERTICAL, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type |&amp;> geometric_type → boolean<br/>
      * Does first object not extend below second? Available for box, polygon, circle.</a>
      */
-    public static CompoundPredicate verticalAmpGt(Expression left, Expression right) {
+    private static IPredicate verticalAmpGt(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.VERTICAL_AMP_GT, right);
     }
 
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">box &lt;^ box → boolean<br/>
      * Is first object below second (allows edges to touch)?</a>
      */
-    public static CompoundPredicate ltCaret(Expression left, Expression right) {
+    private static IPredicate ltCaret(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.LT_CARET, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">box >^ box → boolean<br/>
      * Is first object above second (allows edges to touch)?</a>
      */
-    public static CompoundPredicate gtCaret(Expression left, Expression right) {
+    private static IPredicate gtCaret(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.GT_CARET, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE">jsonb ? text → boolean<br/>
      * Does the text string exist as a top-level key or array element within the JSON value?<br/>
      * '{"a":1, "b":2}'::jsonb ? 'b' → t<br/>
      * '["a", "b", "c"]'::jsonb ? 'b' → t
      * </a>
      */
-    public static CompoundPredicate question(Expression left, Expression right) {
+    private static IPredicate question(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.QUESTION, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type ?# geometric_type → boolean<br/>
      * Is first object above second (allows edges to touch)?</a>
      */
-    public static CompoundPredicate questionPound(Expression left, Expression right) {
+    private static IPredicate questionPound(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.QUESTION_POUND, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE">jsonb ?&amp; text[] → boolean<br/>
      * Do all of the strings in the text array exist as top-level keys or array elements?<br/>
      * '["a", "b", "c"]'::jsonb ?&amp; array['a', 'b'] → t
      * </a>
      */
-    public static CompoundPredicate questionAmp(Expression left, Expression right) {
+    private static IPredicate questionAmp(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.QUESTION_AMP, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">point ?- point → boolean<br/>
      * Are points horizontally aligned (that is, have same y coordinate)?</a>
      */
-    public static CompoundPredicate questionHyphen(Expression left, Expression right) {
+    private static IPredicate questionHyphen(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.QUESTION_HYPHEN, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">point ?| point → boolean<br/>
      * Are points vertically aligned (that is, have same x coordinate)?</a>
      * @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE">jsonb ?| text[] → boolean<br/>
@@ -699,17 +678,17 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * '{"a":1, "b":2, "c":3}'::jsonb ?| array['b', 'd'] → t
      * </a>
      */
-    public static CompoundPredicate questionVertical(Expression left, Expression right) {
+    private static IPredicate questionVertical(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.QUESTION_VERTICAL, right);
     }
 
     /**
-     * @see Expression#whiteSpace(BiFunction, Object)
-     * @see TypedExpression#whiteSpace(BiFunction, BiFunction, Object)
+     *
+     *
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">line ?-| line → boolean<br/>
      * lseg ?-| lseg → boolean</a>
      */
-    public static CompoundPredicate questionHyphenVertical(Expression left, Expression right) {
+    private static IPredicate questionHyphenVertical(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.QUESTION_HYPHEN_VERTICAL, right);
     }
 
@@ -717,7 +696,7 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">line ?|| line → boolean<br/>
      * lseg ?|| lseg → boolean</a>
      */
-    public static CompoundPredicate questionVerticalVertical(Expression left, Expression right) {
+    private static IPredicate questionVerticalVertical(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.QUESTION_VERTICAL_VERTICAL, right);
     }
 
@@ -726,7 +705,7 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * Are these objects the same? Available for point, box, polygon, circle.<br/>
      * </a>
      */
-    public static CompoundPredicate tildeEqual(Expression left, Expression right) {
+    private static IPredicate tildeEqual(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.TILDE_EQUAL, right);
     }
 
@@ -740,7 +719,7 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * '{"a":[1,2,3,4,5]}'::jsonb @@ '$.a[*] > 2' → t<br/>
      * </a>
      */
-    public static CompoundPredicate doubleAt(Expression left, Expression right) {
+    private static IPredicate doubleAt(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.AT_AT, right);
     }
 
@@ -750,7 +729,7 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * tsquery @@@ tsvector → boolean<br/>
      * </a>
      */
-    public static CompoundPredicate tripleAt(Expression left, Expression right) {
+    private static IPredicate tripleAt(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.AT_AT_AT, right);
     }
 
@@ -761,11 +740,10 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      *
      * @param left not {@link SQLs#DEFAULT} etc.
      * @see Expression#space(SQLs.DualOperator, Object)
-     * @see TypedExpression#space(BiFunction, BiFunction, Object)
      * @see Postgres#startsWith(Expression, Expression)
      * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">text ^@ text → boolean</a>
      */
-    public static CompoundPredicate caretAt(Expression left, Expression right) {
+    private static IPredicate caretAt(Expression left, Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.CARET_AT, right);
     }
 
@@ -779,7 +757,7 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-POSIX-TABLE">text ~ text → boolean<br/>
      * String matches regular expression, case sensitively</a>
      */
-    public static CompoundPredicate tilde(final Expression left, final Expression right) {
+    private static IPredicate tilde(final Expression left, final Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.TILDE, right);
     }
 
@@ -792,7 +770,7 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-POSIX-TABLE">text !~ text → boolean<br/>
      * String does not match regular expression, case sensitively</a>
      */
-    public static CompoundPredicate notTilde(final Expression left, final Expression right) {
+    private static IPredicate notTilde(final Expression left, final Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.NOT_TILDE, right);
     }
 
@@ -803,7 +781,7 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-POSIX-TABLE">text ~* text → boolean<br/>
      * String matches regular expression, case insensitively</a>
      */
-    public static CompoundPredicate tildeStar(final Expression left, final Expression right) {
+    private static IPredicate tildeStar(final Expression left, final Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.TILDE_STAR, right);
     }
 
@@ -814,7 +792,7 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * @see <a href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-POSIX-TABLE">text !~* text → boolean<br/>
      * String does not match regular expression, case insensitively</a>
      */
-    public static CompoundPredicate notTildeStar(final Expression left, final Expression right) {
+    private static IPredicate notTildeStar(final Expression left, final Expression right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.NOT_TILDE_STAR, right);
     }
 
@@ -888,28 +866,28 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
     /**
      * @see <a href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP">SIMILAR TO Regular Expressions</a>
      */
-    public static CompoundPredicate similarTo(Expression exp, Expression pattern) {
+    private static IPredicate similarTo(Expression exp, Expression pattern) {
         return Expressions.likePredicate(exp, DualBooleanOperator.SIMILAR_TO, pattern, SQLs.ESCAPE, null);
     }
 
     /**
      * @see <a href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP">SIMILAR TO Regular Expressions</a>
      */
-    public static CompoundPredicate similarTo(Expression exp, Expression pattern, SQLs.WordEscape escape, Expression escapeChar) {
+    private static IPredicate similarTo(Expression exp, Expression pattern, SQLs.WordEscape escape, Expression escapeChar) {
         return Expressions.likePredicate(exp, DualBooleanOperator.SIMILAR_TO, pattern, escape, escapeChar);
     }
 
     /**
      * @see <a href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP">SIMILAR TO Regular Expressions</a>
      */
-    public static CompoundPredicate notSimilarTo(Expression exp, Expression pattern) {
+    private static IPredicate notSimilarTo(Expression exp, Expression pattern) {
         return Expressions.likePredicate(exp, DualBooleanOperator.NOT_SIMILAR_TO, pattern, SQLs.ESCAPE, null);
     }
 
     /**
      * @see <a href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP">SIMILAR TO Regular Expressions</a>
      */
-    public static CompoundPredicate notSimilarTo(Expression exp, Expression pattern, SQLs.WordEscape escape, Expression escapeChar) {
+    private static IPredicate notSimilarTo(Expression exp, Expression pattern, SQLs.WordEscape escape, Expression escapeChar) {
         return Expressions.likePredicate(exp, DualBooleanOperator.NOT_SIMILAR_TO, pattern, escape, escapeChar);
     }
 
@@ -917,7 +895,7 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * @see <a href="https://www.postgresql.org/docs/15/functions-comparisons.html#ROW-WISE-COMPARISON">row_constructor IS DISTINCT FROM row_constructor<br/>
      * </a>
      */
-    public static <T extends SQLExpression> CompoundPredicate isDistinctFrom(T left, T right) {
+    private static <T extends Expression> IPredicate isDistinctFrom(T left, T right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.IS_DISTINCT_FROM, right);
     }
 
@@ -925,90 +903,16 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * @see <a href="https://www.postgresql.org/docs/15/functions-comparisons.html#ROW-WISE-COMPARISON">row_constructor IS NOT DISTINCT FROM row_constructor<br/>
      * </a>
      */
-    public static <T extends SQLExpression> CompoundPredicate isNotDistinctFrom(T left, T right) {
+    private static <T extends Expression> IPredicate isNotDistinctFrom(T left, T right) {
         return PgExpressions.dualPredicate(left, PgDualBoolOperator.IS_NOT_DISTINCT_FROM, right);
     }
 
 
     /**
-     * @param word see <ul>
-     *             <li>{@link SQLs#ALL}</li>
-     *             <li>{@link SQLs#SOME}</li>
-     *             <li>{@link SQLs#ANY}</li>
-     *             </ul>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-comparisons.html#id-1.5.8.30.16">ANY/SOME (array)</a>
-     */
-    public static CompoundPredicate equal(Expression left, SQLs.QuantifiedWord word, ArrayExpression array) {
-        return Expressions.compareQueryPredicate(left, DualBooleanOperator.EQUAL, word, array);
-    }
-
-    /**
-     * @param word see <ul>
-     *             <li>{@link SQLs#ALL}</li>
-     *             <li>{@link SQLs#SOME}</li>
-     *             <li>{@link SQLs#ANY}</li>
-     *             </ul>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-comparisons.html#id-1.5.8.30.16">ANY/SOME (array)</a>
-     */
-    public static CompoundPredicate notEqual(Expression left, SQLs.QuantifiedWord word, ArrayExpression array) {
-        return Expressions.compareQueryPredicate(left, DualBooleanOperator.NOT_EQUAL, word, array);
-    }
-
-
-    /**
-     * @param word see <ul>
-     *             <li>{@link SQLs#ALL}</li>
-     *             <li>{@link SQLs#SOME}</li>
-     *             <li>{@link SQLs#ANY}</li>
-     *             </ul>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-comparisons.html#id-1.5.8.30.16">ANY/SOME (array)</a>
-     */
-    public static CompoundPredicate less(Expression left, SQLs.QuantifiedWord word, ArrayExpression array) {
-        return Expressions.compareQueryPredicate(left, DualBooleanOperator.LESS, word, array);
-    }
-
-
-    /**
-     * @param word see <ul>
-     *             <li>{@link SQLs#ALL}</li>
-     *             <li>{@link SQLs#SOME}</li>
-     *             <li>{@link SQLs#ANY}</li>
-     *             </ul>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-comparisons.html#id-1.5.8.30.16">ANY/SOME (array)</a>
-     */
-    public static CompoundPredicate lessEqual(Expression left, SQLs.QuantifiedWord word, ArrayExpression array) {
-        return Expressions.compareQueryPredicate(left, DualBooleanOperator.LESS_EQUAL, word, array);
-    }
-
-    /**
-     * @param word see <ul>
-     *             <li>{@link SQLs#ALL}</li>
-     *             <li>{@link SQLs#SOME}</li>
-     *             <li>{@link SQLs#ANY}</li>
-     *             </ul>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-comparisons.html#id-1.5.8.30.16">ANY/SOME (array)<br/></a>
-     */
-    public static CompoundPredicate greater(Expression left, SQLs.QuantifiedWord word, ArrayExpression array) {
-        return Expressions.compareQueryPredicate(left, DualBooleanOperator.GREATER, word, array);
-    }
-
-    /**
-     * @param word see <ul>
-     *             <li>{@link SQLs#ALL}</li>
-     *             <li>{@link SQLs#SOME}</li>
-     *             <li>{@link SQLs#ANY}</li>
-     *             </ul>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-comparisons.html#id-1.5.8.30.16">ANY/SOME (array)<br/></a>
-     */
-    public static CompoundPredicate greaterEqual(Expression left, SQLs.QuantifiedWord word, ArrayExpression array) {
-        return Expressions.compareQueryPredicate(left, DualBooleanOperator.GREATER_EQUAL, word, array);
-    }
-
-    /**
      * @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-COLLATE-EXPRS">Collation Expressions</a>
      * @see <a href="https://www.postgresql.org/docs/16/collation.html">collation</a>
      */
-    public static SimpleResultExpression collate(Expression expr, String collation) {
+    private static SimpleResultExpression collate(Expression expr, String collation) {
         return Expressions.collateExp(expr, collation);
     }
 

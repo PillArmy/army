@@ -132,7 +132,7 @@ public final class BigDecimalType extends _NumericType implements MappingType.Sq
                 dataType = MySQLType.DECIMAL;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.DECIMAL;
+                dataType = PgType.DECIMAL;
                 break;
             case SQLite:
                 dataType = SQLiteType.DECIMAL;

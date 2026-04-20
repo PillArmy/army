@@ -7,7 +7,7 @@ import io.army.executor.DataAccessException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 
 /**
@@ -55,7 +55,7 @@ public final class NullType extends _ArmyBuildInType {
                 type = MySQLType.NULL;
                 break;
             case PostgreSQL:
-                type = PostgreType.UNKNOWN;
+                type = PgType.UNKNOWN;
                 break;
             default:
                 throw MAP_ERROR_HANDLER.apply(this, meta);

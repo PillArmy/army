@@ -75,18 +75,25 @@ public interface TypedExpression extends Expression, TypeInfer {
 
     <T> IPredicate greaterEqual(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
-
+    /// @param and see {@link SQLs#AND}
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE">Postgres BETWEEN</a>
     <T> IPredicate between(BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
 
-
+    /// @param and      see {@link SQLs#AND}
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE">Postgres BETWEEN</a>
     <T, U> IPredicate between(BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
 
-
+    /// @param and      see {@link SQLs#AND}
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE">Postgres BETWEEN</a>
     <T> IPredicate notBetween(BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
 
+    /// @param and      see {@link SQLs#AND}
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE">Postgres BETWEEN</a>
     <T, U> IPredicate notBetween(BiFunction<TypedExpression, T, Expression> firstFuncRef, T first, SQLs.WordAnd and, BiFunction<TypedExpression, U, Expression> secondFuncRef, U second);
 
 
+    /// @param and      see {@link SQLs#AND}
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE">Postgres BETWEEN</a>
     @Support({PostgreSQL, H2})
     <T> IPredicate between(@Nullable SQLs.BetweenModifier modifier, BiFunction<TypedExpression, T, Expression> funcRef, T first, SQLs.WordAnd and, T second);
 

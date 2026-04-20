@@ -70,7 +70,7 @@ public final class YearType extends _ArmyNoInjectionType implements MappingType.
                 dataType = MySQLType.YEAR;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.DATE;
+                dataType = PgType.DATE;
                 break;
             case SQLite:
                 dataType = SQLiteType.YEAR;

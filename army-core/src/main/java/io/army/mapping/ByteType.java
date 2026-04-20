@@ -80,7 +80,7 @@ public final class ByteType extends _NumericType._IntegerType {
                 type = MySQLType.TINYINT;
                 break;
             case PostgreSQL:
-                type = PostgreType.SMALLINT;
+                type = PgType.SMALLINT;
                 break;
             case SQLite:
                 type = SQLiteType.TINYINT;

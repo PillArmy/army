@@ -63,7 +63,7 @@ public final class VarBinaryType extends _ArmyBuildInType implements MappingType
                 dataType = MySQLType.VARBINARY;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.BYTEA;
+                dataType = PgType.BYTEA;
                 break;
             case SQLite:
                 dataType = SQLiteType.BLOB;

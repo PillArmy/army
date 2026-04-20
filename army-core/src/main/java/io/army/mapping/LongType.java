@@ -21,7 +21,7 @@ import io.army.mapping.array.LongArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
 import java.math.BigDecimal;
@@ -105,7 +105,7 @@ public final class LongType extends _NumericType._IntegerType {
                 dataType = MySQLType.BIGINT;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.BIGINT;
+                dataType = PgType.BIGINT;
                 break;
             case SQLite:
                 dataType = SQLiteType.BIGINT;

@@ -30,7 +30,7 @@ import io.army.mapping.postgre.array.PostgreSingleRangeArrayType;
 import io.army.meta.MetaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 import io.army.util.ClassUtils;
 import io.army.util._Exceptions;
@@ -61,7 +61,7 @@ import java.util.function.Function;
 public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
 
 
-    public final PostgreType dataType;
+    public final PgType dataType;
 
     protected final Class<?> javaType;
 
@@ -76,7 +76,7 @@ public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
      * package constructor
      */
     @SuppressWarnings("unchecked")
-    protected _ArmyPgRangeType(final PostgreType dataType, final Class<?> javaType,
+    protected _ArmyPgRangeType(final PgType dataType, final Class<?> javaType,
                                final @Nullable RangeFunction<?, ?> rangeFunc) {
 
         if (javaType == String.class) {
@@ -265,7 +265,7 @@ public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
     }
 
 
-    protected static Class<?> boundJavaType(final PostgreType sqlType) {
+    protected static Class<?> boundJavaType(final PgType sqlType) {
         final Class<?> type;
         switch (sqlType) {
             case INT4RANGE:

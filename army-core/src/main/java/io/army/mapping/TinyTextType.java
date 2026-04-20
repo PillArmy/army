@@ -21,7 +21,7 @@ import io.army.mapping.array.TinyTextArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
 public final class TinyTextType extends ArmyTextType {
@@ -61,7 +61,7 @@ public final class TinyTextType extends ArmyTextType {
                 dataType = MySQLType.TINYTEXT;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.TEXT;
+                dataType = PgType.TEXT;
                 break;
             case SQLite:
                 dataType = SQLiteType.TEXT;

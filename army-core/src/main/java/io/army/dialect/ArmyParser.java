@@ -19,7 +19,10 @@ package io.army.dialect;
 import io.army.ArmyException;
 import io.army.annotation.GeneratorType;
 import io.army.criteria.*;
-import io.army.criteria.impl.*;
+import io.army.criteria.impl.SQLs;
+import io.army.criteria.impl._JoinType;
+import io.army.criteria.impl._SQLConsultant;
+import io.army.criteria.impl._UnionType;
 import io.army.criteria.impl.inner.*;
 import io.army.criteria.standard.StandardDelete;
 import io.army.criteria.standard.StandardInsert;
@@ -29,6 +32,8 @@ import io.army.env.ArmyEnvironment;
 import io.army.env.ArmyKey;
 import io.army.env.EscapeMode;
 import io.army.env.NameMode;
+import io.army.function.DecodeLiteralFunc;
+import io.army.function.SafeLiteralFunc;
 import io.army.lang.Nullable;
 import io.army.mapping.BooleanType;
 import io.army.mapping.MappingEnv;
@@ -160,7 +165,7 @@ abstract class ArmyParser implements DialectParser {
         this.dialectDatabase = this.dialect.database();
         this.serverDatabase = this.serverMeta.serverDatabase();
 
-        this.mappingEnv = createMappingEnv(dialectEnv);
+        this.mappingEnv = createMappingEnv(dialectEnv, this::safeLiteral, this::decodeLiteral);
         this.mockEnv = dialectEnv instanceof _MockDialects;
 
         assert this.serverMeta.serverDatabase().isCompatible(dialect);
@@ -814,7 +819,7 @@ abstract class ArmyParser implements DialectParser {
                                               final boolean supportUserDefinedType, final StringBuilder sqlBuilder) {
 
 
-        if (type instanceof MappingType.SqlUserDefinedType) {
+        if (type instanceof MappingType.SqlUserDefined) {
             if (!supportUserDefinedType) {
                 throw _Exceptions.notUserDefinedType(type, dataType);
             }
@@ -3394,10 +3399,10 @@ abstract class ArmyParser implements DialectParser {
             builder.setLength(0);
             createSafeObjectName(table, builder);
 
-             if(builder.length() < objectName.length()){
-                  //no bug ,never here
-                 throw new IllegalStateException();
-             }
+            if (builder.length() < objectName.length()) {
+                //no bug ,never here
+                throw new IllegalStateException();
+            }
 
 
             safeObjectName = builder.toString();
@@ -3422,7 +3427,7 @@ abstract class ArmyParser implements DialectParser {
                 builder.setLength(0);
                 createSafeObjectName(field, builder);
 
-                if(builder.length() < objectName.length()){
+                if (builder.length() < objectName.length()) {
                     //no bug ,never here
                     throw new IllegalStateException();
                 }
@@ -3442,6 +3447,12 @@ abstract class ArmyParser implements DialectParser {
 
         } // top loop
         return map;
+    }
+
+
+    private <T> T decodeLiteral(TypeMeta typeMeta, T value) {
+        //TODO fix me
+        throw new UnsupportedOperationException();
     }
 
     /*-------------------below protected static methods -------------------*/
@@ -3481,13 +3492,15 @@ abstract class ArmyParser implements DialectParser {
     /**
      * @see #ArmyParser(DialectEnv, Dialect)
      */
-    private static MappingEnv createMappingEnv(final DialectEnv env) {
+    private MappingEnv createMappingEnv(final DialectEnv env, final SafeLiteralFunc func, final DecodeLiteralFunc decodeFunc) {
         return MappingEnv.builder()
                 .reactive(env.isReactive())
                 .serverMeta(env.serverMeta())
                 .zoneOffset(env.zoneOffset())
                 .jsonCodec(env.jsonCodec())
                 .xmlCodec(env.xmlCodec())
+                .safeLiteralFunc(func)
+                .decodeLiteral(decodeFunc)
                 .build();
     }
 

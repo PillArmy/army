@@ -85,7 +85,7 @@ public final class BooleanType extends _ArmyNoInjectionType implements MappingTy
                 dataType = MySQLType.BOOLEAN;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.BOOLEAN;
+                dataType = PgType.BOOLEAN;
                 break;
             case SQLite:
                 dataType = SQLiteType.BOOLEAN;
@@ -96,11 +96,6 @@ public final class BooleanType extends _ArmyNoInjectionType implements MappingTy
         return dataType;
     }
 
-
-    @Override
-    public Boolean convert(MappingEnv env, Object source) throws CriteriaException {
-        return toBoolean(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
 
     @Override
     public Boolean beforeBind(DataType dataType, MappingEnv env, final Object source) {

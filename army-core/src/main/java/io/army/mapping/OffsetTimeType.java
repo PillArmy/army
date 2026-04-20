@@ -77,7 +77,7 @@ public final class OffsetTimeType extends _ArmyNoInjectionType implements Mappin
                 dataType = MySQLType.TIME;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.TIMETZ;
+                dataType = PgType.TIMETZ;
                 break;
             case SQLite:
                 dataType = SQLiteType.TIME_WITH_TIMEZONE;

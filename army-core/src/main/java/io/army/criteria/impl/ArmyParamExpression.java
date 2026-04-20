@@ -19,7 +19,6 @@ package io.army.criteria.impl;
 import io.army.criteria.*;
 import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
-import io.army.mapping.BooleanType;
 import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
 import io.army.meta.FieldMeta;
@@ -56,17 +55,7 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
         if (type == null) {
             throw CriteriaUtils.clearStackAndNonDefaultType(value);
         }
-        final ParamExpression result;
-        if (type != BooleanType.INSTANCE) {
-            result = new AnonymousParam(type, value);
-        } else if (Boolean.TRUE.equals(value)) {
-            result = SQLs.PARAM_TRUE;
-        } else if (Boolean.FALSE.equals(value)) {
-            result = SQLs.PARAM_FALSE;
-        } else {
-            result = new AnonymousParam(type, value);
-        }
-        return result;
+        return single(type, value);
     }
 
     static ParamExpression unsafeParam(MappingType type, Object value){

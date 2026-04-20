@@ -22,16 +22,15 @@ import io.army.criteria.impl._SQLConsultant;
 import io.army.criteria.impl._UnionType;
 import io.army.criteria.impl.inner.*;
 import io.army.criteria.standard.StandardStatement;
+import io.army.executor.ExecutorSupport;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
-import io.army.executor.ExecutorSupport;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.*;
-
-import io.army.lang.Nullable;
 
 import java.math.BigDecimal;
 import java.time.*;
@@ -72,14 +71,14 @@ abstract class PostgreParser extends _ArmyDialectParser {
         final DataType dataType;
         dataType = type.map(this.serverMeta);
 
-        if (!(dataType instanceof PostgreType)) { // user defined type or unrecognized type
+        if (!(dataType instanceof PgType)) { // user defined type or unrecognized type
             unrecognizedTypeName(type, dataType, true, sqlBuilder);
         } else if (dataType.isArray()) {
             final SQLType elementType;
-            elementType = ((PostgreType) dataType).elementType();
+            elementType = ((PgType) dataType).elementType();
             assert elementType != null;
             arrayTypeName(elementType.typeName(), ArrayUtils.dimensionOfType(type), sqlBuilder);
-        } else switch ((PostgreType) dataType) {
+        } else switch ((PgType) dataType) {
             case REF_CURSOR:
             case UNKNOWN:
                 throw ExecutorSupport.mapMethodError(type, dataType);
@@ -152,7 +151,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 sqlBuilder.append("::");
                 identifier(dataType.typeName(), sqlBuilder);
             }
-        } else switch ((PostgreType) dataType) {
+        } else switch ((PgType) dataType) {
             case UNKNOWN:
             case REF_CURSOR:
                 throw ExecutorSupport.mapMethodError(type, dataType);
@@ -173,13 +172,13 @@ abstract class PostgreParser extends _ArmyDialectParser {
                                      final boolean typeName, final StringBuilder sqlBuilder) {
 
 
-        if (!(dataType instanceof PostgreType)) {
+        if (!(dataType instanceof PgType)) {
             if (!(value instanceof String)) {
                 throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
             }
             bindUserDefinedLiteral(typeMeta, dataType, (String) value, typeName, sqlBuilder);
         } else if (dataType.isArray()) {
-            if (!(value instanceof String) || dataType == PostgreType.RECORD_ARRAY) {
+            if (!(value instanceof String) || dataType == PgType.RECORD_ARRAY) {
                 throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
             }
             final SQLType elementType = ((SQLType) dataType).elementType();
@@ -191,7 +190,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 sqlBuilder.append("::");
                 arrayTypeName(elementType.typeName(), ArrayUtils.dimensionOfType(typeMeta.mappingType()), sqlBuilder);
             }
-        } else switch ((PostgreType) dataType) {
+        } else switch ((PgType) dataType) {
             case BOOLEAN:
                 _Literals.bindBoolean(typeMeta, dataType, value, sqlBuilder);
                 break;
@@ -411,7 +410,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
             case RECORD:
                 throw ExecutorSupport.mapMethodError(typeMeta.mappingType(), dataType);
             default:
-                throw _Exceptions.unexpectedEnum((PostgreType) dataType);
+                throw _Exceptions.unexpectedEnum((PgType) dataType);
 
 
         } // switch

@@ -18,9 +18,11 @@ package io.army.mapping;
 
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
+import io.army.function.DecodeLiteralFunc;
+import io.army.function.SafeLiteralFunc;
+import io.army.lang.Nullable;
 import io.army.meta.ServerMeta;
 
-import io.army.lang.Nullable;
 import java.time.ZoneOffset;
 
 
@@ -48,6 +50,10 @@ public interface MappingEnv {
      */
     XmlCodec xmlCodec();
 
+    SafeLiteralFunc safeLiteralFunc();
+
+    DecodeLiteralFunc decodeLiteralFunc();
+
     static Builder builder() {
         return ArmyMappingEnv.builder();
     }
@@ -63,6 +69,10 @@ public interface MappingEnv {
         Builder jsonCodec(@Nullable JsonCodec codec);
 
         Builder xmlCodec(@Nullable XmlCodec codec);
+
+        Builder safeLiteralFunc(SafeLiteralFunc func);
+
+        Builder decodeLiteral(DecodeLiteralFunc func);
 
         MappingEnv build();
 

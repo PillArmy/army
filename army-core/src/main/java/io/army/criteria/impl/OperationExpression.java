@@ -39,11 +39,8 @@ import java.util.function.BiFunction;
  *
  * @since 0.6.0
  */
-abstract class OperationExpression extends OperationSQLExpression
-        implements FunctionArg.SingleFunctionArg, ArmyExpression {
+abstract class OperationExpression implements ArmyExpression {
 
-
-    public static final SQLs.WordAbsent ABSENT = SQLs.ABSENT;
 
     /**
      * <p>
@@ -53,7 +50,7 @@ abstract class OperationExpression extends OperationSQLExpression
      * @see OperationCompoundExpression#OperationCompoundExpression()
      * @see PredicateExpression#PredicateExpression()
      */
-    private OperationExpression() {
+    OperationExpression() {
     }
 
 
@@ -199,6 +196,117 @@ abstract class OperationExpression extends OperationSQLExpression
 
 
     @Override
+    public final IPredicate equalAny(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.EQUAL, SQLs.ANY, subQuery);
+    }
+
+    @Override
+    public final IPredicate equalSome(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.EQUAL, SQLs.SOME, subQuery);
+    }
+
+    @Override
+    public final IPredicate equalAll(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.EQUAL, SQLs.ALL, subQuery);
+    }
+
+    @Override
+    public final IPredicate notEqualAny(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.NOT_EQUAL, SQLs.ANY, subQuery);
+    }
+
+
+    @Override
+    public final IPredicate notEqualSome(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.NOT_EQUAL, SQLs.SOME, subQuery);
+    }
+
+    @Override
+    public final IPredicate notEqualAll(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.NOT_EQUAL, SQLs.ALL, subQuery);
+    }
+
+
+    @Override
+    public final IPredicate lessAny(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS, SQLs.ANY, subQuery);
+    }
+
+
+    @Override
+    public final IPredicate lessSome(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS, SQLs.SOME, subQuery);
+    }
+
+    @Override
+    public final IPredicate lessAll(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS, SQLs.ALL, subQuery);
+    }
+
+
+    @Override
+    public final IPredicate lessEqualAny(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS_EQUAL, SQLs.ANY, subQuery);
+    }
+
+
+    @Override
+    public final IPredicate lessEqualSome(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS_EQUAL, SQLs.SOME, subQuery);
+    }
+
+
+    @Override
+    public final IPredicate lessEqualAll(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS_EQUAL, SQLs.ALL, subQuery);
+    }
+
+    @Override
+    public final IPredicate greaterAny(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER, SQLs.ANY, subQuery);
+    }
+
+
+    @Override
+    public final IPredicate greaterSome(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER, SQLs.SOME, subQuery);
+    }
+
+
+    @Override
+    public final IPredicate greaterAll(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER, SQLs.ALL, subQuery);
+    }
+
+    @Override
+    public final IPredicate greaterEqualAny(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER_EQUAL, SQLs.ANY, subQuery);
+    }
+
+    @Override
+    public final IPredicate greaterEqualSome(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER_EQUAL, SQLs.SOME, subQuery);
+    }
+
+
+    @Override
+    public final IPredicate greaterEqualAll(SubQuery subQuery) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER_EQUAL, SQLs.ALL, subQuery);
+    }
+
+
+    @Override
+    public final IPredicate in(SQLColumnList row) {
+        return Expressions.inPredicate(this, false, row);
+    }
+
+    @Override
+    public final IPredicate notIn(SQLColumnList row) {
+        return Expressions.inPredicate(this, true, row);
+    }
+
+
+    @Override
     public final Expression mod(Object operand) {
         return Expressions.dualExp(this, DualExpOperator.MOD, operand);
     }
@@ -300,7 +408,7 @@ abstract class OperationExpression extends OperationSQLExpression
 
     @Override
     public final Expression slice(SQLs.SymbolColon colon, Object upper, Object lower1, SQLs.SymbolColon colon1, Object upper1) {
-        return Expressions.arraySliceExp(this, List.of(ABSENT, upper, lower1, upper1));
+        return Expressions.arraySliceExp(this, List.of(SQLs.ABSENT, upper, lower1, upper1));
     }
 
     @Override
@@ -924,7 +1032,7 @@ abstract class OperationExpression extends OperationSQLExpression
     }//FunctionExpression
 
 
-    static abstract class OperationCompoundExpression extends OperationExpression implements CompoundExpression {
+    static abstract class OperationCompoundExpression extends OperationExpression {
 
         /**
          * package constructor

@@ -14,5 +14,14 @@
  * limitations under the License.
  */
 
-@io.army.lang.NonNullApi
-package io.army.criteria.postgre.mapping;
+
+package io.army.function;
+
+import io.army.meta.TypeMeta;
+
+@FunctionalInterface
+public interface DecodeLiteralFunc {
+
+    <T> T decodeLiteral(TypeMeta typeMeta, T source);
+
+}

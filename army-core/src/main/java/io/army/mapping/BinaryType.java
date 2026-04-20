@@ -21,7 +21,7 @@ import io.army.mapping.array.BinaryArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
 /**
@@ -67,7 +67,7 @@ public final class BinaryType extends _ArmyBuildInType implements MappingType.Sq
                 dataType = MySQLType.BINARY;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.BYTEA;
+                dataType = PgType.BYTEA;
                 break;
             case SQLite:
                 dataType = SQLiteType.BINARY;

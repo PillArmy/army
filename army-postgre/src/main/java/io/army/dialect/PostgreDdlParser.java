@@ -22,7 +22,7 @@ import io.army.mapping.TextType;
 import io.army.meta.*;
 import io.army.schema.FieldResult;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
@@ -410,9 +410,9 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     protected void dataType(final FieldMeta<?> field, final DataType dataType, final StringBuilder builder) {
         builder.append(_Constant.SPACE);
 
-        if (!(dataType instanceof PostgreType)) {
+        if (!(dataType instanceof PgType)) {
             this.parser.typeName(field.mappingType(), builder);
-        } else switch ((PostgreType) dataType) {
+        } else switch ((PgType) dataType) {
             case UNKNOWN:
                 throw _Exceptions.unexpectedEnum((Enum<?>) dataType);
             case DECIMAL:
@@ -458,7 +458,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     protected void postDataType(FieldMeta<?> field, DataType dataType, StringBuilder builder) {
         builder.append(_Constant.SPACE);
 
-        switch ((PostgreType) dataType) {
+        switch ((PgType) dataType) {
             case SMALLINT:
                 builder.append("SMALLSERIAL");
                 break;

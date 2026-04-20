@@ -19,12 +19,12 @@ package io.army.mapping.array;
 import io.army.criteria.CriteriaException;
 import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
-import io.army.executor.DataAccessException;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,7 +75,7 @@ public class XmlArrayType extends _ArmyBuildInType {
         if (meta.serverDatabase() != Database.PostgreSQL) {
             throw MAP_ERROR_HANDLER.apply(this, meta);
         }
-        return PostgreType.VARCHAR_ARRAY;
+        return PgType.VARCHAR_ARRAY;
     }
 
     @Override

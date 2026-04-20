@@ -17,12 +17,12 @@
 package io.army.mapping.postgre;
 
 import io.army.dialect._Constant;
+import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.meta.MetaException;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -45,7 +45,7 @@ public abstract class PgRangeType extends _ArmyPgRangeType {
     private static final Object INFINITY_BOUND = new Object();
 
 
-    PgRangeType(final PostgreType sqlType, final Class<?> javaType, final @Nullable RangeFunction<?, ?> rangeFunc) {
+    PgRangeType(final PgType sqlType, final Class<?> javaType, final @Nullable RangeFunction<?, ?> rangeFunc) {
         super(sqlType, javaType, rangeFunc);
     }
 

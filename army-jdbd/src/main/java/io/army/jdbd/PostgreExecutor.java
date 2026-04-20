@@ -18,10 +18,11 @@ package io.army.jdbd;
 
 import io.army.executor.ReactiveLocalExecutor;
 import io.army.executor.ReactiveRmExecutor;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.option.Option;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.jdbd.meta.JdbdType;
 import io.jdbd.result.DataRow;
 import io.jdbd.result.ResultRowMeta;
@@ -30,7 +31,6 @@ import io.jdbd.statement.ParametrizedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.army.lang.Nullable;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.BitSet;
@@ -99,7 +99,7 @@ abstract class PostgreExecutor extends JdbdExecutor {
     final void bind(ParametrizedStatement statement, final int indexBasedZero, final MappingType type,
                     final DataType dataType, final @Nullable Object value) {
 
-        if (!(dataType instanceof PostgreType)) {
+        if (!(dataType instanceof PgType)) {
             if (!(value instanceof String)) {
                 throw beforeBindMethodError(type, dataType, value);
             }
@@ -109,7 +109,7 @@ abstract class PostgreExecutor extends JdbdExecutor {
                 throw beforeBindMethodError(type, dataType, value);
             }
             statement.bind(indexBasedZero, io.jdbd.meta.DataType.buildIn(dataType.typeName()), value);
-        } else switch ((PostgreType) dataType) {
+        } else switch ((PgType) dataType) {
             case INTEGER: {
                 if (!(value instanceof Integer)) {
                     throw beforeBindMethodError(type, dataType, value);
@@ -202,7 +202,7 @@ abstract class PostgreExecutor extends JdbdExecutor {
             case UNKNOWN:
                 throw mapMethodError(type, dataType);
             default:
-                bindArmyType(statement, indexBasedZero, type, dataType, ((PostgreType) dataType).armyType(), value);
+                bindArmyType(statement, indexBasedZero, type, dataType, ((PgType) dataType).armyType(), value);
 
         }
     }
@@ -217,13 +217,13 @@ abstract class PostgreExecutor extends JdbdExecutor {
     @Override
     final Object get(final DataRow row, final int indexBasedZero, final MappingType type, final DataType dataType) {
         final Object value;
-        if (!(dataType instanceof PostgreType)) {
+        if (!(dataType instanceof PgType)) {
             if ("hstore".equalsIgnoreCase(dataType.typeName())) {
                 value = row.getMap(indexBasedZero, String.class, Object.class);
             } else {
                 value = row.get(indexBasedZero, String.class);
             }
-        } else switch ((PostgreType) dataType) {
+        } else switch ((PgType) dataType) {
             case BOOLEAN:
                 value = row.get(indexBasedZero, Boolean.class);
                 break;

@@ -67,7 +67,7 @@ public final class CharacterType extends _ArmyBuildInType implements MappingType
                 type = MySQLType.CHAR;
                 break;
             case PostgreSQL:
-                type = PostgreType.CHAR;
+                type = PgType.CHAR;
                 break;
             case SQLite:
                 type = SQLiteType.VARCHAR;

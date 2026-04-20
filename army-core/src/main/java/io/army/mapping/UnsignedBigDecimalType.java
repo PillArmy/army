@@ -20,7 +20,7 @@ import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
 import java.math.BigDecimal;
@@ -97,7 +97,7 @@ public final class UnsignedBigDecimalType extends _NumericType._UnsignedNumericT
                  dataType = MySQLType.DECIMAL_UNSIGNED;
                  break;
              case PostgreSQL:
-                 dataType = PostgreType.DECIMAL;
+                 dataType = PgType.DECIMAL;
                  break;
              case SQLite:
                  dataType = SQLiteType.DECIMAL;

@@ -10,7 +10,7 @@ import io.army.mapping.StringType;
 import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 
 
 /**
@@ -53,7 +53,7 @@ public final class PgBpCharType extends _ArmyBuildInType implements MappingType.
         if (meta.serverDatabase() != Database.PostgreSQL || meta.major() < 16) {
             throw MAP_ERROR_HANDLER.apply(this, meta);
         }
-        return PostgreType.BPCHAR;
+        return PgType.BPCHAR;
     }
 
     @Override

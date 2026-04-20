@@ -18,6 +18,7 @@ package io.army.criteria.impl;
 
 import io.army.criteria.*;
 import io.army.dialect._DialectUtils;
+import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.mapping.array.TextArrayType;
 import io.army.mapping.array.XmlArrayType;
@@ -29,7 +30,6 @@ import io.army.meta.TableMeta;
 import io.army.util.ArrayUtils;
 import io.army.util._Collections;
 
-import io.army.lang.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -3896,7 +3896,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /**
      * <p>
      * The {@link MappingType} of fields of derived table :<ul>
-     * <li>fields follow {@link MappingType.SqlCompositeType#fieldList()}</li>
+     * <li>fields follow {@link MappingType.SqlComposite#fieldList()}</li>
      * <li>ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}</li>
      * </ul>
      *
@@ -3912,7 +3912,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /**
      * <p>
      * The {@link MappingType} of fields of derived table :<ul>
-     * <li>fields follow {@link MappingType.SqlCompositeType#fieldList()}</li>
+     * <li>fields follow {@link MappingType.SqlComposite#fieldList()}</li>
      * <li>ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}</li>
      * </ul>
      * *
@@ -3929,7 +3929,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /**
      * <p>
      * The {@link MappingType} of fields of derived table :<ul>
-     * <li>fields follow {@link MappingType.SqlCompositeType#fieldList()}</li>
+     * <li>fields follow {@link MappingType.SqlComposite#fieldList()}</li>
      * <li>ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}</li>
      * </ul>
      *
@@ -3945,7 +3945,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /**
      * <p>
      * The {@link MappingType} of fields of derived table :<ul>
-     * <li>fields follow {@link MappingType.SqlCompositeType#fieldList()}</li>
+     * <li>fields follow {@link MappingType.SqlComposite#fieldList()}</li>
      * <li>ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}</li>
      * </ul>
      *

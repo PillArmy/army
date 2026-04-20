@@ -21,7 +21,7 @@ import io.army.mapping.array.JsonArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 import io.army.util._Collections;
 
@@ -68,7 +68,7 @@ public final class JsonType extends ArmyJsonType implements MappingType.SqlJsonT
                 dataType = MySQLType.JSON;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.JSON;
+                dataType = PgType.JSON;
                 break;
             case SQLite:
                 dataType = SQLiteType.JSON;

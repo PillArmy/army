@@ -21,8 +21,10 @@ import io.army.criteria.*;
 import io.army.criteria.impl.inner.*;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
+import io.army.mapping.MappingType;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
+import io.army.sqltype.DataType;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
@@ -253,7 +255,7 @@ public abstract class _DialectUtils {
         if (conditionFieldList == null || conditionFieldList.isEmpty()) {
             return;
         }
-         throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     static boolean isIllegalConflict(final _Insert stmt, final Visible visible) {
@@ -348,8 +350,8 @@ public abstract class _DialectUtils {
 
 
     @Nullable
-    static Object readParamValue(final FieldMeta<?> field, final @Nullable _Expression expression
-            , final MappingEnv mappingEnv) {
+    static Object readParamValue(final FieldMeta<?> field, final @Nullable _Expression expression,
+                                 final MappingEnv mappingEnv) {
         if (!(expression instanceof SqlValueParam.SingleAnonymousValue)) {
             return null;
         }
@@ -360,7 +362,15 @@ public abstract class _DialectUtils {
         if (value == null || javaType.isInstance(value)) {
             return value;
         }
-        value = field.mappingType().convert(mappingEnv, value);
+        final MappingType type = field.mappingType();
+        final DataType dataType = type.map(mappingEnv.serverMeta());
+
+        try {
+            value = type.afterGet(dataType, mappingEnv, value);
+        } catch (Exception e) {
+            throw new CriteriaException(e.getMessage(), e);
+        }
+
         if (!javaType.isInstance(value)) {
             String m = String.format("%s convert method don't return instance of %s"
                     , field.mappingType().getClass().getName(), javaType.getName());

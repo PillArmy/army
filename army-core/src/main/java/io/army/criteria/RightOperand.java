@@ -21,8 +21,8 @@ package io.army.criteria;
  * <p>
  * This interface is base interface of blow interface:
  * <ul>
- *     <li>{@link SQLExpression}</li>
- *     <li>{@link SQLColumnSet}</li>
+ *     <li>{@link Expression}</li>
+ *     <li>{@link SQLColumnList}</li>
  * </ul>
  * * @since 0.6.0
  */

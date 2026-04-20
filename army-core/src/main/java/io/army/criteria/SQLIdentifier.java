@@ -16,6 +16,8 @@
 
 package io.army.criteria;
 
+/// @deprecated use {@link Expression}
+@Deprecated
 public interface SQLIdentifier extends SQLElement {
 
     String render();

@@ -25,7 +25,7 @@ import io.army.mapping.MappingType;
 import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
@@ -149,7 +149,7 @@ public class LongArrayType extends _ArmyNoInjectionType implements MappingType.S
         final SQLType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = PostgreType.BIGINT_ARRAY;
+                dataType = PgType.BIGINT_ARRAY;
                 break;
             case Oracle:
             case H2:

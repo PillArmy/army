@@ -22,14 +22,14 @@ import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
 import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
-import io.army.util._StringUtils;
 
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import static io.army.dialect.Database.PostgreSQL;
 
 /**
  * <p>
@@ -73,8 +73,8 @@ abstract class SQLSyntax extends Functions {
         return _MappingFactory.getDefaultIfMatch(javaType);
     }
 
-    public static SQLIdentifier identifier(String identifier) {
-        return new SQLIdentifierImpl(identifier);
+    public static Expression identifier(String identifier) {
+        return NonOperationExpression.identifier(identifier);
     }
 
 
@@ -139,7 +139,6 @@ abstract class SQLSyntax extends Functions {
     }
 
 
-
     /**
      * <p>
      * Create named non-null parameter expression for batch update(delete) and values insert.
@@ -153,8 +152,6 @@ abstract class SQLSyntax extends Functions {
     public static ParamExpression namedParam(final TypeInfer type, final String name) {
         return ArmyParamExpression.named(type, name);
     }
-
-
 
 
     /**
@@ -189,7 +186,7 @@ abstract class SQLSyntax extends Functions {
      *     <li>{@link java.time.MonthDay}</li>
      * </ul>
      *
-     * @param value non null
+     * @param value non-null
      * @return literal expression
      * @see SQLs#parameter(Object)
      * @see SQLs#constValue(Object)
@@ -242,7 +239,6 @@ abstract class SQLSyntax extends Functions {
     }
 
 
-
     /**
      * <p>
      * Create named non-null literal expression. This expression can only be used in values insert statement.
@@ -266,9 +262,6 @@ abstract class SQLSyntax extends Functions {
     public static LiteralExpression namedConst(final TypeInfer type, final String name) {
         return ArmyLiteralExpression.named(type, name, false);
     }
-
-
-
 
 
     /**
@@ -352,37 +345,37 @@ abstract class SQLSyntax extends Functions {
         return ArmyRowLiteralExpression.named(type, name, false);
     }
 
-
+    @Support({PostgreSQL})
+    public static RowExpression row() {
+        return RowExpressions.row(List.of());
+    }
 
     public static RowExpression row(SubQuery subQuery) {
-        return RowExpressions.row(subQuery);
+        ContextStack.assertNonNull(subQuery);
+        return RowExpressions.row(List.of(subQuery));
     }
 
-    public static RowExpression row(Supplier<SubQuery> subQuery) {
-        return RowExpressions.row(subQuery.get());
+
+    ///
+    /// @see #space(String, SQLs.SymbolDot, TableMeta)
+    /// @see #space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/row-constructor-optimization.html">MySQL Row Constructor Expression Optimization</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/range-optimization.html#row-constructor-range-optimization">Range Optimization of Row Constructor Expressions</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/row-subqueries.html">MySQL Row Subqueries</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ROW-CONSTRUCTORS">Row Constructors</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-comparisons.html#ROW-WISE-COMPARISON">Row Constructor Comparison</a>
+    public static RowExpression row(List<?> columnList) {
+        ContextStack.assertNonNull(columnList);
+        return RowExpressions.row(columnList);
     }
 
-    public static RowExpression row(Object element) {
-        return RowExpressions.row(element);
-    }
-
-    public static RowExpression row(Object element1, Object element2) {
-        return RowExpressions.row(element1, element2);
-    }
-
-    public static RowExpression row(Object element1, Object element2, Object element3, Object... restElement) {
-        return RowExpressions.row(element1, element2, element3, restElement);
-    }
-
-    public static RowExpression row(Consumer<Consumer<Object>> consumer) {
-        return RowExpressions.row(consumer);
-    }
-
+    /// @see #row(List)
     public static RowElement space(String derivedAlias, SQLs.SymbolDot period,
                                    SQLs.SymbolAsterisk asterisk) {
         return ContextStack.peek().row(derivedAlias, period, asterisk);
     }
 
+    ///@see #row(List)
     public static RowElement space(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) {
         return ContextStack.peek().row(tableAlias, period, table); // register derived row
     }
@@ -541,49 +534,6 @@ abstract class SQLSyntax extends Functions {
 
 
     /*-------------------below private method-------------------*/
-
-
-    static final class SQLIdentifierImpl implements SQLIdentifier {
-
-        private final String identifier;
-
-        private SQLIdentifierImpl(String identifier) {
-            if (!_StringUtils.hasText(identifier)) {
-                throw ContextStack.clearStackAndCriteriaError("identifier must have text");
-            }
-            this.identifier = identifier;
-        }
-
-        @Override
-        public String render() {
-            return this.identifier;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(this.identifier);
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            final boolean match;
-            if (obj == this) {
-                match = true;
-            } else if (obj instanceof SQLIdentifierImpl) {
-                match = ((SQLIdentifierImpl) obj).identifier.equals(this.identifier);
-            } else {
-                match = false;
-            }
-            return match;
-        }
-
-        @Override
-        public String toString() {
-            return this.identifier;
-        }
-
-
-    }//SQLIdentifierImpl
 
 
 }

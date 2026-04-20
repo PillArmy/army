@@ -23,7 +23,7 @@ import io.army.meta.DatabaseObject;
  * This interface is base interface of below:
  * <ul>
  *     <li>{@link SQLToken}</li>
- *     <li>{@link SQLIdentifier}</li>
+ *     <li>{@link Expression}</li>
  *     <li>{@link DatabaseObject}</li>
  * </ul>
  *

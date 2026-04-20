@@ -32,7 +32,7 @@ final class PostgreMetaStmtGenerator implements MetaStmtGenerator {
         // 1. 确定 自定义 composite 的方法 : pg_type.typcategory is 'C' 且 pg_class.relkind is 'c'
         // 2. 确定 domain 的方法 pg_type.typbasetype > 0
         return """
-                SELECT t.typname AS "typeName", t.typcategory AS "type", et."enumLabelArray", at.*
+                SELECT t.typname AS "definedType", t.typcategory AS "type", et."enumLabelArray", at.*
                 FROM pg_namespace AS n
                          JOIN pg_type AS t ON t.typnamespace = n.oid
                          LEFT JOIN LATERAL (

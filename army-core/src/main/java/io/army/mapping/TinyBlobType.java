@@ -63,7 +63,7 @@ public final class TinyBlobType extends _ArmyBuildInType implements MappingType.
                 dataType = MySQLType.TINYBLOB;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.BYTEA;
+                dataType = PgType.BYTEA;
                 break;
             case SQLite:
                 dataType = SQLiteType.BLOB;

@@ -18,8 +18,8 @@ package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
-import io.army.meta.ServerMeta;
 import io.army.executor.DataAccessException;
+import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
 import java.util.UUID;
@@ -53,7 +53,7 @@ public final class UUIDType extends _ArmyNoInjectionType {
         final SQLType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = PostgreType.UUID;
+                dataType = PgType.UUID;
                 break;
             case MySQL:
                 dataType = MySQLType.CHAR;

@@ -66,11 +66,6 @@ abstract class ArmyJsonArrayType extends _ArmyBuildInType implements MappingType
 
 
     @Override
-    public final Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return decodeJsonArray(map(env.serverMeta()), env, source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public final String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
         final JsonCodec codec;
         codec = env.jsonCodec();

@@ -22,7 +22,7 @@ import io.army.mapping.array.MediumTextArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 import io.army.struct.CodeEnum;
 import io.army.struct.TextEnum;
@@ -92,7 +92,7 @@ public final class MediumTextType extends ArmyTextType {
                 dataType = MySQLType.MEDIUMTEXT;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.TEXT;
+                dataType = PgType.TEXT;
                 break;
             case SQLite:
                 dataType = SQLiteType.TEXT;

@@ -123,7 +123,7 @@ public final class StringType extends _ArmyBuildInType implements MappingType.Sq
                 dataType = MySQLType.VARCHAR;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.VARCHAR;
+                dataType = PgType.VARCHAR;
                 break;
             case SQLite:
                 dataType = SQLiteType.VARCHAR;

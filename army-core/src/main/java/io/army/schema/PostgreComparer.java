@@ -18,7 +18,7 @@ package io.army.schema;
 
 import io.army.meta.*;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
@@ -50,13 +50,13 @@ final class PostgreComparer extends ArmySchemaComparer {
     boolean compareSqlType(final ColumnInfo columnInfo, final FieldMeta<?> field, final DataType dataType) {
         final String typeName;
         typeName = columnInfo.typeName().toLowerCase(Locale.ROOT);
-        if (!(dataType instanceof PostgreType)) {
+        if (!(dataType instanceof PgType)) {
             return !typeName.equals(dataType.typeName().toLowerCase(Locale.ROOT));
         }
         final int precision, scale;
 
         final boolean notMatch;
-        switch ((PostgreType) dataType) {
+        switch ((PgType) dataType) {
             case BOOLEAN:
                 switch (typeName) {
                     case "boolean":

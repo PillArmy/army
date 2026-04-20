@@ -94,7 +94,7 @@ abstract class ArmySessionFactory implements PackageSessionFactory {
      * <p>Package constructor
      */
     ArmySessionFactory(final ArmyFactoryBuilder<?, ?> support) throws SessionFactoryException {
-        final String name = _Assert.assertHasText(support.name, "factory name required");
+        final String name = _Assert.hasText(support.name, "factory name required");
         final ArmyEnvironment env = Objects.requireNonNull(support.environment);
 
         if (FACTORY_MAP.containsKey(name)) {

@@ -64,11 +64,6 @@ abstract class ArmyTextArrayType extends _ArmyBuildInType implements MappingType
         return TextArrayType.mapToSqlType(this, meta);
     }
 
-    @Override
-    public final Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayAfterGet(this, map(env.serverMeta()), source, false, PostgreArrays::decodeElement,
-                PARAM_ERROR_HANDLER);
-    }
 
     @Override
     public final String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {

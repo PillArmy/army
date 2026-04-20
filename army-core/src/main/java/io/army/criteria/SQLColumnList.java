@@ -14,28 +14,18 @@
  * limitations under the License.
  */
 
-package io.army.function;
-
-import io.army.criteria.IPredicate;
-import io.army.criteria.TypedExpression;
-import io.army.criteria.TypedField;
+package io.army.criteria;
 
 /**
  * <p>
- * This interface representing below methods:
- * <ul>
- *     <li>{@link TypedExpression#in(TeNamedParamsFunc, String, int)}</li>
- *     <li>{@link TypedExpression#notIn(TeNamedParamsFunc, String, int)}</li>
- *     <li>other custom method</li>
- * </ul>
- *
- * @since 0.6.0
+ * This interface representing one or more row.
+ * This interface is base interface of :
+ *     <ul>
+ *         <li>{@link RowExpression}</li>
+ *         <li>{@link SubQuery}</li>
+ *     </ul>
+ * * @since  1.0
  */
-@FunctionalInterface
-public interface InNamedOperator {
-
-
-    IPredicate apply(TeNamedParamsFunc<TypedField> namedOperator, String paramName, int size);
-
+public interface SQLColumnList extends RightOperand {
 
 }

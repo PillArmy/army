@@ -25,14 +25,14 @@ import io.army.mapping.MappingType;
 import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
 import java.math.BigDecimal;
 
 /**
- * <p>This class representing the mapping that map the array of {@link BigDecimal} to database decimal array,for example {@link PostgreType#DECIMAL_ARRAY}.
+ * <p>This class representing the mapping that map the array of {@link BigDecimal} to database decimal array,for example {@link PgType#DECIMAL_ARRAY}.
  *
  * @see io.army.mapping.BigDecimalType
  * @since 0.6.0
@@ -138,7 +138,7 @@ public class BigDecimalArrayType extends _ArmyNoInjectionType implements Mapping
         final SQLType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = PostgreType.DECIMAL_ARRAY;
+                dataType = PgType.DECIMAL_ARRAY;
                 break;
             case MySQL:
             case SQLite:

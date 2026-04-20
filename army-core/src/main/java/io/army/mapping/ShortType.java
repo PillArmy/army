@@ -21,7 +21,7 @@ import io.army.mapping.array.ShortArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
 /**
@@ -82,7 +82,7 @@ public final class ShortType extends _NumericType._IntegerType {
                 dataType = MySQLType.SMALLINT;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.SMALLINT;
+                dataType = PgType.SMALLINT;
                 break;
             case SQLite:
                 dataType = SQLiteType.SMALLINT;

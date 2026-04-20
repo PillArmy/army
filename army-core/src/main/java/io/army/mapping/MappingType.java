@@ -7,7 +7,7 @@ import io.army.dialect.UnsupportedDialectException;
 import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.executor.StmtExecutor;
-import io.army.mapping.optional.CompositeTypeField;
+import io.army.mapping.optional.CompositeField;
 import io.army.meta.ServerMeta;
 import io.army.meta.TypeMeta;
 import io.army.sqltype.DataType;
@@ -40,7 +40,10 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem
      * @param source never null
      * @return non-null, the instance of {@link #javaType()}.
      */
-    Object convert(MappingEnv env, Object source) throws CriteriaException;
+    @Deprecated
+    default Object convert(MappingEnv env, Object source) throws CriteriaException {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * @param dataType from {@link #map(ServerMeta)}
@@ -350,13 +353,16 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem
     }
 
 
-    interface SqlUserDefinedType {
+    interface SqlUserDefined {
+
+        String typeName();
 
     }
 
-    interface SqlCompositeType {
+    interface SqlComposite extends SqlUserDefined {
 
-        List<CompositeTypeField> fieldList();
+
+        List<CompositeField> fieldList();
 
     }
 

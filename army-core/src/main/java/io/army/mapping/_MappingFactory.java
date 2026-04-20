@@ -33,7 +33,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.time.*;
-import java.time.temporal.Temporal;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -110,8 +109,18 @@ public abstract class _MappingFactory {
         return type;
     }
 
+    public static MappingType map(final Field field) {
+        final Mapping mapping = field.getAnnotation(Mapping.class);
+        final MappingType type;
+        if (mapping == null) {
+            type = _MappingFactory.getDefault(field.getType());
+        } else {
+            type = _MappingFactory.map(mapping, field);
+        }
+        return type;
+    }
 
-    public static MappingType map(final Mapping mapping, final Field field) {
+    private static MappingType map(final Mapping mapping, final Field field) {
         final Class<?> mappingClass;
         mappingClass = getMappingClass(mapping, field);
 
@@ -162,7 +171,6 @@ public abstract class _MappingFactory {
     }
 
 
-
     private static Class<?> getMappingClass(final Mapping mapping, final Field field) {
         Class<?> mappingClass;
         mappingClass = mapping.type();
@@ -183,7 +191,6 @@ public abstract class _MappingFactory {
         }
         return mappingClass;
     }
-
 
 
     private static void assertFactoryMethod(final Method method) {

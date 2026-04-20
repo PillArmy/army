@@ -425,13 +425,13 @@ public abstract class ExecutorSupport {
         switch (typeName.toUpperCase(Locale.ROOT)) {
             case "BOOLEAN":
             case "BOOL":
-                type = PostgreType.BOOLEAN;
+                type = PgType.BOOLEAN;
                 typeArray[index] = BooleanType.INSTANCE;
                 break;
             case "INT2":
             case "SMALLINT":
             case "SMALLSERIAL":
-                type = PostgreType.SMALLINT;
+                type = PgType.SMALLINT;
                 typeArray[index] = ShortType.INSTANCE;
                 break;
             case "INT":
@@ -440,7 +440,7 @@ public abstract class ExecutorSupport {
             case "INTEGER":
             case "XID":  // https://www.postgresql.org/docs/current/datatype-oid.html
             case "CID":  // https://www.postgresql.org/docs/current/datatype-oid.html
-                type = PostgreType.INTEGER;
+                type = PgType.INTEGER;
                 typeArray[index] = IntegerType.INSTANCE;
                 break;
             case "INT8":
@@ -448,481 +448,481 @@ public abstract class ExecutorSupport {
             case "BIGSERIAL":
             case "SERIAL8":
             case "XID8":  // https://www.postgresql.org/docs/current/datatype-oid.html  TODO what's tid ?
-                type = PostgreType.BIGINT;
+                type = PgType.BIGINT;
                 typeArray[index] = LongType.INSTANCE;
                 break;
             case "NUMERIC":
             case "DECIMAL":
-                type = PostgreType.DECIMAL;
+                type = PgType.DECIMAL;
                 typeArray[index] = BigDecimalType.INSTANCE;
                 break;
             case "FLOAT8":
             case "DOUBLE PRECISION":
             case "FLOAT":
-                type = PostgreType.FLOAT8;
+                type = PgType.FLOAT8;
                 typeArray[index] = DoubleType.INSTANCE;
                 break;
             case "FLOAT4":
             case "REAL":
-                type = PostgreType.REAL;
+                type = PgType.REAL;
                 typeArray[index] = FloatType.INSTANCE;
                 break;
             case "CHAR":
             case "CHARACTER":
-                type = PostgreType.CHAR;
+                type = PgType.CHAR;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "VARCHAR":
             case "CHARACTER VARYING":
-                type = PostgreType.VARCHAR;
+                type = PgType.VARCHAR;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "BPCHAR":
-                type = PostgreType.BPCHAR;
+                type = PgType.BPCHAR;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "TEXT":
             case "TXID_SNAPSHOT":  // TODO txid_snapshot is text?
-                type = PostgreType.TEXT;
+                type = PgType.TEXT;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "BYTEA":
-                type = PostgreType.BYTEA;
+                type = PgType.BYTEA;
                 typeArray[index] = BinaryType.INSTANCE;
                 break;
             case "DATE":
-                type = PostgreType.DATE;
+                type = PgType.DATE;
                 typeArray[index] = LocalDateType.INSTANCE;
                 break;
             case "TIME":
             case "TIME WITHOUT TIME ZONE":
-                type = PostgreType.TIME;
+                type = PgType.TIME;
                 typeArray[index] = LocalTimeType.INSTANCE;
                 break;
             case "TIMETZ":
             case "TIME WITH TIME ZONE":
-                type = PostgreType.TIMETZ;
+                type = PgType.TIMETZ;
                 typeArray[index] = OffsetTimeType.INSTANCE;
                 break;
             case "TIMESTAMP":
             case "TIMESTAMP WITHOUT TIME ZONE":
-                type = PostgreType.TIMESTAMP;
+                type = PgType.TIMESTAMP;
                 typeArray[index] = LocalDateTimeType.INSTANCE;
                 break;
             case "TIMESTAMPTZ":
             case "TIMESTAMP WITH TIME ZONE":
-                type = PostgreType.TIMESTAMPTZ;
+                type = PgType.TIMESTAMPTZ;
                 typeArray[index] = OffsetDateTimeType.INSTANCE;
                 break;
             case "INTERVAL":
-                type = PostgreType.INTERVAL;
+                type = PgType.INTERVAL;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "JSON":
-                type = PostgreType.JSON;
+                type = PgType.JSON;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "JSONB":
-                type = PostgreType.JSONB;
+                type = PgType.JSONB;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "JSONPATH":
-                type = PostgreType.JSONPATH;
+                type = PgType.JSONPATH;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "XML":
-                type = PostgreType.XML;
+                type = PgType.XML;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "BIT":
-                type = PostgreType.BIT;
+                type = PgType.BIT;
                 typeArray[index] = BitSetType.INSTANCE;
                 break;
             case "BIT VARYING":
             case "VARBIT":
-                type = PostgreType.VARBIT;
+                type = PgType.VARBIT;
                 typeArray[index] = BitSetType.INSTANCE;
                 break;
 
             case "CIDR":
-                type = PostgreType.CIDR;
+                type = PgType.CIDR;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "INET":
-                type = PostgreType.INET; // TODO add INET type ?
+                type = PgType.INET; // TODO add INET type ?
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "MACADDR8":
-                type = PostgreType.MACADDR8;
+                type = PgType.MACADDR8;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "MACADDR":
-                type = PostgreType.MACADDR;
+                type = PgType.MACADDR;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "BOX":
-                type = PostgreType.BOX;
+                type = PgType.BOX;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "LSEG":
-                type = PostgreType.LSEG;
+                type = PgType.LSEG;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "LINE":
-                type = PostgreType.LINE;
+                type = PgType.LINE;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "PATH":
-                type = PostgreType.PATH;
+                type = PgType.PATH;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "POINT":
-                type = PostgreType.POINT;
+                type = PgType.POINT;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "CIRCLE":
-                type = PostgreType.CIRCLE;
+                type = PgType.CIRCLE;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "POLYGON":
-                type = PostgreType.POLYGON;
+                type = PgType.POLYGON;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "TSVECTOR":
-                type = PostgreType.TSVECTOR;
+                type = PgType.TSVECTOR;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "TSQUERY":
-                type = PostgreType.TSQUERY;
+                type = PgType.TSQUERY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "INT4RANGE":
-                type = PostgreType.INT4RANGE;
+                type = PgType.INT4RANGE;
                 typeArray[index] = PgSingleRangeType.INT4_RANGE_TEXT;
                 break;
             case "INT8RANGE":
-                type = PostgreType.INT8RANGE;
+                type = PgType.INT8RANGE;
                 typeArray[index] = PgSingleRangeType.INT8_RANGE_TEXT;
                 break;
             case "NUMRANGE":
-                type = PostgreType.NUMRANGE;
+                type = PgType.NUMRANGE;
                 typeArray[index] = PgSingleRangeType.NUM_RANGE_TEXT;
                 break;
             case "TSRANGE":
-                type = PostgreType.TSRANGE;
+                type = PgType.TSRANGE;
                 typeArray[index] = PgSingleRangeType.TS_RANGE_TEXT;
                 break;
             case "DATERANGE":
-                type = PostgreType.DATERANGE;
+                type = PgType.DATERANGE;
                 typeArray[index] = PgSingleRangeType.DATE_RANGE_TEXT;
                 break;
             case "TSTZRANGE":
-                type = PostgreType.TSTZRANGE;
+                type = PgType.TSTZRANGE;
                 typeArray[index] = PgSingleRangeType.TS_TZ_RANGE_TEXT;
                 break;
 
             case "INT4MULTIRANGE":
-                type = PostgreType.INT4MULTIRANGE;
+                type = PgType.INT4MULTIRANGE;
                 typeArray[index] = PgMultiRangeType.INT4_MULTI_RANGE_TEXT;
                 break;
             case "INT8MULTIRANGE":
-                type = PostgreType.INT8MULTIRANGE;
+                type = PgType.INT8MULTIRANGE;
                 typeArray[index] = PgMultiRangeType.INT8_MULTI_RANGE_TEXT;
                 break;
             case "NUMMULTIRANGE":
-                type = PostgreType.NUMMULTIRANGE;
+                type = PgType.NUMMULTIRANGE;
                 typeArray[index] = PgMultiRangeType.NUM_MULTI_RANGE_TEXT;
                 break;
             case "DATEMULTIRANGE":
-                type = PostgreType.DATEMULTIRANGE;
+                type = PgType.DATEMULTIRANGE;
                 typeArray[index] = PgMultiRangeType.DATE_MULTI_RANGE_TEXT;
                 break;
             case "TSMULTIRANGE":
-                type = PostgreType.TSMULTIRANGE;
+                type = PgType.TSMULTIRANGE;
                 typeArray[index] = PgMultiRangeType.TS_MULTI_RANGE_TEXT;
                 break;
             case "TSTZMULTIRANGE":
-                type = PostgreType.TSTZMULTIRANGE;
+                type = PgType.TSTZMULTIRANGE;
                 typeArray[index] = PgMultiRangeType.TS_TZ_MULTI_RANGE_TEXT;
                 break;
 
             case "UUID":
-                type = PostgreType.UUID;
+                type = PgType.UUID;
                 typeArray[index] = UUIDType.INSTANCE;
                 break;
             case "MONEY":
-                type = PostgreType.MONEY;
+                type = PgType.MONEY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "RECORD":
-                type = PostgreType.RECORD;
+                type = PgType.RECORD;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "ACLITEM":
-                type = PostgreType.ACLITEM;
+                type = PgType.ACLITEM;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "PG_LSN":
-                type = PostgreType.PG_LSN;
+                type = PgType.PG_LSN;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "PG_SNAPSHOT":
-                type = PostgreType.PG_SNAPSHOT;
+                type = PgType.PG_SNAPSHOT;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "BOOLEAN[]":
             case "BOOL[]":
-                type = PostgreType.BOOLEAN_ARRAY;
+                type = PgType.BOOLEAN_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "INT2[]":
             case "SMALLINT[]":
             case "SMALLSERIAL[]":
-                type = PostgreType.SMALLINT_ARRAY;
+                type = PgType.SMALLINT_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "INT[]":
             case "INT4[]":
             case "INTEGER[]":
             case "SERIAL[]":
-                type = PostgreType.INTEGER_ARRAY;
+                type = PgType.INTEGER_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "INT8[]":
             case "BIGINT[]":
             case "SERIAL8[]":
             case "BIGSERIAL[]":
-                type = PostgreType.BIGINT_ARRAY;
+                type = PgType.BIGINT_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "NUMERIC[]":
             case "DECIMAL[]":
-                type = PostgreType.DECIMAL_ARRAY;
+                type = PgType.DECIMAL_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "FLOAT8[]":
             case "FLOAT[]":
             case "DOUBLE PRECISION[]":
-                type = PostgreType.FLOAT8_ARRAY;
+                type = PgType.FLOAT8_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "FLOAT4[]":
             case "REAL[]":
-                type = PostgreType.REAL_ARRAY;
+                type = PgType.REAL_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "CHAR[]":
             case "CHARACTER[]":
-                type = PostgreType.CHAR_ARRAY;
+                type = PgType.CHAR_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "VARCHAR[]":
             case "CHARACTER VARYING[]":
-                type = PostgreType.VARCHAR_ARRAY;
+                type = PgType.VARCHAR_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "TEXT[]":
             case "TXID_SNAPSHOT[]":
-                type = PostgreType.TEXT_ARRAY;
+                type = PgType.TEXT_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "BYTEA[]":
-                type = PostgreType.BYTEA_ARRAY;
+                type = PgType.BYTEA_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "DATE[]":
-                type = PostgreType.DATE_ARRAY;
+                type = PgType.DATE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "TIME[]":
             case "TIME WITHOUT TIME ZONE[]":
-                type = PostgreType.TIME_ARRAY;
+                type = PgType.TIME_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "TIMETZ[]":
             case "TIME WITH TIME ZONE[]":
-                type = PostgreType.TIMETZ_ARRAY;
+                type = PgType.TIMETZ_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "TIMESTAMP[]":
             case "TIMESTAMP WITHOUT TIME ZONE[]":
-                type = PostgreType.TIMESTAMP_ARRAY;
+                type = PgType.TIMESTAMP_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "TIMESTAMPTZ[]":
             case "TIMESTAMP WITH TIME ZONE[]":
-                type = PostgreType.TIMESTAMPTZ_ARRAY;
+                type = PgType.TIMESTAMPTZ_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "INTERVAL[]":
-                type = PostgreType.INTERVAL_ARRAY;
+                type = PgType.INTERVAL_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "JSON[]":
-                type = PostgreType.JSON_ARRAY;
+                type = PgType.JSON_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "JSONB[]":
-                type = PostgreType.JSONB_ARRAY;
+                type = PgType.JSONB_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "JSONPATH[]":
-                type = PostgreType.JSONPATH_ARRAY;
+                type = PgType.JSONPATH_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "XML[]":
-                type = PostgreType.XML_ARRAY;
+                type = PgType.XML_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "VARBIT[]":
             case "BIT VARYING[]":
-                type = PostgreType.VARBIT_ARRAY;
+                type = PgType.VARBIT_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "BIT[]":
-                type = PostgreType.BIT_ARRAY;
+                type = PgType.BIT_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "UUID[]":
-                type = PostgreType.UUID_ARRAY;
+                type = PgType.UUID_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "CIDR[]":
-                type = PostgreType.CIDR_ARRAY;
+                type = PgType.CIDR_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "INET[]":
-                type = PostgreType.INET_ARRAY;
+                type = PgType.INET_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "MACADDR[]":
-                type = PostgreType.MACADDR_ARRAY;
+                type = PgType.MACADDR_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "MACADDR8[]":
-                type = PostgreType.MACADDR8_ARRAY;
+                type = PgType.MACADDR8_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "BOX[]":
-                type = PostgreType.BOX_ARRAY;
+                type = PgType.BOX_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "LSEG[]":
-                type = PostgreType.LSEG_ARRAY;
+                type = PgType.LSEG_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "LINE[]":
-                type = PostgreType.LINE_ARRAY;
+                type = PgType.LINE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "PATH[]":
-                type = PostgreType.PATH_ARRAY;
+                type = PgType.PATH_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "POINT[]":
-                type = PostgreType.POINT_ARRAY;
+                type = PgType.POINT_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "CIRCLE[]":
-                type = PostgreType.CIRCLE_ARRAY;
+                type = PgType.CIRCLE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "POLYGON[]":
-                type = PostgreType.POLYGON_ARRAY;
+                type = PgType.POLYGON_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "TSQUERY[]":
-                type = PostgreType.TSQUERY_ARRAY;
+                type = PgType.TSQUERY_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "TSVECTOR[]":
-                type = PostgreType.TSVECTOR_ARRAY;
+                type = PgType.TSVECTOR_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "INT4RANGE[]":
-                type = PostgreType.INT4RANGE_ARRAY;
+                type = PgType.INT4RANGE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "INT8RANGE[]":
-                type = PostgreType.INT8RANGE_ARRAY;
+                type = PgType.INT8RANGE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "NUMRANGE[]":
-                type = PostgreType.NUMRANGE_ARRAY;
+                type = PgType.NUMRANGE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "DATERANGE[]":
-                type = PostgreType.DATERANGE_ARRAY;
+                type = PgType.DATERANGE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "TSRANGE[]":
-                type = PostgreType.TSRANGE_ARRAY;
+                type = PgType.TSRANGE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "TSTZRANGE[]":
-                type = PostgreType.TSTZRANGE_ARRAY;
+                type = PgType.TSTZRANGE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "INT4MULTIRANGE[]":
-                type = PostgreType.INT4MULTIRANGE_ARRAY;
+                type = PgType.INT4MULTIRANGE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "INT8MULTIRANGE[]":
-                type = PostgreType.INT8MULTIRANGE_ARRAY;
+                type = PgType.INT8MULTIRANGE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "NUMMULTIRANGE[]":
-                type = PostgreType.NUMMULTIRANGE_ARRAY;
+                type = PgType.NUMMULTIRANGE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "DATEMULTIRANGE[]":
-                type = PostgreType.DATEMULTIRANGE_ARRAY;
+                type = PgType.DATEMULTIRANGE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "TSMULTIRANGE[]":
-                type = PostgreType.TSMULTIRANGE_ARRAY;
+                type = PgType.TSMULTIRANGE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "TSTZMULTIRANGE[]":
-                type = PostgreType.TSTZMULTIRANGE_ARRAY;
+                type = PgType.TSTZMULTIRANGE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
 
             case "MONEY[]":
-                type = PostgreType.MONEY_ARRAY;
+                type = PgType.MONEY_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "RECORD[]":
             case "_RECORD":
-                type = PostgreType.RECORD_ARRAY;
+                type = PgType.RECORD_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "PG_LSN[]":
-                type = PostgreType.PG_LSN_ARRAY;
+                type = PgType.PG_LSN_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "PG_SNAPSHOT[]":
-                type = PostgreType.PG_SNAPSHOT_ARRAY;
+                type = PgType.PG_SNAPSHOT_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "ACLITEM[]":
-                type = PostgreType.ACLITEM_ARRAY;
+                type = PgType.ACLITEM_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             default:

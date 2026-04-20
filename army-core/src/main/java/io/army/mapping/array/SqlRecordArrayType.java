@@ -19,15 +19,15 @@ package io.army.mapping.array;
 import io.army.criteria.CriteriaException;
 import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.executor.DataAccessException;
 import io.army.function.TextFunction;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.optional.SqlRecordType;
 import io.army.mapping.optional._SqlRecordSupport;
 import io.army.meta.ServerMeta;
-import io.army.executor.DataAccessException;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.type.SqlRecord;
 import io.army.util.ArrayUtils;
 import io.army.util._Collections;
@@ -136,7 +136,7 @@ public final class SqlRecordArrayType extends _SqlRecordSupport implements Mappi
         if (meta.serverDatabase() != Database.PostgreSQL) {
             throw MAP_ERROR_HANDLER.apply(this, meta);
         }
-        return PostgreType.RECORD_ARRAY;
+        return PgType.RECORD_ARRAY;
     }
 
     @Override

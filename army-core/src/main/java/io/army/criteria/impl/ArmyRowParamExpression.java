@@ -44,7 +44,7 @@ import java.util.Objects;
  * @since 0.6.0
  */
 abstract class ArmyRowParamExpression extends OperationRowExpression
-        implements RowParamExpression, ArmySimpleSQLExpression, LengthTypedRowExpression {
+        implements RowParamExpression, ArmySimpleExpression {
 
     /**
      * @throws CriteriaException throw when <ul>

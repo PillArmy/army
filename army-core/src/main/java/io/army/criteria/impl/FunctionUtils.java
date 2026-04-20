@@ -58,38 +58,23 @@ abstract class FunctionUtils {
     }
 
 
-    static SimpleExpression oneArgFunc(String name, SQLExpression one) {
-        if (!(one instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, one);
-        }
+    static SimpleExpression oneArgFunc(String name, Expression one) {
         return new OneArgFunction(name, one);
     }
 
 
-    static SimpleExpression twoArgFunc(final String name, final SQLExpression one,
-                                       final SQLExpression two) {
-        if (!(one instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, one);
-        } else if (!(two instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, two);
-        }
+    static SimpleExpression twoArgFunc(final String name, final Expression one,
+                                       final Expression two) {
         return new TwoArgFunction(name, one, two);
     }
 
-    static SimpleExpression threeArgFunc(final String name, final SQLExpression one, final SQLExpression two,
-                                         final SQLExpression three) {
-        if (!(one instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, one);
-        } else if (!(two instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, two);
-        } else if (!(three instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, three);
-        }
+    static SimpleExpression threeArgFunc(final String name, final Expression one, final Expression two,
+                                         final Expression three) {
         return new ThreeArgFunction(name, one, two, three);
     }
 
-    static SimpleExpression fourArgFunc(final String name, final SQLExpression one, final SQLExpression two,
-                                        final SQLExpression three, final SQLExpression four) {
+    static SimpleExpression fourArgFunc(final String name, final Expression one, final Expression two,
+                                        final Expression three, final Expression four) {
         if (!(one instanceof FunctionArg.SingleFunctionArg)) {
             throw CriteriaUtils.funcArgError(name, one);
         } else if (!(two instanceof FunctionArg.SingleFunctionArg)) {
@@ -102,61 +87,22 @@ abstract class FunctionUtils {
         return new FourArgFunction(name, one, two, three, four);
     }
 
-    static SimpleExpression fiveArgFunc(final String name, final SQLExpression one, final SQLExpression two,
-                                        final SQLExpression three, final SQLExpression four,
-                                        final SQLExpression five) {
-        if (!(one instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, one);
-        } else if (!(two instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, two);
-        } else if (!(three instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, three);
-        } else if (!(four instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, four);
-        } else if (!(five instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, five);
-        }
+    static SimpleExpression fiveArgFunc(final String name, final Expression one, final Expression two,
+                                        final Expression three, final Expression four,
+                                        final Expression five) {
         return new FiveArgFunction(name, one, two, three, four, five);
     }
 
-    static SimpleExpression sixArgFunc(final String name, final SQLExpression one, final SQLExpression two,
-                                       final SQLExpression three, final SQLExpression four,
-                                       final SQLExpression five, final SQLExpression six) {
-        if (!(one instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, one);
-        } else if (!(two instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, two);
-        } else if (!(three instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, three);
-        } else if (!(four instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, four);
-        } else if (!(five instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, five);
-        } else if (!(six instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, six);
-        }
+    static SimpleExpression sixArgFunc(final String name, final Expression one, final Expression two,
+                                       final Expression three, final Expression four,
+                                       final Expression five, final Expression six) {
         return new SixArgFunction(name, one, two, three, four, five, six);
     }
 
-    static SimpleExpression sevenArgFunc(final String name, final SQLExpression one, final SQLExpression two,
-                                         final SQLExpression three, final SQLExpression four,
-                                         final SQLExpression five, final SQLExpression six,
-                                         final SQLExpression seven) {
-        if (!(one instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, one);
-        } else if (!(two instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, two);
-        } else if (!(three instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, three);
-        } else if (!(four instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, four);
-        } else if (!(five instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, five);
-        } else if (!(six instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, six);
-        } else if (!(seven instanceof FunctionArg.SingleFunctionArg)) {
-            throw CriteriaUtils.funcArgError(name, seven);
-        }
+    static SimpleExpression sevenArgFunc(final String name, final Expression one, final Expression two,
+                                         final Expression three, final Expression four,
+                                         final Expression five, final Expression six,
+                                         final Expression seven) {
         return new SevenArgFunction(name, one, two, three, four, five, six, seven);
     }
 
@@ -416,15 +362,15 @@ abstract class FunctionUtils {
     }
 
     static SimpleExpression multiArgFunc(final String name, final boolean required,
-                                         final List<? extends SQLExpression> argList) {
+                                         final List<? extends ArmyExpression> argList) {
         final SimpleExpression func;
-        if (argList.size() > 0) {
-            final List<ArmySQLExpression> list = _Collections.arrayList(argList.size());
-            for (SQLExpression exp : argList) {
+        if (!argList.isEmpty()) {
+            final List<ArmyExpression> list = _Collections.arrayList(argList.size());
+            for (ArmyExpression exp : argList) {
                 if (!(exp instanceof ArmySQLExpression)) {
                     throw CriteriaUtils.funcArgError(name, exp);
                 }
-                list.add((ArmySQLExpression) exp);
+                list.add(exp);
             }
             func = new MultiArgFunctionExpression(name, list);
         } else if (required) {
@@ -453,7 +399,7 @@ abstract class FunctionUtils {
         clause.endClause();
 
         final SimpleExpression func;
-        if (pairList.size() == 0) {
+        if (pairList.isEmpty()) {
             func = new ZeroArgFunction(name, true);
         } else {
             final Expression arg;
@@ -806,7 +752,7 @@ abstract class FunctionUtils {
     }
 
 
-    static void appendArguments(final @Nullable SQLToken option, final List<? extends ArmySQLExpression> argList,
+    static void appendArguments(final @Nullable SQLToken option, final List<? extends ArmyExpression> argList,
                                 final _SqlContext context) {
 
         final StringBuilder sqlBuilder;
@@ -830,7 +776,7 @@ abstract class FunctionUtils {
 
     }
 
-    static void argumentsToString(final @Nullable SQLToken option, final List<? extends ArmySQLExpression> argList
+    static void argumentsToString(final @Nullable SQLToken option, final List<? extends ArmyExpression> argList
             , final StringBuilder builder) {
 
         if (option != null) {
@@ -1213,11 +1159,11 @@ abstract class FunctionUtils {
 
     private static final class OneArgFunction extends OperationExpression.SqlFunctionExpression {
 
-        private final ArmySQLExpression argument;
+        private final ArmyExpression argument;
 
-        private OneArgFunction(String name, SQLExpression argument) {
+        private OneArgFunction(String name, Expression argument) {
             super(name);
-            this.argument = (ArmySQLExpression) argument;
+            this.argument = (ArmyExpression) argument;
         }
 
 
@@ -1236,17 +1182,17 @@ abstract class FunctionUtils {
 
     private static final class TwoArgFunction extends OperationExpression.SqlFunctionExpression {
 
-        private final ArmySQLExpression one;
+        private final ArmyExpression one;
 
-        private final ArmySQLExpression two;
+        private final ArmyExpression two;
 
         /**
-         * @see #twoArgFunc(String, SQLExpression, SQLExpression)
+         * @see #twoArgFunc(String, Expression, Expression)
          */
-        private TwoArgFunction(String name, SQLExpression one, SQLExpression two) {
+        private TwoArgFunction(String name, Expression one, Expression two) {
             super(name);
-            this.one = (ArmySQLExpression) one;
-            this.two = (ArmySQLExpression) two;
+            this.one = (ArmyExpression) one;
+            this.two = (ArmyExpression) two;
         }
 
 
@@ -1270,20 +1216,20 @@ abstract class FunctionUtils {
 
     private static final class ThreeArgFunction extends OperationExpression.SqlFunctionExpression {
 
-        private final ArmySQLExpression one;
+        private final ArmyExpression one;
 
-        private final ArmySQLExpression two;
+        private final ArmyExpression two;
 
-        private final ArmySQLExpression three;
+        private final ArmyExpression three;
 
         /**
-         * @see #threeArgFunc(String, SQLExpression, SQLExpression, SQLExpression)
+         * @see #threeArgFunc(String, Expression, Expression, Expression)
          */
-        private ThreeArgFunction(String name, SQLExpression one, SQLExpression two, SQLExpression three) {
+        private ThreeArgFunction(String name, Expression one, Expression two, Expression three) {
             super(name);
-            this.one = (ArmySQLExpression) one;
-            this.two = (ArmySQLExpression) two;
-            this.three = (ArmySQLExpression) three;
+            this.one = (ArmyExpression) one;
+            this.two = (ArmyExpression) two;
+            this.three = (ArmyExpression) three;
         }
 
 
@@ -1314,24 +1260,24 @@ abstract class FunctionUtils {
 
     private static final class FourArgFunction extends OperationExpression.SqlFunctionExpression {
 
-        private final ArmySQLExpression one;
+        private final ArmyExpression one;
 
-        private final ArmySQLExpression two;
+        private final ArmyExpression two;
 
-        private final ArmySQLExpression three;
+        private final ArmyExpression three;
 
-        private final ArmySQLExpression four;
+        private final ArmyExpression four;
 
         /**
-         * @see #fourArgFunc(String, SQLExpression, SQLExpression, SQLExpression, SQLExpression)
+         * @see #fourArgFunc(String, Expression, Expression, Expression, Expression)
          */
-        private FourArgFunction(String name, SQLExpression one, SQLExpression two, SQLExpression three,
-                                SQLExpression four) {
+        private FourArgFunction(String name, Expression one, Expression two, Expression three,
+                                Expression four) {
             super(name);
-            this.one = (ArmySQLExpression) one;
-            this.two = (ArmySQLExpression) two;
-            this.three = (ArmySQLExpression) three;
-            this.four = (ArmySQLExpression) four;
+            this.one = (ArmyExpression) one;
+            this.two = (ArmyExpression) two;
+            this.three = (ArmyExpression) three;
+            this.four = (ArmyExpression) four;
         }
 
 
@@ -1367,28 +1313,28 @@ abstract class FunctionUtils {
 
     private static final class FiveArgFunction extends OperationExpression.SqlFunctionExpression {
 
-        private final ArmySQLExpression one;
+        private final ArmyExpression one;
 
-        private final ArmySQLExpression two;
+        private final ArmyExpression two;
 
-        private final ArmySQLExpression three;
+        private final ArmyExpression three;
 
-        private final ArmySQLExpression four;
+        private final ArmyExpression four;
 
-        private final ArmySQLExpression five;
+        private final ArmyExpression five;
 
 
         /**
-         * @see #fiveArgFunc(String, SQLExpression, SQLExpression, SQLExpression, SQLExpression, SQLExpression)
+         * @see #fiveArgFunc(String, Expression, Expression, Expression, Expression, Expression)
          */
-        private FiveArgFunction(String name, SQLExpression one, SQLExpression two, SQLExpression three,
-                                SQLExpression four, SQLExpression five) {
+        private FiveArgFunction(String name, Expression one, Expression two, Expression three,
+                                Expression four, Expression five) {
             super(name);
-            this.one = (ArmySQLExpression) one;
-            this.two = (ArmySQLExpression) two;
-            this.three = (ArmySQLExpression) three;
-            this.four = (ArmySQLExpression) four;
-            this.five = (ArmySQLExpression) five;
+            this.one = (ArmyExpression) one;
+            this.two = (ArmyExpression) two;
+            this.three = (ArmyExpression) three;
+            this.four = (ArmyExpression) four;
+            this.five = (ArmyExpression) five;
         }
 
 
@@ -1430,32 +1376,32 @@ abstract class FunctionUtils {
 
     private static final class SixArgFunction extends OperationExpression.SqlFunctionExpression {
 
-        private final ArmySQLExpression one;
+        private final ArmyExpression one;
 
-        private final ArmySQLExpression two;
+        private final ArmyExpression two;
 
-        private final ArmySQLExpression three;
+        private final ArmyExpression three;
 
-        private final ArmySQLExpression four;
+        private final ArmyExpression four;
 
-        private final ArmySQLExpression five;
+        private final ArmyExpression five;
 
-        private final ArmySQLExpression six;
+        private final ArmyExpression six;
 
 
         /**
-         * @see #sixArgFunc(String, SQLExpression, SQLExpression, SQLExpression, SQLExpression, SQLExpression, SQLExpression)
+         * @see #sixArgFunc(String, Expression, Expression, Expression, Expression, Expression, Expression)
          */
-        private SixArgFunction(String name, SQLExpression one, SQLExpression two, SQLExpression three,
-                               SQLExpression four, SQLExpression five, SQLExpression six) {
+        private SixArgFunction(String name, Expression one, Expression two, Expression three,
+                               Expression four, Expression five, Expression six) {
             super(name);
-            this.one = (ArmySQLExpression) one;
-            this.two = (ArmySQLExpression) two;
-            this.three = (ArmySQLExpression) three;
-            this.four = (ArmySQLExpression) four;
+            this.one = (ArmyExpression) one;
+            this.two = (ArmyExpression) two;
+            this.three = (ArmyExpression) three;
+            this.four = (ArmyExpression) four;
 
-            this.five = (ArmySQLExpression) five;
-            this.six = (ArmySQLExpression) six;
+            this.five = (ArmyExpression) five;
+            this.six = (ArmyExpression) six;
         }
 
 
@@ -1502,36 +1448,36 @@ abstract class FunctionUtils {
 
     private static final class SevenArgFunction extends OperationExpression.SqlFunctionExpression {
 
-        private final ArmySQLExpression one;
+        private final ArmyExpression one;
 
-        private final ArmySQLExpression two;
+        private final ArmyExpression two;
 
-        private final ArmySQLExpression three;
+        private final ArmyExpression three;
 
-        private final ArmySQLExpression four;
+        private final ArmyExpression four;
 
-        private final ArmySQLExpression five;
+        private final ArmyExpression five;
 
-        private final ArmySQLExpression six;
+        private final ArmyExpression six;
 
-        private final ArmySQLExpression seven;
+        private final ArmyExpression seven;
 
 
         /**
-         * @see #sevenArgFunc(String, SQLExpression, SQLExpression, SQLExpression, SQLExpression, SQLExpression, SQLExpression, SQLExpression)
+         * @see #sevenArgFunc(String, Expression, Expression, Expression, Expression, Expression, Expression, Expression)
          */
-        private SevenArgFunction(String name, SQLExpression one, SQLExpression two, SQLExpression three,
-                                 SQLExpression four, SQLExpression five, SQLExpression six,
-                                 SQLExpression seven) {
+        private SevenArgFunction(String name, Expression one, Expression two, Expression three,
+                                 Expression four, Expression five, Expression six,
+                                 Expression seven) {
             super(name);
-            this.one = (ArmySQLExpression) one;
-            this.two = (ArmySQLExpression) two;
-            this.three = (ArmySQLExpression) three;
-            this.four = (ArmySQLExpression) four;
+            this.one = (ArmyExpression) one;
+            this.two = (ArmyExpression) two;
+            this.three = (ArmyExpression) three;
+            this.four = (ArmyExpression) four;
 
-            this.five = (ArmySQLExpression) five;
-            this.six = (ArmySQLExpression) six;
-            this.seven = (ArmySQLExpression) seven;
+            this.five = (ArmyExpression) five;
+            this.six = (ArmyExpression) six;
+            this.seven = (ArmyExpression) seven;
         }
 
 
@@ -1584,11 +1530,11 @@ abstract class FunctionUtils {
     private static final class MultiArgFunctionExpression extends OperationExpression.SqlFunctionExpression {
 
 
-        private final List<? extends ArmySQLExpression> argList;
+        private final List<? extends ArmyExpression> argList;
 
-        private MultiArgFunctionExpression(String name, List<? extends ArmySQLExpression> argList) {
+        private MultiArgFunctionExpression(String name, List<? extends ArmyExpression> argList) {
             super(name);
-            assert argList.size() > 0;
+            assert !argList.isEmpty();
             this.argList = argList;
         }
 
@@ -1662,7 +1608,7 @@ abstract class FunctionUtils {
 
         MultiArgFuncPredicate(String name, boolean buildIn, @Nullable SQLToken option, List<ArmyExpression> argList) {
             super(name, buildIn);
-            assert argList.size() > 0;
+            assert !argList.isEmpty();
             this.option = option;
             this.argList = argList;
         }
@@ -1724,7 +1670,7 @@ abstract class FunctionUtils {
          */
         private ComplexArgFuncExpression(String name, boolean buildIn, List<?> argList) {
             super(name, buildIn);
-            assert argList.size() > 0;
+            assert !argList.isEmpty();
             this.argList = argList;
         }
 

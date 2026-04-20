@@ -22,7 +22,7 @@ import io.army.executor.DataAccessException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 import io.army.util._TimeUtils;
 
@@ -56,7 +56,7 @@ public final class DurationType extends _ArmyNoInjectionType implements MappingT
                 dataType = MySQLType.TIME;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.INTERVAL;
+                dataType = PgType.INTERVAL;
                 break;
             case SQLite:
                 dataType = SQLiteType.DURATION;

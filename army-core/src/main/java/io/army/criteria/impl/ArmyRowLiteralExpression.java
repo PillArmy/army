@@ -43,7 +43,7 @@ import java.util.Objects;
  */
 
 abstract class ArmyRowLiteralExpression extends OperationRowExpression implements
-        RowLiteralExpression, ArmySimpleSQLExpression {
+        RowLiteralExpression, ArmySimpleExpression {
 
     /**
      * @throws CriteriaException throw when <ul>
@@ -253,6 +253,11 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
         @Override
         public String name() {
             return this.name;
+        }
+
+        @Override
+        public int columnSize() {
+            return -1;
         }
 
         @Override

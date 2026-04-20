@@ -18,14 +18,14 @@ package io.army.mapping.array;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.SqlCharType;
 import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
-import io.army.executor.DataAccessException;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
@@ -99,7 +99,7 @@ public class SqlCharArrayType extends _ArmyBuildInType implements MappingType.Sq
         final SQLType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = PostgreType.CHAR_ARRAY;
+                dataType = PgType.CHAR_ARRAY;
                 break;
             case Oracle:
             case H2:

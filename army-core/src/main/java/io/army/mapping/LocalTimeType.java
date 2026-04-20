@@ -21,7 +21,7 @@ import io.army.mapping.array.LocalTimeArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 import io.army.util._TimeUtils;
 
@@ -78,7 +78,7 @@ public final class LocalTimeType extends _ArmyNoInjectionType implements Mapping
                 dataType = MySQLType.TIME;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.TIME;
+                dataType = PgType.TIME;
                 break;
             case SQLite:
                 dataType = SQLiteType.TIME;

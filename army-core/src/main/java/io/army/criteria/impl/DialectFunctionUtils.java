@@ -29,7 +29,7 @@ import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
-import io.army.mapping.optional.CompositeTypeField;
+import io.army.mapping.optional.CompositeField;
 import io.army.mapping.optional.NoCastTextType;
 import io.army.meta.FieldMeta;
 import io.army.util._Collections;
@@ -141,11 +141,11 @@ abstract class DialectFunctionUtils extends FunctionUtils {
     static List<Selection> compositeFieldList(final String name, final Expression compositeExp) {
         final MappingType type;
         type = null; // TODO compositeExp.typeMeta().mappingType();
-        if (!(type instanceof MappingType.SqlCompositeType)) {
+        if (!(type instanceof MappingType.SqlComposite)) {
             throw CriteriaUtils.notCompositeType(name, compositeExp);
         }
-        final List<CompositeTypeField> fieldList;
-        fieldList = ((MappingType.SqlCompositeType) type).fieldList();
+        final List<CompositeField> fieldList;
+        fieldList = ((MappingType.SqlComposite) type).fieldList();
         final int fieldSize;
         if ((fieldSize = fieldList.size()) == 0) {
             String m = String.format("%s's fieldMap() return empty.", type);
@@ -153,8 +153,8 @@ abstract class DialectFunctionUtils extends FunctionUtils {
         }
         final List<Selection> selectionList;
         selectionList = _Collections.arrayList(fieldSize);
-        for (CompositeTypeField field : fieldList) {
-            selectionList.add(ArmySelections.forName(field.name));
+        for (CompositeField field : fieldList) {
+            selectionList.add(ArmySelections.forName(field.columnName));
         }
         return selectionList;
     }

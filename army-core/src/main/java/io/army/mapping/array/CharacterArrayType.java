@@ -25,7 +25,7 @@ import io.army.mapping.MappingType;
 import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
@@ -126,7 +126,7 @@ public class CharacterArrayType extends _ArmyBuildInType implements MappingType.
         final SQLType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = PostgreType.CHAR_ARRAY;
+                dataType = PgType.CHAR_ARRAY;
                 break;
             case MySQL:
             case SQLite:

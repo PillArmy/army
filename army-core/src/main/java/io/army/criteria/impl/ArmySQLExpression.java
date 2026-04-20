@@ -16,7 +16,6 @@
 
 package io.army.criteria.impl;
 
-import io.army.criteria.SQLExpression;
 import io.army.criteria.impl.inner._SelfDescribed;
 
 /**
@@ -28,7 +27,7 @@ import io.army.criteria.impl.inner._SelfDescribed;
  * </ul>
  * * @since 0.6.0
  */
-interface ArmySQLExpression extends SQLExpression, _SelfDescribed, ArmyRightOperand {
+interface ArmySQLExpression extends _SelfDescribed, ArmyRightOperand {
 
 
 }

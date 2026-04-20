@@ -26,7 +26,7 @@ import io.army.mapping.MappingType;
 import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
@@ -132,7 +132,7 @@ public class LocalDateArrayType extends _ArmyNoInjectionType implements MappingT
         final SQLType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = PostgreType.DATE_ARRAY;
+                dataType = PgType.DATE_ARRAY;
                 break;
             case MySQL:
             case SQLite:

@@ -81,10 +81,6 @@ public final class BigIntegerType extends _NumericType._IntegerType {
         return BigIntegerArrayType.LINEAR;
     }
 
-    @Override
-    public BigInteger convert(MappingEnv env, Object source) throws CriteriaException {
-        return toBigInteger(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
 
     @Override
     public BigDecimal beforeBind(DataType dataType, MappingEnv env, final Object source) {

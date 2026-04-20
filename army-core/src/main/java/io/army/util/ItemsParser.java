@@ -14,29 +14,41 @@
  * limitations under the License.
  */
 
-package io.army.criteria.impl;
+
+package io.army.util;
+
+import io.army.function.TextFunction;
 
 
-/**
- * <p>
- * This class is a abstract implementation of {@link io.army.criteria.SQLExpression}. This class is base class of :
- * <ul>
- *     <li>{@link OperationExpression}</li>
- *     <li>{@link OperationRowExpression}</li>
- * </ul>
- *
- * @since 0.6.0
- */
-@Deprecated
-abstract class OperationSQLExpression implements ArmySQLExpression {
+public interface ItemsParser {
 
-    /**
-     * package constructor
-     */
-    OperationSQLExpression() {
+
+    /// Parse all item form parentheses
+    void parseItems(String text, int offset, int endIndex, TextFunction<?> func);
+
+
+    static ItemsParser defaultParser() {
+        return DefaultItemsParser.DEFAULT;
+    }
+
+    static Builder builder() {
+        return DefaultItemsParser.newBuilder();
     }
 
 
+    interface Builder {
 
+        Builder delimForParen(char delim);
+
+        Builder delimForSquare(char delim);
+
+        Builder delimForCurly(char delim);
+
+        Builder backslashEscape(boolean escape);
+
+
+        ItemsParser build();
+
+    }
 
 }

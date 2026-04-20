@@ -20,7 +20,7 @@ import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
 
@@ -99,7 +99,7 @@ public final class UnsignedSqlIntType extends _NumericType._UnsignedIntegerType 
                 dataType = MySQLType.INT_UNSIGNED;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.BIGINT;
+                dataType = PgType.BIGINT;
                 break;
             case SQLite:
                 dataType = SQLiteType.BIGINT;

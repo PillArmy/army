@@ -94,7 +94,7 @@ public final class UnsignedBigintType extends _NumericType._UnsignedIntegerType 
                 dataType = MySQLType.BIGINT_UNSIGNED;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.BIGINT;
+                dataType = PgType.BIGINT;
                 break;
             case SQLite:
                 dataType = SQLiteType.UNSIGNED_BIG_INT;

@@ -42,8 +42,8 @@ import static io.army.dialect.Database.*;
  * @since 0.6.0
  */
 @SuppressWarnings("unused")
-public interface Expression extends SQLExpression, SortItem,
-        GroupByItem.ExpressionItem, RightOperand, AssignmentItem, SelectionSpec {
+public interface Expression extends SortItem, RowElement, RightOperand,
+        GroupByItem.ExpressionItem, AssignmentItem, SQLElement, SelectionSpec {
 
 
     ///
@@ -83,26 +83,28 @@ public interface Expression extends SQLExpression, SortItem,
     IPredicate greaterEqual(Object operand);
 
 
-    /**
-     * @param and {@link SQLs#AND}
-     */
+    /// @param and see {@link SQLs#AND}
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE">Postgres BETWEEN</a>
     IPredicate between(Object first, SQLs.WordAnd and, Object second);
 
 
-    /**
-     * @param and {@link SQLs#AND}
-     */
+    /// @param and      see {@link SQLs#AND}
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE">Postgres BETWEEN</a>
     IPredicate notBetween(Object first, SQLs.WordAnd and, Object second);
 
-    /**
-     * @param and {@link SQLs#AND}
-     */
+    /// @param modifier see
+    /// 1. {@link SQLs#SYMMETRIC} modifier
+    /// 1. {@link SQLs#ASYMMETRIC} modifier
+    /// @param and      see {@link SQLs#AND}
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE">Postgres BETWEEN</a>
     @Support({PostgreSQL, H2})
     IPredicate between(@Nullable SQLs.BetweenModifier modifier, Object first, SQLs.WordAnd and, Object second);
 
-    /**
-     * @param and {@link SQLs#AND}
-     */
+    /// @param modifier see
+    /// 1. {@link SQLs#SYMMETRIC} modifier
+    /// 1. {@link SQLs#ASYMMETRIC} modifier
+    /// @param and      see {@link SQLs#AND}
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE">Postgres BETWEEN</a>
     @Support({PostgreSQL, H2})
     IPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, Object first, SQLs.WordAnd and, Object second);
 
@@ -167,6 +169,56 @@ public interface Expression extends SQLExpression, SortItem,
 
     @Support({PostgreSQL})
     IPredicate notSimilarTo(Object pattern, SQLs.WordEscape escape, Object escapeChar);
+
+
+    /**
+     * <p>
+     * <strong>= ANY</strong> operator
+     *
+     */
+    IPredicate equalAny(SubQuery subQuery);
+
+    /// Operator {@code = SOME}
+    ///
+    /// @see <a href="https://dev.mysql.com/doc/refman/9.6/en/any-in-some-subqueries.html">Subqueries with ANY, IN, or SOME</a>
+    IPredicate equalSome(SubQuery subQuery);
+
+    IPredicate equalAll(SubQuery subQuery);
+
+    IPredicate notEqualAny(SubQuery subQuery);
+
+    IPredicate notEqualSome(SubQuery subQuery);
+
+    IPredicate notEqualAll(SubQuery subQuery);
+
+    IPredicate lessAny(SubQuery subQuery);
+
+    IPredicate lessSome(SubQuery subQuery);
+
+    IPredicate lessAll(SubQuery subQuery);
+
+    IPredicate lessEqualAny(SubQuery subQuery);
+
+    IPredicate lessEqualSome(SubQuery subQuery);
+
+    IPredicate lessEqualAll(SubQuery subQuery);
+
+    IPredicate greaterAny(SubQuery subQuery);
+
+    IPredicate greaterSome(SubQuery subQuery);
+
+    IPredicate greaterAll(SubQuery subQuery);
+
+    IPredicate greaterEqualAny(SubQuery subQuery);
+
+    IPredicate greaterEqualSome(SubQuery subQuery);
+
+    IPredicate greaterEqualAll(SubQuery subQuery);
+
+
+    IPredicate in(SQLColumnList row);
+
+    IPredicate notIn(SQLColumnList row);
 
     Expression mod(Object operand);
 

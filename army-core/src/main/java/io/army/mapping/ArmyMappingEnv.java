@@ -18,6 +18,8 @@ package io.army.mapping;
 
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
+import io.army.function.DecodeLiteralFunc;
+import io.army.function.SafeLiteralFunc;
 import io.army.lang.Nullable;
 import io.army.meta.ServerMeta;
 import io.army.util._StringUtils;
@@ -41,6 +43,10 @@ final class ArmyMappingEnv implements MappingEnv {
 
     private final XmlCodec xmlCodec;
 
+    private final SafeLiteralFunc literalFunc;
+
+    private DecodeLiteralFunc decodeFunc;
+
 
     private ArmyMappingEnv(EnvBuilder builder) {
         this.reactive = builder.reactive;
@@ -49,6 +55,8 @@ final class ArmyMappingEnv implements MappingEnv {
         this.jsonCodec = builder.jsonCodec;
 
         this.xmlCodec = builder.xmlCodec;
+        this.literalFunc = builder.literalFunc;
+        this.decodeFunc = builder.decodeFunc;
         if (this.serverMeta == null) {
             throw new IllegalArgumentException("serverMeta must non-null");
         }
@@ -94,6 +102,16 @@ final class ArmyMappingEnv implements MappingEnv {
     }
 
     @Override
+    public SafeLiteralFunc safeLiteralFunc() {
+        return this.literalFunc;
+    }
+
+    @Override
+    public DecodeLiteralFunc decodeLiteralFunc() {
+        return this.decodeFunc;
+    }
+
+    @Override
     public String toString() {
         return _StringUtils.builder(60)
                 .append(getClass().getName())
@@ -124,6 +142,10 @@ final class ArmyMappingEnv implements MappingEnv {
         private JsonCodec jsonCodec;
 
         private XmlCodec xmlCodec;
+
+        private SafeLiteralFunc literalFunc;
+
+        private DecodeLiteralFunc decodeFunc;
 
         @Override
         public Builder reactive(boolean yes) {
@@ -156,7 +178,22 @@ final class ArmyMappingEnv implements MappingEnv {
         }
 
         @Override
+        public Builder safeLiteralFunc(SafeLiteralFunc func) {
+            this.literalFunc = func;
+            return this;
+        }
+
+        @Override
+        public Builder decodeLiteral(DecodeLiteralFunc func) {
+            this.decodeFunc = func;
+            return this;
+        }
+
+        @Override
         public MappingEnv build() {
+            if (this.literalFunc == null || this.decodeFunc == null) {
+                throw new NullPointerException();
+            }
             return new ArmyMappingEnv(this);
         }
 

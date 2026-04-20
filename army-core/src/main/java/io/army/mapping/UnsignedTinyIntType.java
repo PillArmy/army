@@ -62,7 +62,7 @@ public final class UnsignedTinyIntType extends _NumericType._UnsignedIntegerType
                 dataType = MySQLType.TINYINT_UNSIGNED;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.SMALLINT;
+                dataType = PgType.SMALLINT;
                 break;
             case Oracle:
             case SQLite:

@@ -22,7 +22,8 @@ import io.army.annotation.GeneratorType;
 import io.army.annotation.UpdateMode;
 import io.army.bean.ObjectAccessException;
 import io.army.criteria.*;
-import io.army.criteria.impl.*;
+import io.army.criteria.impl.SQLs;
+import io.army.criteria.impl._JoinType;
 import io.army.criteria.impl.inner._AliasDerivedBlock;
 import io.army.criteria.impl.inner._Insert;
 import io.army.criteria.impl.inner._NestedItems;
@@ -1122,7 +1123,7 @@ public abstract class _Exceptions {
 
     public static MetaException notUserDefinedType(MappingType type, DataType sqlType) {
         String m = String.format("%s return %s but don't implements %s .", type.getClass().getName(), sqlType,
-                MappingType.SqlUserDefinedType.class.getName());
+                MappingType.SqlUserDefined.class.getName());
         return new MetaException(m);
     }
 

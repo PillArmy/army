@@ -26,7 +26,7 @@ import io.army.mapping.OffsetDateTimeType;
 import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 import io.army.util._TimeUtils;
 
@@ -133,7 +133,7 @@ public class OffsetDateTimeArrayType extends _ArmyNoInjectionType implements Map
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = PostgreType.TIMESTAMPTZ_ARRAY;
+                dataType = PgType.TIMESTAMPTZ_ARRAY;
                 break;
             case MySQL:
             case SQLite:

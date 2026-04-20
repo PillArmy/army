@@ -21,7 +21,7 @@ import io.army.mapping.array.IntegerArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
 import java.math.BigDecimal;
@@ -156,7 +156,7 @@ public final class IntegerType extends _NumericType._IntegerType {
                 dataType = MySQLType.INT;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.INTEGER;
+                dataType = PgType.INTEGER;
                 break;
             case SQLite:
                 dataType = SQLiteType.INTEGER;

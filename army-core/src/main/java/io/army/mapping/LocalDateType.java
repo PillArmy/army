@@ -21,7 +21,7 @@ import io.army.mapping.array.LocalDateArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.sqltype.PostgreType;
+import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
 import java.time.*;
@@ -75,11 +75,6 @@ public final class LocalDateType extends _ArmyNoInjectionType implements Mapping
     }
 
     @Override
-    public LocalDate convert(MappingEnv env, Object source) throws CriteriaException {
-        return toLocalDateTime(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public LocalDate beforeBind(DataType dataType, MappingEnv env, Object source) {
         return toLocalDateTime(this, dataType, source, PARAM_ERROR_HANDLER);
     }
@@ -97,7 +92,7 @@ public final class LocalDateType extends _ArmyNoInjectionType implements Mapping
                 dataType = MySQLType.DATE;
                 break;
             case PostgreSQL:
-                dataType = PostgreType.DATE;
+                dataType = PgType.DATE;
                 break;
             case SQLite:
                 dataType = SQLiteType.DATE;

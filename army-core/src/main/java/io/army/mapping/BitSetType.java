@@ -80,7 +80,7 @@ public final class BitSetType extends _ArmyNoInjectionType implements MappingTyp
                 type = MySQLType.BIT;
                 break;
             case PostgreSQL:
-                type = PostgreType.VARBIT;
+                type = PgType.VARBIT;
                 break;
             case SQLite:
                 type = SQLiteType.BIT;

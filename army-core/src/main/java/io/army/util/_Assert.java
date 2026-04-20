@@ -20,13 +20,15 @@ import io.army.criteria.CriteriaException;
 import io.army.criteria.Statement;
 import io.army.lang.Nullable;
 
+import java.util.Collection;
+
 /**
  * @since 0.6.0
  */
 public abstract class _Assert {
 
 
-    public static String assertHasText(@Nullable String text, String message) {
+    public static String hasText(@Nullable String text, String message) {
         if (!_StringUtils.hasText(text)) {
             throw new IllegalArgumentException(message);
         }
@@ -42,6 +44,12 @@ public abstract class _Assert {
     public static void nonPrepared(@Nullable Boolean prepared) {
         if (prepared != null) {
             throw new CriteriaException(String.format("%s is prepared state.", Statement.class.getName()));
+        }
+    }
+
+    public static void notEmpty(@Nullable Collection<?> collection, String message) {
+        if (collection == null || collection.isEmpty()) {
+            throw new IllegalArgumentException(message);
         }
     }
 

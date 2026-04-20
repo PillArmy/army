@@ -1,6 +1,5 @@
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
@@ -39,10 +38,6 @@ public final class ZoneOffsetType extends _ArmyNoInjectionType implements Mappin
         return StringType.mapToDataType(this, meta);
     }
 
-    @Override
-    public ZoneOffset convert(MappingEnv env, Object source) throws CriteriaException {
-        return toZoneOffset(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
 
     @Override
     public String beforeBind(DataType dataType, MappingEnv env, Object source) {
