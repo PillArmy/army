@@ -111,11 +111,6 @@ public class BigDecimalArrayType extends _ArmyNoInjectionType implements Mapping
     }
 
     @Override
-    public final Object convert(MappingEnv env, final Object source) throws CriteriaException {
-        return toBigDecimalArray(map(env.serverMeta()), env, source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public final String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
         return PostgreArrays.arrayBeforeBind(source, BigDecimalArrayType::appendToText, dataType, this,
                 PARAM_ERROR_HANDLER);

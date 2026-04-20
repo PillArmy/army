@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
@@ -81,11 +80,6 @@ public final class YearMonthType extends _ArmyNoInjectionType implements Mapping
                 throw MAP_ERROR_HANDLER.apply(this, meta);
         }
         return dataType;
-    }
-
-    @Override
-    public YearMonth convert(MappingEnv env, Object source) throws CriteriaException {
-        return toYearMonth(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
     }
 
     @Override

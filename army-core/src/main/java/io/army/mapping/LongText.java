@@ -95,11 +95,6 @@ public final class LongText extends _ArmyBuildInType implements MappingType.SqlT
     }
 
     @Override
-    public Object convert(MappingEnv env, final Object source) throws CriteriaException {
-        return convertToObject(map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         if (source instanceof String && this.javaType == String.class) {
             return source;

@@ -118,13 +118,6 @@ public class LocalDateTimeArrayType extends _ArmyNoInjectionType implements Mapp
     }
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayAfterGet(this, map(env.serverMeta()), source, false,
-                LocalDateTimeArrayType::parseText, PARAM_ERROR_HANDLER
-        );
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return PostgreArrays.arrayBeforeBind(source, LocalDateTimeArrayType::appendToText, dataType, this,
                 PARAM_ERROR_HANDLER

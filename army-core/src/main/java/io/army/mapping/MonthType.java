@@ -17,6 +17,7 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
+import io.army.lang.Nullable;
 import io.army.mapping.array.MonthArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
@@ -24,7 +25,6 @@ import io.army.util._Collections;
 import io.army.util._StringUtils;
 import io.army.util._TimeUtils;
 
-import io.army.lang.Nullable;
 import java.time.*;
 import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
@@ -107,11 +107,6 @@ public final class MonthType extends _ArmyNoInjectionType implements MappingType
         return NameEnumType.mapToDataType(this, meta, this.enumName);
     }
 
-
-    @Override
-    public Month convert(MappingEnv env, Object source) throws CriteriaException {
-        return toMoth(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
 
     @Override
     public String beforeBind(DataType dataType, MappingEnv env, Object source) {

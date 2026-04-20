@@ -70,11 +70,6 @@ public final class UUIDType extends _ArmyNoInjectionType {
     }
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return toUUID(map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
         final Object value;
         switch (((SQLType) dataType).database()) {

@@ -72,11 +72,6 @@ public final class PathType extends _ArmyBuildInType implements MappingType.SqlS
 
 
     @Override
-    public Path convert(MappingEnv env, final Object source) throws CriteriaException {
-        return toPath(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
         final String value;
         if (source instanceof Path) {

@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.mapping.array.IntegerArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
@@ -82,11 +81,6 @@ public final class IntegerType extends _NumericType._IntegerType {
         return mapToDataType(this, meta);
     }
 
-
-    @Override
-    public Integer convert(MappingEnv env, Object source) throws CriteriaException {
-        return toInt(this, map(env.serverMeta()), source, Integer.MIN_VALUE, Integer.MAX_VALUE, PARAM_ERROR_HANDLER);
-    }
 
     @Override
     public Integer beforeBind(DataType dataType, final MappingEnv env, final Object source) {

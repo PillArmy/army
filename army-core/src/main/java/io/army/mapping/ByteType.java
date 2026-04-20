@@ -95,11 +95,6 @@ public final class ByteType extends _NumericType._IntegerType {
 
 
     @Override
-    public Byte convert(MappingEnv env, Object source) throws CriteriaException {
-        return (byte) IntegerType.toInt(this, map(env.serverMeta()), source, Byte.MIN_VALUE, Byte.MAX_VALUE, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Number beforeBind(final DataType dataType, MappingEnv env, final Object source) {
         final int intValue;
         intValue = IntegerType.toInt(this, dataType, source, Byte.MIN_VALUE, Byte.MAX_VALUE, PARAM_ERROR_HANDLER);

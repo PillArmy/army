@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
@@ -75,11 +74,6 @@ public final class UnsignedTinyIntType extends _NumericType._UnsignedIntegerType
         return dataType;
     }
 
-
-    @Override
-    public Short convert(MappingEnv env, Object source) throws CriteriaException {
-        return (short) UnsignedIntegerType.toUnsignedInt(this, map(env.serverMeta()), source, 0xFF, PARAM_ERROR_HANDLER);
-    }
 
     @Override
     public Number beforeBind(final DataType dataType, MappingEnv env, final Object source) {

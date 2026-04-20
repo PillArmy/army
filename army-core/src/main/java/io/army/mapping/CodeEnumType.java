@@ -86,14 +86,6 @@ public final class CodeEnumType extends _ArmyNoInjectionType {
     }
 
     @Override
-    public CodeEnum convert(MappingEnv env, final Object source) throws CriteriaException {
-        if (!this.enumClass.isInstance(source)) {
-            throw PARAM_ERROR_HANDLER.apply(this, map(env.serverMeta()), source, null);
-        }
-        return (CodeEnum) source;
-    }
-
-    @Override
     public Integer beforeBind(DataType dataType, MappingEnv env, final Object source) {
         if (!this.enumClass.isInstance(source)) {
             throw PARAM_ERROR_HANDLER.apply(this, dataType, source, null);

@@ -261,11 +261,6 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
 
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return arrayConvert(source, this.rangeFunc, this::deserialize, map(env.serverMeta()), this, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return arrayBeforeBind(source, this::serialize, dataType, this, PARAM_ERROR_HANDLER);
     }

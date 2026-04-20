@@ -84,11 +84,6 @@ public final class LongType extends _NumericType._IntegerType {
 
 
     @Override
-    public Long convert(MappingEnv env, Object source) throws CriteriaException {
-        return toLong(this, map(env.serverMeta()), source, Long.MIN_VALUE, Long.MAX_VALUE, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Long beforeBind(DataType dataType, MappingEnv env, Object source) {
         return toLong(this, dataType, source, Long.MIN_VALUE, Long.MAX_VALUE, PARAM_ERROR_HANDLER);
     }

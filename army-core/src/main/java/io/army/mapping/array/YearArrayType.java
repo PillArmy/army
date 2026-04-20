@@ -18,11 +18,11 @@ package io.army.mapping.array;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
-import io.army.executor.DataAccessException;
 import io.army.sqltype.DataType;
 
 public class YearArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
@@ -52,11 +52,6 @@ public class YearArrayType extends _ArmyNoInjectionType implements MappingType.S
 
     @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
         throw new UnsupportedOperationException();
     }
 

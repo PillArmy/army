@@ -91,12 +91,6 @@ public final class DoubleType extends _NumericType._FloatNumericType {
     }
 
     @Override
-    public Object convert(MappingEnv env, final Object source) throws CriteriaException {
-        return toDouble(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-
-    @Override
     public Double beforeBind(DataType dataType, MappingEnv env, final Object source) {
         return toDouble(this, dataType, source, PARAM_ERROR_HANDLER);
     }

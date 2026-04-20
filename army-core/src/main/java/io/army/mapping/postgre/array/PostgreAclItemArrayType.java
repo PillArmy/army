@@ -77,14 +77,6 @@ public class PostgreAclItemArrayType extends _ArmyBuildInType implements Mapping
     }
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        if (!(source instanceof String[])) {
-            throw PARAM_ERROR_HANDLER.apply(this, PgType.ACLITEM_ARRAY, source, null);
-        }
-        return source;
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         if (!(source instanceof String[])) {
             throw PARAM_ERROR_HANDLER.apply(this, dataType, source, null);

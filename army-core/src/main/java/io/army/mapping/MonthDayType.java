@@ -94,11 +94,6 @@ public final class MonthDayType extends _ArmyNoInjectionType implements MappingT
 
 
     @Override
-    public MonthDay convert(MappingEnv env, Object source) throws CriteriaException {
-        return toMonthDay(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public LocalDate beforeBind(DataType dataType, MappingEnv env, final Object source) {
         final LocalDate value;
         if (source instanceof LocalDate) {

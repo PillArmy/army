@@ -16,7 +16,6 @@
 
 package io.army.mapping.mysql;
 
-import io.army.criteria.CriteriaException;
 import io.army.dialect.Database;
 import io.army.dialect._Constant;
 import io.army.mapping.MappingEnv;
@@ -70,11 +69,6 @@ public final class MySqlNameEnumSetType extends _ArmyNoInjectionType implements 
             throw noMappingError(meta);
         }
         return MySQLType.SET;
-    }
-
-    @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return null;
     }
 
     @Override

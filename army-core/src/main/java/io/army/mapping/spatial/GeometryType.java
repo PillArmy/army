@@ -66,12 +66,6 @@ public final class GeometryType extends ArmyGeometryType implements MappingType.
 
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        //TODO
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Object beforeBind(DataType type, MappingEnv env, Object source) throws CriteriaException {
         //TODO
         throw new UnsupportedOperationException();

@@ -68,12 +68,6 @@ public final class DurationType extends _ArmyNoInjectionType implements MappingT
     }
 
     @Override
-    public Duration convert(MappingEnv env, Object source) throws CriteriaException {
-        //TODO
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         //TODO
         throw new UnsupportedOperationException();

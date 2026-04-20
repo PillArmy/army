@@ -109,12 +109,6 @@ public class BlobArrayType extends _ArmyBuildInType implements MappingType.SqlAr
     }
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayAfterGet(this, map(env.serverMeta()), source, false, PostgreArrays::parseBytea,
-                PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return PostgreArrays.byteaArrayToText(this, dataType, source, new StringBuilder(), PARAM_ERROR_HANDLER)
                 .toString();

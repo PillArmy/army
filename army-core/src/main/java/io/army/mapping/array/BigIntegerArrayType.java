@@ -102,12 +102,6 @@ public class BigIntegerArrayType extends _ArmyNoInjectionType implements Mapping
     }
 
     @Override
-    public final Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayAfterGet(this, map(env.serverMeta()), source, false,
-                BigIntegerArrayType::parseBigInteger, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public final String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return PostgreArrays.arrayBeforeBind(source, BigIntegerArrayType::appendToText, dataType, this,
                 PARAM_ERROR_HANDLER);

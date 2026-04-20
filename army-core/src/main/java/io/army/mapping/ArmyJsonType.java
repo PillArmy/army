@@ -17,7 +17,6 @@
 package io.army.mapping;
 
 
-import io.army.criteria.CriteriaException;
 import io.army.sqltype.DataType;
 
 /**
@@ -46,26 +45,6 @@ abstract class ArmyJsonType extends _ArmyBuildInType {
         return this.javaType;
     }
 
-
-    @Override
-    public final Object convert(MappingEnv env, final Object source) throws CriteriaException {
-        if (!(source instanceof String) && this.javaType.isInstance(source)) {
-            return source;
-        }
-        if (!(source instanceof String)) {
-            throw PARAM_ERROR_HANDLER.apply(this, map(env.serverMeta()), source, null);
-        }
-        Object documentValue;
-        try {
-            documentValue = env.jsonCodec().decode((String) source, this.javaType);
-        } catch (Exception e) {
-            throw PARAM_ERROR_HANDLER.apply(this, map(env.serverMeta()), source, e);
-        }
-        if (documentValue == null) {
-            documentValue = DOCUMENT_NULL_VALUE;
-        }
-        return documentValue;
-    }
 
     @Override
     public final String beforeBind(DataType dataType, MappingEnv env, final Object source) {

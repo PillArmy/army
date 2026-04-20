@@ -18,11 +18,11 @@ package io.army.mapping.postgre;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
-import io.army.executor.DataAccessException;
 import io.army.sqltype.DataType;
 
 
@@ -63,11 +63,6 @@ public final class PgLsnType extends _ArmyNoInjectionType {
     @Override
     public boolean isSameType(MappingType type) {
         return super.isSameType(type);
-    }
-
-    @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return null;
     }
 
     @Override

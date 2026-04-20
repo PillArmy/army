@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -81,14 +80,6 @@ public final class LongBlobType extends _ArmyBuildInType implements MappingType.
         return dataType;
     }
 
-
-    @Override
-    public byte[] convert(MappingEnv env, Object source) throws CriteriaException {
-        if (!(source instanceof byte[])) {
-            throw PARAM_ERROR_HANDLER.apply(this, map(env.serverMeta()), source, null);
-        }
-        return (byte[]) source;
-    }
 
     @Override
     public byte[] beforeBind(DataType dataType, MappingEnv env, final Object source) {

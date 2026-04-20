@@ -18,8 +18,8 @@ package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
-import io.army.meta.ServerMeta;
 import io.army.executor.DataAccessException;
+import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util._TimeUtils;
 
@@ -74,11 +74,6 @@ public final class ZonedDateTimeType extends _ArmyNoInjectionType implements Map
     @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
         return OffsetDateTimeType.mapToDataType(this, meta);
-    }
-
-    @Override
-    public ZonedDateTime convert(MappingEnv env, Object source) throws CriteriaException {
-        return toZonedDateTime(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
     }
 
     @Override

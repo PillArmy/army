@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
@@ -54,16 +53,6 @@ public final class InstantType extends _ArmyNoInjectionType implements MappingTy
         return LongType.mapToDataType(this, meta);
     }
 
-
-    @Override
-    public Instant convert(MappingEnv env, final Object source) throws CriteriaException {
-        if (source instanceof Instant) {
-            return (Instant) source;
-        }
-        final long value;
-        value = LongType.toLong(this, map(env.serverMeta()), source, Long.MIN_VALUE, Long.MAX_VALUE, PARAM_ERROR_HANDLER);
-        return Instant.ofEpochMilli(value);
-    }
 
     @Override
     public Long beforeBind(DataType dataType, MappingEnv env, final Object source) {

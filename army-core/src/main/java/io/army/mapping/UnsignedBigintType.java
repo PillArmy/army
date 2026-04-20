@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
@@ -58,11 +57,6 @@ public final class UnsignedBigintType extends _NumericType._UnsignedIntegerType 
     @Override
     public DataType map(final ServerMeta meta) {
         return mapToDataType(this, meta);
-    }
-
-    @Override
-    public BigInteger convert(MappingEnv env, Object source) throws CriteriaException {
-        return UnsignedBigIntegerType.toUnsignedBigInteger(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
     }
 
     @Override

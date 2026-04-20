@@ -64,11 +64,6 @@ public final class NullType extends _ArmyBuildInType {
     }
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        throw new CriteriaException("SQL key word NULL don't support convert method");
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         throw new CriteriaException("SQL key word NULL don't support beforeBind method");
     }

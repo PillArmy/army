@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
@@ -80,11 +79,6 @@ public final class YearType extends _ArmyNoInjectionType implements MappingType.
 
         }
         return dataType;
-    }
-
-    @Override
-    public Year convert(MappingEnv env, Object source) throws CriteriaException {
-        return toYear(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
     }
 
     @Override

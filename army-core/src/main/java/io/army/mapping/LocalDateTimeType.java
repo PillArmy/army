@@ -94,11 +94,6 @@ public final class LocalDateTimeType extends _ArmyNoInjectionType implements Map
 
 
     @Override
-    public LocalDateTime convert(final MappingEnv env, final Object source) throws CriteriaException {
-        return toLocalDateTime(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public LocalDateTime beforeBind(DataType dataType, final MappingEnv env, final Object source) {
         return toLocalDateTime(this, dataType, source, PARAM_ERROR_HANDLER);
     }

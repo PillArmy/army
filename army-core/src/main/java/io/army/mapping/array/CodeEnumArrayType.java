@@ -126,11 +126,6 @@ public class CodeEnumArrayType extends _ArmyNoInjectionType implements MappingTy
     }
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayAfterGet(this, map(env.serverMeta()), source, false, this::parseText, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return PostgreArrays.arrayBeforeBind(source, this::appendToText, dataType, this, PARAM_ERROR_HANDLER);
     }

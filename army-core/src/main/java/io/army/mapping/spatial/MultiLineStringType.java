@@ -53,11 +53,6 @@ public final class MultiLineStringType extends _ArmyBuildInType implements Mappi
     }
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         throw new UnsupportedOperationException();
     }

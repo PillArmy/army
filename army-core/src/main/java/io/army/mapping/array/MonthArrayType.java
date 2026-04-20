@@ -20,6 +20,7 @@ import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.MonthType;
@@ -29,7 +30,6 @@ import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.time.LocalDate;
 import java.time.Month;
 
@@ -124,13 +124,6 @@ public class MonthArrayType extends _ArmyNoInjectionType implements MappingType.
     @Override
     public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
         return NameEnumArrayType.mapToDataType(this, meta, this.enumName);
-    }
-
-    @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayAfterGet(this, map(env.serverMeta()), source, false,
-                MonthArrayType::parseText, PARAM_ERROR_HANDLER
-        );
     }
 
     @Override

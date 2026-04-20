@@ -92,11 +92,6 @@ public final class LocalTimeType extends _ArmyNoInjectionType implements Mapping
 
 
     @Override
-    public LocalTime convert(MappingEnv env, Object source) throws CriteriaException {
-        return toLocalTime(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public LocalTime beforeBind(DataType dataType, MappingEnv env, final Object source) {
         return toLocalTime(this, dataType, source, PARAM_ERROR_HANDLER);
     }

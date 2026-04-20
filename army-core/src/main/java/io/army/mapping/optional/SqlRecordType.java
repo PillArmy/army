@@ -105,11 +105,6 @@ public final class SqlRecordType extends _SqlRecordSupport implements MappingTyp
     }
 
     @Override
-    public Object convert(MappingEnv env, final Object source) throws CriteriaException {
-        throw PARAM_ERROR_HANDLER.apply(this, map(env.serverMeta()), source, dontSupportBind());
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
         throw PARAM_ERROR_HANDLER.apply(this, dataType, source, dontSupportBind());
     }

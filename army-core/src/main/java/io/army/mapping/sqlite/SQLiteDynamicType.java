@@ -19,11 +19,11 @@ package io.army.mapping.sqlite;
 import io.army.criteria.CriteriaException;
 import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
-import io.army.executor.DataAccessException;
 import io.army.sqltype.DataType;
 import io.army.sqltype.SQLiteType;
 import io.army.util._TimeUtils;
@@ -64,11 +64,6 @@ public final class SQLiteDynamicType extends _ArmyBuildInType {
             throw MAP_ERROR_HANDLER.apply(this, meta);
         }
         return SQLiteType.DYNAMIC;
-    }
-
-    @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return source;
     }
 
     @Override

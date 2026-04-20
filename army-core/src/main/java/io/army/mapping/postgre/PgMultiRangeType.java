@@ -264,11 +264,6 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
 
 
     @Override
-    public Object convert(MappingEnv env, final Object source) throws CriteriaException {
-        return rangeConvert(source, this.rangeFunc, this::deserialize, map(env.serverMeta()), this, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return rangeBeforeBind(source, this::serialize, dataType, this, PARAM_ERROR_HANDLER);
     }

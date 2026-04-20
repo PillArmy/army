@@ -64,11 +64,6 @@ public final class NoCastIntegerType extends _NumericType._IntegerType implement
     }
 
     @Override
-    public Integer convert(MappingEnv env, Object source) throws CriteriaException {
-        return IntegerType.toInt(this, map(env.serverMeta()), source, Integer.MIN_VALUE, Integer.MAX_VALUE, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Integer beforeBind(DataType dataType, final MappingEnv env, final Object source) {
         return IntegerType.toInt(this, dataType, source, Integer.MIN_VALUE, Integer.MAX_VALUE, PARAM_ERROR_HANDLER);
     }

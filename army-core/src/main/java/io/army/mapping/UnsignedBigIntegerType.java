@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
@@ -62,11 +61,6 @@ public final class UnsignedBigIntegerType extends _NumericType._UnsignedIntegerT
         return UnsignedBigDecimalType.mapToDataType(this, meta);
     }
 
-
-    @Override
-    public BigInteger convert(MappingEnv env, Object source) throws CriteriaException {
-        return toUnsignedBigInteger(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
 
     @Override
     public BigDecimal beforeBind(DataType dataType, MappingEnv env, Object source) {

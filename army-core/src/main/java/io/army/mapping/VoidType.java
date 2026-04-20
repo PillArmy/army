@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
@@ -44,11 +43,6 @@ public final class VoidType extends _ArmyBuildInType {
 
     @Override
     public DataType map(ServerMeta meta) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
         throw new UnsupportedOperationException();
     }
 

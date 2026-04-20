@@ -225,11 +225,6 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
     }
 
     @Override
-    public Object convert(final MappingEnv env, final Object source) throws CriteriaException {
-        return arrayConvert(source, this.rangeFunc, this::deserialize, map(env.serverMeta()), this, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
         return arrayBeforeBind(source, this::serialize, dataType, this, PARAM_ERROR_HANDLER);
     }

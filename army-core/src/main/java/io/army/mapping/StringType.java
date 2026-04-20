@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.mapping.array.StringArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
@@ -99,11 +98,6 @@ public final class StringType extends _ArmyBuildInType implements MappingType.Sq
         return mapToDataType(this, meta);
     }
 
-
-    @Override
-    public String convert(MappingEnv env, Object source) throws CriteriaException {
-        return toString(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
 
     @Override
     public String beforeBind(DataType dataType, MappingEnv env, final Object source) {

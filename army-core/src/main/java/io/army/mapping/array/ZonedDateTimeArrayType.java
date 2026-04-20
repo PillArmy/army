@@ -19,12 +19,12 @@ package io.army.mapping.array;
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.dialect._Constant;
+import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.ZonedDateTimeType;
 import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
-import io.army.executor.DataAccessException;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
 import io.army.util._TimeUtils;
@@ -102,13 +102,6 @@ public class ZonedDateTimeArrayType extends _ArmyNoInjectionType implements Mapp
     @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
         return OffsetDateTimeArrayType.mapToDataType(this, meta);
-    }
-
-    @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayAfterGet(this, map(env.serverMeta()), source, false,
-                ZonedDateTimeArrayType::parseText, PARAM_ERROR_HANDLER
-        );
     }
 
     @Override

@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -57,16 +56,6 @@ public final class UnsignedBigDecimalType extends _NumericType._UnsignedNumericT
     @Override
     public DataType map(final ServerMeta meta) {
         return mapToDataType(this, meta);
-    }
-
-    @Override
-    public BigDecimal convert(MappingEnv env, Object source) throws CriteriaException {
-        final BigDecimal value;
-        value = BigDecimalType.toBigDecimal(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-        if (value.compareTo(BigDecimal.ZERO) < 0) {
-            throw PARAM_ERROR_HANDLER.apply(this, map(env.serverMeta()), source, null);
-        }
-        return value;
     }
 
     @Override

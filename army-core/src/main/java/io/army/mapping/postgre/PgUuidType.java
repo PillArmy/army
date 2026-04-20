@@ -58,12 +58,6 @@ public final class PgUuidType extends _ArmyNoInjectionType {
 
 
     @Override
-    public UUID convert(MappingEnv env, Object source) throws CriteriaException {
-        //TODO
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public UUID beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         final UUID value;
         if (source instanceof UUID) {

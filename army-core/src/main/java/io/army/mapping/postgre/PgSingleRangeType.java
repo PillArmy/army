@@ -247,13 +247,6 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
     }
 
     @Override
-    public Object convert(final MappingEnv env, final Object source) throws CriteriaException {
-        return rangeConvert(source, this.rangeFunc, this::deserialize, this.map(env.serverMeta()), this,
-                PARAM_ERROR_HANDLER
-        );
-    }
-
-    @Override
     public String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
         return rangeBeforeBind(this::serialize, source, dataType, this, PARAM_ERROR_HANDLER);
     }

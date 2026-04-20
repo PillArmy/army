@@ -16,7 +16,6 @@
 
 package io.army.mapping.mysql;
 
-import io.army.criteria.CriteriaException;
 import io.army.dialect.Database;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
@@ -59,11 +58,6 @@ public final class MySqlBitType extends _ArmyNoInjectionType {
             throw MAP_ERROR_HANDLER.apply(this, meta);
         }
         return MySQLType.BIT;
-    }
-
-    @Override
-    public Long convert(MappingEnv env, Object source) throws CriteriaException {
-        return toBitLong(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
     }
 
     @Override

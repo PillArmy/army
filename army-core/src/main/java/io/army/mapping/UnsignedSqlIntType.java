@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -75,11 +74,6 @@ public final class UnsignedSqlIntType extends _NumericType._UnsignedIntegerType 
         return mapToDataType(this, meta);
     }
 
-
-    @Override
-    public Long convert(MappingEnv env, Object source) throws CriteriaException {
-        return UnsignedLongType.toUnsignedLong(this, map(env.serverMeta()), source, 0xFFFF_FFFFL, PARAM_ERROR_HANDLER);
-    }
 
     @Override
     public Long beforeBind(DataType dataType, MappingEnv env, Object source) {

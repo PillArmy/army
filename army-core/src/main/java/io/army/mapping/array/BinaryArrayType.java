@@ -122,12 +122,6 @@ public class BinaryArrayType extends _ArmyBuildInType implements MappingType.Sql
 
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayAfterGet(this, map(env.serverMeta()), source, false, PostgreArrays::parseBytea,
-                PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
         return PostgreArrays.byteaArrayToText(this, dataType, source, new StringBuilder(), PARAM_ERROR_HANDLER)
                 .toString();

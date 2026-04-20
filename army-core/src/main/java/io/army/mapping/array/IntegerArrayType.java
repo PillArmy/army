@@ -125,13 +125,6 @@ public class IntegerArrayType extends _ArmyNoInjectionType implements MappingTyp
 
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        final boolean nonNull = this.underlyingJavaType == int.class;
-        return PostgreArrays.arrayAfterGet(this, map(env.serverMeta()), source, nonNull, IntegerArrayType::parseText,
-                PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return PostgreArrays.arrayBeforeBind(source, IntegerArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
     }

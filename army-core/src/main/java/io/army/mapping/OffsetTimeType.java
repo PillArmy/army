@@ -93,11 +93,6 @@ public final class OffsetTimeType extends _ArmyNoInjectionType implements Mappin
     }
 
     @Override
-    public OffsetTime convert(MappingEnv env, Object source) throws CriteriaException {
-        return toOffsetTime(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public OffsetTime beforeBind(DataType dataType, final MappingEnv env, final Object source) {
         return toOffsetTime(this, dataType, source, PARAM_ERROR_HANDLER);
     }

@@ -118,13 +118,6 @@ public class OffsetTimeArrayType extends _ArmyNoInjectionType implements Mapping
     }
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayAfterGet(this, map(env.serverMeta()), source, false,
-                OffsetTimeArrayType::parseText, PARAM_ERROR_HANDLER
-        );
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return PostgreArrays.arrayBeforeBind(source, OffsetTimeArrayType::appendToText, dataType, this,
                 PARAM_ERROR_HANDLER

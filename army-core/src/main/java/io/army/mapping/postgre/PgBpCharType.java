@@ -57,11 +57,6 @@ public final class PgBpCharType extends _ArmyBuildInType implements MappingType.
     }
 
     @Override
-    public String convert(MappingEnv env, Object source) throws CriteriaException {
-        return StringType.toString(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return StringType.toString(this, dataType, source, PARAM_ERROR_HANDLER);
     }

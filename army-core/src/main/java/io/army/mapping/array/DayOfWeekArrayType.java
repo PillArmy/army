@@ -102,11 +102,6 @@ public class DayOfWeekArrayType extends _ArmyNoInjectionType implements MappingT
     }
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return null;
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return null;
     }

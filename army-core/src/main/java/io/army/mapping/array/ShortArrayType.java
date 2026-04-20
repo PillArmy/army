@@ -124,13 +124,6 @@ public class ShortArrayType extends _ArmyNoInjectionType implements MappingType.
     }
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        final boolean nonNull = this.underlyingJavaType == short.class;
-        return PostgreArrays.arrayAfterGet(this, map(env.serverMeta()), source, nonNull, ShortArrayType::parseText,
-                PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return PostgreArrays.arrayBeforeBind(source, ShortArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
     }

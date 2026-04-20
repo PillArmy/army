@@ -140,11 +140,6 @@ public final class SqlRecordArrayType extends _SqlRecordSupport implements Mappi
     }
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        throw PARAM_ERROR_HANDLER.apply(this, map(env.serverMeta()), source, dontSupportBind());
-    }
-
-    @Override
     public String beforeBind(final DataType dataType, final MappingEnv env, Object source) throws CriteriaException {
         throw PARAM_ERROR_HANDLER.apply(this, dataType, source, dontSupportBind());
     }

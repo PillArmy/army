@@ -94,11 +94,6 @@ public final class BitSetType extends _ArmyNoInjectionType implements MappingTyp
 
 
     @Override
-    public BitSet convert(final MappingEnv env, final Object source) throws CriteriaException {
-        return toBitSet(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Object beforeBind(final DataType dataType, final MappingEnv env, final Object source) {
         final Object value;
         switch ((((SQLType) dataType).database())) {

@@ -18,8 +18,8 @@ package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
-import io.army.meta.ServerMeta;
 import io.army.executor.DataAccessException;
+import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
 import java.math.BigDecimal;
@@ -54,11 +54,6 @@ public final class UnsignedLongType extends _ArmyNoInjectionType
     @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
         return UnsignedBigintType.mapToDataType(this, meta);
-    }
-
-    @Override
-    public Long convert(MappingEnv env, Object source) throws CriteriaException {
-        return toUnsignedLong(this, map(env.serverMeta()), source, -1L, PARAM_ERROR_HANDLER);
     }
 
     @Override

@@ -132,11 +132,6 @@ public class FloatArrayType extends _ArmyNoInjectionType implements MappingType.
     }
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayAfterGet(this, map(env.serverMeta()), source, false, FloatArrayType::parseText, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return PostgreArrays.arrayBeforeBind(source, FloatArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
     }

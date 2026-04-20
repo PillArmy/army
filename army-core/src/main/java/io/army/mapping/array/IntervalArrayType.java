@@ -46,11 +46,6 @@ public class IntervalArrayType extends _ArmyNoInjectionType {
 
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        return null;
-    }
-
-    @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return null;
     }

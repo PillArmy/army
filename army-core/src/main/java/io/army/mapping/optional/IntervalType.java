@@ -51,12 +51,6 @@ public final class IntervalType extends _ArmyNoInjectionType implements MappingT
     }
 
     @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
-        //TODO
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Object beforeBind(DataType type, MappingEnv env, Object source) throws CriteriaException {
         //TODO
         throw new UnsupportedOperationException();

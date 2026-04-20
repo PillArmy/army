@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -89,11 +88,6 @@ public final class UnsignedMediumIntType extends _NumericType._UnsignedIntegerTy
                 throw MAP_ERROR_HANDLER.apply(this, meta);
         }
         return dataType;
-    }
-
-    @Override
-    public Integer convert(MappingEnv env, Object source) throws CriteriaException {
-        return UnsignedIntegerType.toUnsignedInt(this, map(env.serverMeta()), source, MAX_VALUE, PARAM_ERROR_HANDLER);
     }
 
     @Override

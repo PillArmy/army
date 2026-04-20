@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -76,14 +75,6 @@ public final class XmlType extends _ArmyBuildInType {
                 throw MAP_ERROR_HANDLER.apply(this, meta);
         }
         return dataType;
-    }
-
-    @Override
-    public String convert(MappingEnv env, Object source) throws CriteriaException {
-        if (!(source instanceof String)) {
-            throw PARAM_ERROR_HANDLER.apply(this, map(env.serverMeta()), source, null);
-        }
-        return (String) source;
     }
 
     @Override

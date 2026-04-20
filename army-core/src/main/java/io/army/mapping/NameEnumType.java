@@ -139,11 +139,6 @@ public final class NameEnumType extends _ArmyNoInjectionType {
 
 
     @Override
-    public Enum<?> convert(MappingEnv env, Object source) throws CriteriaException {
-        return toNameEnum(map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public String beforeBind(DataType dataType, MappingEnv env, final Object source) {
         return toNameEnum(dataType, source, PARAM_ERROR_HANDLER).name();
     }

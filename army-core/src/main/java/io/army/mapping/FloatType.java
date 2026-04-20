@@ -90,11 +90,6 @@ public final class FloatType extends _NumericType._FloatNumericType {
 
 
     @Override
-    public Float convert(MappingEnv env, Object source) throws CriteriaException {
-        return convertToFloat(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public Float beforeBind(DataType dataType, MappingEnv env, final Object source) {
         return convertToFloat(this, dataType, source, PARAM_ERROR_HANDLER);
     }

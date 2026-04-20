@@ -16,7 +16,6 @@
 
 package io.army.mapping.mysql;
 
-import io.army.criteria.CriteriaException;
 import io.army.dialect.Database;
 import io.army.dialect._Constant;
 import io.army.mapping.*;
@@ -67,11 +66,6 @@ public final class MySQLTextEnumSetType extends _ArmyBuildInType implements Mult
 
     @Override
     public <Z> MappingType compatibleFor(final DataType dataType, final Class<Z> targetType) throws NoMatchMappingException {
-        return null;
-    }
-
-    @Override
-    public Object convert(MappingEnv env, Object source) throws CriteriaException {
         return null;
     }
 

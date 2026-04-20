@@ -75,11 +75,6 @@ public final class OffsetDateTimeType extends _ArmyNoInjectionType implements Ma
     }
 
     @Override
-    public OffsetDateTime convert(MappingEnv env, Object source) throws CriteriaException {
-        return toOffsetDateTime(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public OffsetDateTime beforeBind(final DataType dataType, MappingEnv env, final Object source) {
         return toOffsetDateTime(this, dataType, source, PARAM_ERROR_HANDLER);
     }

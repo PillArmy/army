@@ -85,11 +85,6 @@ public final class SqlCharType extends _ArmyBuildInType implements MappingType.S
 
 
     @Override
-    public String convert(MappingEnv env, Object source) throws CriteriaException {
-        return StringType.toString(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public String beforeBind(DataType dataType, MappingEnv env, Object source) {
         return StringType.toString(this, dataType, source, PARAM_ERROR_HANDLER);
     }

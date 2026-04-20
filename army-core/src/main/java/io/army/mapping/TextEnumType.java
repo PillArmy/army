@@ -16,7 +16,7 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
+import io.army.lang.Nullable;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.SQLType;
@@ -26,7 +26,6 @@ import io.army.util.ClassUtils;
 import io.army.util._Collections;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
@@ -108,11 +107,6 @@ public final class TextEnumType extends _ArmyBuildInType {
     @Override
     public DataType map(final ServerMeta meta) {
         return NameEnumType.mapToDataType(this, meta, this.enumName);
-    }
-
-    @Override
-    public TextEnum convert(MappingEnv env, Object source) throws CriteriaException {
-        return toTextEnum(map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
     }
 
     @Override

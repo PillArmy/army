@@ -109,11 +109,6 @@ public final class DayOfWeekType extends _ArmyNoInjectionType {
 
 
     @Override
-    public DayOfWeek convert(final MappingEnv env, final Object source) throws CriteriaException {
-        return toDayOfWeek(this, map(env.serverMeta()), source, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
     public String beforeBind(DataType dataType, MappingEnv env, final Object source)
             throws CriteriaException {
         return toDayOfWeek(this, dataType, source, PARAM_ERROR_HANDLER)
