@@ -12,7 +12,7 @@
     <artifactId>army-annotation</artifactId>
 
     <description>Army annotation module,provide io.army.modelgen.ArmyMetaModelDomainProcessor etc.</description>
-    <url>https://github.com/QinArmy/army</url>
+    <url>https://github.com/PillArmy/army</url>
 
     <organization>
         <name>QinArmy</name>

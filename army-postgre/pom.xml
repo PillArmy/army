@@ -11,7 +11,7 @@
 
     <artifactId>army-postgre</artifactId>
     <description>Army postgre module,provide postgre dialect api and dialect parser.</description>
-    <url>https://github.com/QinArmy/army</url>
+    <url>https://github.com/PillArmy/army</url>
 
     <organization>
         <name>QinArmy</name>

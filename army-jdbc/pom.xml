@@ -12,7 +12,7 @@
     <artifactId>army-jdbc</artifactId>
 
     <description>Army jdbc module,provide jdbc executor.</description>
-    <url>https://github.com/QinArmy/army</url>
+    <url>https://github.com/PillArmy/army</url>
 
     <organization>
         <name>QinArmy</name>

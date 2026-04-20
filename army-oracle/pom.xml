@@ -12,7 +12,7 @@
     <artifactId>army-oracle</artifactId>
 
     <description>Army oracle module,provide oracle dialect api and dialect parser.</description>
-    <url>https://github.com/QinArmy/army</url>
+    <url>https://github.com/PillArmy/army</url>
 
     <organization>
         <name>QinArmy</name>
