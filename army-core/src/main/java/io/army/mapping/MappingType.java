@@ -16,8 +16,7 @@ import io.army.util._StringUtils;
 
 import java.util.List;
 
-public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem
-        permits AbstractMappingType, ArrayMappingType, JsonMappingType {
+public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permits AbstractMappingType {
 
     /**
      * document type mapping ,perhaps return null value ,for example : {@link JsonType#afterGet(DataType, MappingEnv, Object)}
@@ -36,14 +35,6 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem
 
     DataType map(ServerMeta meta) throws UnsupportedDialectException;
 
-    /**
-     * @param source never null
-     * @return non-null, the instance of {@link #javaType()}.
-     */
-    @Deprecated
-    default Object convert(MappingEnv env, Object source) throws CriteriaException {
-        throw new UnsupportedOperationException();
-    }
 
     /**
      * @param dataType from {@link #map(ServerMeta)}
