@@ -23,6 +23,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -39,11 +40,19 @@ public class ArmyMetaModelDomainProcessor extends AbstractProcessor {
 
     // private Messager messager;
 
+    private boolean snowflakeStartTimeWarning = true;
+
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.processingEnv = processingEnv;
         // this.messager = processingEnv.getMessager();
+        final Map<String, String> map;
+        map = processingEnv.getOptions();
+        if (map != null && "false".equals(map.get("army.snowflakeStartTimeWarning"))) {
+            this.snowflakeStartTimeWarning = false;
+            // System.out.println("[INFO] army.snowflakeStartTimeWarning is false");
+        }
     }
 
     @Override
@@ -58,7 +67,7 @@ public class ArmyMetaModelDomainProcessor extends AbstractProcessor {
 
         final long startTime = System.currentTimeMillis();
         try {
-            final AnnotationHandler handler = new AnnotationHandler(this.processingEnv);
+            final AnnotationHandler handler = new AnnotationHandler(this.processingEnv, this.snowflakeStartTimeWarning);
             handler.createSourceFiles(elementSet);
             if (!handler.errorMsgList.isEmpty()) {
                 final String m, title;

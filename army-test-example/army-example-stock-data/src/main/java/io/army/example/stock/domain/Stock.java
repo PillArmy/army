@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Table(name = "stock", indexes = {@Index(name = "stock_uni_ex_code", unique = true, fieldList = {"exchange", "code"})},
         comment = "股票")
-@OverrideParams(params = @Param(name = SnowflakeGenerator.START_TIME, value = "1776386333818"))
+@OverrideParams(fields = {@FieldParam(name = "id", params = @Param(name = SnowflakeGenerator.START_TIME, value = "1776386333818"))})
 public class Stock extends SnowFieldDomain {
 
     @Column(notNull = true, updatable = false, precision = 5, comment = "交易所代码")

@@ -114,11 +114,11 @@ public final class SnowflakeGenerator implements FieldGenerator {
      *
      * @see Param
      */
-    public static final String START_TIME = "snowStartTime";
+    public static final String START_TIME = "startTime";
 
-    public static final String DATE = "snowDate";
+    public static final String DATE = "date";
 
-    public static final String SUFFIX_LENGTH = "snowSuffixLength";
+    public static final String SUFFIX_LENGTH = "suffixLength";
 
 
     private static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()

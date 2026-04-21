@@ -77,10 +77,14 @@ final class SourceCodeCreator {
 
     private final List<Pair> pairList = ArmyCollections.arrayList();
 
-    SourceCodeCreator(final SourceVersion sourceVersion, Filer filer) {
+
+    final StringBuilder tempBuilder;
+
+    SourceCodeCreator(final SourceVersion sourceVersion, Filer filer, StringBuilder tempBuilder) {
         this.filer = filer;
         this.codeCreateTime = OffsetDateTime.now().format(ISO_OFFSET_DATETIME_FORMATTER);
         this.asOfJava9 = sourceVersion.compareTo(RELEASE_8) > 0;
+        this.tempBuilder = tempBuilder;
     }
 
     void create(final TypeElement element, final Map<String, VariableElement> fieldMap,
@@ -135,7 +139,7 @@ final class SourceCodeCreator {
             commentLine = commentBuilder.toString();
 
             // field name definition
-            upperCaseFieldName = _MetaBridge.camelToUpperCase(fieldName);
+            upperCaseFieldName = _MetaBridge.camelToUpperCase(fieldName, this.tempBuilder);
             builder
                     .append(commentLine)
                     .append(FIELD_PREFIX)
@@ -270,7 +274,7 @@ final class SourceCodeCreator {
                 .append("\")")
                 .append("\n");
 
-        if (element.getTypeParameters().size() > 0) {
+        if (!element.getTypeParameters().isEmpty()) {
             builder.append("@SuppressWarnings(\"unchecked\")\n");
         }
         builder.append("public abstract class ")

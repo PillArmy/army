@@ -51,6 +51,11 @@
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jpamodelgen</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -61,6 +66,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <annotationProcessors>io.army.modelgen.ArmyMetaModelDomainProcessor</annotationProcessors>
+                    <compilerArgs>
+                        <arg>-Aarmy.snowflakeStartTimeWarning=false</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

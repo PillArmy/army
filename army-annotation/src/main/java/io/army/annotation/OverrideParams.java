@@ -29,5 +29,5 @@ public @interface OverrideParams {
     /**
      * Specifies the creation value(s) of {@code io.army.generator.FieldGenerator}.
      */
-    Param[] params();
+    FieldParam[] fields();
 }

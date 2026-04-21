@@ -16,21 +16,20 @@
 
 package io.army.annotation;
 
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/// see {@code io.army.generator.PreFieldGenerator}
-///
-/// @see Generator
 @Target({})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Param {
+public @interface FieldParam {
 
+    /// java field name
     String name();
 
-    String value();
+
+    Param[] params();
+
 }

@@ -93,6 +93,7 @@
 
         <jdbd.version>0.13.0-SNAPSHOT</jdbd.version>
         <jdbd.mysql.version>0.12.0-SNAPSHOT</jdbd.mysql.version>
+        <hibernate.version>7.3.1.Final</hibernate.version>
     </properties>
 
     <dependencyManagement>
@@ -280,12 +281,21 @@
                 <artifactId>HikariCP</artifactId>
                 <version>4.0.3</version>
             </dependency>
+
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
-                <version>7.3.1.Final</version>
+                <version>${hibernate.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-jpamodelgen</artifactId>
+                <version>${hibernate.version}</version>
+                <scope>test</scope>
+            </dependency>
+
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>

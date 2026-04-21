@@ -19,6 +19,7 @@ package io.army.util;
 
 import io.army.dialect._Constant;
 import io.army.lang.Nullable;
+import io.army.modelgen._MetaBridge;
 
 import java.util.BitSet;
 import java.util.Locale;
@@ -54,10 +55,7 @@ public abstract class _StringUtils {
 
 
     public static boolean isCamelCase(final @Nullable String text) {
-        return text != null
-                && !text.toLowerCase(Locale.ROOT)
-                .toUpperCase(Locale.ROOT)
-                .equals(text.toLowerCase(Locale.ROOT));
+        return _MetaBridge.isCamelCase(text);
 
     }
 

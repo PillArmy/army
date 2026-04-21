@@ -257,9 +257,14 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         }
         final Set<String> set = obtainParamNameSet(generatorClass);
         final Map<String, String> newMap = new HashMap<>(paramMap);
-        for (Param param : overrideParams.params()) {
-            if (set.contains(param.name())) {
-                newMap.put(param.name(), param.value());
+        for (FieldParam fieldParam : overrideParams.fields()) {
+            if (!fieldParam.name().equals(fieldMeta.fieldName())) {
+                continue;
+            }
+            for (Param param : fieldParam.params()) {
+                if (set.contains(param.name())) {
+                    newMap.put(param.name(), param.value());
+                }
             }
         }
 

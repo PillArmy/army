@@ -270,7 +270,7 @@ public abstract class TableMetaUtils {
 
         for (Index index : indices) {
             for (String fieldName : index.fieldList()) {
-                if (fieldName.length() < 1) {
+                if (fieldName.isEmpty()) {
                     String m = String.format("%s index[%s] must not empty.", table, index.name());
                     throw new MetaException(m);
                 }
@@ -375,7 +375,7 @@ public abstract class TableMetaUtils {
         final String customColumnName = column.name().trim(), fieldName = field.getName();
         final String columnName;
         if (customColumnName.isEmpty()) {
-            columnName = _MetaBridge.camelToLowerCase(fieldName);
+            columnName = _MetaBridge.camelToLowerCase(fieldName, null);
         } else if (_StringUtils.isCamelCase(customColumnName)) {
             String m = String.format("%s.%s column name is camel.", field.getDeclaringClass().getName(), field.getName());
             throw new MetaException(m);

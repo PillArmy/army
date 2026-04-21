@@ -27,36 +27,18 @@ abstract class ArmyCollections {
 
 
     static <K, V> HashMap<K, V> hashMap() {
-        return new FinalHashMap<>();
+        return new HashMap<>();
     }
 
     static <K, V> HashMap<K, V> hashMap(int initialCapacity) {
-        return new FinalHashMap<>(initialCapacity);
+        return new HashMap<>(initialCapacity);
     }
 
     static <E> ArrayList<E> arrayList() {
-        return new FinalArrayList<>();
+        return new ArrayList<>();
     }
 
 
-    private static final class FinalHashMap<K, V> extends HashMap<K, V> {
-
-
-        private FinalHashMap() {
-        }
-
-        private FinalHashMap(int initialCapacity) {
-            super(initialCapacity);
-        }
-
-
-    }
-
-    private static final class FinalArrayList<E> extends ArrayList<E> {
-
-        private FinalArrayList() {
-        }
-    }
 
 
 }

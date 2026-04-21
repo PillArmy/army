@@ -31,10 +31,13 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.Function;
 
 final class AnnotationHandler {
 
     private final ProcessingEnvironment env;
+
+    private final boolean snowflakeStartTimeWarning;
 
     final List<String> errorMsgList = ArmyCollections.arrayList();
 
@@ -42,13 +45,20 @@ final class AnnotationHandler {
 
     private final Map<String, Map<Integer, TypeElement>> codeMap = ArmyCollections.hashMap();
 
-    AnnotationHandler(ProcessingEnvironment env) {
+    private final Map<String, Set<String>> startTimeToDomain = new HashMap<>();
+
+    //private final Map<String, String> domainToParent = new HashMap<>();
+
+    private final StringBuilder tempBuilder = new StringBuilder();
+
+    AnnotationHandler(ProcessingEnvironment env, boolean snowflakeStartTimeWarning) {
         this.env = env;
+        this.snowflakeStartTimeWarning = snowflakeStartTimeWarning;
     }
 
 
-    void createSourceFiles(Set<? extends Element> domainElementSet) throws IOException {
-        final SourceCodeCreator codeCreator = new SourceCodeCreator(this.env.getSourceVersion(), this.env.getFiler());
+    void createSourceFiles(final Set<? extends Element> domainElementSet) throws IOException {
+        final SourceCodeCreator codeCreator = new SourceCodeCreator(this.env.getSourceVersion(), this.env.getFiler(), this.tempBuilder);
         final List<String> errorMsgList = this.errorMsgList;
         final TypeElement[] outParent = new TypeElement[1];
 
@@ -57,37 +67,52 @@ final class AnnotationHandler {
         List<TypeElement> mappedList;
         Map<String, IndexMode> indexModeMap;
         MappingMode mode;
-        String customeTableName, lowerTableName;
+        String customeTableName, domainName;
+        Table table;
+        Inheritance inheritance;
         for (Element element : domainElementSet) {
             domain = (TypeElement) element;
             if (domain.getNestingKind() != NestingKind.TOP_LEVEL) {
                 continue;
             }
-            if (domain.getAnnotation(Inheritance.class) != null) {
+
+            domainName = MetaUtils.getClassName(domain);
+
+            if ((inheritance = domain.getAnnotation(Inheritance.class)) != null) {
                 parentDomain = null;
-                fieldMap = getParentFieldMap(domain);
+                mappedList = null;
             } else {
-                outParent[0] = null;
+                outParent[0] = null; // clear
                 mappedList = getMappedList(domain, outParent);
                 parentDomain = outParent[0];
-                if (parentDomain == null) {
-                    fieldMap = getFieldSet(mappedList, null);
-                } else {
-                    fieldMap = getFieldSet(mappedList, getParentFieldMap(parentDomain));
-                }
+//                if(parentDomain != null){
+//                    this.domainToParent.put(domainName, MetaUtils.getClassName(parentDomain));
+//                }
             }
 
             mode = validateMode(domain, parentDomain);
-            // validate table name
-            customeTableName = domain.getAnnotation(Table.class).name();
-            lowerTableName = customeTableName.toLowerCase(Locale.ROOT);
-            if (!customeTableName.equals(lowerTableName) && !customeTableName.equals(customeTableName.toUpperCase(Locale.ROOT))) {  // army don't allow camel
-                String m = String.format("%s table name is CamelCase.", MetaUtils.getClassName(domain));
-                this.errorMsgList.add(m);
+
+
+            if (inheritance != null) {
+                fieldMap = getParentFieldMap(domain);
+            } else if (parentDomain == null) {
+                fieldMap = getFieldSet(mappedList, null);
+            } else {
+                fieldMap = getFieldSet(mappedList, getParentFieldMap(parentDomain));
             }
-            if (!lowerTableName.trim().equals(lowerTableName)) {
-                String m = String.format("please trim %s table name .", MetaUtils.getClassName(domain));
-                this.errorMsgList.add(m);
+
+
+            // validate table name
+            table = domain.getAnnotation(Table.class);
+            assert table != null;
+            customeTableName = table.name();
+            if (_MetaBridge.isCamelCase(customeTableName)) {  // army don't allow camel
+                String m = String.format("%s table name is CamelCase.", domainName);
+                errorMsgList.add(m);
+            }
+            if (!customeTableName.trim().equals(customeTableName)) {
+                String m = String.format("please trim %s table name .", domainName);
+                errorMsgList.add(m);
             }
             if (mode == null || !errorMsgList.isEmpty()) {
                 // occur error
@@ -107,12 +132,59 @@ final class AnnotationHandler {
 
             codeCreator.create(domain, fieldMap, parentDomain, mode, indexModeMap);
 
-        }
+        } // class element loop
 
         if (errorMsgList.isEmpty()) {
             codeCreator.flush(); // finally flush
         }
 
+        printSnowflakeStartTimeWarning();
+
+    }
+
+
+    private void printSnowflakeStartTimeWarning() {
+        if (!this.snowflakeStartTimeWarning) {
+            return;
+        }
+        StringBuilder builder = null;
+        Set<String> set;
+        for (Map.Entry<String, Set<String>> e : this.startTimeToDomain.entrySet()) {
+            set = e.getValue();
+            if (set.size() < 2) {
+                continue;
+            }
+            if (builder == null) {
+                builder = new StringBuilder();
+            } else {
+                builder.append('\n');
+            }
+            builder.append("snowflake startTime")
+                    .append('[')
+                    .append(e.getKey())
+                    .append(']')
+                    .append(" is used by ")
+                    .append(set)
+            ;
+
+        }
+
+        if (builder == null) {
+            return;
+        }
+        builder.append('\n');
+        final String text = """
+                This may reduce concurrency during high - traffic concurrent situations.
+                You can use the following code to turn off this warning.
+                     <configuration>
+                           <annotationProcessors>io.army.modelgen.ArmyMetaModelDomainProcessor</annotationProcessors>
+                           <compilerArgs>
+                                 <arg>-Aarmy.snowflakeStartTimeWarning=false</arg>
+                           </compilerArgs>
+                     </configuration>
+                """;
+        builder.append(text);
+        System.out.printf("[%sWARNING%s] %s%n", "\u001B[33m", "\u001B[0m", builder);
     }
 
 
@@ -213,16 +285,22 @@ final class AnnotationHandler {
         return mode;
     }
 
+
     private Map<String, VariableElement> getFieldSet(final List<TypeElement> mappedList
             , final @Nullable Map<String, VariableElement> parentFieldMap) {
 
         final TypeElement tableElement;
         tableElement = mappedList.getFirst();
+        final String domainName = MetaUtils.getClassName(tableElement);
+
+
         final Inheritance inheritance;
         inheritance = tableElement.getAnnotation(Inheritance.class);
         final String discriminatorField = inheritance == null ? null : inheritance.value();
         final Table table;
         table = tableElement.getAnnotation(Table.class);
+        assert table != null;
+
 
         VariableElement field;
         Column column;
@@ -256,15 +334,21 @@ final class AnnotationHandler {
                 if (discriminatorField != null && discriminatorField.equals(fieldName)) {
                     foundDiscriminatorColumn = true;
                     assertCodeEnum(className, field);
-                    validateField(className, fieldName, field, column, true);
+                    validateField(domainName, className, fieldName, field, column, true);
                 } else {
-                    validateField(className, fieldName, field, column, false);
+                    validateField(domainName, className, fieldName, field, column, false);
                 }
 
 
             }// for getEnclosedElements
 
+        } // class loop
+
+        final OverrideParams overrideParams = tableElement.getAnnotation(OverrideParams.class);
+        if (overrideParams != null) {
+            createOverrideParamMap(overrideParams, domainName, fieldMap::get);
         }
+
 
         if (inheritance != null && !foundDiscriminatorColumn) {
             this.errorMsgList.add(String.format("Domain %s discriminator field[%s] not found."
@@ -318,15 +402,46 @@ final class AnnotationHandler {
     }
 
 
-    private void validateField(final String className, final String fieldName, final VariableElement field, final Column column, final boolean discriminatorField) {
-//        if (field.asType().getKind().isPrimitive()) {
-//            this.errorMsgList.add(String.format("Field %s.%s couldn't be primitive.", className, fieldName));
-//        }
-        switch (fieldName) {
-            case _MetaBridge.ID: {
-                //no-op
+    private void createOverrideParamMap(final OverrideParams overrideParams, final String domainName, final Function<String, VariableElement> func) {
+
+        String fieldName, paramName;
+        VariableElement fieldElement;
+        Generator generator;
+        topLoop:
+        for (FieldParam field : overrideParams.fields()) {
+            fieldName = field.name();
+            fieldElement = func.apply(fieldName);
+            if (fieldElement == null) {
+                String m = String.format("%s override field[%s] not exists.", domainName, fieldName);
+                this.errorMsgList.add(m);
+                continue;
             }
-            break;
+
+            for (Param param : field.params()) {
+                paramName = param.name();
+                if (!paramName.equals("startTime")) {
+                    continue;
+                }
+                if ((generator = fieldElement.getAnnotation(Generator.class)) == null
+                        || generator.type() == GeneratorType.POST
+                        || !generator.value().equals("io.army.generator.snowflake.SnowflakeGenerator")) {
+                    continue;
+                }
+                this.startTimeToDomain.computeIfAbsent(param.value(), _ -> new HashSet<>())
+                        .add(domainName);
+                break topLoop;
+            } // for param loop
+
+        } // for field loop
+    }
+
+
+    private void validateField(final String domainName, final String className, final String fieldName,
+                               final VariableElement field, final Column column, final boolean discriminatorField) {
+        switch (fieldName) {
+            case _MetaBridge.ID:
+                validateSnowflakeStartTime(domainName, field);
+                break;
             case _MetaBridge.CREATE_TIME:
             case _MetaBridge.UPDATE_TIME:
                 assertDateTime(className, field);
@@ -341,12 +456,31 @@ final class AnnotationHandler {
                 if (!discriminatorField && !MetaUtils.hasText(column.comment())) {
                     noCommentError(className, field);
                 }
-//                if (field.asType().getKind().isPrimitive()) {
-//                    this.errorMsgList.add(String.format("Field %s.%s couldn't be primitive."
-//                            , className, fieldName));
-//                }
-            }
+                validateSnowflakeStartTime(domainName, field);
+            } // default
+        } //switch
+    }
+
+
+    private void validateSnowflakeStartTime(final String domainName, final VariableElement field) {
+        final Generator generator;
+        if ((generator = field.getAnnotation(Generator.class)) == null
+                || generator.type() == GeneratorType.POST
+                || !generator.value().equals("io.army.generator.snowflake.SnowflakeGenerator")) {
+            return;
         }
+
+        String paramName;
+        for (Param param : generator.params()) {
+            paramName = param.name();
+            if (!paramName.equals("startTime")) {
+                continue;
+            }
+            this.startTimeToDomain.computeIfAbsent(param.value(), _ -> new HashSet<>())
+                    .add(domainName);
+            break;
+        }
+
     }
 
 
@@ -357,18 +491,17 @@ final class AnnotationHandler {
         final String customColumnName, lowerCaseColumnName;
         customColumnName = column.name();
         if (customColumnName.isEmpty()) {
-            lowerCaseColumnName = _MetaBridge.camelToLowerCase(fieldName);
+            lowerCaseColumnName = _MetaBridge.camelToLowerCase(fieldName, this.tempBuilder);
         } else {
-            lowerCaseColumnName = customColumnName.toLowerCase(Locale.ROOT);
-            if (!customColumnName.equals(lowerCaseColumnName)
-                    && !customColumnName.equals(customColumnName.toUpperCase(Locale.ROOT))) { // army don't allow camel
+            if (_MetaBridge.isCamelCase(customColumnName)) { // army don't allow camel
                 String m = String.format("Field %s.%s column name[%s] is camel.", className, fieldName, customColumnName);
                 this.errorMsgList.add(m);
             }
-            if (!lowerCaseColumnName.trim().equals(lowerCaseColumnName)) {
+            if (!customColumnName.trim().equals(customColumnName)) {
                 String m = String.format("please trim Field %s.%s column name[%s].", className, fieldName, customColumnName);
                 this.errorMsgList.add(m);
             }
+            lowerCaseColumnName = customColumnName.toLowerCase(Locale.ROOT);
         }
         return lowerCaseColumnName;
     }
@@ -455,6 +588,7 @@ final class AnnotationHandler {
 
     private Map<String, IndexMode> createFieldToIndexModeMap(final TypeElement domain) {
         final Table table = domain.getAnnotation(Table.class);
+        assert table != null;
         final Index[] indexArray = table.indexes();
         if (indexArray.length == 0) {
             return Collections.emptyMap();
@@ -467,7 +601,12 @@ final class AnnotationHandler {
         IndexMode indexMode;
         for (Index index : indexArray) {
             // make index name lower case
-            indexName = index.name().toLowerCase(Locale.ROOT);
+            indexName = index.name();
+            if (_MetaBridge.isCamelCase(indexName)) {
+                String m = String.format("Domain %s index name[%s] is CamelCase.", MetaUtils.getClassName(domain), indexName);
+                this.errorMsgList.add(m);
+            }
+            indexName = indexName.toLowerCase(Locale.ROOT);
             if (indexNameMap.putIfAbsent(indexName, Boolean.TRUE) != null) {
                 String m = String.format("Domain %s index name[%s] duplication",
                         domain.getQualifiedName(), indexName);
