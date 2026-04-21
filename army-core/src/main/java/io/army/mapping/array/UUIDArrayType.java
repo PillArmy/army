@@ -25,7 +25,7 @@ import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-public class UUIDArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class UUIDArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
 
     public static UUIDArrayType from(Class<?> javaType) {

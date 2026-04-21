@@ -37,7 +37,7 @@ import java.math.BigDecimal;
  * @see io.army.mapping.BigDecimalType
  * @since 0.6.0
  */
-public class BigDecimalArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class BigDecimalArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
     public static BigDecimalArrayType from(final Class<?> javaType) {
         final BigDecimalArrayType instance;

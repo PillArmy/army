@@ -27,7 +27,7 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
 
-public class MediumBlobArrayType extends _ArmyBuildInType implements MappingType.SqlArrayType {
+public class MediumBlobArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
     public static MediumBlobArrayType from(final Class<?> javaType) {
         final MediumBlobArrayType instance;

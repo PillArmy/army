@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentMap;
  * @see Enum
  * @see NameEnumType
  */
-public class NameEnumArrayType extends _ArmyBuildInType implements MappingType.SqlArrayType {
+public class NameEnumArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
     public static NameEnumArrayType from(final Class<?> arrayClass) {
         if (!arrayClass.isArray()) {

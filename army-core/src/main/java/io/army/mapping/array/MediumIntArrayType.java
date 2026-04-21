@@ -27,7 +27,7 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
 
-public class MediumIntArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class MediumIntArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
 
     public static MediumIntArrayType from(final Class<?> arrayClass) {

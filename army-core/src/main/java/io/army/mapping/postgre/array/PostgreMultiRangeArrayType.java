@@ -42,7 +42,7 @@ import java.util.function.Function;
  * @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-BUILTIN">Built-in Range and Multirange Types</a>
  * @since 0.6.0
  */
-public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements MappingType.SqlArrayType {
+public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements MappingType.SqlArray {
 
 
     /**
@@ -330,7 +330,7 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
                 throw handler.apply(type, dataType, text, new IllegalArgumentException(m));
             }
             elementFunc = String::substring;
-        } else if (!(type instanceof MappingType.SqlArrayType)) {
+        } else if (!(type instanceof SqlArray)) {
             throw handler.apply(type, dataType, text, _Exceptions.notArrayMappingType(type));
         } else if (type instanceof UnaryGenericsMapping.ListMapping) {
             String m = String.format("multi range array type don't support %s",

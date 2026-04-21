@@ -14,7 +14,7 @@ import io.army.util.ArrayUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class PathArrayType extends _ArmyBuildInType implements MappingType.SqlArrayType {
+public class PathArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
 
     public static PathArrayType from(final Class<?> arrayType) {

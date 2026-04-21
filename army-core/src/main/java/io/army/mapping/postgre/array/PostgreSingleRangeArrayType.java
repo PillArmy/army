@@ -42,7 +42,7 @@ import java.util.function.Function;
  * @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-BUILTIN">Built-in Range and Multirange Types</a>
  * @since 0.6.0
  */
-public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements MappingType.SqlArrayType {
+public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements MappingType.SqlArray {
 
 
     /**
@@ -307,7 +307,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
                                               final MappingType type, final MappingSupport.ErrorHandler handler) {
 
         final TextFunction<?> elementFunc;
-        if (!(type instanceof MappingType.SqlArrayType)) {
+        if (!(type instanceof SqlArray)) {
             throw handler.apply(type, dataType, text, _Exceptions.notArrayMappingType(type));
         } else if (rangeFunc == null) {
             if (ArrayUtils.underlyingComponent(type.javaType()) != String.class) {

@@ -24,6 +24,7 @@ import io.army.criteria.postgre.PostgreQuery;
 import io.army.criteria.postgre.PostgreWindow;
 import io.army.criteria.standard.StandardQuery;
 import io.army.dialect.*;
+import io.army.lang.Nullable;
 import io.army.mapping.IntegerType;
 import io.army.mapping.MappingType;
 import io.army.mapping.TextType;
@@ -34,7 +35,6 @@ import io.army.stmt.SimpleStmt;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -775,7 +775,7 @@ abstract class PostgreFunctionUtils extends DialectFunctionUtils {
             } else if (!(nullOption == null || nullOption == SQLs.NULL || nullOption == SQLs.NOT_NULL)) {
                 throw CriteriaUtils.funcArgError(XMLTABLE, nullOption);
             }
-            if (type instanceof MappingType.SqlArrayType && type.javaType() == Object.class) {
+            if (type instanceof MappingType.SqlArray && type.javaType() == Object.class) {
                 throw xmlTableObjectArrayError(this.outerContext, type);
             }
             return this.onAddColumn(new XmlTableDataColumn(name, type, columnExp, defaultExp, nullOption));

@@ -730,8 +730,8 @@ abstract class CriteriaUtils {
         } else {
             type = typeMeta.mappingType();
         }
-        while (type instanceof MappingType.SqlArrayType) {
-            type = ((MappingType.SqlArrayType) type).elementType();
+        while (type instanceof MappingType.SqlArray) {
+            type = ((MappingType.SqlArray) type).elementType();
         }
         return type;
     }

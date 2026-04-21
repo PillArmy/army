@@ -37,7 +37,7 @@ import io.army.sqltype.DataType;
  *
  * @since 0.6.0
  */
-abstract class ArmyTextArrayType extends _ArmyBuildInType implements MappingType.SqlArrayType {
+abstract class ArmyTextArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
     final Class<?> javaType;
 

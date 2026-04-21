@@ -27,7 +27,7 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
 
-public class ByteArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class ByteArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
 
     public static ByteArrayType from(final Class<?> javaType) {

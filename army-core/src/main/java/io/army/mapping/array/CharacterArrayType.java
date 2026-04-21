@@ -32,7 +32,7 @@ import io.army.util.ArrayUtils;
 /**
  * @see CharacterType
  */
-public class CharacterArrayType extends _ArmyBuildInType implements MappingType.SqlArrayType {
+public class CharacterArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
     public static CharacterArrayType from(final Class<?> javaType) {
         final CharacterArrayType instance;

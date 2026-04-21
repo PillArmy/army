@@ -31,7 +31,7 @@ import io.army.util._TimeUtils;
 
 import java.time.ZonedDateTime;
 
-public class ZonedDateTimeArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class ZonedDateTimeArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
 
     public static ZonedDateTimeArrayType from(final Class<?> arrayClass) {

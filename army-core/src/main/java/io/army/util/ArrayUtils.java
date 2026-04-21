@@ -234,7 +234,7 @@ public abstract class ArrayUtils {
 
     public static Class<?> underlyingComponentClass(final MappingType type) {
         final Class<?> componentClass;
-        if (!(type instanceof MappingType.SqlArrayType)) {
+        if (!(type instanceof MappingType.SqlArray)) {
             throw new IllegalArgumentException("non-array mapping");
         } else if (type instanceof UnaryGenericsMapping.ListMapping) {
             componentClass = ((UnaryGenericsMapping.ListMapping<?>) type).genericsType();

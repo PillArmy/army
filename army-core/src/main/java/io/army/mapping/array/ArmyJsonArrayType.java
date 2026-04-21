@@ -39,7 +39,7 @@ import java.util.function.BiConsumer;
  *
  * @since 0.6.0
  */
-abstract class ArmyJsonArrayType extends _ArmyBuildInType implements MappingType.SqlArrayType {
+abstract class ArmyJsonArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
 
     final Class<?> javaType;

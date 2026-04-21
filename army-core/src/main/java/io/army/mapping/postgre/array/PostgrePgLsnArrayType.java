@@ -32,7 +32,7 @@ import io.army.sqltype.DataType;
 *
  * @see <a href="https://www.postgresql.org/docs/15/datatype-pg-lsn.html">pg_lsn</a>
  */
-public class PostgrePgLsnArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class PostgrePgLsnArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
 
     private PostgrePgLsnArrayType() {

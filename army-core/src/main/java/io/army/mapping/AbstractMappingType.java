@@ -500,7 +500,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         final boolean match;
         if (type == this) {
             match = true;
-        } else if (!(this instanceof SqlArrayType)) {
+        } else if (!(this instanceof SqlArray)) {
             match = this.getClass().isInstance(type);
         } else if (this instanceof UnaryGenericsMapping.ListMapping) {
             final Class<?> thisClass, typeClass;

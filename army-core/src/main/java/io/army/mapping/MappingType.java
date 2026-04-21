@@ -295,7 +295,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
-    interface SqlArrayType {
+    interface SqlArray {
 
         Class<?> underlyingJavaType();
 

@@ -25,7 +25,7 @@ import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-public class YearMonthArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class YearMonthArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
 
     public static YearMonthArrayType from(Class<?> javaType) {

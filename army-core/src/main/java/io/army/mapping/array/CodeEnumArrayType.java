@@ -29,17 +29,15 @@ import io.army.struct.CodeEnum;
 import io.army.struct.TextEnum;
 import io.army.util.ArrayUtils;
 import io.army.util.ClassUtils;
-import io.army.util._Collections;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * <p>This class is mapping class of {@link CodeEnum}.
  *
  * @see CodeEnumType
  */
-public class CodeEnumArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class CodeEnumArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
 
     public static CodeEnumArrayType from(final Class<?> javaType) {
@@ -54,7 +52,7 @@ public class CodeEnumArrayType extends _ArmyNoInjectionType implements MappingTy
         } else if (TextEnum.class.isAssignableFrom(enumClass)) {
             throw errorJavaType(CodeEnumArrayType.class, enumClass);
         }
-        return INSTANCE_MAP.computeIfAbsent(javaType, key -> new CodeEnumArrayType(javaType, enumClass));
+        return INSTANCE_CLASS_VALUE.get(javaType);
     }
 
     public static CodeEnumArrayType fromUnlimited(final Class<?> enumClass) {
@@ -63,13 +61,22 @@ public class CodeEnumArrayType extends _ArmyNoInjectionType implements MappingTy
         } else if (TextEnum.class.isAssignableFrom(enumClass)) {
             throw errorJavaType(CodeEnumArrayType.class, enumClass);
         }
-        final Class<?> actualClass;
-        actualClass = ClassUtils.enumClass(enumClass);
-        return INSTANCE_MAP.computeIfAbsent(actualClass, key -> new CodeEnumArrayType(Object.class, actualClass));
+        return INSTANCE_CLASS_VALUE.get(ClassUtils.enumClass(enumClass));
     }
 
 
-    private static final ConcurrentMap<Class<?>, CodeEnumArrayType> INSTANCE_MAP = _Collections.concurrentHashMap();
+    private static final ClassValue<CodeEnumArrayType> INSTANCE_CLASS_VALUE = new ClassValue<>() {
+        @Override
+        protected CodeEnumArrayType computeValue(final Class<?> type) {
+            final CodeEnumArrayType arrayType;
+            if (Enum.class.isAssignableFrom(type)) { // fromUnlimited()
+                arrayType = new CodeEnumArrayType(Object.class, type);
+            } else {
+                arrayType = new CodeEnumArrayType(type, ArrayUtils.underlyingComponent(type));
+            }
+            return arrayType;
+        }
+    };
 
     private final Class<?> javaType;
 

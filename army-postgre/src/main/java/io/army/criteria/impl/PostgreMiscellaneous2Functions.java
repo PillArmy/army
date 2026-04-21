@@ -17,6 +17,7 @@
 package io.army.criteria.impl;
 
 import io.army.criteria.*;
+import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.mapping.array.IntegerArrayType;
 import io.army.mapping.array.ShortArrayType;
@@ -27,8 +28,6 @@ import io.army.mapping.postgre.PgRangeType;
 import io.army.mapping.postgre.PgVectorType;
 import io.army.mapping.postgre.array.PostgreAclItemArrayType;
 import io.army.util._Collections;
-
-import io.army.lang.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -783,7 +782,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
         final MappingType type;
         type = exp.typeMeta().mappingType();
         final _TabularWithOrdinalityFunction func;
-        if (type instanceof MappingType.SqlArrayType) {
+        if (type instanceof MappingType.SqlArray) {
             func = DialectFunctionUtils.oneArgColumnFunction(name, exp, name); // postgre default function name as field name.
         } else if (type instanceof PgVectorType) {
             final List<Selection> fieldList = List.of(

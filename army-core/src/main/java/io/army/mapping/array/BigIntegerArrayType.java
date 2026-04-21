@@ -29,7 +29,7 @@ import io.army.util.ArrayUtils;
 
 import java.math.BigInteger;
 
-public class BigIntegerArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class BigIntegerArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
     public static BigIntegerArrayType from(final Class<?> javaType) {
         final BigIntegerArrayType instance;

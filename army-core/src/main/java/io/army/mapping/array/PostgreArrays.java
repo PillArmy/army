@@ -20,6 +20,7 @@ import io.army.dialect._Constant;
 import io.army.function.TextFunction;
 import io.army.mapping.MappingType;
 import io.army.mapping.UnaryGenericsMapping;
+import io.army.mapping.UserMappingType;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.type.ImmutableSpec;
@@ -136,6 +137,10 @@ public abstract class PostgreArrays extends ArrayMappings {
         builder.append(_Constant.DOUBLE_QUOTE);// right doubleQuote
     }
 
+    public static String arrayBeforeBind(final Object source, final BiConsumer<Object, StringBuilder> consumer,
+                                         final DataType dataType, final MappingType type) {
+        return arrayBeforeBind(source, consumer, dataType, type, UserMappingType::paramError);
+    }
 
     public static String arrayBeforeBind(final Object source, final BiConsumer<Object, StringBuilder> consumer,
                                          final DataType dataType, final MappingType type,
@@ -174,7 +179,7 @@ public abstract class PostgreArrays extends ArrayMappings {
         sourceComponentType = ArrayUtils.underlyingComponent(sourceType);
         if (javaType == Object.class) { // unlimited dimension array
             if (sourceComponentType != String.class
-                    && sourceComponentType != ((MappingType.SqlArrayType) type).underlyingJavaType()) {
+                    && sourceComponentType != ((MappingType.SqlArray) type).underlyingJavaType()) {
                 throw handler.apply(type, dataType, source, null);
             }
         } else if (sourceComponentType == String.class) {
@@ -182,7 +187,7 @@ public abstract class PostgreArrays extends ArrayMappings {
                 throw handler.apply(type, dataType, source, null);
             }
         } else if (!javaType.isInstance(source)
-                && !ClassUtils.isWrapperClass(((MappingType.SqlArrayType) type).underlyingJavaType(), sourceComponentType)) {
+                && !ClassUtils.isWrapperClass(((MappingType.SqlArray) type).underlyingJavaType(), sourceComponentType)) {
             throw handler.apply(type, dataType, source, null);
         }
 
@@ -198,6 +203,11 @@ public abstract class PostgreArrays extends ArrayMappings {
         } catch (Exception e) {
             throw handler.apply(type, dataType, source, e);
         }
+    }
+
+    public static Object arrayAfterGet(MappingType type, DataType dataType, final Object source,
+                                       final boolean nonNull, final TextFunction<?> elementFunc) {
+        return arrayAfterGet(type, dataType, source, nonNull, elementFunc, UserMappingType::dataAccessError);
     }
 
     public static Object arrayAfterGet(MappingType type, DataType dataType, final Object source,
@@ -221,7 +231,7 @@ public abstract class PostgreArrays extends ArrayMappings {
             throw errorHandler.apply(type, dataType, source, null);
         } else if (javaType == Object.class) { // unlimited dimension array
             final Class<?> underlyingJavaType, temp;
-            underlyingJavaType = ((MappingType.SqlArrayType) type).underlyingJavaType();
+            underlyingJavaType = ((MappingType.SqlArray) type).underlyingJavaType();
 
             if (underlyingJavaType.isArray()) {
                 temp = ArrayUtils.underlyingComponent(underlyingJavaType);
@@ -283,7 +293,7 @@ public abstract class PostgreArrays extends ArrayMappings {
                                     final char delimiter, final DataType dataType, final MappingType type,
                                     final ErrorHandler handler) throws IllegalArgumentException {
 
-        if (!(type instanceof MappingType.SqlArrayType)) {
+        if (!(type instanceof MappingType.SqlArray)) {
             throw _Exceptions.notArrayMappingType(type);
         }
 
@@ -826,7 +836,7 @@ public abstract class PostgreArrays extends ArrayMappings {
 
 
     private static Class<?> javaTypeOfArray(final MappingType type, final String text, final int offset, final int end) {
-        if (!(type instanceof MappingType.SqlArrayType)) {
+        if (!(type instanceof MappingType.SqlArray)) {
             throw new IllegalArgumentException("not array");
         }
 
@@ -839,7 +849,7 @@ public abstract class PostgreArrays extends ArrayMappings {
         final Class<?> arrayJavaType, underlyingJavaType, javaType;
         javaType = type.javaType();
         if (javaType == Object.class) {
-            underlyingJavaType = ((MappingType.SqlArrayType) type).underlyingJavaType();
+            underlyingJavaType = ((MappingType.SqlArray) type).underlyingJavaType();
             final int dimension;
             dimension = dimensionOfArray(text, offset, end);
             arrayJavaType = ArrayUtils.arrayClassOf(underlyingJavaType, dimension);

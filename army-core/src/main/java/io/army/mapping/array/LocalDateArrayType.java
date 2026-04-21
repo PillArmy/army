@@ -32,7 +32,7 @@ import io.army.util.ArrayUtils;
 
 import java.time.LocalDate;
 
-public class LocalDateArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class LocalDateArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
 
     public static LocalDateArrayType from(final Class<?> arrayClass) {

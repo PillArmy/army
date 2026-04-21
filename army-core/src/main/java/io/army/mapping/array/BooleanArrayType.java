@@ -29,7 +29,7 @@ import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
-public class BooleanArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class BooleanArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
     public static BooleanArrayType from(final Class<?> javaType) {
         final BooleanArrayType instance;

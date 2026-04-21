@@ -41,7 +41,7 @@ import java.util.Objects;
  * @see SqlRecord
  * @see io.army.mapping.optional.SqlRecordType
  */
-public final class SqlRecordArrayType extends _SqlRecordSupport implements MappingType.SqlArrayType {
+public final class SqlRecordArrayType extends _SqlRecordSupport implements MappingType.SqlArray {
 
     public static SqlRecordArrayType fromColumn(final Class<?> arrayType, final MappingType columnType) {
         Objects.requireNonNull(columnType);

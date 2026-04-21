@@ -28,7 +28,7 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 
-public class FloatArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class FloatArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
 
     public static FloatArrayType from(final Class<?> arrayClass) {

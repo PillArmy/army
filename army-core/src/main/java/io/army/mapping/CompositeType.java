@@ -33,8 +33,6 @@ import io.army.meta.MetaException;
 import io.army.meta.ServerMeta;
 import io.army.meta.TypeMeta;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PgType;
-import io.army.sqltype.SQLType;
 import io.army.struct.DefinedType;
 import io.army.util.*;
 
@@ -47,7 +45,10 @@ import java.util.function.Supplier;
 /// @see <a href="https://www.postgresql.org/docs/current/rowtypes.html">Composite Types</a>
 public final class CompositeType extends _ArmyBuildInType implements MappingType.SqlComposite {
 
-    public static CompositeType from(Class<?> javaType) {
+    public static CompositeType from(final Class<?> javaType) {
+        if (javaType.getAnnotation(DefinedType.class) == null) {
+            throw errorJavaType(CompositeType.class, javaType);
+        }
         return CLASS_VALUE.get(javaType);
     }
 
@@ -90,10 +91,10 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
     @Override
     public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
-        final SQLType dataType;
+        final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = PgType.RECORD;
+                dataType = DataType.from(this.name);
                 break;
             case SQLite:
             case MySQL:
@@ -106,38 +107,13 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
     @Override
     public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        if (!this.javaType.isInstance(source)) {
-            String m = String.format("%s is instance of %s", ClassUtils.safeClassName(source), this.javaType.getName());
-            throw paramError(this, dataType, source, new CriteriaException(m));
-        }
-
-        final SafeLiteralFunc func = env.safeLiteralFunc();
-        final ObjectAccessor accessor = ObjectAccessorFactory.forBean(this.javaType);
         final List<CompositeField> fieldList = this.fieldList;
-
         final int size = fieldList.size();
-
         final StringBuilder sqlBuilder = new StringBuilder(2 + size + (size * 10));
-
-        CompositeField field;
-        Object value;
-        sqlBuilder.append(_Constant.LEFT_PAREN);
-        for (int i = 0; i < size; i++) {
-            if (i > 0) {
-                sqlBuilder.append(_Constant.COMMA);
-            }
-            field = fieldList.get(i);
-            value = accessor.get(source, field.fieldName);
-            if (value == null) {
-                sqlBuilder.append(_Constant.NULL);
-                continue;
-            }
-
-            func.safeLiteral(field.typeMeta, value, false, sqlBuilder);
-        }
-        sqlBuilder.append(_Constant.RIGHT_PAREN);
+        bindToLiteral(this, dataType, env, source, sqlBuilder);
         return sqlBuilder.toString();
     }
+
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
@@ -147,33 +123,8 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         if (!(source instanceof String)) {
             throw dataAccessError(this, dataType, source, null);
         }
-
         final String text = ((String) source).trim();
-        final int length = text.length();
-        if (!_StringUtils.hasText(text)
-                || text.charAt(0) != _Constant.LEFT_PAREN
-                || text.charAt(length - 1) != _Constant.RIGHT_PAREN) {
-            throw dataAccessError(this, dataType, source, null);
-        }
-
-        final ObjectAccessor accessor = ObjectAccessorFactory.forBean(this.javaType);
-        final Supplier<?> constructor = ObjectAccessorFactory.beanConstructor(this.javaType);
-        final FieldParser fieldParser = new FieldParser(accessor, constructor.get(), this.fieldList, env);
-
-        try {
-            ItemsParser.defaultParser()
-                    .parseItems(text, 0, length, fieldParser::parseField);
-
-            if (fieldParser.fieldIndex != fieldParser.fieldCount) {
-                throw dataAccessError(this, dataType, source, null);
-            }
-        } catch (DataAccessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw dataAccessError(this, dataType, source, e);
-        }
-
-        return fieldParser.object;
+        return parseToPojo(this, dataType, env, text, 0, text.length());
     }
 
 
@@ -193,6 +144,69 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
             match = false;
         }
         return match;
+    }
+
+
+    public static void bindToLiteral(final CompositeType instance, final DataType dataType, final MappingEnv env,
+                                     final Object source, final StringBuilder sqlBuilder) {
+        if (!instance.javaType.isInstance(source)) {
+            String m = String.format("%s is instance of %s", ClassUtils.safeClassName(source), instance.javaType.getName());
+            throw paramError(instance, dataType, source, new IllegalArgumentException(m));
+        }
+
+        final SafeLiteralFunc func = env.safeLiteralFunc();
+        final ObjectAccessor accessor = ObjectAccessorFactory.forBean(instance.javaType);
+        final List<CompositeField> fieldList = instance.fieldList;
+
+        final int size = fieldList.size();
+
+
+        CompositeField field;
+        Object value;
+        sqlBuilder.append(_Constant.LEFT_PAREN);
+        for (int i = 0; i < size; i++) {
+            if (i > 0) {
+                sqlBuilder.append(_Constant.COMMA);
+            }
+            field = fieldList.get(i);
+            value = accessor.get(source, field.fieldName);
+            if (value == null) {
+                sqlBuilder.append(_Constant.NULL);
+                continue;
+            }
+
+            func.safeLiteral(field.typeMeta, value, false, sqlBuilder);
+        }
+        sqlBuilder.append(_Constant.RIGHT_PAREN);
+
+    }
+
+    public static Object parseToPojo(final CompositeType instance, final DataType dataType, final MappingEnv env,
+                                     final String source, final int offset, final int endIndex) {
+        if (!_StringUtils.hasText(source)
+                || source.charAt(offset) != _Constant.LEFT_PAREN
+                || source.charAt(endIndex - 1) != _Constant.RIGHT_PAREN) {
+            throw dataAccessError(instance, dataType, source, null);
+        }
+
+        final ObjectAccessor accessor = ObjectAccessorFactory.forBean(instance.javaType);
+        final Supplier<?> constructor = ObjectAccessorFactory.beanConstructor(instance.javaType);
+        final FieldParser fieldParser = new FieldParser(accessor, constructor.get(), instance.fieldList, env);
+
+        try {
+            ItemsParser.defaultParser()
+                    .parseItems(source, offset, endIndex, fieldParser::parseField);
+
+            if (fieldParser.fieldIndex != fieldParser.fieldCount) {
+                throw dataAccessError(instance, dataType, source, null);
+            }
+        } catch (DataAccessException e) {
+            throw e;
+        } catch (Exception e) {
+            throw dataAccessError(instance, dataType, source, e);
+        }
+
+        return fieldParser.object;
     }
 
 

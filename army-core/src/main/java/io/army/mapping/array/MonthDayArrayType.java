@@ -31,7 +31,7 @@ import io.army.util.ArrayUtils;
 import java.time.LocalDate;
 import java.time.MonthDay;
 
-public class MonthDayArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class MonthDayArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
 
     public static MonthDayArrayType from(final Class<?> arrayClass) {

@@ -35,7 +35,7 @@ import java.util.BitSet;
 /**
  * @see BitSetType
  */
-public class BitSetArrayType extends _ArmyNoInjectionType implements MappingType.SqlArrayType {
+public class BitSetArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
     public static BitSetArrayType from(final Class<?> javaType) {
         final BitSetArrayType instance;

@@ -36,7 +36,7 @@ import io.army.sqltype.PgType;
  * This class representing Postgre aclitem array type {@link MappingType}
  * * @see <a href="https://www.postgresql.org/docs/current/ddl-priv.html">Privileges</a>
  */
-public class PostgreAclItemArrayType extends _ArmyBuildInType implements MappingType.SqlArrayType {
+public class PostgreAclItemArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
 
     public static PostgreAclItemArrayType from(final Class<?> javaType) {

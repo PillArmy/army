@@ -2720,7 +2720,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      */
     private static MappingType _percentileType(final MappingType fractionType, final MappingType type) {
         final MappingType returnType; // TODO 重新考虑 类型
-        if (fractionType instanceof MappingType.SqlArrayType) {
+        if (fractionType instanceof MappingType.SqlArray) {
             returnType = type.arrayTypeOfThis();
         } else if (type instanceof MappingType.SqlFloatType) {
             returnType = type;

@@ -25,7 +25,7 @@ import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-public class TextEnumArrayType extends _ArmyBuildInType implements MappingType.SqlArrayType {
+public class TextEnumArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
     public static TextEnumArrayType from(final Class<?> arrayType) {
         // TODO complete me

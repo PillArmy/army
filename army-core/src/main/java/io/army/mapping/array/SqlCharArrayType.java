@@ -29,7 +29,7 @@ import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
-public class SqlCharArrayType extends _ArmyBuildInType implements MappingType.SqlArrayType {
+public class SqlCharArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
     public static SqlCharArrayType from(final Class<?> arrayType) {
         final SqlCharArrayType instance;
