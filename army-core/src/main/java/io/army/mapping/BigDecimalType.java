@@ -133,7 +133,7 @@ public final class BigDecimalType extends _NumericType implements MappingType.Sq
                 dataType = SQLiteType.DECIMAL;
                 break;
             case H2:
-                dataType = H2DataType.DECIMAL;
+                dataType = H2Type.DECIMAL;
                 break;
             case Oracle:
                 dataType = OracleDataType.NUMBER;

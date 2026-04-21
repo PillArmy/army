@@ -17,62 +17,204 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.lang.Nullable;
 import io.army.mapping.array.NameEnumArrayType;
-import io.army.meta.MetaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 import io.army.struct.CodeEnum;
-import io.army.struct.EnumName;
+import io.army.struct.DefinedType;
 import io.army.struct.TextEnum;
+import io.army.util.AnnotationUtils;
+import io.army.util.ArrayUtils;
 import io.army.util.ClassUtils;
-import io.army.util._Collections;
 import io.army.util._StringUtils;
 
+import java.time.*;
+import java.time.temporal.TemporalAccessor;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * @see io.army.struct.EnumName
  * @see Enum
  * @see TextEnumType
  */
-public final class NameEnumType extends _ArmyNoInjectionType {
+public class NameEnumType extends _ArmyNoInjectionType {
 
     public static NameEnumType from(final Class<?> enumType) {
         final Class<?> actualEnumType;
         actualEnumType = checkEnumClass(enumType);
 
-
-        return INSTANCE_MAP.computeIfAbsent(actualEnumType, k -> new NameEnumType(actualEnumType, obtainEnumName(actualEnumType)));
+        final NameEnumType instance;
+        if (actualEnumType.getAnnotation(DefinedType.class) == null) {
+            instance = INSTANCE_MAP.computeIfAbsent(actualEnumType, NameEnumType::new);
+        } else {
+            instance = INSTANCE_MAP.computeIfAbsent(actualEnumType, NameEnumType::createDefinedType);
+        }
+        return instance;
     }
 
+    /// @param enumType The enum that is not annotated with {@link DefinedType}.
     public static NameEnumType fromParam(final Class<?> enumType, final String enumName) {
         if (!_StringUtils.hasText(enumName)) {
             throw new IllegalArgumentException("no text");
         }
         final Class<?> actualEnumType;
         actualEnumType = checkEnumClass(enumType);
+        if (actualEnumType.getAnnotation(DefinedType.class) != null) {
+            throw new IllegalArgumentException("error enum");
+        }
 
-        final String key;
-        key = actualEnumType.getName() + '#' + enumName;
-        return INSTANCE_MAP.computeIfAbsent(key, k -> new NameEnumType(actualEnumType, enumName));
+        NameEnumType instance;
+        instance = INSTANCE_MAP.computeIfAbsent(actualEnumType, type -> new NameEnumNamedType(type, enumName));
+        if (!(instance instanceof NameEnumNamedType o) || !enumName.equals(o.enumName)) {
+            instance = new NameEnumNamedType(actualEnumType, enumName);
+        }
+        return instance;
     }
 
-    @Nullable
-    static String obtainEnumName(Class<?> actualEnumType) {
-        final EnumName enumName;
-        enumName = actualEnumType.getAnnotation(EnumName.class);
-        final String databaseEnumName;
-        if (enumName == null) {
-            databaseEnumName = null;
-        } else {
-            databaseEnumName = enumName.value();
-            if (_StringUtils.isCamelCase(databaseEnumName)) {
-                throw new MetaException(String.format("%s don't support CamelCase", EnumName.class.getName()));
-            }
+    /// @param enumType The enum that is annotated with {@link DefinedType}.
+    private static NameEnumNamedType createDefinedType(final Class<?> enumType) {
+        final String typeName;
+        typeName = AnnotationUtils.getDefinedTypeName(enumType);
+        if (typeName == null) {
+            // no bug,never here
+            throw new IllegalArgumentException();
         }
-        return databaseEnumName;
+        return new NameEnumNamedType(enumType, typeName);
+    }
+
+
+    private static final ConcurrentMap<Class<?>, NameEnumType> INSTANCE_MAP = new ConcurrentHashMap<>();
+
+    private final Class<?> enumClass;
+
+    /**
+     * private constructor
+     */
+    private NameEnumType(Class<?> enumClass) {
+        this.enumClass = enumClass;
+    }
+
+
+    @Override
+    public final Class<?> javaType() {
+        return this.enumClass;
+    }
+
+    @Override
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
+        final MappingType arrayType;
+        if (this.enumClass.getAnnotation(DefinedType.class) == null && this instanceof NameEnumNamedType o) {
+            arrayType = NameEnumArrayType.fromParam(ArrayUtils.arrayClassOf(this.enumClass), o.enumName);
+        } else {
+            arrayType = NameEnumArrayType.from(ArrayUtils.arrayClassOf(this.enumClass));
+        }
+        return arrayType;
+    }
+
+
+    @Override
+    public final DataType map(final ServerMeta meta) {
+        return mapToDataType(this, meta);
+    }
+
+
+    @Override
+    public String beforeBind(DataType dataType, MappingEnv env, final Object source) {
+        if (!this.enumClass.isInstance(source)) {
+            throw paramError(this, dataType, source, null);
+        }
+        return ((Enum<?>) source).name();
+    }
+
+    @Override
+    public Enum<?> afterGet(DataType dataType, MappingEnv env, final Object source) {
+        if (this.enumClass.isInstance(source)) {
+            return (Enum<?>) source;
+        }
+
+        final Enum<?> value;
+        if (this.enumClass == Month.class) {
+            value = toMoth(this, dataType, source);
+        } else if (this.enumClass == DayOfWeek.class) {
+            value = toDayOfWeek(this, dataType, source);
+        } else if (source instanceof String) {
+            try {
+                value = valueOf(this.enumClass, (String) source);
+            } catch (IllegalArgumentException e) {
+                throw dataAccessError(this, dataType, source, e);
+            }
+        } else {
+            throw dataAccessError(this, dataType, source, null);
+        }
+        return value;
+    }
+
+    @Override
+    public final int hashCode() {
+        final int hash;
+        if (this instanceof NameEnumNamedType o) {
+            hash = Objects.hash(this.enumClass, o.enumName);
+        } else {
+            hash = Objects.hash(this.enumClass);
+        }
+        return hash;
+    }
+
+    @Override
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof NameEnumNamedType o) {
+            if (this instanceof NameEnumNamedType t) {
+                match = ((NameEnumType) o).enumClass == this.enumClass
+                        && o.enumName.equals(t.enumName);
+            } else {
+                match = false;
+            }
+        } else if (obj instanceof NameEnumType o) {
+            match = o.enumClass == this.enumClass;
+        } else {
+            match = false;
+        }
+        return match;
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Enum<T>> T valueOf(Class<?> javaType, final String name)
+            throws IllegalArgumentException {
+        return Enum.valueOf((Class<T>) ClassUtils.enumClass(javaType), name);
+    }
+
+
+    static DataType mapToDataType(final MappingType type, final ServerMeta meta) {
+        final DataType dataType;
+        switch (meta.serverDatabase()) {
+            case MySQL:
+                dataType = MySQLType.ENUM;
+                break;
+            case PostgreSQL: {
+                if (type instanceof SqlUserDefined o) {
+                    dataType = DataType.from(o.typeName());
+                } else {
+                    dataType = PgType.VARCHAR;
+                }
+            }
+            break;
+            case SQLite:
+                dataType = SQLiteType.VARCHAR;
+                break;
+            case H2:
+                dataType = H2Type.ENUM;
+                break;
+            default:
+                throw MAP_ERROR_HANDLER.apply(type, meta);
+
+        }
+        return dataType;
     }
 
 
@@ -93,114 +235,113 @@ public final class NameEnumType extends _ArmyNoInjectionType {
         return ClassUtils.enumClass(javaType);
     }
 
-    private static final ConcurrentMap<Object, NameEnumType> INSTANCE_MAP = _Collections.concurrentHashMap();
 
-    private final Class<?> enumClass;
+    private static Month toMoth(final MappingType type, final DataType dataType, final Object source) {
+        final Month value;
 
-    private final String enumName;
+        final String sourceStr;
+        final int length;
 
-    /**
-     * private constructor
-     */
-    private NameEnumType(Class<?> enumClass, @Nullable String enumName) {
-        this.enumClass = enumClass;
-        this.enumName = enumName;
-    }
-
-
-    @Override
-    public Class<?> javaType() {
-        return this.enumClass;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return NameEnumArrayType.from(this.enumClass);
-    }
-
-    @Override
-    public boolean isSameType(final MappingType type) {
-        final boolean match;
-        if (type == this) {
-            match = true;
-        } else if (type instanceof NameEnumType) {
-            final NameEnumType o = (NameEnumType) type;
-            match = o.enumClass == this.enumClass && Objects.equals(o.enumName, this.enumName);
-        } else {
-            match = false;
-        }
-        return match;
-    }
-
-    @Override
-    public DataType map(final ServerMeta meta) {
-        return mapToDataType(this, meta, this.enumName);
-    }
-
-
-    @Override
-    public String beforeBind(DataType dataType, MappingEnv env, final Object source) {
-        return toNameEnum(dataType, source, PARAM_ERROR_HANDLER).name();
-    }
-
-    @Override
-    public Enum<?> afterGet(DataType dataType, MappingEnv env, Object source) {
-        return toNameEnum(dataType, source, ACCESS_ERROR_HANDLER);
-    }
-
-
-    private Enum<?> toNameEnum(final DataType dataType, final Object nonNull, final ErrorHandler errorHandler) {
-        final Enum<?> value;
-        if (nonNull instanceof String) {
-            try {
-                value = valueOf(this.enumClass, (String) nonNull);
-            } catch (IllegalArgumentException e) {
-                throw errorHandler.apply(this, dataType, nonNull, e);
+        if (source instanceof Month) {
+            value = (Month) source;
+        } else if (source instanceof LocalDate
+                || source instanceof YearMonth
+                || source instanceof MonthDay
+                || source instanceof LocalDateTime
+                || source instanceof OffsetDateTime
+                || source instanceof ZonedDateTime) {
+            value = Month.from((TemporalAccessor) source);
+        } else if (source instanceof Integer) { // https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_month
+            final int v = (Integer) source;
+            if (v < 1 || v > 12) {
+                throw dataAccessError(type, dataType, source, null);
             }
-        } else if (this.enumClass.isInstance(nonNull)) {
-            value = (Enum<?>) nonNull;
+            value = Month.of(v);
+        } else if (source instanceof Long) {  // https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_month
+            final long v = (Long) source;
+            if (v < 1 || v > 12) {
+                throw dataAccessError(type, dataType, source, null);
+            }
+            value = Month.of((int) v);
+        } else if (!(source instanceof String) || (length = (sourceStr = (String) source).length()) == 0) {
+            throw dataAccessError(type, dataType, source, null);
+        } else if (length < 10) {
+            try {
+                // https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_monthname
+                value = Month.valueOf(sourceStr.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                throw dataAccessError(type, dataType, source, e);
+            }
         } else {
-            throw errorHandler.apply(this, dataType, nonNull, null);
+            throw dataAccessError(type, dataType, source, null);
         }
         return value;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends Enum<T>> T valueOf(final Class<?> javaType, final String name)
-            throws IllegalArgumentException {
-        if (!Enum.class.isAssignableFrom(javaType)) {
-            throw new IllegalArgumentException("not enum type.");
-        }
-        return Enum.valueOf((Class<T>) javaType, name);
-    }
 
+    private static DayOfWeek toDayOfWeek(final MappingType type, final DataType dataType, final Object source) {
+        final DayOfWeek value;
+        final String sourceStr;
+        final int length;
 
-    static DataType mapToDataType(final MappingType type, final ServerMeta meta, final @Nullable String enumName) {
-        final DataType dataType;
-        switch (meta.serverDatabase()) {
-            case MySQL:
-                dataType = MySQLType.ENUM;
-                break;
-            case PostgreSQL: {
-                if (enumName == null) {
-                    dataType = PgType.VARCHAR;
-                } else {
-                    dataType = DataType.from(enumName);
-                }
+        if (source instanceof DayOfWeek) {
+            value = (DayOfWeek) source;
+        } else if (source instanceof LocalDate
+                || source instanceof LocalDateTime
+                || source instanceof OffsetDateTime
+                || source instanceof ZonedDateTime) {
+            value = DayOfWeek.from((TemporalAccessor) source);
+        } else if (source instanceof Integer) {
+            value = weekFromInt(type, dataType, (Integer) source);
+        } else if (source instanceof Long) {
+            final long v = (Long) source;
+            if (v < 1 || v > 7) {
+                throw dataAccessError(type, dataType, source, null);
             }
-            break;
-            case SQLite:
-                dataType = SQLiteType.VARCHAR;
-                break;
-            case H2:
-                dataType = H2DataType.ENUM;
-                break;
-            default:
-                throw MAP_ERROR_HANDLER.apply(type, meta);
-
+            value = weekFromInt(type, dataType, (int) v);
+        } else if (!(source instanceof String) || (length = (sourceStr = (String) source).length()) == 0) {
+            throw dataAccessError(type, dataType, source, null);
+        } else if (length < 10) {
+            try {
+                // https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_dayname
+                value = DayOfWeek.valueOf(sourceStr.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                throw dataAccessError(type, dataType, source, e);
+            }
+        } else {
+            throw dataAccessError(type, dataType, source, null);
         }
-        return dataType;
+        return value;
     }
+
+
+    private static DayOfWeek weekFromInt(final MappingType type, final DataType dataType, final int source) {
+
+        if (dataType != MySQLType.INT && dataType != MySQLType.BIGINT) {
+            throw dataAccessError(type, dataType, source, null);
+        }
+        final DayOfWeek value;
+        // https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_dayofweek
+        value = DayOfWeek.of(source);
+        return value;
+    }
+
+
+    private static final class NameEnumNamedType extends NameEnumType implements SqlUserDefined {
+
+        private final String enumName;
+
+        private NameEnumNamedType(Class<?> enumClass, String enumName) {
+            super(enumClass);
+            this.enumName = enumName;
+        }
+
+        @Override
+        public String typeName() {
+            return this.enumName;
+        }
+
+    } // NameEnumNamedType
 
 
 }

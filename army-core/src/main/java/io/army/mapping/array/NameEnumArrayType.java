@@ -58,6 +58,11 @@ public class NameEnumArrayType extends _ArmyBuildInType implements MappingType.S
         return INSTANCE_MAP.computeIfAbsent(arrayClass, key -> new NameEnumArrayType(arrayClass, enumClass));
     }
 
+    public static NameEnumArrayType fromParam(final Class<?> arrayClass, final String enumTypeName) {
+        // TODO complete me
+        throw new UnsupportedOperationException();
+    }
+
     public static NameEnumArrayType fromUnlimited(final Class<?> enumClass) {
         if (!Enum.class.isAssignableFrom(enumClass)
                 || CodeEnum.class.isAssignableFrom(enumClass)

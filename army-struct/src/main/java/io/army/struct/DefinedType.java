@@ -15,7 +15,7 @@
  */
 
 
-package io.army.annotation;
+package io.army.struct;
 
 import java.lang.annotation.*;
 

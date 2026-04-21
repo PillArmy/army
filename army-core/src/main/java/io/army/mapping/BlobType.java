@@ -80,7 +80,7 @@ public final class BlobType extends _ArmyBuildInType implements MappingType.SqlB
                 dataType = OracleDataType.BLOB;
                 break;
             case H2:
-                dataType = H2DataType.VARBINARY;
+                dataType = H2Type.VARBINARY;
                 break;
             default:
                 throw MAP_ERROR_HANDLER.apply(this, meta);

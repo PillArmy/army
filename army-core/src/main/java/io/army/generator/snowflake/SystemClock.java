@@ -36,7 +36,7 @@ final class SystemClock {
     }
 
 
-    private synchronized long getNow() {
+    private long getNow() {
         return this.nowMills;
     }
 

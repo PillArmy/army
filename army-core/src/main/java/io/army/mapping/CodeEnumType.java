@@ -25,12 +25,10 @@ import io.army.struct.CodeEnum;
 import io.army.struct.TextEnum;
 import io.army.util.ArrayUtils;
 import io.army.util.ClassUtils;
-import io.army.util._Collections;
 
 import java.math.BigInteger;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
+import java.util.Objects;
 
 /**
  * <p>
@@ -51,12 +49,16 @@ public final class CodeEnumType extends _ArmyNoInjectionType {
         } else if (TextEnum.class.isAssignableFrom(enumClass)) {
             throw errorJavaType(CodeEnumType.class, enumClass);
         }
-        return INSTANCE_MAP.computeIfAbsent(ClassUtils.enumClass(enumClass), CONSTRUCTOR);
+        return INSTANCE_CLASS_VALUE.get(ClassUtils.enumClass(enumClass));
     }
 
-    private static final ConcurrentMap<Class<?>, CodeEnumType> INSTANCE_MAP = _Collections.concurrentHashMap();
+    private static final ClassValue<CodeEnumType> INSTANCE_CLASS_VALUE = new ClassValue<>() {
+        @Override
+        protected CodeEnumType computeValue(Class<?> type) {
+            return new CodeEnumType(type);
+        }
+    };
 
-    private static final Function<Class<?>, CodeEnumType> CONSTRUCTOR = CodeEnumType::new;
 
     private final Class<?> enumClass;
 
@@ -88,20 +90,24 @@ public final class CodeEnumType extends _ArmyNoInjectionType {
     @Override
     public Integer beforeBind(DataType dataType, MappingEnv env, final Object source) {
         if (!this.enumClass.isInstance(source)) {
-            throw PARAM_ERROR_HANDLER.apply(this, dataType, source, null);
+            throw paramError(this, dataType, source, null);
         }
         return ((CodeEnum) source).code();
     }
 
     @Override
     public CodeEnum afterGet(DataType dataType, MappingEnv env, final Object source) {
+        if (this.enumClass.isInstance(source)) {
+            return (CodeEnum) source;
+        }
+
         final int code;
         if (source instanceof Integer) {
             code = (Integer) source;
         } else if (source instanceof Long) {
             final long v = (Long) source;
             if (v < Integer.MIN_VALUE || v > Integer.MAX_VALUE) {
-                throw ACCESS_ERROR_HANDLER.apply(this, dataType, source, null);
+                throw dataAccessError(this, dataType, source, null);
             }
             code = (int) v;
         } else if (source instanceof Short || source instanceof Byte) {
@@ -110,16 +116,16 @@ public final class CodeEnumType extends _ArmyNoInjectionType {
             try {
                 code = ((BigInteger) source).intValueExact();
             } catch (ArithmeticException e) {
-                throw ACCESS_ERROR_HANDLER.apply(this, dataType, source, e);
+                throw dataAccessError(this, dataType, source, e);
             }
         } else if (source instanceof String) {
             try {
                 code = Integer.parseInt((String) source);
             } catch (NumberFormatException e) {
-                throw ACCESS_ERROR_HANDLER.apply(this, dataType, source, e);
+                throw dataAccessError(this, dataType, source, e);
             }
         } else {
-            throw ACCESS_ERROR_HANDLER.apply(this, dataType, source, null);
+            throw dataAccessError(this, dataType, source, null);
         }
         final CodeEnum codeEnum;
         codeEnum = this.codeMap.get(code);
@@ -130,6 +136,26 @@ public final class CodeEnumType extends _ArmyNoInjectionType {
         }
         return codeEnum;
     }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.enumClass);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof CodeEnumType o) {
+            match = o.enumClass == this.enumClass;
+        } else {
+            match = false;
+        }
+        return match;
+    }
+
 
 
 

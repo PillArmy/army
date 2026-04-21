@@ -363,7 +363,6 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     interface SqlUserDefined {
 
         String typeName();
-
     }
 
     interface SqlComposite extends SqlUserDefined {

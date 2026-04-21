@@ -27,7 +27,14 @@ import io.army.sqltype.DataType;
 
 public class TextEnumArrayType extends _ArmyBuildInType implements MappingType.SqlArrayType {
 
-    public static TextEnumArrayType from(final Class<?> javaType) {
+    public static TextEnumArrayType from(final Class<?> arrayType) {
+        // TODO complete me
+        throw new UnsupportedOperationException();
+    }
+
+
+    public static TextEnumArrayType fromParam(final Class<?> arrayType, String enumTypeName) {
+        // TODO complete me
         throw new UnsupportedOperationException();
     }
 

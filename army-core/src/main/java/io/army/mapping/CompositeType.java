@@ -18,7 +18,6 @@
 package io.army.mapping;
 
 import io.army.annotation.Column;
-import io.army.annotation.DefinedType;
 import io.army.annotation.MappedSuperclass;
 import io.army.bean.ObjectAccessor;
 import io.army.bean.ObjectAccessorFactory;
@@ -36,6 +35,7 @@ import io.army.meta.TypeMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
+import io.army.struct.DefinedType;
 import io.army.util.*;
 
 import java.lang.reflect.Field;
@@ -79,13 +79,13 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
     }
 
     @Override
-    public String typeName() {
-        return this.name;
+    public List<CompositeField> fieldList() {
+        return this.fieldList;
     }
 
     @Override
-    public List<CompositeField> fieldList() {
-        return this.fieldList;
+    public String typeName() {
+        return this.name;
     }
 
     @Override

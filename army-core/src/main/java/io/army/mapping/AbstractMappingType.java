@@ -166,10 +166,8 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else switch (armyType) {
                     case INTEGER:
                     case BIGINT: { // compute result
-                        if (DayOfWeek.class.isAssignableFrom(targetType)) {
-                            type = DayOfWeekType.DEFAULT;
-                        } else if (Month.class.isAssignableFrom(targetType)) {
-                            type = MonthType.DEFAULT;
+                        if (targetType == DayOfWeek.class || targetType == Month.class) {
+                            type = NameEnumType.from(targetType);
                         } else if (CodeEnum.class.isAssignableFrom(targetType)) {
                             type = CodeEnumType.from(targetType);
                         } else {
@@ -265,10 +263,6 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else if (Enum.class.isAssignableFrom(targetType)) {
                     if (TextEnum.class.isAssignableFrom(targetType)) {
                         type = TextEnumType.from(targetType);
-                    } else if (DayOfWeek.class.isAssignableFrom(targetType)) {
-                        type = DayOfWeekType.DEFAULT;
-                    } else if (Month.class.isAssignableFrom(targetType)) {
-                        type = MonthType.DEFAULT;
                     } else {
                         type = NameEnumType.from(targetType);
                     }
@@ -290,10 +284,6 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                     throw noMatchCompatibleMapping(this, targetType);
                 } else if (TextEnumType.class.isAssignableFrom(targetType)) {
                     type = TextEnumType.from(targetType);
-                } else if (DayOfWeek.class.isAssignableFrom(targetType)) {
-                    type = DayOfWeekType.DEFAULT;
-                } else if (Month.class.isAssignableFrom(targetType)) {
-                    type = MonthType.DEFAULT;
                 } else {
                     type = NameEnumType.from(targetType);
                 }
@@ -353,7 +343,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else if (targetType == LocalDate.class) {
                     type = LocalDateType.INSTANCE;
                 } else if (targetType == Month.class) {
-                    type = MonthType.DEFAULT;
+                    type = NameEnumType.from(targetType);
                 } else if (targetType == String.class) {
                     type = StringType.INSTANCE;
                 } else {
@@ -369,7 +359,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else if (targetType == Year.class) {
                     type = YearType.INSTANCE;
                 } else if (targetType == Month.class) {
-                    type = MonthType.DEFAULT;
+                    type = NameEnumType.from(targetType);
                 } else if (targetType == String.class) {
                     type = StringType.INSTANCE;
                 } else {
@@ -427,10 +417,8 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                     type = MonthDayType.INSTANCE;
                 } else if (targetType == Year.class) {
                     type = YearType.INSTANCE;
-                } else if (targetType == Month.class) {
-                    type = MonthType.DEFAULT;
-                } else if (targetType == DayOfWeek.class) {
-                    type = DayOfWeekType.DEFAULT;
+                } else if (targetType == Month.class || targetType == DayOfWeek.class) {
+                    type = NameEnumType.from(targetType);
                 } else {
                     throw noMatchCompatibleMapping(this, targetType);
                 }
