@@ -23,6 +23,7 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
+import io.army.util.ClassUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -47,7 +48,7 @@ public final class DoubleType extends _NumericType._FloatNumericType {
 
 
     public static DoubleType from(final Class<?> javaType) {
-        if (javaType != Double.class) {
+        if (ClassUtils.isAssignableFrom(Double.class, javaType)) {
             throw errorJavaType(DoubleType.class, javaType);
         }
         return INSTANCE;
@@ -108,6 +109,7 @@ public final class DoubleType extends _NumericType._FloatNumericType {
             value = (Double) source;
         } else if (source instanceof Float
                 || source instanceof Integer
+                || source instanceof Long
                 || source instanceof Short
                 || source instanceof Byte) {
             value = ((Number) source).doubleValue();

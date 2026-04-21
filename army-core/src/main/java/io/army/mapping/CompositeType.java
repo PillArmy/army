@@ -211,22 +211,12 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
 
     private static CompositeType createCompositeType(final Class<?> javaType) {
-        final DefinedType definedType = javaType.getAnnotation(DefinedType.class);
-        if (definedType == null) {
-            throw definedTypeError(javaType, "no Annotation");
+        final String typeName = AnnotationUtils.getDefinedTypeName(javaType);
+        if (typeName == null) {
+            // no bug,never here
+            throw new IllegalArgumentException();
         }
-
-        final String typeName = definedType.name().trim();
-
-        if (_StringUtils.hasText(typeName)) {
-            throw definedTypeError(javaType, "type name no text");
-        }
-
-        if (_StringUtils.isCamelCase(typeName)) {
-            throw definedTypeError(javaType, "typeName is camel");
-        }
-
-        final String[] fieldOrder = definedType.fieldOrder();
+        final String[] fieldOrder = javaType.getAnnotation(DefinedType.class).fieldOrder();
         final Map<String, Integer> fieldToOrder;
         if (fieldOrder.length == 0) {
             fieldToOrder = new HashMap<>();

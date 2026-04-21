@@ -68,6 +68,7 @@ public class NameEnumType extends _ArmyNoInjectionType {
         NameEnumType instance;
         instance = INSTANCE_MAP.computeIfAbsent(actualEnumType, type -> new NameEnumNamedType(type, enumName));
         if (!(instance instanceof NameEnumNamedType o) || !enumName.equals(o.enumName)) {
+            // same class but different enum name
             instance = new NameEnumNamedType(actualEnumType, enumName);
         }
         return instance;
@@ -136,7 +137,7 @@ public class NameEnumType extends _ArmyNoInjectionType {
 
         final Enum<?> value;
         if (this.enumClass == Month.class) {
-            value = toMoth(this, dataType, source);
+            value = toMonth(this, dataType, source);
         } else if (this.enumClass == DayOfWeek.class) {
             value = toDayOfWeek(this, dataType, source);
         } else if (source instanceof String) {
@@ -236,7 +237,7 @@ public class NameEnumType extends _ArmyNoInjectionType {
     }
 
 
-    private static Month toMoth(final MappingType type, final DataType dataType, final Object source) {
+    private static Month toMonth(final MappingType type, final DataType dataType, final Object source) {
         final Month value;
 
         final String sourceStr;
@@ -316,13 +317,17 @@ public class NameEnumType extends _ArmyNoInjectionType {
 
 
     private static DayOfWeek weekFromInt(final MappingType type, final DataType dataType, final int source) {
-
-        if (dataType != MySQLType.INT && dataType != MySQLType.BIGINT) {
+        final DayOfWeek value;
+        if (dataType == MySQLType.INT || dataType == MySQLType.BIGINT) {
+            // https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_dayofweek
+            if (source == 1) {
+                value = DayOfWeek.SUNDAY;
+            } else {
+                value = DayOfWeek.of(source - 1);
+            }
+        } else {
             throw dataAccessError(type, dataType, source, null);
         }
-        final DayOfWeek value;
-        // https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_dayofweek
-        value = DayOfWeek.of(source);
         return value;
     }
 

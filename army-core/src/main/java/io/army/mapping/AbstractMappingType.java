@@ -199,9 +199,9 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                     type = UnsignedBigDecimalType.INSTANCE;
                 } else if (targetType == BigInteger.class) {
                     type = UnsignedBigIntegerType.INSTANCE;
-                } else if (targetType == Float.class) {
+                } else if (targetType == Float.class || targetType == float.class) {
                     type = FloatType.INSTANCE;
-                } else if (targetType == DoubleType.class) {
+                } else if (targetType == Double.class || targetType == double.class) {
                     type = DoubleType.INSTANCE;
                 } else {
                     throw noMatchCompatibleMapping(this, targetType);
@@ -231,9 +231,9 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                         type = BigDecimalType.INSTANCE;
                     } else if (targetType == BigInteger.class) {
                         type = BigIntegerType.INSTANCE;
-                    } else if (targetType == Float.class) {
+                    } else if (targetType == Float.class || targetType == float.class) {
                         type = FloatType.INSTANCE;
-                    } else if (targetType == DoubleType.class) {
+                    } else if (targetType == Double.class || targetType == double.class) {
                         type = DoubleType.INSTANCE;
                     } else {
                         throw noMatchCompatibleMapping(this, targetType);

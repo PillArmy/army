@@ -63,6 +63,7 @@ public final class ZoneIdType extends _ArmyNoInjectionType implements MappingTyp
         ZoneId zoneId;
         zoneId = toZoneId(this, dataType, source, PARAM_ERROR_HANDLER);
         if (!(zoneId instanceof ZoneOffset)) {
+            // TODO fix me  ?
             zoneId = zoneId.getRules().getOffset(Instant.EPOCH);
         }
         return zoneId.normalized().getId();

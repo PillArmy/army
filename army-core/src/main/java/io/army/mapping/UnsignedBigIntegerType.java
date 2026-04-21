@@ -95,10 +95,10 @@ public final class UnsignedBigIntegerType extends _NumericType._UnsignedIntegerT
             final long v = (Integer) source & 0xFFFF_FFFFL;
             value = BigInteger.valueOf(v);
         } else if (source instanceof Short) {
-            final long v = (Short) source & 0xFFFF_FFFFL;
+            final long v = (Short) source & 0xFFFFL;
             value = BigInteger.valueOf(v);
         } else if (source instanceof Byte) {
-            final long v = (Byte) source & 0xFFFF_FFFFL;
+            final long v = (Byte) source & 0xFFL;
             value = BigInteger.valueOf(v);
         } else if (source instanceof String) {
             try {
@@ -121,7 +121,7 @@ public final class UnsignedBigIntegerType extends _NumericType._UnsignedIntegerT
     static BigDecimal toUnsignedBigDecimal(MappingType type, DataType dataType, final Object nonNull,
                                            ErrorHandler errorHandler) {
         final BigDecimal value;
-        value = BigDecimalType.toBigDecimal(type, dataType, nonNull, PARAM_ERROR_HANDLER)
+        value = BigDecimalType.toBigDecimal(type, dataType, nonNull, errorHandler)
                 .stripTrailingZeros();
         if (value.scale() != 0 || value.compareTo(BigDecimal.ZERO) < 0) {
             throw errorHandler.apply(type, dataType, nonNull, null);
