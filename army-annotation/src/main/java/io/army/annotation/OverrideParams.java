@@ -14,36 +14,20 @@
  * limitations under the License.
  */
 
-package io.army.example.bank.web.form;
 
-import jakarta.validation.constraints.NotEmpty;
+package io.army.annotation;
 
-public class RegisterForm {
+import java.lang.annotation.*;
 
-    @NotEmpty
-    private String requestNo;
+/// This annotation on a class can override
+/// {@link Generator} param of a field in the base class.
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface OverrideParams {
 
-
-    @NotEmpty
-    private String captcha;
-
-    public String getRequestNo() {
-        return requestNo;
-    }
-
-    public RegisterForm setRequestNo(String requestNo) {
-        this.requestNo = requestNo;
-        return this;
-    }
-
-    public String getCaptcha() {
-        return captcha;
-    }
-
-    public RegisterForm setCaptcha(String captcha) {
-        this.captcha = captcha;
-        return this;
-    }
-
-
+    /**
+     * Specifies the creation value(s) of {@code io.army.generator.FieldGenerator}.
+     */
+    Param[] params();
 }

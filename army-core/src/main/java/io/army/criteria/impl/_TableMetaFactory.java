@@ -39,7 +39,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
@@ -74,61 +77,66 @@ public abstract class _TableMetaFactory {
     /**
      * @return a unmodifiable map.
      */
-    public static synchronized Map<Class<?>, TableMeta<?>> getTableMetaMap(final SchemaMeta schemaMeta,
-                                                                           final List<String> basePackages,
-                                                                           @Nullable final ClassLoader classLoader)
+    public static Map<Class<?>, TableMeta<?>> getTableMetaMap(final SchemaMeta schemaMeta,
+                                                              final List<String> basePackages,
+                                                              @Nullable final ClassLoader classLoader)
             throws TableMetaLoadException {
-        URL url = null;
-        try {
-            final Map<Class<?>, TableMeta<?>> tableMetaMap = _Collections.hashMap();
-            final ClassFile classFile = ClassFile.of();
 
-            for (String basePackage : basePackages) {
-                if (!_StringUtils.hasText(basePackage)) {
-                    throw new IllegalArgumentException("basePackage must have text.");
+        synchronized (DefaultTableMeta.LOCK) {
+            URL url = null;
+            try {
+                final Map<Class<?>, TableMeta<?>> tableMetaMap = _Collections.hashMap();
+                final ClassFile classFile = ClassFile.of();
+
+                for (String basePackage : basePackages) {
+                    if (!_StringUtils.hasText(basePackage)) {
+                        throw new IllegalArgumentException("basePackage must have text.");
+                    }
+                    //1. convert base package
+                    if (basePackage.indexOf('.') > 0) {
+                        basePackage = basePackage.replace('.', '/');
+                    }
+                    // 2. get url from base package
+                    final Enumeration<URL> enumeration;
+                    if (classLoader == null) {
+                        enumeration = ClassLoader.getSystemResources(basePackage);
+                    } else {
+                        enumeration = classLoader.getResources(basePackage);
+                    }
+                    // 3. scan java class file in base package for get TableMeta.
+                    while (enumeration.hasMoreElements()) {
+                        url = enumeration.nextElement();
+                        final String protocol = url.getProtocol();
+                        try (Stream<ByteBuffer> stream = createJavaClassByteStream(protocol, url)) {
+                            stream.map(buffer -> readJavaClassFile(classFile, buffer, schemaMeta)) // read java class file and get class name if match.
+                                    .filter(_StringUtils::hasText) // if empty string ,not domain class
+                                    .map(_TableMetaFactory::getOrCreateTableMeta)// get or create table meta
+                                    .forEach(tableMeta -> {
+                                        final Class<?> domainClass = tableMeta.javaType();
+                                        tableMetaMap.put(domainClass, tableMeta);
+                                        loadDomainMetaHolder(domainClass);
+                                    });
+                        } // try
+                    } // while
+                    url = null;
                 }
-                //1. convert base package
-                if (basePackage.indexOf('.') > 0) {
-                    basePackage = basePackage.replace('.', '/');
-                }
-                // 2. get url from base package
-                final Enumeration<URL> enumeration;
-                if (classLoader == null) {
-                    enumeration = ClassLoader.getSystemResources(basePackage);
+                return Map.copyOf(tableMetaMap);
+            } catch (TableMetaLoadException e) {
+                throw e;
+            } catch (Exception e) {
+                String m;
+                if (url == null) {
+                    m = e.getMessage();
                 } else {
-                    enumeration = classLoader.getResources(basePackage);
+                    m = String.format("url[%s] scan occur error: %s .", url, e.getMessage());
                 }
-                // 3. scan java class file in base package for get TableMeta.
-                while (enumeration.hasMoreElements()) {
-                    url = enumeration.nextElement();
-                    final String protocol = url.getProtocol();
-                    try (Stream<ByteBuffer> stream = createJavaClassByteStream(protocol, url)) {
-                        stream.map(buffer -> readJavaClassFile(classFile, buffer, schemaMeta)) // read java class file and get class name if match.
-                                .filter(_StringUtils::hasText) // if empty string ,not domain class
-                                .map(_TableMetaFactory::getOrCreateTableMeta)// get or create table meta
-                                .forEach(tableMeta -> {
-                                    final Class<?> domainClass = tableMeta.javaType();
-                                    tableMetaMap.put(domainClass, tableMeta);
-                                    loadDomainMetaHolder(domainClass);
-                                });
-                    } // try
-                } // while
-                url = null;
+                throw new TableMetaLoadException(m, e);
+            } finally {
+                TableMetaUtils.clearCache();
             }
-            return Map.copyOf(tableMetaMap);
-        } catch (TableMetaLoadException e) {
-            throw e;
-        } catch (Exception e) {
-            String m;
-            if (url == null) {
-                m = e.getMessage();
-            } else {
-                m = String.format("url[%s] scan occur error: %s .", url, e.getMessage());
-            }
-            throw new TableMetaLoadException(m, e);
-        } finally {
-            TableMetaUtils.clearCache();
-        }
+
+        } // synchronized
+
     }
 
 

@@ -51,36 +51,73 @@ public abstract class TableMetaUtils {
     private static Map<Class<?>, Pair<Set<String>, Field>> parentFieldPairCache = new ConcurrentHashMap<>();
 
 
-    static synchronized void clearCache() {
-        final Map<Class<?>, Map<Integer, Class<?>>> discriminatorCodeMap = TableMetaUtils.discriminatorCodeMap;
-        if (discriminatorCodeMap != null) {
-            discriminatorCodeMap.clear();
-            TableMetaUtils.discriminatorCodeMap = null;
-        }
-        final Map<Class<?>, Pair<Set<String>, Field>> parentFieldPairCache = TableMetaUtils.parentFieldPairCache;
-        if (parentFieldPairCache != null) {
-            parentFieldPairCache.clear();
-            TableMetaUtils.parentFieldPairCache = null;
-        }
+    private static Map<String, Object> metaCache = new ConcurrentHashMap<>();
+
+
+    static void clearCache() {
+        synchronized (DefaultTableMeta.LOCK) {
+            final Map<Class<?>, Map<Integer, Class<?>>> discriminatorCodeMap = TableMetaUtils.discriminatorCodeMap;
+            if (discriminatorCodeMap != null) {
+                discriminatorCodeMap.clear();
+                TableMetaUtils.discriminatorCodeMap = null;
+            }
+            final Map<Class<?>, Pair<Set<String>, Field>> parentFieldPairCache = TableMetaUtils.parentFieldPairCache;
+            if (parentFieldPairCache != null) {
+                parentFieldPairCache.clear();
+                TableMetaUtils.parentFieldPairCache = null;
+            }
+
+            TableMetaUtils.metaCache = null;
+
+        } // synchronized
+
 
     }
 
-    private static synchronized Map<Class<?>, Map<Integer, Class<?>>> createDiscriminatorCodeMap() {
-        Map<Class<?>, Map<Integer, Class<?>>> map = TableMetaUtils.discriminatorCodeMap;
-        if (map == null) {
-            map = new ConcurrentHashMap<>();
-            TableMetaUtils.discriminatorCodeMap = map;
+    @Nullable
+    static Object getCache(final String key) {
+        synchronized (DefaultTableMeta.LOCK) {
+            Map<String, Object> metaCache = TableMetaUtils.metaCache;
+            if (metaCache == null) {
+                TableMetaUtils.metaCache = metaCache = new ConcurrentHashMap<>();
+            }
+            return metaCache.get(key);
         }
-        return map;
+    }
+
+    static void putCache(final String key, Object value) {
+        synchronized (DefaultTableMeta.LOCK) {
+            Map<String, Object> metaCache = TableMetaUtils.metaCache;
+            if (metaCache == null) {
+                TableMetaUtils.metaCache = metaCache = new ConcurrentHashMap<>();
+            }
+            metaCache.put(key, value);
+        } // synchronized
+    }
+
+
+    private static Map<Class<?>, Map<Integer, Class<?>>> createDiscriminatorCodeMap() {
+        synchronized (DefaultTableMeta.LOCK) {
+            Map<Class<?>, Map<Integer, Class<?>>> map = TableMetaUtils.discriminatorCodeMap;
+            if (map == null) {
+                map = new ConcurrentHashMap<>();
+                TableMetaUtils.discriminatorCodeMap = map;
+            }
+            return map;
+        } // synchronized
+
     }
 
     private static synchronized Map<Class<?>, Pair<Set<String>, Field>> createParentFieldPairCache() {
-        Map<Class<?>, Pair<Set<String>, Field>> map = TableMetaUtils.parentFieldPairCache;
-        if (map == null) {
-            map = new ConcurrentHashMap<>();
-            TableMetaUtils.parentFieldPairCache = map;
-        }
-        return map;
+        synchronized (DefaultTableMeta.LOCK) {
+            Map<Class<?>, Pair<Set<String>, Field>> map = TableMetaUtils.parentFieldPairCache;
+            if (map == null) {
+                map = new ConcurrentHashMap<>();
+                TableMetaUtils.parentFieldPairCache = map;
+            }
+            return map;
+        } // synchronized
+
     }
 
 

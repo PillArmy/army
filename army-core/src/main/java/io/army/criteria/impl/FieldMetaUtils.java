@@ -23,15 +23,17 @@ import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
-import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @see FieldMeta
@@ -56,7 +58,7 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         private PreGeneratorMetaImpl(FieldMeta<?> fieldMeta, Class<?> javaType, Map<String, String> params) {
             this.javaType = javaType;
             this.fieldMeta = fieldMeta;
-            this.params = _Collections.unmodifiableMap(params);
+            this.params = Map.copyOf(params);
         }
 
         @Override
@@ -113,26 +115,19 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         }
     }
 
-    static GeneratorMeta columnGeneratorMeta(Generator generator, FieldMeta<?> fieldMeta, boolean isDiscriminator) {
+    static GeneratorMeta columnGeneratorMeta(Generator generator, Field field, FieldMeta<?> fieldMeta, boolean isDiscriminator) {
         final String fieldName = fieldMeta.fieldName();
         if (isDiscriminator || (!_MetaBridge.ID.equals(fieldName) && _MetaBridge.RESERVED_FIELDS.contains(fieldName))) {
             String m = String.format("%s is managed by army ,so must no %s", fieldMeta, Generator.class.getName());
             throw new MetaException(m);
         }
-        final Class<?> javaType;
-        javaType = loadPreGeneratorClass(fieldMeta, generator.value());
+        final Class<?> generatorClass;
+        generatorClass = loadPreGeneratorClass(fieldMeta, generator.value());
 
-        final Map<String, String> paramMap;
-        final Param[] params = generator.params();
-        if (params.length == 0) {
-            paramMap = Collections.emptyMap();
-        } else {
-            paramMap = new HashMap<>((int) (params.length / 0.75f));
-            for (Param param : params) {
-                paramMap.put(param.name(), param.value());
-            }
-        }
-        return new PreGeneratorMetaImpl(fieldMeta, javaType, paramMap);
+        final Map<String, String> paramMap, finalMap;
+        paramMap = getOrcreateFieldParmMap(generator.params(), fieldMeta, field);
+        finalMap = overrideParamMapIfNeed(generatorClass, fieldMeta, paramMap);
+        return new PreGeneratorMetaImpl(fieldMeta, generatorClass, finalMap);
     }
 
 
@@ -215,6 +210,85 @@ abstract class FieldMetaUtils extends TableMetaUtils {
 
 
     /*################################## blow private method ##################################*/
+
+
+    /// @return an unmodified map
+    @SuppressWarnings("unchecked")
+    private static Map<String, String> getOrcreateFieldParmMap(final Param[] params, final FieldMeta<?> fieldMeta, final Field field) {
+        if (params.length == 0) {
+            return Map.of();
+        }
+
+        synchronized (DefaultTableMeta.LOCK) {
+
+            final String key = field.getDeclaringClass().getName() + '.' + field.getName() + '.' + "generator.paramMap";
+            final Object value = TableMetaUtils.getCache(key);
+            Map<String, String> paramMap;
+            if (value instanceof Map) {
+                paramMap = (Map<String, String>) value;
+            } else {
+                paramMap = createFieldParmMap(params, fieldMeta);
+                TableMetaUtils.putCache(key, paramMap);
+            }
+            return paramMap;
+        } // synchronized
+    }
+
+    /// @return an unmodified map
+    private static Map<String, String> createFieldParmMap(final Param[] params, final FieldMeta<?> fieldMeta) {
+
+        final Map<String, String> paramMap = new HashMap<>((int) (params.length / 0.75f));
+        for (Param param : params) {
+            if (paramMap.putIfAbsent(param.name(), param.value()) != null) {
+                String m = String.format("%s %s[%s] duplication", fieldMeta, Param.class.getName(), param.name());
+                throw new MetaException(m);
+            }
+        }
+        return Map.copyOf(paramMap);
+    }
+
+    /// @param paramMap an unmodified map
+    /// @return an unmodified map
+    private static Map<String, String> overrideParamMapIfNeed(final Class<?> generatorClass, final FieldMeta<?> fieldMeta, final Map<String, String> paramMap) {
+        final OverrideParams overrideParams;
+        overrideParams = fieldMeta.tableMeta().javaType().getAnnotation(OverrideParams.class);
+        if (overrideParams == null) {
+            return paramMap;
+        }
+        final Set<String> set = obtainParamNameSet(generatorClass);
+        final Map<String, String> newMap = new HashMap<>(paramMap);
+        for (Param param : overrideParams.params()) {
+            if (set.contains(param.name())) {
+                newMap.put(param.name(), param.value());
+            }
+        }
+
+        return Map.copyOf(newMap);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private static Set<String> obtainParamNameSet(Class<?> generatorClass) {
+        try {
+            final Method method;
+            method = generatorClass.getMethod("paramNameSet");
+            final int modifiers = method.getModifiers();
+            if (!Modifier.isPublic(modifiers)
+                    || !Modifier.isStatic(modifiers)
+                    || method.getReturnType() != Set.class) {
+                String m = String.format("Not found paramNameSet() method in %s", generatorClass.getName());
+                throw new RuntimeException(m);
+            }
+            final Object value;
+            value = method.invoke(null);
+            if (value == null || ((Set<?>) value).isEmpty()) {
+                throw new RuntimeException("set is null/empty");
+            }
+            return (Set<String>) value;
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     private static String commentManagedByArmy(FieldMeta<?> fieldMeta) {

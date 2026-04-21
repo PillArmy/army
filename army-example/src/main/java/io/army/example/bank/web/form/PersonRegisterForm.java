@@ -19,8 +19,8 @@ package io.army.example.bank.web.form;
 import io.army.example.bank.domain.account.BankAccountType;
 import io.army.example.bank.domain.user.CertificateType;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 public final class PersonRegisterForm extends RegisterForm {
 

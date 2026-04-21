@@ -145,7 +145,6 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
     }
 
 
-
     final DefaultTableMeta<T> table;
 
     final String fieldName;
@@ -235,7 +234,7 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
                 this.generatorMeta = null;
             } else if ((generatorType = generator.type()) == GeneratorType.PRECEDE) {
                 this.generatorType = generatorType;
-                this.generatorMeta = FieldMetaUtils.columnGeneratorMeta(generator, this, isDiscriminator);
+                this.generatorMeta = FieldMetaUtils.columnGeneratorMeta(generator, field, this, isDiscriminator);
             } else if (generatorType == GeneratorType.POST) {
                 this.generatorType = generatorType;
                 this.generatorMeta = null;
@@ -455,12 +454,11 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
     @Override
     public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
-        if (this instanceof VisibleFieldMeta && context.visible() != Visible.BOTH) {
+        if (_MetaBridge.VISIBLE.equals(this.fieldName) && context.visible() != Visible.BOTH) {
             throw _Exceptions.visibleField(context.visible(), this);
         }
         context.appendField(this);
     }
-
 
 
     /*################################## blow private method ##################################*/

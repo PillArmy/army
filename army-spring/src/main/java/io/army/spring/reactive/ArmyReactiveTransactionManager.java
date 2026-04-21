@@ -529,10 +529,11 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
     private GenericReactiveTransaction newReactiveTransaction(
             TransactionSynchronizationManager synchronizationManager, TransactionDefinition definition,
             @Nullable Object transaction, boolean newTransaction, boolean debug, @Nullable Object suspendedResources) {
-
-        return new GenericReactiveTransaction(transaction, newTransaction,
-                !synchronizationManager.isSynchronizationActive(),
-                definition.isReadOnly(), debug, suspendedResources);
+        throw new UnsupportedOperationException();
+        // TODO fix me , spring new version don't supprot
+//        return new GenericReactiveTransaction(transaction, newTransaction,
+//                !synchronizationManager.isSynchronizationActive(),
+//                definition.isReadOnly(), debug, suspendedResources);
     }
 
     /**

@@ -24,9 +24,9 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
 
-/**
- * see {@code io.army.generator.PreFieldGenerator}
- */
+/// see {@code io.army.generator.PreFieldGenerator}
+///
+/// @see Generator
 @Target({FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

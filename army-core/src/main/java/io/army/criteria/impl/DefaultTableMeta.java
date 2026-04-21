@@ -39,48 +39,60 @@ import java.util.concurrent.ConcurrentMap;
  */
 abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
+    static final Class<?> LOCK = DefaultTableMeta.class;
+
+
     private static final ConcurrentMap<Class<?>, DefaultTableMeta<?>> INSTANCE_MAP = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
     static <T> TableMeta<T> getTableMeta(final Class<T> domainClass) {
-        final TableMeta<T> cache = (TableMeta<T>) INSTANCE_MAP.get(domainClass);
-        final TableMeta<T> tableMeta;
-        if (cache != null) {
-            if (cache.javaType() != domainClass) {
-                throw instanceMapError();
+        synchronized (DefaultTableMeta.LOCK) {
+            final TableMeta<T> cache = (TableMeta<T>) INSTANCE_MAP.get(domainClass);
+            final TableMeta<T> tableMeta;
+            if (cache != null) {
+                if (cache.javaType() != domainClass) {
+                    throw instanceMapError();
+                }
+                tableMeta = cache;
+            } else if (domainClass.getAnnotation(Table.class) == null) {
+                throw mappingError(TableMeta.class, domainClass);
+            } else if (domainClass.getAnnotation(Inheritance.class) != null) {
+                tableMeta = createParentTableMeta(domainClass);
+            } else if (domainClass.getAnnotation(DiscriminatorValue.class) != null) {
+                final ChildTableMeta<T> child;
+                child = createChildTableMeta(domainClass);
+                tableMeta = child;
+            } else {
+                tableMeta = createSimpleTableMeta(domainClass);
             }
-            tableMeta = cache;
-        } else if (domainClass.getAnnotation(Table.class) == null) {
-            throw mappingError(TableMeta.class, domainClass);
-        } else if (domainClass.getAnnotation(Inheritance.class) != null) {
-            tableMeta = createParentTableMeta(domainClass);
-        } else if (domainClass.getAnnotation(DiscriminatorValue.class) != null) {
-            final ChildTableMeta<T> child;
-            child = createChildTableMeta(domainClass);
-            tableMeta = child;
-        } else {
-            tableMeta = createSimpleTableMeta(domainClass);
-        }
-        return tableMeta;
+            return tableMeta;
+        } // synchronized
+
     }
 
     static <T> SimpleTableMeta<T> getSimpleTableMeta(final Class<T> domainClass) {
-        SimpleTableMeta<T> simple;
-        simple = getSimpleFromCache(domainClass);
-        if (simple == null) {
-            simple = createSimpleTableMeta(domainClass);
-        }
-        return simple;
+        synchronized (DefaultTableMeta.LOCK) {
+            SimpleTableMeta<T> simple;
+            simple = getSimpleFromCache(domainClass);
+            if (simple == null) {
+                simple = createSimpleTableMeta(domainClass);
+            }
+            return simple;
+        } // synchronized
+
     }
 
 
     static <T> ParentTableMeta<T> getParentTableMeta(final Class<T> domainClass) {
-        ParentTableMeta<T> parent;
-        parent = getParentFromCache(domainClass);
-        if (parent == null) {
-            parent = createParentTableMeta(domainClass);
-        }
-        return parent;
+        synchronized (DefaultTableMeta.LOCK) {
+            ParentTableMeta<T> parent;
+            parent = getParentFromCache(domainClass);
+            if (parent == null) {
+                parent = createParentTableMeta(domainClass);
+            }
+            return parent;
+        } // synchronized
+
     }
 
     static <P, T> ComplexTableMeta<P, T> getChildTableMeta(final ParentTableMeta<P> parent
@@ -153,7 +165,7 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
     }
 
     private static <T> ParentTableMeta<T> createParentTableMeta(final Class<T> domainClass) {
-        synchronized (DefaultParentTable.class) {
+        synchronized (DefaultTableMeta.LOCK) {
             final ParentTableMeta<T> parent;
             parent = getParentFromCache(domainClass);
             if (parent != null) {
@@ -174,9 +186,10 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         }
     }
 
+
     @SuppressWarnings("unchecked")
     private static <P, T extends P> ChildTableMeta<T> createChildTableMeta(final Class<T> domainClass) {
-        synchronized (DefaultChildTable.class) {
+        synchronized (DefaultTableMeta.LOCK) {
             final ChildTableMeta<T> child;
             child = getChildFromCache(domainClass);
             if (child != null) {
@@ -206,7 +219,7 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
 
     private static <T> SimpleTableMeta<T> createSimpleTableMeta(final Class<T> domainClass) {
-        synchronized (DefaultSimpleTable.class) {
+        synchronized (DefaultTableMeta.LOCK) {
             final SimpleTableMeta<T> simple;
             simple = getSimpleFromCache(domainClass);
             if (simple != null) {

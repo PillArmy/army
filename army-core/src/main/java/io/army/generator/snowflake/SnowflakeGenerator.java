@@ -34,6 +34,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.SignStyle;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -99,6 +100,11 @@ public final class SnowflakeGenerator implements FieldGenerator {
 
     }
 
+    @SuppressWarnings("unused")
+    public static Set<String> paramNameSet() {
+        return Set.of(START_TIME, DATE, SUFFIX_LENGTH);
+    }
+
 
     private static final ConcurrentMap<Long, SnowflakeGenerator> INSTANCE_MAP = new ConcurrentHashMap<>();
 
@@ -108,11 +114,11 @@ public final class SnowflakeGenerator implements FieldGenerator {
      *
      * @see Param
      */
-    public static final String START_TIME = "startTime";
+    public static final String START_TIME = "snowStartTime";
 
-    public static final String DATE = "date";
+    public static final String DATE = "snowDate";
 
-    public static final String SUFFIX_LENGTH = "suffixLength";
+    public static final String SUFFIX_LENGTH = "snowSuffixLength";
 
 
     private static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()

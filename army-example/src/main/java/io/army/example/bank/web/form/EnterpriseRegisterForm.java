@@ -16,10 +16,10 @@
 
 package io.army.example.bank.web.form;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public class EnterpriseRegisterForm extends RegisterForm {
