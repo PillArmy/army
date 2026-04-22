@@ -64,11 +64,6 @@ public final class UnsignedSmallIntType extends _NumericType._UnsignedIntegerTyp
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.MEDIUM;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         final DataType dataType;
         switch (meta.serverDatabase()) {

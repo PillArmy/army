@@ -29,11 +29,6 @@ public final class ZoneOffsetType extends _ArmyNoInjectionType implements Mappin
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.DEFAULT;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         return StringType.mapToDataType(this, meta);
     }

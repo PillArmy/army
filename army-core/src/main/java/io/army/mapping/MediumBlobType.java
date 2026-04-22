@@ -54,11 +54,6 @@ public final class MediumBlobType extends _ArmyBuildInType implements MappingTyp
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.DEFAULT;
-    }
-
-    @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return MediumBlobArrayType.LINEAR;
     }

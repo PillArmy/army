@@ -45,11 +45,6 @@ public final class TinyBlobType extends _ArmyBuildInType implements MappingType.
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.TINY;
-    }
-
-    @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         // TODO fix me ,add TinyBlobArrayType
         throw new UnsupportedOperationException();

@@ -48,11 +48,6 @@ public final class ZoneIdType extends _ArmyNoInjectionType implements MappingTyp
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.DEFAULT;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         return StringType.mapToDataType(this, meta);
     }

@@ -66,11 +66,6 @@ public final class ShortType extends _NumericType._IntegerType {
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.SMALL;
-    }
-
-    @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return ShortArrayType.LINEAR;
     }

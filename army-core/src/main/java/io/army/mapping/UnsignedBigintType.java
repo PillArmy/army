@@ -50,11 +50,6 @@ public final class UnsignedBigintType extends _NumericType._UnsignedIntegerType 
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.BIG_LONG;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         return mapToDataType(this, meta);
     }

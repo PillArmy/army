@@ -65,11 +65,6 @@ public final class UnsignedMediumIntType extends _NumericType._UnsignedIntegerTy
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.DEFAULT;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         final DataType dataType;
         switch (meta.serverDatabase()) {

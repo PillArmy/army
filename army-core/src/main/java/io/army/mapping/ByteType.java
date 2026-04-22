@@ -63,12 +63,6 @@ public final class ByteType extends _NumericType._IntegerType {
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.TINY;
-    }
-
-
-    @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return ByteArrayType.LINEAR;
     }

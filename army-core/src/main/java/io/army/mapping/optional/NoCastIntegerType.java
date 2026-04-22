@@ -49,11 +49,6 @@ public final class NoCastIntegerType extends _NumericType._IntegerType implement
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.DEFAULT;
-    }
-
-    @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return IntegerArrayType.LINEAR;
     }

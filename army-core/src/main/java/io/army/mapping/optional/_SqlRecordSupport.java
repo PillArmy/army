@@ -26,7 +26,6 @@ import io.army.mapping.array.PostgreArrays;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.type.ArraySqlRecord;
-import io.army.type.SqlRecord;
 import io.army.util._Exceptions;
 
 import java.util.List;
@@ -49,12 +48,12 @@ public abstract class _SqlRecordSupport extends _ArmyBuildInType {
     }
 
 
-    protected final SqlRecord parseSqlRecord(final MappingEnv env, final String source, final int offset, final int end) {
+    protected final io.army.type.SqlRecord parseSqlRecord(final MappingEnv env, final String source, final int offset, final int end) {
         final ServerMeta meta = env.serverMeta();
         final List<MappingType> columnTypeList = this.columnTypeList;
         final int columnTypeSize = columnTypeList.size();
 
-        final SqlRecord record = ArraySqlRecord.forSize(columnTypeSize);
+        final io.army.type.SqlRecord record = ArraySqlRecord.forSize(columnTypeSize);
         final boolean unlimited = columnTypeSize == 0;
 
         DataType columnDataType;

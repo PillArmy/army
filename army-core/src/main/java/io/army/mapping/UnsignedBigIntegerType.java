@@ -52,11 +52,6 @@ public final class UnsignedBigIntegerType extends _NumericType._UnsignedIntegerT
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.BIG_LONG;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         return UnsignedBigDecimalType.mapToDataType(this, meta);
     }

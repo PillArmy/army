@@ -54,11 +54,6 @@ public final class BlobType extends _ArmyBuildInType implements MappingType.SqlB
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.MEDIUM;
-    }
-
-    @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return BlobArrayType.LINEAR;
     }

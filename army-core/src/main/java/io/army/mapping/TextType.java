@@ -77,11 +77,6 @@ public final class TextType extends ArmyTextType {
 
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.MEDIUM;
-    }
-
-    @Override
     public MappingType arrayTypeOfThis() {
         return TextArrayType.LINEAR;
     }

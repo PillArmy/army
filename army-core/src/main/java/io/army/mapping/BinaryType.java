@@ -55,11 +55,6 @@ public final class BinaryType extends _ArmyBuildInType implements MappingType.Sq
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.TINY;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         final DataType dataType;
         switch (meta.serverDatabase()) {

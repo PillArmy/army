@@ -55,12 +55,6 @@ public final class LongBlobType extends _ArmyBuildInType implements MappingType.
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.LONG;
-    }
-
-
-    @Override
     public DataType map(final ServerMeta meta) {
         final DataType dataType;
         switch (meta.serverDatabase()) {

@@ -46,12 +46,6 @@ public final class UnsignedIntegerType extends _ArmyNoInjectionType
 
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.DEFAULT;
-    }
-
-
-    @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
         return UnsignedSqlIntType.mapToDataType(this, meta);
     }

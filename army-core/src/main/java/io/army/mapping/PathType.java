@@ -56,11 +56,6 @@ public final class PathType extends _ArmyBuildInType implements MappingType.SqlS
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.DEFAULT;
-    }
-
-    @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return PathArrayType.LINEAR;
     }

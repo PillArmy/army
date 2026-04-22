@@ -51,11 +51,6 @@ public final class CharacterType extends _ArmyBuildInType implements MappingType
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.TINY;
-    }
-
-    @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return CharacterArrayType.LINEAR;
     }

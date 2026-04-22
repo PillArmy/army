@@ -71,11 +71,6 @@ public final class LongText extends _ArmyBuildInType implements MappingType.SqlT
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.LONG;
-    }
-
-    @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
         final DataType dataType;
         switch (meta.serverDatabase()) {

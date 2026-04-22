@@ -75,11 +75,6 @@ public final class MediumTextType extends ArmyTextType {
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.DEFAULT;
-    }
-
-    @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return MediumTextArrayType.LINEAR;
     }

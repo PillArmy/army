@@ -67,11 +67,6 @@ public final class BigIntegerType extends _NumericType._IntegerType {
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.BIG_LONG;
-    }
-
-    @Override
     public DataType map(ServerMeta meta) {
         return BigDecimalType.mapToDataType(this, meta);
     }

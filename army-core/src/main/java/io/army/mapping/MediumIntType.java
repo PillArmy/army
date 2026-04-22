@@ -69,11 +69,6 @@ public final class MediumIntType extends _NumericType._IntegerType {
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.MEDIUM;
-    }
-
-    @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return MediumIntArrayType.LINEAR;
     }

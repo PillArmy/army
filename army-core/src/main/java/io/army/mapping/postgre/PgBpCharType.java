@@ -44,11 +44,6 @@ public final class PgBpCharType extends _ArmyBuildInType implements MappingType.
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.LONG;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
         if (meta.serverDatabase() != Database.PostgreSQL || meta.major() < 16) {
             throw MAP_ERROR_HANDLER.apply(this, meta);

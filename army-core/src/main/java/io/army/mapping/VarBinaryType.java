@@ -51,11 +51,6 @@ public final class VarBinaryType extends _ArmyBuildInType implements MappingType
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.TINY;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         final DataType dataType;
         switch (meta.serverDatabase()) {
