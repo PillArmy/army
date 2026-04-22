@@ -1,4 +1,4 @@
-package io.army.bean;
+package io.army.pojo;
 
 public class BaseBean {
 

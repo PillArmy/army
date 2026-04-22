@@ -1,4 +1,4 @@
-package io.army.bean;
+package io.army.pojo;
 
 
 import org.testng.Assert;
@@ -12,7 +12,7 @@ public class ObjectAccessorFactoryTests {
     @Test
     public void getterAndSetter() {
         final ObjectAccessor accessor;
-        accessor = ObjectAccessorFactory.forBean(MyBean.class);
+        accessor = ObjectAccessorFactory.forPojo(MyBean.class);
 
         final MyBean bean = new MyBean();
 
@@ -112,7 +112,7 @@ public class ObjectAccessorFactoryTests {
     @Test
     public void fieldAccess() {
         final ObjectAccessor accessor;
-        accessor = ObjectAccessorFactory.forBean(FieldBean.class);
+        accessor = ObjectAccessorFactory.forPojo(FieldBean.class);
 
         final FieldBean bean = new FieldBean();
 

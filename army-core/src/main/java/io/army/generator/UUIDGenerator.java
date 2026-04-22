@@ -16,8 +16,8 @@
 
 package io.army.generator;
 
-import io.army.bean.ReadWrapper;
 import io.army.meta.FieldMeta;
+import io.army.pojo.ReadWrapper;
 
 import java.util.UUID;
 

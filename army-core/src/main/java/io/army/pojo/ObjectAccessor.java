@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.army.bean;
+package io.army.pojo;
 
 
 import io.army.lang.Nullable;

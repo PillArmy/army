@@ -16,8 +16,6 @@
 
 package io.army.proxy;
 
-import io.army.bean.ObjectAccessor;
-import io.army.bean.ObjectAccessorFactory;
 import io.army.criteria.IPredicate;
 import io.army.criteria.Update;
 import io.army.criteria.UpdateStatement;
@@ -25,6 +23,8 @@ import io.army.criteria.impl.SQLs;
 import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
+import io.army.pojo.ObjectAccessor;
+import io.army.pojo.ObjectAccessorFactory;
 import io.army.util.ClassUtils;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
@@ -120,7 +120,7 @@ final class SessionCache implements _SessionCache {
     @Override
     public <T> T putIfAbsent(final TableMeta<T> table, final T domain) {
         final ObjectAccessor accessor;
-        accessor = ObjectAccessorFactory.forBean(table.javaType());
+        accessor = ObjectAccessorFactory.forPojo(table.javaType());
         final Object id;
         id = accessor.get(domain, _MetaBridge.ID);
         if (id == null) {

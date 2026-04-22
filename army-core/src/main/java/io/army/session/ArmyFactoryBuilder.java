@@ -17,6 +17,7 @@
 package io.army.session;
 
 import io.army.advice.FactoryAdvice;
+import io.army.annotation.Column;
 import io.army.codec.FieldCodec;
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
@@ -31,6 +32,8 @@ import io.army.generator.FieldGenerator;
 import io.army.generator.FieldGeneratorFactory;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
+import io.army.mapping.MappingType;
+import io.army.mapping._MappingFactory;
 import io.army.meta.*;
 import io.army.option.Option;
 import io.army.schema.FieldResult;
@@ -42,6 +45,7 @@ import io.army.util._FunctionUtils;
 import io.army.util._StringUtils;
 import org.slf4j.Logger;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -64,7 +68,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     protected SchemaMeta schemaMeta = _SchemaMetaFactory.getSchema("", "");
 
-    protected Map<FieldMeta<?>, FieldGenerator> generatorMap = Collections.emptyMap();
+    protected Map<FieldMeta<?>, FieldGenerator> generatorMap = Map.of();
 
     protected FieldGeneratorFactory fieldGeneratorFactory;
 
@@ -97,6 +101,8 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     DialectParser dialectParser;
 
     Map<Class<?>, TableMeta<?>> tableMap;
+
+    private Set<MappingType> definedTypeSet = Set.of();
 
 
     protected ArmyFactoryBuilder() {
@@ -262,13 +268,14 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         dialectEnv = DialectEnv.builder()
                 .factoryName(factoryName)
                 .environment(env)
-                .fieldGeneratorMap(createFieldGeneratorMap())
+                .fieldGeneratorMap(obtainFieldGeneratorMap())
                 .reactive(reactive)
                 .serverMeta(serverMeta)
                 .zoneOffset(env.get(ArmyKey.ZONE_OFFSET))
                 .jsonCodec(this.jsonCodec)
                 .xmlCodec(this.xmlCodec)
                 .tableMap(this.tableMap)
+                .definedTypeSet(this.definedTypeSet)
                 .build();
 
         final DialectParser dialectParser;
@@ -288,7 +295,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 dialectParser.mappingEnv(), this.converterFunc);
     }
 
-    protected final Map<FieldMeta<?>, FieldGenerator> createFieldGeneratorMap() {
+    protected final Map<FieldMeta<?>, FieldGenerator> obtainFieldGeneratorMap() {
         Map<FieldMeta<?>, FieldGenerator> map = this.generatorMap;
         if (map == null) {
             map = Map.of();
@@ -312,31 +319,13 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             schemaMeta = _SchemaMetaFactory.getSchema("", "");
         }
 
-        final FieldGeneratorFactory generatorFactory = this.fieldGeneratorFactory;
 
         final Map<FieldMeta<?>, FieldGenerator> generatorMap = _Collections.hashMap();
+        final Set<MappingType> definedTypeSet = new HashSet<>();
 
-        final Consumer<TableMeta<?>> consumer = tableMeta -> {
-            final List<FieldMeta<?>> fieldChain = tableMeta.fieldChain();
-            if (fieldChain.isEmpty()) {
-                return;
-            }
-            FieldGenerator generator;
-            GeneratorMeta meta;
-            for (FieldMeta<?> field : fieldChain) {
-                meta = field.generator();
-                assert meta != null;
-                if (generatorFactory == null) {
-                    throw notSpecifiedFieldGeneratorFactory(field);
-                }
-                generator = generatorFactory.get(field);
-                if (!meta.javaType().isInstance(generator)) {
-                    throw fieldGeneratorTypeError(meta, generator);
-                }
-                generatorMap.put(field, generator);
-            } // field loop
-
-        };  // consumer
+        final Consumer<TableMeta<?>> consumer;
+        consumer = consumerForFieldGenerator(this.fieldGeneratorFactory, generatorMap)
+                .andThen(consumerForDefinedType(definedTypeSet));
 
 
         final Map<Class<?>, TableMeta<?>> tableMetaMap;
@@ -351,9 +340,9 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             throw new SessionFactoryException(m);
         }
 
-
+        this.tableMap = Map.copyOf(tableMetaMap);
         this.generatorMap = Map.copyOf(generatorMap);
-        this.tableMap = tableMetaMap;
+        this.definedTypeSet = Set.copyOf(definedTypeSet);
 
     }
 
@@ -391,6 +380,79 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         return map;
     }
 
+
+    /// @see #scanTableMeta()
+    private Consumer<TableMeta<?>> consumerForFieldGenerator(final @Nullable FieldGeneratorFactory generatorFactory,
+                                                             final Map<FieldMeta<?>, FieldGenerator> generatorMap) {
+        return tableMeta -> {
+            final List<FieldMeta<?>> fieldChain = tableMeta.fieldChain();
+            if (fieldChain.isEmpty()) {
+                return;
+            }
+            FieldGenerator generator;
+            GeneratorMeta meta;
+            for (FieldMeta<?> field : fieldChain) {
+                meta = field.generator();
+                assert meta != null;
+                if (generatorFactory == null) {
+                    throw notSpecifiedFieldGeneratorFactory(field);
+                }
+                generator = generatorFactory.get(field);
+                if (!meta.javaType().isInstance(generator)) {
+                    throw fieldGeneratorTypeError(meta, generator);
+                }
+                generatorMap.put(field, generator);
+            } // field loop
+        };
+    }
+
+
+    /// @see #scanTableMeta()
+    private Consumer<TableMeta<?>> consumerForDefinedType(final Set<MappingType> mappingTypeSet) {
+        return tableMeta -> {
+            MappingType type;
+
+            for (FieldMeta<?> field : tableMeta.fieldList()) {
+                type = field.mappingType();
+                if (!(type instanceof MappingType.SqlUserDefined)) {
+                    continue;
+                }
+
+                mappingTypeSet.add(type);
+
+                if (type instanceof MappingType.SqlComposite) {
+                    scanCompositeField(field.javaType(), mappingTypeSet);
+                }
+
+            } // field loop
+        };
+    }
+
+    /// @see #consumerForDefinedType
+    private void scanCompositeField(final Class<?> compositeClass, final Set<MappingType> mappingTypeSet) {
+        MappingType type;
+        for (Class<?> clazz = compositeClass; ; clazz = clazz.getSuperclass()) {
+            for (Field field : clazz.getDeclaredFields()) {
+
+                if (field.getAnnotation(Column.class) == null) {
+                    continue;
+                }
+
+                type = _MappingFactory.map(field);
+                if (!(type instanceof MappingType.SqlUserDefined)) {
+                    continue;
+                }
+
+                mappingTypeSet.add(type);
+
+                if (type instanceof MappingType.SqlComposite) {
+                    scanCompositeField(field.getType(), mappingTypeSet);
+                }
+
+            } // field loop
+        } // pojo class loop
+    }
+
     private SessionFactoryException fieldGeneratorTypeError(GeneratorMeta meta, @Nullable FieldGenerator generator) {
         String m = String.format("%s %s type %s isn't %s."
                 , meta.field(), FieldGenerator.class.getName(), generator, meta.javaType().getName());
@@ -417,9 +479,6 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         return builder.toString();
     }
 
-    protected static DialectParser dialectParser(ArmySessionFactory factory) {
-        return factory.dialectParser;
-    }
 
     @Nullable
     protected static FactoryAdvice createFactoryAdviceComposite(Collection<FactoryAdvice> factoryAdvices) {
@@ -526,7 +585,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
         final List<TableResult> tableResultList;
         tableResultList = schemaResult.changeTableList();
-        if (tableResultList.size() > 0) {
+        if (!tableResultList.isEmpty()) {
             for (TableResult tableResult : tableResultList) {
                 builder.append('\n')
                         .append(tableResult.table())

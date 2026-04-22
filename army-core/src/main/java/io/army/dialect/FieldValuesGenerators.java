@@ -17,12 +17,12 @@
 package io.army.dialect;
 
 import io.army.annotation.GeneratorType;
-import io.army.bean.ReadWrapper;
 import io.army.criteria.CriteriaException;
 import io.army.generator.FieldGenerator;
 import io.army.generator.GeneratorException;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
+import io.army.pojo.ReadWrapper;
 import io.army.util.ClassUtils;
 import io.army.util._Exceptions;
 

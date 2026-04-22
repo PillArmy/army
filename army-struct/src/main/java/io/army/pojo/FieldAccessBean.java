@@ -14,5 +14,8 @@
  * limitations under the License.
  */
 
-@io.army.lang.NonNullApi
-package io.army.bean;
+package io.army.pojo;
+
+public interface FieldAccessBean {
+
+}

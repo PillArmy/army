@@ -16,12 +16,12 @@
 
 package io.army.dialect;
 
-import io.army.bean.ObjectAccessor;
-import io.army.bean.ObjectAccessorFactory;
 import io.army.criteria.CriteriaException;
 import io.army.criteria.impl.inner._BatchStatement;
 import io.army.criteria.impl.inner._Statement;
 import io.army.lang.Nullable;
+import io.army.pojo.ObjectAccessor;
+import io.army.pojo.ObjectAccessorFactory;
 import io.army.session.SessionSpec;
 import io.army.util._Exceptions;
 

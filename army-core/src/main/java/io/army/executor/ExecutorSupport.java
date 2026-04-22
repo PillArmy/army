@@ -17,9 +17,6 @@
 package io.army.executor;
 
 import io.army.ArmyException;
-import io.army.bean.ObjectAccessException;
-import io.army.bean.ObjectAccessor;
-import io.army.bean.ObjectAccessorFactory;
 import io.army.criteria.CriteriaException;
 import io.army.criteria.Selection;
 import io.army.criteria.TypeInfer;
@@ -33,6 +30,9 @@ import io.army.mapping.postgre.PgSingleRangeType;
 import io.army.meta.MetaException;
 import io.army.meta.TypeMeta;
 import io.army.option.Option;
+import io.army.pojo.ObjectAccessException;
+import io.army.pojo.ObjectAccessor;
+import io.army.pojo.ObjectAccessorFactory;
 import io.army.result.*;
 import io.army.session.Session;
 import io.army.session.StmtOption;

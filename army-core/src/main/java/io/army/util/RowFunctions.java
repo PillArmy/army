@@ -1,18 +1,19 @@
 package io.army.util;
 
-import io.army.bean.ObjectAccessor;
-import io.army.bean.ObjectAccessorFactory;
 import io.army.criteria.Selection;
 import io.army.executor.ExecutorSupport;
+import io.army.lang.Nullable;
+import io.army.pojo.ObjectAccessor;
+import io.army.pojo.ObjectAccessorFactory;
 import io.army.result.DataRecord;
 import io.army.result.RecordMeta;
 import io.army.stmt.SingleSqlStmt;
 import io.army.stmt.TwoStmtQueryStmt;
 import io.army.type.ImmutableSpec;
 
-import io.army.lang.Nullable;
-
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
@@ -83,7 +84,7 @@ public abstract class RowFunctions {
     public static <R> Function<DataRecord, R> beanRowFunc(final Class<R> resultClass) {
 
         final ObjectAccessor accessor;
-        accessor = ObjectAccessorFactory.forBean(resultClass);
+        accessor = ObjectAccessorFactory.forPojo(resultClass);
         final ObjectRowReader<R> reader;
         reader = new ObjectRowReader<>(ObjectAccessorFactory.beanConstructor(resultClass), accessor, true);
         return reader::readRow;

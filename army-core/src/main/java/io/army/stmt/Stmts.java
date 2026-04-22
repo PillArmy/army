@@ -16,12 +16,12 @@
 
 package io.army.stmt;
 
-import io.army.bean.ObjectAccessor;
-import io.army.bean.ObjectAccessorFactory;
 import io.army.criteria.*;
 import io.army.criteria.impl.SQLs;
 import io.army.dialect._DialectUtils;
 import io.army.meta.PrimaryFieldMeta;
+import io.army.pojo.ObjectAccessor;
+import io.army.pojo.ObjectAccessorFactory;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 

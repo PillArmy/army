@@ -17,10 +17,6 @@
 package io.army.dialect;
 
 import io.army.annotation.GeneratorType;
-import io.army.bean.ObjectAccessException;
-import io.army.bean.ObjectAccessor;
-import io.army.bean.ObjectAccessorFactory;
-import io.army.bean.ReadWrapper;
 import io.army.criteria.LiteralMode;
 import io.army.criteria.NullMode;
 import io.army.criteria.impl.inner._Expression;
@@ -28,6 +24,10 @@ import io.army.criteria.impl.inner._Insert;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.meta.*;
+import io.army.pojo.ObjectAccessException;
+import io.army.pojo.ObjectAccessor;
+import io.army.pojo.ObjectAccessorFactory;
+import io.army.pojo.ReadWrapper;
 import io.army.session.SessionSpec;
 import io.army.stmt.InsertStmtParams;
 import io.army.stmt.SingleParam;
@@ -379,7 +379,7 @@ final class DomainInsertContext extends ValuesSyntaxInsertContext implements Ins
                 this.nonChildDefaultMap = domainStmt.defaultValueMap();
                 this.childDefaultMap = _Collections.emptyMap();
             }
-            this.accessor = ObjectAccessorFactory.forBean(this.domainTable.javaType());
+            this.accessor = ObjectAccessorFactory.forPojo(this.domainTable.javaType());
             this.readWrapper = new DomainReadWrapper(this, context.parser.mappingEnv);
         }
 

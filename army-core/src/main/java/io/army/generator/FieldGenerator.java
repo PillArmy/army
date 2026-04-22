@@ -16,9 +16,9 @@
 
 package io.army.generator;
 
-import io.army.bean.ReadWrapper;
 import io.army.meta.FieldMeta;
 import io.army.meta.GeneratorMeta;
+import io.army.pojo.ReadWrapper;
 
 /**
  * this interface create value for the mapping property of Entity when persist a entity before persistence.

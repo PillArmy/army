@@ -60,10 +60,6 @@ public final class PgLsnType extends _ArmyNoInjectionType {
         return super.arrayTypeOfThis();
     }
 
-    @Override
-    public boolean isSameType(MappingType type) {
-        return super.isSameType(type);
-    }
 
     @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {

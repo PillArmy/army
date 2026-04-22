@@ -19,8 +19,6 @@ package io.army.mapping;
 
 import io.army.annotation.Column;
 import io.army.annotation.MappedSuperclass;
-import io.army.bean.ObjectAccessor;
-import io.army.bean.ObjectAccessorFactory;
 import io.army.criteria.CriteriaException;
 import io.army.criteria.impl.TableMetaUtils;
 import io.army.dialect.UnsupportedDialectException;
@@ -32,6 +30,8 @@ import io.army.mapping.optional.CompositeField;
 import io.army.meta.MetaException;
 import io.army.meta.ServerMeta;
 import io.army.meta.TypeMeta;
+import io.army.pojo.ObjectAccessor;
+import io.army.pojo.ObjectAccessorFactory;
 import io.army.sqltype.DataType;
 import io.army.struct.DefinedType;
 import io.army.util.*;
@@ -156,7 +156,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         }
 
         final SafeLiteralFunc func = env.safeLiteralFunc();
-        final ObjectAccessor accessor = ObjectAccessorFactory.forBean(instance.javaType);
+        final ObjectAccessor accessor = ObjectAccessorFactory.forPojo(instance.javaType);
         final List<CompositeField> fieldList = instance.fieldList;
 
         final int size = fieldList.size();
@@ -190,7 +190,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
             throw dataAccessError(instance, dataType, source, null);
         }
 
-        final ObjectAccessor accessor = ObjectAccessorFactory.forBean(instance.javaType);
+        final ObjectAccessor accessor = ObjectAccessorFactory.forPojo(instance.javaType);
         final Supplier<?> constructor = ObjectAccessorFactory.beanConstructor(instance.javaType);
         final FieldParser fieldParser = new FieldParser(accessor, constructor.get(), instance.fieldList, env);
 

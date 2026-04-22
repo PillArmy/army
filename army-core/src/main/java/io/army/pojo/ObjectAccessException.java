@@ -14,34 +14,22 @@
  * limitations under the License.
  */
 
-package io.army.bean;
+package io.army.pojo;
 
+import io.army.ArmyException;
 
-public class InvalidPropertyException extends ObjectAccessException {
+public class ObjectAccessException extends ArmyException {
 
-
-    private final Class<?> beanClass;
-
-    private final String propertyName;
-
-    public InvalidPropertyException(String message, Class<?> beanClass, String propertyName) {
+    public ObjectAccessException(String message) {
         super(message);
-        this.beanClass = beanClass;
-        this.propertyName = propertyName;
     }
 
-    public InvalidPropertyException(String message, Class<?> beanClass, String propertyName, Throwable cause) {
+    public ObjectAccessException(String message, Throwable cause) {
         super(message, cause);
-        this.beanClass = beanClass;
-        this.propertyName = propertyName;
     }
 
-
-    public Class<?> getBeanClass() {
-        return beanClass;
+    public ObjectAccessException(Throwable cause) {
+        super(cause);
     }
 
-    public String getPropertyName() {
-        return propertyName;
-    }
 }

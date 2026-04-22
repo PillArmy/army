@@ -47,10 +47,10 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     <Z> MappingType compatibleFor(final DataType dataType, final Class<Z> targetType)
             throws NoMatchMappingException;
 
+    @Deprecated
     boolean isSameType(final MappingType type);
 
     DataType map(ServerMeta meta) throws UnsupportedDialectException;
-
 
     /**
      * @param dataType from {@link #map(ServerMeta)}
@@ -66,6 +66,17 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
      */
 
     Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException;
+
+
+    @Override
+    int hashCode();
+
+    @Override
+    boolean equals(Object obj);
+
+
+
+
 
 
     interface GenericsMappingType {

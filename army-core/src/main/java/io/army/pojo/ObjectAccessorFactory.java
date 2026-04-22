@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.army.bean;
+package io.army.pojo;
 
 
 import io.army.lang.Nullable;
@@ -50,7 +50,7 @@ public abstract class ObjectAccessorFactory {
     private static final ClassValue<Supplier<?>> CONSTRUCTOR_CACHE = new ConstructorClassValue();
 
 
-    public static ObjectAccessor forBean(Class<?> beanClass) {
+    public static ObjectAccessor forPojo(Class<?> beanClass) {
         return ACCESSOR_CACHE.get(beanClass);
     }
 
@@ -60,7 +60,7 @@ public abstract class ObjectAccessorFactory {
         if (instance instanceof Map) {
             accessor = MAP_ACCESSOR;
         } else {
-            accessor = forBean(instance.getClass());
+            accessor = forPojo(instance.getClass());
         }
         return accessor;
     }

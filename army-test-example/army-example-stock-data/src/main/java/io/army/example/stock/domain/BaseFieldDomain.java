@@ -2,7 +2,7 @@ package io.army.example.stock.domain;
 
 import io.army.annotation.Column;
 import io.army.annotation.MappedSuperclass;
-import io.army.bean.FieldAccessBean;
+import io.army.pojo.FieldAccessBean;
 
 import java.time.LocalDateTime;
 
