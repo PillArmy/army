@@ -158,11 +158,11 @@ final class AnnotationHandler {
         if (discriminatorValue == null
                 || enumName == null
                 || (enumSet = this.enumConstMap.get(enumName)) == null) {
-            // no bug ,never here
-            throw new RuntimeException("handler bug");
+            //occur error
+            return;
         }
         if (!enumSet.contains(discriminatorValue.value())) {
-            String m = String.format("Domain %s %s value %s not found in enum %s.",
+            String m = String.format("Domain[%s] %s value[%s] not found in enum %s.",
                     domainName, DiscriminatorValue.class.getSimpleName(), discriminatorValue.value(), enumName);
             this.errorMsgList.add(m);
         }

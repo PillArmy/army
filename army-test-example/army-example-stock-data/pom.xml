@@ -67,7 +67,7 @@
                 <configuration>
                     <annotationProcessors>io.army.modelgen.ArmyMetaModelDomainProcessor</annotationProcessors>
                     <compilerArgs>
-                        <arg>-Aarmy.snowflakeStartTimeWarning=false</arg>
+                        <arg>-Aarmy.snowflakeStartTimeWarning=true</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>

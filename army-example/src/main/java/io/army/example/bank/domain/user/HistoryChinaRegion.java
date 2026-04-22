@@ -16,6 +16,7 @@
 
 package io.army.example.bank.domain.user;
 
+import io.army.annotation.DiscriminatorValue;
 import io.army.annotation.Index;
 import io.army.annotation.Inheritance;
 import io.army.annotation.Table;
@@ -25,6 +26,7 @@ import io.army.annotation.Table;
         @Index(name = "inx_parent_id", fieldList = "parentId")},
         comment = "china region")
 @Inheritance("regionType")
+@DiscriminatorValue("NONE")
 public class HistoryChinaRegion<T extends HistoryChinaRegion<T>> extends AbstractChinaRegion<T> {
 
 

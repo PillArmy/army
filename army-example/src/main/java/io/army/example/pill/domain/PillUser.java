@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 @Table(name = "u_user", comment = "user", indexes = @Index(name = "idx_identity_id", fieldList = {"identityId"}, unique = true))
 @Inheritance("userType")
 @SuppressWarnings("unchecked")
+@DiscriminatorValue("NONE")
 public class PillUser<T extends PillUser<T>> extends VersionDomain {
 
     @Column

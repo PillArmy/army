@@ -16,11 +16,14 @@
 
 package io.army.example.bank.domain.user;
 
-import io.army.annotation.*;
+import io.army.annotation.Column;
+import io.army.annotation.DiscriminatorValue;
+import io.army.annotation.Index;
+import io.army.annotation.Table;
 
 @Table(name = "china_province", indexes =
 @Index(name = "uni_provincial_capital", fieldList = "provincialCapital", unique = true), comment = "china province")
-@DiscriminatorValue(RegionType.Constant.PROVINCE)
+@DiscriminatorValue("PROVINCE")
 public class ChinaProvince extends ChinaRegion<ChinaProvince> {
 
     @Column(precision = 80, notNull = true, comment = "china provincial capital")

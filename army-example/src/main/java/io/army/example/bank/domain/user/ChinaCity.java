@@ -21,7 +21,7 @@ import io.army.annotation.DiscriminatorValue;
 import io.army.annotation.Table;
 
 @Table(name = "china_city", comment = "china city")
-@DiscriminatorValue(RegionType.Constant.CITY)
+@DiscriminatorValue("CITY")
 public class ChinaCity extends ChinaRegion<ChinaCity> {
 
 

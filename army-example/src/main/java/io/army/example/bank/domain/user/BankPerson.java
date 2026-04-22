@@ -19,12 +19,11 @@ package io.army.example.bank.domain.user;
 import io.army.annotation.Column;
 import io.army.annotation.DiscriminatorValue;
 import io.army.annotation.Table;
-import io.army.annotation.UpdateMode;
 
 import java.time.LocalDate;
 
 @Table(name = "u_person", comment = "bank person user")
-@DiscriminatorValue(BankUserType.Constant.PERSON)
+@DiscriminatorValue("PERSON")
 public class BankPerson extends BankUser<BankPerson> {
 
     @Column(updatable = false, comment = "the user type that user form.")

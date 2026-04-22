@@ -21,7 +21,7 @@ import io.army.annotation.DiscriminatorValue;
 import io.army.annotation.Table;
 
 @Table(name = "u_bank_partner", comment = "bank partner enterprise")
-@DiscriminatorValue(BankUserType.Constant.PARTNER)
+@DiscriminatorValue("PARTNER")
 public class PartnerUser extends BankUser<PartnerUser> {
 
     @Column(comment = "invest partner legal person user id")

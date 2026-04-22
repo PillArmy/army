@@ -19,13 +19,12 @@ package io.army.example.bank.domain.user;
 import io.army.annotation.Column;
 import io.army.annotation.DiscriminatorValue;
 import io.army.annotation.Table;
-import io.army.annotation.UpdateMode;
 import io.army.example.common.Gender;
 
 import java.time.LocalDate;
 
 @Table(name = "person_certificate", comment = "bank person certificate")
-@DiscriminatorValue(CertificateType.Constant.PERSON)
+@DiscriminatorValue("PERSON")
 public class PersonCertificate extends Certificate<PersonCertificate> {
 
     @Column(updatable = false, comment = "person user birthday")

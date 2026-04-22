@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
         , comment = "bank user")
 @Inheritance("userType")
 @SuppressWarnings("unchecked")
+@DiscriminatorValue("BANK")
 public class BankUser<T extends BankUser<T>> extends BaseVersionDomain<T> {
 
 

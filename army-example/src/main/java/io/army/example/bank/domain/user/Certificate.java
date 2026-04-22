@@ -24,16 +24,13 @@ import io.army.example.common.BaseVersionDomain;
         , comment = "bank user certificate")
 @Inheritance("certificateType")
 @SuppressWarnings("unchecked")
+@DiscriminatorValue("NONE")
 public class Certificate<T extends Certificate<T>> extends BaseVersionDomain<T> {
 
 
     public static Certificate<?> create() {
         return new Certificate<>();
     }
-
-    @SuppressWarnings("unchecked")
-    public static final Class<Certificate<?>> CLASS = (Class<Certificate<?>>) ((Class<?>) Certificate.class);
-
 
     @Column
     @Generator(value = SNOWFLAKE, params = {@Param(name = START_TIME, value = startTime)})
