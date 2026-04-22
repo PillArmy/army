@@ -243,7 +243,7 @@ abstract class MySQLExecutor extends JdbcExecutor {
                 value = resultSet.getObject(indexBasedOne, Boolean.class);
                 break;
             case DATETIME: {
-                if (type instanceof MappingType.SqlOffsetDateTimeType) {
+                if (type instanceof MappingType.SqlOffsetDateTime) {
                     value = resultSet.getObject(indexBasedOne, OffsetDateTime.class);
                 } else {
                     value = resultSet.getObject(indexBasedOne, LocalDateTime.class);
@@ -254,11 +254,11 @@ abstract class MySQLExecutor extends JdbcExecutor {
                 value = resultSet.getObject(indexBasedOne, LocalDate.class);
                 break;
             case TIME: {
-                if (type instanceof MappingType.SqlLocalTimeType) {
+                if (type instanceof MappingType.SqlLocalTime) {
                     value = resultSet.getObject(indexBasedOne, LocalTime.class);
-                } else if (type instanceof MappingType.SqlOffsetTimeType) {
+                } else if (type instanceof MappingType.SqlOffsetTime) {
                     value = resultSet.getObject(indexBasedOne, OffsetTime.class);
-                } else if (type instanceof MappingType.SqlDurationType) {
+                } else if (type instanceof MappingType.SqlDuration) {
                     value = resultSet.getObject(indexBasedOne, Duration.class);
                 } else {
                     Object v;
@@ -299,7 +299,7 @@ abstract class MySQLExecutor extends JdbcExecutor {
 
             case LONGBLOB:
             case GEOMETRY: {
-                if (type instanceof MappingType.SqlStringType) {
+                if (type instanceof MappingType.SqlString) {
                     value = resultSet.getString(indexBasedOne);
                 } else {
                     value = resultSet.getBytes(indexBasedOne);

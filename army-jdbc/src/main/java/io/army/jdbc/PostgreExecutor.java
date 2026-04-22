@@ -324,7 +324,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
                 break;
 
             case BYTEA: { // postgre client protocol body must less than 2^32 byte
-                if (type instanceof MappingType.SqlStringType) {
+                if (type instanceof MappingType.SqlString) {
                     value = resultSet.getString(indexBasedOne);
                 } else {
                     value = resultSet.getBytes(indexBasedOne);
@@ -332,7 +332,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
             }
             break;
             case TIME: {
-                if (type instanceof MappingType.SqlOffsetTimeType) {
+                if (type instanceof MappingType.SqlOffsetTime) {
                     value = resultSet.getObject(indexBasedOne, OffsetTime.class);
                 } else {
                     value = resultSet.getObject(indexBasedOne, LocalTime.class);
@@ -346,7 +346,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
                 value = resultSet.getObject(indexBasedOne, OffsetTime.class);
                 break;
             case TIMESTAMP: {
-                if (type instanceof MappingType.SqlOffsetDateTimeType) {
+                if (type instanceof MappingType.SqlOffsetDateTime) {
                     value = resultSet.getObject(indexBasedOne, OffsetDateTime.class);
                 } else {
                     value = resultSet.getObject(indexBasedOne, LocalDateTime.class);

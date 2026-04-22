@@ -41,12 +41,6 @@ public final class TinyTextType extends ArmyTextType {
     private TinyTextType() {
     }
 
-
-    @Override
-    public LengthType lengthType() {
-        return LengthType.DEFAULT;
-    }
-
     @Override
     public MappingType arrayTypeOfThis() {
         return TinyTextArrayType.LINEAR;

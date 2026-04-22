@@ -2016,7 +2016,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
                 value = type.afterGet(dataType, this.executor.factory.mappingEnv, value);
                 if (value == MappingType.DOCUMENT_NULL_VALUE) {
-                    if (!(type instanceof MappingType.SqlDocumentType)) {
+                    if (!(type instanceof MappingType.SqlDocument)) {
                         throw afterGetMethodError(type, dataType, value);
                     }
                     value = null;

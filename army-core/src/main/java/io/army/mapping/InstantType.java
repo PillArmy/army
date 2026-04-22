@@ -21,7 +21,7 @@ import io.army.sqltype.DataType;
 
 import java.time.Instant;
 
-public final class InstantType extends _ArmyNoInjectionType implements MappingType.SqlIntegerType {
+public final class InstantType extends _ArmyNoInjectionType implements MappingType.SqlInteger {
 
     public static InstantType from(final Class<?> javaType) {
         if (javaType != Instant.class) {
@@ -41,11 +41,6 @@ public final class InstantType extends _ArmyNoInjectionType implements MappingTy
     @Override
     public Class<?> javaType() {
         return Instant.class;
-    }
-
-    @Override
-    public LengthType lengthType() {
-        return LengthType.LONG;
     }
 
     @Override

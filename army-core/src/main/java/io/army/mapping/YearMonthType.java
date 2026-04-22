@@ -41,7 +41,7 @@ import java.time.temporal.TemporalAccessor;
  *
  * @since 0.6.0
  */
-public final class YearMonthType extends _ArmyNoInjectionType implements MappingType.SqlLocalDateType {
+public final class YearMonthType extends _ArmyNoInjectionType implements MappingType.SqlLocalDate {
 
     public static YearMonthType from(final Class<?> fieldType) {
         if (fieldType != YearMonth.class) {

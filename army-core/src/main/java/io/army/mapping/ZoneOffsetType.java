@@ -5,7 +5,7 @@ import io.army.sqltype.DataType;
 
 import java.time.*;
 
-public final class ZoneOffsetType extends _ArmyNoInjectionType implements MappingType.SqlStringType {
+public final class ZoneOffsetType extends _ArmyNoInjectionType implements MappingType.SqlString {
 
 
     public static ZoneOffsetType from(final Class<?> javaType) {

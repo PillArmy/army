@@ -2707,7 +2707,7 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
      */
     private static MappingType _bitOpeType(final MappingType type) {
         final MappingType returnType;
-        if (type instanceof MappingType.SqlIntegerType || type instanceof MappingType.SqlBitType) {
+        if (type instanceof MappingType.SqlInteger || type instanceof MappingType.SqlBit) {
             returnType = type;
         } else {
             returnType = TextType.INSTANCE;
@@ -2722,9 +2722,9 @@ abstract class PostgreWindowFunctions extends PostgreDocumentFunctions {
         final MappingType returnType; // TODO 重新考虑 类型
         if (fractionType instanceof MappingType.SqlArray) {
             returnType = type.arrayTypeOfThis();
-        } else if (type instanceof MappingType.SqlFloatType) {
+        } else if (type instanceof MappingType.SqlFloat) {
             returnType = type;
-        } else if (type instanceof MappingType.SqlIntervalType) {
+        } else if (type instanceof MappingType.SqlInterval) {
             returnType = type;
         } else {
             returnType = TextType.INSTANCE;

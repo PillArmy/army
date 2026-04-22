@@ -25,7 +25,7 @@ import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-public final class MultiLineStringType extends _ArmyBuildInType implements MappingType.SqlMultiLineStringType {
+public final class MultiLineStringType extends _ArmyBuildInType implements MappingType.SqlMultiLineString {
 
 
     public static final MultiLineStringType TEXT = new MultiLineStringType(String.class);

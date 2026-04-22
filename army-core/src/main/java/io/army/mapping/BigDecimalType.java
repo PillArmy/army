@@ -43,7 +43,7 @@ import java.math.BigInteger;
  *
  * @since 0.6.0
  */
-public final class BigDecimalType extends _NumericType implements MappingType.SqlDecimalType {
+public final class BigDecimalType extends _NumericType implements MappingType.SqlDecimal {
 
 
     public static BigDecimalType from(Class<?> javaType) {

@@ -27,7 +27,7 @@ import io.army.util.ClassUtils;
 import java.math.BigDecimal;
 import java.util.BitSet;
 
-public final class CharacterType extends _ArmyBuildInType implements MappingType.SqlStringType {
+public final class CharacterType extends _ArmyBuildInType implements MappingType.SqlString {
 
 
     public static CharacterType from(final Class<?> javaType) {

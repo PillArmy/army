@@ -27,7 +27,7 @@ import io.army.sqltype.*;
  *
  * @see BinaryType
  */
-public final class VarBinaryType extends _ArmyBuildInType implements MappingType.SqlBinaryType {
+public final class VarBinaryType extends _ArmyBuildInType implements MappingType.SqlBinary {
 
     public static VarBinaryType from(final Class<?> fieldType) {
         if (fieldType != byte[].class) {

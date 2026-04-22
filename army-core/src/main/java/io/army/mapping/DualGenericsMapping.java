@@ -19,7 +19,7 @@ package io.army.mapping;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public interface DualGenericsMapping<T, U> extends MappingType.GenericsMappingType {
+public interface DualGenericsMapping<T, U> extends MappingType.GenericsMapping {
 
     Class<T> firstGenericsType();
 

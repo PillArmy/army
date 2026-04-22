@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
 
-public final class JsonType extends ArmyJsonType implements MappingType.SqlJsonType {
+public final class JsonType extends ArmyJsonType implements MappingType.SqlJson {
 
     public static JsonType from(final Class<?> javaType) {
         final JsonType instance;

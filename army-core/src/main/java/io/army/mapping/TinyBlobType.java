@@ -20,7 +20,7 @@ import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
-public final class TinyBlobType extends _ArmyBuildInType implements MappingType.SqlBlobType {
+public final class TinyBlobType extends _ArmyBuildInType implements MappingType.SqlBlob {
 
 
     public static TinyBlobType from(final Class<?> javaType) {

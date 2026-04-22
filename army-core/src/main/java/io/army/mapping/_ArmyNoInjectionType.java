@@ -21,8 +21,7 @@ public abstract class _ArmyNoInjectionType extends _ArmyBuildInType {
 
     protected _ArmyNoInjectionType() {
         final Class<?> thisClass = this.getClass();
-        if (thisClass == StringType.class ||
-                thisClass == VarBinaryType.class) {
+        if (this instanceof SqlString) {
             throw new IllegalStateException("sub class error.");
         }
     }

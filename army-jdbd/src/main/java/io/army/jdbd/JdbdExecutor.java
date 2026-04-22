@@ -895,7 +895,7 @@ abstract class JdbdExecutor extends JdbdExecutorSupport
         } else if (row.isBigColumn(indexBasedZero)) {
             final io.jdbd.type.BlobPath path = row.getNonNull(indexBasedZero, io.jdbd.type.BlobPath.class);
             value = BlobPath.from(path.isDeleteOnClose(), path.value());
-        } else if (type instanceof MappingType.SqlStringType) {
+        } else if (type instanceof MappingType.SqlString) {
             value = row.get(indexBasedZero, String.class);
         } else {
             value = row.get(indexBasedZero, byte[].class);
@@ -1478,7 +1478,7 @@ abstract class JdbdExecutor extends JdbdExecutorSupport
 
                 value = type.afterGet(dataType, this.executor.factory.mappingEnv, value);
                 if (value == MappingType.DOCUMENT_NULL_VALUE) {
-                    if (!(type instanceof MappingType.SqlDocumentType)) {
+                    if (!(type instanceof MappingType.SqlDocument)) {
                         throw afterGetMethodError(type, dataType, value);
                     }
                     value = null;

@@ -18,7 +18,7 @@ package io.army.mapping;
 
 import java.util.List;
 
-public interface MultiGenericsMappingType extends MappingType.GenericsMappingType {
+public interface MultiGenericsMappingType extends MappingType.GenericsMapping {
 
     List<Class<?>> genericsTypeList();
 

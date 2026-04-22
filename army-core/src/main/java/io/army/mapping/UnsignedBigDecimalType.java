@@ -29,7 +29,7 @@ import java.math.BigDecimal;
  * @see BigDecimal
  */
 public final class UnsignedBigDecimalType extends _NumericType._UnsignedNumericType
-        implements MappingType.SqlDecimalType {
+        implements MappingType.SqlDecimal {
 
 
     public static UnsignedBigDecimalType from(final Class<?> fieldType) {

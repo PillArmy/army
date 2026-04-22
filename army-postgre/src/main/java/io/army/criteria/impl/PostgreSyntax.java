@@ -843,10 +843,10 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      * <p>
      * AT TIME ZONE operator,The {@link MappingType} of operator return type:
      * <ol>
-     *     <li>If The {@link MappingType} of source is {@link MappingType.SqlLocalDateTimeType},then {@link OffsetDateTimeType}</li>
-     *     <li>If The {@link MappingType} of source is {@link MappingType.SqlOffsetDateTimeType},then {@link LocalDateTimeType}</li>
-     *     <li>If The {@link MappingType} of source is {@link MappingType.SqlLocalTimeType},then {@link OffsetTimeType}</li>
-     *     <li>If The {@link MappingType} of source is {@link MappingType.SqlOffsetTimeType},then {@link LocalTimeType}</li>
+     *     <li>If The {@link MappingType} of source is {@link MappingType.SqlLocalDateTime},then {@link OffsetDateTimeType}</li>
+     *     <li>If The {@link MappingType} of source is {@link MappingType.SqlOffsetDateTime},then {@link LocalDateTimeType}</li>
+     *     <li>If The {@link MappingType} of source is {@link MappingType.SqlLocalTime},then {@link OffsetTimeType}</li>
+     *     <li>If The {@link MappingType} of source is {@link MappingType.SqlOffsetTime},then {@link LocalTimeType}</li>
      *     <li>Else raise {@link CriteriaException}</li>
      * </ol>
      *
@@ -1075,13 +1075,13 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
      */
     private static MappingType atTimeZoneType(final MappingType left, final MappingType right) {
         final MappingType returnType;
-        if (left instanceof MappingType.SqlLocalDateTimeType) {
+        if (left instanceof MappingType.SqlLocalDateTime) {
             returnType = OffsetDateTimeType.INSTANCE;
-        } else if (left instanceof MappingType.SqlOffsetDateTimeType) {
+        } else if (left instanceof MappingType.SqlOffsetDateTime) {
             returnType = LocalDateTimeType.INSTANCE;
-        } else if (left instanceof MappingType.SqlLocalTimeType) {
+        } else if (left instanceof MappingType.SqlLocalTime) {
             returnType = OffsetTimeType.INSTANCE;
-        } else if (left instanceof MappingType.SqlOffsetTimeType) {
+        } else if (left instanceof MappingType.SqlOffsetTime) {
             returnType = LocalTimeType.INSTANCE;
         } else {
             String m = String.format("AT TIME ZONE operator don't support %s", left);

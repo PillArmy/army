@@ -25,7 +25,7 @@ import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-public final class IntervalType extends _ArmyNoInjectionType implements MappingType.SqlIntervalType {
+public final class IntervalType extends _ArmyNoInjectionType implements MappingType.SqlInterval {
 
 
     public static IntervalType from(Class<?> javaType) {

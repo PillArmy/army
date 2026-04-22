@@ -40,7 +40,7 @@ abstract class MySQLExpressions {
             String m = String.format("%s isn't codec filed,you should invoke %s.textLiteral() method.",
                     field, MySQLs.class.getName());
             throw ContextStack.clearStackAndCriteriaError(m);
-        } else if (!(field.mappingType() instanceof MappingType.SqlStringType)) {
+        } else if (!(field.mappingType() instanceof MappingType.SqlString)) {
             String m = String.format("%s isn't string type", field);
             throw ContextStack.clearStackAndCriteriaError(m);
         } else if (literal == null) {

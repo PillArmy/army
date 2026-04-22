@@ -30,7 +30,7 @@ import io.army.sqltype.DataType;
 *
  * @see <a href="https://www.postgresql.org/docs/current/datatype-geometric.html#DATATYPE-GEO-TABLE">lseg</a>
  */
-public final class PostgreLsegType extends PostgreGeometricType implements MappingType.SqlLineType {
+public final class PostgreLsegType extends PostgreGeometricType implements MappingType.SqlLine {
 
 
     public static final PostgreLsegType INSTANCE = new PostgreLsegType();

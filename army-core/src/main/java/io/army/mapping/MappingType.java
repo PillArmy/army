@@ -20,7 +20,6 @@ import io.army.criteria.CriteriaException;
 import io.army.criteria.TypeInfer;
 import io.army.criteria.TypeItem;
 import io.army.dialect.UnsupportedDialectException;
-import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.executor.StmtExecutor;
 import io.army.mapping.optional.CompositeField;
@@ -28,7 +27,6 @@ import io.army.meta.ServerMeta;
 import io.army.meta.TypeMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.SQLType;
-import io.army.util._StringUtils;
 
 import java.util.List;
 
@@ -72,51 +70,69 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     boolean equals(Object obj);
 
 
-
-
-
-
-    interface GenericsMappingType {
+    interface GenericsMapping {
 
         Class<?> javaType();
 
     }
 
-    enum LengthType {
 
-        TINY(1),
-        SMALL(2),
-        MEDIUM(3),
+    interface SqlBoolean {
 
-        DEFAULT(4),
-
-        LONG(5),
-        BIG_LONG(6);
-
-        private final byte value;
-
-        LengthType(int value) {
-            this.value = (byte) value;
-        }
-
-        public final int compareWith(final LengthType o) {
-            return this.value - o.value;
-        }
-
-        @Override
-        public final String toString() {
-            return _StringUtils.builder()
-                    .append(LengthType.class.getSimpleName())
-                    .append(_Constant.DOT)
-                    .append(this.name())
-                    .toString();
-        }
+    }
 
 
-    } //LengthType
+    interface SqlNumber {
+
+    }
+
+    interface SqlFloat extends SqlNumber {
+
+    }
+
+    interface SqlUnsignedNumber extends SqlNumber {
+
+    }
+
+    interface SqlIntegerOrDecimalType extends SqlNumber {
+
+    }
+
+    interface SqlInteger {
 
 
-    interface SqlBooleanType {
+    }
+
+    interface SqlDecimal {
+
+    }
+
+
+    interface SqlBinary {
+
+
+    }
+
+    interface SqlString {
+
+
+    }
+
+    interface SqlText extends SqlString {
+
+
+    }
+
+    interface SqlBlob extends SqlBinary {
+
+    }
+
+    interface SqlBit {
+
+    }
+
+
+    interface SqlDocument {
 
     }
 
@@ -124,182 +140,75 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
      * <p>
      * This interface is base interface of below:
      * <ul>
-     *     <li>{@link SqlNumberType}</li>
-     *     <li>{@link SqlStringType}</li>
+     *     <li>{@link SqlJsonb}</li>
      * </ul>
      */
-    interface SqlNumberOrStringType {
-
-    }
-
-    /**
-     * <p>
-     * This interface is base interface of below:
-     * <ul>
-     *     <li>{@link SqlNumberType}</li>
-     *     <li>{@link SqlBitType}</li>
-     * </ul>
-     */
-    interface SqlNumberOrBitType {
-
-    }
-
-    interface SqlNumberType extends SqlNumberOrStringType, SqlNumberOrBitType {
-
-    }
-
-    interface SqlFloatType extends SqlNumberType {
-
-    }
-
-    interface SqlUnsignedNumberType extends SqlNumberType {
-
-    }
-
-    interface SqlIntegerOrDecimalType extends SqlNumberType {
-
-    }
-
-    interface SqlIntegerType extends SqlIntegerOrDecimalType {
-
-        LengthType lengthType();
-
-    }
-
-    interface SqlDecimalType extends SqlIntegerOrDecimalType {
-
-    }
-
-    /**
-     * <p>
-     * This interface is base interface of below:
-     * <ul>
-     *     <li>{@link SqlStringOrBinaryType }</li>
-     *     <li>{@link SqlBitType }</li>
-     * </ul>
-     */
-    interface SqlSqlStringOrBinaryOrBitType {
-
-    }
-
-    /**
-     * <p>
-     * This interface is base interface of below:
-     * <ul>
-     *     <li>{@link SqlStringType }</li>
-     *     <li>{@link SqlBinaryType }</li>
-     * </ul>
-     */
-    interface SqlStringOrBinaryType extends SqlSqlStringOrBinaryOrBitType {
-
-        LengthType lengthType();
-    }
-
-    interface SqlBinaryType extends SqlStringOrBinaryType {
-
-
-    }
-
-    interface SqlStringType extends SqlStringOrBinaryType, SqlNumberOrStringType {
-
-
-    }
-
-    interface SqlTextType extends SqlStringType {
-
-
-    }
-
-    interface SqlBlobType extends SqlBinaryType {
-
-    }
-
-    interface SqlBitType extends SqlSqlStringOrBinaryOrBitType, SqlNumberOrBitType {
+    interface SqlJson extends SqlDocument {
 
     }
 
 
-    interface SqlDocumentType {
+    interface SqlJsonb extends SqlDocument {
 
     }
 
-    /**
-     * <p>
-     * This interface is base interface of below:
-     * <ul>
-     *     <li>{@link SqlJsonType}</li>
-     *     <li>{@link SqlJsonbType}</li>
-     * </ul>
-     */
-    interface SqlJsonDocumentType extends SqlDocumentType {
+    interface SqlJsonPath {
 
     }
 
-    interface SqlJsonType extends SqlJsonDocumentType {
+    interface SqlTimeValue {
 
     }
 
-    interface SqlJsonbType extends SqlJsonDocumentType {
+    interface SqlTemporal extends SqlTimeValue {
 
     }
 
-    interface SqlJsonPathType {
+    interface SqlLocalTemporal extends SqlTemporal {
 
     }
 
-    interface SqlTimeValueType {
+    interface SqlOffsetTemporal extends SqlTemporal {
 
     }
 
-    interface SqlTemporalType extends SqlTimeValueType {
+    interface SqlTemporalField extends SqlTimeValue {
 
     }
 
-    interface SqlLocalTemporalType extends SqlTemporalType {
+    interface SqlTemporalAmount extends SqlTemporal {
 
     }
 
-    interface SqlOffsetTemporalType extends SqlTemporalType {
+    interface SqlDuration extends SqlTemporalAmount {
 
     }
 
-    interface SqlTemporalFieldType extends SqlTimeValueType {
+    interface SqlPeriod extends SqlTemporalAmount {
 
     }
 
-    interface SqlTemporalAmountType extends SqlTemporalType {
+    interface SqlInterval extends SqlTemporalAmount {
 
     }
 
-    interface SqlDurationType extends SqlTemporalAmountType {
+    interface SqlLocalTime extends SqlLocalTemporal {
 
     }
 
-    interface SqlPeriodType extends SqlTemporalAmountType {
+    interface SqlLocalDate extends SqlLocalTemporal {
 
     }
 
-    interface SqlIntervalType extends SqlTemporalAmountType {
+    interface SqlLocalDateTime extends SqlLocalTemporal {
 
     }
 
-    interface SqlLocalTimeType extends SqlLocalTemporalType {
+    interface SqlOffsetTime extends SqlOffsetTemporal {
 
     }
 
-    interface SqlLocalDateType extends SqlLocalTemporalType {
-
-    }
-
-    interface SqlLocalDateTimeType extends SqlLocalTemporalType {
-
-    }
-
-    interface SqlOffsetTimeType extends SqlOffsetTemporalType {
-
-    }
-
-    interface SqlOffsetDateTimeType extends SqlOffsetTemporalType {
+    interface SqlOffsetDateTime extends SqlOffsetTemporal {
 
     }
 
@@ -311,59 +220,59 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
-    interface SqlGeometryType {
+    interface SqlGeometry {
 
     }
 
-    interface SqlPointType extends SqlGeometryType {
+    interface SqlPoint extends SqlGeometry {
 
     }
 
-    interface SqlCurveType extends SqlGeometryType {
+    interface SqlCurve extends SqlGeometry {
 
     }
 
-    interface SqlLineStringType extends SqlCurveType {
+    interface SqlLineString extends SqlCurve {
 
     }
 
-    interface SqlLineType extends SqlLineStringType {
+    interface SqlLine extends SqlLineString {
 
     }
 
-    interface SqlLinearRingType extends SqlLineStringType {
+    interface SqlLinearRing extends SqlLineString {
 
     }
 
-    interface SqlSurfaceType extends SqlGeometryType {
+    interface SqlSurface extends SqlGeometry {
 
     }
 
-    interface SqlPolygonType extends SqlSurfaceType {
+    interface SqlPolygon extends SqlSurface {
 
     }
 
-    interface SqlGeometryCollectionType extends SqlGeometryType {
+    interface SqlGeometryCollection extends SqlGeometry {
 
     }
 
-    interface SqlMultiPointType extends SqlGeometryCollectionType {
+    interface SqlMultiPoint extends SqlGeometryCollection {
 
     }
 
-    interface SqlMultiCurveType extends SqlGeometryCollectionType {
+    interface SqlMultiCurve extends SqlGeometryCollection {
 
     }
 
-    interface SqlMultiLineStringType extends SqlMultiCurveType {
+    interface SqlMultiLineString extends SqlMultiCurve {
 
     }
 
-    interface SqlMultiSurfaceType extends SqlGeometryCollectionType {
+    interface SqlMultiSurface extends SqlGeometryCollection {
 
     }
 
-    interface SqlMultiPolygonType extends SqlMultiSurfaceType {
+    interface SqlMultiPolygon extends SqlMultiSurface {
 
     }
 
@@ -383,7 +292,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     /**
      * <p>This interface representing row(record) type
      */
-    interface SqlRecordColumnType {
+    interface SqlRecord {
 
     }
 

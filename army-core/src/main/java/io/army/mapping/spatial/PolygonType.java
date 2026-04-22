@@ -25,7 +25,7 @@ import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-public final class PolygonType extends _ArmyBuildInType implements MappingType.SqlPolygonType {
+public final class PolygonType extends _ArmyBuildInType implements MappingType.SqlPolygon {
 
 
     public static final PolygonType TEXT = new PolygonType(String.class);

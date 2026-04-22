@@ -30,7 +30,7 @@ import io.army.sqltype.DataType;
  * This class representing Postgre point type {@link MappingType}
  * * @see <a href="https://www.postgresql.org/docs/current/datatype-geometric.html#DATATYPE-GEO-TABLE">point</a>
  */
-public final class PostgrePointType extends PostgreGeometricType implements MappingType.SqlPointType {
+public final class PostgrePointType extends PostgreGeometricType implements MappingType.SqlPoint {
 
 
     public static final PostgrePointType INSTANCE = new PostgrePointType();

@@ -25,7 +25,7 @@ import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-public final class MultiPointType extends _ArmyBuildInType implements MappingType.SqlMultiPointType {
+public final class MultiPointType extends _ArmyBuildInType implements MappingType.SqlMultiPoint {
 
 
     public static final MultiPointType TEXT = new MultiPointType(String.class);

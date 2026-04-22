@@ -29,7 +29,6 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.type.ArraySqlRecord;
-import io.army.type.SqlRecord;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
@@ -45,7 +44,7 @@ import java.util.Objects;
  * @see io.army.mapping.array.SqlRecordArrayType
  * @see <a href="https://www.postgresql.org/docs/current/catalog-pg-type.html">Postgre pg_type table ,oid : 2249</a>
  */
-public final class SqlRecordType extends _SqlRecordSupport implements MappingType.SqlRecordColumnType {
+public final class SqlRecordType extends _SqlRecordSupport implements MappingType.SqlRecord {
 
     public static SqlRecordType fromColumn(final MappingType columnType) {
         Objects.requireNonNull(columnType);
@@ -77,7 +76,7 @@ public final class SqlRecordType extends _SqlRecordSupport implements MappingTyp
 
     @Override
     public Class<?> javaType() {
-        return SqlRecord.class;
+        return io.army.type.SqlRecord.class;
     }
 
     @Override
@@ -96,10 +95,10 @@ public final class SqlRecordType extends _SqlRecordSupport implements MappingTyp
                 instance = SqlRecordArrayType.UNLIMITED;
                 break;
             case 1:
-                instance = SqlRecordArrayType.fromColumn(SqlRecord[].class, this.columnTypeList.get(0));
+                instance = SqlRecordArrayType.fromColumn(io.army.type.SqlRecord[].class, this.columnTypeList.get(0));
                 break;
             default:
-                instance = SqlRecordArrayType.fromRow(SqlRecord[].class, this.columnTypeList);
+                instance = SqlRecordArrayType.fromRow(io.army.type.SqlRecord[].class, this.columnTypeList);
         }
         return instance;
     }
@@ -110,15 +109,15 @@ public final class SqlRecordType extends _SqlRecordSupport implements MappingTyp
     }
 
     @Override
-    public SqlRecord afterGet(DataType dataType, MappingEnv env, final Object source) throws DataAccessException {
-        final SqlRecord value;
-        if (source instanceof SqlRecord) {
-            if (this != UNLIMITED && ((SqlRecord) source).size() != this.columnTypeList.size()) {
+    public io.army.type.SqlRecord afterGet(DataType dataType, MappingEnv env, final Object source) throws DataAccessException {
+        final io.army.type.SqlRecord value;
+        if (source instanceof io.army.type.SqlRecord) {
+            if (this != UNLIMITED && ((io.army.type.SqlRecord) source).size() != this.columnTypeList.size()) {
                 final IllegalArgumentException error;
-                error = _Exceptions.recordColumnCountNotMatch((SqlRecord) source, this.columnTypeList.size(), this);
+                error = _Exceptions.recordColumnCountNotMatch((io.army.type.SqlRecord) source, this.columnTypeList.size(), this);
                 throw ACCESS_ERROR_HANDLER.apply(this, dataType, source, error);
             }
-            value = (SqlRecord) source;
+            value = (io.army.type.SqlRecord) source;
         } else if (source instanceof String && isRecordText((String) source)) {
             try {
                 value = parseSqlRecord(env, (String) source, 0, ((String) source).length());

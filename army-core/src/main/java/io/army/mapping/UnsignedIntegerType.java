@@ -30,7 +30,7 @@ import java.math.BigInteger;
  * @see UnsignedLongType
  */
 public final class UnsignedIntegerType extends _ArmyNoInjectionType
-        implements MappingType.SqlIntegerType, MappingType.SqlUnsignedNumberType {
+        implements MappingType.SqlInteger, MappingType.SqlUnsignedNumber {
 
 
     public static final UnsignedIntegerType INSTANCE = new UnsignedIntegerType();

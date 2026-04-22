@@ -30,7 +30,7 @@ import io.army.sqltype.DataType;
 *
  * @see <a href="https://www.postgresql.org/docs/current/datatype-geometric.html#DATATYPE-GEO-TABLE">path</a>
  */
-public final class PostgrePathType extends PostgreGeometricType implements MappingType.SqlLineStringType {
+public final class PostgrePathType extends PostgreGeometricType implements MappingType.SqlLineString {
 
 
     public static final PostgrePathType INSTANCE = new PostgrePathType();

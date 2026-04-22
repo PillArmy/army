@@ -25,7 +25,7 @@ import java.time.*;
  * <p>This class is mapping class of {@link ZoneId}.
  * @since 0.6.0
  */
-public final class ZoneIdType extends _ArmyNoInjectionType implements MappingType.SqlStringType {
+public final class ZoneIdType extends _ArmyNoInjectionType implements MappingType.SqlString {
 
     public static ZoneIdType from(final Class<?> javaType) {
         if (!ZoneId.class.isAssignableFrom(javaType)) {

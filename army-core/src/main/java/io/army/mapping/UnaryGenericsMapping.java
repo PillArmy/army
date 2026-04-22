@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public interface UnaryGenericsMapping<E> extends MappingType.GenericsMappingType {
+public interface UnaryGenericsMapping<E> extends MappingType.GenericsMapping {
 
     Class<E> genericsType();
 

@@ -112,7 +112,7 @@ abstract class PostgreGeometricFunctions extends PostgreDateTimeFunctions {
     /**
      * <p>
      * The {@link MappingType} of function return type: <ol>
-     * <li>If geometricType is {@link MappingType.SqlGeometryType}  or {@link PostgreGeometricType},then {@link DoubleType}</li>
+     * <li>If geometricType is {@link MappingType.SqlGeometry}  or {@link PostgreGeometricType},then {@link DoubleType}</li>
      * <li>Else {@link IntegerType}</li>
      * </ol>
      *     *

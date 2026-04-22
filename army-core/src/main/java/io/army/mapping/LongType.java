@@ -69,11 +69,6 @@ public final class LongType extends _NumericType._IntegerType {
     }
 
     @Override
-    public LengthType lengthType() {
-        return LengthType.LONG;
-    }
-
-    @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return LongArrayType.LINEAR;
     }

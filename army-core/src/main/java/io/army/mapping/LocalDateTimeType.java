@@ -44,7 +44,7 @@ import java.time.format.DateTimeParseException;
  *  to {@link LocalDateTime},if overflow,throw {@link io.army.ArmyException}
  ** @since 0.6.0
  */
-public final class LocalDateTimeType extends _ArmyNoInjectionType implements MappingType.SqlLocalDateTimeType {
+public final class LocalDateTimeType extends _ArmyNoInjectionType implements MappingType.SqlLocalDateTime {
 
 
     public static LocalDateTimeType from(final Class<?> javaType) {

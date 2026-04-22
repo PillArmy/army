@@ -46,7 +46,7 @@ public abstract class _NumericType extends _ArmyNoInjectionType {
      *     </ul>
      *
      */
-    public static abstract class _IntegerType extends _NumericType implements SqlIntegerType {
+    public static abstract class _IntegerType extends _NumericType implements SqlInteger {
 
     }
 
@@ -58,7 +58,7 @@ public abstract class _NumericType extends _ArmyNoInjectionType {
      *     </ul>
      *
      */
-    public static abstract class _FloatNumericType extends _NumericType implements SqlFloatType {
+    public static abstract class _FloatNumericType extends _NumericType implements SqlFloat {
 
     }
 
@@ -71,7 +71,7 @@ public abstract class _NumericType extends _ArmyNoInjectionType {
      *     </ul>
      *
      */
-    public static abstract class _UnsignedNumericType extends _NumericType implements SqlUnsignedNumberType {
+    public static abstract class _UnsignedNumericType extends _NumericType implements SqlUnsignedNumber {
 
     }
 
@@ -87,7 +87,7 @@ public abstract class _NumericType extends _ArmyNoInjectionType {
      *     <li>{@link UnsignedBigIntegerType}</li>
      * </ul>
      */
-    public static abstract class _UnsignedIntegerType extends _UnsignedNumericType implements SqlIntegerType {
+    public static abstract class _UnsignedIntegerType extends _UnsignedNumericType implements SqlInteger {
 
     }
 

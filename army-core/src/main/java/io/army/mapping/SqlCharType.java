@@ -27,7 +27,7 @@ import io.army.sqltype.*;
  *
  * @since 0.6.0
  */
-public final class SqlCharType extends _ArmyBuildInType implements MappingType.SqlStringType {
+public final class SqlCharType extends _ArmyBuildInType implements MappingType.SqlString {
 
     public static SqlCharType from(Class<?> javaType) {
         if (javaType != String.class) {
@@ -47,11 +47,6 @@ public final class SqlCharType extends _ArmyBuildInType implements MappingType.S
     @Override
     public Class<?> javaType() {
         return String.class;
-    }
-
-    @Override
-    public LengthType lengthType() {
-        return LengthType.TINY;
     }
 
     @Override

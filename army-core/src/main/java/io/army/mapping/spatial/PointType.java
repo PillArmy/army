@@ -27,7 +27,7 @@ import io.army.sqltype.DataType;
 /**
  * @see <a href="https://www.ogc.org/standards/sfa">Simple Feature Access - Part 1: Common Architecture PDF</a>
  */
-public final class PointType extends ArmyGeometryType implements MappingType.SqlPointType {
+public final class PointType extends ArmyGeometryType implements MappingType.SqlPoint {
 
     public static final PointType TEXT = new PointType(String.class);
 

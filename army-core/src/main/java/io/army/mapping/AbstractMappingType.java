@@ -515,7 +515,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 .append(",hash:")
                 .append(System.identityHashCode(this));
 
-        if (this instanceof AbstractMappingType.GenericsMappingType) {
+        if (this instanceof GenericsMapping) {
             if (this instanceof UnaryGenericsMapping) {
                 builder.append(",unary generic type:")
                         .append(((UnaryGenericsMapping<?>) this).genericsType().getName());

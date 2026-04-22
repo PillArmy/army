@@ -1506,11 +1506,11 @@ abstract class Functions {
      */
     static MappingType _avgType(final MappingType type) {
         final MappingType returnType;
-        if (type instanceof MappingType.SqlIntegerType || type instanceof MappingType.SqlDecimalType) {
+        if (type instanceof MappingType.SqlInteger || type instanceof MappingType.SqlDecimal) {
             returnType = BigDecimalType.INSTANCE;
-        } else if (type instanceof MappingType.SqlFloatType) {
+        } else if (type instanceof MappingType.SqlFloat) {
             returnType = DoubleType.INSTANCE;
-        } else if (type instanceof MappingType.SqlIntervalType) {
+        } else if (type instanceof MappingType.SqlInterval) {
             returnType = IntervalType.TEXT;
         } else {
             returnType = TextType.INSTANCE;
@@ -1524,9 +1524,9 @@ abstract class Functions {
      */
     static MappingType _doubleOrNumberType(final MappingType type) {
         final MappingType returnType;
-        if (type instanceof MappingType.SqlFloatType) {
+        if (type instanceof MappingType.SqlFloat) {
             returnType = DoubleType.INSTANCE;
-        } else if (type instanceof MappingType.SqlNumberType) {
+        } else if (type instanceof MappingType.SqlNumber) {
             returnType = type;
         } else {
             returnType = BigDecimalType.INSTANCE;
@@ -1540,7 +1540,7 @@ abstract class Functions {
      */
     static MappingType _numberOrDecimal(final MappingType type) {
         final MappingType returnType;
-        if (type instanceof MappingType.SqlNumberType) {
+        if (type instanceof MappingType.SqlNumber) {
             returnType = type;
         } else {
             returnType = BigDecimalType.INSTANCE;
@@ -1550,7 +1550,7 @@ abstract class Functions {
 
     static MappingType _doubleOrDecimal(final MappingType type) {
         final MappingType returnType;
-        if (type instanceof MappingType.SqlFloatType) {
+        if (type instanceof MappingType.SqlFloat) {
             returnType = DoubleType.INSTANCE;
         } else {
             returnType = BigDecimalType.INSTANCE;
@@ -1560,7 +1560,7 @@ abstract class Functions {
 
     static MappingType _sqlStringType(final MappingType type) {
         final MappingType returnType;
-        if (type instanceof MappingType.SqlStringType) {
+        if (type instanceof MappingType.SqlString) {
             returnType = type;
         } else {
             returnType = StringType.INSTANCE;
@@ -1619,9 +1619,9 @@ abstract class Functions {
      */
     static MappingType _sumType(final MappingType type) {
         final MappingType returnType;
-        if (type instanceof MappingType.SqlIntegerType) {
+        if (type instanceof MappingType.SqlInteger) {
             final MappingType.LengthType length;
-            length = ((MappingType.SqlIntegerType) type).lengthType();
+            length = ((MappingType.SqlInteger) type).lengthType();
             switch (length) {
                 case DEFAULT:
                     returnType = LongType.INSTANCE;
@@ -1638,9 +1638,9 @@ abstract class Functions {
                 default:
                     throw _Exceptions.unexpectedEnum(length);
             }
-        } else if (type instanceof MappingType.SqlDecimalType) {
+        } else if (type instanceof MappingType.SqlDecimal) {
             returnType = BigDecimalType.INSTANCE;
-        } else if (type instanceof MappingType.SqlFloatType) {
+        } else if (type instanceof MappingType.SqlFloat) {
             returnType = DoubleType.INSTANCE;
         } else {
             returnType = type;

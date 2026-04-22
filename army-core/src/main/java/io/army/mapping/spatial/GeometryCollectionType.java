@@ -25,7 +25,7 @@ import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-public final class GeometryCollectionType extends _ArmyBuildInType implements MappingType.SqlGeometryCollectionType {
+public final class GeometryCollectionType extends _ArmyBuildInType implements MappingType.SqlGeometryCollection {
 
 
     public static final GeometryCollectionType TEXT = new GeometryCollectionType(String.class);

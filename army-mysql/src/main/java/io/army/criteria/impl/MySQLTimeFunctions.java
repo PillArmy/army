@@ -21,7 +21,6 @@ import io.army.criteria.Expression;
 import io.army.criteria.SimpleExpression;
 import io.army.criteria.SqlValueParam;
 import io.army.mapping.*;
-import io.army.meta.TypeMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.util._TimeUtils;
@@ -1741,7 +1740,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
      */
     private static MappingType _dateAddSubReturnType(final MappingType type, final MySQLTimeUnit unit) {
         final MappingType returnType;
-        if (type instanceof MappingType.SqlLocalDateType) {
+        if (type instanceof MappingType.SqlLocalDate) {
             switch (unit) {
                 case YEAR:
                 case QUARTER:
@@ -1753,7 +1752,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
                 default:
                     returnType = LocalDateTimeType.INSTANCE;
             }
-        } else if (type instanceof MappingType.SqlLocalTimeType || type instanceof MappingType.SqlOffsetTimeType) {
+        } else if (type instanceof MappingType.SqlLocalTime || type instanceof MappingType.SqlOffsetTime) {
             switch (unit) {
                 case HOUR:
                 case MINUTE:
@@ -1764,8 +1763,8 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
                 default:
                     returnType = LocalDateTimeType.INSTANCE;
             }
-        } else if (type instanceof MappingType.SqlLocalDateTimeType
-                || type instanceof MappingType.SqlOffsetDateTimeType) {
+        } else if (type instanceof MappingType.SqlLocalDateTime
+                || type instanceof MappingType.SqlOffsetDateTime) {
             returnType = LocalDateTimeType.INSTANCE;
         } else {
             returnType = StringType.INSTANCE;

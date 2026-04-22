@@ -20,7 +20,7 @@ import io.army.sqltype.PgType;
  * @see <a href="https://www.postgresql.org/docs/current/datatype-character.html">bpchar</a>
  * @since 0.6.4
  */
-public final class PgBpCharType extends _ArmyBuildInType implements MappingType.SqlStringType {
+public final class PgBpCharType extends _ArmyBuildInType implements MappingType.SqlString {
 
     public static PgBpCharType from(final Class<?> javaType) {
         if (javaType != String.class) {

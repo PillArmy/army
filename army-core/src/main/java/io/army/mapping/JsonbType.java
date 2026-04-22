@@ -27,7 +27,7 @@ import io.army.util._Collections;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
-public final class JsonbType extends ArmyJsonType implements MappingType.SqlJsonbType {
+public final class JsonbType extends ArmyJsonType implements MappingType.SqlJsonb {
 
     public static JsonbType from(final Class<?> javaType) {
         final JsonbType instance;

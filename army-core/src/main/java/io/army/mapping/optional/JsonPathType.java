@@ -28,7 +28,7 @@ import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
-public final class JsonPathType extends _ArmyBuildInType implements MappingType.SqlJsonPathType {
+public final class JsonPathType extends _ArmyBuildInType implements MappingType.SqlJsonPath {
 
     public static JsonPathType from(Class<?> javaType) {
         if (javaType != String.class) {

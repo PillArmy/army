@@ -18,6 +18,7 @@ package io.army.jdbd;
 
 import io.army.executor.ReactiveLocalExecutor;
 import io.army.executor.ReactiveRmExecutor;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.option.Option;
 import io.army.sqltype.DataType;
@@ -33,11 +34,8 @@ import io.jdbd.statement.ParametrizedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.army.lang.Nullable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.time.*;
 
 /**
@@ -329,7 +327,7 @@ abstract class MySQLExecutor extends JdbdExecutor {
                 value = row.get(indexBasedZero, BigDecimal.class);
                 break;
             case DATETIME: {
-                if (type instanceof MappingType.SqlOffsetDateTimeType) {
+                if (type instanceof MappingType.SqlOffsetDateTime) {
                     value = row.get(indexBasedZero, OffsetDateTime.class);
                 } else {
                     value = row.get(indexBasedZero, LocalDateTime.class);
@@ -340,11 +338,11 @@ abstract class MySQLExecutor extends JdbdExecutor {
                 value = row.get(indexBasedZero, LocalDate.class);
                 break;
             case TIME: {
-                if (type instanceof MappingType.SqlLocalTimeType) {
+                if (type instanceof MappingType.SqlLocalTime) {
                     value = row.get(indexBasedZero, LocalTime.class);
-                } else if (type instanceof MappingType.SqlOffsetTimeType) {
+                } else if (type instanceof MappingType.SqlOffsetTime) {
                     value = row.get(indexBasedZero, OffsetTime.class);
-                } else if (type instanceof MappingType.SqlDurationType) {
+                } else if (type instanceof MappingType.SqlDuration) {
                     value = row.get(indexBasedZero, Duration.class);
                 } else {
                     value = row.get(indexBasedZero, LocalTime.class);
@@ -378,7 +376,7 @@ abstract class MySQLExecutor extends JdbdExecutor {
             case TINYBLOB:
             case BLOB:
             case MEDIUMBLOB: {
-                if (type instanceof MappingType.SqlStringType) {
+                if (type instanceof MappingType.SqlString) {
                     value = row.get(indexBasedZero, String.class);
                 } else {
                     value = row.get(indexBasedZero, byte[].class);

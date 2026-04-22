@@ -67,10 +67,6 @@ public final class IntegerType extends _NumericType._IntegerType {
         return Integer.class;
     }
 
-    @Override
-    public LengthType lengthType() {
-        return LengthType.DEFAULT;
-    }
 
     @Override
     public MappingType arrayTypeOfThis() {

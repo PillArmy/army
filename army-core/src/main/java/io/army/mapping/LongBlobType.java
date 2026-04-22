@@ -27,7 +27,7 @@ import io.army.sqltype.SQLiteType;
  * @see BlobType
  * @see MediumBlobType
  */
-public final class LongBlobType extends _ArmyBuildInType implements MappingType.SqlBlobType {
+public final class LongBlobType extends _ArmyBuildInType implements MappingType.SqlBlob {
 
 
     public static LongBlobType from(final Class<?> fieldType) {
