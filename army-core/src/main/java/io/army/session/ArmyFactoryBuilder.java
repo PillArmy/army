@@ -322,11 +322,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
         final Map<FieldMeta<?>, FieldGenerator> generatorMap = _Collections.hashMap();
         final Set<MappingType> definedTypeSet = new HashSet<>();
-        final Map<Class<?>, String> definedTypeToNameMap = new HashMap<>();
-
-        final Consumer<TableMeta<?>> consumer;
-        consumer = consumerForFieldGenerator(this.fieldGeneratorFactory, generatorMap)
-                .andThen(consumerForDefinedType(definedTypeSet, definedTypeToNameMap));
+        final Consumer<TableMeta<?>> consumer = createTableConsumer(generatorMap, definedTypeSet);
 
 
         final Map<Class<?>, TableMeta<?>> tableMetaMap;
@@ -345,6 +341,18 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         this.generatorMap = Map.copyOf(generatorMap);
         this.definedTypeSet = Set.copyOf(definedTypeSet);
 
+    }
+
+
+    private Consumer<TableMeta<?>> createTableConsumer(final Map<FieldMeta<?>, FieldGenerator> generatorMap, final Set<MappingType> definedTypeSet) {
+        final Map<Class<?>, String> definedTypeToNameMap = new HashMap<>(); // just for validation
+        final Map<Class<?>, Map<Enum<?>, Class<?>>> parentToDiscriminator = new HashMap<>();  // just for validation
+
+        final Consumer<TableMeta<?>> consumer;
+        consumer = consumerForFieldGenerator(this.fieldGeneratorFactory, generatorMap)
+                .andThen(consumerForDefinedType(definedTypeSet, definedTypeToNameMap))
+                .andThen(consumerForValidateDiscriminator(parentToDiscriminator));
+        return consumer;
     }
 
 
@@ -379,98 +387,6 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             }
         }
         return map;
-    }
-
-
-    /// @see #scanTableMeta()
-    private Consumer<TableMeta<?>> consumerForFieldGenerator(final @Nullable FieldGeneratorFactory generatorFactory,
-                                                             final Map<FieldMeta<?>, FieldGenerator> generatorMap) {
-        return tableMeta -> {
-            final List<FieldMeta<?>> fieldChain = tableMeta.fieldChain();
-            if (fieldChain.isEmpty()) {
-                return;
-            }
-            FieldGenerator generator;
-            GeneratorMeta meta;
-            for (FieldMeta<?> field : fieldChain) {
-                meta = field.generator();
-                assert meta != null;
-                if (generatorFactory == null) {
-                    throw notSpecifiedFieldGeneratorFactory(field);
-                }
-                generator = generatorFactory.get(field);
-                if (!meta.javaType().isInstance(generator)) {
-                    throw fieldGeneratorTypeError(meta, generator);
-                }
-                generatorMap.put(field, generator);
-            } // field loop
-        };
-    }
-
-
-    /// @see #scanTableMeta()
-    private Consumer<TableMeta<?>> consumerForDefinedType(final Set<MappingType> mappingTypeSet,
-                                                          final Map<Class<?>, String> definedTypeToNameMap) {
-        return tableMeta -> {
-            MappingType type;
-
-            for (FieldMeta<?> field : tableMeta.fieldList()) {
-                type = field.mappingType();
-                if (!(type instanceof MappingType.SqlUserDefined)) {
-                    continue;
-                }
-
-                mappingTypeSet.add(type);
-
-                if (type instanceof MappingType.SqlComposite) {
-                    scanCompositeField(field.javaType(), mappingTypeSet, definedTypeToNameMap);
-                }
-
-            } // field loop
-        };
-    }
-
-    /// @see #consumerForDefinedType
-    private void scanCompositeField(final Class<?> compositeClass, final Set<MappingType> mappingTypeSet
-            , final Map<Class<?>, String> definedTypeToNameMap) {
-        MappingType type;
-        for (Class<?> clazz = compositeClass; ; clazz = clazz.getSuperclass()) {
-            for (Field field : clazz.getDeclaredFields()) {
-
-                if (field.getAnnotation(Column.class) == null) {
-                    continue;
-                }
-
-                type = _MappingFactory.map(field);
-                if (!(type instanceof MappingType.SqlUserDefined st)) {
-                    continue;
-                }
-
-                mappingTypeSet.add(type);
-
-                if (definedTypeToNameMap.putIfAbsent(type.javaType(), st.typeName()) != null) {
-                    String m = String.format("%s is mapped to multi type name", type.javaType().getName());
-                    throw new MetaException(m);
-                }
-
-                if (type instanceof MappingType.SqlComposite) {
-                    scanCompositeField(field.getType(), mappingTypeSet, definedTypeToNameMap);
-                }
-
-            } // field loop
-        } // pojo class loop
-    }
-
-    private SessionFactoryException fieldGeneratorTypeError(GeneratorMeta meta, @Nullable FieldGenerator generator) {
-        String m = String.format("%s %s type %s isn't %s."
-                , meta.field(), FieldGenerator.class.getName(), generator, meta.javaType().getName());
-        throw new SessionFactoryException(m);
-    }
-
-    private SessionFactoryException notSpecifiedFieldGeneratorFactory(FieldMeta<?> field) {
-        String m = String.format("%s has %s ,but not specified %s."
-                , field, GeneratorMeta.class.getName(), FieldGeneratorFactory.class.getName());
-        throw new SessionFactoryException(m);
     }
 
 
@@ -637,6 +553,131 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         }
         return error;
 
+    }
+
+
+    /// @see #scanTableMeta()
+    private static Consumer<TableMeta<?>> consumerForFieldGenerator(final @Nullable FieldGeneratorFactory generatorFactory,
+                                                                    final Map<FieldMeta<?>, FieldGenerator> generatorMap) {
+        return tableMeta -> {
+            final List<FieldMeta<?>> fieldChain = tableMeta.fieldChain();
+            if (fieldChain.isEmpty()) {
+                return;
+            }
+            FieldGenerator generator;
+            GeneratorMeta meta;
+            for (FieldMeta<?> field : fieldChain) {
+                meta = field.generator();
+                assert meta != null;
+                if (generatorFactory == null) {
+                    throw notSpecifiedFieldGeneratorFactory(field);
+                }
+                generator = generatorFactory.get(field);
+                if (!meta.javaType().isInstance(generator)) {
+                    throw fieldGeneratorTypeError(meta, generator);
+                }
+                generatorMap.put(field, generator);
+            } // field loop
+        };
+    }
+
+
+    /// @see #scanTableMeta()
+    private static Consumer<TableMeta<?>> consumerForDefinedType(final Set<MappingType> mappingTypeSet,
+                                                                 final Map<Class<?>, String> definedTypeToNameMap) {
+        return tableMeta -> {
+            MappingType type;
+
+            for (FieldMeta<?> field : tableMeta.fieldList()) {
+                type = field.mappingType();
+                if (!(type instanceof MappingType.SqlUserDefined)) {
+                    continue;
+                }
+
+                mappingTypeSet.add(type);
+
+                if (type instanceof MappingType.SqlComposite) {
+                    scanCompositeField(field.javaType(), mappingTypeSet, definedTypeToNameMap);
+                }
+
+            } // field loop
+        };
+    }
+
+    /// @see #scanTableMeta()
+    private static Consumer<TableMeta<?>> consumerForValidateDiscriminator(final Map<Class<?>, Map<Enum<?>, Class<?>>> parentToDiscriminator) {
+        return tableMeta -> {
+            if (tableMeta instanceof SimpleTableMeta<?>) {
+                return;
+            }
+            final Class<?> parentClass;
+            if (tableMeta instanceof ChildTableMeta<?>) {
+                parentClass = ((ChildTableMeta<?>) tableMeta).parentMeta().javaType();
+            } else if (tableMeta instanceof ParentTableMeta<?>) {
+                parentClass = tableMeta.javaType();
+            } else {
+                // no bug ,never here
+                throw new MetaException("unknown TableMeta");
+            }
+
+            final Enum<?> discriminator;
+            discriminator = tableMeta.discriminatorValue();
+            Objects.requireNonNull(discriminator);
+
+            final Class<?> oldClass;
+            oldClass = parentToDiscriminator.computeIfAbsent(parentClass, _ -> new HashMap<>())
+                    .putIfAbsent(discriminator, tableMeta.javaType());
+            if (oldClass != null && oldClass != tableMeta.javaType()) {
+                String m = String.format("Domain[%s] discriminator[%s] duplication",
+                        tableMeta.javaType().getName(), discriminator.name());
+                throw new MetaException(m);
+            }
+
+        };
+    }
+
+    /// @see #consumerForDefinedType
+    private static void scanCompositeField(final Class<?> compositeClass,
+                                           final Set<MappingType> mappingTypeSet,
+                                           final Map<Class<?>, String> definedTypeToNameMap) {
+        MappingType type;
+        for (Class<?> clazz = compositeClass; ; clazz = clazz.getSuperclass()) {
+            for (Field field : clazz.getDeclaredFields()) {
+
+                if (field.getAnnotation(Column.class) == null) {
+                    continue;
+                }
+
+                type = _MappingFactory.map(field);
+                if (!(type instanceof MappingType.SqlUserDefined st)) {
+                    continue;
+                }
+
+                mappingTypeSet.add(type);
+
+                if (definedTypeToNameMap.putIfAbsent(type.javaType(), st.typeName()) != null) {
+                    String m = String.format("%s is mapped to multi type name", type.javaType().getName());
+                    throw new MetaException(m);
+                }
+
+                if (type instanceof MappingType.SqlComposite) {
+                    scanCompositeField(field.getType(), mappingTypeSet, definedTypeToNameMap);
+                }
+
+            } // field loop
+        } // pojo class loop
+    }
+
+    private static SessionFactoryException fieldGeneratorTypeError(GeneratorMeta meta, @Nullable FieldGenerator generator) {
+        String m = String.format("%s %s type %s isn't %s."
+                , meta.field(), FieldGenerator.class.getName(), generator, meta.javaType().getName());
+        throw new SessionFactoryException(m);
+    }
+
+    private static SessionFactoryException notSpecifiedFieldGeneratorFactory(FieldMeta<?> field) {
+        String m = String.format("%s has %s ,but not specified %s."
+                , field, GeneratorMeta.class.getName(), FieldGeneratorFactory.class.getName());
+        throw new SessionFactoryException(m);
     }
 
 
