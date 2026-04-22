@@ -26,6 +26,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface DiscriminatorValue {
 
-    int value();
+    /// @return The name of the discriminator enum value.
+    String value();
 
 }

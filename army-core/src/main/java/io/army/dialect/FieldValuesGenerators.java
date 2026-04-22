@@ -23,7 +23,6 @@ import io.army.generator.FieldGenerator;
 import io.army.generator.GeneratorException;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
-import io.army.struct.CodeEnum;
 import io.army.util.ClassUtils;
 import io.army.util._Exceptions;
 
@@ -31,6 +30,7 @@ import java.math.BigInteger;
 import java.time.temporal.Temporal;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 abstract class FieldValuesGenerators implements FieldValueGenerator {
 
@@ -74,9 +74,9 @@ abstract class FieldValuesGenerators implements FieldValueGenerator {
         if (!(domainTable instanceof SimpleTableMeta)) {
             final FieldMeta<?> discriminator = domainTable.discriminator();
             assert discriminator != null;
-            final CodeEnum codeEnum;
+            final Enum<?> codeEnum;
             codeEnum = domainTable.discriminatorValue();
-            assert codeEnum != null;
+            Objects.requireNonNull(codeEnum);
             if (wrapper.readonlyWrapper().get(discriminator.fieldName()) != codeEnum) {
                 Class<?> enumClass = codeEnum.getClass();
                 if (enumClass.isAnonymousClass()) {

@@ -27,13 +27,13 @@ import io.army.meta.*;
 import io.army.session.SessionSpec;
 import io.army.stmt.InsertStmtParams;
 import io.army.stmt.SingleParam;
-import io.army.struct.CodeEnum;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.ObjIntConsumer;
 
 final class AssignmentInsertContext extends InsertContext
@@ -261,9 +261,9 @@ final class AssignmentInsertContext extends InsertContext
         final FieldMeta<?> discriminator = domainTable.discriminator();
         assert discriminator != null;
 
-        final CodeEnum codeEnum;
+        final Enum<?> codeEnum;
         codeEnum = domainTable.discriminatorValue();
-        assert codeEnum != null;
+        Objects.requireNonNull(codeEnum);
 
         if (this.literalMode == LiteralMode.DEFAULT) {
             appendParam(SingleParam.build(discriminator.mappingType(), codeEnum));

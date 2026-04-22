@@ -18,7 +18,6 @@ package io.army.meta;
 
 import io.army.criteria.TabularItem;
 import io.army.lang.Nullable;
-import io.army.struct.CodeEnum;
 import io.army.util.SQLStmts;
 
 import java.util.List;
@@ -95,7 +94,7 @@ public interface TableMeta<T> extends TabularItem, DatabaseObject {
     FieldMeta<? super T> discriminator();
 
     @Nullable
-    CodeEnum discriminatorValue();
+    Enum<?> discriminatorValue();
 
 
     /**

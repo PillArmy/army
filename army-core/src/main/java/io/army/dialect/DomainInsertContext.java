@@ -31,12 +31,12 @@ import io.army.meta.*;
 import io.army.session.SessionSpec;
 import io.army.stmt.InsertStmtParams;
 import io.army.stmt.SingleParam;
-import io.army.struct.CodeEnum;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.ObjIntConsumer;
 
 /**
@@ -129,14 +129,14 @@ final class DomainInsertContext extends ValuesSyntaxInsertContext implements Ins
             discriminatorParam = null;
         } else if (literalMode == LiteralMode.DEFAULT) {
             assert discriminator != null;
-            final CodeEnum codeEnum = domainTable.discriminatorValue();
-            assert codeEnum != null;
+            final Enum<?> codeEnum = domainTable.discriminatorValue();
+            Objects.requireNonNull(codeEnum);
             discriminatorLiteral = null;
             discriminatorParam = SingleParam.build(discriminator.mappingType(), codeEnum);
         } else {
-            final CodeEnum codeEnum = domainTable.discriminatorValue();
-            assert codeEnum != null;
-            assert discriminator != null;
+            final Enum<?> codeEnum = domainTable.discriminatorValue();
+            Objects.requireNonNull(codeEnum);
+            Objects.requireNonNull(discriminator);
 
             final StringBuilder codeBuilder = new StringBuilder(10);
             parser.safeLiteral(discriminator.mappingType(), codeEnum, true, codeBuilder);

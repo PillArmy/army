@@ -24,9 +24,7 @@ import io.army.lang.NonNull;
 import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
-import io.army.struct.CodeEnum;
 import io.army.util._Collections;
-import io.army.util._Exceptions;
 
 import java.util.List;
 import java.util.Map;
@@ -656,7 +654,7 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
         @Nullable
         @Override
-        public CodeEnum discriminatorValue() {
+        public Enum<?> discriminatorValue() {
             // always null
             return null;
         }
@@ -669,17 +667,12 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
         private final TableFieldMeta<T> discriminator;
 
-        private final CodeEnum discriminatorEnum;
+        private final Enum<?> discriminatorEnum;
 
         private DefaultParentTable(final Class<T> domainClass) {
             super(domainClass);
             this.discriminator = (TableFieldMeta<T>) TableMetaUtils.discriminator(this.fieldNameToFields, domainClass);
-            final CodeEnum codeEnum;
-            codeEnum = CodeEnum.resolve(this.discriminator.javaType(), 0);   //parent  always 0
-            if (codeEnum == null) {
-                throw _Exceptions.discriminatorNoMapping(this);
-            }
-            this.discriminatorEnum = codeEnum;
+            this.discriminatorEnum = TableMetaUtils.discriminatorValue(this.discriminator.javaType, domainClass);
         }
 
         @Override
@@ -718,7 +711,7 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         }
 
         @Override
-        public CodeEnum discriminatorValue() {
+        public Enum<?> discriminatorValue() {
             return this.discriminatorEnum;
         }
 
@@ -730,18 +723,13 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
         private final DefaultParentTable<P> parent;
 
-        private final CodeEnum discriminatorEnum;
+        private final Enum<?> discriminatorEnum;
 
         private DefaultChildTable(final ParentTableMeta<P> parent, final Class<T> domainClass) {
             super(domainClass);
             TableMetaUtils.assertParentTableMeta(parent, domainClass);
             this.parent = (DefaultParentTable<P>) parent;
-            final CodeEnum codeEnum;
-            codeEnum = CodeEnum.resolve(this.parent.discriminator.javaType, TableMetaUtils.discriminatorValue(domainClass));
-            if (codeEnum == null) {
-                throw _Exceptions.discriminatorNoMapping(this);
-            }
-            this.discriminatorEnum = codeEnum;
+            this.discriminatorEnum = TableMetaUtils.discriminatorValue(this.parent.discriminator.javaType, domainClass);
         }
 
 
@@ -853,7 +841,7 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         }
 
         @Override
-        public CodeEnum discriminatorValue() {
+        public Enum<?> discriminatorValue() {
             return this.discriminatorEnum;
         }
 

@@ -18,7 +18,6 @@ package io.army.meta;
 
 
 import io.army.lang.NonNull;
-import io.army.struct.CodeEnum;
 
 public interface ParentTableMeta<T> extends SingleTableMeta<T> {
 
@@ -27,7 +26,7 @@ public interface ParentTableMeta<T> extends SingleTableMeta<T> {
     FieldMeta<T> discriminator();
 
     @NonNull
-    CodeEnum discriminatorValue();
+    Enum<?> discriminatorValue();
 
 
 }

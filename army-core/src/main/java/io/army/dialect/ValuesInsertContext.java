@@ -27,14 +27,10 @@ import io.army.meta.*;
 import io.army.session.SessionSpec;
 import io.army.stmt.InsertStmtParams;
 import io.army.stmt.SingleParam;
-import io.army.struct.CodeEnum;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.IntFunction;
 import java.util.function.ObjIntConsumer;
 
@@ -152,13 +148,13 @@ final class ValuesInsertContext extends ValuesSyntaxInsertContext implements Ins
             discriminatorParam = null;
         } else if (literalMode == LiteralMode.DEFAULT) {
             assert discriminator != null;
-            final CodeEnum codeEnum = domainTable.discriminatorValue();
-            assert codeEnum != null;
+            final Enum<?> codeEnum = domainTable.discriminatorValue();
+            Objects.requireNonNull(codeEnum);
             discriminatorLiteral = null;
 
             discriminatorParam = SingleParam.build(discriminator.mappingType(), codeEnum);
         } else {
-            final CodeEnum codeEnum = domainTable.discriminatorValue();
+            final Enum<?> codeEnum = domainTable.discriminatorValue();
             assert codeEnum != null;
             assert discriminator != null;
 

@@ -18,7 +18,6 @@ package io.army.modelgen;
 
 import io.army.annotation.*;
 import io.army.lang.Nullable;
-import io.army.struct.CodeEnum;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
@@ -39,17 +38,18 @@ final class AnnotationHandler {
 
     private final boolean snowflakeStartTimeWarning;
 
-    final List<String> errorMsgList = ArmyCollections.arrayList();
+    final List<String> errorMsgList = new ArrayList<>();
 
-    private final Map<String, Map<String, VariableElement>> parentFieldCache = ArmyCollections.hashMap();
+    private final Map<String, Map<String, VariableElement>> parentFieldCache = new HashMap<>();
 
-    private final Map<String, Map<Integer, TypeElement>> codeMap = ArmyCollections.hashMap();
+    private final Map<String, Map<String, TypeElement>> discriminatorValueCache = new HashMap<>();
+
+    private final Map<String, MappingMode> mappingModeMap = new HashMap<>();
 
     private final Map<String, Set<String>> startTimeToDomain = new HashMap<>();
 
-    //private final Map<String, String> domainToParent = new HashMap<>();
-
     private final StringBuilder tempBuilder = new StringBuilder();
+
 
     AnnotationHandler(ProcessingEnvironment env, boolean snowflakeStartTimeWarning) {
         this.env = env;
@@ -85,13 +85,15 @@ final class AnnotationHandler {
                 outParent[0] = null; // clear
                 mappedList = getMappedList(domain, outParent);
                 parentDomain = outParent[0];
-//                if(parentDomain != null){
-//                    this.domainToParent.put(domainName, MetaUtils.getClassName(parentDomain));
-//                }
             }
 
             mode = validateMode(domain, parentDomain);
 
+            if (mode == null) {
+                continue;  // occur error
+            }
+
+            this.mappingModeMap.put(domainName, mode);
 
             if (inheritance != null) {
                 fieldMap = getParentFieldMap(domain);
@@ -114,8 +116,7 @@ final class AnnotationHandler {
                 String m = String.format("please trim %s table name .", domainName);
                 errorMsgList.add(m);
             }
-            if (mode == null || !errorMsgList.isEmpty()) {
-                // occur error
+            if (!errorMsgList.isEmpty()) {
                 continue;
             }
             indexModeMap = createFieldToIndexModeMap(domain);
@@ -253,29 +254,16 @@ final class AnnotationHandler {
             }
         } else if (parent == null) {
             mode = MappingMode.PARENT;
-            if (discriminatorValue != null && discriminatorValue.value() != 0) {
+            if (discriminatorValue == null) {
                 String m;
-                m = String.format("Domain %s discriminator value must be zero.", MetaUtils.getClassName(domain));
+                m = String.format("Domain %s discriminator absent.", MetaUtils.getClassName(domain));
                 this.errorMsgList.add(m);
+            } else {
+                storeDiscriminatorValue(domain, discriminatorValue.value(), domain);
             }
         } else if (discriminatorValue != null) {
             mode = MappingMode.CHILD;
-            final int value;
-            value = discriminatorValue.value();
-            if (value == 0) {
-                String m;
-                m = String.format("Domain %s discriminator value couldn't be zero.", MetaUtils.getClassName(domain));
-                this.errorMsgList.add(m);
-            } else {
-                final TypeElement element;
-                element = this.codeMap.computeIfAbsent(MetaUtils.getClassName(parent), key -> new HashMap<>())
-                        .putIfAbsent(value, domain);
-                if (element != null && element != domain) {
-                    String m = String.format("Domain %s discriminator value[%s] duplication."
-                            , MetaUtils.getClassName(domain), value);
-                    this.errorMsgList.add(m);
-                }
-            }
+            storeDiscriminatorValue(parent, discriminatorValue.value(), domain);
         } else {
             mode = null;
             String m = String.format("Domain %s no parent,couldn't be annotated by %s."
@@ -285,9 +273,20 @@ final class AnnotationHandler {
         return mode;
     }
 
+    private void storeDiscriminatorValue(final TypeElement parent, final String value, final TypeElement domain) {
+        final TypeElement oldDomain;
+        oldDomain = this.discriminatorValueCache.computeIfAbsent(MetaUtils.getClassName(parent), _ -> new HashMap<>())
+                .putIfAbsent(value, domain);
+        if (oldDomain != null && oldDomain != domain) {
+            String m = String.format("Domain %s discriminator value[%s] duplication."
+                    , MetaUtils.getClassName(domain), value);
+            this.errorMsgList.add(m);
+        }
+    }
 
-    private Map<String, VariableElement> getFieldSet(final List<TypeElement> mappedList
-            , final @Nullable Map<String, VariableElement> parentFieldMap) {
+
+    private Map<String, VariableElement> getFieldSet(final List<TypeElement> mappedList,
+                                                     final @Nullable Map<String, VariableElement> parentFieldMap) {
 
         final TypeElement tableElement;
         tableElement = mappedList.getFirst();
@@ -306,8 +305,8 @@ final class AnnotationHandler {
         Column column;
         boolean foundDiscriminatorColumn = false;
         String className, fieldName, columnName;
-        final Map<String, VariableElement> fieldMap = ArmyCollections.hashMap();
-        final Map<String, Boolean> columnNameMap = ArmyCollections.hashMap();
+        final Map<String, VariableElement> fieldMap = new HashMap<>();
+        final Map<String, Boolean> columnNameMap = new HashMap<>();
 
         for (TypeElement mapped : mappedList) {
             className = MetaUtils.getClassName(mapped);
@@ -333,7 +332,7 @@ final class AnnotationHandler {
                 }
                 if (discriminatorField != null && discriminatorField.equals(fieldName)) {
                     foundDiscriminatorColumn = true;
-                    assertCodeEnum(className, field);
+                    assertDiscriminatorEnum(className, field);
                     validateField(domainName, className, fieldName, field, column, true);
                 } else {
                     validateField(domainName, className, fieldName, field, column, false);
@@ -410,6 +409,14 @@ final class AnnotationHandler {
         topLoop:
         for (FieldParam field : overrideParams.fields()) {
             fieldName = field.name();
+
+            if (_MetaBridge.ID.equals(fieldName)
+                    && this.mappingModeMap.get(domainName) == MappingMode.CHILD) {
+                String m = String.format("%s is child table, couldn't override id field.", domainName);
+                this.errorMsgList.add(m);
+                continue;
+            }
+
             fieldElement = func.apply(fieldName);
             if (fieldElement == null) {
                 String m = String.format("%s override field[%s] not exists.", domainName, fieldName);
@@ -440,7 +447,7 @@ final class AnnotationHandler {
                                final VariableElement field, final Column column, final boolean discriminatorField) {
         switch (fieldName) {
             case _MetaBridge.ID:
-                validateSnowflakeStartTime(domainName, field);
+                validateSnowflakeStartTime(domainName, fieldName, field);
                 break;
             case _MetaBridge.CREATE_TIME:
             case _MetaBridge.UPDATE_TIME:
@@ -456,17 +463,23 @@ final class AnnotationHandler {
                 if (!discriminatorField && !MetaUtils.hasText(column.comment())) {
                     noCommentError(className, field);
                 }
-                validateSnowflakeStartTime(domainName, field);
+                if (!discriminatorField) {
+                    validateSnowflakeStartTime(domainName, fieldName, field);
+                }
             } // default
         } //switch
     }
 
 
-    private void validateSnowflakeStartTime(final String domainName, final VariableElement field) {
+    private void validateSnowflakeStartTime(final String domainName, final String fieldName, final VariableElement field) {
         final Generator generator;
         if ((generator = field.getAnnotation(Generator.class)) == null
                 || generator.type() == GeneratorType.POST
                 || !generator.value().equals("io.army.generator.snowflake.SnowflakeGenerator")) {
+            return;
+        }
+        if (_MetaBridge.ID.equals(fieldName)
+                && this.mappingModeMap.get(domainName) == MappingMode.CHILD) {
             return;
         }
 
@@ -558,12 +571,11 @@ final class AnnotationHandler {
         }
     }
 
-    private void assertCodeEnum(final String className, final VariableElement field) {
+    private void assertDiscriminatorEnum(final String className, final VariableElement field) {
         final TypeMirror typeMirror = field.asType();
         if (typeMirror instanceof DeclaredType) {
             final Element element = ((DeclaredType) typeMirror).asElement();
-            if (element.getKind() != ElementKind.ENUM
-                    || !MetaUtils.isCodeEnumType((TypeElement) element)) {
+            if (element.getKind() != ElementKind.ENUM) {
                 discriminatorNonCodeNum(className, field);
             }
         } else {
@@ -574,8 +586,8 @@ final class AnnotationHandler {
 
 
     private void discriminatorNonCodeNum(final String className, final VariableElement field) {
-        String m = String.format("Discriminator field %s.%s don't implements %s."
-                , className, field.getSimpleName(), CodeEnum.class.getName());
+        String m = String.format("Discriminator field %s.%s isn't enum."
+                , className, field.getSimpleName());
         this.errorMsgList.add(m);
     }
 

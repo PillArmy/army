@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @Table(name = "stock_rank_daily", indexes = {
         @Index(name = "stock_rank_daily_idx_stock_id", fieldList = "stockId")},
         comment = "每日排名")
-@OverrideParams(fields = {@FieldParam(name = "id", params = @Param(name = SnowflakeGenerator.START_TIME, value = "1776386333818"))})
+@OverrideParams(fields = {@FieldParam(name = "id", params = @Param(name = SnowflakeGenerator.START_TIME, value = "1776386333819"))})
 public abstract class StockRankDaily extends SnowFieldDomain {
 
     @Column(notNull = true, updatable = false, comment = "股票id")

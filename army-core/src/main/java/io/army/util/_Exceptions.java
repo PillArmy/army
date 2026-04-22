@@ -1066,20 +1066,6 @@ public abstract class _Exceptions {
     }
 
 
-    public static MetaException discriminatorNoMapping(TableMeta<?> domainTable) {
-        final FieldMeta<?> discriminator;
-        discriminator = domainTable.discriminator();
-        assert discriminator != null;
-        Class<?> javaType;
-        javaType = discriminator.javaType();
-        if (javaType.isAnonymousClass()) {
-            javaType = javaType.getSuperclass();
-        }
-        String m = String.format("%s code[%s] no mapping.", javaType.getName()
-                , domainTable.discriminatorValue());
-        throw new MetaException(m);
-    }
-
     public static MetaException timeFieldScaleError(FieldMeta<?> field) {
         String m = String.format("%s scale[%s] isn't default and not in [0,6]", field, field.scale());
         throw new MetaException(m);

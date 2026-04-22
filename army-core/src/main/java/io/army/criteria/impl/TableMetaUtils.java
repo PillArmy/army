@@ -21,9 +21,9 @@ import io.army.dialect._Constant;
 import io.army.generator.FieldGenerator;
 import io.army.lang.NonNull;
 import io.army.lang.Nullable;
+import io.army.mapping.NameEnumType;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
-import io.army.struct.CodeEnum;
 import io.army.util.Pair;
 import io.army.util._Collections;
 import io.army.util._StringUtils;
@@ -172,7 +172,7 @@ public abstract class TableMetaUtils {
         }
     }
 
-    static int discriminatorValue(final Class<?> domainClass) {
+    static Enum<?> discriminatorValue(final Class<?> fieldJavaClass, final Class<?> domainClass) {
 
         final DiscriminatorValue discriminatorValue;
         discriminatorValue = domainClass.getAnnotation(DiscriminatorValue.class);
@@ -182,34 +182,27 @@ public abstract class TableMetaUtils {
             throw new MetaException(m);
         }
 
-        final int value;
-        value = discriminatorValue.value();
-        if (value == 0) {
-            String m = String.format("Child Domain[%s] must not 0 .", domainClass.getName());
-            throw new MetaException(m);
+        try {
+            return NameEnumType.valueOf(fieldJavaClass, discriminatorValue.value());
+        } catch (IllegalArgumentException e) {
+            String m = String.format("Domain %s DiscriminatorValue[%s] error",
+                    domainClass.getName(), discriminatorValue.value());
+            throw new MetaException(m, e);
         }
-        return value;
     }
 
-    static <T> FieldMeta<T> discriminator(final Map<String, FieldMeta<T>> fieldMetaMap
-            , final Class<T> domainClass) {
+    static <T> FieldMeta<T> discriminator(final Map<String, FieldMeta<T>> fieldMetaMap,
+                                          final Class<T> domainClass) {
         final Inheritance inheritance = domainClass.getAnnotation(Inheritance.class);
-        assert inheritance != null;
+        Objects.requireNonNull(inheritance);
         final String fieldName = inheritance.value();
         final FieldMeta<T> discriminator = fieldMetaMap.get(fieldName);
         if (discriminator == null) {
             throw notFoundDiscriminator(fieldName, domainClass);
         }
         final Class<?> fieldJavaType = discriminator.javaType();
-        if (!fieldJavaType.isEnum() || !CodeEnum.class.isAssignableFrom(fieldJavaType)) {
-            String m = String.format("Discriminator[%s] in domain[%s] isn't %s type."
-                    , fieldName, domainClass.getName(), CodeEnum.class.getName());
-            throw new MetaException(m);
-        }
-        final DiscriminatorValue discriminatorValue = domainClass.getAnnotation(DiscriminatorValue.class);
-        if (discriminatorValue != null && discriminatorValue.value() != 0) {
-            String m = String.format("%s.value[%s] of parent must be 0 ."
-                    , DiscriminatorValue.class.getName(), discriminatorValue.value());
+        if (!fieldJavaType.isEnum()) {
+            String m = String.format("Discriminator[%s] in domain[%s] isn't enum type.", fieldName, domainClass.getName());
             throw new MetaException(m);
         }
         return discriminator;
