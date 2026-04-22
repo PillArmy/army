@@ -48,6 +48,10 @@ final class AnnotationHandler {
 
     private final Map<String, Set<String>> startTimeToDomain = new HashMap<>();
 
+    private final Map<String, Set<String>> enumConstMap = new HashMap<>();
+
+    private final Map<String, String> domainToEnumMap = new HashMap<>();
+
     private final StringBuilder tempBuilder = new StringBuilder();
 
 
@@ -103,6 +107,9 @@ final class AnnotationHandler {
                 fieldMap = getFieldSet(mappedList, getParentFieldMap(parentDomain));
             }
 
+            if (mode != MappingMode.SIMPLE) {
+                validateDiscriminatorValue(domain, domainName);
+            }
 
             // validate table name
             table = domain.getAnnotation(Table.class);
@@ -141,6 +148,24 @@ final class AnnotationHandler {
 
         printSnowflakeStartTimeWarning();
 
+    }
+
+
+    private void validateDiscriminatorValue(final TypeElement domain, final String domainName) {
+        final DiscriminatorValue discriminatorValue = domain.getAnnotation(DiscriminatorValue.class);
+        final String enumName = this.domainToEnumMap.get(domainName);
+        final Set<String> enumSet;
+        if (discriminatorValue == null
+                || enumName == null
+                || (enumSet = this.enumConstMap.get(enumName)) == null) {
+            // no bug ,never here
+            throw new RuntimeException("handler bug");
+        }
+        if (!enumSet.contains(discriminatorValue.value())) {
+            String m = String.format("Domain %s %s value %s not found in enum %s.",
+                    domainName, DiscriminatorValue.class.getSimpleName(), discriminatorValue.value(), enumName);
+            this.errorMsgList.add(m);
+        }
     }
 
 
@@ -332,7 +357,7 @@ final class AnnotationHandler {
                 }
                 if (discriminatorField != null && discriminatorField.equals(fieldName)) {
                     foundDiscriminatorColumn = true;
-                    assertDiscriminatorEnum(className, field);
+                    assertDiscriminatorEnum(domainName, className, field);
                     validateField(domainName, className, fieldName, field, column, true);
                 } else {
                     validateField(domainName, className, fieldName, field, column, false);
@@ -571,19 +596,36 @@ final class AnnotationHandler {
         }
     }
 
-    private void assertDiscriminatorEnum(final String className, final VariableElement field) {
+    private void assertDiscriminatorEnum(final String domainName, final String className, final VariableElement field) {
         final TypeMirror typeMirror = field.asType();
-        if (typeMirror instanceof DeclaredType) {
-            final Element element = ((DeclaredType) typeMirror).asElement();
-            if (element.getKind() != ElementKind.ENUM) {
-                discriminatorNonCodeNum(className, field);
-            }
+        final Element element;
+        if (!(typeMirror instanceof DeclaredType)) {
+            discriminatorNonCodeNum(className, field);
+        } else if ((element = ((DeclaredType) typeMirror).asElement()).getKind() == ElementKind.ENUM) {
+            storeEnumConsts(domainName, (TypeElement) element);
         } else {
             discriminatorNonCodeNum(className, field);
         }
 
     }
 
+
+    private void storeEnumConsts(final String domainName, final TypeElement enumElement) {
+        final String className = MetaUtils.getClassName(enumElement);
+        if (this.enumConstMap.get(className) != null) {
+            this.domainToEnumMap.put(domainName, className);
+            return;
+        }
+        final Set<String> enumConstSet = new HashSet<>();
+        for (Element e : enumElement.getEnclosedElements()) {
+            if (e.getKind() != ElementKind.ENUM_CONSTANT) {
+                continue;
+            }
+            enumConstSet.add(e.getSimpleName().toString());
+        }
+        this.domainToEnumMap.put(domainName, className);
+        this.enumConstMap.put(className, Set.copyOf(enumConstSet));
+    }
 
     private void discriminatorNonCodeNum(final String className, final VariableElement field) {
         String m = String.format("Discriminator field %s.%s isn't enum."
