@@ -108,20 +108,6 @@ public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
         return this.dataType;
     }
 
-    @Override
-    public final boolean isSameType(final MappingType type) {
-        final boolean match;
-        if (type == this) {
-            match = true;
-        } else if (this.getClass().isInstance(type)) {
-            match = ((_ArmyPgRangeType) type).dataType == this.dataType;
-        } else {
-            match = false;
-        }
-        return match;
-    }
-
-
     protected final void serialize(final Object bound, final StringBuilder builder) {
         switch (this.dataType) {
             case INT4RANGE:

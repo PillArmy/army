@@ -31,7 +31,6 @@ import io.army.sqltype.MySQLType;
 import io.army.sqltype.SQLType;
 import io.army.struct.CodeEnum;
 import io.army.struct.TextEnum;
-import io.army.util.ArrayUtils;
 import io.army.util.ClassUtils;
 import io.army.util._Exceptions;
 
@@ -493,46 +492,6 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 throw noMatchCompatibleMapping(this, targetType);
         }
         return type;
-    }
-
-    @Override
-    public boolean isSameType(final MappingType type) {
-        final boolean match;
-        if (type == this) {
-            match = true;
-        } else if (!(this instanceof SqlArray)) {
-            match = this.getClass().isInstance(type);
-        } else if (this instanceof UnaryGenericsMapping.ListMapping) {
-            final Class<?> thisClass, typeClass;
-            thisClass = this.getClass();
-            typeClass = type.getClass();
-            match = thisClass == typeClass || thisClass.getSuperclass() == typeClass;
-        } else if (type instanceof UnaryGenericsMapping.ListMapping) {
-            final Class<?> thisClass, typeClass;
-            thisClass = this.getClass();
-            typeClass = type.getClass();
-            match = thisClass == typeClass || typeClass.getSuperclass() == thisClass;
-        } else if (this.getClass().isInstance(type)) {
-            final int thisDimension;
-            thisDimension = ArrayUtils.dimensionOfArrayMapping(this.javaType());
-            match = thisDimension == ArrayUtils.dimensionOfArrayMapping(type.javaType());
-        } else {
-            match = false;
-        }
-        return match;
-    }
-
-    @Override
-    public int hashCode() {
-        return System.identityHashCode(this);
-    }
-
-    /**
-     * @see #isSameType(MappingType)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        return this == obj;
     }
 
 

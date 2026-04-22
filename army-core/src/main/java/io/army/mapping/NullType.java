@@ -32,11 +32,6 @@ public final class NullType extends _ArmyBuildInType {
 
 
     @Override
-    public boolean isSameType(MappingType type) {
-        return type instanceof NullType;
-    }
-
-    @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return super.arrayTypeOfThis();
     }
