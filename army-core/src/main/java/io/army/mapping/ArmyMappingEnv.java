@@ -45,7 +45,7 @@ final class ArmyMappingEnv implements MappingEnv {
 
     private final SafeLiteralFunc literalFunc;
 
-    private DecodeLiteralFunc decodeFunc;
+    private final DecodeLiteralFunc decodeFunc;
 
 
     private ArmyMappingEnv(EnvBuilder builder) {

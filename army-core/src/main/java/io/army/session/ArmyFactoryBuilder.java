@@ -275,7 +275,6 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 .jsonCodec(this.jsonCodec)
                 .xmlCodec(this.xmlCodec)
                 .tableMap(Objects.requireNonNull(this.tableMap))
-                .definedTypeSet(Objects.requireNonNull(this.definedTypeSet))
                 .build();
 
         final DialectParser dialectParser;

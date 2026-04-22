@@ -21,7 +21,6 @@ import io.army.codec.XmlCodec;
 import io.army.env.ArmyEnvironment;
 import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
-import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
@@ -29,7 +28,6 @@ import io.army.util._Collections;
 
 import java.time.ZoneOffset;
 import java.util.Map;
-import java.util.Set;
 
 final class DialectEnvImpl implements DialectEnv {
 
@@ -56,7 +54,6 @@ final class DialectEnvImpl implements DialectEnv {
 
     private final Map<Class<?>, TableMeta<?>> tableMetaMap;
 
-    private final Set<MappingType> definedTypeSet;
 
     private DialectEnvImpl(EnvBuilder builder) {
         this.factoryName = builder.factoryName;
@@ -70,9 +67,8 @@ final class DialectEnvImpl implements DialectEnv {
         this.xmlCodec = builder.xmlCodec;
 
         this.tableMetaMap = builder.tableMetaMap;
-        this.definedTypeSet = builder.definedTypeSet;
 
-        if (this.serverMeta == null || this.tableMetaMap == null || this.definedTypeSet == null) {
+        if (this.serverMeta == null || this.tableMetaMap == null) {
             throw new IllegalArgumentException();
         }
 
@@ -128,11 +124,6 @@ final class DialectEnvImpl implements DialectEnv {
     }
 
     @Override
-    public Set<MappingType> definedTypeSet() {
-        return this.definedTypeSet;
-    }
-
-    @Override
     public String toString() {
         return String.format("%s factory:%s", DialectEnvImpl.class.getSimpleName(), this.factoryName);
     }
@@ -158,7 +149,6 @@ final class DialectEnvImpl implements DialectEnv {
 
         private Map<Class<?>, TableMeta<?>> tableMetaMap;
 
-        private Set<MappingType> definedTypeSet;
 
         @Override
         public Builder factoryName(String name) {
@@ -214,11 +204,6 @@ final class DialectEnvImpl implements DialectEnv {
             return this;
         }
 
-        @Override
-        public Builder definedTypeSet(Set<MappingType> typeSet) {
-            this.definedTypeSet = typeSet;
-            return this;
-        }
 
         @Override
         public DialectEnv build() {

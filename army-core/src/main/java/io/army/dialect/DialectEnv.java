@@ -22,7 +22,6 @@ import io.army.codec.XmlCodec;
 import io.army.env.ArmyEnvironment;
 import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
-import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
@@ -30,7 +29,6 @@ import io.army.session.FactoryBuilder;
 
 import java.time.ZoneOffset;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -69,7 +67,6 @@ public interface DialectEnv {
 
     Map<Class<?>, TableMeta<?>> tableMap();
 
-    Set<MappingType> definedTypeSet();
 
 
     static Builder builder() {
@@ -95,8 +92,6 @@ public interface DialectEnv {
         Builder xmlCodec(@Nullable XmlCodec codec);
 
         Builder tableMap(Map<Class<?>, TableMeta<?>> map);
-
-        Builder definedTypeSet(Set<MappingType> typeSet);
 
         DialectEnv build();
 
