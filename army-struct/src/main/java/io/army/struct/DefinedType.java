@@ -19,6 +19,8 @@ package io.army.struct;
 
 import java.lang.annotation.*;
 
+
+/// This annotation can be used together with {@code io.army.annotation.MappedSuperclass}.
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

@@ -2,6 +2,7 @@ package io.army.example.stock.domain;
 
 import io.army.annotation.*;
 import io.army.generator.snowflake.SnowflakeGenerator;
+import io.army.mapping.CompositeType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,6 +33,10 @@ public class Stock extends SnowFieldDomain {
 
     @Column(defaultValue = "0.00", comment = "股票发行价")
     public BigDecimal offerPrice;
+
+    @Column(comment = "my_composite")
+    @Mapping(type = CompositeType.class)
+    public MyComposite myComposite;
 
 
 }

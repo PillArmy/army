@@ -18,11 +18,13 @@ package io.army.modelgen;
 
 import io.army.annotation.*;
 import io.army.lang.Nullable;
+import io.army.struct.DefinedType;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.NoType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -473,6 +475,7 @@ final class AnnotationHandler {
         switch (fieldName) {
             case _MetaBridge.ID:
                 validateSnowflakeStartTime(domainName, fieldName, field);
+                validateCompositeTypeMapping(className, fieldName, field);
                 break;
             case _MetaBridge.CREATE_TIME:
             case _MetaBridge.UPDATE_TIME:
@@ -490,6 +493,7 @@ final class AnnotationHandler {
                 }
                 if (!discriminatorField) {
                     validateSnowflakeStartTime(domainName, fieldName, field);
+                    validateCompositeTypeMapping(className, fieldName, field);
                 }
             } // default
         } //switch
@@ -631,6 +635,132 @@ final class AnnotationHandler {
         String m = String.format("Discriminator field %s.%s isn't enum."
                 , className, field.getSimpleName());
         this.errorMsgList.add(m);
+    }
+
+
+    private String mappingTypeValue(final VariableElement field) {
+
+        TypeElement annoElement;
+        String typeValue = void.class.getName();
+        topLoop:
+        for (AnnotationMirror mirror : field.getAnnotationMirrors()) {
+            annoElement = (TypeElement) mirror.getAnnotationType().asElement();
+            if (!MetaUtils.getClassName(annoElement).equals(Mapping.class.getName())) {
+                continue;
+            }
+            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues().entrySet()) {
+                if (!entry.getKey().getSimpleName().toString().equals("type")) {
+                    continue;
+                }
+
+                final Object value;
+                value = entry.getValue().getValue();
+                if (value instanceof Class<?>) {
+                    typeValue = ((Class<?>) value).getName();
+                } else if (value instanceof DeclaredType && ((DeclaredType) value).getKind() == TypeKind.DECLARED) {
+                    typeValue = MetaUtils.getClassName(((TypeElement) ((DeclaredType) value).asElement()));
+                }
+                break topLoop;
+            } // annotation value loop
+
+        } // AnnotationMirror loop
+        return typeValue;
+    }
+
+
+    private void validateCompositeTypeMapping(final String className, final String fieldName,
+                                              final VariableElement field) {
+        final String compositeType = "io.army.mapping.CompositeType";
+        final Mapping mapping = field.getAnnotation(Mapping.class);
+        if (mapping == null) {
+            return;
+        }
+        final String mappingTypeName = mappingTypeValue(field);
+        if (mappingTypeName.equals(void.class.getName())) {
+            if (!compositeType.equals(mapping.value())) {
+                return;
+            }
+        } else if (!compositeType.equals(mappingTypeName)) {
+            return;
+        }
+
+        final TypeMirror fieldTypeMirror = field.asType();
+        final Element beanElement;
+        if (!(fieldTypeMirror instanceof DeclaredType)
+                || (beanElement = ((DeclaredType) fieldTypeMirror).asElement()).getKind() != ElementKind.CLASS) {
+            String m = String.format("Field %s.%s is annotated with @Mapping(\"%s\")," +
+                            " but its Java type is not a class.",
+                    className, fieldName, compositeType);
+            this.errorMsgList.add(m);
+            return;
+        }
+
+        final TypeElement pojoTypeElement = (TypeElement) beanElement;
+        final String pojoTypeName = MetaUtils.getClassName(pojoTypeElement);
+
+        final DefinedType definedType = beanElement.getAnnotation(DefinedType.class);
+        if (definedType == null) {
+            String m = String.format("Field %s.%s is annotated with @Mapping(\"%s\")," +
+                            " but its Java type[%s] isn't annotated with @%s.",
+                    className, fieldName, compositeType, MetaUtils.getClassName(pojoTypeElement),
+                    DefinedType.class.getName());
+            this.errorMsgList.add(m);
+            return;
+        }
+        final String definedTypeName = definedType.name();
+        if (_MetaBridge.isCamelCase(definedTypeName)) {
+            String m = String.format("Pojo[%s] : @%s name()[%s] must not be camelCase.",
+                    pojoTypeName, DefinedType.class.getSimpleName(), definedTypeName);
+            this.errorMsgList.add(m);
+        }
+
+
+        final Map<String, Boolean> fieldMap = new HashMap<>();
+        TypeElement superElement;
+        for (TypeMirror superMirror = fieldTypeMirror; ; superMirror = superElement.getSuperclass()) {
+            if (superMirror.getKind() == TypeKind.NONE) {
+                break;
+            }
+
+            superElement = (TypeElement) ((DeclaredType) superMirror).asElement();
+
+            if (superMirror != fieldTypeMirror && superElement.getAnnotation(MappedSuperclass.class) == null) {
+                break;
+            }
+
+            for (Element e : superElement.getEnclosedElements()) {
+                if (e.getKind() != ElementKind.FIELD || e.getModifiers().contains(Modifier.STATIC)) {
+                    continue;
+                }
+                if (fieldMap.putIfAbsent(e.getSimpleName().toString(), Boolean.TRUE) != null) {
+                    String m = String.format("%s.%s duplicate", pojoTypeName, e.getSimpleName());
+                    this.errorMsgList.add(m);
+                }
+
+            } // bean type field  loop
+
+        } // super class loop
+
+        final int fieldCount = fieldMap.size();
+        final String[] orderArray;
+        if (fieldCount == 0) {
+            String m = String.format("Pojo[%s] is annotated with @%s,but it has no @%s field.",
+                    pojoTypeName, DefinedType.class.getSimpleName(), Column.class.getSimpleName());
+            this.errorMsgList.add(m);
+        } else if (fieldCount != (orderArray = definedType.fieldOrder()).length) {
+            String m = String.format("Pojo[%s] is annotated with @%s and is mapped to %s, but fieldOrder().lentth[%s] and field count[%s] not match.",
+                    pojoTypeName, DefinedType.class.getSimpleName(), compositeType, orderArray.length, fieldCount);
+            this.errorMsgList.add(m);
+        } else for (String s : orderArray) {
+            if (fieldMap.containsKey(s)) {
+                continue;
+            }
+            String m = String.format("Pojo[%s] is annotated with @%s and is mapped to %s, but fieldOrder()'s element[%s] isn't field",
+                    pojoTypeName, DefinedType.class.getSimpleName(), compositeType, s);
+            this.errorMsgList.add(m);
+        }
+
+
     }
 
     private void noCommentError(final String className, final VariableElement field) {

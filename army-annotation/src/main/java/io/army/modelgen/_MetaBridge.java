@@ -112,9 +112,8 @@ public abstract class _MetaBridge {
 
     public static boolean isCamelCase(final @Nullable String text) {
         return text != null
-                && !text.toLowerCase(Locale.ROOT)
-                .toUpperCase(Locale.ROOT)
-                .equals(text.toUpperCase(Locale.ROOT));
+                && !text.toLowerCase(Locale.ROOT).equals(text)
+                && !text.toUpperCase(Locale.ROOT).equals(text);
 
     }
 
