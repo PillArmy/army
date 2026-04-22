@@ -46,7 +46,8 @@ import java.util.function.Supplier;
 public final class CompositeType extends _ArmyBuildInType implements MappingType.SqlComposite {
 
     public static CompositeType from(final Class<?> javaType) {
-        if (javaType.getAnnotation(DefinedType.class) == null) {
+        final DefinedType definedType = javaType.getAnnotation(DefinedType.class);
+        if (definedType == null || definedType.fieldOrder().length == 0) {
             throw errorJavaType(CompositeType.class, javaType);
         }
         return CLASS_VALUE.get(javaType);
@@ -209,7 +210,6 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         return fieldParser.object;
     }
 
-
     private static CompositeType createCompositeType(final Class<?> javaType) {
         final String typeName = AnnotationUtils.getDefinedTypeName(javaType);
         if (typeName == null) {
@@ -217,12 +217,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
             throw new IllegalArgumentException();
         }
         final String[] fieldOrder = javaType.getAnnotation(DefinedType.class).fieldOrder();
-        final Map<String, Integer> fieldToOrder;
-        if (fieldOrder.length == 0) {
-            fieldToOrder = new HashMap<>();
-        } else {
-            fieldToOrder = null;
-        }
+        final Map<String, Integer> fieldToOrder = _StringUtils.createOrderMap(fieldOrder);
 
         Column column;
 
@@ -239,9 +234,6 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
                     continue;
                 }
                 // compile-time verification io.army.annotation.Column
-                if (fieldToOrder != null && fieldToOrder.putIfAbsent(field.getName(), column.order()) != null) {
-                    throw definedTypeError(javaType, String.format("field[%s] duplicate", field.getName()));
-                }
                 columnList.add(Pair.create(field, column));
 
             } // field loop
@@ -251,27 +243,14 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         final int columnCount = columnList.size();
         if (columnCount == 0) {
             throw definedTypeError(javaType, "no field");
-        }
-
-
-        final Map<String, Integer> orderMap;
-        if (fieldToOrder != null) {
-            orderMap = fieldToOrder;
-        } else if (fieldOrder.length == columnCount) {
-            orderMap = _Collections.hashMapForSize(columnCount);
-            for (int i = 0; i < columnCount; i++) {
-                if (orderMap.putIfAbsent(fieldOrder[i], i) != null) {
-                    String m = String.format("fieldOrder[%s] duplicate", fieldOrder[i]);
-                    throw definedTypeError(javaType, m);
-                }
-            }
-        } else {
+        } else if (columnCount != fieldOrder.length) {
             throw definedTypeError(javaType, "fieldOrder length error");
         }
 
+
         columnList.sort(Comparator.comparingInt(pair -> {
             final Integer order;
-            order = orderMap.get(pair.first.getName());
+            order = fieldToOrder.get(pair.first.getName());
             if (order == null) {
                 String m = String.format("%s not in fieldOrder", pair.first.getName());
                 throw definedTypeError(javaType, m);
@@ -285,22 +264,16 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         String columnName;
 
 
-        orderMap.clear();  // clear
         final List<CompositeField> fieldList = new ArrayList<>(columnCount);
-
-        for (int i = 0, order; i < columnCount; i++) {
+        final Map<String, Boolean> columnMap = new HashMap<>();
+        for (int i = 0; i < columnCount; i++) {
 
             pair = columnList.get(i);
             field = pair.first;
             column = pair.second;
 
-            order = column.order();
-            if (order != i) {
-                String m = String.format("field[%s] order error[%s]", field.getName(), order);
-                throw definedTypeError(javaType, m);
-            }
             columnName = TableMetaUtils.columnName(column, field);
-            if (orderMap.putIfAbsent(columnName, i) != null) {
+            if (columnMap.putIfAbsent(columnName, Boolean.TRUE) != null) {
                 String m = String.format("column[%s] duplicate", columnName);
                 throw definedTypeError(javaType, m);
             }

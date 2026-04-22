@@ -22,6 +22,7 @@ import io.army.lang.Nullable;
 import io.army.modelgen._MetaBridge;
 
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -80,6 +81,32 @@ public abstract class _StringUtils {
             }
         }
         return match;
+    }
+
+    /// @return an unmodified map
+    public static Map<String, Integer> createOrderMap(final String[] array) {
+        final Map<String, Integer> map;
+        switch (array.length) {
+            case 0:
+                map = Map.of();
+                break;
+            case 1:
+                map = Map.of(array[0], 0);
+                break;
+            default: {
+                final Map<String, Integer> tempMap = new HashMap<>();
+                for (int i = 0; i < array.length; i++) {
+                    if (tempMap.putIfAbsent(array[i], i) != null) {
+                        String m = String.format("array[%s] %s duplication", i, array[i]);
+                        throw new IllegalArgumentException(m);
+                    }
+                }
+                map = Map.copyOf(tempMap);
+            } // default
+
+        } // switch
+
+        return map;
     }
 
 
