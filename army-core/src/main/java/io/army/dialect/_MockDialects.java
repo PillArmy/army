@@ -24,6 +24,7 @@ import io.army.env.ArmyEnvironment;
 import io.army.env.StandardEnvironment;
 import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
@@ -35,6 +36,7 @@ import io.army.util._Exceptions;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 public abstract class _MockDialects implements DialectEnv {
@@ -166,6 +168,10 @@ public abstract class _MockDialects implements DialectEnv {
             return Map.of();
         }
 
+        @Override
+        public Set<MappingType> definedTypeSet() {
+            return Set.of();
+        }
 
     }//MockDialectEnv
 
