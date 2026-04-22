@@ -85,6 +85,12 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     private Function<Class<?>, Function<Object, ?>> converterFunc;
 
+    private ClassLoader classLoader;
+
+    Consumer<ExecutorFactoryProvider> executorProviderConsumer;
+
+    private boolean loadStaticModel = true;
+
 
     /*################################## blow non-setter fields ##################################*/
 
@@ -161,6 +167,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     @Override
     public final B executorFactoryProviderValidator(@Nullable Consumer<ExecutorFactoryProvider> consumer) {
+        this.executorProviderConsumer = consumer;
         return (B) this;
     }
 
@@ -185,6 +192,18 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         } else {
             map.put(option, value);
         }
+        return (B) this;
+    }
+
+    @Override
+    public final B classLoader(@Nullable ClassLoader loader) {
+        this.classLoader = loader;
+        return (B) this;
+    }
+
+    @Override
+    public final B loadStaticModel(boolean load) {
+        this.loadStaticModel = load;
         return (B) this;
     }
 
@@ -292,29 +311,18 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         if (schemaMeta == null) {
             schemaMeta = _SchemaMetaFactory.getSchema("", "");
         }
-        final Map<Class<?>, TableMeta<?>> tableMetaMap;
-        tableMetaMap = _TableMetaFactory.getTableMetaMap(schemaMeta, packagesToScan);
-        if (tableMetaMap.isEmpty()) {
-            String m;
-            if (schemaMeta.defaultSchema()) {
-                m = String.format("Not found any %s for default schema.", TableMeta.class.getName());
-            } else {
-                m = String.format("Not found any %s for %s.", TableMeta.class.getName(), schemaMeta);
-            }
-            throw new SessionFactoryException(m);
-        }
 
         final FieldGeneratorFactory generatorFactory = this.fieldGeneratorFactory;
-        List<FieldMeta<?>> fieldChain;
-        GeneratorMeta meta;
 
         final Map<FieldMeta<?>, FieldGenerator> generatorMap = _Collections.hashMap();
-        FieldGenerator generator;
-        for (TableMeta<?> table : tableMetaMap.values()) {
-            fieldChain = table.fieldChain();
+
+        final Consumer<TableMeta<?>> consumer = tableMeta -> {
+            final List<FieldMeta<?>> fieldChain = tableMeta.fieldChain();
             if (fieldChain.isEmpty()) {
-                continue;
+                return;
             }
+            FieldGenerator generator;
+            GeneratorMeta meta;
             for (FieldMeta<?> field : fieldChain) {
                 meta = field.generator();
                 assert meta != null;
@@ -326,12 +334,27 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                     throw fieldGeneratorTypeError(meta, generator);
                 }
                 generatorMap.put(field, generator);
+            } // field loop
+
+        };  // consumer
+
+
+        final Map<Class<?>, TableMeta<?>> tableMetaMap;
+        tableMetaMap = _TableMetaFactory.getTableMetaMap(schemaMeta, packagesToScan, this.loadStaticModel, consumer, this.classLoader);
+        if (tableMetaMap.isEmpty()) {
+            String m;
+            if (schemaMeta.defaultSchema()) {
+                m = String.format("Not found any %s for default schema.", TableMeta.class.getName());
+            } else {
+                m = String.format("Not found any %s for %s.", TableMeta.class.getName(), schemaMeta);
             }
+            throw new SessionFactoryException(m);
         }
-        if (!generatorMap.isEmpty()) {
-            this.generatorMap = Map.copyOf(generatorMap);
-        }
+
+
+        this.generatorMap = Map.copyOf(generatorMap);
         this.tableMap = tableMetaMap;
+
     }
 
 

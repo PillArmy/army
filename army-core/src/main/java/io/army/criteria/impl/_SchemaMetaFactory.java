@@ -38,7 +38,7 @@ public abstract class _SchemaMetaFactory {
         Objects.requireNonNull(schema, "schema required");
 
         final String key = _StringUtils.toLowerCaseIfNonNull(catalog + "." + schema);
-        return SCHEMA_META_HOLDER.computeIfAbsent(key, k -> new SchemaMetaImpl(catalog, schema));
+        return SCHEMA_META_HOLDER.computeIfAbsent(key, _ -> new SchemaMetaImpl(catalog, schema));
     }
 
 

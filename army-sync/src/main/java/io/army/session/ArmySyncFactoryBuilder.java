@@ -21,6 +21,7 @@ import io.army.dialect.DialectParser;
 import io.army.env.ArmyEnvironment;
 import io.army.env.ArmyKey;
 import io.army.env.SyncKey;
+import io.army.executor.ExecutorFactoryProvider;
 import io.army.executor.SyncExecutorFactory;
 import io.army.executor.SyncExecutorFactoryProvider;
 import io.army.executor.SyncMetaExecutor;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * <p>This class is a implementation of {@link SyncFactoryBuilder}.
@@ -73,6 +75,11 @@ final class ArmySyncFactoryBuilder
             final SyncExecutorFactoryProvider executorProvider;
             executorProvider = createExecutorProvider(name, env, dataSource, SyncExecutorFactoryProvider.class,
                     SyncKey.EXECUTOR_PROVIDER, SyncKey.EXECUTOR_PROVIDER_MD5);
+
+            final Consumer<ExecutorFactoryProvider> consumer = this.executorProviderConsumer;
+            if (consumer != null) {
+                consumer.accept(executorProvider);
+            }
 
             // 2. create ServerMeta
             final ServerMeta serverMeta;
@@ -205,7 +212,7 @@ final class ArmySyncFactoryBuilder
             //3.validate or execute ddl
             switch (ddlMode) {
                 case VALIDATE: {
-                    if (schemaResult.newTableList().size() > 0 || schemaResult.changeTableList().size() > 0) {
+                    if (!schemaResult.newTableList().isEmpty() || !schemaResult.changeTableList().isEmpty()) {
                         final SessionFactoryException error;
                         if ((error = validateSchema(sessionFactory, schemaResult)) != null) {
                             throw error;

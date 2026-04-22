@@ -24,10 +24,10 @@ import io.army.env.ArmyEnvironment;
 import io.army.executor.ExecutorEnv;
 import io.army.executor.ExecutorFactoryProvider;
 import io.army.generator.FieldGeneratorFactory;
+import io.army.lang.Nullable;
 import io.army.option.Option;
 import io.army.result.ResultRecord;
 
-import io.army.lang.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -152,6 +152,16 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
     B columnConverterFunc(@Nullable Function<Class<?>, Function<Object, ?>> converterFunc);
 
     <T> B dataSourceOption(Option<T> option, @Nullable T value);
+
+    /// Default : {@code Thread.currentThread().getContextClassLoader()}
+    ///
+    /// @param loader is used to load domain classes.
+    B classLoader(@Nullable ClassLoader loader);
+
+    /// Default : true
+    ///
+    /// @param load true : load static model after create {@link io.army.meta.TableMeta}.
+    B loadStaticModel(boolean load);
 
     /**
      * <p>Create {@link SessionFactory} instance

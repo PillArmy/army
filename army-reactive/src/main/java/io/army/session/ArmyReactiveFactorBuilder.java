@@ -21,6 +21,7 @@ import io.army.dialect.DialectParser;
 import io.army.env.ArmyEnvironment;
 import io.army.env.ArmyKey;
 import io.army.env.ReactiveKey;
+import io.army.executor.ExecutorFactoryProvider;
 import io.army.executor.ReactiveExecutorFactory;
 import io.army.executor.ReactiveExecutorFactoryProvider;
 import io.army.executor.ReactiveMetaExecutor;
@@ -35,6 +36,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 
 /**
@@ -70,6 +72,11 @@ final class ArmyReactiveFactorBuilder extends ArmyFactoryBuilder<ReactiveFactory
             // 1. create ExecutorProvider
             executorProvider = createExecutorProvider(name, env, dataSource, ReactiveExecutorFactoryProvider.class,
                     ReactiveKey.EXECUTOR_PROVIDER, ReactiveKey.EXECUTOR_PROVIDER_MD5);
+
+            final Consumer<ExecutorFactoryProvider> consumer = this.executorProviderConsumer;
+            if (consumer != null) {
+                consumer.accept(executorProvider);
+            }
 
         } catch (Throwable e) {
             return Mono.error(e);

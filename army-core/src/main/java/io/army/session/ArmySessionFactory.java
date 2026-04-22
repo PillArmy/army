@@ -97,7 +97,7 @@ abstract class ArmySessionFactory implements PackageSessionFactory {
         final String name = _Assert.hasText(support.name, "factory name required");
         final ArmyEnvironment env = Objects.requireNonNull(support.environment);
 
-        if (FACTORY_MAP.containsKey(name)) {
+        if (FACTORY_MAP.putIfAbsent(name, Boolean.TRUE) != null) {
             throw new SessionFactoryException(String.format("factory name[%s] duplication", name));
         }
         this.env = env;

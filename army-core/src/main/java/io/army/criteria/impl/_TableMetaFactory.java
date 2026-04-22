@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.classfile.*;
 import java.lang.classfile.attribute.RuntimeVisibleAnnotationsAttribute;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -43,6 +45,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
@@ -66,21 +69,20 @@ public abstract class _TableMetaFactory {
         return DefaultTableMeta.getChildTableMeta(parent, domainClass);
     }
 
-    /**
-     * @return a unmodifiable map.
-     */
-    public static Map<Class<?>, TableMeta<?>> getTableMetaMap(final SchemaMeta schemaMeta
-            , final List<String> basePackages) {
-        return getTableMetaMap(schemaMeta, basePackages, Thread.currentThread().getContextClassLoader());
-    }
 
     /**
-     * @return a unmodifiable map.
+     * @return an unmodifiable map.
      */
     public static Map<Class<?>, TableMeta<?>> getTableMetaMap(final SchemaMeta schemaMeta,
                                                               final List<String> basePackages,
-                                                              @Nullable final ClassLoader classLoader)
+                                                              final boolean loadStaticModel,
+                                                              final @Nullable Consumer<TableMeta<?>> consumer,
+                                                              @Nullable ClassLoader classLoader)
             throws TableMetaLoadException {
+
+        if (classLoader == null) {
+            classLoader = Thread.currentThread().getContextClassLoader();
+        }
 
         synchronized (DefaultTableMeta.LOCK) {
             URL url = null;
@@ -98,11 +100,8 @@ public abstract class _TableMetaFactory {
                     }
                     // 2. get url from base package
                     final Enumeration<URL> enumeration;
-                    if (classLoader == null) {
-                        enumeration = ClassLoader.getSystemResources(basePackage);
-                    } else {
-                        enumeration = classLoader.getResources(basePackage);
-                    }
+                    enumeration = classLoader.getResources(basePackage);
+
                     // 3. scan java class file in base package for get TableMeta.
                     while (enumeration.hasMoreElements()) {
                         url = enumeration.nextElement();
@@ -114,7 +113,19 @@ public abstract class _TableMetaFactory {
                                     .forEach(tableMeta -> {
                                         final Class<?> domainClass = tableMeta.javaType();
                                         tableMetaMap.put(domainClass, tableMeta);
-                                        loadDomainMetaHolder(domainClass);
+
+                                        if (loadStaticModel) {
+                                            final TableMeta<?> t;
+                                            t = loadDomainMetaHolder(domainClass);
+                                            if (t != tableMeta) {
+                                                String m = String.format("%s of %s create occur error", TableMeta.class.getSimpleName(), domainClass.getName());
+                                                throw new MetaException(m);
+                                            }
+                                        } // loadStaticModel
+
+                                        if (consumer != null) {
+                                            consumer.accept(tableMeta);
+                                        }
                                     });
                         } // try
                     } // while
@@ -170,7 +181,7 @@ public abstract class _TableMetaFactory {
     /*################################## blow private method ##################################*/
 
     /**
-     * @see #getTableMetaMap(SchemaMeta, List, ClassLoader)
+     * @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
      */
     private static Stream<ByteBuffer> scanJavaJarForJavaClassFile(final URL url) {
         try {
@@ -193,7 +204,7 @@ public abstract class _TableMetaFactory {
 
 
     /**
-     * @see #getTableMetaMap(SchemaMeta, List, ClassLoader)
+     * @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
      */
     private static ByteBuffer readJavaClassFileBytes(final Path classFilePath) {
         try (FileChannel channel = FileChannel.open(classFilePath, StandardOpenOption.READ)) {
@@ -217,15 +228,36 @@ public abstract class _TableMetaFactory {
 
     /**
      * @throws TableMetaLoadException when not found table meta holder class of domainClass.
-     * @see #getTableMetaMap(SchemaMeta, List, ClassLoader)
+     * @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
      */
-    private static void loadDomainMetaHolder(Class<?> domainClass) {
+    private static TableMeta<?> loadDomainMetaHolder(final Class<?> domainClass) {
+
+        final Class<?> holderClass;
         try {
-            Class.forName(domainClass.getName() + _MetaBridge.META_CLASS_NAME_SUFFIX);
+            holderClass = Class.forName(domainClass.getName() + _MetaBridge.META_CLASS_NAME_SUFFIX);
         } catch (ClassNotFoundException e) {
             String m = String.format("You compile %s without %s", domainClass.getName()
                     , ArmyMetaModelDomainProcessor.class.getName());
             throw new TableMetaLoadException(m, e);
+        }
+
+        try {
+            final Field field;
+            field = holderClass.getDeclaredField(_MetaBridge.TABLE_META);
+            final int modifier = field.getModifiers();
+            final Object value;
+            if (!Modifier.isPublic(modifier)
+                    || !Modifier.isStatic(modifier)
+                    || !Modifier.isFinal(modifier)
+                    || !((value = field.get(null)) instanceof TableMeta<?>)) {
+                String m = String.format("static model class[%s] error", holderClass.getName());
+                throw new MetaException(m);
+            }
+
+            return (TableMeta<?>) value;
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            String m = String.format("static model class[%s] error", holderClass.getName());
+            throw new MetaException(m);
         }
 
     }
@@ -266,7 +298,7 @@ public abstract class _TableMetaFactory {
 
 
     /**
-     * @see #getTableMetaMap(SchemaMeta, List, ClassLoader)
+     * @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
      */
     private static boolean isJavaClassFile(final Path path, BasicFileAttributes attributes) {
         return !Files.isDirectory(path)
@@ -275,7 +307,7 @@ public abstract class _TableMetaFactory {
     }
 
     /**
-     * @see #getTableMetaMap(SchemaMeta, List, ClassLoader)
+     * @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
      */
     private static <T> TableMeta<T> getOrCreateTableMeta(final String className) {
         try {
