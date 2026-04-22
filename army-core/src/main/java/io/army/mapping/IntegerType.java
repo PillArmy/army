@@ -22,6 +22,7 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
+import io.army.util.ClassUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -47,7 +48,7 @@ public final class IntegerType extends _NumericType._IntegerType {
 
 
     public static IntegerType from(final Class<?> javaType) {
-        if (javaType != Integer.class) {
+        if (!ClassUtils.isAssignableFrom(Integer.class, javaType)) {
             throw errorJavaType(IntegerType.class, javaType);
         }
         return INSTANCE;

@@ -23,6 +23,7 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
+import io.army.util.ClassUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -45,7 +46,7 @@ public final class FloatType extends _NumericType._FloatNumericType {
 
 
     public static FloatType from(final Class<?> fieldType) {
-        if (fieldType != Float.class) {
+        if (!ClassUtils.isAssignableFrom(Float.class, fieldType)) {
             throw errorJavaType(FloatType.class, fieldType);
         }
         return INSTANCE;

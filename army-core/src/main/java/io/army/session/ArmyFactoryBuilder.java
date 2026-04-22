@@ -274,8 +274,8 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 .zoneOffset(env.get(ArmyKey.ZONE_OFFSET))
                 .jsonCodec(this.jsonCodec)
                 .xmlCodec(this.xmlCodec)
-                .tableMap(this.tableMap)
-                .definedTypeSet(this.definedTypeSet)
+                .tableMap(Objects.requireNonNull(this.tableMap))
+                .definedTypeSet(Objects.requireNonNull(this.definedTypeSet))
                 .build();
 
         final DialectParser dialectParser;

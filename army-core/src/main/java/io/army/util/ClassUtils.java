@@ -94,10 +94,10 @@ public abstract class ClassUtils {
         final boolean assignable;
         if (left.isAssignableFrom(right)) {
             assignable = true;
-        } else if (left.isPrimitive()) {
-            assignable = right == wrapperClassOf(left);
         } else if (right.isPrimitive()) {
             assignable = left.isAssignableFrom(wrapperClassOf(right));
+        } else if (left.isPrimitive()) {
+            assignable = right == wrapperClassOf(left);
         } else {
             assignable = false;
         }

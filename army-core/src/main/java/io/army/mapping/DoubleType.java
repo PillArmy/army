@@ -48,7 +48,7 @@ public final class DoubleType extends _NumericType._FloatNumericType {
 
 
     public static DoubleType from(final Class<?> javaType) {
-        if (ClassUtils.isAssignableFrom(Double.class, javaType)) {
+        if (!ClassUtils.isAssignableFrom(Double.class, javaType)) {
             throw errorJavaType(DoubleType.class, javaType);
         }
         return INSTANCE;

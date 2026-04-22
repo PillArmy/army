@@ -21,6 +21,7 @@ import io.army.dialect.UnsupportedDialectException;
 import io.army.mapping.array.BooleanArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
+import io.army.util.ClassUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -47,7 +48,7 @@ public final class BooleanType extends _ArmyNoInjectionType implements MappingTy
 
 
     public static BooleanType from(Class<?> fieldType) {
-        if (fieldType != Boolean.class) {
+        if (!ClassUtils.isAssignableFrom(Boolean.class, fieldType)) {
             throw errorJavaType(BooleanType.class, fieldType);
         }
         return INSTANCE;

@@ -22,6 +22,7 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.array.CharacterArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
+import io.army.util.ClassUtils;
 
 import java.math.BigDecimal;
 import java.util.BitSet;
@@ -29,14 +30,14 @@ import java.util.BitSet;
 public final class CharacterType extends _ArmyBuildInType implements MappingType.SqlStringType {
 
 
-    public static final CharacterType INSTANCE = new CharacterType();
-
     public static CharacterType from(final Class<?> javaType) {
-        if (javaType != Character.class) {
+        if (!ClassUtils.isAssignableFrom(Character.class, javaType)) {
             throw errorJavaType(CharacterType.class, javaType);
         }
         return INSTANCE;
     }
+
+    public static final CharacterType INSTANCE = new CharacterType();
 
     /**
      * private constructor

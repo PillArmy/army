@@ -20,6 +20,7 @@ import io.army.criteria.CriteriaException;
 import io.army.mapping.array.ByteArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
+import io.army.util.ClassUtils;
 
 /**
  * <p>
@@ -42,7 +43,7 @@ public final class ByteType extends _NumericType._IntegerType {
 
 
     public static ByteType from(final Class<?> javaType) {
-        if (javaType != Byte.class) {
+        if (!ClassUtils.isAssignableFrom(Byte.class, javaType)) {
             throw errorJavaType(ByteType.class, javaType);
         }
         return INSTANCE;

@@ -23,6 +23,7 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
+import io.army.util.ClassUtils;
 
 /**
  * <p>
@@ -45,7 +46,7 @@ import io.army.sqltype.SQLiteType;
 public final class ShortType extends _NumericType._IntegerType {
 
     public static ShortType from(final Class<?> fieldType) {
-        if (fieldType != Short.class) {
+        if (!ClassUtils.isAssignableFrom(Short.class, fieldType)) {
             throw errorJavaType(ShortType.class, fieldType);
         }
         return INSTANCE;

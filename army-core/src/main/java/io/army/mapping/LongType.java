@@ -23,6 +23,7 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
+import io.army.util.ClassUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -48,7 +49,7 @@ import java.math.BigInteger;
 public final class LongType extends _NumericType._IntegerType {
 
     public static LongType from(final Class<?> fieldType) {
-        if (fieldType != Long.class) {
+        if (!ClassUtils.isAssignableFrom(Long.class, fieldType)) {
             throw errorJavaType(LongType.class, fieldType);
         }
         return INSTANCE;
