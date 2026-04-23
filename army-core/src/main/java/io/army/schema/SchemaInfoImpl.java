@@ -16,9 +16,9 @@
 
 package io.army.schema;
 
+import io.army.lang.Nullable;
 import io.army.util._Collections;
 
-import io.army.lang.Nullable;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
@@ -66,6 +66,11 @@ final class SchemaInfoImpl implements SchemaInfo {
     @Override
     public Map<String, TableInfo> tableMap() {
         return this.builderMap;
+    }
+
+    @Override
+    public Map<String, DefinedTypeInfo> definedTypeMap() {
+        return Map.of();
     }
 
 

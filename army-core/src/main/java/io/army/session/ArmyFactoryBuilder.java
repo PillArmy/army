@@ -39,7 +39,6 @@ import io.army.option.Option;
 import io.army.schema.FieldResult;
 import io.army.schema.SchemaResult;
 import io.army.schema.TableResult;
-import io.army.struct.DefinedType;
 import io.army.util.HexUtils;
 import io.army.util._Collections;
 import io.army.util._FunctionUtils;
@@ -96,6 +95,8 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     private boolean loadStaticModel;
 
+    private boolean validateOnStartup;
+
 
     /*################################## blow non-setter fields ##################################*/
 
@@ -103,6 +104,10 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     Map<Class<?>, TableMeta<?>> tableMap;
 
+    /// Set is used instead of Map because one type can be mapped by multiple MappingTypes.
+    /// definedTypeSet is used to synchronize custom types to the database during startup.
+    ///
+    /// @see DdlMode
     Set<MappingType> definedTypeSet = Set.of();
 
 
@@ -215,6 +220,12 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     }
 
     @Override
+    public final B validateOnStartup(boolean yes) {
+        this.validateOnStartup = yes;
+        return (B) this;
+    }
+
+    @Override
     public final R build() {
         final String name = this.name;
         final Object dataSource = this.dataSource;
@@ -319,9 +330,14 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             schemaMeta = _SchemaMetaFactory.getSchema("", "");
         }
 
+        final Set<MappingType> definedTypeSet;
+        if (this.environment.getOrDefault(ArmyKey.DDL_MODE) == DdlMode.NONE) {
+            definedTypeSet = null;
+        } else {
+            definedTypeSet = new HashSet<>();
+        }
 
-        final Map<FieldMeta<?>, FieldGenerator> generatorMap = _Collections.hashMap();
-        final Set<MappingType> definedTypeSet = new HashSet<>();
+        final Map<FieldMeta<?>, FieldGenerator> generatorMap = new HashMap<>();
         final Consumer<TableMeta<?>> consumer = createTableConsumer(generatorMap, definedTypeSet);
 
 
@@ -339,19 +355,52 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
         this.tableMap = Map.copyOf(tableMetaMap);
         this.generatorMap = Map.copyOf(generatorMap);
-        this.definedTypeSet = Set.copyOf(definedTypeSet);
+
+        if (definedTypeSet == null) {
+            this.definedTypeSet = Set.of();
+        } else {
+            this.definedTypeSet = Set.copyOf(definedTypeSet);
+        }
+
 
     }
 
 
-    private Consumer<TableMeta<?>> createTableConsumer(final Map<FieldMeta<?>, FieldGenerator> generatorMap, final Set<MappingType> definedTypeSet) {
-        final Map<Class<?>, String> definedTypeToNameMap = new HashMap<>(); // just for validation
-        final Map<Class<?>, Map<Enum<?>, Class<?>>> parentToDiscriminator = new HashMap<>();  // just for validation
+    /// @see #scanTableMeta()
+    private Consumer<TableMeta<?>> createTableConsumer(final Map<FieldMeta<?>, FieldGenerator> generatorMap,
+                                                       final @Nullable Set<MappingType> definedTypeSet) {
 
-        final Consumer<TableMeta<?>> consumer;
-        consumer = consumerForFieldGenerator(this.fieldGeneratorFactory, generatorMap)
-                .andThen(consumerForDefinedType(definedTypeSet, definedTypeToNameMap))
-                .andThen(consumerForValidateDiscriminator(parentToDiscriminator));
+        Consumer<TableMeta<?>> consumer;
+        consumer = consumerForFieldGenerator(this.fieldGeneratorFactory, generatorMap);
+
+        if (this.validateOnStartup) {
+            consumer = consumer.andThen(consumerForValidateDiscriminator());
+        }
+
+        final Consumer<FieldMeta<?>> fieldConsumer;
+        fieldConsumer = createFieldConsumer(definedTypeSet);
+
+        if (fieldConsumer != null) {
+            final Consumer<TableMeta<?>> fieldTraversal;
+            fieldTraversal = tableMeta -> {
+                for (FieldMeta<?> field : tableMeta.fieldList()) {
+                    fieldConsumer.accept(field);
+                }
+            };
+            consumer = consumer.andThen(fieldTraversal);
+        }
+        return consumer;
+    }
+
+    /// @see #createTableConsumer(Map, Set)
+    @Nullable
+    private Consumer<FieldMeta<?>> createFieldConsumer(final @Nullable Set<MappingType> definedTypeSet) {
+
+
+        Consumer<FieldMeta<?>> consumer = null;
+        if (definedTypeSet != null) {
+            consumer = consumerForDefinedType(definedTypeSet);
+        }
         return consumer;
     }
 
@@ -582,30 +631,39 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     }
 
 
-    /// @see #scanTableMeta()
-    private static Consumer<TableMeta<?>> consumerForDefinedType(final Set<MappingType> mappingTypeSet,
-                                                                 final Map<Class<?>, String> definedTypeToNameMap) {
-        return tableMeta -> {
-            MappingType type;
+    /// @see #createFieldConsumer(Set)
+    private static Consumer<FieldMeta<?>> consumerForDefinedType(final Set<MappingType> definedTypeSet) {
+        final Map<Class<?>, String> definedTypeToNameMap = new HashMap<>();
 
-            for (FieldMeta<?> field : tableMeta.fieldList()) {
-                type = field.mappingType();
-                if (!(type instanceof MappingType.SqlUserDefined)) {
-                    continue;
-                }
+        return field -> {
+            final MappingType type;
+            type = field.mappingType();
+            if (!(type instanceof MappingType.SqlUserDefined st)) {
+                return;
+            }
 
-                mappingTypeSet.add(type);
+            definedTypeSet.add(type);
 
-                if (type instanceof MappingType.SqlComposite) {
-                    scanCompositeField(field.javaType(), mappingTypeSet, definedTypeToNameMap);
-                }
+            final String oldName, typeName;
+            typeName = st.typeName();
+            oldName = definedTypeToNameMap.putIfAbsent(field.javaType(), typeName);
+            if (oldName != null && !oldName.equals(typeName)) {
+                String m = String.format("%s is mapped to multi type name", field.javaType().getName());
+                throw new MetaException(m);
+            }
 
-            } // field loop
+            if (oldName == null && type instanceof MappingType.SqlComposite) {
+                scanCompositeField(field.javaType(), definedTypeSet, definedTypeToNameMap);
+            }
+
         };
     }
 
+
     /// @see #scanTableMeta()
-    private static Consumer<TableMeta<?>> consumerForValidateDiscriminator(final Map<Class<?>, Map<Enum<?>, Class<?>>> parentToDiscriminator) {
+    private static Consumer<TableMeta<?>> consumerForValidateDiscriminator() {
+        final Map<Class<?>, Map<Enum<?>, Class<?>>> parentToDiscriminator = new HashMap<>();
+
         return tableMeta -> {
             if (tableMeta instanceof SimpleTableMeta<?>) {
                 return;
@@ -638,15 +696,17 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     /// @see #consumerForDefinedType
     private static void scanCompositeField(final Class<?> compositeClass,
-                                           final Set<MappingType> mappingTypeSet,
+                                           final Set<MappingType> definedTypeSet,
                                            final Map<Class<?>, String> definedTypeToNameMap) {
         MappingType type;
         String oldName, typeName;
-        DefinedType definedType;
-        Class<?> fieldClass;
+        Class<?> fieldType;
         for (Class<?> clazz = compositeClass; ; clazz = clazz.getSuperclass()) {
             for (Field field : clazz.getDeclaredFields()) {
 
+                if (Modifier.isStatic(field.getModifiers())) {
+                    continue;
+                }
                 if (field.getAnnotation(Column.class) == null) {
                     continue;
                 }
@@ -655,28 +715,26 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 if (!(type instanceof MappingType.SqlUserDefined st)) {
                     continue;
                 }
-                fieldClass = field.getType();
-                if ((definedType = fieldClass.getAnnotation(DefinedType.class)) != null
-                        && _StringUtils.isCamelCase(definedType.name())) {
-                    String m = String.format("%s type name[%s] is camelCase", fieldClass.getName(), definedType.name());
-                    throw new MetaException(m);
-                }
 
-                mappingTypeSet.add(type);
+                definedTypeSet.add(type);
+
+                fieldType = field.getType();
+
                 typeName = st.typeName();
-                oldName = definedTypeToNameMap.putIfAbsent(fieldClass, typeName);
+                oldName = definedTypeToNameMap.putIfAbsent(fieldType, typeName);
                 if (oldName != null && !oldName.equals(typeName)) {
-                    String m = String.format("%s is mapped to multi type name", fieldClass.getName());
+                    String m = String.format("%s is mapped to multi type name", fieldType.getName());
                     throw new MetaException(m);
                 }
 
-                if (type instanceof MappingType.SqlComposite) {
-                    scanCompositeField(field.getType(), mappingTypeSet, definedTypeToNameMap);
+                if (oldName == null && type instanceof MappingType.SqlComposite) {
+                    scanCompositeField(fieldType, definedTypeSet, definedTypeToNameMap);
                 }
 
             } // field loop
         } // pojo class loop
     }
+
 
     private static SessionFactoryException fieldGeneratorTypeError(GeneratorMeta meta, @Nullable FieldGenerator generator) {
         String m = String.format("%s %s type %s isn't %s."

@@ -25,6 +25,7 @@ import io.army.executor.ExecutorEnv;
 import io.army.executor.ExecutorFactoryProvider;
 import io.army.generator.FieldGeneratorFactory;
 import io.army.lang.Nullable;
+import io.army.meta.SchemaMeta;
 import io.army.option.Option;
 import io.army.result.ResultRecord;
 
@@ -69,11 +70,9 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
      */
     B datasource(Object dataSource);
 
-    /**
-     * <p>Required.
-     *
-     * @return <strong>this</strong>
-     */
+    /// Required
+    ///
+    /// @see io.army.criteria.impl._TableMetaFactory#getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     B packagesToScan(List<String> packageList);
 
     /**
@@ -156,12 +155,21 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
     /// Default : {@code Thread.currentThread().getContextClassLoader()}
     ///
     /// @param loader is used to load domain classes.
+    /// @see io.army.criteria.impl._TableMetaFactory#getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     B classLoader(@Nullable ClassLoader loader);
 
     /// Default : false
+    /// To optimize startup performance, loading of the corresponding static model classes
+    /// and related validations is disabled by default after TableMeta creation. Enable it
+    /// for enhanced safety guarantees.
     ///
     /// @param load true : load static model after create {@link io.army.meta.TableMeta}.
+    /// @see io.army.criteria.impl._TableMetaFactory#getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     B loadStaticModel(boolean load);
+
+    /// To improve startup performance, non-essential startup validation is disabled by default (already validated at compile time).
+    /// It can be enabled for stronger consistency guarantees.
+    B validateOnStartup(boolean yes);
 
     /**
      * <p>Create {@link SessionFactory} instance

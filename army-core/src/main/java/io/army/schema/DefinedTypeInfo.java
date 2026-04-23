@@ -16,26 +16,25 @@
 
 package io.army.schema;
 
-import io.army.lang.Nullable;
-import java.util.Map;
+import io.army.mapping.optional.CompositeField;
 
-public interface SchemaInfo {
+import java.util.List;
 
-    @Nullable
-    String catalog();
+public interface DefinedTypeInfo {
 
-    @Nullable
-    String schema();
+    /// Type name
+    String name();
 
-    Map<String, TableInfo> tableMap();
+    DefinedMode defineMode();
 
-    Map<String, DefinedTypeInfo> definedTypeMap();
+    /// @return an unmodified list
+    List<String> enumLabelList();
 
+    /// {@link CompositeField#fieldName} field is meaningless here.
+    /// The order of the list matches the order of the fields in the SQL composite type
+    ///
+    /// @return an unmodified list
+    List<CompositeField> compositeFieldList();
 
-
-    static SchemaInfo create(@Nullable String catalog, @Nullable String schema,
-                             Map<String, TableInfo.Builder> builderMap) {
-        return SchemaInfoImpl.create(catalog, schema, builderMap);
-    }
 
 }

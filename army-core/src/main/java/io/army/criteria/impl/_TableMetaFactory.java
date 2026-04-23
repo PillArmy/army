@@ -89,7 +89,8 @@ public abstract class _TableMetaFactory {
             try {
                 final Map<Class<?>, TableMeta<?>> tableMetaMap = _Collections.hashMap();
                 final ClassFile classFile = ClassFile.of();
-
+                String protocol;
+                Enumeration<URL> enumeration;
                 for (String basePackage : basePackages) {
                     if (!_StringUtils.hasText(basePackage)) {
                         throw new IllegalArgumentException("basePackage must have text.");
@@ -99,13 +100,13 @@ public abstract class _TableMetaFactory {
                         basePackage = basePackage.replace('.', '/');
                     }
                     // 2. get url from base package
-                    final Enumeration<URL> enumeration;
+
                     enumeration = classLoader.getResources(basePackage);
 
                     // 3. scan java class file in base package for get TableMeta.
                     while (enumeration.hasMoreElements()) {
                         url = enumeration.nextElement();
-                        final String protocol = url.getProtocol();
+                        protocol = url.getProtocol();
                         try (Stream<ByteBuffer> stream = createJavaClassByteStream(protocol, url)) {
                             stream.map(buffer -> readJavaClassFile(classFile, buffer, schemaMeta)) // read java class file and get class name if match.
                                     .filter(_StringUtils::hasText) // if empty string ,not domain class
@@ -348,7 +349,7 @@ public abstract class _TableMetaFactory {
             }
             for (Annotation annotation : attr.annotations()) {
                 annotationName = annotation.className().stringValue();
-                annotationName = annotationName.substring(1, annotationName.length() - 1).replaceAll("/", ".");
+                annotationName = annotationName.substring(1, annotationName.length() - 1).replace('/', '.');
                 if (!tableAnnoName.equals(annotationName)) {
                     continue;
                 }
@@ -371,7 +372,7 @@ public abstract class _TableMetaFactory {
                         || targetSchema.equals(_StringUtils.toLowerCaseIfNonNull(schema));
                 if (catalogMatch && schemaMatch) {
                     className = classModel.thisClass().name().stringValue();
-                    className = className.replaceAll("/", ".");
+                    className = className.replace('/', '.');
                 }
                 break top;
 

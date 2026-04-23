@@ -16,26 +16,10 @@
 
 package io.army.schema;
 
-import io.army.lang.Nullable;
-import java.util.Map;
+public enum DefinedMode {
 
-public interface SchemaInfo {
-
-    @Nullable
-    String catalog();
-
-    @Nullable
-    String schema();
-
-    Map<String, TableInfo> tableMap();
-
-    Map<String, DefinedTypeInfo> definedTypeMap();
-
-
-
-    static SchemaInfo create(@Nullable String catalog, @Nullable String schema,
-                             Map<String, TableInfo.Builder> builderMap) {
-        return SchemaInfoImpl.create(catalog, schema, builderMap);
-    }
-
+    ENUM,
+    COMPOSITE,
+    DOMAIN,
+    RANGE
 }
