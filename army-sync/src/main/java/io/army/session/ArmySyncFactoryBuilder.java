@@ -75,12 +75,6 @@ final class ArmySyncFactoryBuilder
             final SyncExecutorFactoryProvider executorProvider;
             executorProvider = createExecutorProvider(name, env, dataSource, SyncExecutorFactoryProvider.class,
                     SyncKey.EXECUTOR_PROVIDER, SyncKey.EXECUTOR_PROVIDER_MD5);
-
-            final Consumer<ExecutorFactoryProvider> consumer = this.executorProviderConsumer;
-            if (consumer != null) {
-                consumer.accept(executorProvider);
-            }
-
             // 2. create ServerMeta
             final ServerMeta serverMeta;
             serverMeta = executorProvider.createServerMeta(this.nameToDatabaseFunc);
@@ -92,6 +86,11 @@ final class ArmySyncFactoryBuilder
             // 4. create SyncExecutorFactory
             final SyncExecutorFactory executorFactory;
             executorFactory = executorProvider.createFactory(createExecutorEnv(name, env, dialectParser));
+
+            final Consumer<ExecutorFactoryProvider> consumer = this.executorProviderConsumer;
+            if (consumer != null) {
+                consumer.accept(executorProvider);
+            }
 
             final FactoryAdvice factoryAdvice;
             factoryAdvice = createFactoryAdviceComposite(this.factoryAdvices);
@@ -185,7 +184,7 @@ final class ArmySyncFactoryBuilder
 
             //1.extract schema info.
             final SchemaInfo schemaInfo;
-            schemaInfo = executor.extractInfo();
+            schemaInfo = executor.extractInfo(sessionFactory.dialectParser.queryDefinedTypeStmts(this.definedTypeSet));
 
             //2.compare schema meta and schema info.
             final SchemaResult schemaResult;

@@ -171,7 +171,7 @@ public class TextEnumType extends _ArmyBuildInType {
                 match = false;
             }
         } else if (obj instanceof TextEnumType o) {
-            match = o.enumClass == this.enumClass;
+            match = !(this instanceof TextEnumNamedType) && o.enumClass == this.enumClass;
         } else {
             match = false;
         }

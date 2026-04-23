@@ -16,10 +16,9 @@
 
 package io.army.schema;
 
+import io.army.lang.Nullable;
 import io.army.meta.TableMeta;
 
-import io.army.lang.Nullable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +35,7 @@ final class DropCreateSchemaResult implements SchemaResult {
     DropCreateSchemaResult(@Nullable String catalog, @Nullable String schema, Collection<TableMeta<?>> tables) {
         this.catalog = catalog;
         this.schema = schema;
-        this.tableList = Collections.unmodifiableList(new ArrayList<>(tables));
+        this.tableList = List.copyOf(tables);
     }
 
     @Override

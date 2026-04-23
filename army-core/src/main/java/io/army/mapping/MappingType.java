@@ -72,8 +72,6 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     interface GenericsMapping {
 
-        Class<?> javaType();
-
     }
 
 

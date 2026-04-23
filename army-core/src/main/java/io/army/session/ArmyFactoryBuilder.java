@@ -39,6 +39,7 @@ import io.army.option.Option;
 import io.army.schema.FieldResult;
 import io.army.schema.SchemaResult;
 import io.army.schema.TableResult;
+import io.army.struct.DefinedType;
 import io.army.util.HexUtils;
 import io.army.util._Collections;
 import io.army.util._FunctionUtils;
@@ -93,7 +94,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     Consumer<ExecutorFactoryProvider> executorProviderConsumer;
 
-    private boolean loadStaticModel = true;
+    private boolean loadStaticModel;
 
 
     /*################################## blow non-setter fields ##################################*/
@@ -102,7 +103,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     Map<Class<?>, TableMeta<?>> tableMap;
 
-    private Set<MappingType> definedTypeSet = Set.of();
+    Set<MappingType> definedTypeSet = Set.of();
 
 
     protected ArmyFactoryBuilder() {
@@ -640,6 +641,9 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                                            final Set<MappingType> mappingTypeSet,
                                            final Map<Class<?>, String> definedTypeToNameMap) {
         MappingType type;
+        String oldName, typeName;
+        DefinedType definedType;
+        Class<?> fieldClass;
         for (Class<?> clazz = compositeClass; ; clazz = clazz.getSuperclass()) {
             for (Field field : clazz.getDeclaredFields()) {
 
@@ -651,11 +655,18 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 if (!(type instanceof MappingType.SqlUserDefined st)) {
                     continue;
                 }
+                fieldClass = field.getType();
+                if ((definedType = fieldClass.getAnnotation(DefinedType.class)) != null
+                        && _StringUtils.isCamelCase(definedType.name())) {
+                    String m = String.format("%s type name[%s] is camelCase", fieldClass.getName(), definedType.name());
+                    throw new MetaException(m);
+                }
 
                 mappingTypeSet.add(type);
-
-                if (definedTypeToNameMap.putIfAbsent(type.javaType(), st.typeName()) != null) {
-                    String m = String.format("%s is mapped to multi type name", type.javaType().getName());
+                typeName = st.typeName();
+                oldName = definedTypeToNameMap.putIfAbsent(fieldClass, typeName);
+                if (oldName != null && !oldName.equals(typeName)) {
+                    String m = String.format("%s is mapped to multi type name", fieldClass.getName());
                     throw new MetaException(m);
                 }
 

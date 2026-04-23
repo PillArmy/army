@@ -24,7 +24,7 @@ import java.util.List;
 public interface SyncMetaExecutor extends AutoCloseable {
 
 
-    SchemaInfo extractInfo() throws DataAccessException;
+    SchemaInfo extractInfo(List<String> definedTypeSqlList) throws DataAccessException;
 
     void executeDdl(List<String> ddlList) throws DataAccessException;
 

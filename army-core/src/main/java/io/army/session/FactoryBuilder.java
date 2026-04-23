@@ -158,7 +158,7 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
     /// @param loader is used to load domain classes.
     B classLoader(@Nullable ClassLoader loader);
 
-    /// Default : true
+    /// Default : false
     ///
     /// @param load true : load static model after create {@link io.army.meta.TableMeta}.
     B loadStaticModel(boolean load);

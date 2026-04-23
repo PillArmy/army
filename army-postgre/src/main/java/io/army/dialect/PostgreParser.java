@@ -67,6 +67,41 @@ abstract class PostgreParser extends _ArmyDialectParser {
 
 
     @Override
+    public final List<String> queryDefinedTypeStmts(Set<MappingType> definedTypeSet) {
+        // 1. Identify composite type: pg_type.typcategory is 'C' and pg_class.relkind is 'c'
+        // 2. Identify domain type: pg_type.typbasetype > 0 ,If this is a domain (see typtype),
+        // then typbasetype identifies the type that this one is based on. Zero if this type is not a domain.
+        // https://www.postgresql.org/docs/current/catalog-pg-type.html
+        final String sql;
+        sql = """
+                SELECT t.typname AS "definedType", t.typcategory AS "type", et."enumLabelArray", at.*
+                FROM pg_namespace AS n
+                         JOIN pg_type AS t ON t.typnamespace = n.oid
+                         LEFT JOIN LATERAL (
+                                SELECT e.enumtypid, array_agg(e.enumlabel) AS "enumLabelArray"
+                                FROM pg_enum AS e
+                                WHERE e.enumtypid = t.oid
+                                GROUP BY e.enumtypid
+                    ) AS et ON et.enumtypid = t.oid
+                         LEFT JOIN pg_class AS c ON c.oid = t.typrelid
+                         LEFT JOIN LATERAL (
+                                SELECT a.attrelid,
+                                array_agg(a.attnum)   AS "columnNumArray",
+                                array_agg(a.attname)  AS "columnNameArray",
+                                array_agg(st.typname) AS "columnTypeArray"
+                                FROM pg_attribute AS a
+                                JOIN pg_type AS st ON st.oid = a.atttypid
+                                WHERE a.attrelid = c.oid
+                                GROUP BY a.attrelid
+                    ) AS at ON at.attrelid = c.oid
+                WHERE n.nspname NOT IN ('pg_catalog', 'information_schema')
+                  AND (t.typcategory IN ('E', 'U', 'R') OR t.typbasetype > 0 OR (t.typcategory = 'C' AND c.relkind = 'c'))
+                """;
+
+        return List.of(sql);
+    }
+
+    @Override
     public final void typeName(final MappingType type, final StringBuilder sqlBuilder) {
         final DataType dataType;
         dataType = type.map(this.serverMeta);
@@ -89,16 +124,12 @@ abstract class PostgreParser extends _ArmyDialectParser {
 
     }
 
-    @Override
-    public final MetaStmtGenerator metaStmtGenerator() {
-        return PostgreMetaStmtGenerator.create();
-    }
 
     @Override
     protected final void parseWithClause(_Statement._WithClauseSpec spec, _SqlContext context) {
         final List<_Cte> cteList;
         cteList = spec.cteList();
-        if (cteList.size() == 0) {
+        if (cteList.isEmpty()) {
             return;
         }
         if (spec instanceof StandardStatement) {

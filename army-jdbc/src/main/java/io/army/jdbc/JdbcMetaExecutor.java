@@ -68,7 +68,7 @@ class JdbcMetaExecutor implements SyncMetaExecutor {
 
 
     @Override
-    public final SchemaInfo extractInfo() throws DataAccessException {
+    public final SchemaInfo extractInfo(final List<String> definedTypeSqlList) throws DataAccessException {
         final Connection conn = this.conn;
 
         try {

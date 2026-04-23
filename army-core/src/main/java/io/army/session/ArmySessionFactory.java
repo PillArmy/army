@@ -107,7 +107,7 @@ abstract class ArmySessionFactory implements PackageSessionFactory {
 
 
         this.schemaMeta = Objects.requireNonNull(support.schemaMeta);
-        this.tableMap = Objects.requireNonNull(support.tableMap);
+        this.tableMap = Map.copyOf(Objects.requireNonNull(support.tableMap));
 
         this.readonly = env.getOrDefault(ArmyKey.READ_ONLY);
         this.dialectParser = support.dialectParser;

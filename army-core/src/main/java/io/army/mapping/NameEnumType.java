@@ -176,7 +176,7 @@ public class NameEnumType extends _ArmyNoInjectionType {
                 match = false;
             }
         } else if (obj instanceof NameEnumType o) {
-            match = o.enumClass == this.enumClass;
+            match = !(this instanceof NameEnumNamedType) && o.enumClass == this.enumClass;
         } else {
             match = false;
         }

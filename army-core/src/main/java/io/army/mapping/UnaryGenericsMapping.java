@@ -16,36 +16,9 @@
 
 package io.army.mapping;
 
-import io.army.lang.Nullable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Supplier;
+public interface UnaryGenericsMapping extends MappingType.GenericsMapping {
 
-public interface UnaryGenericsMapping<E> extends MappingType.GenericsMapping {
+    Class<?> genericsType();
 
-    Class<E> genericsType();
-
-    interface CollectionMapping<E> extends UnaryGenericsMapping<E> {
-
-        @Nullable
-        Supplier<Collection<E>> collectionConstructor();
-    }
-
-
-    interface ListMapping<E> extends UnaryGenericsMapping<E> {
-
-        @Nullable
-        Supplier<List<E>> listConstructor();
-
-    }
-
-    interface SetMapping<E> extends UnaryGenericsMapping<E> {
-
-        @Nullable
-        Supplier<Set<E>> setConstructor();
-
-
-    }
 
 }

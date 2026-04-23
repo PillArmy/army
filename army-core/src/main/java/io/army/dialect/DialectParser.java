@@ -26,6 +26,7 @@ import io.army.stmt.SimpleStmt;
 import io.army.stmt.Stmt;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -79,7 +80,7 @@ public interface DialectParser {
         throw new UnsupportedOperationException();
     }
 
-    default MetaStmtGenerator metaStmtGenerator() {
+    default List<String> queryDefinedTypeStmts(Set<MappingType> definedTypeSet) {
         throw new UnsupportedOperationException();
     }
 

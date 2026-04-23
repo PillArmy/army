@@ -69,7 +69,7 @@
 
         <log4j.version>2.25.4</log4j.version>
 
-        <slf4.version>1.7.28</slf4.version>
+        <slf4.version>2.0.17</slf4.version>
 
 
         <testng.version>6.14.3</testng.version>
