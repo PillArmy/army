@@ -93,5 +93,15 @@ public final class ZoneIdType extends _ArmyNoInjectionType implements MappingTyp
         return value;
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof ZoneIdType;
+    }
+
 
 }

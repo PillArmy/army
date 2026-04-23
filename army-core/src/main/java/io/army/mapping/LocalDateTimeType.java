@@ -122,5 +122,15 @@ public final class LocalDateTimeType extends _ArmyNoInjectionType implements Map
         return value;
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof LocalDateTimeType;
+    }
+
 
 }

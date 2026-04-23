@@ -96,5 +96,15 @@ public final class BinaryType extends _ArmyBuildInType implements MappingType.Sq
         return (byte[]) source;
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof BinaryType;
+    }
+
 
 }

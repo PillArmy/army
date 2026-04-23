@@ -98,6 +98,16 @@ public final class MediumTextType extends ArmyTextType {
         return dataType;
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof MediumTextType;
+    }
+
 
 
 

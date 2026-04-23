@@ -113,5 +113,16 @@ public final class ByteType extends _NumericType._IntegerType {
         return (byte) IntegerType.toInt(this, dataType, source, Byte.MIN_VALUE, Byte.MAX_VALUE, ACCESS_ERROR_HANDLER);
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof ByteType;
+    }
+
+
 
 }

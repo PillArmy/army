@@ -87,6 +87,16 @@ public final class TextType extends ArmyTextType {
         return mapToDataType(this, meta);
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof TextType;
+    }
+
     public static DataType mapToDataType(final MappingType type, final ServerMeta meta) {
         final DataType dataType;
         switch (meta.serverDatabase()) {

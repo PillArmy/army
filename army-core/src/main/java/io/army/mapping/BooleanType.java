@@ -108,6 +108,16 @@ public final class BooleanType extends _ArmyNoInjectionType implements MappingTy
         return toBoolean(this, dataType, source, ACCESS_ERROR_HANDLER);
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof BooleanType;
+    }
+
 
     public static boolean toBoolean(final MappingType type, final DataType dataType, final Object source,
                                     final ErrorHandler errorHandler) {

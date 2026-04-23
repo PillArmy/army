@@ -41,6 +41,16 @@ public final class ObjectType extends _ArmyBuildInType {
         return source;
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof ObjectType;
+    }
+
     private static CriteriaException errorUseCase() {
         String m = String.format("%s only can use read column from database", ObjectType.class.getName());
         return new CriteriaException(m);

@@ -126,5 +126,15 @@ public final class OffsetDateTimeType extends _ArmyNoInjectionType implements Ma
         return value;
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof OffsetDateTimeType;
+    }
+
 
 }

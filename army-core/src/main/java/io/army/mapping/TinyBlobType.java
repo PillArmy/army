@@ -93,4 +93,13 @@ public final class TinyBlobType extends _ArmyBuildInType implements MappingType.
         return (byte[]) source;
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof TinyBlobType;
+    }
 }

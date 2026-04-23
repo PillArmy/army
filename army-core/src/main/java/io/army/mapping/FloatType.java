@@ -100,6 +100,16 @@ public final class FloatType extends _NumericType._FloatNumericType {
         return convertToFloat(this, dataType, source, ACCESS_ERROR_HANDLER);
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof FloatType;
+    }
+
     private static float convertToFloat(final MappingType type, final DataType dataType, final Object source,
                                         final ErrorHandler errorHandler) {
         final float value;

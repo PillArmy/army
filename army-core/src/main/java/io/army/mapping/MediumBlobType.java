@@ -101,5 +101,15 @@ public final class MediumBlobType extends _ArmyBuildInType implements MappingTyp
         return (byte[]) source;
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof MediumBlobType;
+    }
+
 
 }

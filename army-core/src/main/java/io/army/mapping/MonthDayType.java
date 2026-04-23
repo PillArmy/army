@@ -148,5 +148,15 @@ public final class MonthDayType extends _ArmyNoInjectionType implements MappingT
         return value;
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof MonthDayType;
+    }
+
 
 }

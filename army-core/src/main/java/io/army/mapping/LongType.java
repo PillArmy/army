@@ -89,6 +89,16 @@ public final class LongType extends _NumericType._IntegerType {
         return toLong(this, dataType, source, Long.MIN_VALUE, Long.MAX_VALUE, ACCESS_ERROR_HANDLER);
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof LongType;
+    }
+
     public static DataType mapToDataType(final MappingType type, final ServerMeta meta) {
         final DataType dataType;
         switch (meta.serverDatabase()) {
@@ -109,7 +119,7 @@ public final class LongType extends _NumericType._IntegerType {
 
 
     public static long toLong(final MappingType type, final DataType dataType, final Object source,
-                       final long min, final long max, final ErrorHandler errorHandler) {
+                              final long min, final long max, final ErrorHandler errorHandler) {
         final long value;
         if (source instanceof Long) {
             value = (Long) source;

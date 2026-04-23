@@ -102,5 +102,15 @@ public final class ShortType extends _NumericType._IntegerType {
         return (short) IntegerType.toInt(this, dataType, source, Short.MIN_VALUE, Short.MAX_VALUE, ACCESS_ERROR_HANDLER);
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof ShortType;
+    }
+
 
 }

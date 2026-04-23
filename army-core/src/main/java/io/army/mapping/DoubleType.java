@@ -101,6 +101,16 @@ public final class DoubleType extends _NumericType._FloatNumericType {
         return toDouble(this, dataType, source, ACCESS_ERROR_HANDLER);
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof DoubleType;
+    }
+
 
     private static double toDouble(final MappingType type, final DataType dataType, final Object source,
                                    final ErrorHandler errorHandler) {

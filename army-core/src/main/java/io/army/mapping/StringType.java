@@ -103,6 +103,16 @@ public final class StringType extends _ArmyBuildInType implements MappingType.Sq
         return toString(this, dataType, source, ACCESS_ERROR_HANDLER);
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof StringType;
+    }
+
 
     static DataType mapToDataType(final MappingType type, final ServerMeta meta) {
         final DataType dataType;

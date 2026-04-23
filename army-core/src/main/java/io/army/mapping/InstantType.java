@@ -67,5 +67,15 @@ public final class InstantType extends _ArmyNoInjectionType implements MappingTy
         return Instant.ofEpochMilli(value);
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof InstantType;
+    }
+
 
 }

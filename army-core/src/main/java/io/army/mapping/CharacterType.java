@@ -120,6 +120,17 @@ public final class CharacterType extends _ArmyBuildInType implements MappingType
         return toCharacter(this, dataType, source, ACCESS_ERROR_HANDLER);
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof CharacterType;
+    }
+
+
 
     public static Character toCharacter(MappingType type, DataType dataType, Object source, ErrorHandler errorHandler) {
         final Character value;

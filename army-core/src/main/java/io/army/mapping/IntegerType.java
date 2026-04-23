@@ -89,6 +89,16 @@ public final class IntegerType extends _NumericType._IntegerType {
         return toInt(this, dataType, source, Integer.MIN_VALUE, Integer.MAX_VALUE, ACCESS_ERROR_HANDLER);
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof IntegerType;
+    }
+
 
     public static int toInt(final MappingType type, DataType dataType, final Object nonNull,
                             final int min, final int max,

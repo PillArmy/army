@@ -93,6 +93,17 @@ public final class BigIntegerType extends _NumericType._IntegerType {
         return toBigInteger(this, dataType, source, ACCESS_ERROR_HANDLER);
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof BigIntegerType;
+    }
+
+
 
     public static BigInteger toBigInteger(final MappingType type, final DataType dataType, final Object nonNull,
                                           final ErrorHandler errorHandler) {

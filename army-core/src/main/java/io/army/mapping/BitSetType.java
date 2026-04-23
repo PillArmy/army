@@ -114,6 +114,16 @@ public final class BitSetType extends _ArmyNoInjectionType implements MappingTyp
         return toBitSet(this, dataType, source, ACCESS_ERROR_HANDLER);
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof BitSetType;
+    }
+
 
     public static long bitwiseToLong(final MappingType type, final DataType dataType, final Object source,
                                      final ErrorHandler errorHandler) {

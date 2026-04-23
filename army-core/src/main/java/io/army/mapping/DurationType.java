@@ -95,5 +95,15 @@ public final class DurationType extends _ArmyNoInjectionType implements MappingT
         return null;
     }
 
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof DurationType;
+    }
+
 
 }
