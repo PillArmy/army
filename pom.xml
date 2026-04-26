@@ -16,10 +16,8 @@
         <module>army-spring</module>
         <module>army-mysql</module>
         <module>army-sync</module>
-        <module>army-reactive</module>
         <module>army-oracle</module>
         <module>army-jdbc</module>
-        <module>army-jdbd</module>
         <module>army-annotation</module>
         <module>army-example</module>
         <module>army-postgre</module>
