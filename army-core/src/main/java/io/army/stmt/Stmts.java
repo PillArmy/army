@@ -75,6 +75,10 @@ public abstract class Stmts {
         return stmt;
     }
 
+    public static SimpleStmt simpleRead(String sql, List<SQLParam> paramList, List<Selection> selectionList) {
+        return new QueryStmt(sql, StmtType.QUERY, paramList, selectionList, false);
+    }
+
     public static DeclareCursorStmt declareCursorStmt(CursorStmtParams params) {
         return new ArmyDeclareCursorStmt(params);
     }
@@ -102,7 +106,7 @@ public abstract class Stmts {
     public static MultiStmtBatchStmt multiStmtBatchStmt(final StmtParams params, final int batchSize) {
         final List<SQLParam> paramGroup;
         paramGroup = params.paramList();
-        if (paramGroup.size() > 0 || batchSize < 1) {
+        if (!paramGroup.isEmpty() || batchSize < 1) {
             //no bug, never here
             throw new IllegalArgumentException();
         }
@@ -118,7 +122,7 @@ public abstract class Stmts {
         selectionList = params.selectionList();
 
         final MultiStmt.StmtItem item;
-        if (selectionList.size() > 0) {
+        if (!selectionList.isEmpty()) {
             item = new QueryStmtItem(params.hasOptimistic(), selectionList);
         } else if (params.hasOptimistic()) {
             item = MultiStmt.UpdateStmt.OPTIMISTIC;
@@ -194,6 +198,11 @@ public abstract class Stmts {
         private ArmySingleSqlStmt(StmtParams params) {
             this.sql = params.sql();
             this.stmtType = params.stmtType();
+        }
+
+        private ArmySingleSqlStmt(String sql, StmtType stmtType) {
+            this.sql = sql;
+            this.stmtType = stmtType;
         }
 
         @Override
@@ -498,6 +507,13 @@ public abstract class Stmts {
             this.optimistic = params.hasOptimistic();
         }
 
+        private QueryStmt(String sql, StmtType stmtType, List<SQLParam> paramGroup,
+                          List<? extends Selection> selectionList, boolean optimistic) {
+            super(sql, stmtType);
+            this.paramGroup = List.copyOf(paramGroup);
+            this.selectionList = List.copyOf(selectionList);
+            this.optimistic = optimistic;
+        }
 
         @Override
         public final boolean hasOptimistic() {

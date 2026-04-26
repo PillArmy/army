@@ -33,7 +33,9 @@ abstract non-sealed class TypeMappingHandlerSupport implements TypeMappingHandle
     TypeMappingHandlerSupport(DialectEnv env) {
         this.serverMeta = env.serverMeta();
         this.function = env.definedTypeMapFunc();
+
         this.typeMap = Map.copyOf(env.nameToTypeMap());
+
     }
 
 

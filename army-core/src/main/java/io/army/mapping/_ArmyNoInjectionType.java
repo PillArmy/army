@@ -20,8 +20,12 @@ public abstract class _ArmyNoInjectionType extends _ArmyBuildInType {
 
 
     protected _ArmyNoInjectionType() {
-        final Class<?> thisClass = this.getClass();
-        if (this instanceof SqlString) {
+        assertNonString(this);
+    }
+
+
+    private static void assertNonString(_ArmyNoInjectionType type) {
+        if (type instanceof SqlString) {
             throw new IllegalStateException("sub class error.");
         }
     }

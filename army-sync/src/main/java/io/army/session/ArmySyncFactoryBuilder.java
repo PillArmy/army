@@ -184,7 +184,7 @@ final class ArmySyncFactoryBuilder
 
             //1.extract schema info.
             final SchemaInfo schemaInfo;
-            schemaInfo = executor.extractInfo(sessionFactory.dialectParser.queryDefinedTypeStmts(this.definedTypeSet));
+            schemaInfo = executor.extractInfo(sessionFactory.dialectParser.queryDefinedTypeStmts(this.definedTypeMap));
 
             //2.compare schema meta and schema info.
             final SchemaResult schemaResult;

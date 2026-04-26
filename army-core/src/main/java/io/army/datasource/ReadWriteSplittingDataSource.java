@@ -26,10 +26,9 @@ import java.util.function.Function;
 /**
  * <p>This interface representing routing DataSource for Read/Write Splitting.
  *
- * @param <R> the java type of DataSource
  * @since 0.6.0
  */
-public interface ReadWriteSplittingDataSource<R> {
+public interface ReadWriteSplittingDataSource {
 
     /**
      * <p>Select one read write DataSource
@@ -42,7 +41,7 @@ public interface ReadWriteSplittingDataSource<R> {
      * @param func option function, default {@link Option#EMPTY_FUNC}
      * @return a DataSource that can support read/write
      */
-    R readWriteDataSource(final Function<Option<?>, ?> func);
+    Object readWriteDataSource(final Function<Option<?>, ?> func);
 
 
     /**
@@ -62,7 +61,7 @@ public interface ReadWriteSplittingDataSource<R> {
      * @param func option function, default {@link Option#EMPTY_FUNC}
      * @return a readonly DataSource
      */
-    R readOnlyDataSource(final Function<Option<?>, ?> func);
+    Object readOnlyDataSource(final Function<Option<?>, ?> func);
 
 
 }

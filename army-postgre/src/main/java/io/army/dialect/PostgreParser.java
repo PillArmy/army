@@ -24,18 +24,24 @@ import io.army.criteria.impl.inner.*;
 import io.army.criteria.standard.StandardStatement;
 import io.army.executor.ExecutorSupport;
 import io.army.lang.Nullable;
+import io.army.mapping.IntegerType;
 import io.army.mapping.MappingType;
+import io.army.mapping.MappingTypeType;
+import io.army.mapping.StringType;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
+import io.army.stmt.SimpleStmt;
+import io.army.stmt.Stmts;
 import io.army.util.*;
 
 import java.math.BigDecimal;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 abstract class PostgreParser extends _ArmyDialectParser {
@@ -103,10 +109,10 @@ abstract class PostgreParser extends _ArmyDialectParser {
     ///   AND (t.typcategory IN ('E', 'U', 'R') OR t.typbasetype > 0 OR (t.typcategory = 'C' AND c.relkind = 'c'))
     /// ```
     @Override
-    public final List<String> queryDefinedTypeStmts(Set<MappingType> definedTypeSet) {
+    public final List<SimpleStmt> queryDefinedTypeStmts(Map<String, MappingType> definedTypeMap) {
         final String sql;
         sql = """
-                SELECT t.typname AS "typeName", t.typcategory AS "type",et.enumlabel  AS "enumLabel",
+                SELECT t.typname AS "typeName", et.enumlabel  AS "enumLabel",
                        et."enumOrder",at.attnum as "comFieldOrder",at.attname as "comFieldName",
                        at.typname as "comFieldType"
                 FROM pg_namespace AS n
@@ -129,7 +135,17 @@ abstract class PostgreParser extends _ArmyDialectParser {
                   AND (t.typcategory IN ('E', 'U', 'R') OR t.typbasetype > 0 OR (t.typcategory = 'C' AND c.relkind = 'c'))
                 order by t.typname ,at.attnum,et."enumOrder"
                 """;
-        return List.of(sql);
+
+        final List<Selection> selectionList;
+        selectionList = List.of(
+                _SQLConsultant.forName("typeName", StringType.INSTANCE),
+                _SQLConsultant.forName("enumLabel", StringType.INSTANCE),
+                _SQLConsultant.forName("enumOrder", IntegerType.INSTANCE),
+                _SQLConsultant.forName("comFieldOrder", IntegerType.INSTANCE),
+                _SQLConsultant.forName("comFieldName", StringType.INSTANCE),
+                _SQLConsultant.forName("comFieldType", MappingTypeType.INSTANCE)
+        );
+        return List.of(Stmts.simpleRead(sql, List.of(), selectionList));
     }
 
     @Override

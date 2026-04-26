@@ -22,6 +22,7 @@ import io.army.dialect.Database;
 import io.army.env.ArmyEnvironment;
 import io.army.env.ArmyKey;
 import io.army.executor.*;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.meta.ServerMeta;
 import io.army.option.Option;
@@ -36,7 +37,6 @@ import io.jdbd.session.LocalDatabaseSession;
 import io.jdbd.session.RmDatabaseSession;
 import reactor.core.publisher.Mono;
 
-import io.army.lang.Nullable;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
@@ -130,7 +130,7 @@ final class JdbdStmtExecutorFactory extends ExecutorFactorySupport implements Re
         }
         DatabaseSessionFactory factory = this.sessionFactory;
         if (factory instanceof ReadWriteSplittingDataSource) {
-            factory = (DatabaseSessionFactory) ((ReadWriteSplittingDataSource<?>) factory).readWriteDataSource(func);
+            factory = (DatabaseSessionFactory) ((ReadWriteSplittingDataSource) factory).readWriteDataSource(func);
         } else if (factory instanceof ReadWriteSplittingFactory) {
             factory = ((ReadWriteSplittingFactory) factory).readWriteFactory(mapToJdbdOptionFunc(func));
         }
@@ -218,15 +218,13 @@ final class JdbdStmtExecutorFactory extends ExecutorFactorySupport implements Re
         final ArmyException e;
         if (cause instanceof ArmyException) {
             e = (ArmyException) cause;
-        } else if (!(cause instanceof JdbdException)) {
+        } else if (!(cause instanceof JdbdException je)) {
             e = _Exceptions.unknownError(cause);
-        } else if (cause instanceof io.jdbd.result.ServerException) {
-            final io.jdbd.result.ServerException se = (io.jdbd.result.ServerException) cause;
+        } else if (cause instanceof io.jdbd.result.ServerException se) {
             e = new ServerException(cause, se.getSqlState(), se.getVendorCode(), mapToArmyOptionFunc(se::valueOf), mapArmyOptionSet(se.optionSet()));
         } else if (cause instanceof io.jdbd.session.SessionCloseException) {
             e = new SessionClosedException(cause);
         } else {
-            final JdbdException je = (JdbdException) cause;
             e = new DriverException(cause, je.getSqlState(), je.getVendorCode());
         }
         return e;
@@ -398,7 +396,7 @@ final class JdbdStmtExecutorFactory extends ExecutorFactorySupport implements Re
                                                  final Function<io.jdbd.session.Option<?>, ?> jdbdOptionFunc) {
         DatabaseSessionFactory factory = this.sessionFactory;
         if (readOnly && factory instanceof ReadWriteSplittingDataSource) {
-            factory = (DatabaseSessionFactory) ((ReadWriteSplittingDataSource<?>) factory).readOnlyDataSource(func);
+            factory = (DatabaseSessionFactory) ((ReadWriteSplittingDataSource) factory).readOnlyDataSource(func);
         } else if (factory instanceof ReadWriteSplittingFactory) {
             factory = ((ReadWriteSplittingFactory) factory).readOnlyFactory(jdbdOptionFunc);
         }

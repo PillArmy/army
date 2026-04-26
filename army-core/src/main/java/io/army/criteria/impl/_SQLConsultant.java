@@ -23,6 +23,7 @@ import io.army.criteria.impl.inner._Insert;
 import io.army.criteria.impl.inner._NestedItems;
 import io.army.dialect.Database;
 import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.sqltype.DataType;
 import io.army.sqltype.SQLType;
 import io.army.util.ClassUtils;
@@ -32,6 +33,11 @@ public abstract class _SQLConsultant {
 
     _SQLConsultant() {
         throw new UnsupportedOperationException();
+    }
+
+
+    public static Selection forName(final String alias, MappingType type) {
+        return ArmySelections.forName(alias, type);
     }
 
 

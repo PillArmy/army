@@ -20,6 +20,7 @@ import io.army.executor.DataAccessException;
 import io.army.executor.SyncMetaExecutor;
 import io.army.lang.Nullable;
 import io.army.schema.*;
+import io.army.stmt.SimpleStmt;
 import io.army.util._Collections;
 
 import javax.sql.XAConnection;
@@ -33,22 +34,6 @@ class JdbcMetaExecutor implements SyncMetaExecutor {
         return new JdbcMetaExecutor(factory, conn);
     }
 
-    static JdbcMetaExecutor fromXa(JdbcExecutorFactory factory, XAConnection xaConn) {
-        try {
-            final Connection conn;
-            conn = xaConn.getConnection();
-
-            return new XaConnMetaExecutor(factory, xaConn, conn);
-        } catch (SQLException e) {
-            try {
-                xaConn.close();
-            } catch (SQLException ex) {
-                // ignore ex
-                throw JdbcExecutor.wrapError(e);
-            }
-            throw JdbcExecutor.wrapError(e);
-        }
-    }
 
 
     // private static final Logger LOG = LoggerFactory.getLogger(JdbcMetaExecutor.class);
@@ -68,7 +53,7 @@ class JdbcMetaExecutor implements SyncMetaExecutor {
 
 
     @Override
-    public final SchemaInfo extractInfo(final List<String> definedTypeSqlList) throws DataAccessException {
+    public final SchemaInfo extractInfo(final List<SimpleStmt> definedTypeSqlList) throws DataAccessException {
         final Connection conn = this.conn;
 
         try {

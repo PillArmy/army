@@ -23,6 +23,7 @@ import io.army.dialect.Database;
 import io.army.env.ArmyEnvironment;
 import io.army.executor.ExecutorEnv;
 import io.army.executor.ExecutorFactoryProvider;
+import io.army.function.DefinedTypeMapFunc;
 import io.army.generator.FieldGeneratorFactory;
 import io.army.lang.Nullable;
 import io.army.meta.SchemaMeta;
@@ -170,6 +171,9 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
     /// To improve startup performance, non-essential startup validation is disabled by default (already validated at compile time).
     /// It can be enabled for stronger consistency guarantees.
     B validateOnStartup(boolean yes);
+
+
+    B definedTypeMapFunc(@Nullable DefinedTypeMapFunc func);
 
     /**
      * <p>Create {@link SessionFactory} instance

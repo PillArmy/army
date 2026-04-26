@@ -23,13 +23,13 @@ import io.army.env.ArmyEnvironment;
 import io.army.env.ArmyKey;
 import io.army.env.SyncKey;
 import io.army.executor.*;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.meta.ServerMeta;
 import io.army.option.Option;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import javax.sql.CommonDataSource;
 import javax.sql.DataSource;
 import javax.sql.XADataSource;
@@ -178,15 +178,15 @@ final class JdbcExecutorFactory extends ExecutorFactorySupport implements SyncEx
         try {
             CommonDataSource dataSource = this.dataSource;
             if (dataSource instanceof ReadWriteSplittingDataSource) {
-                dataSource = (CommonDataSource) ((ReadWriteSplittingDataSource<?>) dataSource).readWriteDataSource(optionFunc);
+                dataSource = (CommonDataSource) ((ReadWriteSplittingDataSource) dataSource).readWriteDataSource(optionFunc);
             }
-            final JdbcMetaExecutor executor;
-            if (dataSource instanceof DataSource) {
-                executor = JdbcMetaExecutor.from(this, ((DataSource) dataSource).getConnection());
-            } else {
-                executor = JdbcMetaExecutor.fromXa(this, ((XADataSource) dataSource).getXAConnection());
+
+            if (!(dataSource instanceof DataSource)) {
+                throw new DataAccessException(String.format("%s isn't DataSource", dataSource.getClass().getName()));
             }
-            return executor;
+            final Connection conn;
+            conn = ((DataSource) dataSource).getConnection();
+            return JdbcMetaExecutor.from(this, conn);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -208,7 +208,7 @@ final class JdbcExecutorFactory extends ExecutorFactorySupport implements SyncEx
         try {
             CommonDataSource dataSource = this.dataSource;
             if (readOnly && dataSource instanceof ReadWriteSplittingDataSource) {
-                dataSource = (CommonDataSource) ((ReadWriteSplittingDataSource<?>) dataSource).readOnlyDataSource(optionFunc);
+                dataSource = (CommonDataSource) ((ReadWriteSplittingDataSource) dataSource).readOnlyDataSource(optionFunc);
             }
             if (!(dataSource instanceof DataSource)) {
                 String m = String.format("%s isn't %s ,couldn't create local executor.", dataSource,
@@ -244,7 +244,7 @@ final class JdbcExecutorFactory extends ExecutorFactorySupport implements SyncEx
         try {
             CommonDataSource dataSource = this.dataSource;
             if (readOnly && dataSource instanceof ReadWriteSplittingDataSource) {
-                dataSource = (CommonDataSource) ((ReadWriteSplittingDataSource<?>) dataSource).readOnlyDataSource(optionFunc);
+                dataSource = (CommonDataSource) ((ReadWriteSplittingDataSource) dataSource).readOnlyDataSource(optionFunc);
             }
             if (dataSource instanceof DataSource) {
                 conn = ((DataSource) dataSource).getConnection();
@@ -318,8 +318,7 @@ final class JdbcExecutorFactory extends ExecutorFactorySupport implements SyncEx
         final ArmyException error;
         if (cause instanceof ArmyException) {
             error = (ArmyException) cause;
-        } else if (cause instanceof SQLException) {
-            final SQLException e = (SQLException) cause;
+        } else if (cause instanceof SQLException e) {
             // TODO convert to  ServerException
             final String message = String.format("SqlState : %s ,errorCode : %s\n%s",
                     e.getSQLState(), e.getErrorCode(), e.getMessage());

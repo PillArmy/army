@@ -18,13 +18,14 @@ package io.army.executor;
 
 
 import io.army.schema.SchemaInfo;
+import io.army.stmt.SimpleStmt;
 
 import java.util.List;
 
 public interface SyncMetaExecutor extends AutoCloseable {
 
 
-    SchemaInfo extractInfo(List<String> definedTypeSqlList) throws DataAccessException;
+    SchemaInfo extractInfo(List<SimpleStmt> definedTypeSqlList) throws DataAccessException;
 
     void executeDdl(List<String> ddlList) throws DataAccessException;
 
