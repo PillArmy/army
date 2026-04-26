@@ -18,6 +18,7 @@ package io.army.mapping;
 
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
+import io.army.dialect.TypeMappingHandler;
 import io.army.function.DecodeLiteralFunc;
 import io.army.function.SafeLiteralFunc;
 import io.army.lang.Nullable;
@@ -54,6 +55,9 @@ public interface MappingEnv {
 
     DecodeLiteralFunc decodeLiteralFunc();
 
+    TypeMappingHandler typeMapFunc();
+
+
     static Builder builder() {
         return ArmyMappingEnv.builder();
     }
@@ -72,7 +76,9 @@ public interface MappingEnv {
 
         Builder safeLiteralFunc(SafeLiteralFunc func);
 
-        Builder decodeLiteral(DecodeLiteralFunc func);
+        Builder decodeLiteralFunc(DecodeLiteralFunc func);
+
+        Builder typeMapFunc(TypeMappingHandler func);
 
         MappingEnv build();
 

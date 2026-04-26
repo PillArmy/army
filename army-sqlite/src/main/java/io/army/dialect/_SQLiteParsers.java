@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-package io.army.session.mysql;
 
-import io.army.option.Option;
+package io.army.dialect;
 
-public abstract class MySQLOption {
 
-    private MySQLOption() {
-        throw new UnsupportedOperationException();
+class _SQLiteParsers extends DialectParserFactory {
+
+
+    private _SQLiteParsers() {
     }
 
-    /**
-     * <p>
-     * Transaction option of some database(eg: MySQL)
-     * <br/>
-     *
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/commit.html">MySQL : WITH CONSISTENT SNAPSHOT</a>
-     */
-    public static final Option<Boolean> WITH_CONSISTENT_SNAPSHOT = Option.from("WITH CONSISTENT SNAPSHOT", Boolean.class);
+
+    public static DialectParser create(final DialectEnv env) {
+        return SQLiteDialectParser.create(env, (SQLiteDialect) targetDialect(env, Database.SQLite));
+    }
 
 
 }

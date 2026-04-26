@@ -22,7 +22,10 @@ import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.function.TextFunction;
 import io.army.lang.Nullable;
-import io.army.mapping.*;
+import io.army.mapping.MappingEnv;
+import io.army.mapping.MappingType;
+import io.army.mapping.NoMatchMappingException;
+import io.army.mapping.TextType;
 import io.army.mapping.array.PostgreArrays;
 import io.army.mapping.postgre.*;
 import io.army.meta.MetaException;
@@ -332,11 +335,13 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
             elementFunc = String::substring;
         } else if (!(type instanceof SqlArray)) {
             throw handler.apply(type, dataType, text, _Exceptions.notArrayMappingType(type));
-        } else if (type instanceof UnaryGenericsMapping.ListMapping) {
-            String m = String.format("multi range array type don't support %s",
-                    UnaryGenericsMapping.ListMapping.ListMapping.class);
-            throw handler.apply(type, dataType, text, new IllegalArgumentException(m));
-        } else {
+        }
+//        else if (type instanceof UnaryGenericsMapping.ListMapping) {
+//            String m = String.format("multi range array type don't support %s",
+//                    UnaryGenericsMapping.ListMapping.ListMapping.class);
+//            throw handler.apply(type, dataType, text, new IllegalArgumentException(m));
+//        }
+        else {
             elementFunc = PgMultiRangeType.multiRangeParseFunc(text, rangeFunc, parseFunc, dataType, type, handler);
         }
         final Object array;

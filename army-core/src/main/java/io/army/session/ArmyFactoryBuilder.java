@@ -813,7 +813,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             if (fieldCodecMap == emptyMap) {
                 this.fieldCodecMap = emptyMap;
             } else {
-                this.fieldCodecMap = Collections.unmodifiableMap(fieldCodecMap);
+                this.fieldCodecMap = Map.copyOf(fieldCodecMap);
             }
             this.environment = environment;
             this.schemaMeta = schemaMeta;

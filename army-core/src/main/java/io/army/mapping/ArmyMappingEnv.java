@@ -18,6 +18,7 @@ package io.army.mapping;
 
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
+import io.army.dialect.TypeMappingHandler;
 import io.army.function.DecodeLiteralFunc;
 import io.army.function.SafeLiteralFunc;
 import io.army.lang.Nullable;
@@ -47,6 +48,8 @@ final class ArmyMappingEnv implements MappingEnv {
 
     private final DecodeLiteralFunc decodeFunc;
 
+    private final TypeMappingHandler typeMapFunction;
+
 
     private ArmyMappingEnv(EnvBuilder builder) {
         this.reactive = builder.reactive;
@@ -56,7 +59,8 @@ final class ArmyMappingEnv implements MappingEnv {
 
         this.xmlCodec = builder.xmlCodec;
         this.literalFunc = builder.literalFunc;
-        this.decodeFunc = builder.decodeFunc;
+        this.decodeFunc = builder.decodeFunction;
+        this.typeMapFunction = builder.typeMapFunction;
         if (this.serverMeta == null) {
             throw new IllegalArgumentException("serverMeta must non-null");
         }
@@ -112,6 +116,11 @@ final class ArmyMappingEnv implements MappingEnv {
     }
 
     @Override
+    public TypeMappingHandler typeMapFunc() {
+        return this.typeMapFunction;
+    }
+
+    @Override
     public String toString() {
         return _StringUtils.builder(60)
                 .append(getClass().getName())
@@ -145,7 +154,9 @@ final class ArmyMappingEnv implements MappingEnv {
 
         private SafeLiteralFunc literalFunc;
 
-        private DecodeLiteralFunc decodeFunc;
+        private DecodeLiteralFunc decodeFunction;
+
+        private TypeMappingHandler typeMapFunction;
 
         @Override
         public Builder reactive(boolean yes) {
@@ -184,14 +195,20 @@ final class ArmyMappingEnv implements MappingEnv {
         }
 
         @Override
-        public Builder decodeLiteral(DecodeLiteralFunc func) {
-            this.decodeFunc = func;
+        public Builder decodeLiteralFunc(DecodeLiteralFunc func) {
+            this.decodeFunction = func;
+            return this;
+        }
+
+        @Override
+        public Builder typeMapFunc(TypeMappingHandler func) {
+            this.typeMapFunction = func;
             return this;
         }
 
         @Override
         public MappingEnv build() {
-            if (this.literalFunc == null || this.decodeFunc == null) {
+            if (this.literalFunc == null || this.decodeFunction == null || this.typeMapFunction == null) {
                 throw new NullPointerException();
             }
             return new ArmyMappingEnv(this);

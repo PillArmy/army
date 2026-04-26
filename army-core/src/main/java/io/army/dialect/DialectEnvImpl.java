@@ -19,12 +19,13 @@ package io.army.dialect;
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
 import io.army.env.ArmyEnvironment;
+import io.army.function.DefinedTypeMapFunc;
 import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
-import io.army.util._Collections;
 
 import java.time.ZoneOffset;
 import java.util.Map;
@@ -54,11 +55,15 @@ final class DialectEnvImpl implements DialectEnv {
 
     private final Map<Class<?>, TableMeta<?>> tableMetaMap;
 
+    private final DefinedTypeMapFunc typeMapFunc;
+
+    private final Map<String, MappingType> typeNameToTypeMap;
+
 
     private DialectEnvImpl(EnvBuilder builder) {
         this.factoryName = builder.factoryName;
         this.environment = builder.env;
-        this.fieldGeneratorMap = _Collections.unmodifiableMap(builder.generatorMap);
+        this.fieldGeneratorMap = Map.copyOf(builder.generatorMap);
         this.reactive = builder.reactive;
 
         this.serverMeta = builder.serverMeta;
@@ -67,7 +72,8 @@ final class DialectEnvImpl implements DialectEnv {
         this.xmlCodec = builder.xmlCodec;
 
         this.tableMetaMap = builder.tableMetaMap;
-
+        this.typeMapFunc = builder.typeMapFunc;
+        this.typeNameToTypeMap = builder.typeNameToTypeMap;
         if (this.serverMeta == null || this.tableMetaMap == null) {
             throw new IllegalArgumentException();
         }
@@ -124,6 +130,16 @@ final class DialectEnvImpl implements DialectEnv {
     }
 
     @Override
+    public DefinedTypeMapFunc definedTypeMapFunc() {
+        return this.typeMapFunc;
+    }
+
+    @Override
+    public Map<String, MappingType> nameToTypeMap() {
+        return this.typeNameToTypeMap;
+    }
+
+    @Override
     public String toString() {
         return String.format("%s factory:%s", DialectEnvImpl.class.getSimpleName(), this.factoryName);
     }
@@ -148,6 +164,10 @@ final class DialectEnvImpl implements DialectEnv {
         private XmlCodec xmlCodec;
 
         private Map<Class<?>, TableMeta<?>> tableMetaMap;
+
+        private DefinedTypeMapFunc typeMapFunc;
+
+        private Map<String, MappingType> typeNameToTypeMap;
 
 
         @Override
@@ -204,6 +224,18 @@ final class DialectEnvImpl implements DialectEnv {
             return this;
         }
 
+
+        @Override
+        public Builder definedTypeMapFunc(@Nullable DefinedTypeMapFunc func) {
+            this.typeMapFunc = func;
+            return this;
+        }
+
+        @Override
+        public Builder nameToTypeMap(Map<String, MappingType> map) {
+            this.typeNameToTypeMap = map;
+            return this;
+        }
 
         @Override
         public DialectEnv build() {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.army.dialect.sqlite;
+package io.army.dialect;
 
 import io.army.criteria.CriteriaException;
 import io.army.criteria.SQLToken;
@@ -23,20 +23,18 @@ import io.army.criteria.impl._SQLConsultant;
 import io.army.criteria.impl._UnionType;
 import io.army.criteria.impl.inner.*;
 import io.army.criteria.standard.StandardStatement;
-import io.army.dialect.*;
 import io.army.env.EscapeMode;
+import io.army.executor.ExecutorSupport;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
-import io.army.executor.ExecutorSupport;
 import io.army.sqltype.DataType;
 import io.army.sqltype.SQLiteType;
 import io.army.util.HexUtils;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 import io.army.util._TimeUtils;
-
-import io.army.lang.Nullable;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -93,11 +91,6 @@ abstract class SQLiteParser extends _ArmyDialectParser {
         return _Constant.DOUBLE_QUOTE;
     }
 
-    @Override
-    protected final String defaultFuncName() {
-        // SQLite don't support DEFAULT() function
-        throw new UnsupportedOperationException();
-    }
 
     @Override
     protected final boolean isSupportZone() {
@@ -355,9 +348,10 @@ abstract class SQLiteParser extends _ArmyDialectParser {
 
     }
 
-
-
-
+    @Override
+    protected final TypeMappingHandler createTypeMappingHandler(DialectEnv env) {
+        return new SQLiteTypeMappingHandler(env);
+    }
 
     /**
      * @see <a href="https://sqlite.org/lang_expr.html">Literal Values (Constants)</a>
@@ -603,7 +597,7 @@ abstract class SQLiteParser extends _ArmyDialectParser {
     protected final void parseWithClause(_Statement._WithClauseSpec spec, _SqlContext context) {
         final List<_Cte> cteList;
         cteList = spec.cteList();
-        if (cteList.size() == 0) {
+        if (cteList.isEmpty()) {
             return;
         }
         if (spec instanceof StandardStatement) {
@@ -669,7 +663,7 @@ abstract class SQLiteParser extends _ArmyDialectParser {
         final StringBuilder childBuilder, parentBuilder;
         childBuilder = childContext.sqlBuilder();
 
-        if (childBuilder.length() > 0) {
+        if (!childBuilder.isEmpty()) {
             childBuilder.append(_Constant.SPACE);
         }
 

@@ -216,6 +216,10 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
         MappingType elementType();
 
+        default MappingType unlimited() {
+            throw new UnsupportedOperationException();
+        }
+
     }
 
     interface SqlGeometry {

@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package io.army.dialect.sqlite;
+package io.army.function;
 
-import io.army.dialect.DialectEnv;
+import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
+import io.army.meta.ServerMeta;
 
-final class SQLiteDialectParser extends SQLiteParser {
+import java.util.Map;
 
-    static SQLiteDialectParser create(DialectEnv dialectEnv, SQLiteDialect dialect) {
-        return new SQLiteDialectParser(dialectEnv, dialect);
-    }
+@FunctionalInterface
+public interface DefinedTypeMapFunc {
 
-    private SQLiteDialectParser(DialectEnv dialectEnv, SQLiteDialect dialect) {
-        super(dialectEnv, dialect);
-    }
-
+    /// @param typeName upper case
+    /// @param typeMap  an unmodified map
+    /// @return null : army
+    @Nullable
+    MappingType apply(String typeName, ServerMeta serverMeta, Map<String, MappingType> typeMap);
 
 }

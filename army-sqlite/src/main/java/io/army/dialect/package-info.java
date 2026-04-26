@@ -14,24 +14,5 @@
  * limitations under the License.
  */
 
-
-package io.army.dialect.sqlite;
-
-import io.army.dialect.Database;
-import io.army.dialect.DialectEnv;
-import io.army.dialect.DialectParser;
-import io.army.dialect.DialectParserFactory;
-
-public class _SQLiteParsers extends DialectParserFactory {
-
-
-    private _SQLiteParsers() {
-    }
-
-
-    public static DialectParser create(final DialectEnv env) {
-        return SQLiteDialectParser.create(env, (SQLiteDialect) targetDialect(env, Database.SQLite));
-    }
-
-
-}
+@io.army.lang.NonNullApi
+package io.army.dialect;

@@ -271,6 +271,8 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                     type = ZoneOffsetType.INSTANCE;
                 } else if (targetType == ZoneId.class) {
                     type = ZoneIdType.INSTANCE;
+                } else if (targetType == MappingType.class) {
+                    type = MappingTypeType.INSTANCE;
                 } else {
                     throw noMatchCompatibleMapping(this, targetType);
                 }
@@ -518,7 +520,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         if (this instanceof GenericsMapping) {
             if (this instanceof UnaryGenericsMapping) {
                 builder.append(",unary generic type:")
-                        .append(((UnaryGenericsMapping<?>) this).genericsType().getName());
+                        .append(((UnaryGenericsMapping) this).genericsType().getName());
             } else if (this instanceof DualGenericsMapping) {
                 final DualGenericsMapping<?, ?> dual = (DualGenericsMapping<?, ?>) this;
                 builder.append(",dual generics first type:")
@@ -644,25 +646,25 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         return new CriteriaException(createConvertErrorMessage(type, nonNull));
     }
 
-    public static CriteriaException paramError(final MappingType type, DataType sqlType,
-                                               final Object nonNull, final @Nullable Throwable cause) {
+    public static CriteriaException paramError(final MappingType type, DataType dataType,
+                                               final Object source, final @Nullable Throwable cause) {
         final CriteriaException e;
         if (cause == null) {
-            e = new CriteriaException(createConvertErrorMessage(type, nonNull));
+            e = new CriteriaException(createConvertErrorMessage(type, source));
         } else {
-            e = new CriteriaException(createConvertErrorMessage(type, nonNull), cause);
+            e = new CriteriaException(createConvertErrorMessage(type, source), cause);
         }
         return e;
     }
 
 
-    public static DataAccessException dataAccessError(final MappingType type, DataType sqlType,
-                                                      final Object nonNull, final @Nullable Throwable cause) {
+    public static DataAccessException dataAccessError(final MappingType type, DataType dataType,
+                                                      final Object source, final @Nullable Throwable cause) {
         final DataAccessException e;
         if (cause == null) {
-            e = new DataAccessException(createConvertErrorMessage(type, nonNull));
+            e = new DataAccessException(createConvertErrorMessage(type, source));
         } else {
-            e = new DataAccessException(createConvertErrorMessage(type, nonNull), cause);
+            e = new DataAccessException(createConvertErrorMessage(type, source), cause);
         }
         return e;
     }

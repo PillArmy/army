@@ -22,8 +22,10 @@ import io.army.codec.XmlCodec;
 import io.army.criteria.Visible;
 import io.army.env.ArmyEnvironment;
 import io.army.env.StandardEnvironment;
+import io.army.function.DefinedTypeMapFunc;
 import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
@@ -166,6 +168,16 @@ public abstract class _MockDialects implements DialectEnv {
             return Map.of();
         }
 
+        @Nullable
+        @Override
+        public DefinedTypeMapFunc definedTypeMapFunc() {
+            return null;
+        }
+
+        @Override
+        public Map<String, MappingType> nameToTypeMap() {
+            return Map.of();
+        }
     }//MockDialectEnv
 
 

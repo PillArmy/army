@@ -22,6 +22,7 @@ import io.army.criteria.impl._UnionType;
 import io.army.criteria.impl.inner.*;
 import io.army.env.EscapeMode;
 import io.army.executor.ExecutorSupport;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
@@ -32,7 +33,6 @@ import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 import io.army.util._TimeUtils;
 
-import io.army.lang.Nullable;
 import java.math.BigInteger;
 import java.time.*;
 import java.util.List;
@@ -91,10 +91,15 @@ abstract class MySQLParser extends _ArmyDialectParser {
     /*-------------------below protected methods -------------------*/
 
     @Override
+    protected final TypeMappingHandler createTypeMappingHandler(DialectEnv env) {
+        return new MySQLTypeMappingHandler(env);
+    }
+
+    @Override
     protected final void parseWithClause(final _Statement._WithClauseSpec spec, final _SqlContext context) {
         final List<_Cte> cteList;
         cteList = spec.cteList();
-        if (cteList.size() == 0) {
+        if (cteList.isEmpty()) {
             return;
         }
         if (!this.asOf80) {
@@ -448,11 +453,6 @@ abstract class MySQLParser extends _ArmyDialectParser {
         return true;
     }
 
-    @Override
-    protected final String defaultFuncName() {
-        return "DEFAULT";
-    }
-
 
     @Override
     protected final Set<String> createKeyWordSet() {
@@ -593,31 +593,31 @@ abstract class MySQLParser extends _ArmyDialectParser {
     }
 
     ///
-    ///  @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifiers.html"> Schema Object Names</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifiers.html"> Schema Object Names</a>
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html">Identifier Case Sensitivity</a>
     @Override
-    protected final void handleIdentifier(final @Nullable DatabaseObject object,final String effectiveName,final StringBuilder sqlBuilder) {
+    protected final void handleIdentifier(final @Nullable DatabaseObject object, final String effectiveName, final StringBuilder sqlBuilder) {
         // 1. 列名   : MySQL列名不区分大小写,即使使用引用也不区分,故此算法正确
         // 2. 列别名 : 虽然MySQL列别名不区分大小写,但MySQL原样返回了列别名,故此算法正确
         // 3. 表名   : MySQL 的表名的大小写规则依赖服务器的操作系统,若必要,开发者可通过 ArmyKey.TABLE_NAME_MODE 控制大小写
         // 4. 表别名 : MySQL 的表别名的大小写规则依赖服务器的操作系统,但由于表别名只是语句内引用,并不返回客户端,故此算法正确
 
-        final int length,startIndex;
+        final int length, startIndex;
         length = effectiveName.length();
         startIndex = sqlBuilder.length();
 
         final char boundaryChar = this.identifierQuote;
-        int lastWritten = 0,writtenIndex = startIndex;
+        int lastWritten = 0, writtenIndex = startIndex;
         char ch;
         for (int i = 0; i < length; i++) {
             ch = effectiveName.charAt(i);
             if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') {
                 continue;
-            }else if (ch >= '0' && ch <= '9') {
+            } else if (ch >= '0' && ch <= '9') {
                 if (i == 0) {
                     // Identifiers may begin with a digit but unless quoted may not consist solely of digits.
                     sqlBuilder.append(boundaryChar);
-                    writtenIndex ++;
+                    writtenIndex++;
                 }
                 continue;
             } else if (ch == '$') {
@@ -630,14 +630,14 @@ abstract class MySQLParser extends _ArmyDialectParser {
             }
 
             if (ch == _Constant.NUL_CHAR) {
-                if(object == null){
+                if (object == null) {
                     throw _Exceptions.identifierError(effectiveName, this.dialect);
-                }else {
+                } else {
                     throw _Exceptions.objectNameError(object, this.dialect);
                 }
             }
 
-            if(writtenIndex == startIndex){
+            if (writtenIndex == startIndex) {
                 sqlBuilder.append(boundaryChar);
                 writtenIndex++;
             }
@@ -659,13 +659,12 @@ abstract class MySQLParser extends _ArmyDialectParser {
             sqlBuilder.append(effectiveName, lastWritten, length);
         }
 
-        if(writtenIndex > startIndex){
+        if (writtenIndex > startIndex) {
             sqlBuilder.append(boundaryChar);
         }
 
 
     }
-
 
 
     @Override

@@ -32,8 +32,6 @@ import io.army.env.ArmyEnvironment;
 import io.army.env.ArmyKey;
 import io.army.env.EscapeMode;
 import io.army.env.NameMode;
-import io.army.function.DecodeLiteralFunc;
-import io.army.function.SafeLiteralFunc;
 import io.army.lang.Nullable;
 import io.army.mapping.BooleanType;
 import io.army.mapping.MappingEnv;
@@ -165,7 +163,7 @@ abstract class ArmyParser implements DialectParser {
         this.dialectDatabase = this.dialect.database();
         this.serverDatabase = this.serverMeta.serverDatabase();
 
-        this.mappingEnv = createMappingEnv(dialectEnv, this::safeLiteral, this::decodeLiteral);
+        this.mappingEnv = createMappingEnv(dialectEnv);
         this.mockEnv = dialectEnv instanceof _MockDialects;
 
         assert this.serverMeta.serverDatabase().isCompatible(dialect);
@@ -488,7 +486,6 @@ abstract class ArmyParser implements DialectParser {
 
     protected abstract char identifierDelimitedQuote();
 
-    protected abstract String defaultFuncName();
 
     protected abstract boolean isSupportZone();
 
@@ -530,6 +527,11 @@ abstract class ArmyParser implements DialectParser {
 
 
     protected abstract void handleIdentifier(@Nullable DatabaseObject object, String effectiveName, StringBuilder sqlBuilder);
+
+
+    protected TypeMappingHandler createTypeMappingHandler(DialectEnv env) {
+        throw new UnsupportedOperationException();
+    }
 
 
     /*################################## blow dialect template method ##################################*/
@@ -811,6 +813,11 @@ abstract class ArmyParser implements DialectParser {
         throw standardParserDontSupportDialect(this.dialect);
     }
 
+    protected DataType typeMapping(String typeName, MappingType[] typeArray, int index) {
+        //TODO complete me
+        throw new UnsupportedOperationException();
+    }
+
 
     /*-------------------below final protected method -------------------*/
 
@@ -993,10 +1000,9 @@ abstract class ArmyParser implements DialectParser {
             final ValuesContext context;
             context = ValuesContext.create(original, values, this, ((StatementContext) original).sessionSpec);
             parseSimpleValues((_ValuesQuery) values, context);
-        } else if (values instanceof _UnionRowSet) {
+        } else if (values instanceof _UnionRowSet union) {
             _SQLConsultant.assertUnionRowSet(values);
 
-            final _UnionRowSet union = (_UnionRowSet) values;
             final _UnionType unionType;
             unionType = union.unionType();
             if (this.validateUnionType) {
@@ -1009,7 +1015,7 @@ abstract class ArmyParser implements DialectParser {
         } else {
             assertRowSet(values);
             final _ParensRowSet parensRowSet = (_ParensRowSet) values;
-            if (parensRowSet.cteList().size() > 0) {
+            if (!parensRowSet.cteList().isEmpty()) {
                 parseWithClause(parensRowSet, original);
             }
 
@@ -1022,7 +1028,7 @@ abstract class ArmyParser implements DialectParser {
 
             final StringBuilder sqlBuilder;
             sqlBuilder = context.sqlBuilder();
-            if (sqlBuilder.length() > 0) {
+            if (!sqlBuilder.isEmpty()) {
                 sqlBuilder.append(_Constant.SPACE);
             }
             sqlBuilder.append(_Constant.LEFT_PAREN);
@@ -1103,7 +1109,7 @@ abstract class ArmyParser implements DialectParser {
     protected final void parseStandardParensQuery(final _ParensRowSet query, final _ParenRowSetContext context) {
 
         final List<? extends SortItem> orderByList;
-        if ((orderByList = query.orderByList()).size() > 0) {
+        if (!(orderByList = query.orderByList()).isEmpty()) {
             this.orderByClause(orderByList, context);
         }
         this.standardLimitClause(query.offsetExp(), query.rowCountExp(), context);
@@ -1138,7 +1144,7 @@ abstract class ArmyParser implements DialectParser {
             return;
         }
         final StringBuilder sqlBuilder = context.sqlBuilder();
-        if (sqlBuilder.length() > 0) {
+        if (!sqlBuilder.isEmpty()) {
             sqlBuilder.append(_Constant.SPACE);
         }
         sqlBuilder.append(_Constant.WITH);
@@ -1213,9 +1219,8 @@ abstract class ArmyParser implements DialectParser {
                 this.assertRowSet(query);
                 this.parseSimpleQuery((_Query) query, context);
             }
-        } else if (query instanceof _UnionRowSet) {
+        } else if (query instanceof _UnionRowSet unionRowSet) {
             _SQLConsultant.assertUnionRowSet(query);
-            final _UnionRowSet unionRowSet = (_UnionRowSet) query;
             final _UnionType unionType;
             unionType = unionRowSet.unionType();
             if (this.validateUnionType) {
@@ -1231,7 +1236,7 @@ abstract class ArmyParser implements DialectParser {
             } else {
                 this.assertRowSet(query);
             }
-            if (((_Statement._WithClauseSpec) query).cteList().size() > 0) {
+            if (!((_Statement._WithClauseSpec) query).cteList().isEmpty()) {
                 parseWithClause((_Statement._WithClauseSpec) query, original);
             }
             final _ParenRowSetContext context;
@@ -1352,7 +1357,7 @@ abstract class ArmyParser implements DialectParser {
             }
         }
 
-        assert aliasMap.size() > 0;
+        assert !aliasMap.isEmpty();
         //3. append updateTime and visible for multi-table update target table
         SingleTableMeta<?> singleTable;
         TabularItem tableItem;
@@ -1489,7 +1494,7 @@ abstract class ArmyParser implements DialectParser {
                 case RIGHT_JOIN:
                 case FULL_JOIN: {
                     predicateList = block.onClauseList();
-                    if (predicateList.size() > 0) {
+                    if (!predicateList.isEmpty()) {
                         this.onClause(predicateList, context);
                     } else if (!nested) {
                         throw _Exceptions.castCriteriaApi();
@@ -1498,7 +1503,7 @@ abstract class ArmyParser implements DialectParser {
                 break;
                 case NONE:
                 case CROSS_JOIN: {
-                    if (block.onClauseList().size() > 0) {
+                    if (!block.onClauseList().isEmpty()) {
                         throw _Exceptions.joinTypeNoOnClause(joinType);
                     }
                 }
@@ -1650,7 +1655,7 @@ abstract class ArmyParser implements DialectParser {
     protected final void groupByAndHavingClause(final _Query stmt, final _SqlContext context) {
         final List<? extends GroupByItem> groupByList;
         groupByList = stmt.groupByList();
-        if (groupByList.size() > 0) {
+        if (!groupByList.isEmpty()) {
             this.groupByClause(groupByList, context);
             this.havingClause(stmt.havingList(), context);
         }
@@ -3492,31 +3497,22 @@ abstract class ArmyParser implements DialectParser {
     /**
      * @see #ArmyParser(DialectEnv, Dialect)
      */
-    private MappingEnv createMappingEnv(final DialectEnv env, final SafeLiteralFunc func, final DecodeLiteralFunc decodeFunc) {
+    private MappingEnv createMappingEnv(final DialectEnv env) {
         return MappingEnv.builder()
                 .reactive(env.isReactive())
                 .serverMeta(env.serverMeta())
                 .zoneOffset(env.zoneOffset())
                 .jsonCodec(env.jsonCodec())
                 .xmlCodec(env.xmlCodec())
-                .safeLiteralFunc(func)
-                .decodeLiteral(decodeFunc)
+                .safeLiteralFunc(this::safeLiteral)
+                .decodeLiteralFunc(this::decodeLiteral)
+                .typeMapFunc(createTypeMappingHandler(env))
                 .build();
     }
 
 
     protected static CriteriaException standardParserDontSupportDialect(Dialect dialect) {
         return new CriteriaException(String.format("standard parser[%s] don't support dialect api", dialect));
-    }
-
-
-    protected enum IdentifierMode {
-
-        SIMPLE,
-        QUOTING,
-        ESCAPES,
-        ERROR
-
     }
 
 

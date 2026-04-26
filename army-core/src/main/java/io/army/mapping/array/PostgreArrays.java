@@ -19,7 +19,6 @@ package io.army.mapping.array;
 import io.army.dialect._Constant;
 import io.army.function.TextFunction;
 import io.army.mapping.MappingType;
-import io.army.mapping.UnaryGenericsMapping;
 import io.army.mapping.UserMappingType;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
@@ -307,11 +306,13 @@ public abstract class PostgreArrays extends ArrayMappings {
         } catch (Throwable e) {
             throw handler.apply(type, dataType, text, e);
         }
-        if (type instanceof UnaryGenericsMapping.ListMapping) {
-            value = PostgreArrays.linearToList(array,
-                    ((UnaryGenericsMapping.ListMapping<?>) type).listConstructor()
-            );
-        } else if (type.javaType().isInstance(array)) {
+//        if (type instanceof UnaryGenericsMapping.ListMapping) {
+//            value = PostgreArrays.linearToList(array,
+//                    ((UnaryGenericsMapping.ListMapping<?>) type).listConstructor()
+//            );
+//        } else
+
+        if (type.javaType().isInstance(array)) {
             value = array;
         } else {
             String m = String.format("%s return value and %s not match.", TextFunction.class.getName(), type);
@@ -324,15 +325,20 @@ public abstract class PostgreArrays extends ArrayMappings {
                                          final MappingType type, final ErrorHandler handler)
             throws IllegalArgumentException {
         final Class<?> arrayJavaType;
-        if (type instanceof UnaryGenericsMapping.ListMapping) {
-            final Class<?> elementType;
-            elementType = ((UnaryGenericsMapping.ListMapping<?>) type).genericsType();
-            arrayJavaType = ArrayUtils.arrayClassOf(elementType);
-        } else {
-            arrayJavaType = type.javaType();
-            if (!arrayJavaType.isArray()) {
-                throw notArrayJavaType(type);
-            }
+//        if (type instanceof UnaryGenericsMapping.ListMapping) {
+//            final Class<?> elementType;
+//            elementType = ((UnaryGenericsMapping.ListMapping<?>) type).genericsType();
+//            arrayJavaType = ArrayUtils.arrayClassOf(elementType);
+//        } else {
+//            arrayJavaType = type.javaType();
+//            if (!arrayJavaType.isArray()) {
+//                throw notArrayJavaType(type);
+//            }
+//        }
+
+        arrayJavaType = type.javaType();
+        if (!arrayJavaType.isArray()) {
+            throw notArrayJavaType(type);
         }
         final Object array, value;
         try {
@@ -344,11 +350,13 @@ public abstract class PostgreArrays extends ArrayMappings {
         } catch (Throwable e) {
             throw handler.apply(type, dataType, text, e);
         }
-        if (type instanceof UnaryGenericsMapping.ListMapping) {
-            value = PostgreArrays.linearToList(array,
-                    ((UnaryGenericsMapping.ListMapping<?>) type).listConstructor()
-            );
-        } else if (type.javaType().isInstance(array)) {
+//        if (type instanceof UnaryGenericsMapping) {
+//            value = PostgreArrays.linearToList(array,
+//                    ((UnaryGenericsMapping.ListMapping<?>) type).listConstructor()
+//            );
+//        } else
+
+        if (type.javaType().isInstance(array)) {
             value = array;
         } else {
             String m = String.format("%s return value and %s not match.", TextFunction.class.getName(), type);
@@ -840,11 +848,11 @@ public abstract class PostgreArrays extends ArrayMappings {
             throw new IllegalArgumentException("not array");
         }
 
-        if (type instanceof UnaryGenericsMapping.ListMapping) {
-            final Class<?> elementType;
-            elementType = ((UnaryGenericsMapping.ListMapping<?>) type).genericsType();
-            return ArrayUtils.arrayClassOf(elementType);
-        }
+//        if (type instanceof UnaryGenericsMapping.ListMapping) {
+//            final Class<?> elementType;
+//            elementType = ((UnaryGenericsMapping.ListMapping<?>) type).genericsType();
+//            return ArrayUtils.arrayClassOf(elementType);
+//        }
 
         final Class<?> arrayJavaType, underlyingJavaType, javaType;
         javaType = type.javaType();

@@ -15,9 +15,8 @@
  */
 
 
-package io.army.dialect.sqlite;
+package io.army.dialect;
 
-import io.army.dialect._DialectUtils;
 import io.army.util._Collections;
 
 import java.util.Set;

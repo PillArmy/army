@@ -20,8 +20,10 @@ package io.army.dialect;
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
 import io.army.env.ArmyEnvironment;
+import io.army.function.DefinedTypeMapFunc;
 import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
@@ -67,6 +69,11 @@ public interface DialectEnv {
 
     Map<Class<?>, TableMeta<?>> tableMap();
 
+    @Nullable
+    DefinedTypeMapFunc definedTypeMapFunc();
+
+    Map<String, MappingType> nameToTypeMap();
+
 
 
     static Builder builder() {
@@ -92,6 +99,10 @@ public interface DialectEnv {
         Builder xmlCodec(@Nullable XmlCodec codec);
 
         Builder tableMap(Map<Class<?>, TableMeta<?>> map);
+
+        Builder definedTypeMapFunc(@Nullable DefinedTypeMapFunc func);
+
+        Builder nameToTypeMap(Map<String, MappingType> map);
 
         DialectEnv build();
 

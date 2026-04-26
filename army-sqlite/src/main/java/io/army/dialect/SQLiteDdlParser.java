@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package io.army.dialect.sqlite;
+package io.army.dialect;
 
-import io.army.dialect.ArmyDdlParser;
-import io.army.dialect._Constant;
 import io.army.meta.*;
 import io.army.schema.FieldResult;
 import io.army.sqltype.DataType;

@@ -20,6 +20,7 @@ import io.army.ArmyException;
 import io.army.criteria.SQLParam;
 import io.army.criteria.Selection;
 import io.army.criteria.TypedSelection;
+import io.army.dialect.TypeMappingHandler;
 import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.executor.DriverException;
@@ -88,7 +89,10 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     final Connection conn;
 
     final String sessionName;
+
     private final long identifier;
+
+    private final TypeMappingHandler typeMappingHandler;
 
     /**
      * <p>True : application developer have got the {@link Connection} instance,<br/>
@@ -107,6 +111,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
         } else {
             this.identifier = 0L;
         }
+        this.typeMappingHandler = factory.mappingEnv.typeMapFunc();
     }
 
 
@@ -399,9 +404,6 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     abstract void bind(PreparedStatement stmt, int indexBasedOne, MappingType type,
                        DataType dataType, Object value)
             throws SQLException;
-
-
-    abstract DataType dataTypeMap(ResultSetMetaData meta, MappingType[] typeArray, int indexBasedZero) throws SQLException;
 
 
     @Nullable
@@ -1246,7 +1248,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
         TypeMeta typeMeta;
         for (int i = 0; i < columnCount; i++) {
 
-            dataTypeArray[i] = dataTypeMap(meta, typeArray, i);
+            dataTypeArray[i] = this.typeMappingHandler.apply(meta.getColumnTypeName(i + 1), typeArray, i);
 
             if (selectionList == null) {
                 continue;
@@ -1718,7 +1720,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             }
 
             final DataType sqlType;
-            sqlType = dataTypeMap(resultSet.getMetaData(), new MappingType[1], 0);
+            sqlType = this.typeMappingHandler.apply(resultSet.getMetaData().getColumnTypeName(1), new MappingType[1], 0);
 
             final MappingEnv env = this.factory.mappingEnv;
             final int rowSize = stmt.rowSize();

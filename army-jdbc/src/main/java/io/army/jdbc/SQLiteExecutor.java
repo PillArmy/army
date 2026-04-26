@@ -38,7 +38,10 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.*;
 import java.time.temporal.TemporalAccessor;
 import java.util.function.Function;
@@ -392,12 +395,6 @@ final class SQLiteExecutor extends JdbcExecutor implements SyncLocalExecutor {
                 throw ExecutorSupport.beforeBindMethodError(type, dataType, value);
 
         }
-    }
-
-
-    @Override
-    DataType dataTypeMap(ResultSetMetaData meta, MappingType[] typeArray, int indexBasedZero) throws SQLException {
-        return getSQLiteType(meta.getColumnTypeName(indexBasedZero + 1), typeArray, indexBasedZero);
     }
 
 

@@ -67,37 +67,68 @@ abstract class PostgreParser extends _ArmyDialectParser {
 
 
     @Override
+    protected final TypeMappingHandler createTypeMappingHandler(DialectEnv env) {
+        return new PgTypeMappingHandler(env);
+    }
+
+    ///
+    /// Original Query defined type stmts,This statement is not used to unify processing logic for all dialects.
+    /// 1. Identify composite type: pg_type.typcategory is 'C' and pg_class.relkind is 'c'
+    /// 2. Identify domain type: pg_type.typbasetype > 0 ,If this is a domain (see typtype),
+    /// then typbasetype identifies the type that this one is based on. Zero if this type is not a domain.
+    /// [pg_type](https://www.postgresql.org/docs/current/catalog-pg-type.html)
+    ///
+    /// ```postgresql
+    /// SELECT t.typname AS "definedType", t.typcategory AS "type", et."enumLabelArray", at.*
+    /// FROM pg_namespace AS n
+    ///          JOIN pg_type AS t ON t.typnamespace = n.oid
+    ///          LEFT JOIN LATERAL (
+    ///                 SELECT e.enumtypid, array_agg(e.enumlabel) AS "enumLabelArray"
+    ///                 FROM pg_enum AS e
+    ///                 WHERE e.enumtypid = t.oid
+    ///                 GROUP BY e.enumtypid
+    ///         ) AS et ON et.enumtypid = t.oid
+    ///         LEFT JOIN pg_class AS c ON c.oid = t.typrelid
+    ///         LEFT JOIN LATERAL (
+    ///                 SELECT a.attrelid,
+    ///                 array_agg(a.attnum)   AS "columnNumArray",
+    ///                 array_agg(a.attname)  AS "columnNameArray",
+    ///                 array_agg(st.typname) AS "columnTypeArray"
+    ///                 FROM pg_attribute AS a
+    ///                 JOIN pg_type AS st ON st.oid = a.atttypid
+    ///                 WHERE a.attrelid = c.oid
+    ///                 GROUP BY a.attrelid
+    ///         ) AS at ON at.attrelid = c.oid
+    /// WHERE n.nspname NOT IN ('pg_catalog', 'information_schema')
+    ///   AND (t.typcategory IN ('E', 'U', 'R') OR t.typbasetype > 0 OR (t.typcategory = 'C' AND c.relkind = 'c'))
+    /// ```
+    @Override
     public final List<String> queryDefinedTypeStmts(Set<MappingType> definedTypeSet) {
-        // 1. Identify composite type: pg_type.typcategory is 'C' and pg_class.relkind is 'c'
-        // 2. Identify domain type: pg_type.typbasetype > 0 ,If this is a domain (see typtype),
-        // then typbasetype identifies the type that this one is based on. Zero if this type is not a domain.
-        // https://www.postgresql.org/docs/current/catalog-pg-type.html
         final String sql;
         sql = """
-                SELECT t.typname AS "definedType", t.typcategory AS "type", et."enumLabelArray", at.*
+                SELECT t.typname AS "typeName", t.typcategory AS "type",et.enumlabel  AS "enumLabel",
+                       et."enumOrder",at.attnum as "comFieldOrder",at.attname as "comFieldName",
+                       at.typname as "comFieldType"
                 FROM pg_namespace AS n
                          JOIN pg_type AS t ON t.typnamespace = n.oid
                          LEFT JOIN LATERAL (
-                                SELECT e.enumtypid, array_agg(e.enumlabel) AS "enumLabelArray"
-                                FROM pg_enum AS e
-                                WHERE e.enumtypid = t.oid
-                                GROUP BY e.enumtypid
+                    SELECT e.enumtypid,e.enumlabel,row_number() over (order by e.enumsortorder) AS "enumOrder"
+                    FROM pg_enum AS e
+                    WHERE e.enumtypid = t.oid
+                    order by e.enumsortorder
                     ) AS et ON et.enumtypid = t.oid
                          LEFT JOIN pg_class AS c ON c.oid = t.typrelid
                          LEFT JOIN LATERAL (
-                                SELECT a.attrelid,
-                                array_agg(a.attnum)   AS "columnNumArray",
-                                array_agg(a.attname)  AS "columnNameArray",
-                                array_agg(st.typname) AS "columnTypeArray"
-                                FROM pg_attribute AS a
-                                JOIN pg_type AS st ON st.oid = a.atttypid
-                                WHERE a.attrelid = c.oid
-                                GROUP BY a.attrelid
+                    SELECT a.attrelid,a.attnum ,a.attname,st.typname
+                    FROM pg_attribute AS a
+                             JOIN pg_type AS st ON st.oid = a.atttypid
+                    WHERE a.attrelid = c.oid
+                     order by  a.attnum
                     ) AS at ON at.attrelid = c.oid
                 WHERE n.nspname NOT IN ('pg_catalog', 'information_schema')
                   AND (t.typcategory IN ('E', 'U', 'R') OR t.typbasetype > 0 OR (t.typcategory = 'C' AND c.relkind = 'c'))
+                order by t.typname ,at.attnum,et."enumOrder"
                 """;
-
         return List.of(sql);
     }
 
@@ -469,11 +500,6 @@ abstract class PostgreParser extends _ArmyDialectParser {
         return _Constant.DOUBLE_QUOTE;
     }
 
-    @Override
-    protected final String defaultFuncName() {
-        //Postgre don't support DEFAULT() function
-        throw new UnsupportedOperationException();
-    }
 
     @Override
     protected final boolean isSupportZone() {
@@ -583,29 +609,27 @@ abstract class PostgreParser extends _ArmyDialectParser {
     }
 
 
-
-
     ///
     /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS">Identifiers and Keywords</a>
     @Override
     protected final void handleIdentifier(final @Nullable DatabaseObject object, final String effectiveName, final StringBuilder sqlBuilder) {
-        final int length,startIndex;
-         length = effectiveName.length();
+        final int length, startIndex;
+        length = effectiveName.length();
         startIndex = sqlBuilder.length();
 
         final char boundaryChar = this.identifierQuote;
-        int lastWritten = 0,writtenIndex = startIndex;
+        int lastWritten = 0, writtenIndex = startIndex;
         char ch;
 
         for (int i = 0; i < length; i++) {
             ch = effectiveName.charAt(i);
-            if ((ch >= 'a' && ch <= 'z')  || ch == '_') {
+            if ((ch >= 'a' && ch <= 'z') || ch == '_') {
                 continue;
             }
 
-            if ( ch >= 'A' && ch <= 'Z') {
+            if (ch >= 'A' && ch <= 'Z') {
                 // Quoting an identifier also makes it case-sensitive, whereas unquoted names are always folded to lower case.
-                if(writtenIndex == startIndex){
+                if (writtenIndex == startIndex) {
                     sqlBuilder.append(boundaryChar);
                     writtenIndex++;
                 }
@@ -615,20 +639,20 @@ abstract class PostgreParser extends _ArmyDialectParser {
             if ((ch >= '0' && ch <= '9') || ch == '$') {
                 if (i == 0) {
                     sqlBuilder.append(boundaryChar);
-                    writtenIndex ++;
+                    writtenIndex++;
                 }
                 continue;
             }
 
             if (ch == _Constant.NUL_CHAR) {
-                if(object == null){
+                if (object == null) {
                     throw _Exceptions.identifierError(effectiveName, this.dialect);
-                }else {
+                } else {
                     throw _Exceptions.objectNameError(object, this.dialect);
                 }
             }
 
-            if(writtenIndex == startIndex){
+            if (writtenIndex == startIndex) {
                 sqlBuilder.append(boundaryChar);
                 writtenIndex++;
             }
@@ -649,12 +673,11 @@ abstract class PostgreParser extends _ArmyDialectParser {
             sqlBuilder.append(effectiveName, lastWritten, length);
         }
 
-        if(writtenIndex > startIndex){
+        if (writtenIndex > startIndex) {
             sqlBuilder.append(boundaryChar);
         }
 
     }
-
 
 
     @Override

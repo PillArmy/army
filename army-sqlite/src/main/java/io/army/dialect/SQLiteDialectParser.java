@@ -14,5 +14,18 @@
  * limitations under the License.
  */
 
-@io.army.lang.NonNullApi
-package io.army.dialect.sqlite;
+package io.army.dialect;
+
+
+final class SQLiteDialectParser extends SQLiteParser {
+
+    static SQLiteDialectParser create(DialectEnv dialectEnv, SQLiteDialect dialect) {
+        return new SQLiteDialectParser(dialectEnv, dialect);
+    }
+
+    private SQLiteDialectParser(DialectEnv dialectEnv, SQLiteDialect dialect) {
+        super(dialectEnv, dialect);
+    }
+
+
+}

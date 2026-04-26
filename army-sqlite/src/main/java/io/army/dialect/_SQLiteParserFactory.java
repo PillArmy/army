@@ -15,12 +15,8 @@
  */
 
 
-package io.army.dialect.sqlite;
+package io.army.dialect;
 
-import io.army.dialect.Database;
-import io.army.dialect.DialectEnv;
-import io.army.dialect.DialectParser;
-import io.army.dialect.DialectParserFactory;
 import io.army.util.ClassUtils;
 
 public class _SQLiteParserFactory extends DialectParserFactory {
