@@ -46,7 +46,7 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
 
     /**
      * @param javaType non-array class. If javaType isn't String array,then must declare static 'create' factory method.
-     *                 see {@link ArmyPostgreRange}
+     *                 see {@link PostgreRange}
      * @param param    from {@link Mapping#params()} ,it's the name of <ul>
      *                 <li>{@link PgType#INT4RANGE}</li>
      *                 <li>{@link PgType#INT8RANGE}</li>
@@ -74,7 +74,7 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
 
     /**
      * @param javaType non-array class. If javaType isn't String array,then must declare static 'create' factory method.
-     *                 see {@link ArmyPostgreRange}
+     *                 see {@link PostgreRange}
      * @param sqlType  valid instance:<ul>
      *                 <li>{@link PgType#INT4RANGE}</li>
      *                 <li>{@link PgType#INT8RANGE}</li>
@@ -107,7 +107,7 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
 
     /**
      * @param javaType non-array and non-string class.
-     *                 see {@link ArmyPostgreRange}
+     *                 see {@link PostgreRange}
      * @param sqlType  valid instance: <ul>
      *                 <li>{@link PgType#INT4RANGE}</li>
      *                 <li>{@link PgType#INT8RANGE}</li>
@@ -133,7 +133,7 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
 
     /**
      * @param javaType non-array and non-string class.
-     *                 see {@link ArmyPostgreRange}
+     *                 see {@link PostgreRange}
      * @param param    from {@link Mapping#params()} ,it's the name of <ul>
      *                 <li>{@link PgType#INT4RANGE}</li>
      *                 <li>{@link PgType#INT8RANGE}</li>

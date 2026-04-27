@@ -24,12 +24,10 @@ import io.army.criteria.impl.inner.*;
 import io.army.criteria.standard.StandardStatement;
 import io.army.executor.ExecutorSupport;
 import io.army.lang.Nullable;
-import io.army.mapping.IntegerType;
-import io.army.mapping.MappingType;
-import io.army.mapping.MappingTypeType;
-import io.army.mapping.StringType;
+import io.army.mapping.*;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
+import io.army.schema.TypeCategory;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
@@ -112,38 +110,83 @@ abstract class PostgreParser extends _ArmyDialectParser {
     public final List<SimpleStmt> queryDefinedTypeStmts(Map<String, MappingType> definedTypeMap) {
         final String sql;
         sql = """
-                SELECT t.typname AS "typeName", et.enumlabel  AS "enumLabel",
-                       et."enumOrder",at.attnum as "comFieldOrder",at.attname as "comFieldName",
-                       at.typname as "comFieldType"
+                SELECT t.typname AS "typeName",
+                       CASE(t.typcategory)
+                           WHEN 'C' THEN 'COMPOSITE'
+                           WHEN 'E' THEN 'ENUM'
+                           WHEN 'R' THEN 'RANGE'
+                           ELSE CASE
+                                WHEN t.typbasetype > 0 THEN 'DOMAIN'
+                                ELSE 'UNKNOWN'
+                                END
+                           END AS "category" ,
+                       et.enumlabel  AS "enumLabel",
+                       et."enumOrder",
+                       at.attnum AS "comFieldOrder",
+                       at.attname AS "comFieldName",
+                       at.typname AS "comFieldType",
+                       at.collname AS "comFieldCollation",
+                       pg_catalog.format_type(t.typbasetype, t.typtypmod) AS "baseType",
+                       co.collname AS "collation",
+                       t.typnotnull AS "notNull",
+                       t.typdefault AS "default",
+                       CASE WHEN cs.conname IS NOT NULL THEN 'CONSTRAINT ' || cs.conname  || ' ' || pg_get_constraintdef(cs.oid, true) ELSE NULL END AS "constraint",
+                       (SELECT rt.typname FROM pg_type AS rt WHERE rt.oid = r.rngsubtype) AS "rangeSubType",
+                       (SELECT rc.collname FROM pg_collation AS rc WHERE rc.oid = r.rngcollation) AS "rangeCollation",
+                       (SELECT rt.typname FROM pg_type AS rt WHERE rt.oid = r.rngmultitypid) AS "rangeMulti",
+                       (SELECT ro.opcname FROM pg_opclass AS ro WHERE ro.oid = r.rngsubopc) AS "rangeSubOpc",
+                       (SELECT ro.proname FROM pg_proc AS ro WHERE ro.oid = r.rngcanonical) AS "rangeCanonical",
+                       (SELECT ro.proname FROM pg_proc AS ro WHERE ro.oid = r.rngsubdiff) AS "rangeSubDiff"
                 FROM pg_namespace AS n
                          JOIN pg_type AS t ON t.typnamespace = n.oid
                          LEFT JOIN LATERAL (
-                    SELECT e.enumtypid,e.enumlabel,row_number() over (order by e.enumsortorder) AS "enumOrder"
+                    SELECT e.enumtypid,e.enumlabel,row_number() OVER (ORDER by e.enumsortorder) AS "enumOrder"
                     FROM pg_enum AS e
                     WHERE e.enumtypid = t.oid
-                    order by e.enumsortorder
+                    ORDER BY e.enumsortorder
                     ) AS et ON et.enumtypid = t.oid
                          LEFT JOIN pg_class AS c ON c.oid = t.typrelid
                          LEFT JOIN LATERAL (
-                    SELECT a.attrelid,a.attnum ,a.attname,st.typname
+                    SELECT a.attrelid,a.attnum ,a.attname,st.typname,sc.collname
                     FROM pg_attribute AS a
                              JOIN pg_type AS st ON st.oid = a.atttypid
+                             LEFT JOIN pg_collation as sc ON sc.oid = a.attcollation
                     WHERE a.attrelid = c.oid
-                     order by  a.attnum
+                    order by  a.attnum
                     ) AS at ON at.attrelid = c.oid
+                     LEFT JOIN pg_collation AS co  ON co.oid = t.typcollation
+                     LEFT JOIN pg_constraint cs ON cs.contypid = t.oid AND cs.contype = 'c'
+                     LEFT JOIN pg_range AS r ON r.rngtypid = t.oid
                 WHERE n.nspname NOT IN ('pg_catalog', 'information_schema')
-                  AND (t.typcategory IN ('E', 'U', 'R') OR t.typbasetype > 0 OR (t.typcategory = 'C' AND c.relkind = 'c'))
-                order by t.typname ,at.attnum,et."enumOrder"
+                  AND (t.typcategory IN ('E', 'R') OR t.typbasetype > 0 OR (t.typcategory = 'C' AND c.relkind = 'c'))
+                ORDER BY t.typname ,at.attnum,et."enumOrder"
                 """;
 
         final List<Selection> selectionList;
         selectionList = List.of(
                 _SQLConsultant.forName("typeName", StringType.INSTANCE),
+                _SQLConsultant.forName("category", NameEnumType.from(TypeCategory.class)),
+
                 _SQLConsultant.forName("enumLabel", StringType.INSTANCE),
                 _SQLConsultant.forName("enumOrder", IntegerType.INSTANCE),
+
                 _SQLConsultant.forName("comFieldOrder", IntegerType.INSTANCE),
                 _SQLConsultant.forName("comFieldName", StringType.INSTANCE),
-                _SQLConsultant.forName("comFieldType", MappingTypeType.INSTANCE)
+                _SQLConsultant.forName("comFieldType", MappingTypeType.INSTANCE),
+                _SQLConsultant.forName("comFieldCollation", StringType.INSTANCE),
+
+                _SQLConsultant.forName("baseType", StringType.INSTANCE),
+                _SQLConsultant.forName("collation", StringType.INSTANCE),
+                _SQLConsultant.forName("notNull", BooleanType.INSTANCE),
+                _SQLConsultant.forName("default", StringType.INSTANCE),
+                _SQLConsultant.forName("constraint", StringType.INSTANCE),
+
+                _SQLConsultant.forName("rangeSubType", StringType.INSTANCE),
+                _SQLConsultant.forName("rangeCollation", StringType.INSTANCE),
+                _SQLConsultant.forName("rangeMulti", StringType.INSTANCE),
+                _SQLConsultant.forName("rangeSubOpc", StringType.INSTANCE),
+                _SQLConsultant.forName("rangeCanonical", StringType.INSTANCE),
+                _SQLConsultant.forName("rangeSubDiff", StringType.INSTANCE)
         );
         return List.of(Stmts.simpleRead(sql, List.of(), selectionList));
     }

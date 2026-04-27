@@ -17,6 +17,7 @@
 package io.army.schema;
 
 import io.army.lang.Nullable;
+
 import java.util.Map;
 
 public interface SchemaInfo {
@@ -29,13 +30,13 @@ public interface SchemaInfo {
 
     Map<String, TableInfo> tableMap();
 
-    Map<String, DefinedTypeInfo> definedTypeMap();
-
+    /// type name is upper case
+    Map<String, TypeInfo> definedTypeMap();
 
 
     static SchemaInfo create(@Nullable String catalog, @Nullable String schema,
-                             Map<String, TableInfo.Builder> builderMap) {
-        return SchemaInfoImpl.create(catalog, schema, builderMap);
+                             Map<String, TableInfo.Builder> builderMap, Map<String, TypeInfo> typeInfoMap) {
+        return SchemaInfoImpl.create(catalog, schema, builderMap, typeInfoMap);
     }
 
 }

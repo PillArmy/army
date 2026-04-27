@@ -114,7 +114,7 @@ import io.army.type.DaoLayer;
  * @since 0.6.0
  */
 @DaoLayer
-public interface ArmyPostgreRange<T> {
+public interface PostgreRange<T> {
 
     /**
      * @return true : empty

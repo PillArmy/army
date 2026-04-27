@@ -17,28 +17,36 @@
 package io.army.jdbc;
 
 import io.army.executor.DataAccessException;
+import io.army.executor.SyncExecutor;
 import io.army.executor.SyncMetaExecutor;
 import io.army.lang.Nullable;
+import io.army.option.Option;
+import io.army.result.CurrentRecord;
 import io.army.schema.*;
+import io.army.session.SyncStmtOption;
 import io.army.stmt.SimpleStmt;
+import io.army.util.RowFunctions;
+import io.army.util.StreamFunctions;
 import io.army.util._Collections;
 
-import javax.sql.XAConnection;
 import java.sql.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 class JdbcMetaExecutor implements SyncMetaExecutor {
 
-    static JdbcMetaExecutor from(JdbcExecutorFactory factory, Connection conn) {
-        return new JdbcMetaExecutor(factory, conn);
+    static JdbcMetaExecutor from(JdbcExecutor syncExecutor) {
+        return new JdbcMetaExecutor(syncExecutor);
     }
-
 
 
     // private static final Logger LOG = LoggerFactory.getLogger(JdbcMetaExecutor.class);
 
-    private final JdbcExecutorFactory factory;
+
+    private final SyncExecutor syncExecutor;
 
     private final Connection conn;
 
@@ -46,9 +54,9 @@ class JdbcMetaExecutor implements SyncMetaExecutor {
      * private constructor
      */
 
-    private JdbcMetaExecutor(JdbcExecutorFactory factory, Connection conn) {
-        this.factory = factory;
-        this.conn = conn;
+    private JdbcMetaExecutor(JdbcExecutor syncExecutor) {
+        this.syncExecutor = syncExecutor;
+        this.conn = syncExecutor.conn;
     }
 
 
@@ -73,7 +81,7 @@ class JdbcMetaExecutor implements SyncMetaExecutor {
                 appendIndex(catalog, schema, metaData, false, tableBuilder, indexBuilder);
             }
 
-            return SchemaInfo.create(catalog, schema, tableBuilderMap);
+            return SchemaInfo.create(catalog, schema, tableBuilderMap, extractTypeInfo(definedTypeSqlList));
         } catch (SQLException e) {
             throw JdbcExecutor.wrapException(e);
         }
@@ -102,28 +110,7 @@ class JdbcMetaExecutor implements SyncMetaExecutor {
 
     @Override
     public final void close() throws DataAccessException {
-        Throwable error = null;
-        try {
-            this.conn.close();
-
-        } catch (Throwable e) {
-            error = e;
-        }
-
-        if (this instanceof XaConnMetaExecutor) {
-            try {
-                ((XaConnMetaExecutor) this).xaConn.close();
-            } catch (Throwable e) {
-                if (error == null) {
-                    error = e;
-                }
-            }
-        }
-
-        if (error != null) {
-            throw JdbcExecutor.wrapError(error);
-        }
-
+        this.syncExecutor.close();
     }
 
 
@@ -288,17 +275,19 @@ class JdbcMetaExecutor implements SyncMetaExecutor {
 
     }
 
+    @SuppressWarnings("all")
+    private Map<String, TypeInfo> extractTypeInfo(final List<SimpleStmt> sqlList) throws DataAccessException {
 
-    private static final class XaConnMetaExecutor extends JdbcMetaExecutor {
-
-        private final XAConnection xaConn;
-
-        private XaConnMetaExecutor(JdbcExecutorFactory factory, XAConnection xaConn, Connection conn) {
-            super(factory, conn);
-            this.xaConn = xaConn;
+        final Map<String, TypeInfo> typeInfoMap = new HashMap<>();
+        final Function<CurrentRecord, Boolean> function = RowFunctions.typeInfoFunc(typeInfoMap);
+        for (SimpleStmt stmt : sqlList) {
+            try (Stream<Boolean> stream = this.syncExecutor.query(stmt, function, SyncStmtOption.defaultOption(), Option.EMPTY_FUNC)) {
+                stream.reduce(StreamFunctions::last)
+                        .orElse(Boolean.TRUE);
+            }
         }
-
-    } // JdbcXaConnMetaExecutor
+        return typeInfoMap;
+    }
 
 
 }

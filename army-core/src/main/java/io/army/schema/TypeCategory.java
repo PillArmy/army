@@ -16,10 +16,11 @@
 
 package io.army.schema;
 
-public enum DefinedMode {
+public enum TypeCategory {
 
-    ENUM,
     COMPOSITE,
-    DOMAIN,
-    RANGE
+    ENUM,
+    RANGE,
+    DOMAIN
+
 }

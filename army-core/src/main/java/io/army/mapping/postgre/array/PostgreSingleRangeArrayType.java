@@ -47,7 +47,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
 
     /**
      * @param javaType one dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-     *                 see {@link ArmyPostgreRange}
+     *                 see {@link PostgreRange}
      * @param param    from {@link Mapping#params()} ,it's the name of <ul>
      *                 <li>{@link PgType#INT4RANGE_ARRAY}</li>
      *                 <li>{@link PgType#INT8RANGE_ARRAY}</li>
@@ -75,7 +75,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
 
     /**
      * @param javaType one dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-     *                 see {@link ArmyPostgreRange}
+     *                 see {@link PostgreRange}
      * @param sqlType  valid instance <ul>
      *                 <li>{@link PgType#INT4RANGE_ARRAY}</li>
      *                 <li>{@link PgType#INT8RANGE_ARRAY}</li>
@@ -111,7 +111,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
 
     /**
      * @param javaType one dimension or higher dimension non-string array class
-     *                 see {@link ArmyPostgreRange}
+     *                 see {@link PostgreRange}
      * @param sqlType  valid instance <ul>
      *                 <li>{@link PgType#INT4RANGE_ARRAY}</li>
      *                 <li>{@link PgType#INT8RANGE_ARRAY}</li>
@@ -140,7 +140,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
 
     /**
      * @param javaType   one dimension or higher dimension array class
-     *                   see {@link ArmyPostgreRange}
+     *                   see {@link PostgreRange}
      * @param param      from {@link Mapping#params()} ,it's the name of <ul>
      *                   <li>{@link PgType#INT4RANGE_ARRAY}</li>
      *                   <li>{@link PgType#INT8RANGE_ARRAY}</li>

@@ -321,7 +321,7 @@ public abstract class PgRangeType extends _ArmyPgRangeType {
     public interface UserDefinedRangeType<T> extends RangeType {
 
         /**
-         * @throws UnsupportedOperationException when {@link MappingType#javaType()} is {@link ArmyPostgreRange} type.
+         * @throws UnsupportedOperationException when {@link MappingType#javaType()} is {@link PostgreRange} type.
          * @see #createMockFunction(Class, Class)
          */
         MockRangeFunction<T> mockFunction();

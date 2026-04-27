@@ -186,7 +186,7 @@ final class JdbcExecutorFactory extends ExecutorFactorySupport implements SyncEx
             }
             final Connection conn;
             conn = ((DataSource) dataSource).getConnection();
-            return JdbcMetaExecutor.from(this, conn);
+            return JdbcMetaExecutor.from((JdbcExecutor) this.localFunc.apply(this, conn, "meta"));
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -366,6 +366,7 @@ final class JdbcExecutorFactory extends ExecutorFactorySupport implements SyncEx
 
     @FunctionalInterface
     private interface LocalExecutorFunction {
+
         SyncLocalExecutor apply(JdbcExecutorFactory factory, Connection conn, String sessionName);
 
     }

@@ -3265,7 +3265,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
         private Supplier<?> objectConstructor;
 
-        private Function<DataRecord, ?> classRowFunc, objectRowFunc;
+        private Function<CurrentRecord, ?> classRowFunc, objectRowFunc;
 
         private boolean closed;
 
@@ -3346,12 +3346,12 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
         @SuppressWarnings("unchecked")
         @Override
         public <R> Stream<R> query(final Class<R> resultClass, final Consumer<ResultStates> consumer) throws ArmyException {
-            Function<DataRecord, R> rowFunc = null;
+            Function<CurrentRecord, R> rowFunc = null;
             final Class<?> prevResultClass = this.resultClass;
             if (prevResultClass == null) {
                 this.resultClass = resultClass;
             } else if (resultClass == prevResultClass) {
-                rowFunc = (Function<DataRecord, R>) this.classRowFunc;
+                rowFunc = (Function<CurrentRecord, R>) this.classRowFunc;
             }
             if (rowFunc == null) {
                 this.classRowFunc = rowFunc = RowFunctions.classRowFunc(resultClass, this.stmt);
@@ -3368,12 +3368,12 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
         @SuppressWarnings("unchecked")
         @Override
         public <R> Stream<R> queryObject(final Supplier<R> constructor, final Consumer<ResultStates> consumer) throws ArmyException {
-            Function<DataRecord, R> rowFunc = null;
+            Function<CurrentRecord, R> rowFunc = null;
             final Supplier<?> prevObjectConstructor = this.objectConstructor;
             if (prevObjectConstructor == null) {
                 this.objectConstructor = constructor;
             } else if (prevObjectConstructor == constructor) {
-                rowFunc = (Function<DataRecord, R>) this.objectRowFunc;
+                rowFunc = (Function<CurrentRecord, R>) this.objectRowFunc;
             }
             if (rowFunc == null) {
                 this.objectRowFunc = rowFunc = RowFunctions.objectRowFunc(constructor, true);

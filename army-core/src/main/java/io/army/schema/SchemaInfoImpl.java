@@ -19,14 +19,13 @@ package io.army.schema;
 import io.army.lang.Nullable;
 import io.army.util._Collections;
 
-import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
 final class SchemaInfoImpl implements SchemaInfo {
 
     static SchemaInfoImpl create(@Nullable String catalog, @Nullable String schema,
-                                 Map<String, TableInfo.Builder> builderMap) {
+                                 Map<String, TableInfo.Builder> builderMap, Map<String, TypeInfo> typeInfoMap) {
 
         final Map<String, TableInfo> tableMap = _Collections.hashMap(builderMap.size());
         for (TableInfo.Builder builder : builderMap.values()) {
@@ -35,7 +34,7 @@ final class SchemaInfoImpl implements SchemaInfo {
                 throw new IllegalArgumentException("builderMap error.");
             }
         }
-        return new SchemaInfoImpl(catalog, schema, tableMap);
+        return new SchemaInfoImpl(catalog, schema, tableMap, typeInfoMap);
     }
 
 
@@ -45,11 +44,15 @@ final class SchemaInfoImpl implements SchemaInfo {
 
     private final Map<String, TableInfo> builderMap;
 
+    private final Map<String, TypeInfo> typeInfoMap;
 
-    private SchemaInfoImpl(@Nullable String catalog, @Nullable String schema, Map<String, TableInfo> tableMap) {
+
+    private SchemaInfoImpl(@Nullable String catalog, @Nullable String schema,
+                           Map<String, TableInfo> tableMap, Map<String, TypeInfo> typeInfoMap) {
         this.catalog = catalog;
         this.schema = schema;
-        this.builderMap = Collections.unmodifiableMap(tableMap);
+        this.builderMap = Map.copyOf(tableMap);
+        this.typeInfoMap = Map.copyOf(typeInfoMap);
     }
 
 
@@ -69,8 +72,8 @@ final class SchemaInfoImpl implements SchemaInfo {
     }
 
     @Override
-    public Map<String, DefinedTypeInfo> definedTypeMap() {
-        return Map.of();
+    public Map<String, TypeInfo> definedTypeMap() {
+        return this.typeInfoMap;
     }
 
 

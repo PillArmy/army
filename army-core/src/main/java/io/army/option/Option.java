@@ -16,6 +16,7 @@
 
 package io.army.option;
 
+import io.army.lang.Nullable;
 import io.army.result.ResultStates;
 import io.army.session.RmSession;
 import io.army.session.Session;
@@ -23,7 +24,6 @@ import io.army.transaction.*;
 import io.army.util._Collections;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -61,7 +61,7 @@ public final class Option<T> {
         };
     }
 
-    public static final Function<Option<?>, ?> EMPTY_FUNC = option -> null;
+    public static final Function<Option<?>, ?> EMPTY_FUNC = _ -> null;
 
     /**
      * private

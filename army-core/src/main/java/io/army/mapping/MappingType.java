@@ -291,6 +291,10 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
+    interface SqlDomain extends SqlUserDefined {
+
+    }
+
     /**
      * <p>This interface representing row(record) type
      */

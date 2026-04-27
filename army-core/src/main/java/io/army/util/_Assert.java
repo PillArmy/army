@@ -35,11 +35,31 @@ public abstract class _Assert {
         return text;
     }
 
+    public static <T> T notNull(@Nullable T object, String message) {
+        if (object == null) {
+            throw new IllegalArgumentException(message);
+        }
+        return object;
+    }
+
+    public static void isFalse(boolean expression, String message) {
+        if (expression) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    public static void isTrue(boolean expression, String message) {
+        if (!expression) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
     public static void prepared(@Nullable Boolean prepared) {
         if (prepared == null || !prepared) {
             throw new CriteriaException(String.format("%s is non-prepared state.", Statement.class.getName()));
         }
     }
+
 
     public static void nonPrepared(@Nullable Boolean prepared) {
         if (prepared != null) {

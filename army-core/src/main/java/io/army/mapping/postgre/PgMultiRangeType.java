@@ -51,7 +51,7 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
 
     /**
      * @param javaType one dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-     *                 see {@link ArmyPostgreRange}
+     *                 see {@link PostgreRange}
      * @param param    from {@link Mapping#params()} ,it's the name of <ul>
      *                 <li>{@link PgType#INT4MULTIRANGE}</li>
      *                 <li>{@link PgType#INT8MULTIRANGE}</li>
@@ -79,7 +79,7 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
 
     /**
      * @param javaType one dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-     *                 see {@link ArmyPostgreRange}
+     *                 see {@link PostgreRange}
      * @param sqlType  from {@link Mapping#params()} ,valid instance: <ul>
      *                 <li>{@link PgType#INT4MULTIRANGE}</li>
      *                 <li>{@link PgType#INT8MULTIRANGE}</li>
@@ -115,7 +115,7 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
 
     /**
      * @param javaType one dimension non-string array class
-     *                 see {@link ArmyPostgreRange}
+     *                 see {@link PostgreRange}
      * @param sqlType  from {@link Mapping#params()} ,valid instance: <ul>
      *                 <li>{@link PgType#INT4MULTIRANGE}</li>
      *                 <li>{@link PgType#INT8MULTIRANGE}</li>
@@ -143,7 +143,7 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
 
     /**
      * @param javaType   one dimension non-string array class
-     *                   see {@link ArmyPostgreRange}
+     *                   see {@link PostgreRange}
      * @param param      from {@link Mapping#params()} ,it's the name of <ul>
      *                   <li>{@link PgType#INT4MULTIRANGE}</li>
      *                   <li>{@link PgType#INT8MULTIRANGE}</li>

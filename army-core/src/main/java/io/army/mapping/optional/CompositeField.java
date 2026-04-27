@@ -16,6 +16,8 @@
 
 package io.army.mapping.optional;
 
+import io.army.lang.Nullable;
+import io.army.meta.FieldMeta;
 import io.army.meta.TypeMeta;
 import io.army.util._Assert;
 import io.army.util._StringUtils;
@@ -25,10 +27,16 @@ import java.util.Objects;
 /// @see io.army.mapping.CompositeType
 public final class CompositeField {
 
+    @Deprecated
     public static CompositeField from(String fieldName, String columnName, TypeMeta typeMeta) {
+        return from(fieldName, columnName, typeMeta, null);
+    }
+
+    public static CompositeField from(String fieldName, String columnName, TypeMeta typeMeta, @Nullable String collation) {
         _Assert.hasText(fieldName, "");
         _Assert.hasText(columnName, "");
         Objects.requireNonNull(typeMeta);
+        _Assert.isFalse(typeMeta instanceof FieldMeta, "");
         return new CompositeField(fieldName, columnName, typeMeta);
     }
 

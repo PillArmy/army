@@ -24,7 +24,6 @@ import io.army.executor.DriverException;
 import io.army.executor.ExecutorSupport;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
-import io.army.mapping.MappingType;
 import io.army.mapping.OffsetTimeType;
 import io.army.meta.ServerMeta;
 import io.army.option.Option;
@@ -1042,7 +1041,7 @@ abstract class JdbcExecutorSupport extends ExecutorSupport {
 
         private Class<?> resultClass;
 
-        private Function<DataRecord, ?> classRowFunc, objectRowFunc;
+        private Function<CurrentRecord, ?> classRowFunc, objectRowFunc;
 
         private Supplier<?> objectConstructor;
 
@@ -1254,12 +1253,12 @@ abstract class JdbcExecutorSupport extends ExecutorSupport {
                 throw new NullPointerException();
             }
 
-            Function<DataRecord, R> rowFunc = null;
+            Function<CurrentRecord, R> rowFunc = null;
             final Class<?> prevResultClass = this.resultClass;
             if (prevResultClass == null) {
                 this.resultClass = resultClass;
             } else if (resultClass == prevResultClass) {
-                rowFunc = (Function<DataRecord, R>) this.classRowFunc;
+                rowFunc = (Function<CurrentRecord, R>) this.classRowFunc;
             }
             if (rowFunc == null) {
                 this.classRowFunc = rowFunc = RowFunctions.classRowFunc(resultClass, this.stmt);
@@ -1277,12 +1276,12 @@ abstract class JdbcExecutorSupport extends ExecutorSupport {
                 throw new NullPointerException();
             }
 
-            Function<DataRecord, R> rowFunc = null;
+            Function<CurrentRecord, R> rowFunc = null;
             final Supplier<?> prevObjectConstructor = this.objectConstructor;
             if (prevObjectConstructor == null) {
                 this.objectConstructor = constructor;
             } else if (prevObjectConstructor == constructor) {
-                rowFunc = (Function<DataRecord, R>) this.objectRowFunc;
+                rowFunc = (Function<CurrentRecord, R>) this.objectRowFunc;
             }
             if (rowFunc == null) {
                 this.objectRowFunc = rowFunc = RowFunctions.objectRowFunc(constructor, true);

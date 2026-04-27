@@ -3,17 +3,21 @@ package io.army.util;
 import io.army.criteria.Selection;
 import io.army.executor.ExecutorSupport;
 import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
+import io.army.mapping.optional.CompositeField;
+import io.army.meta.MetaException;
 import io.army.pojo.ObjectAccessor;
 import io.army.pojo.ObjectAccessorFactory;
+import io.army.result.CurrentRecord;
 import io.army.result.DataRecord;
 import io.army.result.RecordMeta;
+import io.army.schema.TypeCategory;
+import io.army.schema.TypeInfo;
 import io.army.stmt.SingleSqlStmt;
 import io.army.stmt.TwoStmtQueryStmt;
 import io.army.type.ImmutableSpec;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
@@ -24,7 +28,7 @@ public abstract class RowFunctions {
     }
 
 
-    public static Function<DataRecord, Map<String, Object>> hashMapRowFunc(boolean immutableMap) {
+    public static Function<CurrentRecord, Map<String, Object>> hashMapRowFunc(boolean immutableMap) {
         final IntFunction<Map<String, Object>> constructor;
         constructor = _Collections::hashMap;
 
@@ -34,7 +38,7 @@ public abstract class RowFunctions {
     }
 
 
-    public static Function<DataRecord, Map<String, Object>> treeMapRowFunc(boolean immutableMap) {
+    public static Function<CurrentRecord, Map<String, Object>> treeMapRowFunc(boolean immutableMap) {
         final Supplier<Map<String, Object>> constructor;
         constructor = RowMaps::treeMap;
 
@@ -43,7 +47,7 @@ public abstract class RowFunctions {
         return reader::readRow;
     }
 
-    public static Function<DataRecord, Map<String, Object>> linkedHashMapRowFunc(boolean immutableMap) {
+    public static Function<CurrentRecord, Map<String, Object>> linkedHashMapRowFunc(boolean immutableMap) {
         final Supplier<Map<String, Object>> constructor;
         constructor = RowMaps::linkedHashMap;
 
@@ -53,7 +57,7 @@ public abstract class RowFunctions {
     }
 
 
-    public static <R> Function<DataRecord, R> objectRowFunc(final Supplier<R> constructor, boolean immutableMap) {
+    public static <R> Function<CurrentRecord, R> objectRowFunc(final Supplier<R> constructor, boolean immutableMap) {
         Objects.requireNonNull(constructor);
         final ObjectRowReader<R> reader;
         reader = new ObjectRowReader<>(constructor, null, immutableMap);
@@ -61,15 +65,15 @@ public abstract class RowFunctions {
     }
 
 
-    public static <R> Function<DataRecord, R> mapRowFunc(final IntFunction<R> constructor, boolean immutableMap) {
+    public static <R> Function<CurrentRecord, R> mapRowFunc(final IntFunction<R> constructor, boolean immutableMap) {
         Objects.requireNonNull(constructor);
         final MapRowReader<R> reader;
         reader = new MapRowReader<>(constructor, immutableMap);
         return reader::readRow;
     }
 
-    public static <R> Function<DataRecord, R> classRowFunc(final Class<R> resultClass, final SingleSqlStmt stmt) {
-        final Function<DataRecord, R> rowFunc;
+    public static <R> Function<CurrentRecord, R> classRowFunc(final Class<R> resultClass, final SingleSqlStmt stmt) {
+        final Function<CurrentRecord, R> rowFunc;
         final List<? extends Selection> selectionList = stmt.selectionList();
         if ((stmt instanceof TwoStmtQueryStmt && ((TwoStmtQueryStmt) stmt).maxColumnSize() == 1)
                 || selectionList.size() == 1) {
@@ -81,12 +85,17 @@ public abstract class RowFunctions {
     }
 
 
-    public static <R> Function<DataRecord, R> beanRowFunc(final Class<R> resultClass) {
+    public static <R> Function<CurrentRecord, R> beanRowFunc(final Class<R> resultClass) {
 
         final ObjectAccessor accessor;
         accessor = ObjectAccessorFactory.forPojo(resultClass);
         final ObjectRowReader<R> reader;
         reader = new ObjectRowReader<>(ObjectAccessorFactory.beanConstructor(resultClass), accessor, true);
+        return reader::readRow;
+    }
+
+    public static Function<CurrentRecord, Boolean> typeInfoFunc(final Map<String, TypeInfo> typeInfoMap) {
+        final TypeInfoReader reader = new TypeInfoReader(typeInfoMap);
         return reader::readRow;
     }
 
@@ -175,7 +184,7 @@ public abstract class RowFunctions {
 
 
         @SuppressWarnings("unchecked")
-        private R readRow(final DataRecord record) {
+        private R readRow(final CurrentRecord record) {
             final RecordMeta meta = record.getRecordMeta();
             final int columnCount = meta.getColumnCount();
 
@@ -278,6 +287,220 @@ public abstract class RowFunctions {
 
 
     } // MapRowReader
+
+
+    private static final class TypeInfoReader {
+
+        private final Map<String, TypeInfo> typeInfoMap;
+
+        private String typeName;
+
+        private TypeCategory category;
+
+        private List<String> enumLabelList;
+
+        private List<CompositeField> fieldList;
+
+        private int order = -1;
+
+        private TypeInfo.Builder typeInfoBuilder;
+
+        private TypeInfoReader(Map<String, TypeInfo> typeInfoMap) {
+            this.typeInfoMap = typeInfoMap;
+        }
+
+        Boolean readRow(final CurrentRecord record) {
+            final String lastTypeName = this.typeName, typeName;
+            typeName = record.getNonNull("typeName", String.class).toUpperCase(Locale.ROOT);
+
+            if (lastTypeName == null) {
+                receiveNewType(typeName, record);
+            } else if (typeName.equals(lastTypeName)) {
+                receiveCurrentType(record);
+            } else {
+                putLastType(lastTypeName);
+                receiveNewType(typeName, record);
+            }
+            return Boolean.TRUE;
+        }
+
+
+        private void receiveCurrentType(final CurrentRecord record) {
+            final TypeCategory typeCategory = record.getNonNull("category", TypeCategory.class);
+            if (typeCategory != this.category) {
+                throw stmtError();
+            }
+            final int lastOrder = this.order, currentOrder;
+            switch (typeCategory) {
+                case ENUM: {
+                    final List<String> enumLabelList = Objects.requireNonNull(this.enumLabelList);
+                    enumLabelList.add(record.getNonNull("enumLabel", String.class));
+                    currentOrder = record.getNonNull("enumOrder", Integer.class);
+                }
+                break;
+                case COMPOSITE: {
+                    final List<CompositeField> fieldList = Objects.requireNonNull(this.fieldList);
+                    final String labelName, collation;
+
+                    labelName = record.getNonNull("comFieldName", String.class);
+                    collation = record.get("comFieldCollation", String.class);
+                    final MappingType type = record.getNonNull("comFieldType", MappingType.class);
+
+                    fieldList.add(CompositeField.from(labelName, labelName, type, collation));
+                    currentOrder = record.getNonNull("comFieldOrder", Integer.class);
+                }
+                break;
+                default:
+                    throw _Exceptions.unexpectedEnum(typeCategory);
+            }
+            if (currentOrder != lastOrder + 1) {
+                throw stmtError();  // no bug,never here
+            }
+
+            this.order = currentOrder; // update
+        }
+
+
+        private void receiveNewType(final String typeName, final CurrentRecord record) {
+            this.typeName = typeName;
+
+            final TypeCategory typeCategory = record.getNonNull("category", TypeCategory.class);
+            this.category = typeCategory;
+
+            switch (typeCategory) {
+                case ENUM: {
+                    final List<String> enumLabelList;
+                    this.enumLabelList = enumLabelList = new ArrayList<>();
+                    enumLabelList.add(record.getNonNull("enumLabel", String.class));
+                    this.order = record.getNonNull("enumOrder", Integer.class);
+                }
+                break;
+                case COMPOSITE: {
+                    final List<CompositeField> fieldList;
+                    this.fieldList = fieldList = new ArrayList<>();
+                    final String labelName, collation;
+
+                    labelName = record.getNonNull("comFieldName", String.class);
+                    final MappingType type = record.getNonNull("comFieldType", MappingType.class);
+                    collation = record.get("comFieldCollation", String.class);
+
+                    fieldList.add(CompositeField.from(labelName, labelName, type, collation));
+                    this.order = record.getNonNull("comFieldOrder", Integer.class);
+                }
+                break;
+                case RANGE: {
+                    final TypeInfo typeInfo;
+                    typeInfo = getTypeInfoBuilder()
+                            .name(typeName)
+                            .category(typeCategory)
+
+                            .rangeSubType(record.get("rangeSubType", String.class))
+                            .rangeCollation(record.get("rangeCollation", String.class))
+                            .rangeMulti(record.get("rangeMulti", String.class))
+                            .rangeSubOpc(record.get("rangeSubOpc", String.class))
+                            .rangeCanonical(record.get("rangeCanonical", String.class))
+                            .rangeSubDiff(record.get("rangeSubDiff", String.class))
+                            .build();
+
+                    putTypeInfo(typeInfo);
+                    this.typeName = null;
+                    this.category = null;
+                    this.order = -1;
+                }
+                break;
+                case DOMAIN: {
+                    final TypeInfo typeInfo;
+                    typeInfo = getTypeInfoBuilder()
+                            .name(typeName)
+                            .category(typeCategory)
+
+                            .baseType(record.getNonNull("baseType", String.class))
+                            .collation(record.get("collation", String.class))
+                            .notNull(record.getNonNull("notNull", Boolean.class))
+                            .defaultValue(record.get("default", String.class))
+                            .constraint(record.get("constraint", String.class))
+
+                            .build();
+
+                    putTypeInfo(typeInfo);
+                    this.typeName = null;
+                    this.category = null;
+                    this.order = -1;
+                }
+                break;
+                default:
+                    throw _Exceptions.unexpectedEnum(typeCategory);
+            }
+
+        }
+
+
+        private void putTypeInfo(final TypeInfo typeInfo) {
+            if (this.typeInfoMap.putIfAbsent(typeInfo.name(), typeInfo) != null) {
+                throw stmtError();  // no bug,never here
+            }
+        }
+
+
+        private void putLastType(final String lastTypeName) {
+            _Assert.isTrue(lastTypeName.equals(this.typeName), "");
+            final TypeCategory typeCategory = Objects.requireNonNull(this.category);
+            switch (typeCategory) {
+                case ENUM: {
+                    final List<String> enumLabelList = Objects.requireNonNull(this.enumLabelList);
+                    final TypeInfo typeInfo;
+                    typeInfo = getTypeInfoBuilder()
+                            .name(lastTypeName)
+                            .category(typeCategory)
+                            .enumLabelList(enumLabelList)
+                            .build();
+
+                    putTypeInfo(typeInfo);
+
+                    this.typeName = null;
+                    this.category = null;
+                    this.order = -1;
+                    this.enumLabelList = null;
+                }
+                break;
+                case COMPOSITE: {
+                    final List<CompositeField> fieldList = Objects.requireNonNull(this.fieldList);
+
+                    final TypeInfo typeInfo;
+                    typeInfo = getTypeInfoBuilder()
+                            .name(lastTypeName)
+                            .category(typeCategory)
+                            .compositeFieldList(fieldList)
+                            .build();
+
+                    putTypeInfo(typeInfo);
+
+                    this.typeName = null;
+                    this.category = null;
+                    this.order = -1;
+                    this.fieldList = null;
+                }
+                break;
+                default:
+                    throw _Exceptions.unexpectedEnum(typeCategory);
+            }
+
+        }
+
+        private TypeInfo.Builder getTypeInfoBuilder() {
+            TypeInfo.Builder builder = this.typeInfoBuilder;
+            if (builder == null) {
+                this.typeInfoBuilder = builder = TypeInfo.builder();
+            }
+            return builder;
+        }
+
+
+        private static MetaException stmtError() {
+            return new MetaException("stmt error");
+        }
+
+    } // TypeInfoReader
 
 
 }
