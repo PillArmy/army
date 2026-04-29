@@ -63,13 +63,6 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException;
 
 
-    @Override
-    int hashCode();
-
-    @Override
-    boolean equals(Object obj);
-
-
     interface GenericsMapping {
 
     }
@@ -279,11 +272,25 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     }
 
 
+    /// User defined type must override {@link #hashCode()} and {@link #equals(Object)}.
     interface SqlUserDefined {
 
         String typeName();
+
+        @Override
+        int hashCode();
+
+        @Override
+        boolean equals(Object obj);
     }
 
+    interface SqlEnum extends SqlUserDefined, SqlString {
+
+    }
+
+    /// @see <a href="https://www.postgresql.org/docs/current/rowtypes.html">Composite Types</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-createtype.html">CREATE TYPE</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-altertype.html">ALTER TYPE</a>
     interface SqlComposite extends SqlUserDefined {
 
 
@@ -291,7 +298,58 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
+    /// @see <a href="https://www.postgresql.org/docs/current/domains.html">Domain Types</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-createdomain.html">CREATE DOMAIN</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-alterdomain.html">ALTER DOMAIN</a>
     interface SqlDomain extends SqlUserDefined {
+
+        MappingType baseType();
+
+        /// @return empty or default expression
+        String defaultValue();
+
+        boolean isNotNull();
+
+        /// @return empty or constraint
+        String constraint();
+
+        /// @return empty or collation name
+        String collation();
+
+    }
+
+    /// @see <a href="https://www.postgresql.org/docs/current/rangetypes.html">Range Types</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-createtype.html">CREATE TYPE</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-altertype.html">ALTER TYPE</a>
+    interface SqlRange extends SqlUserDefined {
+
+        String rangeSubType();
+
+        /// If the subtype is collatable, and you want to use a non-default collation in the range's ordering,
+        /// specify the desired collation with the collation option.
+        ///
+        /// @return empty or collation name
+        String subTypeCollation();
+
+        /// The name of the corresponding multirange type.
+        ///
+        /// @return empty or multi
+        String multiRangeTypeName();
+
+        /// The name of a b-tree operator class for the subtype.
+        ///
+        /// @return empty or subtype operator name
+        String subtypeOperator();
+
+        /// The name of the canonicalization function for the range type.
+        ///
+        /// @return empty or canonicalization function name
+        String fanonicalFunc();
+
+        /// The name of a difference function for the subtype.
+        ///
+        /// @return empty or difference function name
+        String subtypeDiffFunc();
 
     }
 

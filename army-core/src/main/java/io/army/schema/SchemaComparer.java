@@ -16,16 +16,19 @@
 
 package io.army.schema;
 
+import io.army.mapping.MappingType;
 import io.army.meta.SchemaMeta;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
 import io.army.util._Exceptions;
 
 import java.util.Collection;
+import java.util.Map;
 
 public interface SchemaComparer {
 
-    SchemaResult compare(SchemaInfo schemaInfo, SchemaMeta schemaMeta, Collection<TableMeta<?>> tableMetas);
+    SchemaResult compare(SchemaInfo schemaInfo, SchemaMeta schemaMeta, Collection<TableMeta<?>> tableMetas,
+                         Map<String, MappingType> definedTypeMap);
 
     static SchemaComparer create(final ServerMeta serverMeta) {
         final SchemaComparer comparer;

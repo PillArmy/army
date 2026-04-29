@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package io.army.pojo;
+package io.army.struct;
 
-public interface FieldAccessBean {
+public enum TypeCategory {
 
+    COMPOSITE,
+    ENUM,
+    RANGE,
+    DOMAIN
 }

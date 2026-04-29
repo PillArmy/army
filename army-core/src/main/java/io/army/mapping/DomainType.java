@@ -31,10 +31,6 @@ public final class DomainType extends _ArmyBuildInType implements MappingType.Sq
         return null;
     }
 
-    @Override
-    public String typeName() {
-        return "";
-    }
 
     @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
@@ -49,6 +45,36 @@ public final class DomainType extends _ArmyBuildInType implements MappingType.Sq
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         return null;
+    }
+
+    @Override
+    public String typeName() {
+        return "";
+    }
+
+    @Override
+    public MappingType baseType() {
+        return null;
+    }
+
+    @Override
+    public String defaultValue() {
+        return "";
+    }
+
+    @Override
+    public boolean isNotNull() {
+        return false;
+    }
+
+    @Override
+    public String constraint() {
+        return "";
+    }
+
+    @Override
+    public String collation() {
+        return "";
     }
 
 

@@ -332,7 +332,7 @@ public class NameEnumType extends _ArmyNoInjectionType {
     }
 
 
-    private static final class NameEnumNamedType extends NameEnumType implements SqlUserDefined {
+    private static final class NameEnumNamedType extends NameEnumType implements MappingType.SqlEnum {
 
         private final String enumName;
 

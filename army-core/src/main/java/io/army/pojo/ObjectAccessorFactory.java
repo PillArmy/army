@@ -218,7 +218,7 @@ public abstract class ObjectAccessorFactory {
             ValueWriter fieldWriter;
             VarHandle handle;
             for (Class<?> clazz = beanClass; clazz != Object.class; clazz = clazz.getSuperclass()) {
-                if (!FieldAccessBean.class.isAssignableFrom(clazz)) {
+                if (!FieldAccessPojo.class.isAssignableFrom(clazz)) {
                     break;
                 }
                 for (Field field : clazz.getDeclaredFields()) {
@@ -653,7 +653,7 @@ public abstract class ObjectAccessorFactory {
         @Override
         protected ObjectAccessor computeValue(Class<?> type) {
             final ObjectAccessor accessor;
-            if (FieldAccessBean.class.isAssignableFrom(type)) {
+            if (FieldAccessPojo.class.isAssignableFrom(type)) {
                 accessor = createFieldAccessorPair(type);
             } else {
                 accessor = createMethodAccessors(type);

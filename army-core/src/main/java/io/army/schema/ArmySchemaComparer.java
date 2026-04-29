@@ -18,6 +18,7 @@ package io.army.schema;
 
 
 import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.meta.*;
 import io.army.sqltype.DataType;
 import io.army.util._Collections;
@@ -36,8 +37,9 @@ abstract class ArmySchemaComparer implements SchemaComparer {
     }
 
     @Override
-    public final io.army.schema.SchemaResult compare(SchemaInfo schemaInfo, SchemaMeta schemaMeta,
-                                                     Collection<TableMeta<?>> tableMetas) {
+    public final SchemaResult compare(SchemaInfo schemaInfo, SchemaMeta schemaMeta,
+                                      Collection<TableMeta<?>> tableMetas,
+                                      Map<String, MappingType> definedTypeMap) {
         if (compareSchema(schemaInfo, schemaMeta)) {
             String m = String.format("_SchemaInfo[%s,%s] and %s not match,serverMeta[%s].",
                     schemaInfo.catalog(), schemaInfo.schema(), schemaMeta, this.serverMeta);
@@ -72,7 +74,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
             compareIndex(tableInfo, (TableMeta<?>) table, builder, columnMetaSet);
             tableResultList.add(builder.buildAndClear());
         }
-        return new SchemaResult(schemaMeta.catalog(), schemaMeta.schema(), newTableList, tableResultList);
+        return new DefaultSchemaResult(schemaMeta.catalog(), schemaMeta.schema(), newTableList, tableResultList);
     }
 
     /**
@@ -192,9 +194,40 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
     }
 
+    private List<TypeResult> compareTypes(Map<String, MappingType> definedTypeMap, Map<String, TypeInfo> typeInfoMap,
+                                          final Set<MappingType> newTypeSet) {
+        String typeName;
+        MappingType type;
+        TypeInfo typeInfo;
 
-    private static void handleNotFoundIndex(IndexMeta<?> indexMeta, Map<String, IndexInfo> indexMap, Set<String> columnMetaSet,
-                                            TableResult.Builder tableBuilder) {
+        final List<TypeResult> typeResultList = new ArrayList<>();
+        for (Map.Entry<String, MappingType> e : definedTypeMap.entrySet()) {
+            typeName = e.getKey();
+            type = e.getValue();
+            typeInfo = typeInfoMap.get(typeName);
+            if (typeInfo == null) {
+                newTypeSet.add(type);
+                continue;
+            }
+
+            if (type instanceof MappingType.SqlComposite) {
+
+            } else if (type instanceof MappingType.SqlEnum) {
+
+            } else if (type instanceof MappingType.SqlRange) {
+
+            } else if (type instanceof MappingType.SqlDomain) {
+
+            }
+
+
+        } // type loop
+        return typeResultList;
+    }
+
+
+    private static void handleNotFoundIndex(IndexMeta<?> indexMeta, Map<String, IndexInfo> indexMap,
+                                            Set<String> columnMetaSet, TableResult.Builder tableBuilder) {
 
         if (!columnMetaSet.isEmpty()) {
             columnMetaSet.clear();
@@ -229,7 +262,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
     }
 
 
-    private static final class SchemaResult implements io.army.schema.SchemaResult {
+    private static final class DefaultSchemaResult implements SchemaResult {
 
         private final String catalog;
 
@@ -239,7 +272,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
         private final List<TableResult> tableResultList;
 
-        private SchemaResult(@Nullable String catalog, @Nullable String schema
+        private DefaultSchemaResult(@Nullable String catalog, @Nullable String schema
                 , List<TableMeta<?>> newTableList, List<TableResult> tableResultList) {
             this.catalog = catalog;
             this.schema = schema;

@@ -11,10 +11,10 @@ import io.army.pojo.ObjectAccessorFactory;
 import io.army.result.CurrentRecord;
 import io.army.result.DataRecord;
 import io.army.result.RecordMeta;
-import io.army.schema.TypeCategory;
 import io.army.schema.TypeInfo;
 import io.army.stmt.SingleSqlStmt;
 import io.army.stmt.TwoStmtQueryStmt;
+import io.army.struct.TypeCategory;
 import io.army.type.ImmutableSpec;
 
 import java.util.*;

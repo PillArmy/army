@@ -28,6 +28,8 @@ public @interface DefinedType {
 
     String name();
 
+    TypeCategory category() default TypeCategory.COMPOSITE;
+
     String[] fieldOrder() default {};
 
 }

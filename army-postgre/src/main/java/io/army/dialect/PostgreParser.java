@@ -27,12 +27,12 @@ import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
-import io.army.schema.TypeCategory;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.stmt.SimpleStmt;
 import io.army.stmt.Stmts;
+import io.army.struct.TypeCategory;
 import io.army.util.*;
 
 import java.math.BigDecimal;

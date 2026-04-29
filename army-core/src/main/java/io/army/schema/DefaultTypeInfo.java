@@ -18,6 +18,7 @@ package io.army.schema;
 
 import io.army.lang.Nullable;
 import io.army.mapping.optional.CompositeField;
+import io.army.struct.TypeCategory;
 import io.army.util._Assert;
 import io.army.util._Exceptions;
 

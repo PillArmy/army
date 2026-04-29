@@ -19,7 +19,7 @@ package io.army.example.dialect.mysql;
 import io.army.annotation.*;
 import io.army.example.common.VersionDomain;
 import io.army.example.pill.struct.QinArmy;
-import io.army.pojo.FieldAccessBean;
+import io.army.pojo.FieldAccessPojo;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -27,7 +27,7 @@ import java.time.*;
 import java.util.Set;
 
 @Table(name = "mysql_army_types", comment = "mysql types for army example")
-public class MySQLTypes extends VersionDomain implements FieldAccessBean {
+public class MySQLTypes extends VersionDomain implements FieldAccessPojo {
 
     private static final String CHAR_TYPE = "io.army.mapping.SQLCharType";
 

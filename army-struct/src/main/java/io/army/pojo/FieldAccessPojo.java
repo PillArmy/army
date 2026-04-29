@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-package io.army.schema;
+package io.army.pojo;
 
-public enum TypeCategory {
-
-    COMPOSITE,
-    ENUM,
-    RANGE,
-    DOMAIN
+public interface FieldAccessPojo {
 
 }

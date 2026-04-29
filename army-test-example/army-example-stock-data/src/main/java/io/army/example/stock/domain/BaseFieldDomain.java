@@ -2,12 +2,12 @@ package io.army.example.stock.domain;
 
 import io.army.annotation.Column;
 import io.army.annotation.MappedSuperclass;
-import io.army.pojo.FieldAccessBean;
+import io.army.pojo.FieldAccessPojo;
 
 import java.time.LocalDateTime;
 
 @MappedSuperclass
-public abstract class BaseFieldDomain extends BaseDomain implements FieldAccessBean {
+public abstract class BaseFieldDomain extends BaseDomain implements FieldAccessPojo {
 
 
     @Column

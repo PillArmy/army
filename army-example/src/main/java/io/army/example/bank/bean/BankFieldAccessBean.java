@@ -16,8 +16,8 @@
 
 package io.army.example.bank.bean;
 
-import io.army.pojo.FieldAccessBean;
+import io.army.pojo.FieldAccessPojo;
 
-public interface BankFieldAccessBean extends FieldAccessBean {
+public interface BankFieldAccessBean extends FieldAccessPojo {
 
 }

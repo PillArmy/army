@@ -25,6 +25,7 @@ import io.army.executor.ExecutorFactoryProvider;
 import io.army.executor.SyncExecutorFactory;
 import io.army.executor.SyncExecutorFactoryProvider;
 import io.army.executor.SyncMetaExecutor;
+import io.army.mapping.MappingType;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
 import io.army.schema.SchemaComparer;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -182,9 +184,11 @@ final class ArmySyncFactoryBuilder
 
         try (SyncMetaExecutor executor = executorFactory.metaExecutor(dataSourceFunc())) {
 
+            final Map<String, MappingType> definedTypeMap = this.definedTypeMap;
+
             //1.extract schema info.
             final SchemaInfo schemaInfo;
-            schemaInfo = executor.extractInfo(sessionFactory.dialectParser.queryDefinedTypeStmts(this.definedTypeMap));
+            schemaInfo = executor.extractInfo(sessionFactory.dialectParser.queryDefinedTypeStmts(definedTypeMap));
 
             //2.compare schema meta and schema info.
             final SchemaResult schemaResult;
@@ -195,7 +199,7 @@ final class ArmySyncFactoryBuilder
                     schemaComparer = SchemaComparer.create(sessionFactory.serverMeta());
                     final Collection<TableMeta<?>> tableCollection;
                     tableCollection = sessionFactory.tableMap().values();
-                    schemaResult = schemaComparer.compare(schemaInfo, sessionFactory.schemaMeta(), tableCollection);
+                    schemaResult = schemaComparer.compare(schemaInfo, sessionFactory.schemaMeta(), tableCollection, definedTypeMap);
                 }
                 break;
                 case DROP_CREATE: {

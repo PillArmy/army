@@ -179,7 +179,7 @@ public class TextEnumType extends _ArmyBuildInType {
     }
 
 
-    private static final class TextEnumNamedType extends TextEnumType implements SqlUserDefined {
+    private static final class TextEnumNamedType extends TextEnumType implements MappingType.SqlEnum {
 
         private final String enumName;
 
