@@ -17,13 +17,26 @@
 package io.army.schema;
 
 import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.meta.TableMeta;
+import io.army.util._Collections;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 final class DropCreateSchemaResult implements SchemaResult {
+
+    static SchemaResult create(@Nullable String catalog, @Nullable String schema, Collection<TableMeta<?>> tables,
+                               Collection<MappingType> types) {
+        final Map<MappingType, Integer> typeMap = _Collections.hashMapForSize(types.size());
+        types.forEach(type -> typeMap.put(type, -1));
+
+        final List<MappingType> dropTypeList;
+        dropTypeList = ArmySchemaComparer.updateTypeOrder(typeMap, true);
+        return new DropCreateSchemaResult(catalog, schema, tables, dropTypeList);
+    }
 
 
     private final String catalog;
@@ -32,10 +45,14 @@ final class DropCreateSchemaResult implements SchemaResult {
 
     private final List<TableMeta<?>> tableList;
 
-    DropCreateSchemaResult(@Nullable String catalog, @Nullable String schema, Collection<TableMeta<?>> tables) {
+    private final List<MappingType> dropTypeList;
+
+    private DropCreateSchemaResult(@Nullable String catalog, @Nullable String schema, Collection<TableMeta<?>> tables,
+                                   List<MappingType> dropTypeList) {
         this.catalog = catalog;
         this.schema = schema;
         this.tableList = List.copyOf(tables);
+        this.dropTypeList = List.copyOf(dropTypeList);
     }
 
     @Override
@@ -61,6 +78,28 @@ final class DropCreateSchemaResult implements SchemaResult {
     @Override
     public List<TableResult> changeTableList() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<MappingType> dropTypeList() {
+        return this.dropTypeList;
+    }
+
+    @Override
+    public List<MappingType> newTypeList() {
+        return this.dropTypeList;
+    }
+
+    @Override
+    public List<TypeResult> modifyTypeList() {
+        return List.of();
+    }
+
+    @Override
+    public boolean hasChanges() {
+        return !this.tableList.isEmpty()
+                || !this.dropTypeList.isEmpty()
+                ;
     }
 
 

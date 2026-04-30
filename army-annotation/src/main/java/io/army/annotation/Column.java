@@ -113,6 +113,9 @@ public @interface Column {
      */
     String defaultValue() default "";
 
+
+    String collation() default "";
+
     /// @return index based-zero
     int order() default -1;
 

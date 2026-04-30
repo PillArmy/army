@@ -50,6 +50,13 @@ public abstract class _Collections {
 
     }
 
+    public static <T> List<T> safeCopyList(@Nullable List<T> list) {
+        if (list == null) {
+            return List.of();
+        }
+        return List.copyOf(list);
+    }
+
     public static <T> List<T> copyList(List<T> list) {
         if (list.isEmpty()) {
             list = List.of();
@@ -164,7 +171,7 @@ public abstract class _Collections {
     }
 
     public static <E> HashSet<E> hashSetForSize(int initialSize) {
-        return new FinalHashSet<>((int) (initialSize / 0.75F));
+        return new HashSet<>((int) (initialSize / 0.75F));
     }
 
     public static <K, V> ConcurrentHashMap<K, V> concurrentHashMap() {

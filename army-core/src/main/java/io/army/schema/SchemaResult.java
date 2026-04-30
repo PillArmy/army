@@ -16,9 +16,10 @@
 
 package io.army.schema;
 
+import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.meta.TableMeta;
 
-import io.army.lang.Nullable;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,8 +37,17 @@ public interface SchemaResult {
 
     List<TableResult> changeTableList();
 
-    static SchemaResult dropCreate(@Nullable String catalog, @Nullable String schema, Collection<TableMeta<?>> tables) {
-        return new DropCreateSchemaResult(catalog, schema, tables);
+    List<MappingType> dropTypeList();
+
+    List<MappingType> newTypeList();
+
+    List<TypeResult> modifyTypeList();
+
+    boolean hasChanges();
+
+    static SchemaResult dropCreate(@Nullable String catalog, @Nullable String schema, Collection<TableMeta<?>> tables,
+                                   Collection<MappingType> types) {
+        return DropCreateSchemaResult.create(catalog, schema, tables, types);
     }
 
 

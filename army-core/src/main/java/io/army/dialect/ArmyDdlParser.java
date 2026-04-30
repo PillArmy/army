@@ -80,6 +80,8 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
 
     protected final ServerMeta serverMeta;
 
+    final StringBuilder sqlBuilder = new StringBuilder(1024);
+
     protected ArmyDdlParser(P parser) {
         this.parser = parser;
         this.serverMeta = parser.serverMeta;

@@ -21,8 +21,10 @@ import io.army.mapping.optional.CompositeField;
 import io.army.struct.TypeCategory;
 import io.army.util._Assert;
 import io.army.util._Exceptions;
+import io.army.util._StringUtils;
 
 import java.util.List;
+import java.util.Locale;
 
 final class DefaultTypeInfo implements TypeInfo {
 
@@ -46,7 +48,9 @@ final class DefaultTypeInfo implements TypeInfo {
 
     private final String defaultValue;
 
-    private final String constraint;
+    private final String constraintName;
+
+    private final String checkValue;
 
     private final String rangeSubType;
 
@@ -76,7 +80,8 @@ final class DefaultTypeInfo implements TypeInfo {
                 this.collation = null;
                 this.notNull = false;
                 this.defaultValue = null;
-                this.constraint = null;
+                this.constraintName = null;
+                this.checkValue = null;
 
                 this.rangeSubType = null;
                 this.rangeCollation = null;
@@ -95,7 +100,8 @@ final class DefaultTypeInfo implements TypeInfo {
                 this.collation = null;
                 this.notNull = false;
                 this.defaultValue = null;
-                this.constraint = null;
+                this.constraintName = null;
+                this.checkValue = null;
 
                 this.rangeSubType = null;
                 this.rangeCollation = null;
@@ -105,12 +111,12 @@ final class DefaultTypeInfo implements TypeInfo {
                 this.rangeSubDiff = null;
                 break;
             case RANGE:
-                this.rangeSubType = builder.rangeSubType;
-                this.rangeCollation = builder.rangeCollation;
-                this.rangeMulti = builder.rangeMulti;
-                this.rangeSubOpc = builder.rangeSubOpc;
-                this.rangeCanonical = builder.rangeCanonical;
-                this.rangeSubDiff = builder.rangeSubDiff;
+                this.rangeSubType = _StringUtils.safeUpperCase(builder.rangeSubType);
+                this.rangeCollation = _StringUtils.safeLowerCase(builder.rangeCollation);
+                this.rangeMulti = _StringUtils.safeLowerCase(builder.rangeMulti);
+                this.rangeSubOpc = _StringUtils.safeLowerCase(builder.rangeSubOpc);
+                this.rangeCanonical = _StringUtils.safeLowerCase(builder.rangeCanonical);
+                this.rangeSubDiff = _StringUtils.safeLowerCase(builder.rangeSubDiff);
 
                 this.enumLabelList = List.of();
                 this.compositeFieldList = List.of();
@@ -119,15 +125,17 @@ final class DefaultTypeInfo implements TypeInfo {
                 this.collation = null;
                 this.notNull = false;
                 this.defaultValue = null;
-                this.constraint = null;
+                this.constraintName = null;
+                this.checkValue = null;
                 break;
             case DOMAIN:
                 _Assert.hasText(builder.baseTypeName, "no text");
-                this.baseTypeName = builder.baseTypeName;
-                this.collation = builder.collation;
+                this.baseTypeName = builder.baseTypeName.toUpperCase(Locale.ROOT);
+                this.collation = _StringUtils.safeLowerCase(builder.collation);
                 this.notNull = builder.notNull;
-                this.defaultValue = builder.defaultValue;
-                this.constraint = builder.constraint;
+                this.defaultValue = _StringUtils.safeLowerCase(builder.defaultValue);
+                this.constraintName = _StringUtils.safeLowerCase(builder.constraintName);
+                this.checkValue = _StringUtils.safeLowerCase(builder.checkValue);
 
                 this.enumLabelList = List.of();
                 this.compositeFieldList = List.of();
@@ -171,13 +179,23 @@ final class DefaultTypeInfo implements TypeInfo {
     }
 
     @Override
+    public String baseTypeName() {
+        return this.baseTypeName;
+    }
+
+    @Override
     public String defaultValue() {
         return this.defaultValue;
     }
 
     @Override
-    public String constraint() {
-        return this.constraint;
+    public String constraintName() {
+        return this.constraintName;
+    }
+
+    @Override
+    public String check() {
+        return this.checkValue;
     }
 
     @Override
@@ -233,7 +251,9 @@ final class DefaultTypeInfo implements TypeInfo {
 
         private String defaultValue;
 
-        private String constraint;
+        private String constraintName;
+
+        private String checkValue;
 
         private String rangeSubType;
 
@@ -290,8 +310,14 @@ final class DefaultTypeInfo implements TypeInfo {
         }
 
         @Override
-        public Builder constraint(@Nullable String constraint) {
-            this.constraint = constraint;
+        public Builder constraintName(@Nullable String constraint) {
+            this.constraintName = constraint;
+            return this;
+        }
+
+        @Override
+        public Builder check(@Nullable String check) {
+            this.checkValue = check;
             return this;
         }
 
@@ -361,7 +387,8 @@ final class DefaultTypeInfo implements TypeInfo {
             this.collation = null;
             this.notNull = false;
             this.defaultValue = null;
-            this.constraint = null;
+            this.constraintName = null;
+            this.checkValue = null;
 
             this.rangeSubType = null;
             this.rangeCollation = null;

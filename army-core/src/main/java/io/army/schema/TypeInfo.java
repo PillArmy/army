@@ -24,7 +24,7 @@ import java.util.List;
 
 public interface TypeInfo {
 
-    /// Type name
+    /// Upper case Type name
     String name();
 
     TypeCategory category();
@@ -33,37 +33,56 @@ public interface TypeInfo {
     List<String> enumLabelList();
 
     /// {@link CompositeField#fieldName} field is meaningless here.
-    /// The order of the list matches the order of the fields in the SQL composite type
+    /// The order of the list matches the order of the fields in the SQL composite type .
+    ///
+    /// Lower case {@link CompositeField#columnName} and {@link CompositeField#collation}
     ///
     /// @return an unmodified list
     List<CompositeField> compositeFieldList();
 
     boolean isNotNull();
 
+    /// upper case type name
+    @Nullable
+    String baseTypeName();
+
+    /// lower case
     @Nullable
     String defaultValue();
 
+    /// lower case
     @Nullable
-    String constraint();
+    String constraintName();
 
+    /// lower case
+    @Nullable
+    String check();
+
+    /// lower case
     @Nullable
     String collation();
 
+    /// upper case type name
     @Nullable
     String rangeSubType();
 
+    /// lower case
     @Nullable
     String rangeCollation();
 
+    /// upper case type name
     @Nullable
     String rangeMulti();
 
+    /// lower case
     @Nullable
     String rangeSubOpc();
 
+    /// lower case
     @Nullable
     String rangeCanonical();
 
+    /// lower case
     @Nullable
     String rangeSubDiff();
 
@@ -78,8 +97,10 @@ public interface TypeInfo {
 
         Builder category(TypeCategory typeCategory);
 
+        /// Upper case enum labels
         Builder enumLabelList(List<String> enumLabelList);
 
+        /// Lower case {@link CompositeField#columnName} and {@link CompositeField#collation}
         Builder compositeFieldList(List<CompositeField> compositeFieldList);
 
         Builder baseType(String typeName);
@@ -88,7 +109,9 @@ public interface TypeInfo {
 
         Builder defaultValue(@Nullable String defaultValue);
 
-        Builder constraint(@Nullable String constraint);
+        Builder constraintName(@Nullable String constraint);
+
+        Builder check(@Nullable String check);
 
         Builder collation(@Nullable String collation);
 

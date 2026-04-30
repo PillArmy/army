@@ -80,15 +80,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         return this.javaType;
     }
 
-    @Override
-    public List<CompositeField> fieldList() {
-        return this.fieldList;
-    }
 
-    @Override
-    public String typeName() {
-        return this.name;
-    }
 
     @Override
     public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
@@ -126,6 +118,21 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         }
         final String text = ((String) source).trim();
         return parseToPojo(this, dataType, env, text, 0, text.length());
+    }
+
+    @Override
+    public List<CompositeField> fieldList() {
+        return this.fieldList;
+    }
+
+    @Override
+    public String objectName() {
+        return this.name;
+    }
+
+    @Override
+    public String comment() {
+        return "";
     }
 
 
@@ -277,7 +284,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
                 String m = String.format("column[%s] duplicate", columnName);
                 throw definedTypeError(javaType, m);
             }
-            fieldList.add(CompositeField.from(field.getName(), columnName, _MappingFactory.map(field)));
+            fieldList.add(CompositeField.from(field.getName(), columnName, _MappingFactory.map(field), column.collation()));
 
         } // column lop
 

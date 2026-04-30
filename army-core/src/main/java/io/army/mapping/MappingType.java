@@ -23,6 +23,7 @@ import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.executor.StmtExecutor;
 import io.army.mapping.optional.CompositeField;
+import io.army.meta.DatabaseObject;
 import io.army.meta.ServerMeta;
 import io.army.meta.TypeMeta;
 import io.army.sqltype.DataType;
@@ -273,9 +274,12 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
 
     /// User defined type must override {@link #hashCode()} and {@link #equals(Object)}.
-    interface SqlUserDefined {
+    interface SqlUserDefined extends DatabaseObject.TypeObject {
 
-        String typeName();
+        /// @return upper case object name(type name)
+        String objectName();
+
+        Class<?> javaType();
 
         @Override
         int hashCode();
@@ -285,6 +289,8 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     }
 
     interface SqlEnum extends SqlUserDefined, SqlString {
+
+        List<String> enumLabelList();
 
     }
 
@@ -305,15 +311,18 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
         MappingType baseType();
 
-        /// @return empty or default expression
+        /// upper case type name
+        String baseTypeName();
+
+        /// @return empty or lower case default expression
         String defaultValue();
 
         boolean isNotNull();
 
-        /// @return empty or constraint
+        /// @return empty or lower case constraint
         String constraint();
 
-        /// @return empty or collation name
+        /// @return empty or lower case collation name
         String collation();
 
     }
@@ -323,32 +332,35 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     /// @see <a href="https://www.postgresql.org/docs/current/sql-altertype.html">ALTER TYPE</a>
     interface SqlRange extends SqlUserDefined {
 
-        String rangeSubType();
+        MappingType rangeSubType();
+
+        /// upper case type name
+        String rangeSubTypeName();
 
         /// If the subtype is collatable, and you want to use a non-default collation in the range's ordering,
         /// specify the desired collation with the collation option.
         ///
-        /// @return empty or collation name
+        /// @return empty or lower case collation name
         String subTypeCollation();
 
         /// The name of the corresponding multirange type.
         ///
-        /// @return empty or multi
+        /// @return empty or upper case multi
         String multiRangeTypeName();
 
         /// The name of a b-tree operator class for the subtype.
         ///
-        /// @return empty or subtype operator name
+        /// @return empty or  lower case subtype operator name
         String subtypeOperator();
 
         /// The name of the canonicalization function for the range type.
         ///
-        /// @return empty or canonicalization function name
+        /// @return empty or lower case canonicalization function name
         String fanonicalFunc();
 
         /// The name of a difference function for the subtype.
         ///
-        /// @return empty or difference function name
+        /// @return empty or lower case difference function name
         String subtypeDiffFunc();
 
     }

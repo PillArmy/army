@@ -38,6 +38,7 @@ import io.army.option.Option;
 import io.army.schema.FieldResult;
 import io.army.schema.SchemaResult;
 import io.army.schema.TableResult;
+import io.army.schema.TypeResult;
 import io.army.util.HexUtils;
 import io.army.util._Collections;
 import io.army.util._FunctionUtils;
@@ -412,7 +413,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             }
 
             final String oldName, typeName;
-            typeName = st.typeName();
+            typeName = st.objectName();
 
             final Class<?> fieldClass = field.javaType();
 
@@ -627,6 +628,23 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             builder.append('\n');
         }
 
+        final List<MappingType> typeList;
+        typeList = schemaResult.newTypeList();
+        differentCount += typeList.size();
+        for (MappingType type : typeList) {
+            builder.append('\n')
+                    .append(((MappingType.SqlUserDefined) type).objectName())
+                    .append(" not exists.");
+        }
+        final List<TypeResult> typeResultList = schemaResult.modifyTypeList();
+
+        differentCount += typeResultList.size();
+        for (TypeResult typeResult : typeResultList) {
+            builder.append('\n')
+                    .append(((MappingType.SqlUserDefined) typeResult.type()).objectName())
+                    .append(" not match.");
+        }
+
         final SessionFactoryException error;
         if (differentCount > 0) {
             error = new SessionFactoryException(builder.toString());
@@ -720,7 +738,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                     continue;
                 }
 
-                typeName = st.typeName();
+                typeName = st.objectName();
 
                 oldType = definedTypeMap.putIfAbsent(typeName, type);
                 if (oldType != null && !oldType.equals(type)

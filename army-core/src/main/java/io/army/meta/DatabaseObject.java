@@ -25,6 +25,8 @@ import io.army.criteria.TableField;
  * <ul>
  *     <li>{@link  TableMeta}</li>
  *     <li>{@link  TableField}</li>
+ *     <li>{@link  io.army.mapping.MappingType.SqlUserDefined}</li>
+ *     <li>{@link io.army.mapping.optional.CompositeField}</li>
  * </ul>
  *
  * @since 0.6.0
@@ -38,5 +40,13 @@ public interface DatabaseObject extends SQLElement {
     String objectName();
 
     String comment();
+
+    interface TypeObject extends DatabaseObject {
+
+    }
+
+    interface FieldObject extends DatabaseObject {
+
+    }
 
 }

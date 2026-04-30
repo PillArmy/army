@@ -28,7 +28,7 @@ import java.util.List;
  * @see IndexMeta
  * @see IndexFieldMeta
  */
-public interface TableMeta<T> extends TabularItem, DatabaseObject {
+public interface TableMeta<T> extends TabularItem, DatabaseObject.TypeObject {
 
 
     Class<T> javaType();

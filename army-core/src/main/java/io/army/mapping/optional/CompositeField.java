@@ -16,7 +16,7 @@
 
 package io.army.mapping.optional;
 
-import io.army.lang.Nullable;
+import io.army.meta.DatabaseObject;
 import io.army.meta.FieldMeta;
 import io.army.meta.TypeMeta;
 import io.army.util._Assert;
@@ -25,19 +25,16 @@ import io.army.util._StringUtils;
 import java.util.Objects;
 
 /// @see io.army.mapping.CompositeType
-public final class CompositeField {
+public final class CompositeField implements DatabaseObject.FieldObject {
 
-    @Deprecated
-    public static CompositeField from(String fieldName, String columnName, TypeMeta typeMeta) {
-        return from(fieldName, columnName, typeMeta, null);
-    }
 
-    public static CompositeField from(String fieldName, String columnName, TypeMeta typeMeta, @Nullable String collation) {
+    public static CompositeField from(String fieldName, String columnName, TypeMeta typeMeta, String collation) {
         _Assert.hasText(fieldName, "");
         _Assert.hasText(columnName, "");
         Objects.requireNonNull(typeMeta);
         _Assert.isFalse(typeMeta instanceof FieldMeta, "");
-        return new CompositeField(fieldName, columnName, typeMeta);
+        Objects.requireNonNull(collation);
+        return new CompositeField(fieldName, columnName, typeMeta, collation);
     }
 
     public final String fieldName;
@@ -46,31 +43,26 @@ public final class CompositeField {
 
     public final TypeMeta typeMeta;
 
-    private CompositeField(String fieldName, String columnName, TypeMeta typeMeta) {
+    public final String collation;
+
+    private CompositeField(String fieldName, String columnName, TypeMeta typeMeta, String collation) {
         this.fieldName = fieldName;
         this.columnName = columnName;
         this.typeMeta = typeMeta;
+        this.collation = collation;
+    }
+
+
+    @Override
+    public String objectName() {
+        return this.columnName;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(this.fieldName, this.columnName, this.typeMeta);
+    public String comment() {
+        return "";
     }
 
-    @Override
-    public boolean equals(final Object obj) {
-        final boolean match;
-        if (obj == this) {
-            match = true;
-        } else if (obj instanceof CompositeField o) {
-            match = o.fieldName.equals(this.fieldName)
-                    && o.columnName.equals(this.columnName)
-                    && o.typeMeta.equals(this.typeMeta);
-        } else {
-            match = false;
-        }
-        return match;
-    }
 
     @Override
     public String toString() {
@@ -84,6 +76,10 @@ public final class CompositeField {
                 .append("columnName")
                 .append(':')
                 .append(this.columnName)
+                .append(',')
+                .append("collation")
+                .append(':')
+                .append(this.collation)
                 .append(',')
                 .append("type")
                 .append(':')

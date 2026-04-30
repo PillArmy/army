@@ -26,6 +26,8 @@ import io.army.struct.DefinedType;
 import io.army.struct.TextEnum;
 import io.army.util.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
@@ -189,10 +191,26 @@ public class TextEnumType extends _ArmyBuildInType {
         }
 
         @Override
-        public String typeName() {
+        public String objectName() {
             return this.enumName;
         }
 
+        @Override
+        public List<String> enumLabelList() {
+            @SuppressWarnings("unchecked")
+            Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) ((TextEnumType) this).enumClass;
+            final Enum<?>[] enumArray = enumClass.getEnumConstants();
+            final List<String> enumLabelList = new ArrayList<>(enumArray.length);
+            for (Enum<?> enumConstant : enumArray) {
+                enumLabelList.add(((TextEnum) enumConstant).text());
+            }
+            return List.copyOf(enumLabelList);
+        }
+
+        @Override
+        public String comment() {
+            return "";
+        }
     } // TextEnumNamedType
 
 }

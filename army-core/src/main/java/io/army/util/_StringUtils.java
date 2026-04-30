@@ -71,6 +71,16 @@ public abstract class _StringUtils {
         return match;
     }
 
+    @Nullable
+    public static String safeUpperCase(final @Nullable String text) {
+        return text == null ? null : text.toUpperCase(Locale.ROOT);
+    }
+
+    @Nullable
+    public static String safeLowerCase(final @Nullable String text) {
+        return text == null ? null : text.toLowerCase(Locale.ROOT);
+    }
+
     public static boolean isBinary(String text) {
         final char[] array = text.toCharArray();
         boolean match = array.length > 0;

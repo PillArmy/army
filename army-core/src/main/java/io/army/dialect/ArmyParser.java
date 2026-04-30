@@ -42,6 +42,7 @@ import io.army.modelgen._MetaBridge;
 import io.army.schema.FieldResult;
 import io.army.schema.SchemaResult;
 import io.army.schema.TableResult;
+import io.army.schema.TypeResult;
 import io.army.session.SessionSpec;
 import io.army.sqltype.DataType;
 import io.army.stmt.*;
@@ -361,16 +362,39 @@ abstract class ArmyParser implements DialectParser {
 
     @Override
     public final List<String> schemaDdl(final SchemaResult schemaResult) {
-        final DdlParser ddlDialect;
-        ddlDialect = createDdlDialect();
+        final DdlParser ddlParser;
+        ddlParser = createDdlDialect();
 
         final List<String> ddlList = _Collections.arrayList();
+
+        List<MappingType> typeList;
+        typeList = schemaResult.dropTypeList();
+        if (!typeList.isEmpty()) {
+            for (MappingType type : typeList) {
+                ddlParser.dropType(type, ddlList);
+            }
+        }
+
+        typeList = schemaResult.newTypeList();
+        if (!typeList.isEmpty()) {
+            for (MappingType type : typeList) {
+                ddlParser.createType(type, ddlList);
+            }
+        }
+
+        final List<TypeResult> typeResultList = schemaResult.modifyTypeList();
+        if (!typeResultList.isEmpty()) {
+            for (TypeResult typeResult : typeResultList) {
+                ddlParser.modifyType(typeResult, ddlList);
+            }
+        }
+
         final List<TableMeta<?>> dropTableList = schemaResult.dropTableList();
         if (!dropTableList.isEmpty()) {
-            ddlDialect.dropTable(dropTableList, ddlList);
+            ddlParser.dropTable(dropTableList, ddlList);
         }
         for (TableMeta<?> table : schemaResult.newTableList()) {
-            ddlDialect.createTable(table, ddlList);
+            ddlParser.createTable(table, ddlList);
         }
 
         List<FieldMeta<?>> newFieldList;
@@ -379,35 +403,35 @@ abstract class ArmyParser implements DialectParser {
         for (TableResult tableResult : schemaResult.changeTableList()) {
             TableMeta<?> table = tableResult.table();
             if (tableResult.comment()) {
-                ddlDialect.modifyTableComment(table, ddlList);
+                ddlParser.modifyTableComment(table, ddlList);
             }
             newFieldList = tableResult.newFieldList();
             if (!newFieldList.isEmpty()) {
-                ddlDialect.addColumn(newFieldList, ddlList);
+                ddlParser.addColumn(newFieldList, ddlList);
             }
             fieldResultList = tableResult.changeFieldList();
             if (!fieldResultList.isEmpty()) {
-                ddlDialect.modifyColumn(fieldResultList, ddlList);
+                ddlParser.modifyColumn(fieldResultList, ddlList);
             }
 
             // index part, firstly drop index
             indexList = tableResult.dropIndexList();
             if (!indexList.isEmpty()) {
-                ddlDialect.dropIndex(table, indexList, ddlList);
+                ddlParser.dropIndex(table, indexList, ddlList);
             }
             indexList = tableResult.newIndexList();
             if (!indexList.isEmpty()) {
-                ddlDialect.createIndex(table, indexList, ddlList);
+                ddlParser.createIndex(table, indexList, ddlList);
             }
             indexList = tableResult.changeIndexList();
             if (!indexList.isEmpty()) {
-                ddlDialect.dropIndex(table, indexList, ddlList);
-                ddlDialect.createIndex(table, indexList, ddlList);
+                ddlParser.dropIndex(table, indexList, ddlList);
+                ddlParser.createIndex(table, indexList, ddlList);
             }
         }
 
         final List<String> errorList;
-        errorList = ddlDialect.errorMsgList();
+        errorList = ddlParser.errorMsgList();
         if (!errorList.isEmpty()) {
             final StringBuilder builder = new StringBuilder(errorList.size() * 10)
                     .append("create ddl occur error:");
@@ -2114,10 +2138,7 @@ abstract class ArmyParser implements DialectParser {
 
         final StringBuilder schemaTableBuilder;
         final NameMode nameMode;
-        if (object instanceof FieldMeta) {
-            nameMode = this.columnNameMode;
-            schemaTableBuilder = null;
-        } else if (object instanceof TableMeta) {
+        if (object instanceof DatabaseObject.TypeObject) {
             nameMode = this.tableNameMode;
 
             final String schemaName;
@@ -2131,8 +2152,8 @@ abstract class ArmyParser implements DialectParser {
                 schemaTableBuilder = sqlBuilder;
             }
         } else {
-            // no bug,never here
-            throw new IllegalArgumentException();
+            nameMode = this.columnNameMode;
+            schemaTableBuilder = null;
         }
 
         final String effectiveName, upperObjectName;

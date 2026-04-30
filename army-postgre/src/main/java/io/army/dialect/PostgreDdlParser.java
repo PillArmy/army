@@ -17,10 +17,13 @@
 package io.army.dialect;
 
 import io.army.annotation.GeneratorType;
+import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
 import io.army.mapping.TextType;
+import io.army.mapping.optional.CompositeField;
 import io.army.meta.*;
 import io.army.schema.FieldResult;
+import io.army.schema.TypeResult;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
@@ -28,6 +31,7 @@ import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
 import java.util.List;
+import java.util.Locale;
 
 final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
 
@@ -340,6 +344,54 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
 
         sqlList.add(builder.toString());
 
+    }
+
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-droptype.html">DROP TYPE</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-dropdomain.html">DROP DOMAIN</a>
+    @Override
+    public void dropType(MappingType type, List<String> sqlList) {
+        final StringBuilder sqlBuilder = this.sqlBuilder;
+        sqlBuilder.setLength(0);
+
+        sqlBuilder.append("DROP")
+                .append(_Constant.SPACE);
+        if (type instanceof MappingType.SqlDomain) {
+            sqlBuilder.append("DOMAIN");
+        } else {
+            sqlBuilder.append("TYPE");
+        }
+        sqlBuilder.append(_Constant.SPACE)
+                .append("IF EXISTS")
+                .append(_Constant.SPACE);
+
+        this.parser.safeObjectName(((MappingType.SqlUserDefined) type), sqlBuilder);
+
+        sqlList.add(sqlBuilder.toString());
+        sqlBuilder.setLength(0);
+    }
+
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-createtype.html">CREATE TYPE</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-createdomain.html">CREATE DOMAIN</a>
+    @Override
+    public void createType(MappingType type, List<String> sqlList) {
+
+        if (type instanceof MappingType.SqlComposite) {
+            sqlList.add(createCompositeType((MappingType.SqlComposite) type));
+        } else if (type instanceof MappingType.SqlEnum) {
+
+        } else if (type instanceof MappingType.SqlRange) {
+
+        } else if (type instanceof MappingType.SqlDomain) {
+
+        } else {
+            this.errorMsgList.add(String.format("Unsupported type: %s", type.getClass().getName()));
+        }
+    }
+
+
+    @Override
+    public void modifyType(TypeResult typeResult, List<String> sqlList) {
+        super.modifyType(typeResult, sqlList);
     }
 
     @Override
@@ -681,6 +733,61 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         } else {
             dataType(field, dataType, builder);
         }
+    }
+
+
+    /// @see #createType(MappingType, List)
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-createtype.html">CREATE TYPE</a>
+    private String createCompositeType(final MappingType.SqlComposite type) {
+        final StringBuilder sqlBuilder = this.sqlBuilder;
+        sqlBuilder.setLength(0); // clear
+
+        sqlBuilder.append("CREATE")
+                .append(_Constant.SPACE)
+                .append("TYPE")
+                .append(_Constant.SPACE);
+
+        this.parser.safeObjectName(type, sqlBuilder);
+
+        sqlBuilder.append(_Constant.SPACE)
+                .append("AS")
+                .append(_Constant.SPACE)
+                .append(_Constant.LEFT_PAREN);
+
+
+        final List<CompositeField> fieldList = type.fieldList();
+        final int listSize = fieldList.size();
+        CompositeField field;
+        String collation;
+        TypeMeta typeMeta;
+        for (int i = 0; i < listSize; i++) {
+            if (i > 0) {
+                sqlBuilder.append(_Constant.COMMA);
+            }
+            field = fieldList.get(i);
+            this.parser.safeObjectName(field, sqlBuilder);
+
+            typeMeta = field.typeMeta;
+            if (!(typeMeta instanceof MappingType)) {
+                typeMeta = typeMeta.mappingType();
+            }
+            sqlBuilder.append(_Constant.SPACE);
+
+            this.parser.typeName((MappingType) typeMeta, sqlBuilder);
+
+            collation = field.collation;
+            if (!_StringUtils.hasText(collation)) {
+                continue;
+            }
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("COLLATE")
+                    .append(_Constant.SPACE);
+
+            this.parser.identifier(collation.toLowerCase(Locale.ROOT), sqlBuilder);
+
+        }
+        sqlBuilder.append(_Constant.RIGHT_PAREN);
+        return sqlBuilder.toString();
     }
 
 

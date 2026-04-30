@@ -342,8 +342,8 @@ public abstract class RowFunctions {
                     final List<CompositeField> fieldList = Objects.requireNonNull(this.fieldList);
                     final String labelName, collation;
 
-                    labelName = record.getNonNull("comFieldName", String.class);
-                    collation = record.get("comFieldCollation", String.class);
+                    labelName = record.getNonNull("comFieldName", String.class).toLowerCase(Locale.ROOT);
+                    collation = record.getOrDefault("comFieldCollation", String.class, "").toLowerCase(Locale.ROOT);
                     final MappingType type = record.getNonNull("comFieldType", MappingType.class);
 
                     fieldList.add(CompositeField.from(labelName, labelName, type, collation));
@@ -382,7 +382,7 @@ public abstract class RowFunctions {
 
                     labelName = record.getNonNull("comFieldName", String.class);
                     final MappingType type = record.getNonNull("comFieldType", MappingType.class);
-                    collation = record.get("comFieldCollation", String.class);
+                    collation = record.getOrDefault("comFieldCollation", String.class, "");
 
                     fieldList.add(CompositeField.from(labelName, labelName, type, collation));
                     this.order = record.getNonNull("comFieldOrder", Integer.class);
@@ -418,7 +418,7 @@ public abstract class RowFunctions {
                             .collation(record.get("collation", String.class))
                             .notNull(record.getNonNull("notNull", Boolean.class))
                             .defaultValue(record.get("default", String.class))
-                            .constraint(record.get("constraint", String.class))
+                            .constraintName(record.get("constraint", String.class))
 
                             .build();
 

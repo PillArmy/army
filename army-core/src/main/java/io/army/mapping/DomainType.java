@@ -22,7 +22,9 @@ import io.army.executor.DataAccessException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
+/// @see <a href="https://www.postgresql.org/docs/current/domains.html">Domain Types</a>
 /// @see <a href="https://www.postgresql.org/docs/current/sql-createdomain.html">CREATE DOMAIN</a>
+/// @see <a href="https://www.postgresql.org/docs/current/sql-alterdomain.html">ALTER DOMAIN</a>
 public final class DomainType extends _ArmyBuildInType implements MappingType.SqlDomain {
 
 
@@ -48,13 +50,18 @@ public final class DomainType extends _ArmyBuildInType implements MappingType.Sq
     }
 
     @Override
-    public String typeName() {
+    public String objectName() {
         return "";
     }
 
     @Override
     public MappingType baseType() {
         return null;
+    }
+
+    @Override
+    public String baseTypeName() {
+        return "";
     }
 
     @Override

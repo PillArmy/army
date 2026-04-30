@@ -19,17 +19,25 @@ package io.army.schema;
 
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
+import io.army.mapping.optional.CompositeField;
 import io.army.meta.*;
 import io.army.sqltype.DataType;
+import io.army.struct.TypeCategory;
 import io.army.util._Collections;
+import io.army.util._StringUtils;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 abstract class ArmySchemaComparer implements SchemaComparer {
 
     final ServerMeta serverMeta;
 
     final boolean jdbc;
+
+    private List<String> errorMsgList;
 
     ArmySchemaComparer(ServerMeta serverMeta) {
         this.serverMeta = serverMeta;
@@ -74,8 +82,24 @@ abstract class ArmySchemaComparer implements SchemaComparer {
             compareIndex(tableInfo, (TableMeta<?>) table, builder, columnMetaSet);
             tableResultList.add(builder.buildAndClear());
         }
-        return new DefaultSchemaResult(schemaMeta.catalog(), schemaMeta.schema(), newTableList, tableResultList);
+
+        final Map<MappingType, Integer> typeMap = new HashMap<>();
+        final List<TypeResult> typeResultList;
+        typeResultList = compareTypes(definedTypeMap, schemaInfo.definedTypeMap(), typeMap);
+
+        if (hasError()) {
+            throw createSchemaCompareException();
+        }
+
+        final List<MappingType> newTypeList;
+        if (typeMap.isEmpty()) {
+            newTypeList = List.of();
+        } else {
+            newTypeList = updateTypeOrder(typeMap, false);
+        }
+        return new DefaultSchemaResult(schemaMeta.catalog(), schemaMeta.schema(), newTableList, tableResultList, typeResultList, newTypeList);
     }
+
 
     /**
      * @return true : schema isn't match.
@@ -100,6 +124,15 @@ abstract class ArmySchemaComparer implements SchemaComparer {
     abstract boolean supportTableComment();
 
     abstract String primaryKeyName(TableMeta<?> table);
+
+
+    boolean isSameType(String typeName, String typeName1) {
+        throw new UnsupportedOperationException();
+    }
+
+    Pattern getCheckPattern() {
+        throw new UnsupportedOperationException();
+    }
 
 
     private void compareColumns(TableInfo tableInfo, TableMeta<?> table, TableResult.Builder tableBuilder,
@@ -195,34 +228,295 @@ abstract class ArmySchemaComparer implements SchemaComparer {
     }
 
     private List<TypeResult> compareTypes(Map<String, MappingType> definedTypeMap, Map<String, TypeInfo> typeInfoMap,
-                                          final Set<MappingType> newTypeSet) {
+                                          final Map<MappingType, Integer> typeMap) {
         String typeName;
         MappingType type;
         TypeInfo typeInfo;
 
-        final List<TypeResult> typeResultList = new ArrayList<>();
+        final List<TypeResult> typeResultList = _Collections.arrayList();
+        final TypeResult.Builder typeBuilder = TypeResult.builder();
+
+        TypeResult typeResult;
         for (Map.Entry<String, MappingType> e : definedTypeMap.entrySet()) {
             typeName = e.getKey();
             type = e.getValue();
             typeInfo = typeInfoMap.get(typeName);
             if (typeInfo == null) {
-                newTypeSet.add(type);
+                typeMap.put(type, -1);
                 continue;
             }
 
             if (type instanceof MappingType.SqlComposite) {
-
+                typeResult = compareCompositeType((MappingType.SqlComposite) type, typeInfo, typeBuilder);
             } else if (type instanceof MappingType.SqlEnum) {
-
+                typeResult = compareEnumType((MappingType.SqlEnum) type, typeInfo, typeBuilder);
             } else if (type instanceof MappingType.SqlRange) {
-
+                typeResult = compareRangeType((MappingType.SqlRange) type, typeInfo, typeBuilder);
             } else if (type instanceof MappingType.SqlDomain) {
-
+                typeResult = compareDomainType((MappingType.SqlDomain) type, typeInfo, typeBuilder);
+            } else {
+                typeResult = null;
             }
 
+            if (typeResult != null) {
+                typeResultList.add(typeResult);
+            }
 
         } // type loop
         return typeResultList;
+    }
+
+
+    @Nullable
+    private TypeResult compareCompositeType(final MappingType.SqlComposite compositeType, TypeInfo typeInfo,
+                                            TypeResult.Builder builder) {
+        if (typeInfo.category() != TypeCategory.COMPOSITE) {
+            addTypeNotMatchError(compositeType, TypeCategory.COMPOSITE, typeInfo);
+            return null;
+        }
+
+        final List<CompositeField> javaFieldList = compositeType.fieldList();
+        final List<CompositeField> dbFieldList = typeInfo.compositeFieldList();
+
+        final Map<String, CompositeField> javaFieldMap = compositeFieldListToMap(javaFieldList);
+
+        final int javaFieldCount, dbFieldCount;
+        javaFieldCount = javaFieldList.size();
+        dbFieldCount = dbFieldList.size();
+
+        List<CompositeField> dropFieldList = null, newFieldList = null, modifyFieldList = null;
+        String columnName;
+        boolean modify;
+        CompositeField javaField, dbField;
+        TypeMeta javaTypeMeta;
+
+        topLoop:
+        for (int javaIndex = 0, dbStart = 0; javaIndex < javaFieldCount; javaIndex++) {
+            javaField = javaFieldList.get(javaIndex);
+            columnName = javaField.columnName.toLowerCase(Locale.ROOT);
+
+            for (int dbIndex = dbStart; dbIndex < dbFieldCount; dbIndex++) {
+                dbField = dbFieldList.get(dbIndex);
+                if (!columnName.equals(dbField.columnName)) {
+                    if (javaFieldMap.containsKey(dbField.columnName)) {
+                        String m = String.format("%s composite field order error, composite type don't support field order change,you can only add or drop field.",
+                                compositeType.javaType().getName());
+                        addErrorMessage(m);
+                        break topLoop;
+                    }
+                    if (dropFieldList == null) {
+                        dropFieldList = new ArrayList<>();
+                    }
+                    dropFieldList.add(dbField);
+                    dbStart = dbIndex + 1;
+                    continue;
+                }
+
+                javaTypeMeta = javaField.typeMeta;
+                if (!(javaTypeMeta instanceof MappingType)) {
+                    javaTypeMeta = javaTypeMeta.mappingType();
+                }
+
+                modify = !javaTypeMeta.equals(dbField.typeMeta)
+                        && !((MappingType) javaTypeMeta).map(this.serverMeta).equals(((MappingType) dbField.typeMeta).map(this.serverMeta));
+
+                if (!modify) {
+                    modify = _StringUtils.hasText(javaField.collation)
+                            && !javaField.collation.toLowerCase(Locale.ROOT).equals(dbField.collation);
+                }
+
+                if (modify) {
+                    if (modifyFieldList == null) {
+                        modifyFieldList = new ArrayList<>();
+                    }
+                    modifyFieldList.add(javaField);
+                }
+
+                dbStart = dbIndex + 1;
+                continue topLoop;
+
+            } // dbField loop
+
+
+            if (newFieldList == null) {
+                newFieldList = new ArrayList<>();
+            }
+            newFieldList.add(javaField); // not found, so new field
+
+        } // top loop
+
+
+        builder.type((MappingType) compositeType)
+                .category(TypeCategory.COMPOSITE)
+                .compositeDropFieldList(dropFieldList)
+                .compositeNewFieldList(newFieldList)
+                .compositeModifyFieldList(modifyFieldList);
+
+        if (hasError() || !builder.hasDifference()) {
+            builder.clear();
+            return null;
+        }
+
+        return builder.build();
+    }
+
+
+    @Nullable
+    private TypeResult compareEnumType(MappingType.SqlEnum enumType, TypeInfo typeInfo,
+                                       TypeResult.Builder builder) {
+        final Class<?> javaType = enumType.javaType();
+
+        if (typeInfo.category() != TypeCategory.ENUM) {
+            addTypeNotMatchError(enumType, TypeCategory.ENUM, typeInfo);
+            return null;
+        }
+
+        if (!javaType.isEnum()) {
+            String m = String.format("%s  type name[%s] should be enum ,but not "
+                    , javaType.getName(), enumType.objectName());
+            addErrorMessage(m);
+            return null;
+        }
+
+        final Set<String> enumLabelSet = new HashSet<>(typeInfo.enumLabelList());
+
+        List<String> newLabelList = null;
+        for (String label : enumType.enumLabelList()) {
+            if (enumLabelSet.contains(label)) {
+                continue;
+            }
+            if (newLabelList == null) {
+                newLabelList = new ArrayList<>();
+            }
+            newLabelList.add(label);
+        }
+
+        if (newLabelList != null) {
+            return builder.type((MappingType) enumType)
+                    .category(TypeCategory.ENUM)
+                    .enumNewLabelList(newLabelList)
+                    .build();
+        }
+        builder.clear();
+        return null;
+    }
+
+
+    @Nullable
+    private TypeResult compareRangeType(MappingType.SqlRange rangeType, TypeInfo typeInfo,
+                                        TypeResult.Builder builder) {
+        if (typeInfo.category() != TypeCategory.RANGE) {
+            addTypeNotMatchError(rangeType, TypeCategory.RANGE, typeInfo);
+            return null;
+        }
+        if (typeInfo.rangeMulti() == null) {
+            // multi-range type, ignore
+            return null;
+        }
+
+        builder.type((MappingType) rangeType)
+                .category(TypeCategory.RANGE);
+
+        final String typeName = typeInfo.rangeSubType();
+        if (typeName == null) {
+            String m = String.format("range type[%s] sub type is null", rangeType.objectName());
+            addErrorMessage(m);
+            return null;
+        }
+        builder.containRangeSubType(!isSameType(rangeType.rangeSubTypeName(), typeName));
+
+        String value;
+
+        value = rangeType.subTypeCollation().toLowerCase(Locale.ROOT);
+        if (_StringUtils.hasText(value)) {
+            builder.containRangeCollation(!value.equals(typeInfo.rangeCollation()));
+        } else {
+            builder.containRangeCollation(typeInfo.rangeCollation() != null);
+        }
+
+        value = rangeType.multiRangeTypeName().toUpperCase(Locale.ROOT);
+        if (_StringUtils.hasText(value)) {
+            builder.containRangeMulti(!value.equals(typeInfo.rangeMulti()));
+        } else {
+            builder.containRangeMulti(typeInfo.rangeMulti() != null);
+        }
+
+        value = rangeType.subtypeOperator().toLowerCase(Locale.ROOT);
+        if (_StringUtils.hasText(value)) {
+            builder.containRangeSubOpc(!value.equals(typeInfo.rangeSubOpc()));
+        } else {
+            builder.containRangeSubOpc(typeInfo.rangeSubOpc() != null);
+        }
+
+        value = rangeType.fanonicalFunc().toLowerCase(Locale.ROOT);
+        if (_StringUtils.hasText(value)) {
+            builder.containRangeCanonical(!value.equals(typeInfo.rangeCanonical()));
+        } else {
+            builder.containRangeCanonical(typeInfo.rangeCanonical() != null);
+        }
+
+        value = rangeType.subtypeDiffFunc().toLowerCase(Locale.ROOT);
+        if (_StringUtils.hasText(value)) {
+            builder.containRangeSubDiff(!value.equals(typeInfo.rangeSubDiff()));
+        } else {
+            builder.containRangeSubDiff(typeInfo.rangeSubDiff() != null);
+        }
+
+        if (builder.hasDifference()) {
+            return builder.build();
+        }
+        builder.clear();
+        return null;
+    }
+
+
+    @Nullable
+    private TypeResult compareDomainType(MappingType.SqlDomain domainType, TypeInfo typeInfo,
+                                         TypeResult.Builder builder) {
+        if (typeInfo.category() != TypeCategory.DOMAIN) {
+            addTypeNotMatchError(domainType, TypeCategory.DOMAIN, typeInfo);
+            return null;
+        }
+
+        builder.type((MappingType) domainType)
+                .category(TypeCategory.DOMAIN)
+                .containNotNull(domainType.isNotNull() != typeInfo.isNotNull());
+
+        final String typeName = typeInfo.baseTypeName();
+        if (typeName == null) {
+            String m = String.format("domain type[%s] base type is null", domainType.objectName());
+            addErrorMessage(m);
+            return null;
+        }
+
+        builder.containBaseType(!isSameType(domainType.baseTypeName(), typeName))
+                .containDefault(_StringUtils.hasText(domainType.defaultValue()) ^ _StringUtils.hasText(typeInfo.defaultValue()));
+
+        String value;
+        value = domainType.collation().toLowerCase(Locale.ROOT);
+        if (_StringUtils.hasText(value)) {
+            builder.containCollation(!value.equals(typeInfo.collation()));
+        } else {
+            builder.containCollation(typeInfo.collation() != null);
+        }
+
+        value = domainType.constraint().toLowerCase(Locale.ROOT);
+
+        final Matcher matcher = getCheckPattern().matcher(value);
+        if (!matcher.find()) {
+            String m = String.format("domain type[%s] constraint[%s] format error", domainType.objectName(), value);
+            addErrorMessage(m);
+            return null;
+        }
+        if (!matcher.group(1).equals(typeInfo.check())) {
+            builder.constraintName(typeInfo.constraintName());
+        }
+
+        if (builder.hasDifference()) {
+            return builder.build();
+        }
+        builder.clear();
+        return null;
     }
 
 
@@ -262,6 +556,120 @@ abstract class ArmySchemaComparer implements SchemaComparer {
     }
 
 
+    private void addTypeNotMatchError(MappingType.SqlUserDefined type, TypeCategory category, TypeInfo typeInfo) {
+        String m = String.format("%s category[%s] and  database type [%s] category[%s] not match"
+                , type.javaType().getName(), category.name(), type.objectName(), typeInfo.category().name());
+        addErrorMessage(m);
+    }
+
+
+    private void addErrorMessage(String msg) {
+        List<String> errorMsgList = this.errorMsgList;
+        if (errorMsgList == null) {
+            this.errorMsgList = errorMsgList = new ArrayList<>();
+        }
+        errorMsgList.add(msg);
+    }
+
+    private boolean hasError() {
+        return !_Collections.isEmpty(this.errorMsgList);
+    }
+
+    private MetaException createSchemaCompareException() {
+        final List<String> errorMsgList = this.errorMsgList;
+        final int size = errorMsgList.size();
+
+        final StringBuilder msgBuilder = new StringBuilder(size * 30);
+        msgBuilder.append("Schema compare error:");
+
+        for (int i = 0; i < size; i++) {
+            msgBuilder.append('\n')
+                    .append(i + 1)
+                    .append(':')
+                    .append(errorMsgList.get(i));
+        }
+
+        return new MetaException(msgBuilder.toString());
+    }
+
+
+    static List<MappingType> updateTypeOrder(final Map<MappingType, Integer> typeMap, final boolean drop) {
+        typeMap.replaceAll((t, _) -> definedTypeDependencyDepth(t, typeMap::containsKey));
+        final List<MappingType> list = new ArrayList<>(typeMap.keySet());
+
+        Comparator<MappingType> comparator = Comparator.comparingInt(typeMap::get);
+        if (drop) {
+            comparator = comparator.reversed();
+        }
+
+        list.sort(comparator);
+        return List.copyOf(list);
+    }
+
+
+    private static int definedTypeDependencyDepth(final MappingType type, Predicate<MappingType> predicate) {
+        if (type instanceof MappingType.SqlEnum) {
+            return 0;
+        }
+        int deep = 0;
+        if (type instanceof MappingType.SqlComposite) {
+            deep = compositeDependencyDepth((MappingType.SqlComposite) type, predicate);
+        } else if (type instanceof MappingType.SqlDomain) {
+            deep = domainDependencyDepth((MappingType.SqlDomain) type, predicate);
+        } else if (type instanceof MappingType.SqlRange) {
+            deep = rangeDependencyDepth((MappingType.SqlRange) type, predicate);
+        }
+        return deep;
+    }
+
+    private static int compositeDependencyDepth(final MappingType.SqlComposite type, Predicate<MappingType> predicate) {
+        final List<CompositeField> fieldList = type.fieldList();
+        TypeMeta typeMeta;
+        int deep = 0, tempDeep;
+        for (CompositeField field : fieldList) {
+            typeMeta = field.typeMeta;
+            if (!(typeMeta instanceof MappingType)) {
+                typeMeta = typeMeta.mappingType();
+            }
+            if (typeMeta instanceof MappingType.SqlUserDefined && predicate.test((MappingType) typeMeta)) {
+                tempDeep = 1 + definedTypeDependencyDepth((MappingType) typeMeta, predicate);
+                deep = Math.max(deep, tempDeep);
+            }
+        }
+        return deep;
+    }
+
+    private static int domainDependencyDepth(final MappingType.SqlDomain type, Predicate<MappingType> predicate) {
+        final MappingType baseType = type.baseType();
+        int deep = 0;
+        if (baseType instanceof MappingType.SqlUserDefined && predicate.test(baseType)) {
+            deep = 1 + definedTypeDependencyDepth(baseType, predicate);
+        }
+        return deep;
+    }
+
+    private static int rangeDependencyDepth(final MappingType.SqlRange type, Predicate<MappingType> predicate) {
+        final MappingType subType = type.rangeSubType();
+        int deep = 0;
+        if (subType instanceof MappingType.SqlUserDefined && predicate.test(subType)) {
+            deep = 1 + definedTypeDependencyDepth(subType, predicate);
+        }
+        return deep;
+    }
+
+
+    private static Map<String, CompositeField> compositeFieldListToMap(List<CompositeField> fieldList) {
+        final int size = fieldList.size();
+        final Map<String, CompositeField> fieldMap = _Collections.hashMapForSize(size);
+        CompositeField field;
+        for (int i = 0; i < size; i++) {
+            field = fieldList.get(i);
+            fieldMap.put(field.columnName.toLowerCase(Locale.ROOT), field);
+        }
+        return fieldMap;
+    }
+
+
     private static final class DefaultSchemaResult implements SchemaResult {
 
         private final String catalog;
@@ -272,12 +680,20 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
         private final List<TableResult> tableResultList;
 
-        private DefaultSchemaResult(@Nullable String catalog, @Nullable String schema
-                , List<TableMeta<?>> newTableList, List<TableResult> tableResultList) {
+        private final List<TypeResult> typeResultList;
+
+        private final List<MappingType> newTypeList;
+
+        private DefaultSchemaResult(@Nullable String catalog, @Nullable String schema, List<TableMeta<?>> newTableList,
+                                    List<TableResult> tableResultList,
+                                    List<TypeResult> typeResultList,
+                                    List<MappingType> newTypeList) {
             this.catalog = catalog;
             this.schema = schema;
             this.newTableList = _Collections.unmodifiableList(newTableList);
             this.tableResultList = _Collections.unmodifiableList(tableResultList);
+            this.typeResultList = List.copyOf(typeResultList);
+            this.newTypeList = List.copyOf(newTypeList);
         }
 
         @Override
@@ -305,7 +721,32 @@ abstract class ArmySchemaComparer implements SchemaComparer {
             return this.tableResultList;
         }
 
-    }
+        @Override
+        public List<MappingType> dropTypeList() {
+            return List.of();
+        }
+
+        @Override
+        public List<MappingType> newTypeList() {
+            return this.newTypeList;
+        }
+
+        @Override
+        public List<TypeResult> modifyTypeList() {
+            return this.typeResultList;
+        }
+
+        @Override
+        public boolean hasChanges() {
+            return !this.newTableList.isEmpty()
+                    || !this.tableResultList.isEmpty()
+                    || !this.typeResultList.isEmpty()
+                    || !this.newTypeList.isEmpty()
+                    ;
+        }
+
+
+    } // DefaultSchemaResult
 
 
 }

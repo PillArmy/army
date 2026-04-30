@@ -205,7 +205,7 @@ final class ArmySyncFactoryBuilder
                 case DROP_CREATE: {
                     final Collection<TableMeta<?>> tableCollection;
                     tableCollection = sessionFactory.tableMap().values();
-                    schemaResult = SchemaResult.dropCreate(schemaInfo.catalog(), schemaInfo.schema(), tableCollection);
+                    schemaResult = SchemaResult.dropCreate(schemaInfo.catalog(), schemaInfo.schema(), tableCollection, definedTypeMap.values());
                 }
                 break;
                 default:
@@ -215,7 +215,7 @@ final class ArmySyncFactoryBuilder
             //3.validate or execute ddl
             switch (ddlMode) {
                 case VALIDATE: {
-                    if (!schemaResult.newTableList().isEmpty() || !schemaResult.changeTableList().isEmpty()) {
+                    if (schemaResult.hasChanges()) {
                         final SessionFactoryException error;
                         if ((error = validateSchema(sessionFactory, schemaResult)) != null) {
                             throw error;
@@ -226,6 +226,9 @@ final class ArmySyncFactoryBuilder
                 case UPDATE:
                 case DROP_CREATE: {
                     //create ddl
+                    if (!schemaResult.hasChanges()) {
+                        break;
+                    }
                     final List<String> ddlList;
                     ddlList = parseMetaDdl(sessionFactory, schemaResult);
                     final int ddlSize = ddlList.size();

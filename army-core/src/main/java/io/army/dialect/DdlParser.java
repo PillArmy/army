@@ -17,10 +17,12 @@
 package io.army.dialect;
 
 
+import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
 import io.army.schema.FieldResult;
 import io.army.schema.SchemaResult;
+import io.army.schema.TypeResult;
 
 import java.util.List;
 
@@ -55,4 +57,20 @@ interface DdlParser {
     <T> void changeIndex(TableMeta<T> table, List<String> indexNameList, List<String> sqlList);
 
     <T> void dropIndex(TableMeta<T> table, List<String> indexNameList, List<String> sqlList);
+
+    default void dropType(MappingType type, List<String> sqlList) {
+        throw new UnsupportedOperationException();
+    }
+
+
+    default void createType(MappingType type, List<String> sqlList) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void modifyType(TypeResult typeResult, List<String> sqlList) {
+        throw new UnsupportedOperationException();
+    }
+
+
+
 }

@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 /// @see io.army.mapping.CompositeType
-public class CompositeArrayType extends _ArmyBuildInType implements MappingType.SqlArray, MappingType.SqlUserDefined {
+public class CompositeArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
     public static CompositeArrayType from(final Class<?> arrayClass) {
         if (!arrayClass.isArray()) {
@@ -73,17 +73,13 @@ public class CompositeArrayType extends _ArmyBuildInType implements MappingType.
         return this.arrayClass;
     }
 
-    @Override
-    public String typeName() {
-        return this.underlyingType.typeName() + "[]";
-    }
 
     @Override
     public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = DataType.from(typeName());
+                dataType = DataType.from(this.underlyingType.objectName() + "[]");
                 break;
             case SQLite:
             case MySQL:

@@ -116,9 +116,9 @@ abstract class PostgreParser extends _ArmyDialectParser {
                            WHEN 'E' THEN 'ENUM'
                            WHEN 'R' THEN 'RANGE'
                            ELSE CASE
-                                WHEN t.typbasetype > 0 THEN 'DOMAIN'
-                                ELSE 'UNKNOWN'
-                                END
+                                    WHEN t.typbasetype > 0 THEN 'DOMAIN'
+                                    ELSE 'UNKNOWN'
+                               END
                            END AS "category" ,
                        et.enumlabel  AS "enumLabel",
                        et."enumOrder",
@@ -130,7 +130,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                        co.collname AS "collation",
                        t.typnotnull AS "notNull",
                        t.typdefault AS "default",
-                       CASE WHEN cs.conname IS NOT NULL THEN 'CONSTRAINT ' || cs.conname  || ' ' || pg_get_constraintdef(cs.oid, true) ELSE NULL END AS "constraint",
+                       CASE WHEN cs.conname IS NOT NULL THEN cs.conname  ELSE NULL END AS "constraintName",
+                       CASE WHEN cs.conname IS NOT NULL THEN  pg_get_constraintdef(cs.oid, true) ELSE NULL END AS "check",
                        (SELECT rt.typname FROM pg_type AS rt WHERE rt.oid = r.rngsubtype) AS "rangeSubType",
                        (SELECT rc.collname FROM pg_collation AS rc WHERE rc.oid = r.rngcollation) AS "rangeCollation",
                        (SELECT rt.typname FROM pg_type AS rt WHERE rt.oid = r.rngmultitypid) AS "rangeMulti",
@@ -154,9 +155,9 @@ abstract class PostgreParser extends _ArmyDialectParser {
                     WHERE a.attrelid = c.oid
                     order by  a.attnum
                     ) AS at ON at.attrelid = c.oid
-                     LEFT JOIN pg_collation AS co  ON co.oid = t.typcollation
-                     LEFT JOIN pg_constraint cs ON cs.contypid = t.oid AND cs.contype = 'c'
-                     LEFT JOIN pg_range AS r ON r.rngtypid = t.oid
+                         LEFT JOIN pg_collation AS co  ON co.oid = t.typcollation
+                         LEFT JOIN pg_constraint cs ON cs.contypid = t.oid AND cs.contype = 'c'
+                         LEFT JOIN pg_range AS r ON r.rngtypid = t.oid
                 WHERE n.nspname NOT IN ('pg_catalog', 'information_schema')
                   AND (t.typcategory IN ('E', 'R') OR t.typbasetype > 0 OR (t.typcategory = 'C' AND c.relkind = 'c'))
                 ORDER BY t.typname ,at.attnum,et."enumOrder"
@@ -179,7 +180,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 _SQLConsultant.forName("collation", StringType.INSTANCE),
                 _SQLConsultant.forName("notNull", BooleanType.INSTANCE),
                 _SQLConsultant.forName("default", StringType.INSTANCE),
-                _SQLConsultant.forName("constraint", StringType.INSTANCE),
+                _SQLConsultant.forName("constraintName", StringType.INSTANCE),
+                _SQLConsultant.forName("check", StringType.INSTANCE),
 
                 _SQLConsultant.forName("rangeSubType", StringType.INSTANCE),
                 _SQLConsultant.forName("rangeCollation", StringType.INSTANCE),
@@ -686,7 +688,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 continue;
             }
 
-            if (ch >= 'A' && ch <= 'Z') {
+            if (object == null && ch >= 'A' && ch <= 'Z') {
                 // Quoting an identifier also makes it case-sensitive, whereas unquoted names are always folded to lower case.
                 if (writtenIndex == startIndex) {
                     sqlBuilder.append(boundaryChar);
