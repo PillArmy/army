@@ -35,7 +35,7 @@ import java.time.*;
 /// - {@link java.time.LocalDate}
 /// - {@link YearMonth}
 /// - {@link MonthDay}
-/// - {@link String} 
+/// - {@link String}
 /// 
 /// to sql date,if overflow,throw {@link io.army.ArmyException}
 /// * @since 0.6.0

@@ -18,7 +18,7 @@ package io.army.criteria.impl;
 
 /// package interface. This interface is base interface of :
 /// 
-/// - 
+/// -
 /// 
 /// @since 0.6.0
 interface ArmySimpleRowExpression extends LengthTypedRowExpression, ArmySimpleSQLExpression {

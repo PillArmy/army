@@ -38,15 +38,15 @@ public interface DeleteStatement extends NarrowDmlStatement {
 
     }
 
-/// 
-/// This interface representing FROM clause for single-table DELETE syntax.
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// /
-/// @param <DT> next clause java type
-/// @since 0.6.0
+    /// 
+    /// This interface representing FROM clause for single-table DELETE syntax.
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// /
+    /// @param <DT> next clause java type
+    /// @since 0.6.0
     interface _SingleDeleteFromClause<DT> {
 
         DT from(SingleTableMeta<?> table, SQLs.WordAs wordAs, String alias);

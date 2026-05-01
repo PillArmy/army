@@ -24,43 +24,43 @@ public interface StmtOption extends StmtOptionSpec {
     boolean isPreferServerPrepare();
 
     /// {@link io.army.dialect.DialectParser} Whether parse batch statement as multi-statement or not .
-/// Default : false
-/// @return true : {@link io.army.dialect.DialectParser} Whether parse batch statement as multi-statement.
+    /// Default : false
+    /// @return true : {@link io.army.dialect.DialectParser} Whether parse batch statement as multi-statement.
     boolean isParseBatchAsMultiStmt();
 
 
     boolean isSupportTimeout();
 
     /// Transaction or statement timeout milli seconds
-/// @return 0 or timeout millis
+    /// @return 0 or timeout millis
     int timeoutMillis();
 
     /// Transaction or statement start milli seconds
-/// @return 0 or  start time millis
+    /// @return 0 or  start time millis
     long startTimeMillis();
 
 
     /// Get reset timeout seconds.
-/// @throws IllegalStateException throw when {@link #isSupportTimeout()} return false
-/// @throws TimeoutException      throw  {@link #isSupportTimeout()} return true and reset time is zero.
-/// @see #isSupportTimeout()
+    /// @throws IllegalStateException throw when {@link #isSupportTimeout()} return false
+    /// @throws TimeoutException      throw  {@link #isSupportTimeout()} return true and reset time is zero.
+    /// @see #isSupportTimeout()
     int restSeconds() throws TimeoutException;
 
     /// Get reset timeout mill seconds.
-/// @throws IllegalStateException throw when {@link #isSupportTimeout()} return false
-/// @throws TimeoutException      throw  {@link #isSupportTimeout()} return true and reset time is zero.
-/// @see #isSupportTimeout()
+    /// @throws IllegalStateException throw when {@link #isSupportTimeout()} return false
+    /// @throws TimeoutException      throw  {@link #isSupportTimeout()} return true and reset time is zero.
+    /// @see #isSupportTimeout()
     int restMillSeconds() throws TimeoutException;
 
-/// Get frequency to help driver caching server-prepared statement.
-/// Default : -1  in the implementation of jdbd-spi,so if you don't invoke this method,driver will ignore this option.
-/// <Strong>NOTE</Strong>: JDBC don't support this option
-/// @return 
-/// - negative : no action
-/// - 0 : never cache server-prepared statement,if have cached ,close server-prepared statement and delete cache
-/// - positive : representing frequency
-/// - {@link Integer#MAX_VALUE} : always cache server-prepared statement
-/// 
+    /// Get frequency to help driver caching server-prepared statement.
+    /// Default : -1  in the implementation of jdbd-spi,so if you don't invoke this method,driver will ignore this option.
+    /// <Strong>NOTE</Strong>: JDBC don't support this option
+    /// @return
+    /// - negative : no action
+    /// - 0 : never cache server-prepared statement,if have cached ,close server-prepared statement and delete cache
+    /// - positive : representing frequency
+    /// - {@link Integer#MAX_VALUE} : always cache server-prepared statement
+    /// 
     int frequency();
 
     MultiStmtMode multiStmtMode();

@@ -96,8 +96,8 @@ public abstract class NumberUtils {
     }
 
     /// Determine whether the given {@code value} String indicates a hex number,
-/// i.e. needs to be passed into {@code Integer.decode} instead of
-/// {@code Integer.valueOf}, etc.
+    /// i.e. needs to be passed into {@code Integer.decode} instead of
+    /// {@code Integer.valueOf}, etc.
     public static boolean isHexNumber(final String value) {
         final int index = (value.startsWith("-") ? 1 : 0);
         return (value.startsWith("0x", index) || value.startsWith("0X", index) || value.startsWith("#", index));

@@ -44,15 +44,15 @@ import java.util.function.Function;
 public interface MySQLQuery extends Query, MySQLStatement {
 
 
-/// 
-/// This interface representing INTO clause in  MySQL 8.0.
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @param <IO> next clause java type
-/// @see <a href="https://dev.mysql.com/doc/refman/5.7/en/select-into.html">MySQL 5.7 SELECT ... INTO Statement</a>
-/// @since 0.6.0
+    /// 
+    /// This interface representing INTO clause in  MySQL 8.0.
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @param <IO> next clause java type
+    /// @see <a href="https://dev.mysql.com/doc/refman/5.7/en/select-into.html">MySQL 5.7 SELECT ... INTO Statement</a>
+    /// @since 0.6.0
     interface _IntoOptionClause<IO> {
 
         IO into(String firstVarName, String... rest);
@@ -115,13 +115,13 @@ public interface MySQLQuery extends Query, MySQLStatement {
 
     }
 
-/// 
-/// This interface representing LOCK clause Prior to MySQL 8.0.
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// 
+    /// This interface representing LOCK clause Prior to MySQL 8.0.
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _LockSpec<I extends Item> extends _MinLockStrengthClause<_LockOfTableSpec<I>>,
             _DynamicLockClause<_DynamicLockStrengthClause, _LockSpec<I>>,
             _IntoOptionSpec<I> {

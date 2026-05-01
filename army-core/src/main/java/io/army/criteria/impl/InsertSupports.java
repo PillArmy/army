@@ -1361,7 +1361,7 @@ abstract class InsertSupports {
             implements Assignments<T> {
 
         /// @see ValuesParensClauseImpl#parens(SQLs.SymbolSpace, Consumer)
-/// @see ComplexInsertValuesAssignmentClause#ifSets(Consumer)
+        /// @see ComplexInsertValuesAssignmentClause#ifSets(Consumer)
         private AssignmentsImpl(CriteriaContext context, BiConsumer<FieldMeta<T>, Expression> consumer) {
             super(context, consumer);
         }
@@ -2321,8 +2321,8 @@ abstract class InsertSupports {
     }
 
     /// Try find parent insert sub-statement for childStmt in cteList.
-/// This method is designed for child sub-insert.
-/// @param childStmt must be {@link SubStatement}
+    /// This method is designed for child sub-insert.
+    /// @param childStmt must be {@link SubStatement}
     static ParentSubInsert parentSubInsertOfChildSubInsert(final ArmyInsert childStmt, final int rowCount,
                                                            final List<_Cte> cteListOfChild) {
 
@@ -2345,7 +2345,7 @@ abstract class InsertSupports {
 
 
     /// Find parent insert sub-statement for childStmt in cteList.
-/// @param childStmt {@link PrimaryStatement} or {@link SubStatement}
+    /// @param childStmt {@link PrimaryStatement} or {@link SubStatement}
     static ParentSubInsert parentSubInsert(final ArmyInsert childStmt, final int rowCount, final List<_Cte> cteList) {
         final ParentSubInsert parentSubInsert;
         parentSubInsert = tryParentSubInsert0(childStmt, rowCount, cteList, true);
@@ -2469,7 +2469,7 @@ abstract class InsertSupports {
 
 
     /// @return see {@link JoinableClause.SimpleQuery#validateIdDefaultExpression()}
-/// @see #parentSubInsert(ArmyInsert, int, List)
+    /// @see #parentSubInsert(ArmyInsert, int, List)
     private static List<String> getIdScalarExpressionNames(final ArmyInsert childStmt, final InsertMode childMode,
                                                            final ChildTableMeta<?> child) {
 
@@ -2495,8 +2495,8 @@ abstract class InsertSupports {
     }
 
     /// @param nameList empty or name list ;  see {@link JoinableClause.SimpleQuery#validateIdDefaultExpression()}
-/// @return parent sub-insert CTE name.
-/// @see #parentSubInsert(ArmyInsert, int, List)
+    /// @return parent sub-insert CTE name.
+    /// @see #parentSubInsert(ArmyInsert, int, List)
     private static String validateParentRowNumberCte(final ChildTableMeta<?> child, final _Cte cte,
                                                      final List<String> nameList) {
         final SubStatement subStatement = cte.subStatement();
@@ -2577,8 +2577,8 @@ abstract class InsertSupports {
 
 
     /// 
-/// Check insert statement for safety.
-/// @see ArmyInsertStatement#asInsertStatement()
+    /// Check insert statement for safety.
+    /// @see ArmyInsertStatement#asInsertStatement()
     private static void insertStatementGuard(final _Insert statement) {
         if (!(statement instanceof _Insert._ChildInsert)) {
             if (statement instanceof _Insert._SupportWithClauseInsert) { // for example,postgre insert
@@ -2602,7 +2602,7 @@ abstract class InsertSupports {
 
 
     /// @param statement {@link PrimaryStatement} and not {@link _Insert._ChildInsert}
-/// @see #insertStatementGuard(_Insert)
+    /// @see #insertStatementGuard(_Insert)
     private static void validateSupportWithClauseInsert(final _Insert._SupportWithClauseInsert statement) {
 
         //TODO
@@ -2718,7 +2718,7 @@ abstract class InsertSupports {
     }
 
     /// @see #findDiscriminatorFromParensRowSet(FieldMeta, int, _ParensRowSet)
-/// @see #findDiscriminatorFromUnionRowSet(FieldMeta, int, _UnionRowSet)
+    /// @see #findDiscriminatorFromUnionRowSet(FieldMeta, int, _UnionRowSet)
     private static CodeEnum findDiscriminatorFromValues(final FieldMeta<?> discField, final int discIndex,
                                                         final SubValues values) {
         final CodeEnum codeEnum;

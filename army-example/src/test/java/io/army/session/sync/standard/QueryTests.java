@@ -227,12 +227,12 @@ public class QueryTests extends SessionSupport {
 
     }
 
-/// Test following :
-/// 
-/// - Bracket CriteriaContext migration
-/// - WITH clause migration
-/// - parens WITH clause parsing
-/// 
+    /// Test following :
+    /// 
+    /// - Bracket CriteriaContext migration
+    /// - WITH clause migration
+    /// - parens WITH clause parsing
+    /// 
     @Test
     public void contextMigration(final SyncLocalSession session) {
         if (isNotSupportParenthesizedQuery(session)) {

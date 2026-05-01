@@ -347,7 +347,7 @@ abstract class CriteriaUtils {
 
 
     /// invoke after {@code asSelect()}
-/// @return a unmodifiable map
+    /// @return a unmodifiable map
     static Map<String, Selection> createSelectionMap(final List<? extends SelectItem> selectItemList) {
 
         final int selectItemSize = selectItemList.size();

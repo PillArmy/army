@@ -26,17 +26,17 @@ import io.army.meta.FieldMeta;
 interface _SubQueryContext extends _SqlContext {
 
     /// 
-/// Just append this context field,don't contain outer context field.
+    /// Just append this context field,don't contain outer context field.
     void appendThisField(String tableAlias, FieldMeta<?> field);
 
     /// 
-/// Just append this context field,don't contain outer context field.
+    /// Just append this context field,don't contain outer context field.
     void appendThisField(FieldMeta<?> field);
 
     /// 
-/// Just append this context field,don't contain outer context field.
-/// no preceding space ,no preceding table alias.
-/// @see _SqlContext#appendFieldOnly(FieldMeta)
+    /// Just append this context field,don't contain outer context field.
+    /// no preceding space ,no preceding table alias.
+    /// @see _SqlContext#appendFieldOnly(FieldMeta)
     void appendThisFieldOnly(FieldMeta<?> field);
 
 }

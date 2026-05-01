@@ -41,7 +41,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 /// Mapping the pojo annotated by {@link DefinedType} to sql composite type
-///
+/// 
 /// @see <a href="https://www.postgresql.org/docs/current/rowtypes.html">Composite Types</a>
 public final class CompositeType extends _ArmyBuildInType implements MappingType.SqlComposite {
 

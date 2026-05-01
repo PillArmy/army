@@ -748,7 +748,7 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
     }
 
     /// @param option the instance is returned by {@link #replaceIfNeed(SyncStmtOption)}
-/// @see #executeQuery(DqlStatement, SyncStmtOption, ReaderFunction)
+    /// @see #executeQuery(DqlStatement, SyncStmtOption, ReaderFunction)
     private <R> Stream<R> executePairInsertQuery(final InsertStatement statement, final SyncStmtOption option,
                                                  final PairStmt stmt, final ReaderFunction<R> readerFunc) {
         final _Insert._ChildInsert childInsert = (_Insert._ChildInsert) statement;
@@ -832,7 +832,7 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
 
 
     /// @param option the instance is returned by {@link #replaceIfNeed(SyncStmtOption)}
-/// @see #updateAsStates(SimpleDmlStatement, SyncStmtOption)
+    /// @see #updateAsStates(SimpleDmlStatement, SyncStmtOption)
     private ResultStates executeInsert(final InsertStatement statement, final SyncStmtOption option)
             throws ArmyException {
 
@@ -908,7 +908,7 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
 
 
     /// @param userOption the instance is returned by {@link #replaceIfNeed(SyncStmtOption)}
-/// @see #updateAsStates(SimpleDmlStatement, SyncStmtOption)
+    /// @see #updateAsStates(SimpleDmlStatement, SyncStmtOption)
     private ResultStates executeUpdate(final SimpleDmlStatement statement, final SyncStmtOption userOption)
             throws ArmyException {
 

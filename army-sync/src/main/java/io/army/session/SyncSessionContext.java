@@ -27,10 +27,10 @@ public interface SyncSessionContext extends SessionContext {
     SyncSessionFactory sessionFactory();
 
     /// Retrieve the current session according to the scoping defined
-/// by this implementation.
-/// @return The current session.
-/// @throws NoCurrentSessionException Typically indicates an issue
-/// locating or creating the current session.
+    /// by this implementation.
+    /// @return The current session.
+    /// @throws NoCurrentSessionException Typically indicates an issue
+    /// locating or creating the current session.
     SyncSession currentSession() throws NoCurrentSessionException;
 
     <T extends SyncSession> T currentSession(Class<T> sessionClass) throws NoCurrentSessionException;

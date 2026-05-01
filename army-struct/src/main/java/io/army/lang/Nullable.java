@@ -29,7 +29,7 @@ import java.lang.annotation.*;
 /// repeat parent {@code @Nullable} annotations unless they behave differently.
 /// Can be used in association with {@code @NonNullApi} or {@code @NonNullFields} to
 /// override the default non-nullable semantic to nullable.
-///  reference {@code @org.springframework.lang.Nullable}
+/// reference {@code @org.springframework.lang.Nullable}
 /// @see NonNullApi
 /// @see NonNull
 /// @since 1.0

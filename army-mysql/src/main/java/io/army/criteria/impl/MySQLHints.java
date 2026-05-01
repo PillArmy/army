@@ -103,12 +103,12 @@ abstract class MySQLHints implements Hint, _SelfDescribed {
 
     }//Hint
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-join-order">Join-Order Optimizer Hints</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-join-order">Join-Order Optimizer Hints</a>
     static MySQLHints joinFixedOrder(@Nullable String queryBlockName) {
         return new JoinFixedOrder(queryBlockName);
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-join-order">Join-Order Optimizer Hints</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-join-order">Join-Order Optimizer Hints</a>
     static MySQLHints joinOrderHint(HintType hint, @Nullable String queryBlockName, List<String> tableNameList) {
         if (tableNameList.size() == 0) {
             throw new CriteriaException("tableNameList must non-empty.");
@@ -116,7 +116,7 @@ abstract class MySQLHints implements Hint, _SelfDescribed {
         return new JoinOrder(hint, queryBlockName, tableNameList);
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-table-level">Table-Level Optimizer Hints</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-table-level">Table-Level Optimizer Hints</a>
     static MySQLHints tableLevelHint(HintType hint, @Nullable String queryBlockName, List<String> tableNameList) {
         if (tableNameList.size() == 0) {
             throw new CriteriaException("tableNameList must non-empty.");
@@ -124,7 +124,7 @@ abstract class MySQLHints implements Hint, _SelfDescribed {
         return new TableLevelHint(hint, queryBlockName, tableNameList);
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-index-level">Index-Level Optimizer Hints</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-index-level">Index-Level Optimizer Hints</a>
     static MySQLHints indexLevelHint(HintType hint, @Nullable String queryBlockName, String tableName
             , List<String> indexNameList) {
         if (indexNameList.size() == 0) {
@@ -133,7 +133,7 @@ abstract class MySQLHints implements Hint, _SelfDescribed {
         return new IndexLevelHint(hint, queryBlockName, tableName, indexNameList);
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-subquery">Subquery Optimizer Hints</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-subquery">Subquery Optimizer Hints</a>
     static MySQLHints subQueryHint(HintType hint, @Nullable String queryBlockName, EnumSet<HintStrategy> strategySet) {
         if (strategySet.size() == 0) {
             throw new CriteriaException("strategySet must non-empty.");
@@ -141,23 +141,23 @@ abstract class MySQLHints implements Hint, _SelfDescribed {
         return new SubQueryHint(hint, queryBlockName, strategySet);
     }
 
-/// @param millis null or non-negative
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-execution-time">Statement Execution Time Optimizer Hints</a>
+    /// @param millis null or non-negative
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-execution-time">Statement Execution Time Optimizer Hints</a>
     static MySQLHints maxExecutionTime(@Nullable Long millis) {
         return new MaxExecutionTimeHint(millis);
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-set-var">Variable-Setting Hint Syntax</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-set-var">Variable-Setting Hint Syntax</a>
     static MySQLHints setVar(String varValuePair) {
         return new VariableSettingHint(varValuePair);
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-resource-group">Resource Group Hint Syntax</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-resource-group">Resource Group Hint Syntax</a>
     static MySQLHints resourceGroup(String groupName) {
         return new ResourceGroupHint(groupName);
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-query-block-naming">Optimizer Hints for Naming Query Blocks</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-query-block-naming">Optimizer Hints for Naming Query Blocks</a>
     static MySQLHints qbName(String name) {
         return new QbNameHint(name);
     }
@@ -195,13 +195,13 @@ abstract class MySQLHints implements Hint, _SelfDescribed {
     }// JoinFixedOrder
 
 
-/// 
-/// Support below join-order hints:
-/// 
-/// - {@link HintType#JOIN_ORDER}
-/// - {@link HintType#JOIN_PREFIX}
-/// - {@link HintType#JOIN_SUFFIX}
-/// 
+    /// 
+    /// Support below join-order hints:
+    /// 
+    /// - {@link HintType#JOIN_ORDER}
+    /// - {@link HintType#JOIN_PREFIX}
+    /// - {@link HintType#JOIN_SUFFIX}
+    /// 
     private static final class JoinOrder extends MySQLHints {
 
         private final HintType hintType;
@@ -530,7 +530,7 @@ abstract class MySQLHints implements Hint, _SelfDescribed {
 
     }//MaxExecutionTimeHint
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-set-var">Variable-Setting Hint Syntax</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-set-var">Variable-Setting Hint Syntax</a>
     private static final class VariableSettingHint extends MySQLHints {
 
         private final String varValuePair;

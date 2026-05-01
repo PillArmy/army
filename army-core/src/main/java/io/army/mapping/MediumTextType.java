@@ -34,22 +34,22 @@ import java.time.*;
 /// This mapping type can convert below java type:
 /// 
 /// - {@link Number}
-/// - {@link Boolean} 
-/// - {@link CodeEnum} 
-/// - {@link TextEnum} 
-/// - {@link Enum} 
-/// - {@link LocalDate} 
-/// - {@link LocalDateTime} 
-/// - {@link LocalTime} 
-/// - {@link OffsetDateTime} 
-/// - {@link ZonedDateTime} 
-/// - {@link OffsetTime} 
+/// - {@link Boolean}
+/// - {@link CodeEnum}
+/// - {@link TextEnum}
+/// - {@link Enum}
+/// - {@link LocalDate}
+/// - {@link LocalDateTime}
+/// - {@link LocalTime}
+/// - {@link OffsetDateTime}
+/// - {@link ZonedDateTime}
+/// - {@link OffsetTime}
 /// - {@link Year}  to {@link Year} string or {@link LocalDate} string
-/// - {@link YearMonth}  to {@link LocalDate} string 
+/// - {@link YearMonth}  to {@link LocalDate} string
 /// - {@link MonthDay} to {@link LocalDate} string
 /// - {@link Instant} to {@link Instant#getEpochSecond()} string
-/// - {@link java.time.Duration} 
-/// - {@link java.time.Period} 
+/// - {@link java.time.Duration}
+/// - {@link java.time.Period}
 /// 
 /// to {@link String},if error,throw {@link io.army.ArmyException}
 /// * @see StringType

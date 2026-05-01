@@ -239,9 +239,9 @@ final class StandardNestedJoins<I extends Item> extends JoinableClause.NestedLef
         }
 
         /// @see #leftJoin(Function)
-/// @see #join(Function)
-/// @see #rightJoin(Function)
-/// @see #fullJoin(Function)
+        /// @see #join(Function)
+        /// @see #rightJoin(Function)
+        /// @see #fullJoin(Function)
         private StandardStatement._NestedOnSpec<I> joinNestedEnd(final _JoinType joinType, final _NestedItems nestedItems) {
             final StandardNestedBlock<I> block;
             block = new StandardNestedBlock<>(this.context, this.blockConsumer, joinType, null, nestedItems, "",

@@ -372,8 +372,8 @@ abstract class StatementContext implements _StmtContext, StmtParams {
     }
 
     /// @see InsertContext#appendSetLeftItem(SqlField, Expression)
-/// @see SingleUpdateContext#appendSetLeftItem(SqlField, Expression)
-/// @see MultiUpdateContext#appendSetLeftItem(SqlField, Expression)
+    /// @see SingleUpdateContext#appendSetLeftItem(SqlField, Expression)
+    /// @see MultiUpdateContext#appendSetLeftItem(SqlField, Expression)
     final void appendUpdateTimePlaceholder(final FieldMeta<?> updateTime, final Expression updateTimePlaceholder) {
         if (!_MetaBridge.UPDATE_TIME.equals(updateTime.fieldName())) {
             final String m = String.format("Expression %s present in error context", updateTimePlaceholder);

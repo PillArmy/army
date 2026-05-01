@@ -28,11 +28,11 @@ public interface StreamOption extends StmtOptionSpec {
 
     int splitSize();
 
-/// Currently,known MySQL connector / J support client stream.
-/// @return 
-/// - true (default) : driver read one row and immediately drain to {@link java.util.stream.Stream}
-/// - false : driver read all rows and drain to {@link java.util.stream.Stream}
-/// 
+    /// Currently,known MySQL connector / J support client stream.
+    /// @return
+    /// - true (default) : driver read one row and immediately drain to {@link java.util.stream.Stream}
+    /// - false : driver read all rows and drain to {@link java.util.stream.Stream}
+    /// 
     boolean isPreferClientStream();
 
 

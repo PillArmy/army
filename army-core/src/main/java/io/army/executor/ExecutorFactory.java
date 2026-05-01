@@ -39,13 +39,13 @@ public interface ExecutorFactory extends CloseableSpec, OptionSpec {
 
 
 
-/// For example:
-/// 
-/// - JDBC
-/// - JDBD
-/// - ODBC
-/// 
-/// @return driver spi name,The value returned typically is the name for this driver spi.
+    /// For example:
+    /// 
+    /// - JDBC
+    /// - JDBD
+    /// - ODBC
+    /// 
+    /// @return driver spi name,The value returned typically is the name for this driver spi.
     String driverSpiName();
 
     /// @return JDBC always return false, JDBD always return true.
@@ -53,7 +53,7 @@ public interface ExecutorFactory extends CloseableSpec, OptionSpec {
 
 
     /// For example: io.army.jdbc or io.army.jdbd
-/// @return executor vendor,The value returned typically is the package name for this vendor.
+    /// @return executor vendor,The value returned typically is the package name for this vendor.
     String executorVendor();
 
 
@@ -62,20 +62,20 @@ public interface ExecutorFactory extends CloseableSpec, OptionSpec {
 
 
     /// Sub interface must override this method return value type.
-/// @param sessionName {@link io.army.session.Session}'s name.
+    /// @param sessionName {@link io.army.session.Session}'s name.
     Object localExecutor(String sessionName, boolean readOnly, Function<Option<?>, ?> optionFunc);
 
 
     /// Sub interface must override this method return value type.
-/// @param sessionName {@link io.army.session.Session}'s name.
+    /// @param sessionName {@link io.army.session.Session}'s name.
     Object rmExecutor(String sessionName, boolean readOnly, Function<Option<?>, ?> optionFunc);
 
-/// override {@link Object#toString()}
-/// @return driver info, contain : 
-/// - implementation class name
-/// - session factory name
-/// - {@link System#identityHashCode(Object)}
-/// 
+    /// override {@link Object#toString()}
+    /// @return driver info, contain :
+    /// - implementation class name
+    /// - session factory name
+    /// - {@link System#identityHashCode(Object)}
+    /// 
     @Override
     String toString();
 

@@ -48,14 +48,14 @@ public interface _SqlContext extends SqlContextSpec {
 
     StringBuilder sqlBuilder();
 
-/// 
-/// This method is designed for parameter expression.
-/// *  steps:
-/// 
-/// - append one space
-/// - append '?' to {@link #sqlBuilder()}
-/// - append sqlParam to param list
-/// 
+    /// 
+    /// This method is designed for parameter expression.
+    /// *  steps:
+    /// 
+    /// - append one space
+    /// - append '?' to {@link #sqlBuilder()}
+    /// - append sqlParam to param list
+    /// 
     void appendParam(SQLParam sqlParam);
 
     void appendLiteral(TypeMeta typeMeta, @Nullable Object value, boolean typeName);

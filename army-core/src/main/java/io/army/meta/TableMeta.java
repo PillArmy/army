@@ -32,7 +32,7 @@ public interface TableMeta<T> extends TabularItem, DatabaseObject.TypeObject {
     Class<T> javaType();
 
     /// 
-/// Table name,Equivalence : {@link  FieldMeta#objectName()}
+    /// Table name,Equivalence : {@link  FieldMeta#objectName()}
     String tableName();
 
     boolean immutable();
@@ -46,15 +46,15 @@ public interface TableMeta<T> extends TabularItem, DatabaseObject.TypeObject {
     FieldMeta<? super T> createTime();
 
     /// @throws IllegalArgumentException throw when no this field
-/// @see #tryUpdateTime()
+    /// @see #tryUpdateTime()
     FieldMeta<? super T> updateTime();
 
     /// @throws IllegalArgumentException throw when no this field
-/// @see #tryVersion()
+    /// @see #tryVersion()
     FieldMeta<? super T> version();
 
     /// @throws IllegalArgumentException throw when no this field
-/// @see #tryVisible()
+    /// @see #tryVisible()
     FieldMeta<? super T> visible();
 
     /// @see #updateTime()
@@ -84,7 +84,7 @@ public interface TableMeta<T> extends TabularItem, DatabaseObject.TypeObject {
     List<IndexMeta<T>> indexList();
 
     /// @return unmodified list, always same instance.
-/// @see SQLStmts#castFieldList(TableMeta)
+    /// @see SQLStmts#castFieldList(TableMeta)
     List<FieldMeta<T>> fieldList();
 
 

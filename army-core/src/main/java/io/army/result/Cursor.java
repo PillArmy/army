@@ -38,14 +38,14 @@ public interface Cursor extends CloseableSpec, OptionSpec {
 
 
     /// Get cursor name from DECLARE cursor statement or stored procedure.
-/// Postgre example 1 : my_cursor -> my_cursor
-/// Postgre example 2 : myCursor -> myCursor
-/// @see StmtCursor#safeName()
+    /// Postgre example 1 : my_cursor -> my_cursor
+    /// Postgre example 2 : myCursor -> myCursor
+    /// @see StmtCursor#safeName()
     String name();
 
 
     /// Get The {@link Session} that create this instance.
-/// @return The {@link Session} that create this instance.
+    /// @return The {@link Session} that create this instance.
     Session session();
 
 

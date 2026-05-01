@@ -42,11 +42,11 @@ public sealed interface SyncSessionFactory extends PackageSessionFactory, Closea
 
 
     /// release all resources (caches,connection pools, etc).
-/// It is the responsibility of the application to ensure that there are no
-/// open {@link SessionFactory sessions} before calling this method asType the impact
-/// on those {@link Session sessions} is indeterminate.
-/// No-ops if already {@link #isClosed closed}.
-/// @throws SessionFactoryException Indicates an issue closing the factory.
+    /// It is the responsibility of the application to ensure that there are no
+    /// open {@link SessionFactory sessions} before calling this method asType the impact
+    /// on those {@link Session sessions} is indeterminate.
+    /// No-ops if already {@link #isClosed closed}.
+    /// @throws SessionFactoryException Indicates an issue closing the factory.
     @Override
     void close() throws SessionFactoryException;
 

@@ -680,7 +680,7 @@ abstract class ArmyParser implements DialectParser {
     protected abstract DdlParser createDdlDialect();
 
     /// @param childStmt not {@link StandardInsert}
-/// @see #handleInsert(_SqlContext, InsertStatement, SessionSpec)
+    /// @see #handleInsert(_SqlContext, InsertStatement, SessionSpec)
     @Deprecated
     @Nullable
     protected abstract CriteriaException supportChildInsert(_Insert._ChildInsert childStmt, Visible visible);
@@ -710,7 +710,7 @@ abstract class ArmyParser implements DialectParser {
     }
 
     /// @see #handleDomainInsert(_SqlContext, _Insert._DomainInsert, SessionSpec)
-/// @see #handleValueInsert(_SqlContext, _Insert._ValuesInsert, SessionSpec)
+    /// @see #handleValueInsert(_SqlContext, _Insert._ValuesInsert, SessionSpec)
     protected void parseValuesInsert(_ValueSyntaxInsertContext context, _Insert._ValuesSyntaxInsert insert) {
         throw standardParserDontSupportDialect(this.dialect);
     }
@@ -744,21 +744,21 @@ abstract class ArmyParser implements DialectParser {
     }
 
     /// @see #handleQuery(Query, _SqlContext)
-/// @see #handleSelect(_SqlContext, SelectStatement, SessionSpec, _SelectContext)
-/// @see #handleValuesQuery(ValuesQuery, _SqlContext)
-/// @see #handleValues(_SqlContext, Values, SessionSpec)
+    /// @see #handleSelect(_SqlContext, SelectStatement, SessionSpec, _SelectContext)
+    /// @see #handleValuesQuery(ValuesQuery, _SqlContext)
+    /// @see #handleValues(_SqlContext, Values, SessionSpec)
     protected void parseWithClause(_Statement._WithClauseSpec spec, _SqlContext context) {
         throw standardParserDontSupportDialect(this.dialect);
     }
 
     /// @see #handleSelect(_SqlContext, SelectStatement, SessionSpec, _SelectContext)
-/// @see #handleQuery(Query, _SqlContext)
+    /// @see #handleQuery(Query, _SqlContext)
     protected void parseSimpleQuery(_Query query, _SimpleQueryContext context) {
         throw standardParserDontSupportDialect(this.dialect);
     }
 
     /// @see #handleValues(_SqlContext, Values, SessionSpec)
-/// @see #handleValuesQuery(ValuesQuery, _SqlContext)
+    /// @see #handleValuesQuery(ValuesQuery, _SqlContext)
     protected void parseSimpleValues(_ValuesQuery values, _ValuesContext context) {
         throw standardParserDontSupportDialect(this.dialect);
     }
@@ -789,9 +789,9 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #handleSelect(_SqlContext, SelectStatement, SessionSpec, _SelectContext)
-/// @see #handleQuery(Query, _SqlContext)
-/// @see #handleValues(_SqlContext, Values, SessionSpec)
-/// @see #handleValuesQuery(ValuesQuery, _SqlContext)
+    /// @see #handleQuery(Query, _SqlContext)
+    /// @see #handleValues(_SqlContext, Values, SessionSpec)
+    /// @see #handleValuesQuery(ValuesQuery, _SqlContext)
     protected void parseClauseAfterRightParen(_ParensRowSet rowSet, _ParenRowSetContext context) {
         throw standardParserDontSupportDialect(this.dialect);
     }
@@ -970,7 +970,7 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #handleRowSet(RowSet, _SqlContext)
-/// @see #handleValues(_SqlContext, Values, SessionSpec)
+    /// @see #handleValues(_SqlContext, Values, SessionSpec)
     protected final void handleValuesQuery(final ValuesQuery values, final _SqlContext original) {
 
         if (values instanceof _ValuesQuery) {
@@ -1171,9 +1171,9 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #handleSelect(_SqlContext, SelectStatement, SessionSpec, _SelectContext)
-/// @see #handleRowSet(RowSet, _SqlContext)
-/// @see #handleSubQuery(SubQuery, _SqlContext)
-/// @see #parseWithClause(_Statement._WithClauseSpec, _SqlContext)
+    /// @see #handleRowSet(RowSet, _SqlContext)
+    /// @see #handleSubQuery(SubQuery, _SqlContext)
+    /// @see #parseWithClause(_Statement._WithClauseSpec, _SqlContext)
     protected final void handleQuery(final Query query, final _SqlContext original) {
         query.prepared();
         if (query instanceof _Query) {
@@ -1229,8 +1229,8 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #parseSingleUpdate(_SingleUpdate, _SingleUpdateContext)
-/// @see #parseDomainChildUpdateWithId(_DomainUpdate, DomainUpdateContext)
-/// @see #parseStandardSingleUpdate(_SingleUpdate, _SingleUpdateContext)
+    /// @see #parseDomainChildUpdateWithId(_DomainUpdate, DomainUpdateContext)
+    /// @see #parseStandardSingleUpdate(_SingleUpdate, _SingleUpdateContext)
     protected final void singleTableSetClause(final List<_ItemPair> itemPairList, final _SingleUpdateContext context) {
         final TableMeta<?> targetTable = context.targetTable();
         final int itemPairSize = itemPairList.size();
@@ -1679,7 +1679,7 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #parseDomainParentDeleteWithId(_Predicate, DomainDeleteContext)
-/// @see #parseDomainParentUpdateWithId(_DomainUpdate, _Predicate, DomainUpdateContext)
+    /// @see #parseDomainParentUpdateWithId(_DomainUpdate, _Predicate, DomainUpdateContext)
     protected final void discriminator(final TableMeta<?> table, final @Nullable String safeTableAlias,
                                        final _SqlContext context) {
         final FieldMeta<?> field;
@@ -1709,7 +1709,7 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @param context {@link _SqlContext#visible()} must be not {@link Visible#BOTH}.
-/// @see #multiTableVisible(List, _MultiTableStmtContext, boolean)
+    /// @see #multiTableVisible(List, _MultiTableStmtContext, boolean)
     protected final void visiblePredicate(final SingleTableMeta<?> table, final @Nullable String safeTableAlias,
                                           final _SqlContext context, final boolean firstPredicate) {
 
@@ -1867,8 +1867,8 @@ abstract class ArmyParser implements DialectParser {
     }
 
     /// @return the number of appending visible
-/// @see #parseStandardQuery(_StandardQuery, _SimpleQueryContext)
-/// @see #queryWhereClause(List, List, _MultiTableStmtContext)
+    /// @see #parseStandardQuery(_StandardQuery, _SimpleQueryContext)
+    /// @see #queryWhereClause(List, List, _MultiTableStmtContext)
     protected final int multiTableVisible(final List<_TabularBlock> blockList, final _MultiTableStmtContext context
             , final boolean firstPredicate) {
         TabularItem tableItem;
@@ -1923,8 +1923,8 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #singleTableSetClause(List, _SingleUpdateContext)
-/// @see #multiTableSetClause(_MultiUpdate, _MultiUpdateContext)
-/// @see #parseDomainParentUpdateWithId(_DomainUpdate, _Predicate, DomainUpdateContext)
+    /// @see #multiTableSetClause(_MultiUpdate, _MultiUpdateContext)
+    /// @see #parseDomainParentUpdateWithId(_DomainUpdate, _Predicate, DomainUpdateContext)
     protected final void appendUpdateTimeAndVersion(final SingleTableMeta<?> table,
                                                     final @Nullable String safeTableAlias,
                                                     final _StmtContext context, final boolean firstItem) {
@@ -2020,7 +2020,7 @@ abstract class ArmyParser implements DialectParser {
     }
 
     /// @see #parseDomainChildUpdateWithId(_DomainUpdate, DomainUpdateContext)
-/// @see #parseDomainChildDeleteWithId(_DomainDelete, DomainDeleteContext)
+    /// @see #parseDomainChildDeleteWithId(_DomainDelete, DomainDeleteContext)
     protected final _Predicate findIdPredicate(final List<_Predicate> whereList) {
         final _Predicate firstPredicate;
         firstPredicate = whereList.get(0).getIdPredicate();
@@ -2035,9 +2035,9 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #appendUpdateTimeAndVersion(SingleTableMeta, String, _StmtContext, boolean)
-/// @see InsertContext#appendSetLeftItem(SqlField, Expression)
-/// @see SingleUpdateContext#appendSetLeftItem(SqlField, Expression)
-/// @see MultiUpdateContext#appendSetLeftItem(SqlField, Expression)
+    /// @see InsertContext#appendSetLeftItem(SqlField, Expression)
+    /// @see SingleUpdateContext#appendSetLeftItem(SqlField, Expression)
+    /// @see MultiUpdateContext#appendSetLeftItem(SqlField, Expression)
     final Temporal createUpdateTimeValue(final FieldMeta<?> updateTime) {
         final Temporal updateTimeValue;
         final Class<?> javaType = updateTime.javaType();
@@ -2313,8 +2313,8 @@ abstract class ArmyParser implements DialectParser {
     }
 
     /// @see #select(SelectStatement, boolean, SessionSpec)
-/// @see #selectWithMultiSmt(MultiStmtContext, SelectStatement)
-/// @see #handleQuery(Query, _SqlContext)
+    /// @see #selectWithMultiSmt(MultiStmtContext, SelectStatement)
+    /// @see #handleQuery(Query, _SqlContext)
     private _SelectContext handleSelect(final @Nullable _SqlContext outerContext, final SelectStatement stmt,
                                         final SessionSpec sessionSpec, final @Nullable _SelectContext prevContext) {
         stmt.prepared();
@@ -2369,7 +2369,7 @@ abstract class ArmyParser implements DialectParser {
     }
 
     /// @see #handleSelect(_SqlContext, SelectStatement, SessionSpec, _SelectContext)
-/// @see #handleQuery(Query, _SqlContext)
+    /// @see #handleQuery(Query, _SqlContext)
     private void handleParenRowSet(final _ParenRowSetContext context, final _ParensRowSet parensRowSet) {
         final StringBuilder sqlBuilder;
         sqlBuilder = context.sqlBuilder();
@@ -2475,12 +2475,12 @@ abstract class ArmyParser implements DialectParser {
     }
 
 
-/// @param insert possibly be below :
-/// 
-/// - {@link InsertStatement}
-/// 
-/// @see #insert(InsertStatement, SessionSpec)
-/// @see #handleDialectSubInsertStmt(_SqlContext, _Insert)
+    /// @param insert possibly be below :
+    /// 
+    /// - {@link InsertStatement}
+    /// 
+    /// @see #insert(InsertStatement, SessionSpec)
+    /// @see #handleDialectSubInsertStmt(_SqlContext, _Insert)
     private _InsertContext handleInsert(final @Nullable _SqlContext outerContext, final InsertStatement insert,
                                         final SessionSpec sessionSpec) {
         insert.prepared();
@@ -2507,7 +2507,7 @@ abstract class ArmyParser implements DialectParser {
     }
 
     /// @see #handleInsert(_SqlContext, InsertStatement, SessionSpec)
-/// @see #handleDialectSubInsertStmt(_SqlContext, _Insert)
+    /// @see #handleDialectSubInsertStmt(_SqlContext, _Insert)
     private _InsertContext handleInsertStmt(final @Nullable _SqlContext outerContext, final _Insert insert,
                                             final SessionSpec sessionSpec) {
         final _InsertContext context;
@@ -2527,7 +2527,7 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #update(UpdateStatement, boolean, SessionSpec)
-/// @see #updateWithMultiStmt(MultiStmtContext, UpdateStatement)
+    /// @see #updateWithMultiStmt(MultiStmtContext, UpdateStatement)
     private _UpdateContext handleUpdate(final @Nullable _SqlContext outerContext, final UpdateStatement stmt,
                                         final SessionSpec sessionSpec, final @Nullable _UpdateContext prevContext) {
         stmt.prepared();
@@ -2657,8 +2657,8 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #handleDomainUpdate(_SqlContext, _DomainUpdate, SessionSpec, _UpdateContext)
-/// @see #parseDomainParentUpdateWithId(_DomainUpdate, _Predicate, DomainUpdateContext)
-/// @see ChildUpdateMode#WITH_ID
+    /// @see #parseDomainParentUpdateWithId(_DomainUpdate, _Predicate, DomainUpdateContext)
+    /// @see ChildUpdateMode#WITH_ID
     private _Predicate parseDomainChildUpdateWithId(final _DomainUpdate stmt, final DomainUpdateContext context) {
         assert this.childUpdateMode == ChildUpdateMode.WITH_ID
                 && context.parentContext != null;
@@ -2695,8 +2695,8 @@ abstract class ArmyParser implements DialectParser {
     }
 
     /// @see #handleDomainUpdate(_SqlContext, _DomainUpdate, SessionSpec, _UpdateContext)
-/// @see #parseDomainChildUpdateWithId(_DomainUpdate, DomainUpdateContext)
-/// @see ChildUpdateMode#WITH_ID
+    /// @see #parseDomainChildUpdateWithId(_DomainUpdate, DomainUpdateContext)
+    /// @see ChildUpdateMode#WITH_ID
     private void parseDomainParentUpdateWithId(final _DomainUpdate stmt, final _Predicate idPredicate,
                                                final DomainUpdateContext context) {
 
@@ -2731,7 +2731,7 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #parseDomainChildUpdateWithId(_DomainUpdate, DomainUpdateContext)
-/// @see #parseDomainParentUpdateWithId(_DomainUpdate, _Predicate, DomainUpdateContext)
+    /// @see #parseDomainParentUpdateWithId(_DomainUpdate, _Predicate, DomainUpdateContext)
     private void appendDomainUpdateCommon(final DomainUpdateContext context) {
         //1. append  space if need
         final StringBuilder sqlBuilder;
@@ -2793,7 +2793,7 @@ abstract class ArmyParser implements DialectParser {
     }
 
     /// @see #delete(DeleteStatement, boolean, SessionSpec)
-/// @see #deleteWithMultiStmt(MultiStmtContext, DeleteStatement)
+    /// @see #deleteWithMultiStmt(MultiStmtContext, DeleteStatement)
     private _DeleteContext handleDelete(final @Nullable _SqlContext outerContext, final DeleteStatement stmt,
                                         final SessionSpec sessionSpec, final @Nullable _DeleteContext prevContext) {
         stmt.prepared();
@@ -3017,7 +3017,7 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #handleDomainInsert(_SqlContext, _Insert._DomainInsert, SessionSpec)
-/// @see #handleValueInsert(_SqlContext, _Insert._ValuesInsert, SessionSpec)
+    /// @see #handleValueInsert(_SqlContext, _Insert._ValuesInsert, SessionSpec)
     private void parseStandardValuesInsert(final _Insert._ValuesSyntaxInsert stmt, final _ValueSyntaxInsertContext context) {
 
         // WITH clause
@@ -3072,7 +3072,7 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #handleDelete(_SqlContext, DeleteStatement, SessionSpec, _DeleteContext)
-/// @see #handleDomainDelete(_SqlContext, _DomainDelete, SessionSpec, _DeleteContext)
+    /// @see #handleDomainDelete(_SqlContext, _DomainDelete, SessionSpec, _DeleteContext)
     private void parseStandardSingleDelete(final _SingleDelete stmt, final _SingleDeleteContext context) {
         assert stmt instanceof StandardDelete;
 
@@ -3120,7 +3120,7 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #handleUpdate(_SqlContext, UpdateStatement, SessionSpec, _UpdateContext)
-/// @see #handleDomainUpdate(_SqlContext, _DomainUpdate, SessionSpec, _UpdateContext)
+    /// @see #handleDomainUpdate(_SqlContext, _DomainUpdate, SessionSpec, _UpdateContext)
     private void parseStandardSingleUpdate(final _SingleUpdate stmt, final _SingleUpdateContext context) {
         assert stmt instanceof StandardUpdate;
         assert !(stmt instanceof _DomainUpdate) || ((_DomainUpdate) stmt).childItemPairList().size() == 0;
@@ -3194,7 +3194,7 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #handleSelect(_SqlContext, SelectStatement, SessionSpec, _SelectContext)
-/// @see #handleSubQuery(SubQuery, _SqlContext)
+    /// @see #handleSubQuery(SubQuery, _SqlContext)
     private void parseStandardQuery(final _StandardQuery stmt, final _SimpleQueryContext context) {
 
         standardWithClause(stmt, context);
@@ -3240,8 +3240,8 @@ abstract class ArmyParser implements DialectParser {
     }
 
     /// @see #handleDomainInsert(_SqlContext, _Insert._DomainInsert, SessionSpec)
-/// @see #handleValueInsert(_SqlContext, _Insert._ValuesInsert, SessionSpec)
-/// @see #handleAssignmentInsert(_SqlContext, _Insert._AssignmentInsert, SessionSpec)
+    /// @see #handleValueInsert(_SqlContext, _Insert._ValuesInsert, SessionSpec)
+    /// @see #handleAssignmentInsert(_SqlContext, _Insert._AssignmentInsert, SessionSpec)
     private void checkParentStmt(_Insert parentStmt, ChildTableMeta<?> childTable) {
         if (parentStmt.insertRowCount() == 1) {
             return;
@@ -3270,7 +3270,7 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @see #dialectDml(DmlStatement, SessionSpec)
-/// @see #dialectDql(DqlStatement, SessionSpec)
+    /// @see #dialectDql(DqlStatement, SessionSpec)
     private Stmt createDialectStmt(_StmtContext context) {
         return context.build();
     }

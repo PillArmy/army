@@ -42,18 +42,18 @@ import java.util.function.Function;
 public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements MappingType.SqlArray {
 
 
-/// @param javaType one dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-/// see {@link PostgreRange}
-/// @param param    from {@link Mapping#params()} ,it's the name of 
-/// - {@link PgType#INT4RANGE_ARRAY}
-/// - {@link PgType#INT8RANGE_ARRAY}
-/// - {@link PgType#NUMRANGE_ARRAY}
-/// - {@link PgType#DATERANGE_ARRAY}
-/// - {@link PgType#TSRANGE_ARRAY}
-/// - {@link PgType#TSTZRANGE_ARRAY}
-/// 
-/// @throws IllegalArgumentException throw when javaType error
-/// @throws MetaException            throw when param error.
+    /// @param javaType one dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
+    /// see {@link PostgreRange}
+    /// @param param    from {@link Mapping#params()} ,it's the name of
+    /// - {@link PgType#INT4RANGE_ARRAY}
+    /// - {@link PgType#INT8RANGE_ARRAY}
+    /// - {@link PgType#NUMRANGE_ARRAY}
+    /// - {@link PgType#DATERANGE_ARRAY}
+    /// - {@link PgType#TSRANGE_ARRAY}
+    /// - {@link PgType#TSTZRANGE_ARRAY}
+    /// 
+    /// @throws IllegalArgumentException throw when javaType error
+    /// @throws MetaException            throw when param error.
     public static PostgreSingleRangeArrayType from(final Class<?> javaType, final String param) throws MetaException {
         final PgType sqlType;
         try {
@@ -68,16 +68,16 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
     }
 
 
-/// @param javaType one dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-/// see {@link PostgreRange}
-/// @param sqlType  valid instance 
-/// - {@link PgType#INT4RANGE_ARRAY}
-/// - {@link PgType#INT8RANGE_ARRAY}
-/// - {@link PgType#NUMRANGE_ARRAY}
-/// - {@link PgType#DATERANGE_ARRAY}
-/// - {@link PgType#TSRANGE_ARRAY}
-/// - {@link PgType#TSTZRANGE_ARRAY}
-/// 
+    /// @param javaType one dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
+    /// see {@link PostgreRange}
+    /// @param sqlType  valid instance
+    /// - {@link PgType#INT4RANGE_ARRAY}
+    /// - {@link PgType#INT8RANGE_ARRAY}
+    /// - {@link PgType#NUMRANGE_ARRAY}
+    /// - {@link PgType#DATERANGE_ARRAY}
+    /// - {@link PgType#TSRANGE_ARRAY}
+    /// - {@link PgType#TSTZRANGE_ARRAY}
+    /// 
     public static PostgreSingleRangeArrayType from(final Class<?> javaType, final PgType sqlType)
             throws IllegalArgumentException {
 
@@ -102,17 +102,17 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
     }
 
 
-/// @param javaType one dimension or higher dimension non-string array class
-/// see {@link PostgreRange}
-/// @param sqlType  valid instance 
-/// - {@link PgType#INT4RANGE_ARRAY}
-/// - {@link PgType#INT8RANGE_ARRAY}
-/// - {@link PgType#NUMRANGE_ARRAY}
-/// - {@link PgType#DATERANGE_ARRAY}
-/// - {@link PgType#TSRANGE_ARRAY}
-/// - {@link PgType#TSTZRANGE_ARRAY}
-/// 
-/// @throws IllegalArgumentException throw when javaType or sqlType error
+    /// @param javaType one dimension or higher dimension non-string array class
+    /// see {@link PostgreRange}
+    /// @param sqlType  valid instance
+    /// - {@link PgType#INT4RANGE_ARRAY}
+    /// - {@link PgType#INT8RANGE_ARRAY}
+    /// - {@link PgType#NUMRANGE_ARRAY}
+    /// - {@link PgType#DATERANGE_ARRAY}
+    /// - {@link PgType#TSRANGE_ARRAY}
+    /// - {@link PgType#TSTZRANGE_ARRAY}
+    /// 
+    /// @throws IllegalArgumentException throw when javaType or sqlType error
     public static PostgreSingleRangeArrayType fromFunc(final Class<?> javaType,
                                                        final PgType sqlType,
                                                        final RangeFunction<?, ?> rangeFunc)
@@ -129,19 +129,19 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
     }
 
 
-/// @param javaType   one dimension or higher dimension array class
-/// see {@link PostgreRange}
-/// @param param      from {@link Mapping#params()} ,it's the name of 
-/// - {@link PgType#INT4RANGE_ARRAY}
-/// - {@link PgType#INT8RANGE_ARRAY}
-/// - {@link PgType#NUMRANGE_ARRAY}
-/// - {@link PgType#DATERANGE_ARRAY}
-/// - {@link PgType#TSRANGE_ARRAY}
-/// - {@link PgType#TSTZRANGE_ARRAY}
-/// 
-/// @param methodName from {@link Mapping#func()}
-/// @throws IllegalArgumentException throw when javaType error
-/// @throws MetaException            throw when param or methodName error.
+    /// @param javaType   one dimension or higher dimension array class
+    /// see {@link PostgreRange}
+    /// @param param      from {@link Mapping#params()} ,it's the name of
+    /// - {@link PgType#INT4RANGE_ARRAY}
+    /// - {@link PgType#INT8RANGE_ARRAY}
+    /// - {@link PgType#NUMRANGE_ARRAY}
+    /// - {@link PgType#DATERANGE_ARRAY}
+    /// - {@link PgType#TSRANGE_ARRAY}
+    /// - {@link PgType#TSTZRANGE_ARRAY}
+    /// 
+    /// @param methodName from {@link Mapping#func()}
+    /// @throws IllegalArgumentException throw when javaType error
+    /// @throws MetaException            throw when param or methodName error.
     public static PostgreSingleRangeArrayType fromMethod(final Class<?> javaType, final String param,
                                                          final String methodName) throws MetaException {
 
@@ -268,7 +268,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
     }
 
     /// @param boundSerializer serializer of bound
-/// @param <T>             java type of subtype of range
+    /// @param <T>             java type of subtype of range
     public static <T> String arrayBeforeBind(final Object nonNull, final BiConsumer<T, StringBuilder> boundSerializer,
                                              final DataType dataType, final MappingType type,
                                              final ErrorHandler handler) {

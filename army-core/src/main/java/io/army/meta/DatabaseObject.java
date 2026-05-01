@@ -31,7 +31,7 @@ import io.army.criteria.TableField;
 public interface DatabaseObject extends SQLElement {
 
     /// @see TableMeta#tableName()
-/// @see FieldMeta#columnName()
+    /// @see FieldMeta#columnName()
     String objectName();
 
     String comment();

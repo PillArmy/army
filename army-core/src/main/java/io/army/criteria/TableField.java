@@ -48,8 +48,8 @@ public interface TableField extends TypedField, FieldSelection, TypeMeta, Databa
     String fieldName();
 
     /// 
-/// Equivalence : {@link  FieldMeta#objectName()}
-/// @return column name(lower case).
+    /// Equivalence : {@link  FieldMeta#objectName()}
+    /// @return column name(lower case).
     String columnName();
 
 

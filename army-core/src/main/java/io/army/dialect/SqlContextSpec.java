@@ -30,29 +30,29 @@ import io.army.meta.FieldMeta;
 interface SqlContextSpec {
 
 
-/// 
-/// This method is designed for the implementation of {@link QualifiedField}
-/// 
-/// 
-/// - append one space
-/// - append table alias and point
-/// - append safe column name
-/// 
+    /// 
+    /// This method is designed for the implementation of {@link QualifiedField}
+    /// 
+    /// 
+    /// - append one space
+    /// - append table alias and point
+    /// - append safe column name
+    /// 
     void appendField(String tableAlias, FieldMeta<?> field);
 
-/// 
-/// This method is designed for the implementation of {@link FieldMeta}
-///  steps:
-/// 
-/// - append one space
-/// - append table alias and point if need
-/// - append safe column name
-/// 
+    /// 
+    /// This method is designed for the implementation of {@link FieldMeta}
+    /// steps:
+    /// 
+    /// - append one space
+    /// - append table alias and point if need
+    /// - append safe column name
+    /// 
     void appendField(FieldMeta<?> field);
 
 
     /// just append column name, no preceding space ,no preceding table alias
-/// This method is designed for postgre EXCLUDED in INSERT statement.
+    /// This method is designed for postgre EXCLUDED in INSERT statement.
     void appendFieldOnly(FieldMeta<?> field);
 
 }

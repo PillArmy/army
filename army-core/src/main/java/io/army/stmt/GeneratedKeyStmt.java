@@ -28,10 +28,10 @@ public interface GeneratedKeyStmt extends SimpleStmt, SingleSqlStmt.IdSelectionI
 
     PrimaryFieldMeta<?> idField();
 
-/// @return 
-/// - If {@link #selectionList()} is empty, negative
-/// - Else index
-/// 
+    /// @return
+    /// - If {@link #selectionList()} is empty, negative
+    /// - Else index
+    /// 
     int idSelectionIndex();
 
     boolean hasConflictClause();

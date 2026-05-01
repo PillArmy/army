@@ -27,12 +27,12 @@ public interface Dialect {
     /// @return the database of this dialect version.
     Database database();
 
-/// @return 
-/// - positive : this version greater than o
-/// - zero : this and o is same instance.
-/// - negative : this version less than o
-/// 
-/// @throws IllegalArgumentException throw when o isn't family with this.
+    /// @return
+    /// - positive : this version greater than o
+    /// - zero : this and o is same instance.
+    /// - negative : this version less than o
+    /// 
+    /// @throws IllegalArgumentException throw when o isn't family with this.
     int compareWith(Dialect o) throws IllegalArgumentException;
 
     /// @return true : this and o is same dialect family.

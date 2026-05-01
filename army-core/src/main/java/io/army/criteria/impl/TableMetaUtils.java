@@ -380,8 +380,8 @@ public abstract class TableMetaUtils {
 
 
     /// @param parentDomainClass domain class annotated by {@link Inheritance}.
-/// @return first: field name set; second: id field.
-/// @see #createFieldMetaPair(TableMeta)
+    /// @return first: field name set; second: id field.
+    /// @see #createFieldMetaPair(TableMeta)
     private static Pair<Set<String>, Field> parentFieldPair(final Class<?> parentDomainClass) throws MetaException {
         Map<Class<?>, Pair<Set<String>, Field>> parentFieldPairCache = TableMetaUtils.parentFieldPairCache;
 
@@ -575,9 +575,9 @@ public abstract class TableMetaUtils {
 
 
     /// debugSQL {@link Index}'s {@link IndexFieldMeta}
-/// @param createdColumnSet created column set  in  other indexMap
-/// @param <T>              entity java class
-/// @return value indexMap's {@link IndexFieldMeta}
+    /// @param createdColumnSet created column set  in  other indexMap
+    /// @param <T>              entity java class
+    /// @return value indexMap's {@link IndexFieldMeta}
     private static <T> List<IndexFieldMeta<T>> createIndexFieldMetaList(
             final String[] indexColumns,
             final IndexMeta<T> indexMeta,
@@ -676,7 +676,7 @@ public abstract class TableMetaUtils {
     }
 
     /// @see #createIndexFieldMetaList(String[], IndexMeta, Map, Set)
-/// @see #isAscIndexColumn(String, IndexMeta, String)
+    /// @see #isAscIndexColumn(String, IndexMeta, String)
     private static MetaException indexColumnDefinitionError(IndexMeta<?> indexMeta, String indexColumnDefinition) {
         String m = String.format("Domain[%s] index[%s] column definition[%s] error",
                 indexMeta.tableMeta().javaType().getName(), indexMeta.name(), indexColumnDefinition);
@@ -699,7 +699,7 @@ public abstract class TableMetaUtils {
 
 
     /// @param <T> domain java type
-/// @see #createFieldMetaPair(TableMeta)
+    /// @see #createFieldMetaPair(TableMeta)
     private static final class DefaultIndexMeta<T> implements IndexMeta<T> {
 
         private final TableMeta<T> table;
@@ -715,7 +715,7 @@ public abstract class TableMetaUtils {
         private final boolean primaryKey;
 
         /// @param index            indexMap or null ( when debugSQL primary key for which user don'field definite {@link Index})
-/// @param columnToFieldMap a unmodifiable map
+        /// @param columnToFieldMap a unmodifiable map
         private DefaultIndexMeta(final TableMeta<T> table, @Nullable Index index, Map<String, Field> columnToFieldMap,
                                  Set<String> createdColumnSet) {
             this.table = table;

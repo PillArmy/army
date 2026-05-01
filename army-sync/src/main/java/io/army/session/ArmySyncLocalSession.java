@@ -55,7 +55,7 @@ non-sealed class ArmySyncLocalSession extends ArmySyncSession implements SyncLoc
     private boolean rollbackOnly;
 
     /// private constructor
-/// @see ArmySyncLocalSession#create(ArmySyncSessionFactory.LocalBuilder)
+    /// @see ArmySyncLocalSession#create(ArmySyncSessionFactory.LocalBuilder)
     private ArmySyncLocalSession(final ArmySyncSessionFactory.LocalBuilder builder) {
         super(builder);
         assert this.executor instanceof SyncLocalExecutor;
@@ -254,7 +254,7 @@ non-sealed class ArmySyncLocalSession extends ArmySyncSession implements SyncLoc
     /*-------------------below private methods-------------------*/
 
     /// @see #commit(Function)
-/// @see #rollback(Function)
+    /// @see #rollback(Function)
     @Nullable
     private TransactionInfo commitOrRollback(final boolean commit, final Function<Option<?>, ?> optionFunc) {
         final Boolean chain, release;

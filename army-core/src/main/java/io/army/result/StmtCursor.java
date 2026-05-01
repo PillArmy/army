@@ -34,9 +34,9 @@ import java.util.List;
 public interface StmtCursor extends Cursor {
 
     /// Get safe cursor name.
-/// Postgre example 1 : my_cursor -> my_cursor
-/// Postgre example 2 : myCursor -> "myCursor"
-/// @see #name()
+    /// Postgre example 1 : my_cursor -> my_cursor
+    /// Postgre example 2 : myCursor -> "myCursor"
+    /// @see #name()
     String safeName();
 
 

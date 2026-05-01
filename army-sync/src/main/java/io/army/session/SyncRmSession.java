@@ -88,11 +88,11 @@ public sealed interface SyncRmSession extends SyncSession, PackageSession.Packag
 
     void forget(Xid xid);
 
-/// @throws SessionException throw when
-/// 
-/// - {@link #isSupportForget()} return false
-/// 
-/// @see #isSupportForget()
+    /// @throws SessionException throw when
+    /// 
+    /// - {@link #isSupportForget()} return false
+    /// 
+    /// @see #isSupportForget()
     void forget(Xid xid, Function<Option<?>, ?> optionFunc);
 
     List<Xid> recoverList(int flags);

@@ -21,10 +21,10 @@ abstract class PostgreCommands {
     }
 
 
-/// see {@code  io.army.robot.PostgreVariableRobotTests#variableCaseStatement()}
-/// @see <a href="https://www.postgresql.org/docs/current/sql-show.html">SHOW — show the value of a run-time parameter</a>
-/// @see <a href="https://www.postgresql.org/docs/current/runtime-config-wal.html">runtime-config-wal</a>
-/// @see <a href="https://www.postgresql.org/docs/16/runtime-config-connection.html">Connection Settings</a>
+    /// see {@code  io.army.robot.PostgreVariableRobotTests#variableCaseStatement()}
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-show.html">SHOW — show the value of a run-time parameter</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/runtime-config-wal.html">runtime-config-wal</a>
+    /// @see <a href="https://www.postgresql.org/docs/16/runtime-config-connection.html">Connection Settings</a>
     static DqlCommand show(final String name) {
         if (!_StringUtils.hasText(name)) {
             throw ContextStack.clearStackAnd(_Exceptions::varNameNoText);

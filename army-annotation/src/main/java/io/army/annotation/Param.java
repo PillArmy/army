@@ -23,7 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /// see {@code io.army.generator.PreFieldGenerator}
-///
+/// 
 /// @see Generator
 @Target({})
 @Retention(RetentionPolicy.RUNTIME)

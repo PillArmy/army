@@ -27,11 +27,11 @@ import io.army.option.Option;
 /// @since 0.6.0
 public interface SyncProcCursor extends ProcCursor, SyncCursor {
 
-/// 
-/// When this option is supported by {@link ResultStates},this option representing the statement that produce
-/// the {@link ResultStates} declare a cursor. For example : CALL procedure
-/// 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
+    /// 
+    /// When this option is supported by {@link ResultStates},this option representing the statement that produce
+    /// the {@link ResultStates} declare a cursor. For example : CALL procedure
+    /// 
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
     Option<SyncProcCursor> SYNC_PROC_CURSOR = Option.from("SYNC PROC CURSOR", SyncProcCursor.class);
 
 

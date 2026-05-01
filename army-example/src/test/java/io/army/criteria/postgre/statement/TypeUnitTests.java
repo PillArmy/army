@@ -34,9 +34,9 @@ public class TypeUnitTests extends PostgreUnitTests {
     private static final Logger LOG = LoggerFactory.getLogger(TypeUnitTests.class);
 
     /// @see Postgres#upper(Expression)
-/// @see Postgres#lower(Expression)
-/// @see PgSingleRangeType#subtype()
-/// @see PgSingleRangeType.UserDefinedRangeType#subtype()
+    /// @see Postgres#lower(Expression)
+    /// @see PgSingleRangeType#subtype()
+    /// @see PgSingleRangeType.UserDefinedRangeType#subtype()
     @Test
     public void rangeSubtypeForLowerAndUpperFunc() {
         final PgSingleRangeType int4RangeType;

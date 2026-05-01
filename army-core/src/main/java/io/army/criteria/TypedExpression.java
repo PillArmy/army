@@ -37,9 +37,9 @@ import static io.army.dialect.Database.PostgreSQL;
 public interface TypedExpression extends Expression, TypeInfer {
 
 
-    ///
+    /// 
     /// {@code =} operator
-    ///
+    /// 
     /// @param funcRef right operand , one of below :
     /// 1. {@link SQLs#param(TypeInfer, Object)}
     /// 2. {@link SQLs#literal(TypeInfer, Object)}
@@ -49,10 +49,10 @@ public interface TypedExpression extends Expression, TypeInfer {
     /// 6. {@link SQLs#namedConst(TypeInfer, String)}
     /// 7. Your custom function
     /// @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-    ///                          {@link SQLs#rowParam(TypeInfer, Collection)}
+    /// {@link SQLs#rowParam(TypeInfer, Collection)}
     /// @see Expression#equal(Object)
     /// @see TypedField#spaceEqual(BiFunction)
-    ///
+    /// 
     <T> IPredicate equal(BiFunction<TypedExpression, T, Expression> funcRef, T value);
 
 
@@ -170,7 +170,7 @@ public interface TypedExpression extends Expression, TypeInfer {
 
     <T> IPredicate space(SQLs.BiOperator operator, BiFunction<TypedExpression, T, Expression> funcRef, T right);
 
-    ///
+    /// 
     /// @see <a href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP">SIMILAR TO Regular Expressions</a>
     <T> IPredicate space(SQLs.BiOperator operator, BiFunction<StringType, T, Expression> funcRef, T right, SQLToken modifier, T optionalExp);
 

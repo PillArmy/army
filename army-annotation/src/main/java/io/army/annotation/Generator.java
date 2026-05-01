@@ -45,7 +45,7 @@ import static java.lang.annotation.ElementType.FIELD;
 /// private String uid;
 /// }
 /// </pre>
-/// * 
+/// *
 /// see {@code io.army.generator.PreFieldGenerator} and {@code io.army.generator.FieldGenerator}
 /// * @see Column
 /// @since 0.6.0

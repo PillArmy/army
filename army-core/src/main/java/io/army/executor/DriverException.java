@@ -20,7 +20,7 @@ import io.army.lang.Nullable;
 
 /// Throw(or emit) by driver spi (for example {@code java.sql.Connection} , {@code io.jdbd.session.DatabaseSession} )
 /// when database driver throw {@link Throwable}
-///  {@link ServerException} is important sub-class.
+/// {@link ServerException} is important sub-class.
 /// @see ServerException
 /// @since 0.6.0
 public class DriverException extends DataAccessException {

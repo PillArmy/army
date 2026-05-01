@@ -222,7 +222,7 @@ public abstract class _TableMetaFactory {
     }
 
     /// @throws TableMetaLoadException when not found table meta holder class of domainClass.
-/// @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
+    /// @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     private static TableMeta<?> loadDomainMetaHolder(final Class<?> domainClass) {
 
         final Class<?> holderClass;
@@ -256,7 +256,7 @@ public abstract class _TableMetaFactory {
     }
 
     /// @throws TableMetaLoadException when occur {@link IOException}
-/// @see #scanJavaJarForJavaClassFile(URL)
+    /// @see #scanJavaJarForJavaClassFile(URL)
     private static ByteBuffer readJavaClassEntryBytes(final JarFile jarFile, final JarEntry entry) {
         final long entrySize = entry.getSize();
         if (entrySize > (Integer.MAX_VALUE - 32)) {

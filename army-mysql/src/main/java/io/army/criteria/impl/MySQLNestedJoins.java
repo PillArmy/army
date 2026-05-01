@@ -324,10 +324,10 @@ final class MySQLNestedJoins<I extends Item> extends JoinableClause.NestedLeftPa
         }
 
         /// @see #leftJoin(Function)
-/// @see #join(Function)
-/// @see #rightJoin(Function)
-/// @see #fullJoin(Function)
-/// @see #straightJoin(Function)
+        /// @see #join(Function)
+        /// @see #rightJoin(Function)
+        /// @see #fullJoin(Function)
+        /// @see #straightJoin(Function)
         private MySQLQuery._NestedOnSpec<I> joinNestedEnd(final _JoinType joinType, final _NestedItems nestedItems) {
             final MySQLNestedBlock<I> block;
             block = new MySQLNestedBlock<>(this.context, this.blockConsumer, joinType, null, nestedItems, "",
@@ -349,13 +349,13 @@ final class MySQLNestedJoins<I extends Item> extends JoinableClause.NestedLeftPa
     }//MySQLNestedJoinBlock
 
 
-/// 
-/// This class is base class of below:
-/// 
-/// - {@link FromClauseTableBlock}
-/// - {@link JoinClauseTableBlock}
-/// - {@link CrossClauseTableBlock}
-/// 
+    /// 
+    /// This class is base class of below:
+    /// 
+    /// - {@link FromClauseTableBlock}
+    /// - {@link JoinClauseTableBlock}
+    /// - {@link CrossClauseTableBlock}
+    /// 
     @SuppressWarnings("unchecked")
     private static abstract class MySQLNestedTableBlock<I extends Item, R extends Item> extends MySQLNestedBlock<I>
             implements MySQLStatement._IndexHintFoPurposeClause<R>,
@@ -625,7 +625,7 @@ final class MySQLNestedJoins<I extends Item> extends JoinableClause.NestedLeftPa
 
 
     /// @see MySQLNestedJoins
-/// @see PartitionJoinClause
+    /// @see PartitionJoinClause
     private static final class FromClauseTableBlock<I extends Item>
             extends MySQLNestedTableBlock<I, MySQLQuery._NestedIndexHintJoinSpec<I>>
             implements MySQLQuery._NestedIndexHintJoinSpec<I> {
@@ -667,7 +667,7 @@ final class MySQLNestedJoins<I extends Item> extends JoinableClause.NestedLeftPa
 
 
     /// @see MySQLNestedBlock
-/// @see PartitionOnClause
+    /// @see PartitionOnClause
     private static final class JoinClauseTableBlock<I extends Item>
             extends MySQLNestedTableBlock<I, MySQLQuery._NestedIndexHintOnSpec<I>>
             implements MySQLQuery._NestedIndexHintOnSpec<I> {
@@ -869,10 +869,10 @@ final class MySQLNestedJoins<I extends Item> extends JoinableClause.NestedLeftPa
         private final Supplier<I> supplier;
 
         /// @see MySQLNestedBlock#leftJoin(TableMeta)
-/// @see MySQLNestedBlock#join(TableMeta)
-/// @see MySQLNestedBlock#rightJoin(TableMeta)
-/// @see MySQLNestedBlock#fullJoin(TableMeta)
-/// @see MySQLNestedBlock#straightJoin(TableMeta)
+        /// @see MySQLNestedBlock#join(TableMeta)
+        /// @see MySQLNestedBlock#rightJoin(TableMeta)
+        /// @see MySQLNestedBlock#fullJoin(TableMeta)
+        /// @see MySQLNestedBlock#straightJoin(TableMeta)
         private PartitionOnClause(CriteriaContext context, Consumer<_TabularBlock> blockConsumer,
                                   _JoinType joinType, TableMeta<?> table, Supplier<I> supplier) {
             super(context, joinType, table);

@@ -26,15 +26,15 @@ package io.army.criteria.impl;
 /// @since 0.6.0
 interface FunctionArg extends ArmySQLExpression {
 
-/// 
-/// This interface representing legal sql function argument.
-/// This interface is base interface of below:
-/// 
-/// - {@link OperationExpression}
-/// - {@link SQLs#ASTERISK}
-/// - {@link LengthTypedRowExpression}
-/// 
-/// @since 0.6.0
+    /// 
+    /// This interface representing legal sql function argument.
+    /// This interface is base interface of below:
+    /// 
+    /// - {@link OperationExpression}
+    /// - {@link SQLs#ASTERISK}
+    /// - {@link LengthTypedRowExpression}
+    /// 
+    /// @since 0.6.0
     interface SingleFunctionArg extends FunctionArg {
 
     }

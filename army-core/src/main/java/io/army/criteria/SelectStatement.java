@@ -18,7 +18,7 @@ package io.army.criteria;
 
 /// 
 /// This interface representing SELECT statement.
-/// This interface is only base interface of following : 
+/// This interface is only base interface of following :
 /// - {@link Select}
 /// - {@link BatchSelect}
 /// 

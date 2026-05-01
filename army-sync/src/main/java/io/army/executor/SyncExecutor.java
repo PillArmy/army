@@ -54,19 +54,19 @@ import java.util.stream.Stream;
 public interface SyncExecutor extends StmtExecutor, AutoCloseable {
 
 
-/// Session identifier(non-unique, for example : database server cluster),probably is following :
-/// 
-/// - server process id
-/// - server thread id
-/// - other identifier
-/// 
-/// **NOTE**: identifier will probably be updated if reconnect.
-/// 
-/// @return {@link io.army.env.SyncKey#SESSION_IDENTIFIER_ENABLE} : 
-/// - true :  session identifier 
-/// - false (default) : always 0 , because JDBC spi don't support get server process id (or server thread id)
-/// 
-/// @throws DataAccessException throw when underlying database session have closed
+    /// Session identifier(non-unique, for example : database server cluster),probably is following :
+    /// 
+    /// - server process id
+    /// - server thread id
+    /// - other identifier
+    /// 
+    /// **NOTE**: identifier will probably be updated if reconnect.
+    /// 
+    /// @return {@link io.army.env.SyncKey#SESSION_IDENTIFIER_ENABLE} :
+    /// - true :  session identifier
+    /// - false (default) : always 0 , because JDBC spi don't support get server process id (or server thread id)
+    /// 
+    /// @throws DataAccessException throw when underlying database session have closed
     @Override
     long sessionIdentifier(Function<Option<?>, ?> sessionFunc) throws DataAccessException;
 
@@ -87,8 +87,8 @@ public interface SyncExecutor extends StmtExecutor, AutoCloseable {
             throws DataAccessException;
 
     /// This method is designed to be compatible with jdbc.
-/// If listConstructor is null ,then this method always return {@link Collections#emptyList()}.
-/// @return a unmodified list
+    /// If listConstructor is null ,then this method always return {@link Collections#emptyList()}.
+    /// @return a unmodified list
     List<Long> batchUpdateList(BatchStmt stmt, @Nullable IntFunction<List<Long>> listConstructor, SyncStmtOption option,
                                @Nullable LongConsumer consumer, Function<Option<?>, ?> sessionFunc) throws DataAccessException;
 
@@ -105,8 +105,8 @@ public interface SyncExecutor extends StmtExecutor, AutoCloseable {
     @Override
     void close() throws DataAccessException;
 
-/// **NOTE** : this interface never extends any interface.
-/// @since 0.6.0
+    /// **NOTE** : this interface never extends any interface.
+    /// @since 0.6.0
     interface LocalTransactionSpec {
 
         TransactionInfo startTransaction(TransactionOption option, HandleMode mode, Function<Option<?>, ?> sessionFunc);
@@ -119,28 +119,28 @@ public interface SyncExecutor extends StmtExecutor, AutoCloseable {
 
     }
 
-/// **NOTE** : this interface never extends any interface.
-/// @since 0.6.0
+    /// **NOTE** : this interface never extends any interface.
+    /// @since 0.6.0
     interface XaTransactionSpec {
 
         TransactionInfo start(Xid xid, int flags, TransactionOption option, Function<Option<?>, ?> sessionFunc) throws RmSessionException;
 
         TransactionInfo end(Xid xid, int flags, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) throws RmSessionException;
 
-/// @param xid        target transaction xid
-/// @param optionFunc dialect option function
-/// @return flags :
-/// 
-/// - {@link RmSession#XA_OK} :  prepared
-/// - {@link RmSession#XA_RDONLY} : appropriate transaction is readonly and have committed with one phase
-/// 
-/// @throws RmSessionException throw when
-/// 
-/// - xid and appropriate transaction not match
-/// - appropriate transaction {@link XaStates} isn't {@link XaStates#IDLE}
-/// - appropriate transaction is rollback only ,for example : current transaction's {@link RmSession#TM_FAIL} is set 
-/// - database server response error message
-/// 
+        /// @param xid        target transaction xid
+        /// @param optionFunc dialect option function
+        /// @return flags :
+        /// 
+        /// - {@link RmSession#XA_OK} :  prepared
+        /// - {@link RmSession#XA_RDONLY} : appropriate transaction is readonly and have committed with one phase
+        /// 
+        /// @throws RmSessionException throw when
+        /// 
+        /// - xid and appropriate transaction not match
+        /// - appropriate transaction {@link XaStates} isn't {@link XaStates#IDLE}
+        /// - appropriate transaction is rollback only ,for example : current transaction's {@link RmSession#TM_FAIL} is set
+        /// - database server response error message
+        /// 
         int prepare(Xid xid, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) throws RmSessionException;
 
         void commit(Xid xid, int flags, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) throws RmSessionException;

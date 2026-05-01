@@ -354,7 +354,7 @@ public final class ArmyReactiveLocalTransactionManager extends AbstractReactiveT
 
 
     /// @see #doCommit(TransactionSynchronizationManager, GenericReactiveTransaction)
-/// @see #doRollback(TransactionSynchronizationManager, GenericReactiveTransaction)
+    /// @see #doRollback(TransactionSynchronizationManager, GenericReactiveTransaction)
     private Mono<Void> commitOrRollback(final GenericReactiveTransaction status, final boolean commit) {
         final ReactiveLocalSession session = ((LocalTransactionObject) status.getTransaction()).session;
 

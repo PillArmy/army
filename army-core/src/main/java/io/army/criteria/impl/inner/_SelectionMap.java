@@ -32,23 +32,23 @@ import java.util.List;
 /// @since 0.6.0
 public interface _SelectionMap {
 
-/// 
-/// Note,the {@link Selection} couldn't be rendered. so couldn't invoke below method:
-/// 
-/// - {@link io.army.criteria.impl.inner._SelfDescribed#appendSql(StringBuilder, _SqlContext)}
-/// - {@link _Selection#appendSelectItem(StringBuilder, _SqlContext)}
-/// 
-/// @return the {@link Selection} that couldn't be rendered.
+    /// 
+    /// Note,the {@link Selection} couldn't be rendered. so couldn't invoke below method:
+    /// 
+    /// - {@link io.army.criteria.impl.inner._SelfDescribed#appendSql(StringBuilder, _SqlContext)}
+    /// - {@link _Selection#appendSelectItem(StringBuilder, _SqlContext)}
+    /// 
+    /// @return the {@link Selection} that couldn't be rendered.
     @Nullable
     Selection refSelection(String name);
 
-/// 
-/// Note,any {@link Selection} of list couldn't be rendered. so couldn't invoke below method:
-/// 
-/// - {@link io.army.criteria.impl.inner._SelfDescribed#appendSql(StringBuilder, _SqlContext)}
-/// - {@link _Selection#appendSelectItem(StringBuilder, _SqlContext)}
-/// 
-/// @return a unmodified list, the list of {@link Selection} that couldn't be rendered.
+    /// 
+    /// Note,any {@link Selection} of list couldn't be rendered. so couldn't invoke below method:
+    /// 
+    /// - {@link io.army.criteria.impl.inner._SelfDescribed#appendSql(StringBuilder, _SqlContext)}
+    /// - {@link _Selection#appendSelectItem(StringBuilder, _SqlContext)}
+    /// 
+    /// @return a unmodified list, the list of {@link Selection} that couldn't be rendered.
     List<? extends Selection> refAllSelection();
 
 

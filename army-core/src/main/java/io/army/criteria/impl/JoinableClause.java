@@ -64,7 +64,7 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
     final Consumer<_TabularBlock> blockConsumer;
 
     /// 
-/// private constructor
+    /// private constructor
     private JoinableClause(CriteriaContext context, Consumer<_TabularBlock> blockConsumer) {
         super(context);
         this.blockConsumer = blockConsumer;
@@ -72,7 +72,7 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
 
 
     /// 
-/// package constructor for {@link  Statement}
+    /// package constructor for {@link  Statement}
     JoinableClause(CriteriaContext context) {
         super(context);
         this.blockConsumer = context::onAddBlock;
@@ -735,7 +735,7 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
                             String alias);
 
     /// @see #crossJoin(Supplier)
-/// @see #crossJoin(SQLs.DerivedModifier, Supplier)
+    /// @see #crossJoin(SQLs.DerivedModifier, Supplier)
     abstract FS onFromDerived(final _JoinType joinType, final @Nullable SQLs.DerivedModifier modifier,
                               final DerivedTable table);
 
@@ -924,18 +924,18 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
 
 
     /// This interface is designed only for validating postgre child insert with sub-insert it's parent.
-/// This interface is implemented by {@link SimpleQueries}
+    /// This interface is implemented by {@link SimpleQueries}
     interface SimpleQuery {
 
-/// @return 
-/// - CTE name
-/// - parent id alias
-/// - rowNumber alias (optional)
-/// 
+        /// @return
+        /// - CTE name
+        /// - parent id alias
+        /// - rowNumber alias (optional)
+        /// 
         List<String> validateIdDefaultExpression();
 
         /// @param names see {@link #validateIdDefaultExpression()}
-/// @return parent sub-insert CTE name
+        /// @return parent sub-insert CTE name
         String validateParentSubInsertRowNumberQuery(String thisCteName, List<String> names);
 
     }

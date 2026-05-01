@@ -7,13 +7,13 @@ import io.army.spec.OptionSpec;
 public interface SessionSpec extends OptionSpec {
 
 
-/// Get the name of session.
-/// **NOTE** : This method don't check whether session closed or not.
+    /// Get the name of session.
+    /// **NOTE** : This method don't check whether session closed or not.
     String name();
 
 
-/// Get the visible mode(soft delete) of session.
-/// **NOTE** : This method don't check whether session closed or not.
+    /// Get the visible mode(soft delete) of session.
+    /// **NOTE** : This method don't check whether session closed or not.
     Visible visible();
 
 }

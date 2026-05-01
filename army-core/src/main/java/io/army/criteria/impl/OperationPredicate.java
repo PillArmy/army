@@ -44,9 +44,9 @@ import java.util.function.Supplier;
 abstract class OperationPredicate extends OperationExpression.PredicateExpression {
 
     /// 
-/// Private constructor .
-/// @see OperationSimplePredicate#OperationSimplePredicate()
-/// @see OperationCompoundPredicate#OperationPredicate()
+    /// Private constructor .
+    /// @see OperationSimplePredicate#OperationSimplePredicate()
+    /// @see OperationCompoundPredicate#OperationPredicate()
     private OperationPredicate() {
 
     }
@@ -379,7 +379,7 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
 
 
     /// @see SQLs#TRUE
-/// @see SQLs#FALSE
+    /// @see SQLs#FALSE
     static SQLs.WordBoolean booleanWord(final boolean value) {
         return value ? BooleanWord.TRUE : BooleanWord.FALSE;
     }
@@ -437,17 +437,17 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
         return result;
     }
 
-/// 
-/// Private class.This class is base class of below:
-/// - {@link BooleanWord}
-/// - {@link BracketPredicate}
-/// - {@link SqlFunctionPredicate}
-/// - {@link OrPredicate},because OR/XOR operator always have outer parentheses。
+    /// 
+    /// Private class.This class is base class of below:
+    /// - {@link BooleanWord}
+    /// - {@link BracketPredicate}
+    /// - {@link SqlFunctionPredicate}
+    /// - {@link OrPredicate},because OR/XOR operator always have outer parentheses。
     static abstract class OperationSimplePredicate extends OperationPredicate
             implements SimplePredicate, ArmySimpleExpression {
 
-/// 
-/// **Private constructor**
+        /// 
+        /// **Private constructor**
         private OperationSimplePredicate() {
         }
 
@@ -732,7 +732,7 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
 
 
     /// @see SQLs#TRUE
-/// @see SQLs#FALSE
+    /// @see SQLs#FALSE
     static final class BooleanWord extends OperationSimplePredicate
             implements SQLs.WordBoolean, SQLs.ArmyKeyWord, _LiteralExpression, SqlValueParam.SingleAnonymousValue {
 

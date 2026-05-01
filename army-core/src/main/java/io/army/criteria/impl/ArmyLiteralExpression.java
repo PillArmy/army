@@ -63,7 +63,7 @@ abstract class ArmyLiteralExpression extends OperationExpression.OperationTypedE
 
 
     /// @throws CriteriaException throw when infer return codec {@link TableField}.
-/// @see SQLs#literal(TypeInfer, Object)
+    /// @see SQLs#literal(TypeInfer, Object)
     static LiteralExpression single(final @Nullable TypeInfer infer, final @Nullable Object value, final boolean typeName) {
         final TypeMeta type;
         if (infer == null) {
@@ -78,11 +78,11 @@ abstract class ArmyLiteralExpression extends OperationExpression.OperationTypedE
         return new AnonymousLiteral(type, value, typeName);
     }
 
-/// @throws CriteriaException throw when 
-/// - infer return codec {@link TableField}.
-/// - name have no text
-/// 
-/// @see SQLs#namedLiteral(TypeInfer, String)
+    /// @throws CriteriaException throw when
+    /// - infer return codec {@link TableField}.
+    /// - name have no text
+    /// 
+    /// @see SQLs#namedLiteral(TypeInfer, String)
     static ArmyLiteralExpression named(final @Nullable TypeInfer infer, final @Nullable String name, final boolean typeName) {
         final TypeMeta type;
         if (infer == null) {

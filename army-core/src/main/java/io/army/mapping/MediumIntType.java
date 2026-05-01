@@ -35,7 +35,7 @@ import io.army.sqltype.SQLiteType;
 /// - {@link java.math.BigInteger}
 /// - {@link java.math.BigDecimal},it has a zero fractional part
 /// - {@link Boolean} true : 1 , false: 0
-/// - {@link String} 
+/// - {@link String}
 /// 
 /// to medium {@link Integer},if overflow,throw {@link io.army.ArmyException}
 /// @since 0.6.0

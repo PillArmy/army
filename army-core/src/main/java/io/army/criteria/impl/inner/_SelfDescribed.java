@@ -20,12 +20,12 @@ import io.army.dialect._SqlContext;
 
 public interface _SelfDescribed {
 
-/// This method has below step:
-/// 
-/// - append a space
-/// - append SelfDescribed instance content in sql
-/// 
-/// @param sqlBuilder must be {@link _SqlContext#sqlBuilder()} of context . For reducing method invoking.
+    /// This method has below step:
+    /// 
+    /// - append a space
+    /// - append SelfDescribed instance content in sql
+    /// 
+    /// @param sqlBuilder must be {@link _SqlContext#sqlBuilder()} of context . For reducing method invoking.
     void appendSql(StringBuilder sqlBuilder, _SqlContext context);
 
 }

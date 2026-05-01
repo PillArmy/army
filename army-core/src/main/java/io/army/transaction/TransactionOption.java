@@ -25,11 +25,11 @@ import io.army.lang.Nullable;
 /// @since 0.6.0
 public interface TransactionOption extends TransactionSpec {
 
-/// This transaction isolation.
-/// @return 
-/// - null : use default isolation
-/// - non-null : use specified isolation for this transaction,but does not affect subsequent transactions
-/// 
+    /// This transaction isolation.
+    /// @return
+    /// - null : use default isolation
+    /// - non-null : use specified isolation for this transaction,but does not affect subsequent transactions
+    /// 
     @Nullable
     Isolation isolation();
 
@@ -52,22 +52,22 @@ public interface TransactionOption extends TransactionSpec {
 
     interface Builder {
 
-/// set transaction option.
-/// @param option transaction option key,for example :
-/// 
-/// - {@link Option#ISOLATION}
-/// - {@link Option#READ_ONLY}
-/// - {@link Option#NAME} ,transaction name
-/// - {@code  Option#WITH_CONSISTENT_SNAPSHOT}
-/// - {@code Option#DEFERRABLE}
-/// - {@link Option#WAIT}
-/// - {@link Option#LOCK_TIMEOUT_MILLIS}
-/// 
+        /// set transaction option.
+        /// @param option transaction option key,for example :
+        /// 
+        /// - {@link Option#ISOLATION}
+        /// - {@link Option#READ_ONLY}
+        /// - {@link Option#NAME} ,transaction name
+        /// - {@code  Option#WITH_CONSISTENT_SNAPSHOT}
+        /// - {@code Option#DEFERRABLE}
+        /// - {@link Option#WAIT}
+        /// - {@link Option#LOCK_TIMEOUT_MILLIS}
+        /// 
         <T> Builder option(Option<T> option, @Nullable T value);
 
-/// @throws IllegalArgumentException throw when 
-/// - {@link Option#IN_TRANSACTION} exists
-/// 
+        /// @throws IllegalArgumentException throw when
+        /// - {@link Option#IN_TRANSACTION} exists
+        /// 
         TransactionOption build() throws IllegalArgumentException;
 
 

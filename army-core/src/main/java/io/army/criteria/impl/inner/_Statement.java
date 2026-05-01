@@ -38,7 +38,7 @@ public interface _Statement extends Statement {
         List<? extends SortItem> orderByList();
     }
 
-/// This interface representing dialect WITH clause support update/delete, for example postgre.
+    /// This interface representing dialect WITH clause support update/delete, for example postgre.
     interface _WithDmlSpec {
 
     }
@@ -122,11 +122,11 @@ public interface _Statement extends Statement {
 
     }
 
-/// This interface is base interface of following :
-/// 
-/// - {@link io.army.criteria.impl.inner._SingleUpdate._ChildUpdate}
-/// - {@link io.army.criteria.impl.inner._SingleDelete._ChildDelete}
-/// 
+    /// This interface is base interface of following :
+    /// 
+    /// - {@link io.army.criteria.impl.inner._SingleUpdate._ChildUpdate}
+    /// - {@link io.army.criteria.impl.inner._SingleDelete._ChildDelete}
+    /// 
     interface _ChildStatement {
 
         TableMeta<?> table();

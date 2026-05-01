@@ -25,13 +25,13 @@ import java.util.function.Supplier;
 public interface CurrentRecord extends DataRecord {
 
     /// row number of current row
-/// @return the row number of current row, based 1 . The first value is 1 .
+    /// @return the row number of current row, based 1 . The first value is 1 .
     long rowNumber();
 
-/// 
-/// Create one {@link ResultRecord} with coping all column data.
-/// 
-/// @return new {@link ResultRecord}
+    /// 
+    /// Create one {@link ResultRecord} with coping all column data.
+    /// 
+    /// @return new {@link ResultRecord}
     ResultRecord asResultRecord();
 
 

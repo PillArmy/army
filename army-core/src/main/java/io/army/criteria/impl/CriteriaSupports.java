@@ -284,14 +284,14 @@ abstract class CriteriaSupports {
 
 
         /// 
-/// private constructor for {@link  #stringQuadra(CriteriaContext, Function)}
+        /// private constructor for {@link  #stringQuadra(CriteriaContext, Function)}
         private ParenStringConsumerClause(CriteriaContext context, Function<List<String>, RR> function) {
             this.context = context;
             this.function = function;
         }
 
         /// 
-/// package constructor for sub class
+        /// package constructor for sub class
         ParenStringConsumerClause(CriteriaContext context) {
             assert this.getClass() != ParenStringConsumerClause.class;
             this.context = context;

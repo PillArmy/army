@@ -45,14 +45,14 @@ public sealed interface RmSession extends Session, Session.XaTransactionSupportS
     int TM_START_RSCAN = 1 << 24;
 
     /// Caller is suspending (not ending) its association with
-/// a transaction branch.
+    /// a transaction branch.
     int TM_SUSPEND = 1 << 25;
 
     /// Disassociates caller from a transaction branch.
     int TM_SUCCESS = 1 << 26;
 
     /// Caller is resuming association with a suspended
-/// transaction branch.
+    /// transaction branch.
     int TM_RESUME = 1 << 27;
 
     /// Disassociates the caller and marks the transaction branch rollback-only.

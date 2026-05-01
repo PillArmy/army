@@ -34,15 +34,15 @@ public interface StandardQuery extends Query, StandardStatement {
     }
 
 
-/// This interface representing the composite of below:
-/// 
-/// - UNION clause for standard syntax
-/// - method {@link _AsQueryClause#asQuery()}
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// This interface representing the composite of below:
+    /// 
+    /// - UNION clause for standard syntax
+    /// - method {@link _AsQueryClause#asQuery()}
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _UnionSpec<I extends Item> extends _UnionClause<I>,
 //            _StaticLineFeedUnionClause<_UnionClause<Item>, _UnionSpec<I>>,
 //            _DynamicLineFeedUnionClause<_UnionClause<Item>, _UnionSpec<I>>,
@@ -50,17 +50,17 @@ public interface StandardQuery extends Query, StandardStatement {
 
     }
 
-/// 
-/// This interface representing the composite of below:
-/// 
-/// - LIMIT clause for standard syntax
-/// -  {@link _AsQueryClause}
-/// 
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// 
+    /// This interface representing the composite of below:
+    /// 
+    /// - LIMIT clause for standard syntax
+    /// -  {@link _AsQueryClause}
+    /// 
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _UnionLimitSpec<I extends Item> extends Statement._LimitClause<_AsQueryClause<I>>,
             _AsQueryClause<I> {
 
@@ -71,17 +71,17 @@ public interface StandardQuery extends Query, StandardStatement {
 
     }
 
-/// 
-/// This interface representing the composite of below:
-/// 
-/// - ORDER BY clause for standard syntax
-/// - the composite {@link _UnionLimitSpec}
-/// 
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// 
+    /// This interface representing the composite of below:
+    /// 
+    /// - ORDER BY clause for standard syntax
+    /// - the composite {@link _UnionLimitSpec}
+    /// 
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _UnionOrderBySpec<I extends Item> extends _StaticOrderByClause<_UnionOrderByCommaSpec<I>>,
             _UnionLimitSpec<I>,
             _UnionSpec<I> {
@@ -89,17 +89,17 @@ public interface StandardQuery extends Query, StandardStatement {
     }
 
 
-/// 
-/// This interface representing the composite of below:
-/// 
-/// - lock clause for standard syntax
-/// - the composite {@link _UnionSpec}
-/// 
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// 
+    /// This interface representing the composite of below:
+    /// 
+    /// - lock clause for standard syntax
+    /// - the composite {@link _UnionSpec}
+    /// 
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _LockSpec<I extends Item> extends _SimpleForUpdateClause<_AsQueryClause<I>>,
             _AsQueryClause<I> {
 
@@ -107,17 +107,17 @@ public interface StandardQuery extends Query, StandardStatement {
     }
 
 
-/// 
-/// This interface representing the composite of below:
-/// 
-/// - LIMIT clause for standard syntax
-/// - the composite {@link _LockSpec}
-/// 
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// 
+    /// This interface representing the composite of below:
+    /// 
+    /// - LIMIT clause for standard syntax
+    /// - the composite {@link _LockSpec}
+    /// 
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _LimitSpec<I extends Item> extends _LockSpec<I>, Statement._LimitClause<_LockSpec<I>> {
 
     }
@@ -128,17 +128,17 @@ public interface StandardQuery extends Query, StandardStatement {
     }
 
 
-/// 
-/// This interface representing the composite of below:
-/// 
-/// - ORDER BY clause for standard syntax
-/// - the composite {@link _LimitSpec}
-/// 
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// 
+    /// This interface representing the composite of below:
+    /// 
+    /// - ORDER BY clause for standard syntax
+    /// - the composite {@link _LimitSpec}
+    /// 
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _OrderBySpec<I extends Item> extends _LimitSpec<I>,
             _StaticOrderByClause<_OrderByCommaSpec<I>>,
             _DynamicOrderByClause<_LimitSpec<I>>,
@@ -166,17 +166,17 @@ public interface StandardQuery extends Query, StandardStatement {
     }
 
 
-/// 
-/// This interface representing the composite of below:
-/// 
-/// - HAVING clause for standard syntax
-/// - the composite {@link _OrderBySpec}
-/// 
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// 
+    /// This interface representing the composite of below:
+    /// 
+    /// - HAVING clause for standard syntax
+    /// - the composite {@link _OrderBySpec}
+    /// 
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _HavingSpec<I extends Item> extends _StaticHavingClause<_HavingAndSpec<I>>,
             _DynamicHavingClause<_WindowSpec<I>>,
             _WindowSpec<I> {
@@ -189,17 +189,17 @@ public interface StandardQuery extends Query, StandardStatement {
     }
 
 
-/// 
-/// This interface representing the composite of below:
-/// 
-/// - GROUP BY clause for standard syntax
-/// - the composite {@link _OrderBySpec}
-/// 
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// 
+    /// This interface representing the composite of below:
+    /// 
+    /// - GROUP BY clause for standard syntax
+    /// - the composite {@link _OrderBySpec}
+    /// 
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _GroupBySpec<I extends Item> extends _StaticGroupByClause<_GroupByCommaSpec<I>>,
             _DynamicGroupByClause<_HavingSpec<I>>,
             _WindowSpec<I> {
@@ -207,17 +207,17 @@ public interface StandardQuery extends Query, StandardStatement {
     }
 
 
-/// 
-/// This interface representing the composite of below:
-/// 
-/// - AND clause for standard syntax
-/// - the composite {@link _GroupBySpec}
-/// 
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// 
+    /// This interface representing the composite of below:
+    /// 
+    /// - AND clause for standard syntax
+    /// - the composite {@link _GroupBySpec}
+    /// 
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _WhereAndSpec<I extends Item>
             extends Statement._WhereAndClause<_WhereAndSpec<I>>, _GroupBySpec<I> {
 
@@ -225,34 +225,34 @@ public interface StandardQuery extends Query, StandardStatement {
     }
 
 
-/// 
-/// This interface representing the composite of below:
-/// 
-/// - WHERE clause for standard syntax
-/// - the composite {@link _GroupBySpec}
-/// 
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// 
+    /// This interface representing the composite of below:
+    /// 
+    /// - WHERE clause for standard syntax
+    /// - the composite {@link _GroupBySpec}
+    /// 
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _WhereSpec<I extends Item>
             extends Statement._QueryWhereClause<_GroupBySpec<I>, _WhereAndSpec<I>>, _GroupBySpec<I> {
 
     }
 
 
-/// 
-/// This interface representing the composite of below:
-/// 
-/// - {@link _StandardJoinClause}
-/// - the composite {@link _WhereSpec}
-/// 
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// 
+    /// This interface representing the composite of below:
+    /// 
+    /// - {@link _StandardJoinClause}
+    /// - the composite {@link _WhereSpec}
+    /// 
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _JoinSpec<I extends Item> extends _StandardJoinClause<_JoinSpec<I>, _OnClause<_JoinSpec<I>>>,
             _JoinCteClause<_OnClause<_JoinSpec<I>>>,
             _CrossJoinCteClause<_JoinSpec<I>>,
@@ -261,17 +261,17 @@ public interface StandardQuery extends Query, StandardStatement {
     }
 
 
-/// 
-/// This interface representing the composite of below:
-/// 
-/// - FROM clause for standard syntax
-/// - the composite {@link _UnionSpec}
-/// 
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// 
+    /// This interface representing the composite of below:
+    /// 
+    /// - FROM clause for standard syntax
+    /// - the composite {@link _UnionSpec}
+    /// 
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _FromSpec<I extends Item> extends Statement._FromModifierTabularClause<_JoinSpec<I>, _AsClause<_JoinSpec<I>>>,
             _FromCteClause<_JoinSpec<I>>,
             _FromNestedClause<_NestedLeftParenSpec<_JoinSpec<I>>, _JoinSpec<I>>,
@@ -286,13 +286,13 @@ public interface StandardQuery extends Query, StandardStatement {
     }
 
 
-/// 
-/// This interface representing SELECT clause for standard syntax.
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @since 0.6.0
+    /// 
+    /// This interface representing SELECT clause for standard syntax.
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @since 0.6.0
     interface _StandardSelectClause<I extends Item>
             extends _ModifierListSelectClause<SQLs.Modifier, _StandardSelectCommaClause<I>>,
             _DynamicModifierSelectClause<SQLs.Modifier, _FromSpec<I>> {

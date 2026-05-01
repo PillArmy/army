@@ -80,7 +80,7 @@ public class FuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#greatest(Expression, Expression...)
-/// @see Postgres#greatest(Consumer)
+    /// @see Postgres#greatest(Consumer)
     @Test
     public void greatestFunc() {
         final Select stmt;
@@ -96,7 +96,7 @@ public class FuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#least(Expression, Expression...)
-/// @see Postgres#least(Consumer)
+    /// @see Postgres#least(Consumer)
     @Test
     public void leastFunc() {
         final Select stmt;

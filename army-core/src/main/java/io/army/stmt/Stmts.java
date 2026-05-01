@@ -39,7 +39,7 @@ public abstract class Stmts {
     }
 
     /// 
-/// Post insert for generated key
+    /// Post insert for generated key
     public static GeneratedKeyStmt postStmt(final InsertStmtParams params) {
         final GeneratedKeyStmt stmt;
         if (params.isTwoStmtQuery()) {
@@ -132,8 +132,8 @@ public abstract class Stmts {
 
 
     /// @return a modified list
-/// @see #batchDmlStmt(StmtParams, List)
-/// @see #batchQueryStmt(StmtParams, List)
+    /// @see #batchDmlStmt(StmtParams, List)
+    /// @see #batchQueryStmt(StmtParams, List)
     private static List<List<SQLParam>> createParamGroupList(final StmtParams params, final List<?> namedParamList) {
         final List<SQLParam> paramGroup = params.paramList();
         final int paramSize = paramGroup.size();

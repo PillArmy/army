@@ -36,7 +36,7 @@ public interface SyncExecutorFactory extends ExecutorFactory, AutoCloseable {
     SyncRmExecutor rmExecutor(String sessionName, boolean readOnly, Function<Option<?>, ?> optionFunc) throws DataAccessException;
 
     /// 
-/// close {@link SyncExecutorFactory},but don't close underlying data source(eg:{@code  javax.sql.DataSource}).
+    /// close {@link SyncExecutorFactory},but don't close underlying data source(eg:{@code  javax.sql.DataSource}).
     void close() throws DataAccessException;
 
 }

@@ -41,7 +41,7 @@ import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 /// - {@link LocalDate}
 /// - {@link LocalDateTime}
 /// - {@link java.time.LocalDate}
-/// - {@link String} 
+/// - {@link String}
 /// 
 /// to {@link MonthDay},if error,throw {@link io.army.ArmyException}
 /// @since 0.6.0

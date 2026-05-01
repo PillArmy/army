@@ -61,13 +61,13 @@ abstract class MySQLSingleUpdates<I extends Item, T>
         MySQLUpdate._OrderByCommaSpec<I> {
 
     /// 
-/// create simple(non-batch) single-table UPDATE statement that is primary statement.
+    /// create simple(non-batch) single-table UPDATE statement that is primary statement.
     static _SingleWithSpec<Update> simple() {
         return new SimpleUpdateClause();
     }
 
     /// 
-/// create batch single-table UPDATE statement that is primary statement.
+    /// create batch single-table UPDATE statement that is primary statement.
     static _SingleWithSpec<_BatchUpdateParamSpec> batch() {
         return new BatchUpdateClause();
     }

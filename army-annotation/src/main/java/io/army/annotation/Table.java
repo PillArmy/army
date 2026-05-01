@@ -35,30 +35,30 @@ import java.lang.annotation.*;
 public @interface Table {
 
     /// (Required) The name of the table.
-/// 
-/// see io.army.meta.TableMeta#tableName()
+    /// 
+    /// see io.army.meta.TableMeta#tableName()
     String name();
 
     /// (Required) The comment of the tableMeta.
     String comment();
 
     /// (Optional) The catalog of the table.
-///  Defaults to the default catalog.
+    /// Defaults to the default catalog.
     String catalog() default "";
 
     /// (Optional) The schema of the table.
-///  Defaults to the default schema for user.
+    /// Defaults to the default schema for user.
     String schema() default "";
 
     /// (Optional) Indexes for the table.  These are only used if
-/// tableMeta generation is in effect.  Note that it is not necessary
-/// to specify an indexMap for a primary key, asType the primary key
-/// indexMap will be created automatically.
+    /// tableMeta generation is in effect.  Note that it is not necessary
+    /// to specify an indexMap for a primary key, asType the primary key
+    /// indexMap will be created automatically.
     Index[] indexes() default {};
 
 
     /// Specifies the tableMeta immutable,if true,singleUpdate dml of the tableMeta is allowed by army.
-///  Default value is false.
+    /// Default value is false.
     boolean immutable() default false;
 
     boolean allColumnNotNull() default false;

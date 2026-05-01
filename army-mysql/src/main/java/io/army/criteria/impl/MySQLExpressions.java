@@ -47,10 +47,10 @@ abstract class MySQLExpressions {
     }
 
 
-/// Create system variable expression
-/// See {@code io.army.robot.MySQLSystemVariableRobotTests#systemVariableCaseStatement()}
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">SET Syntax for Variable Assignment</a>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/server-system-variables.html">Server System Variables</a>
+    /// Create system variable expression
+    /// See {@code io.army.robot.MySQLSystemVariableRobotTests#systemVariableCaseStatement()}
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">SET Syntax for Variable Assignment</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/server-system-variables.html">Server System Variables</a>
     static SimpleExpression systemVariable(final SQLs.VarScope varScope, final String name) {
         if (!(varScope instanceof SqlWords.KeyWordVarScope)) {
             throw CriteriaUtils.unknownWords(varScope);

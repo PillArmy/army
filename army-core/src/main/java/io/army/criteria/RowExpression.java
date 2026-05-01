@@ -33,7 +33,7 @@ public interface RowExpression extends Expression, SQLColumnList {
     /// for example : named row literal expression, see
     /// 1. {@link SQLs#namedRowLiteral(TypeInfer, String)}
     /// 2. {@link SQLs#namedRowConst(TypeInfer, String)}
-    ///
+    /// 
     /// @return negative : unknown
     int columnSize();
 

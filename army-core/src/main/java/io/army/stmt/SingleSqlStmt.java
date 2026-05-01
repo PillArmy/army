@@ -40,7 +40,7 @@ public interface SingleSqlStmt extends Stmt {
     interface IdSelectionIndexSpec {
 
         /// @see GeneratedKeyStmt#idSelectionIndex()
-/// @see TwoStmtQueryStmt#idSelectionIndex()
+        /// @see TwoStmtQueryStmt#idSelectionIndex()
         int idSelectionIndex();
     }
 

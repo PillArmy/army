@@ -18,7 +18,7 @@ package io.army.result;
 
 import io.army.util._StringUtils;
 
-///  This enum representing cursor
+/// This enum representing cursor
 public enum Direction {
 
 
@@ -41,7 +41,7 @@ public enum Direction {
     RELATIVE,
 
     /// Fetch the next row (same as NEXT).
-/// must specified count
+    /// must specified count
     FORWARD,
 
     /// Fetch all remaining rows.

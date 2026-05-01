@@ -35,7 +35,7 @@ import java.math.BigInteger;
 /// - {@link java.math.BigInteger}
 /// - {@link java.math.BigDecimal},it has a zero fractional part
 /// - {@link Boolean} true : {@link BigInteger#ONE} , false: {@link BigInteger#ZERO}
-/// - {@link String} 
+/// - {@link String}
 /// 
 /// to {@link BigInteger},if overflow,throw {@link io.army.ArmyException}
 /// @since 0.6.0

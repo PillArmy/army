@@ -18,13 +18,13 @@ package io.army.stmt;
 
 public interface DmlStmtParams extends StmtParams {
 
-/// @return 
-/// - If {@link  #selectionList()} exists id and executing need the index of id selection.
-/// - Else negative
-/// 
-/// @see InsertStmtParams#idSelectionIndex()
-/// @see GeneratedKeyStmt#idSelectionIndex()
-/// @see TwoStmtQueryStmt#idSelectionIndex()
+    /// @return
+    /// - If {@link  #selectionList()} exists id and executing need the index of id selection.
+    /// - Else negative
+    /// 
+    /// @see InsertStmtParams#idSelectionIndex()
+    /// @see GeneratedKeyStmt#idSelectionIndex()
+    /// @see TwoStmtQueryStmt#idSelectionIndex()
     int idSelectionIndex();
 
 

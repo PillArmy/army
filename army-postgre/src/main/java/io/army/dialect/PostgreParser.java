@@ -75,36 +75,36 @@ abstract class PostgreParser extends _ArmyDialectParser {
         return new PgTypeMappingHandler(env);
     }
 
-    ///
+    /// 
     /// Original Query defined type stmts,This statement is not used to unify processing logic for all dialects.
     /// 1. Identify composite type: pg_type.typcategory is 'C' and pg_class.relkind is 'c'
     /// 2. Identify domain type: pg_type.typbasetype > 0 ,If this is a domain (see typtype),
     /// then typbasetype identifies the type that this one is based on. Zero if this type is not a domain.
     /// [pg_type](https://www.postgresql.org/docs/current/catalog-pg-type.html)
-    ///
+    /// 
     /// ```postgresql
     /// SELECT t.typname AS "definedType", t.typcategory AS "type", et."enumLabelArray", at.*
     /// FROM pg_namespace AS n
-    ///          JOIN pg_type AS t ON t.typnamespace = n.oid
-    ///          LEFT JOIN LATERAL (
-    ///                 SELECT e.enumtypid, array_agg(e.enumlabel) AS "enumLabelArray"
-    ///                 FROM pg_enum AS e
-    ///                 WHERE e.enumtypid = t.oid
-    ///                 GROUP BY e.enumtypid
-    ///         ) AS et ON et.enumtypid = t.oid
-    ///         LEFT JOIN pg_class AS c ON c.oid = t.typrelid
-    ///         LEFT JOIN LATERAL (
-    ///                 SELECT a.attrelid,
-    ///                 array_agg(a.attnum)   AS "columnNumArray",
-    ///                 array_agg(a.attname)  AS "columnNameArray",
-    ///                 array_agg(st.typname) AS "columnTypeArray"
-    ///                 FROM pg_attribute AS a
-    ///                 JOIN pg_type AS st ON st.oid = a.atttypid
-    ///                 WHERE a.attrelid = c.oid
-    ///                 GROUP BY a.attrelid
-    ///         ) AS at ON at.attrelid = c.oid
+    /// JOIN pg_type AS t ON t.typnamespace = n.oid
+    /// LEFT JOIN LATERAL (
+    /// SELECT e.enumtypid, array_agg(e.enumlabel) AS "enumLabelArray"
+    /// FROM pg_enum AS e
+    /// WHERE e.enumtypid = t.oid
+    /// GROUP BY e.enumtypid
+    /// ) AS et ON et.enumtypid = t.oid
+    /// LEFT JOIN pg_class AS c ON c.oid = t.typrelid
+    /// LEFT JOIN LATERAL (
+    /// SELECT a.attrelid,
+    /// array_agg(a.attnum)   AS "columnNumArray",
+    /// array_agg(a.attname)  AS "columnNameArray",
+    /// array_agg(st.typname) AS "columnTypeArray"
+    /// FROM pg_attribute AS a
+    /// JOIN pg_type AS st ON st.oid = a.atttypid
+    /// WHERE a.attrelid = c.oid
+    /// GROUP BY a.attrelid
+    /// ) AS at ON at.attrelid = c.oid
     /// WHERE n.nspname NOT IN ('pg_catalog', 'information_schema')
-    ///   AND (t.typcategory IN ('E', 'U', 'R') OR t.typbasetype > 0 OR (t.typcategory = 'C' AND c.relkind = 'c'))
+    /// AND (t.typcategory IN ('E', 'U', 'R') OR t.typbasetype > 0 OR (t.typcategory = 'C' AND c.relkind = 'c'))
     /// ```
     @Override
     public final List<SimpleStmt> queryDefinedTypeStmts(Map<String, MappingType> definedTypeMap) {
@@ -622,7 +622,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
         return true;
     }
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-update.html">UPDATE statement</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-update.html">UPDATE statement</a>
     @Override
     protected final boolean isSupportJoinableSingleUpdate() {
         // true ,Postgre support single-table joinable update
@@ -668,7 +668,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
     }
 
 
-    ///
+    /// 
     /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS">Identifiers and Keywords</a>
     @Override
     protected final void handleIdentifier(final @Nullable DatabaseObject object, final String effectiveName, final StringBuilder sqlBuilder) {
@@ -868,7 +868,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
 
     }
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-delete.html">Postgre DELETE syntax</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-delete.html">Postgre DELETE syntax</a>
     @Override
     protected final void parseDomainChildDelete(final _SingleDelete stmt, final _DeleteContext context) {
 

@@ -49,87 +49,87 @@ public abstract class MySQLs extends MySQLSyntax {
     public static final Modifier CONCURRENT = MySQLWords.MySQLModifier.CONCURRENT;
     public static final Modifier LOCAL = MySQLWords.MySQLModifier.LOCAL;
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
     public static final SQLs.VarScope PERSIST = SqlWords.KeyWordVarScope.PERSIST;
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
     public static final SQLs.VarScope PERSIST_ONLY = SqlWords.KeyWordVarScope.PERSIST_ONLY;
 
 
 
-/// The {@link MappingType} of function return type: {@link  LocalDateType}
-/// @see MySQLs#currentDate()
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_curdate">CURRENT_DATE()</a>
+    /// The {@link MappingType} of function return type: {@link  LocalDateType}
+    /// @see MySQLs#currentDate()
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_curdate">CURRENT_DATE()</a>
     public static final SimpleExpression CURRENT_DATE = LiteralFunctions.noParensFunc("CURRENT_DATE");
 
-/// The {@link MappingType} of function return type: {@link  LocalTimeType}
-/// @see MySQLs#currentTime()
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_curdate">CURRENT_TIME()</a>
+    /// The {@link MappingType} of function return type: {@link  LocalTimeType}
+    /// @see MySQLs#currentTime()
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_curdate">CURRENT_TIME()</a>
     public static final SimpleExpression CURRENT_TIME = LiteralFunctions.noParensFunc("CURRENT_TIME");
 
-/// The {@link MappingType} of function return type: {@link  LocalDateTimeType}
-/// @see MySQLs#currentTimestamp()
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_curdate">CURRENT_TIME()</a>
+    /// The {@link MappingType} of function return type: {@link  LocalDateTimeType}
+    /// @see MySQLs#currentTimestamp()
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_curdate">CURRENT_TIME()</a>
     public static final SimpleExpression CURRENT_TIMESTAMP = LiteralFunctions.noParensFunc("CURRENT_TIMESTAMP");
 
 
-/// create single-table INSERT statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
-/// **NOTE** : if you specify ON DUPLICATE KEY UPDATE ,then the affected-rows value per row is
-/// 
-/// - 1 if the row is inserted as a new row
-/// - 2 if an existing row is updated
-/// - 0 if an existing row is set to its current values,but due to army auto set 'updateTime' field,so actually never 0
-/// 
-/// **Limitations** of MySQL INSERT ON DUPLICATE KEY UPDATE clause :
-/// 
-/// - If target table contain 'visible' field,then ON DUPLICATE KEY UPDATE clause can only be used in {@link Visible#BOTH} mode,see {@link Session#visible()} and {@link io.army.env.ArmyKey#VISIBLE_MODE}
-/// - If target table contain the field whose {@link io.army.annotation.UpdateMode} is {@link io.army.annotation.UpdateMode#ONLY_NULL} or {@link io.army.annotation.UpdateMode#ONLY_DEFAULT},then you couldn't use ON DUPLICATE KEY UPDATE clause .
-/// - If target table primary key is auto increment and you insert multi-row {@link io.army.meta.ChildTableMeta} ,then you couldn't use ON DUPLICATE KEY UPDATE clause ,because database server will couldn't return correct multi-row primary key value if conflict occur.
-/// - If target table primary key is auto increment and you insert multi-row with "domain" syntax (see Example 3),then database will couldn't return correct multi-row primary key value , because of conflict. So you have to use ignoreReturnIds() option clause before insert into clause.
-/// 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/insert.html">INSERT statement</a>
+    /// create single-table INSERT statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
+    /// **NOTE** : if you specify ON DUPLICATE KEY UPDATE ,then the affected-rows value per row is
+    /// 
+    /// - 1 if the row is inserted as a new row
+    /// - 2 if an existing row is updated
+    /// - 0 if an existing row is set to its current values,but due to army auto set 'updateTime' field,so actually never 0
+    /// 
+    /// **Limitations** of MySQL INSERT ON DUPLICATE KEY UPDATE clause :
+    /// 
+    /// - If target table contain 'visible' field,then ON DUPLICATE KEY UPDATE clause can only be used in {@link Visible#BOTH} mode,see {@link Session#visible()} and {@link io.army.env.ArmyKey#VISIBLE_MODE}
+    /// - If target table contain the field whose {@link io.army.annotation.UpdateMode} is {@link io.army.annotation.UpdateMode#ONLY_NULL} or {@link io.army.annotation.UpdateMode#ONLY_DEFAULT},then you couldn't use ON DUPLICATE KEY UPDATE clause .
+    /// - If target table primary key is auto increment and you insert multi-row {@link io.army.meta.ChildTableMeta} ,then you couldn't use ON DUPLICATE KEY UPDATE clause ,because database server will couldn't return correct multi-row primary key value if conflict occur.
+    /// - If target table primary key is auto increment and you insert multi-row with "domain" syntax (see Example 3),then database will couldn't return correct multi-row primary key value , because of conflict. So you have to use ignoreReturnIds() option clause before insert into clause.
+    /// 
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/insert.html">INSERT statement</a>
     public static MySQLInsert._PrimaryOptionSpec singleInsert() {
         return MySQLInserts.singleInsert();
     }
 
 
-/// Create single-table MySQL REPLACE statement api instance.
-/// **Limitations** of MySQL REPLACE statement :
-/// 
-/// - If target table contain 'visible' field,then MySQL REPLACE can only be used in {@link Visible#BOTH} mode,see {@link Session#visible()} and {@link io.army.env.ArmyKey#VISIBLE_MODE}
-/// - If target table contain the field whose {@link io.army.annotation.UpdateMode} is {@link io.army.annotation.UpdateMode#ONLY_NULL} or {@link io.army.annotation.UpdateMode#ONLY_DEFAULT},then you couldn't use MySQL REPLACE .
-/// - If target table primary key is auto increment and you replace multi-row with "domain" syntax (see Example 3),then database will couldn't return correct multi-row primary key value , because of conflict. So you have to use ignoreReturnIds() option clause before replace into clause.
-/// 
-/// <pre>
-/// <code>
-/// Example 3 :
-/// &#64;VisibleMode(Visible.BOTH)
-/// &#64;Test(invocationCount = 3)
-/// public void domainReplaceParent(final SyncLocalSession session) {
-/// assert ChinaRegion_.id.generatorType() == GeneratorType.POST; // primary key is auto increment
-/// final List<ChinaRegion<?>> regionList = createReginListWithCount(3);
-/// final long startNanoSecond = System.nanoTime();
-/// final Insert stmt;
-/// stmt = MySQLs.singleReplace()
-/// .ignoreReturnIds() // due to you use "domain" api replace multi-row , so you have to use ignoreReturnIds() option clause,because database couldn't return correct multi-row primary key value.
-/// .replaceInto(ChinaRegion_.T)
-/// .parens(s -> s.space(ChinaRegion_.name, ChinaRegion_.regionGdp)
-/// .comma(ChinaRegion_.parentId)
-/// )
-/// .defaultValue(ChinaRegion_.regionGdp, SQLs::param, "88888.88")
-/// .defaultValue(ChinaRegion_.visible, SQLs::param, true)
-/// .defaultValue(ChinaRegion_.parentId, SQLs::param, 0)
-/// .values(regionList)  // here , "domain" api
-/// .asInsert();
-/// statementCostTimeLog(session, LOG, startNanoSecond);
-/// Assert.assertEquals(session.update(stmt), regionList.size());
-/// for (ChinaRegion<?> region : regionList) {
-/// Assert.assertNull(region.getId()); // because ignoreReturnIds() option clause.
-/// }
-/// }
-/// </code>
-/// </pre>
-/// @return MySQL REPLACE statement api instance.
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/replace.html">REPLACE Statement</a>
+    /// Create single-table MySQL REPLACE statement api instance.
+    /// **Limitations** of MySQL REPLACE statement :
+    /// 
+    /// - If target table contain 'visible' field,then MySQL REPLACE can only be used in {@link Visible#BOTH} mode,see {@link Session#visible()} and {@link io.army.env.ArmyKey#VISIBLE_MODE}
+    /// - If target table contain the field whose {@link io.army.annotation.UpdateMode} is {@link io.army.annotation.UpdateMode#ONLY_NULL} or {@link io.army.annotation.UpdateMode#ONLY_DEFAULT},then you couldn't use MySQL REPLACE .
+    /// - If target table primary key is auto increment and you replace multi-row with "domain" syntax (see Example 3),then database will couldn't return correct multi-row primary key value , because of conflict. So you have to use ignoreReturnIds() option clause before replace into clause.
+    /// 
+    /// <pre>
+    /// <code>
+    /// Example 3 :
+    /// &#64;VisibleMode(Visible.BOTH)
+    /// &#64;Test(invocationCount = 3)
+    /// public void domainReplaceParent(final SyncLocalSession session) {
+    /// assert ChinaRegion_.id.generatorType() == GeneratorType.POST; // primary key is auto increment
+    /// final List<ChinaRegion<?>> regionList = createReginListWithCount(3);
+    /// final long startNanoSecond = System.nanoTime();
+    /// final Insert stmt;
+    /// stmt = MySQLs.singleReplace()
+    /// .ignoreReturnIds() // due to you use "domain" api replace multi-row , so you have to use ignoreReturnIds() option clause,because database couldn't return correct multi-row primary key value.
+    /// .replaceInto(ChinaRegion_.T)
+    /// .parens(s -> s.space(ChinaRegion_.name, ChinaRegion_.regionGdp)
+    /// .comma(ChinaRegion_.parentId)
+    /// )
+    /// .defaultValue(ChinaRegion_.regionGdp, SQLs::param, "88888.88")
+    /// .defaultValue(ChinaRegion_.visible, SQLs::param, true)
+    /// .defaultValue(ChinaRegion_.parentId, SQLs::param, 0)
+    /// .values(regionList)  // here , "domain" api
+    /// .asInsert();
+    /// statementCostTimeLog(session, LOG, startNanoSecond);
+    /// Assert.assertEquals(session.update(stmt), regionList.size());
+    /// for (ChinaRegion<?> region : regionList) {
+    /// Assert.assertNull(region.getId()); // because ignoreReturnIds() option clause.
+    /// }
+    /// }
+    /// </code>
+    /// </pre>
+    /// @return MySQL REPLACE statement api instance.
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/replace.html">REPLACE Statement</a>
     public static MySQLReplace._PrimaryOptionSpec singleReplace() {
         return MySQLReplaces.singleReplace();
     }
@@ -154,13 +154,13 @@ public abstract class MySQLs extends MySQLSyntax {
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/values.html">VALUES Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/values.html">VALUES Statement</a>
     public static MySQLValues.ValuesSpec<Values> valuesStmt() {
         return MySQLSimpleValues.simpleValues(SQLs::identity);
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/values.html">VALUES Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/values.html">VALUES Statement</a>
     public static MySQLValues.ValuesSpec<SubValues> subValues() {
         return MySQLSimpleValues.subValues(ContextStack.peek(), SQLs::identity);
     }
@@ -202,93 +202,93 @@ public abstract class MySQLs extends MySQLSyntax {
         return MySQLMultiDeletes.batch();
     }
 
-/// Create MySQL LOAD DATA statement instance.
-/// **Limitations** of MySQL LOAD DATA statement :
-/// 
-/// - Server local_infile system variables must be true
-/// - Client allowLoadLocalInfile property(JDBC/JDBD) must be true
-/// - You have to use client-prepared statement or static statement,see {@link StmtOption#isPreferServerPrepare()} ,see following LOCAL INFILE Request
-/// - Due to the literal(in COLUMNS/LINES clause) use {@link io.army.env.EscapeMode#BACK_SLASH} and ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE},so you should guarantee sql mode NO_BACKSLASH_ESCAPES is disabled.
-/// 
-/// <pre>
-/// <code>
-/// // Example 01 :
-/// &#64;Test
-/// public void singleLoadData(final SyncLocalSession session) {
-/// final Path csvFile;
-/// csvFile = MyPaths.myLocal("china_region.csv");
-/// if (Files.notExists(csvFile)) {
-/// return;
-/// }
-/// final DmlCommand stmt;
-/// stmt = MySQLs.loadDataStmt()
-/// .loadData(MySQLs.LOCAL)
-/// .infile(csvFile)
-/// .ignore()
-/// .intoTable(ChinaRegion_.T)
-/// .characterSet("utf8mb4")
-/// .columns(s -> s.terminatedBy(","))
-/// .lines(s -> s.terminatedBy("\n"))
-/// .ignore(1, SQLs.LINES)
-/// .set(ChinaRegion_.visible, SQLs::literal, true)
-/// .set(ChinaRegion_.regionType, SQLs::literal, RegionType.NONE)
-/// .asCommand();
-/// final long rows;
-/// rows = session.update(stmt, SyncStmtOption.preferServerPrepare(false));
-/// LOG.debug("session[name : {}] rows {}", session.name(), rows);
-/// }
-/// // Example 02 :
-/// &#64;Test
-/// public void childLoadData(final SyncLocalSession session) {
-/// final Path parentTempFile, childTempFile;
-/// parentTempFile = MyPaths.myLocal("china_region_parent.csv");
-/// childTempFile = MyPaths.myLocal("china_province.csv");
-/// final DmlCommand stmt;
-/// stmt = MySQLs.loadDataStmt()
-/// .loadData(MySQLs.LOCAL)
-/// .infile(parentTempFile)
-/// .ignore()
-/// .intoTable(ChinaRegion_.T)
-/// .characterSet("utf8mb4")
-/// .columns(s -> s.terminatedBy(","))
-/// .lines(s -> s.terminatedBy("\n"))
-/// .ignore(1, SQLs.LINES)
-/// .parens(s -> s.space(ChinaRegion_.name))
-/// .set(ChinaRegion_.regionType, SQLs::literal, RegionType.PROVINCE)
-/// .asCommand()
-/// .child()
-/// .loadData(MySQLs.LOCAL)
-/// .infile(childTempFile)
-/// .ignore()
-/// .intoTable(ChinaProvince_.T)
-/// .characterSet("utf8mb4")
-/// .columns(s -> s.terminatedBy(","))
-/// .lines(s -> s.terminatedBy("\n"))
-/// .ignore(1, SQLs.LINES)
-/// .asCommand();
-/// final long rows;
-/// rows = session.update(stmt, SyncStmtOption.preferServerPrepare(false));
-/// LOG.debug("session[name : {}] rows {}", session.name(), rows);
-/// }
-/// </code>
-/// </pre>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html#load-data-local">Non-LOCAL Versus LOCAL Operation</a>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_local_infile">Server local_infile system variables</a>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_secure_file_priv">secure_file_priv</a>
-/// @see <a href="https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-security.html">client allowLoadLocalInfile property </a>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/sql-mode.html#sqlmode_no_backslash_escapes">NO_BACKSLASH_ESCAPES</a>
-/// @see <a href="https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_local_infile_request.html">LOCAL INFILE Request</a>
+    /// Create MySQL LOAD DATA statement instance.
+    /// **Limitations** of MySQL LOAD DATA statement :
+    /// 
+    /// - Server local_infile system variables must be true
+    /// - Client allowLoadLocalInfile property(JDBC/JDBD) must be true
+    /// - You have to use client-prepared statement or static statement,see {@link StmtOption#isPreferServerPrepare()} ,see following LOCAL INFILE Request
+    /// - Due to the literal(in COLUMNS/LINES clause) use {@link io.army.env.EscapeMode#BACK_SLASH} and ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE},so you should guarantee sql mode NO_BACKSLASH_ESCAPES is disabled.
+    /// 
+    /// <pre>
+    /// <code>
+    /// // Example 01 :
+    /// &#64;Test
+    /// public void singleLoadData(final SyncLocalSession session) {
+    /// final Path csvFile;
+    /// csvFile = MyPaths.myLocal("china_region.csv");
+    /// if (Files.notExists(csvFile)) {
+    /// return;
+    /// }
+    /// final DmlCommand stmt;
+    /// stmt = MySQLs.loadDataStmt()
+    /// .loadData(MySQLs.LOCAL)
+    /// .infile(csvFile)
+    /// .ignore()
+    /// .intoTable(ChinaRegion_.T)
+    /// .characterSet("utf8mb4")
+    /// .columns(s -> s.terminatedBy(","))
+    /// .lines(s -> s.terminatedBy("\n"))
+    /// .ignore(1, SQLs.LINES)
+    /// .set(ChinaRegion_.visible, SQLs::literal, true)
+    /// .set(ChinaRegion_.regionType, SQLs::literal, RegionType.NONE)
+    /// .asCommand();
+    /// final long rows;
+    /// rows = session.update(stmt, SyncStmtOption.preferServerPrepare(false));
+    /// LOG.debug("session[name : {}] rows {}", session.name(), rows);
+    /// }
+    /// // Example 02 :
+    /// &#64;Test
+    /// public void childLoadData(final SyncLocalSession session) {
+    /// final Path parentTempFile, childTempFile;
+    /// parentTempFile = MyPaths.myLocal("china_region_parent.csv");
+    /// childTempFile = MyPaths.myLocal("china_province.csv");
+    /// final DmlCommand stmt;
+    /// stmt = MySQLs.loadDataStmt()
+    /// .loadData(MySQLs.LOCAL)
+    /// .infile(parentTempFile)
+    /// .ignore()
+    /// .intoTable(ChinaRegion_.T)
+    /// .characterSet("utf8mb4")
+    /// .columns(s -> s.terminatedBy(","))
+    /// .lines(s -> s.terminatedBy("\n"))
+    /// .ignore(1, SQLs.LINES)
+    /// .parens(s -> s.space(ChinaRegion_.name))
+    /// .set(ChinaRegion_.regionType, SQLs::literal, RegionType.PROVINCE)
+    /// .asCommand()
+    /// .child()
+    /// .loadData(MySQLs.LOCAL)
+    /// .infile(childTempFile)
+    /// .ignore()
+    /// .intoTable(ChinaProvince_.T)
+    /// .characterSet("utf8mb4")
+    /// .columns(s -> s.terminatedBy(","))
+    /// .lines(s -> s.terminatedBy("\n"))
+    /// .ignore(1, SQLs.LINES)
+    /// .asCommand();
+    /// final long rows;
+    /// rows = session.update(stmt, SyncStmtOption.preferServerPrepare(false));
+    /// LOG.debug("session[name : {}] rows {}", session.name(), rows);
+    /// }
+    /// </code>
+    /// </pre>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html#load-data-local">Non-LOCAL Versus LOCAL Operation</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_local_infile">Server local_infile system variables</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_secure_file_priv">secure_file_priv</a>
+    /// @see <a href="https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-security.html">client allowLoadLocalInfile property </a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/sql-mode.html#sqlmode_no_backslash_escapes">NO_BACKSLASH_ESCAPES</a>
+    /// @see <a href="https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_local_infile_request.html">LOCAL INFILE Request</a>
     public static MySQLLoadData._LoadDataClause<DmlCommand> loadDataStmt() {
         return MySQLLoads.loadDataCommand(SQLs::identity);
     }
 
 
-/// Create MySQL SET statement.
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">SET Syntax for Variable Assignment</a>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/server-system-variables.html">Server System Variables</a>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/user-variables.html">User-Defined Variables</a>
-/// @since 0.6.6
+    /// Create MySQL SET statement.
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">SET Syntax for Variable Assignment</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/server-system-variables.html">Server System Variables</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/user-variables.html">User-Defined Variables</a>
+    /// @since 0.6.6
     public static MySQLSet._SetSpec setStmt() {
         return MySQLSets.setStmt();
     }

@@ -26,7 +26,7 @@ import java.util.List;
 /// - {@link _SimpleQueryContext}
 /// - {@link ParensSelectContext}
 /// 
-/// * 
+/// *
 /// Package interface
 /// * @since 0.6.0
 interface SelectItemListContext extends _SqlContext {

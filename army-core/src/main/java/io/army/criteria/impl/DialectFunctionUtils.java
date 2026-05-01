@@ -160,7 +160,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
     }
 
     /// 
-/// For {@link UndoneFunction}
+    /// For {@link UndoneFunction}
     static _FunctionField funcField(final @Nullable String name, final @Nullable MappingType type) {
         if (name == null) {
             throw ContextStack.clearStackAndNullPointer();
@@ -183,7 +183,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
     /*-------------------below inner class -------------------*/
 
     /// 
-/// This class don't support {@link Functions._WithOrdinalityClause}.
+    /// This class don't support {@link Functions._WithOrdinalityClause}.
     private static final class CompositeTabularFunction implements Functions._TabularFunction, _DerivedTable,
             _SelfDescribed {
 
@@ -1005,7 +1005,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
 
 
     /// 
-/// For {@link UndoneFunction}
+    /// For {@link UndoneFunction}
     private static final class NamedFunctionField extends FunctionField {
 
 

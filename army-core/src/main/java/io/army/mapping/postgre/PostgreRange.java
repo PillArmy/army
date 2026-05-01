@@ -28,7 +28,7 @@ import io.army.type.DaoLayer;
 /// - This interface present only in DAO layer,not service layer,business layer,web layer.
 /// - Your class must declare the methods of this interface,but your class possibly isn't the subclass of this interface.
 /// 
-///  example:
+/// example:
 /// <pre>  <code>
 /// public static final class Int4Range {
 /// public static Int4Range create(&#64;Nullable Integer lower, boolean includeLower,
@@ -110,29 +110,29 @@ import io.army.type.DaoLayer;
 @DaoLayer
 public interface PostgreRange<T> {
 
-/// @return true : empty
-/// @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-IO"> Range Input/Output</a>
+    /// @return true : empty
+    /// @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-IO"> Range Input/Output</a>
     boolean isEmpty();
 
     /// @return true: when only include lower bound
-/// @throws IllegalStateException when {@link #isEmpty()} is true.
+    /// @throws IllegalStateException when {@link #isEmpty()} is true.
     boolean isIncludeLowerBound();
 
     /// 
-/// null representing infinity bound.
-/// @throws IllegalStateException when {@link #isEmpty()} is true.
+    /// null representing infinity bound.
+    /// @throws IllegalStateException when {@link #isEmpty()} is true.
     @Nullable
     T getLowerBound();
 
 
     /// 
-/// null representing infinity bound.
-/// @throws IllegalStateException when {@link #isEmpty()} is true.
+    /// null representing infinity bound.
+    /// @throws IllegalStateException when {@link #isEmpty()} is true.
     @Nullable
     T getUpperBound();
 
     /// @return true: when only include upper bound
-/// @throws IllegalStateException when {@link #isEmpty()} is true.
+    /// @throws IllegalStateException when {@link #isEmpty()} is true.
     boolean isIncludeUpperBound();
 
 

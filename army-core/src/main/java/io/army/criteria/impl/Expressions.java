@@ -540,7 +540,7 @@ abstract class Expressions {
     }
 
     /// @see #scalarExpression(SubQuery)
-/// @see #array(SubQuery)
+    /// @see #array(SubQuery)
     private static void validateScalarSubQuery(final SubQuery subQuery) {
         validateSubQueryContext(subQuery);
         final List<? extends Selection> selectionList;
@@ -568,14 +568,14 @@ abstract class Expressions {
     }
 
 
-    ///
-    ///
+    /// 
+    /// 
     /// @param absentAction when expression is {@link SQLs#ABSENT} ,
     /// 1. {@link Boolean#TRUE} : throw {@link CriteriaException}
     /// 2. {@link Boolean#FALSE} : no action
     /// 3. {@link String} : the error message when expression is null
-    ///
-    ///
+    /// 
+    /// 
     static void writeRight(@Nullable Object expression, StringBuilder sqlBuilder, _SqlContext context, Object absentAction) {
         if (expression == null) {
             throw new CriteriaException(RIGHT_REQUIRED);
@@ -602,8 +602,8 @@ abstract class Expressions {
     }
 
 
-    ///
-    ///
+    /// 
+    /// 
     /// @param absentAction 1. {@link Boolean#TRUE} : throw {@link CriteriaException}
     /// 2. {@link Boolean#FALSE} : no action
     /// 3. {@link String} : the error message when expression is null or {@link SQLs#ABSENT}
@@ -670,8 +670,8 @@ abstract class Expressions {
 
 
     /// This class is an implementation of {@link Expression}.
-/// The expression consist of a left {@link Expression} ,a {@link DualBooleanOperator} and right {@link Expression}.
-/// @since 0.6.0
+    /// The expression consist of a left {@link Expression} ,a {@link DualBooleanOperator} and right {@link Expression}.
+    /// @since 0.6.0
     private static class DualExpression extends OperationExpression.OperationCompoundExpression {
 
         final ArmyExpression left;
@@ -716,10 +716,10 @@ abstract class Expressions {
 
 
     /// 
-/// This class representing unary expression,unary expression always out outer bracket.
-/// 
-/// This class is a implementation of {@link Expression}.
-/// The expression consist of a  {@link Expression} and a {@link UnaryExpOperator}.
+    /// This class representing unary expression,unary expression always out outer bracket.
+    /// 
+    /// This class is a implementation of {@link Expression}.
+    /// The expression consist of a  {@link Expression} and a {@link UnaryExpOperator}.
     static class UnaryExpression extends OperationExpression.OperationSimpleExpression {
 
         private final Operator.SqlUnaryExpOperator operator;
@@ -1321,7 +1321,7 @@ abstract class Expressions {
     }//InOperationPredicate
 
 
-    ///
+    /// 
     /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
     private static final class ArraySliceExpression extends OperationExpression.OperationSimpleExpression {
 
@@ -1567,7 +1567,7 @@ abstract class Expressions {
             this.elementList = List.copyOf(elementList);
         }
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS">Array Constructors</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS">Array Constructors</a>
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
             final List<?> elementList = this.elementList;

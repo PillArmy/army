@@ -41,13 +41,13 @@ import java.util.function.*;
 public interface Query extends RowSet {
 
     /// @see SQLs#ALL
-/// @see SQLs#DISTINCT
+    /// @see SQLs#DISTINCT
     interface SelectModifier extends SQLToken {
 
     }
 
     /// @see SQLs#ALL
-/// @see SQLs#DISTINCT
+    /// @see SQLs#DISTINCT
     interface UnionModifier {
 
     }
@@ -253,15 +253,15 @@ public interface Query extends RowSet {
     }
 
 
-/// 
-/// This interface representing dialect FROM clause.
-/// 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// @param <R> next clause java type
-/// @see Statement._FromClause
-/// @since 0.6.0
+    /// 
+    /// This interface representing dialect FROM clause.
+    /// 
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// @param <R> next clause java type
+    /// @see Statement._FromClause
+    /// @since 0.6.0
     interface _FromTableClause<R> {
 
         R from(TableMeta<?> table);

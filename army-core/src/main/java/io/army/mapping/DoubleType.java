@@ -37,7 +37,7 @@ import java.math.BigInteger;
 /// - {@link Integer}
 /// - {@link Float}
 /// - {@link Boolean},true:1d,false:0d
-/// - {@link String} 
+/// - {@link String}
 /// 
 /// to {@link Double},if overflow,throw {@link io.army.ArmyException}
 /// @since 0.6.0

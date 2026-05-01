@@ -33,30 +33,30 @@ import java.util.function.Consumer;
 public interface DialectParser {
 
 
-/// @return one of :
-/// 
-/// - {@link SimpleStmt}
-/// - {@link io.army.stmt.GeneratedKeyStmt}
-/// - {@link io.army.stmt.PairStmt}
-/// 
+    /// @return one of :
+    /// 
+    /// - {@link SimpleStmt}
+    /// - {@link io.army.stmt.GeneratedKeyStmt}
+    /// - {@link io.army.stmt.PairStmt}
+    /// 
     Stmt insert(InsertStatement insert, SessionSpec sessionSpec);
 
-/// @return one of 
-/// - {@link SimpleStmt}
-/// - {@link io.army.stmt.BatchStmt}
-/// 
+    /// @return one of
+    /// - {@link SimpleStmt}
+    /// - {@link io.army.stmt.BatchStmt}
+    /// 
     Stmt update(UpdateStatement update, boolean useMultiStmt, SessionSpec sessionSpec);
 
-/// @return one of 
-/// - {@link SimpleStmt}
-/// - {@link io.army.stmt.BatchStmt}
-/// 
+    /// @return one of
+    /// - {@link SimpleStmt}
+    /// - {@link io.army.stmt.BatchStmt}
+    /// 
     Stmt delete(DeleteStatement delete, boolean useMultiStmt, SessionSpec sessionSpec);
 
-/// @return one of 
-/// - {@link SimpleStmt}
-/// - {@link io.army.stmt.BatchStmt}
-/// 
+    /// @return one of
+    /// - {@link SimpleStmt}
+    /// - {@link io.army.stmt.BatchStmt}
+    /// 
     Stmt select(SelectStatement select, boolean useMultiStmt, SessionSpec sessionSpec);
 
     Stmt values(Values values, SessionSpec sessionSpec);

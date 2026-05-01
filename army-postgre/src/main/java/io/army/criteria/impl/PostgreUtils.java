@@ -267,7 +267,7 @@ abstract class PostgreUtils extends CriteriaUtils {
     }
 
     /// @param currentCteIndex -1 or positive
-/// @see #validateDmlInWithClause(List, PostgreStatement)
+    /// @see #validateDmlInWithClause(List, PostgreStatement)
     @Nullable
     private static DerivedField validateParentTable(final ChildTableMeta<?> child, final _Cte childCte,
                                                     final int currentCteIndex, final List<_Cte> cteList) {
@@ -346,7 +346,7 @@ abstract class PostgreUtils extends CriteriaUtils {
 
 
     /// @return false : error
-/// @see #validateDmlInWithClause(List, PostgreStatement)
+    /// @see #validateDmlInWithClause(List, PostgreStatement)
     private static boolean validatePrimaryIdSelection(final ChildTableMeta<?> child, final String alias,
                                                       final _Statement._ReturningListSpec spec,
                                                       final DerivedField refField) {
@@ -441,8 +441,8 @@ abstract class PostgreUtils extends CriteriaUtils {
 
 
     /// @see #validateParentTableFromMainStmt(PrimaryFieldMeta, String, _SingleDml)
-/// @see #validateParentTable(ChildTableMeta, _Cte, int, List)
-/// @see #validateParentCte(ChildTableMeta, String, _TabularBlock, String, DerivedField)
+    /// @see #validateParentTable(ChildTableMeta, _Cte, int, List)
+    /// @see #validateParentCte(ChildTableMeta, String, _TabularBlock, String, DerivedField)
     @Nullable
     private static DerivedField idFieldEqualCteIdField(final _Predicate predicate, final PrimaryFieldMeta<?> idField) {
 
@@ -563,7 +563,7 @@ abstract class PostgreUtils extends CriteriaUtils {
         final Map<String, _FunctionField> fieldMap;
 
         /// @param fieldList unmodified list
-/// @param fieldMap  unmodified map
+        /// @param fieldMap  unmodified map
         private DoneFunc(UndoneFunction funcItem, List<_FunctionField> fieldList,
                          Map<String, _FunctionField> fieldMap) {
             this.funcItem = funcItem;

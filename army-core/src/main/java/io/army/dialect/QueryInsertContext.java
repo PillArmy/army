@@ -52,9 +52,9 @@ final class QueryInsertContext extends InsertContext implements _QueryInsertCont
     private final int subQuerySelectionSize;
 
     /// 
-/// For {@link  io.army.meta.SingleTableMeta}
-/// @see #forSingle(_SqlContext, _Insert._QueryInsert, ArmyParser, Visible)
-/// @see #forParent(_SqlContext, _Insert._ChildQueryInsert, ArmyParser, Visible)
+    /// For {@link  io.army.meta.SingleTableMeta}
+    /// @see #forSingle(_SqlContext, _Insert._QueryInsert, ArmyParser, Visible)
+    /// @see #forParent(_SqlContext, _Insert._ChildQueryInsert, ArmyParser, Visible)
     private QueryInsertContext(@Nullable StatementContext outerContext, _Insert._QueryInsert domainStmt,
                                ArmyParser parser, SessionSpec sessionSpec) {
         super(outerContext, domainStmt, parser, sessionSpec);
@@ -73,8 +73,8 @@ final class QueryInsertContext extends InsertContext implements _QueryInsertCont
     }
 
     /// 
-/// For {@link  io.army.meta.ChildTableMeta}
-/// @see #forChild(_SqlContext, _Insert._ChildQueryInsert, QueryInsertContext)
+    /// For {@link  io.army.meta.ChildTableMeta}
+    /// @see #forChild(_SqlContext, _Insert._ChildQueryInsert, QueryInsertContext)
     private QueryInsertContext(@Nullable StatementContext outerContext, _Insert._ChildQueryInsert domainStmt
             , QueryInsertContext parentContext) {
         super(outerContext, domainStmt, parentContext);

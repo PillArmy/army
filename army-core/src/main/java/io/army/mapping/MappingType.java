@@ -47,13 +47,13 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     DataType map(ServerMeta meta) throws UnsupportedDialectException;
 
     /// @param dataType from {@link #map(ServerMeta)}
-/// @param source   never null
-/// @return non-null, the instance of the type that {@link SQLType} allow.
+    /// @param source   never null
+    /// @return non-null, the instance of the type that {@link SQLType} allow.
     Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException;
 
     /// @param dataType from {@link  StmtExecutor}
-/// @param source   never null
-/// @return non-null, the instance of {@link #javaType()}.
+    /// @param source   never null
+    /// @return non-null, the instance of {@link #javaType()}.
 
     Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException;
 
@@ -122,11 +122,11 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
-/// 
-/// This interface is base interface of below:
-/// 
-/// - {@link SqlJsonb}
-/// 
+    /// 
+    /// This interface is base interface of below:
+    /// 
+    /// - {@link SqlJsonb}
+    /// 
     interface SqlJson extends SqlDocument {
 
     }
@@ -331,27 +331,27 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
         /// If the subtype is collatable, and you want to use a non-default collation in the range's ordering,
         /// specify the desired collation with the collation option.
-        ///
+        /// 
         /// @return empty or lower case collation name
         String subTypeCollation();
 
         /// The name of the corresponding multirange type.
-        ///
+        /// 
         /// @return empty or upper case multi
         String multiRangeTypeName();
 
         /// The name of a b-tree operator class for the subtype.
-        ///
+        /// 
         /// @return empty or  lower case subtype operator name
         String subtypeOperator();
 
         /// The name of the canonicalization function for the range type.
-        ///
+        /// 
         /// @return empty or lower case canonicalization function name
         String fanonicalFunc();
 
         /// The name of a difference function for the subtype.
-        ///
+        /// 
         /// @return empty or lower case difference function name
         String subtypeDiffFunc();
 

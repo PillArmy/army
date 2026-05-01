@@ -27,10 +27,10 @@ public interface _Selection extends Selection, _SelectItem {
     @Nullable
     TableField tableField();
 
-/// @return 
-/// - If this is {@link io.army.criteria.DerivedField}, then return {@link Selection} underlying expression
-/// - Else return this
-/// 
+    /// @return
+    /// - If this is {@link io.army.criteria.DerivedField}, then return {@link Selection} underlying expression
+    /// - Else return this
+    /// 
     @Nullable
     Expression underlyingExp();
 

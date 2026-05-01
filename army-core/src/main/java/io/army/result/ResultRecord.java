@@ -24,12 +24,12 @@ import java.util.function.Function;
 public interface ResultRecord extends DataRecord {
 
 
-/// This method is equivalent to following :
-/// 
-/// - {@link CurrentRecord#get(int)}
-/// - and convert column value to columnClass
-/// 
-/// @see FactoryBuilder#columnConverterFunc(Function)
+    /// This method is equivalent to following :
+    /// 
+    /// - {@link CurrentRecord#get(int)}
+    /// - and convert column value to columnClass
+    /// 
+    /// @see FactoryBuilder#columnConverterFunc(Function)
     @Nullable
     @Override
     <T> T get(int indexBasedZero, Class<T> columnClass);

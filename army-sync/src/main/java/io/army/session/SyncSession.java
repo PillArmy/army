@@ -50,219 +50,219 @@ public sealed interface SyncSession extends PackageSession, Closeable
         permits SyncLocalSession, SyncRmSession, ArmySyncSession {
 
 
-/// Session identifier(non-unique, for example : database server cluster),probably is following :
-/// 
-/// - server process id
-/// - server thread id
-/// - other identifier
-/// 
-/// **NOTE**: identifier will probably be updated if reconnect.
-/// @return {@link io.army.env.SyncKey#SESSION_IDENTIFIER_ENABLE} : 
-/// - true :  session identifier 
-/// - false (default) : always 0 , because JDBC spi don't support get server process id (or server thread id)
-/// 
-/// @throws SessionException throw when underlying database session have closed
+    /// Session identifier(non-unique, for example : database server cluster),probably is following :
+    /// 
+    /// - server process id
+    /// - server thread id
+    /// - other identifier
+    /// 
+    /// **NOTE**: identifier will probably be updated if reconnect.
+    /// @return {@link io.army.env.SyncKey#SESSION_IDENTIFIER_ENABLE} :
+    /// - true :  session identifier
+    /// - false (default) : always 0 , because JDBC spi don't support get server process id (or server thread id)
+    /// 
+    /// @throws SessionException throw when underlying database session have closed
     @Override
     long sessionIdentifier() throws SessionException;
 
     /// Get the {@link SyncSessionFactory} that create this session instance.
-/// This method don't check session whether closed or not.
-/// @return session factory of this instance.
+    /// This method don't check session whether closed or not.
+    /// @return session factory of this instance.
     @Override
     SyncSessionFactory sessionFactory();
 
-/// Get current transaction info,If session in transaction block,then return current transaction info; else equivalent to {@link #sessionTransactionCharacteristics()}.
-/// 
-/// - If session exists transaction ,then return transaction info
-/// - Else query session level transaction info ,for example : isolation ,readonly etc.
-/// 
-/// <pre>
-/// The implementation of this method like following :
-/// <code>
-/// TransactionInfo info = this.transactionInfo;
-/// if(info == null){
-/// // this.executor is a instance of {@link io.army.executor.SyncExecutor}
-/// info = this.executor.transactionInfo(); // query session level transaction info
-/// }
-/// return info;
-/// </code>
-/// </pre>
-/// @return session transaction info session have closed
-/// @throws SessionException throw when
+    /// Get current transaction info,If session in transaction block,then return current transaction info; else equivalent to {@link #sessionTransactionCharacteristics()}.
+    /// 
+    /// - If session exists transaction ,then return transaction info
+    /// - Else query session level transaction info ,for example : isolation ,readonly etc.
+    /// 
+    /// <pre>
+    /// The implementation of this method like following :
+    /// <code>
+    /// TransactionInfo info = this.transactionInfo;
+    /// if(info == null){
+    /// // this.executor is a instance of {@link io.army.executor.SyncExecutor}
+    /// info = this.executor.transactionInfo(); // query session level transaction info
+    /// }
+    /// return info;
+    /// </code>
+    /// </pre>
+    /// @return session transaction info session have closed
+    /// @throws SessionException throw when
     TransactionInfo transactionInfo();
 
-/// Query session-level transaction characteristics info
-/// **NOTE** : driver don't send message to database server before subscribing.
-/// @return {@link TransactionInfo}
-/// **NOTE** : the {@link TransactionInfo#inTransaction()} always is false,even if session in transaction block.
-/// @throws SessionException emit(not throw) when
-/// 
-/// - network error
-/// - sever response error message,see {@link ServerException}
-/// 
-/// @see #setTransactionCharacteristics(TransactionOption)
+    /// Query session-level transaction characteristics info
+    /// **NOTE** : driver don't send message to database server before subscribing.
+    /// @return {@link TransactionInfo}
+    /// **NOTE** : the {@link TransactionInfo#inTransaction()} always is false,even if session in transaction block.
+    /// @throws SessionException emit(not throw) when
+    /// 
+    /// - network error
+    /// - sever response error message,see {@link ServerException}
+    /// 
+    /// @see #setTransactionCharacteristics(TransactionOption)
     TransactionInfo sessionTransactionCharacteristics();
 
-/// This method is equivalent to following :
-/// <pre>
-/// <code>
-/// // session is instance of {@link SyncSession}
-/// session.setSavePoint(Option.EMPTY_FUNC) ;
-/// </code>
-/// </pre>
-/// @see #setSavePoint(Function)
+    /// This method is equivalent to following :
+    /// <pre>
+    /// <code>
+    /// // session is instance of {@link SyncSession}
+    /// session.setSavePoint(Option.EMPTY_FUNC) ;
+    /// </code>
+    /// </pre>
+    /// @see #setSavePoint(Function)
     Object setSavePoint();
 
-/// Set a save point.
-/// If {@link Option#NAME} non-null,then use name value set a save point
-/// If session exists pseudo transaction ,then this method don't access database server.
-/// @param optionFunc option function,see {@link Option#EMPTY_FUNC}
-/// @return save point :
-/// 
-/// - real save point : real transaction
-/// - pseudo save point : pseudo transaction
-/// 
-/// @throws SessionException throw when
-/// 
-/// - session have closed
-/// - session not in transaction(real/pseudo)
-/// - set save point failure
-/// 
+    /// Set a save point.
+    /// If {@link Option#NAME} non-null,then use name value set a save point
+    /// If session exists pseudo transaction ,then this method don't access database server.
+    /// @param optionFunc option function,see {@link Option#EMPTY_FUNC}
+    /// @return save point :
+    /// 
+    /// - real save point : real transaction
+    /// - pseudo save point : pseudo transaction
+    /// 
+    /// @throws SessionException throw when
+    /// 
+    /// - session have closed
+    /// - session not in transaction(real/pseudo)
+    /// - set save point failure
+    /// 
     Object setSavePoint(Function<Option<?>, ?> optionFunc);
 
-/// This method is equivalent to following :
-/// <pre>
-/// <code>
-/// // session is instance of {@link SyncSession}
-/// session.releaseSavePoint(savepoint,Option.EMPTY_FUNC) ;
-/// </code>
-/// </pre>
-/// @see #releaseSavePoint(Object, Function)
+    /// This method is equivalent to following :
+    /// <pre>
+    /// <code>
+    /// // session is instance of {@link SyncSession}
+    /// session.releaseSavePoint(savepoint,Option.EMPTY_FUNC) ;
+    /// </code>
+    /// </pre>
+    /// @see #releaseSavePoint(Object, Function)
     void releaseSavePoint(Object savepoint);
 
-/// Release a save point.
-/// If session exists pseudo transaction ,then this method don't access database server.
-/// @param optionFunc option function,see {@link Option#EMPTY_FUNC}
-/// @throws IllegalArgumentException throw when savepoint is unknown
-/// @throws SessionException         throw when
-/// 
-/// - session have closed
-/// - session not in transaction(real/pseudo)
-/// - release point failure
-/// 
+    /// Release a save point.
+    /// If session exists pseudo transaction ,then this method don't access database server.
+    /// @param optionFunc option function,see {@link Option#EMPTY_FUNC}
+    /// @throws IllegalArgumentException throw when savepoint is unknown
+    /// @throws SessionException         throw when
+    /// 
+    /// - session have closed
+    /// - session not in transaction(real/pseudo)
+    /// - release point failure
+    /// 
     void releaseSavePoint(Object savepoint, Function<Option<?>, ?> optionFunc);
 
-/// This method is equivalent to following :
-/// <pre>
-/// <code>
-/// // session is instance of {@link SyncSession}
-/// session.rollbackToSavePoint(savepoint,Option.EMPTY_FUNC) ;
-/// </code>
-/// </pre>
-/// @see #rollbackToSavePoint(Object, Function)
+    /// This method is equivalent to following :
+    /// <pre>
+    /// <code>
+    /// // session is instance of {@link SyncSession}
+    /// session.rollbackToSavePoint(savepoint,Option.EMPTY_FUNC) ;
+    /// </code>
+    /// </pre>
+    /// @see #rollbackToSavePoint(Object, Function)
     void rollbackToSavePoint(Object savepoint);
 
-/// Rollback a save point.
-/// If session exists pseudo transaction ,then this method don't access database server.
-/// @param optionFunc option function,see {@link Option#EMPTY_FUNC}
-/// @throws IllegalArgumentException throw when savepoint is unknown
-/// @throws SessionException         throw when
-/// 
-/// - session have closed
-/// - session not in transaction(real/pseudo)
-/// - rollback point failure
-/// 
+    /// Rollback a save point.
+    /// If session exists pseudo transaction ,then this method don't access database server.
+    /// @param optionFunc option function,see {@link Option#EMPTY_FUNC}
+    /// @throws IllegalArgumentException throw when savepoint is unknown
+    /// @throws SessionException         throw when
+    /// 
+    /// - session have closed
+    /// - session not in transaction(real/pseudo)
+    /// - rollback point failure
+    /// 
     void rollbackToSavePoint(Object savepoint, Function<Option<?>, ?> optionFunc);
 
-/// Set session level transaction characteristics:
-/// 
-/// - These characteristics applies to all subsequent transactions performed within the current session,if you use appropriate default characteristic.
-/// - This method is permitted within transactions ,but does not affect the current ongoing transaction.
-/// - If you don't use appropriate default value,then appropriate characteristic does not affect new transaction,for example : {@link TransactionOption#isolation()} not null.
-/// 
-/// <pre>For example:
-/// <code>
-/// TransactionOption.option(Isolation.REPEATABLE_READ)
-/// MySQL database will execute following sql :
-/// SET SESSION TRANSACTION READ WRITE , ISOLATION LEVEL REPEATABLE READ
-/// </code>
-/// </pre>
-/// <pre>For example:
-/// <code>
-/// TransactionOption.option(Isolation.REPEATABLE_READ)
-/// PostgreSQL database will execute following sql :
-/// SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE, ISOLATION LEVEL REPEATABLE READ
-/// </code>
-/// </pre>
-/// @see SyncLocalSession#startTransaction(TransactionOption, HandleMode)
-/// @see SyncRmSession#start(Xid, int, TransactionOption)
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/set-transaction.html">MySQL SET TRANSACTION Statement</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-set-transaction.html">PostgreSQL SET TRANSACTION Statement</a>
+    /// Set session level transaction characteristics:
+    /// 
+    /// - These characteristics applies to all subsequent transactions performed within the current session,if you use appropriate default characteristic.
+    /// - This method is permitted within transactions ,but does not affect the current ongoing transaction.
+    /// - If you don't use appropriate default value,then appropriate characteristic does not affect new transaction,for example : {@link TransactionOption#isolation()} not null.
+    /// 
+    /// <pre>For example:
+    /// <code>
+    /// TransactionOption.option(Isolation.REPEATABLE_READ)
+    /// MySQL database will execute following sql :
+    /// SET SESSION TRANSACTION READ WRITE , ISOLATION LEVEL REPEATABLE READ
+    /// </code>
+    /// </pre>
+    /// <pre>For example:
+    /// <code>
+    /// TransactionOption.option(Isolation.REPEATABLE_READ)
+    /// PostgreSQL database will execute following sql :
+    /// SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE, ISOLATION LEVEL REPEATABLE READ
+    /// </code>
+    /// </pre>
+    /// @see SyncLocalSession#startTransaction(TransactionOption, HandleMode)
+    /// @see SyncRmSession#start(Xid, int, TransactionOption)
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/set-transaction.html">MySQL SET TRANSACTION Statement</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-set-transaction.html">PostgreSQL SET TRANSACTION Statement</a>
     void setTransactionCharacteristics(TransactionOption option);
 
 
-/// This method is equivalent to following :
-/// <pre>
-/// <code>
-/// // session is instance of {@link SyncSession}
-/// session.queryOne(statement,resultClass,defaultOption()) ; // defaultOption() is private method of the implementation of {@link SyncSession}.
-/// </code>
-/// </pre>
-/// @throws NoSuchElementException throw when no row
-/// @throws NonMonoException       throw when more than one row.
-/// @see #queryOne(SimpleDqlStatement, Class, SyncStmtOption)
+    /// This method is equivalent to following :
+    /// <pre>
+    /// <code>
+    /// // session is instance of {@link SyncSession}
+    /// session.queryOne(statement,resultClass,defaultOption()) ; // defaultOption() is private method of the implementation of {@link SyncSession}.
+    /// </code>
+    /// </pre>
+    /// @throws NoSuchElementException throw when no row
+    /// @throws NonMonoException       throw when more than one row.
+    /// @see #queryOne(SimpleDqlStatement, Class, SyncStmtOption)
     @Nullable
     <R> R queryOne(SimpleDqlStatement statement, Class<R> resultClass);
 
-/// Execute a simple(non-batch) statement to query one row.
-/// This method don't support {@link java.util.Map},but you can use {@link #queryOneObject(SimpleDqlStatement, Supplier, SyncStmtOption)} instead of this method.
-/// statement will be parsed as {@link io.army.stmt.Stmt} by {@link io.army.dialect.DialectParser} and {@link io.army.stmt.Stmt} will be executed by {@link io.army.executor.SyncExecutor}.
-/// <pre>
-/// This method is equivalent to following :
-/// <code>
-/// final List<R> resultList;
-/// resultList = this.queryList(statement,resultClass,option);
-/// final R result;
-/// switch (resultList.size()) {
-/// case 1:
-/// result = resultList.get(0);
-/// break;
-/// case 0:
-/// result = null;
-/// break;
-/// default:
-/// throw _Exceptions.nonUnique(resultList);
-/// }
-/// return result;
-/// </code>
-/// </pre>
-/// @param statement   simple(non-batch) query statement
-/// @param resultClass result class is one of
-/// 
-/// - simple value class ,for example : {@link Integer},{@link String},{@link java.util.BitSet},byte[],{@link java.time.LocalDateTime}
-/// - POJO class that have public default constructor
-/// 
-/// ,couldn't be {@link java.util.Map} or it's sub class/interface
-/// @param option      statement option for more control,see {@link SyncStmtOption#timeoutMillis(int)} ,{@link SyncStmtOption#builder()} etc.
-/// @param <R>         representing row Java Type.
-/// @return 
-/// - nullable : resultClass is simple value class
-/// - non-null : resultClass is pojo class
-/// 
-/// @throws NoSuchElementException throw when no row
-/// @throws NonMonoException       throw when more than one row.
-/// @throws CriteriaException      throw when
-/// @throws SessionException       throw when
-/// 
-/// - session have closed
-/// - statement is dml statement,but {@link #isReadonlySession()} is true,see {@link ReadOnlySessionException}
-/// - statement is dml statement,but {@link #isReadOnlyStatus()} is true,see {@link ReadOnlyTransactionException}
-/// - update/delete child table (eg : firebird update statement),but {@link #inTransaction()} is false,see {@link ChildDmlNoTractionException}
-/// - statement is query insert statement,but {@link #isQueryInsertAllowed()} is false , see {@link QueryInsertException}
-/// - result row count more than one,see {@link NonMonoException}
-/// - server response error message
-/// 
-/// @see #queryList(DqlStatement, Class, SyncStmtOption)
+    /// Execute a simple(non-batch) statement to query one row.
+    /// This method don't support {@link java.util.Map},but you can use {@link #queryOneObject(SimpleDqlStatement, Supplier, SyncStmtOption)} instead of this method.
+    /// statement will be parsed as {@link io.army.stmt.Stmt} by {@link io.army.dialect.DialectParser} and {@link io.army.stmt.Stmt} will be executed by {@link io.army.executor.SyncExecutor}.
+    /// <pre>
+    /// This method is equivalent to following :
+    /// <code>
+    /// final List<R> resultList;
+    /// resultList = this.queryList(statement,resultClass,option);
+    /// final R result;
+    /// switch (resultList.size()) {
+    /// case 1:
+    /// result = resultList.get(0);
+    /// break;
+    /// case 0:
+    /// result = null;
+    /// break;
+    /// default:
+    /// throw _Exceptions.nonUnique(resultList);
+    /// }
+    /// return result;
+    /// </code>
+    /// </pre>
+    /// @param statement   simple(non-batch) query statement
+    /// @param resultClass result class is one of
+    /// 
+    /// - simple value class ,for example : {@link Integer},{@link String},{@link java.util.BitSet},byte[],{@link java.time.LocalDateTime}
+    /// - POJO class that have public default constructor
+    /// 
+    /// ,couldn't be {@link java.util.Map} or it's sub class/interface
+    /// @param option      statement option for more control,see {@link SyncStmtOption#timeoutMillis(int)} ,{@link SyncStmtOption#builder()} etc.
+    /// @param <R>         representing row Java Type.
+    /// @return
+    /// - nullable : resultClass is simple value class
+    /// - non-null : resultClass is pojo class
+    /// 
+    /// @throws NoSuchElementException throw when no row
+    /// @throws NonMonoException       throw when more than one row.
+    /// @throws CriteriaException      throw when
+    /// @throws SessionException       throw when
+    /// 
+    /// - session have closed
+    /// - statement is dml statement,but {@link #isReadonlySession()} is true,see {@link ReadOnlySessionException}
+    /// - statement is dml statement,but {@link #isReadOnlyStatus()} is true,see {@link ReadOnlyTransactionException}
+    /// - update/delete child table (eg : firebird update statement),but {@link #inTransaction()} is false,see {@link ChildDmlNoTractionException}
+    /// - statement is query insert statement,but {@link #isQueryInsertAllowed()} is false , see {@link QueryInsertException}
+    /// - result row count more than one,see {@link NonMonoException}
+    /// - server response error message
+    /// 
+    /// @see #queryList(DqlStatement, Class, SyncStmtOption)
     @Nullable
     <R> R queryOne(SimpleDqlStatement statement, Class<R> resultClass, SyncStmtOption option);
 
@@ -289,24 +289,24 @@ public sealed interface SyncSession extends PackageSession, Closeable
     <R> List<R> queryList(DqlStatement statement, Class<R> resultClass, Supplier<List<R>> listConstructor, SyncStmtOption option);
 
 
-/// 
-/// **NOTE** : If constructor return {@link java.util.concurrent.ConcurrentMap}
-/// and column value is null ,army remove element not put element.
+    /// 
+    /// **NOTE** : If constructor return {@link java.util.concurrent.ConcurrentMap}
+    /// and column value is null ,army remove element not put element.
     <R> List<R> queryObjectList(DqlStatement statement, Supplier<R> constructor);
 
     <R> List<R> queryObjectList(DqlStatement statement, Supplier<R> constructor, SyncStmtOption option);
 
 
-/// 
-/// **NOTE** : If constructor return {@link java.util.concurrent.ConcurrentMap}
-/// and column value is null ,army remove element not put element.
+    /// 
+    /// **NOTE** : If constructor return {@link java.util.concurrent.ConcurrentMap}
+    /// and column value is null ,army remove element not put element.
     <R> List<R> queryObjectList(DqlStatement statement, Supplier<R> constructor, Supplier<List<R>> listConstructor);
 
     <R> List<R> queryObjectList(DqlStatement statement, Supplier<R> constructor, Supplier<List<R>> listConstructor, SyncStmtOption option);
 
-/// 
-/// **NOTE** : If constructor return {@link java.util.concurrent.ConcurrentMap}
-/// and column value is null ,army remove element not put element.
+    /// 
+    /// **NOTE** : If constructor return {@link java.util.concurrent.ConcurrentMap}
+    /// and column value is null ,army remove element not put element.
     <R> List<R> queryRecordList(DqlStatement statement, Function<CurrentRecord, R> function);
 
     <R> List<R> queryRecordList(DqlStatement statement, Function<CurrentRecord, R> function, SyncStmtOption option);
@@ -315,13 +315,13 @@ public sealed interface SyncSession extends PackageSession, Closeable
     <R> List<R> queryRecordList(DqlStatement statement, Function<CurrentRecord, R> function,
                                 Supplier<List<R>> listConstructor);
 
-/// @throws VisibleModeException throw when satisfy all the following conditions :
-/// 
-/// - visible is {@link Visible#ONLY_NON_VISIBLE} or {@link Visible#BOTH}
-/// - {@link Session#visible()} is don't support visible value
-/// 
-/// @see io.army.env.ArmyKey#VISIBLE_MODE
-/// @see io.army.env.ArmyKey#VISIBLE_SESSION_WHITE_LIST
+    /// @throws VisibleModeException throw when satisfy all the following conditions :
+    /// 
+    /// - visible is {@link Visible#ONLY_NON_VISIBLE} or {@link Visible#BOTH}
+    /// - {@link Session#visible()} is don't support visible value
+    /// 
+    /// @see io.army.env.ArmyKey#VISIBLE_MODE
+    /// @see io.army.env.ArmyKey#VISIBLE_SESSION_WHITE_LIST
     <R> List<R> queryRecordList(DqlStatement statement, Function<CurrentRecord, R> function,
                                 Supplier<List<R>> listConstructor, SyncStmtOption option);
 
@@ -330,61 +330,61 @@ public sealed interface SyncSession extends PackageSession, Closeable
 
     <R> Stream<R> query(DqlStatement statement, Class<R> resultClass);
 
-/// Execute a simple/batch statement to query row stream.
-/// This method don't support {@link java.util.Map} and the pojo that have generic,but you can use {@link #queryObject(DqlStatement, Supplier, SyncStmtOption)} instead of this method.
-/// statement will be parsed as {@link io.army.stmt.Stmt} by {@link io.army.dialect.DialectParser} and {@link io.army.stmt.Stmt} will be executed by {@link io.army.executor.SyncExecutor}.
-/// @param statement   simple/batch query statement
-/// @param resultClass result class is one of
-/// 
-/// - simple value class ony when single {@link Selection},for example : {@link Integer},{@link String},{@link java.util.BitSet},byte[],{@link java.time.LocalDateTime}
-/// - POJO class that have public default constructor and have no generic
-/// 
-/// ,couldn't be {@link java.util.Map} or it's sub class/interface
-/// @param option      statement option for more control,see {@link SyncStmtOption#timeoutMillis(int)} ,{@link SyncStmtOption#commanderConsumer(Consumer)} ,{@link SyncStmtOption#builder()} etc.
-/// @param <R>         representing row Java Type.
-/// @return non-null row stream. The underlying resource (eg : {@code java.sql.ResultSet}) of the stream will be close in following situation :
-/// 
-/// - stream normally end
-/// - the downstream of stream throw {@link Throwable}
-/// - {@link io.army.executor.SyncExecutor} invoke consumer of {@link ResultStates} occur error, see {@link SyncStmtOption#stateConsumer()}
-/// - you invoke {@link StreamCommander#cancel()} , see {@link SyncStmtOption#commanderConsumer()}
-/// - You invoke {@link Stream#close()}
-/// 
-/// @throws CriteriaException throw when
-/// @throws SessionException  throw when
-/// 
-/// - session have closed
-/// - statement is dml statement,but {@link #isReadonlySession()} is true,see {@link ReadOnlySessionException}
-/// - statement is dml statement,but {@link #isReadOnlyStatus()} is true,see {@link ReadOnlyTransactionException}
-/// - update/delete child table (eg : firebird update statement),but {@link #inTransaction()} is false,see {@link ChildDmlNoTractionException}
-/// - statement is query-insert statement,but {@link #isQueryInsertAllowed()} is false , see {@link QueryInsertException}
-/// - server response error message
-/// 
+    /// Execute a simple/batch statement to query row stream.
+    /// This method don't support {@link java.util.Map} and the pojo that have generic,but you can use {@link #queryObject(DqlStatement, Supplier, SyncStmtOption)} instead of this method.
+    /// statement will be parsed as {@link io.army.stmt.Stmt} by {@link io.army.dialect.DialectParser} and {@link io.army.stmt.Stmt} will be executed by {@link io.army.executor.SyncExecutor}.
+    /// @param statement   simple/batch query statement
+    /// @param resultClass result class is one of
+    /// 
+    /// - simple value class ony when single {@link Selection},for example : {@link Integer},{@link String},{@link java.util.BitSet},byte[],{@link java.time.LocalDateTime}
+    /// - POJO class that have public default constructor and have no generic
+    /// 
+    /// ,couldn't be {@link java.util.Map} or it's sub class/interface
+    /// @param option      statement option for more control,see {@link SyncStmtOption#timeoutMillis(int)} ,{@link SyncStmtOption#commanderConsumer(Consumer)} ,{@link SyncStmtOption#builder()} etc.
+    /// @param <R>         representing row Java Type.
+    /// @return non-null row stream. The underlying resource (eg : {@code java.sql.ResultSet}) of the stream will be close in following situation :
+    /// 
+    /// - stream normally end
+    /// - the downstream of stream throw {@link Throwable}
+    /// - {@link io.army.executor.SyncExecutor} invoke consumer of {@link ResultStates} occur error, see {@link SyncStmtOption#stateConsumer()}
+    /// - you invoke {@link StreamCommander#cancel()} , see {@link SyncStmtOption#commanderConsumer()}
+    /// - You invoke {@link Stream#close()}
+    /// 
+    /// @throws CriteriaException throw when
+    /// @throws SessionException  throw when
+    /// 
+    /// - session have closed
+    /// - statement is dml statement,but {@link #isReadonlySession()} is true,see {@link ReadOnlySessionException}
+    /// - statement is dml statement,but {@link #isReadOnlyStatus()} is true,see {@link ReadOnlyTransactionException}
+    /// - update/delete child table (eg : firebird update statement),but {@link #inTransaction()} is false,see {@link ChildDmlNoTractionException}
+    /// - statement is query-insert statement,but {@link #isQueryInsertAllowed()} is false , see {@link QueryInsertException}
+    /// - server response error message
+    /// 
     <R> Stream<R> query(DqlStatement statement, Class<R> resultClass, SyncStmtOption option);
 
     <R> Stream<R> queryObject(DqlStatement statement, Supplier<R> constructor);
 
-/// 
-/// **NOTE** : If mapConstructor return {@link java.util.concurrent.ConcurrentMap}
-/// and column value is null ,army remove element not put element.
+    /// 
+    /// **NOTE** : If mapConstructor return {@link java.util.concurrent.ConcurrentMap}
+    /// and column value is null ,army remove element not put element.
     <R> Stream<R> queryObject(DqlStatement statement, Supplier<R> constructor, SyncStmtOption option);
 
 
-/// 
-/// **NOTE** : If mapConstructor return {@link java.util.concurrent.ConcurrentMap}
-/// and column value is null ,army remove element not put element.
+    /// 
+    /// **NOTE** : If mapConstructor return {@link java.util.concurrent.ConcurrentMap}
+    /// and column value is null ,army remove element not put element.
     <R> Stream<R> queryRecord(DqlStatement statement, Function<CurrentRecord, R> function);
 
-/// 
-/// **NOTE** : If mapConstructor return {@link java.util.concurrent.ConcurrentMap}
-/// and column value is null ,army remove element not put element.
-/// @throws VisibleModeException throw when satisfy all the following conditions :
-/// 
-/// - visible is {@link Visible#ONLY_NON_VISIBLE} or {@link Visible#BOTH}
-/// - {@link Session#visible()} is don't support visible value
-/// 
-/// @see io.army.env.ArmyKey#VISIBLE_MODE
-/// @see io.army.env.ArmyKey#VISIBLE_SESSION_WHITE_LIST
+    /// 
+    /// **NOTE** : If mapConstructor return {@link java.util.concurrent.ConcurrentMap}
+    /// and column value is null ,army remove element not put element.
+    /// @throws VisibleModeException throw when satisfy all the following conditions :
+    /// 
+    /// - visible is {@link Visible#ONLY_NON_VISIBLE} or {@link Visible#BOTH}
+    /// - {@link Session#visible()} is don't support visible value
+    /// 
+    /// @see io.army.env.ArmyKey#VISIBLE_MODE
+    /// @see io.army.env.ArmyKey#VISIBLE_SESSION_WHITE_LIST
     <R> Stream<R> queryRecord(DqlStatement statement, Function<CurrentRecord, R> function, SyncStmtOption option);
 
     <T, R> R paging(PagingPair pagingPair, Class<T> rowClass, PageConstructor<T, R> pageConstructor);
@@ -408,24 +408,24 @@ public sealed interface SyncSession extends PackageSession, Closeable
 
     long update(SimpleDmlStatement statement);
 
-/// @throws VisibleModeException throw when satisfy all the following conditions :
-/// 
-/// - visible is {@link Visible#ONLY_NON_VISIBLE} or {@link Visible#BOTH}
-/// - {@link Session#visible()} is don't support visible value
-/// 
-/// @see io.army.env.ArmyKey#VISIBLE_MODE
-/// @see io.army.env.ArmyKey#VISIBLE_SESSION_WHITE_LIST
+    /// @throws VisibleModeException throw when satisfy all the following conditions :
+    /// 
+    /// - visible is {@link Visible#ONLY_NON_VISIBLE} or {@link Visible#BOTH}
+    /// - {@link Session#visible()} is don't support visible value
+    /// 
+    /// @see io.army.env.ArmyKey#VISIBLE_MODE
+    /// @see io.army.env.ArmyKey#VISIBLE_SESSION_WHITE_LIST
     long update(SimpleDmlStatement statement, SyncStmtOption option);
 
     ResultStates updateAsStates(SimpleDmlStatement statement);
 
-/// @throws VisibleModeException throw when satisfy all the following conditions :
-/// 
-/// - visible is {@link Visible#ONLY_NON_VISIBLE} or {@link Visible#BOTH}
-/// - {@link Session#visible()} is don't support visible value
-/// 
-/// @see io.army.env.ArmyKey#VISIBLE_MODE
-/// @see io.army.env.ArmyKey#VISIBLE_SESSION_WHITE_LIST
+    /// @throws VisibleModeException throw when satisfy all the following conditions :
+    /// 
+    /// - visible is {@link Visible#ONLY_NON_VISIBLE} or {@link Visible#BOTH}
+    /// - {@link Session#visible()} is don't support visible value
+    /// 
+    /// @see io.army.env.ArmyKey#VISIBLE_MODE
+    /// @see io.army.env.ArmyKey#VISIBLE_SESSION_WHITE_LIST
     ResultStates updateAsStates(SimpleDmlStatement statement, SyncStmtOption option);
 
     <T> int save(T domain);

@@ -19,7 +19,7 @@ package io.army.criteria;
 
 /// 
 /// This interface representing row value expression.
-/// This interface is only base interface of following : 
+/// This interface is only base interface of following :
 /// - {@link RowLiteralExpression}
 /// - {@link RowParamExpression}
 /// 

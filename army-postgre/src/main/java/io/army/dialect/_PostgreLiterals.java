@@ -31,7 +31,7 @@ public abstract class _PostgreLiterals extends _Literals {
     }
 
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-ESCAPE">String Constants With C-Style Escapes</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-ESCAPE">String Constants With C-Style Escapes</a>
     public static void backslashEscape(final CharSequence literal, final int offset, final int end,
                                        final StringBuilder sqlBuilder) {
 
@@ -102,7 +102,7 @@ public abstract class _PostgreLiterals extends _Literals {
 
     }
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-UESCAPE">String Constants With Unicode Escapes</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-UESCAPE">String Constants With Unicode Escapes</a>
     public static void unicodeEscape(final CharSequence literal, final int offset, final int end, final char escapeChar,
                                      final StringBuilder sqlBuilder) {
 
@@ -194,7 +194,7 @@ public abstract class _PostgreLiterals extends _Literals {
 
     }
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-DOLLAR-QUOTING">Dollar-Quoted String Constants</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-DOLLAR-QUOTING">Dollar-Quoted String Constants</a>
     public static void dollarQuotedEscape(final CharSequence literal, int offset, int end, final String tag,
                                           final StringBuilder sqlBuilder) {
 

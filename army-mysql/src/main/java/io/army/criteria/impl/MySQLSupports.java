@@ -325,8 +325,8 @@ abstract class MySQLSupports extends CriteriaSupports {
 
 
     /// sub class must implements RR .
-/// @param <RR> sub interface of {@link  io.army.criteria.Statement._OnClause}
-/// @param <OR> sub interface of {@link MySQLQuery._MySQLJoinClause}
+    /// @param <RR> sub interface of {@link  io.army.criteria.Statement._OnClause}
+    /// @param <OR> sub interface of {@link MySQLQuery._MySQLJoinClause}
     static abstract class MySQLJoinClauseBlock<RR extends Item, OR extends Item>
             extends TabularBlocks.JoinClauseTableBlock<OR>
             implements _MySQLTableBlock, MySQLStatement._IndexHintFoPurposeClause<RR> {

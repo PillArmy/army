@@ -41,9 +41,9 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
     private static final Logger LOG = LoggerFactory.getLogger(XmlFuncUnitTests.class);
 
     /// @see Postgres#xmlElement(WordName, String, XmlAttributes, Expression...)
-/// @see Postgres#xmlElement(WordName, String, Expression...)
-/// @see Postgres#xmlElement(WordName, String, List)
-/// @see Postgres#xmlElement(WordName, String, XmlAttributes, List)
+    /// @see Postgres#xmlElement(WordName, String, Expression...)
+    /// @see Postgres#xmlElement(WordName, String, List)
+    /// @see Postgres#xmlElement(WordName, String, XmlAttributes, List)
     @Test
     public void xmlElementFunc() {
         final Select stmt;
@@ -63,7 +63,7 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#xmlPi(WordName, String)
-/// @see Postgres#xmlPi(WordName, String, Expression)
+    /// @see Postgres#xmlPi(WordName, String, Expression)
     @Test
     public void xmlPiFunc() {
         final Select stmt;
@@ -75,7 +75,7 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#xmlAgg(Expression)
-/// @see Postgres#xmlAgg(Expression, Consumer)
+    /// @see Postgres#xmlAgg(Expression, Consumer)
     @Test
     public void xmlAggFunc() {
         final Select stmt;
@@ -88,9 +88,9 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#xmlExists(Expression, WordPassing, Expression)
-/// @see Postgres#xmlExists(Expression, WordPassing, PassingOption, Expression)
-/// @see Postgres#xmlExists(Expression, WordPassing, Expression, PassingOption)
-/// @see Postgres#xmlExists(Expression, WordPassing, PassingOption, Expression, PassingOption)
+    /// @see Postgres#xmlExists(Expression, WordPassing, PassingOption, Expression)
+    /// @see Postgres#xmlExists(Expression, WordPassing, Expression, PassingOption)
+    /// @see Postgres#xmlExists(Expression, WordPassing, PassingOption, Expression, PassingOption)
     @Test
     public void xmlExistsFunc() {
         final Select stmt;
@@ -103,7 +103,7 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#xpath(Expression, Expression)
-/// @see Postgres#xpath(Expression, Expression, Expression)
+    /// @see Postgres#xpath(Expression, Expression, Expression)
     @Test
     public void xpathFunc() {
         final Select stmt;
@@ -117,9 +117,9 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-/// @see Postgres#xmlTable(XmlNameSpaces, Expression, WordPassing, Expression, Consumer)
-/// @see Postgres#xmlTable(Expression, WordPassing, Expression, PassingOption, Consumer)
-/// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PROCESSING">XMLTABLE</a>
+    /// @see Postgres#xmlTable(XmlNameSpaces, Expression, WordPassing, Expression, Consumer)
+    /// @see Postgres#xmlTable(Expression, WordPassing, Expression, PassingOption, Consumer)
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PROCESSING">XMLTABLE</a>
     @Test
     public void xmlTableFunc() {
         final String xmlDoc;
@@ -161,7 +161,7 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#tableToXml(TableMeta, Expression, Expression, Expression)
-/// @see Postgres#tableToXml(Expression, Expression, Expression, Expression)
+    /// @see Postgres#tableToXml(Expression, Expression, Expression, Expression)
     @Test
     public void tableToXmlFunc() {
         final Select stmt;
@@ -174,7 +174,7 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#queryToXml(Select, Visible, Expression, Expression, Expression)
-/// @see Postgres#queryToXml(Expression, Expression, Expression, Expression)
+    /// @see Postgres#queryToXml(Expression, Expression, Expression, Expression)
     @Test
     public void queryToXmlFunc() {
         final Select query, stmt;
@@ -191,7 +191,7 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#xmlParse(DocumentValueOption, Expression)
-/// @see Postgres#xmlParse(DocumentValueOption, BiFunction, String)
+    /// @see Postgres#xmlParse(DocumentValueOption, BiFunction, String)
     @Test
     public void xmlParseFunc() {
         final Select stmt;

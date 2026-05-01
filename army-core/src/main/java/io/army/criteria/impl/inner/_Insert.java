@@ -76,7 +76,7 @@ public interface _Insert extends _Statement {
 
 
     /// 
-/// This interface representing dialect support sub insert statement in with clause,for example PostgreSQL.
+    /// This interface representing dialect support sub insert statement in with clause,for example PostgreSQL.
     interface _SupportWithClauseInsert extends _Insert, _WithClauseSpec {
 
     }
@@ -176,7 +176,7 @@ public interface _Insert extends _Statement {
     }
 
     /// Primary parent query insert
-/// @see _ParentSubInsert
+    /// @see _ParentSubInsert
     interface _ParentQueryInsert extends _QueryInsert, PrimaryStatement {
 
         @Deprecated

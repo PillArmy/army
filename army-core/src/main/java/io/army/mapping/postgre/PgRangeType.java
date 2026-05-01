@@ -85,12 +85,12 @@ public abstract class PgRangeType extends _ArmyPgRangeType {
         return new MockRangeFunction<>(javaType, elementType);
     }
 
-/// @param function 
-/// - argument of function possibly is notion 'infinity',see {@link #INFINITY}
-/// - function must return null when argument is notion 'infinity' and support it,see {@link #INFINITY}
-/// - function must throw {@link RuntimeException} when argument is notion 'infinity' and don't support it,see {@link #INFINITY}
-/// 
-/// @see <a href="https://www.postgresql.org/docs/current/rangetypes.html">Range Types</a>
+    /// @param function
+    /// - argument of function possibly is notion 'infinity',see {@link #INFINITY}
+    /// - function must return null when argument is notion 'infinity' and support it,see {@link #INFINITY}
+    /// - function must throw {@link RuntimeException} when argument is notion 'infinity' and don't support it,see {@link #INFINITY}
+    /// 
+    /// @see <a href="https://www.postgresql.org/docs/current/rangetypes.html">Range Types</a>
     @SuppressWarnings("unchecked")
     public static <T, R> R parseNonEmptyRange(final String text, final int offset, final int end,
                                               final RangeFunction<T, R> rangeFunc, final Function<String, T> function)
@@ -216,7 +216,7 @@ public abstract class PgRangeType extends _ArmyPgRangeType {
     }
 
     /// @param methodName public static factory method name,for example : com.my.Factory#create
-/// @throws io.army.meta.MetaException throw when factory method name error.
+    /// @throws io.army.meta.MetaException throw when factory method name error.
     @SuppressWarnings("unchecked")
     public static <T, R> RangeFunction<T, R> createRangeFunction(final Class<R> javaType, final Class<T> elementType,
                                                                  final String methodName) throws MetaException {
@@ -312,7 +312,7 @@ public abstract class PgRangeType extends _ArmyPgRangeType {
     public interface UserDefinedRangeType<T> extends RangeType {
 
         /// @throws UnsupportedOperationException when {@link MappingType#javaType()} is {@link PostgreRange} type.
-/// @see #createMockFunction(Class, Class)
+        /// @see #createMockFunction(Class, Class)
         MockRangeFunction<T> mockFunction();
 
 

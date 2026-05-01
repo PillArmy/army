@@ -24,7 +24,7 @@ import io.army.criteria.impl.inner._Window;
 interface ArmyWindow extends _Window {
 
     /// @return the name of named window
-/// @throws IllegalStateException throw when this is anonymous window
+    /// @throws IllegalStateException throw when this is anonymous window
     String windowName();
 
 

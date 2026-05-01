@@ -108,7 +108,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
 
 
     /// mills
-/// @see Param
+    /// @see Param
     public static final String START_TIME = "startTime";
 
     public static final String DATE = "date";

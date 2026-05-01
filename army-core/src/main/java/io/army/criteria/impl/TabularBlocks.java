@@ -551,7 +551,7 @@ abstract class TabularBlocks {
         private final String alias;
 
         /// private constructor
-/// @see #joinCteBlock(_JoinType, _Cte, String, Item)
+        /// @see #joinCteBlock(_JoinType, _Cte, String, Item)
         private JoinClauseCteBlock(_JoinType joinType, _Cte cte, String alias, R clause) {
             super(joinType, clause);
             this.cte = cte;
@@ -576,7 +576,7 @@ abstract class TabularBlocks {
         private final _NestedItems items;
 
         /// private constructor
-/// @see #joinNestedBlock(_JoinType, _NestedItems, Item)
+        /// @see #joinNestedBlock(_JoinType, _NestedItems, Item)
         private JoinClauseNestedBlock(_JoinType joinType, _NestedItems items, R clause) {
             super(joinType, clause);
             this.items = items;

@@ -56,14 +56,14 @@ abstract class MySQLReplaces extends InsertSupports {
 
 
     /// 
-/// create single-table REPLACE statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
+    /// create single-table REPLACE statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
     static MySQLReplace._PrimaryOptionSpec singleReplace() {
         return new PrimaryReplaceIntoClause();
     }
 
 
     /// 
-/// create single-table REPLACE statement that is primary statement for multi-statement and support only {@link SingleTableMeta}.
+    /// create single-table REPLACE statement that is primary statement for multi-statement and support only {@link SingleTableMeta}.
     static <I extends Item> MySQLReplace._PrimarySingleOptionSpec<I> singleReplace(ArmyStmtSpec spec,
                                                                                    Function<? super Insert, I> function) {
         return new PrimarySingleReplaceIntoClause<>(spec, function);

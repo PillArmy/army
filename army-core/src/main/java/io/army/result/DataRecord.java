@@ -35,11 +35,11 @@ public interface DataRecord extends ResultItem, ResultItem.ResultAccessSpec {
     Object getOrSupplier(int indexBasedZero, Supplier<?> supplier);
 
 
-/// Javadoc see
-/// 
-/// - {@link ResultRecord#get(int, Class)}
-/// - {@link CurrentRecord#get(int, Class)}
-/// 
+    /// Javadoc see
+    /// 
+    /// - {@link ResultRecord#get(int, Class)}
+    /// - {@link CurrentRecord#get(int, Class)}
+    /// 
     @Nullable
     <T> T get(int indexBasedZero, Class<T> columnClass);
 

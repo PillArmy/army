@@ -39,7 +39,7 @@ public class RmSessionException extends DataAccessException {
     public static final int XA_RBINTEGRITY = XA_RBBASE + 3;
 
     /// The resource manager rolled back the transaction branch for a reason
-/// not on this list.
+    /// not on this list.
     public static final int XA_RBOTHER = XA_RBBASE + 4;
 
     /// A protocol error occurred in the resource manager.
@@ -67,7 +67,7 @@ public class RmSessionException extends DataAccessException {
     public static final int XA_HEURRB = 6;
 
     /// The transaction branch has been heuristically committed and
-/// rolled back.
+    /// rolled back.
     public static final int XA_HEURMIX = 5;
 
     /// Routine returned with no effect and may be reissued.

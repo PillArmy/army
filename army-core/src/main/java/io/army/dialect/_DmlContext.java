@@ -64,8 +64,8 @@ public interface _DmlContext extends _StmtContext {
 
     interface _DomainUpdateSpec {
         /// 
-/// supported only by domain update.
-/// @throws UnsupportedOperationException throw when non-domain update.
+        /// supported only by domain update.
+        /// @throws UnsupportedOperationException throw when non-domain update.
         boolean isExistsChildFiledInSetClause();
 
     }
@@ -75,10 +75,10 @@ public interface _DmlContext extends _StmtContext {
         void appendFieldFromSub(FieldMeta<?> field);
 
         /// 
-/// just append column name, no preceding space ,no preceding table alias
-/// 
-/// This method is designed for postgre EXCLUDED in INSERT statement.
-/// @see _SqlContext#appendFieldOnly(FieldMeta)
+        /// just append column name, no preceding space ,no preceding table alias
+        /// 
+        /// This method is designed for postgre EXCLUDED in INSERT statement.
+        /// @see _SqlContext#appendFieldOnly(FieldMeta)
         void appendFieldOnlyFromSub(FieldMeta<?> field);
 
     }

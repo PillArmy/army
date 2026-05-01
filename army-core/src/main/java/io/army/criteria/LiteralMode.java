@@ -24,7 +24,7 @@ public enum LiteralMode {
     PREFERENCE,
 
     /// the fields that is managed by army output literal , but child id that is created by database.
-/// @see StmtOption#isPreferServerPrepare()
+    /// @see StmtOption#isPreferServerPrepare()
     LITERAL,
 
     CONST;

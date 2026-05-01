@@ -43,11 +43,11 @@ import java.util.Objects;
 abstract class ArmyRowParamExpression extends OperationRowExpression
         implements RowParamExpression, ArmySimpleExpression {
 
-/// @throws CriteriaException throw when 
-/// - values is empty
-/// - infer return codec {@link TableField}
-/// 
-/// @see SQLs#rowParam(TypeInfer, Collection)
+    /// @throws CriteriaException throw when
+    /// - values is empty
+    /// - infer return codec {@link TableField}
+    /// 
+    /// @see SQLs#rowParam(TypeInfer, Collection)
     static ArmyRowParamExpression multi(final @Nullable TypeInfer infer, final @Nullable Collection<?> values) {
         final TypeMeta type;
         if (infer == null) {
@@ -62,12 +62,12 @@ abstract class ArmyRowParamExpression extends OperationRowExpression
         return new AnonymousMultiParam(type, values);
     }
 
-/// @throws CriteriaException throw when 
-/// - name have no text
-/// - size less than 1
-/// - infer return codec {@link TableField}
-/// 
-/// @see SQLs#namedRowParam(TypeInfer, String, int)
+    /// @throws CriteriaException throw when
+    /// - name have no text
+    /// - size less than 1
+    /// - infer return codec {@link TableField}
+    /// 
+    /// @see SQLs#namedRowParam(TypeInfer, String, int)
     static ArmyRowParamExpression named(final @Nullable TypeInfer infer, final @Nullable String name, final int size) {
         final TypeMeta type;
         if (infer == null) {

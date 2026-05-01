@@ -58,9 +58,9 @@ interface CriteriaContext {
     List<_Cte> getCteList();
 
     /// 
-/// This method is invoked by sub-dml,now WITH clause have not ended.
-/// *
-/// @return unmodified list
+    /// This method is invoked by sub-dml,now WITH clause have not ended.
+    /// *
+    /// @return unmodified list
     List<_Cte> accessCteList();
 
     boolean isWithRecursive();
@@ -76,10 +76,10 @@ interface CriteriaContext {
 
 
     /// 
-/// This method flat {@link #selectItemList()} as list of {@link  Selection}.
-/// *
-/// @return a unmodified list
-/// @throws CriteriaException throw when context not end.
+    /// This method flat {@link #selectItemList()} as list of {@link  Selection}.
+    /// *
+    /// @return a unmodified list
+    /// @throws CriteriaException throw when context not end.
     List<? extends Selection> flatSelectItems();
 
     @Nullable
@@ -123,7 +123,7 @@ interface CriteriaContext {
     void onAddWindow(String windowName);
 
     /// @param windowName non-null and non-empty
-/// @throws CriteriaException throw when windowName is null or empty.
+    /// @throws CriteriaException throw when windowName is null or empty.
     void onRefWindow(String windowName);
 
     @Nullable
@@ -135,29 +135,29 @@ interface CriteriaContext {
     _SelectionMap getNonNullDerived(String derivedAlias);
 
     /// 
-/// should be invoked before {@link ContextStack#pop(CriteriaContext)}
+    /// should be invoked before {@link ContextStack#pop(CriteriaContext)}
     List<_TabularBlock> endContext();
 
     /// Invoking when use parens clause before COMMAND (for example : SELECT , VALUES)
     void endContextBeforeCommand();
 
     /// @return a unmodified list
-/// @throws CriteriaException throw when context not end
+    /// @throws CriteriaException throw when context not end
     List<? extends _SelectItem> selectItemList();
 
     /// Invoking when the row( from 1) of VALUES statement start.
-/// @see #registerValuesSelectionList(List)
+    /// @see #registerValuesSelectionList(List)
     void onValuesRowStart();
 
 
     /// Invoking when the row( from 2) of VALUES statement end.
-/// @see #registerValuesSelectionList(List)
+    /// @see #registerValuesSelectionList(List)
     void onValuesRowEnd();
 
     /// Invoking when the first row of VALUES statement end.
-/// The implementation of this method will invoke {@link #onValuesRowEnd()}
-/// @param selectionList a unmodified and non-empty list
-/// @see #onValuesRowEnd()
+    /// The implementation of this method will invoke {@link #onValuesRowEnd()}
+    /// @param selectionList a unmodified and non-empty list
+    /// @see #onValuesRowEnd()
     void registerValuesSelectionList(List<? extends _Selection> selectionList);
 
 

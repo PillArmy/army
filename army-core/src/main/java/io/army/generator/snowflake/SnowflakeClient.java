@@ -24,7 +24,7 @@ public interface SnowflakeClient {
 
 
     /// provide to {@link SnowflakeGenerator} to register itself.
-/// @return the {@link Worker} that assigned by snowflake server
+    /// @return the {@link Worker} that assigned by snowflake server
     boolean registerGenerator(long startTime, Consumer<Worker> workerConsumer)
             throws SnowflakeWorkerException;
 

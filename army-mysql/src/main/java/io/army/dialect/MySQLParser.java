@@ -393,7 +393,7 @@ abstract class MySQLParser extends _ArmyDialectParser {
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/delete.html">DELETE Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/delete.html">DELETE Statement</a>
     @Override
     protected final void parseDomainChildDelete(final _SingleDelete delete, final _DeleteContext ctx) {
         final _MultiDeleteContext context = (_MultiDeleteContext) ctx;
@@ -538,7 +538,7 @@ abstract class MySQLParser extends _ArmyDialectParser {
         return false;
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/update.html">single-table UPDATE statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/update.html">single-table UPDATE statement</a>
     @Override
     protected final boolean isSupportJoinableSingleUpdate() {
         // false ,MySQL don't support single-table joinable update
@@ -586,7 +586,7 @@ abstract class MySQLParser extends _ArmyDialectParser {
         }
     }
 
-    ///
+    /// 
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifiers.html"> Schema Object Names</a>
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html">Identifier Case Sensitivity</a>
     @Override

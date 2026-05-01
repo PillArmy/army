@@ -27,8 +27,8 @@ enum DualBooleanOperator implements Operator.SqlDualBooleanOperator, SQLs.BiOper
     EQUAL(" ="),
     NOT_EQUAL(" !="),
 
-/// MySQL
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html#operator_equal-to">NULL-safe equal.</a>
+    /// MySQL
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html#operator_equal-to">NULL-safe equal.</a>
     NULL_SAFE_EQUAL(" <=>"),
 
     LESS(" <"),

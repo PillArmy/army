@@ -65,7 +65,7 @@ public enum MySQLType implements SQLType {
     DATETIME("DATETIME", ArmyType.TIMESTAMP, LocalDateTime.class),
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/data-types.html">char</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/data-types.html">char</a>
     CHAR("CHAR", ArmyType.CHAR, String.class),
     VARCHAR("VARCHAR", ArmyType.VARCHAR, String.class),
 

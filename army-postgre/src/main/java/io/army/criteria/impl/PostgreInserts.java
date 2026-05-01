@@ -58,27 +58,27 @@ abstract class PostgreInserts extends InsertSupports {
     }
 
     /// 
-/// create new single-table INSERT statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
+    /// create new single-table INSERT statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
     static PostgreInsert._PrimaryOptionSpec singleInsert() {
         return new PrimaryInsertIntoClause();
     }
 
     /// 
-/// create new single-table INSERT statement that is primary statement for multi-statement and don't support {@link io.army.meta.ChildTableMeta}.
+    /// create new single-table INSERT statement that is primary statement for multi-statement and don't support {@link io.army.meta.ChildTableMeta}.
     static <I extends Item> PostgreInsert._ComplexOptionSpec<I> fromDispatcher(ArmyStmtSpec spec,
                                                                                Function<PrimaryStatement, I> function) {
         return new ComplexInsertIntoClause<>(spec, function);
     }
 
     /// 
-/// create new single-table INSERT statement that is sub insert statement in dynamic with clause.
+    /// create new single-table INSERT statement that is sub insert statement in dynamic with clause.
     static <I extends Item> PostgreInsert._DynamicSubOptionSpec<I> dynamicSubInsert(
             CriteriaContext outContext, Function<SubStatement, I> function) {
         return new DynamicSubInsertIntoClause<>(outContext, function);
     }
 
     /// 
-/// create new single-table INSERT statement that is sub insert statement in static with clause.
+    /// create new single-table INSERT statement that is sub insert statement in static with clause.
     static <I extends Item> PostgreInsert._StaticSubOptionSpec<I> staticSubInsert(ArmyStmtSpec spec,
                                                                                   Function<SubStatement, I> function) {
         return new StaticSubInsertIntoClause<>(spec, function);
@@ -993,8 +993,8 @@ abstract class PostgreInserts extends InsertSupports {
 
 
         /// @see PrimaryInsertIntoClause#insertInto(TableMeta)
-/// @see PrimaryInsertIntoClause#insertInto(ParentTableMeta)
-/// @see ChildInsertIntoClause#insertInto(ComplexTableMeta)
+        /// @see PrimaryInsertIntoClause#insertInto(ParentTableMeta)
+        /// @see ChildInsertIntoClause#insertInto(ComplexTableMeta)
         private PostgreComplexValuesClause(WithValueSyntaxOptions options, TableMeta<T> table, boolean twoStmtMode,
                                            Function<PostgreComplexValuesClause<?, ?, ?>, I> dmlFunction,
                                            Function<PostgreComplexValuesClause<?, ?, ?>, Q> dqlFunction) {

@@ -40,10 +40,10 @@ abstract class OperationExpression implements ArmyExpression {
 
 
     /// 
-/// Private constructor
-/// @see OperationSimpleExpression#OperationSimpleExpression()
-/// @see OperationCompoundExpression#OperationCompoundExpression()
-/// @see PredicateExpression#PredicateExpression()
+    /// Private constructor
+    /// @see OperationSimpleExpression#OperationSimpleExpression()
+    /// @see OperationCompoundExpression#OperationCompoundExpression()
+    /// @see PredicateExpression#PredicateExpression()
     OperationExpression() {
     }
 
@@ -611,7 +611,7 @@ abstract class OperationExpression implements ArmyExpression {
     }
 
 
-    ///
+    /// 
     /// @see OperationExpression#space(SQLs.BiOperator, Object, SQLToken, Object)
     /// @see OperationTypedExpression#space(SQLs.BiOperator, BiFunction, Object, SQLToken, Object)
     final IPredicate similarToPredicate(SQLs.BiOperator operator, Object right, SQLToken modifier, Object optionalExp) {
@@ -1050,9 +1050,9 @@ abstract class OperationExpression implements ArmyExpression {
 
         private final ArmyExpression expression;
 
-/// 
-/// **Private constructor**
-/// @see #bracketExp(Expression)
+        /// 
+        /// **Private constructor**
+        /// @see #bracketExp(Expression)
         private BracketsExpression(ArmyExpression expression) {
             this.expression = expression;
         }

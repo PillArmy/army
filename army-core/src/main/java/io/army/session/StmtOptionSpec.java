@@ -31,15 +31,15 @@ import java.util.function.Consumer;
 public interface StmtOptionSpec {
 
 
-/// If fetch size is positive then use database server forward cursor.
-/// **Limitations** of fetch size :
-/// 
-/// - JDBC :
-/// 
-/// - Postgre : postgre jdbc command {@code java.sql.Connection} is auto commit,so you have to use fetch size in transaction. More document see {@code  io.army.env.SyncKey.POSTGRE_FETCH_SIZE_AUTO_COMMIT}
-/// 
-/// 
-/// 
+    /// If fetch size is positive then use database server forward cursor.
+    /// **Limitations** of fetch size :
+    /// 
+    /// - JDBC :
+    /// 
+    /// - Postgre : postgre jdbc command {@code java.sql.Connection} is auto commit,so you have to use fetch size in transaction. More document see {@code  io.army.env.SyncKey.POSTGRE_FETCH_SIZE_AUTO_COMMIT}
+    /// 
+    /// 
+    /// 
     int fetchSize();
 
     Consumer<ResultStates> stateConsumer();

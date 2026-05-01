@@ -26,8 +26,8 @@ import io.army.stmt.Stmt;
 public interface _StmtContext extends _SqlContext {
 
     /// for appending updateTime field in set clause.
-/// @return true : currently exists {@link  SQLParam} in context
-/// @see #appendParam(SQLParam)
+    /// @return true : currently exists {@link  SQLParam} in context
+    /// @see #appendParam(SQLParam)
     boolean hasParam();
 
     boolean hasNamedLiteral();

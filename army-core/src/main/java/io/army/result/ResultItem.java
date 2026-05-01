@@ -21,7 +21,7 @@ import io.army.executor.DataAccessException;
 public interface ResultItem {
 
     /// Get result no (based one)
-/// @return result no (based one)
+    /// @return result no (based one)
     int resultNo();
 
 
@@ -48,22 +48,22 @@ public interface ResultItem {
 
     interface ResultAccessSpec {
         /// Returns the number of row
-/// @return the number of row
+        /// @return the number of row
         int getColumnCount();
 
         /// Get column label of appropriate column
-/// @param indexBasedZero index based zero,the first value is 0 .
-/// @return the suggested column title              .
-/// @throws DataAccessException throw when indexBasedZero error
+        /// @param indexBasedZero index based zero,the first value is 0 .
+        /// @return the suggested column title              .
+        /// @throws DataAccessException throw when indexBasedZero error
         String getColumnLabel(int indexBasedZero) throws DataAccessException;
 
 
-/// 
-/// Get column index , if columnLabel duplication ,then return last index that have same columnLabel.
-/// 
-/// @param columnLabel column label
-/// @return index based zero,the first value is 0 .
-/// @throws DataAccessException throw when indexBasedZero error
+        /// 
+        /// Get column index , if columnLabel duplication ,then return last index that have same columnLabel.
+        /// 
+        /// @param columnLabel column label
+        /// @return index based zero,the first value is 0 .
+        /// @throws DataAccessException throw when indexBasedZero error
         int getColumnIndex(String columnLabel) throws DataAccessException;
 
     } // ResultAccessSpec

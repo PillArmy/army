@@ -108,7 +108,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     /// Set is used instead of Map because one type can be mapped by multiple MappingTypes.
     /// definedTypeSet is used to synchronize custom types to the database during startup.
-    ///
+    /// 
     /// @see DdlMode
     Map<String, MappingType> definedTypeMap = Map.of();
 

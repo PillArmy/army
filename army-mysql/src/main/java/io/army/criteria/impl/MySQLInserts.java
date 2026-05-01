@@ -43,7 +43,7 @@ import java.util.function.Supplier;
 
 /// 
 /// This class is the container of  MySQL insert syntax api implementation class.
-/// * 
+/// *
 /// Below is chines signature:
 /// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
 /// * @since 0.6.0
@@ -54,13 +54,13 @@ abstract class MySQLInserts extends InsertSupports {
     }
 
     /// 
-/// create single-table INSERT statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
+    /// create single-table INSERT statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
     static MySQLInsert._PrimaryOptionSpec singleInsert() {
         return new PrimaryInsertIntoClause();
     }
 
     /// 
-/// create single-table INSERT statement that is primary statement for multi-statement and support only {@link SingleTableMeta}.
+    /// create single-table INSERT statement that is primary statement for multi-statement and support only {@link SingleTableMeta}.
     static <I extends Item> MySQLInsert._PrimarySingleOptionSpec<I> singleInsert(ArmyStmtSpec spec,
                                                                                  Function<? super Insert, I> function) {
         return new PrimarySingleInsertIntoClause<>(spec, function);
@@ -117,7 +117,7 @@ abstract class MySQLInserts extends InsertSupports {
 
 
     /// 
-/// This class is the implementation of {@link MySQLInsert._PrimaryOptionSpec}.
+    /// This class is the implementation of {@link MySQLInsert._PrimaryOptionSpec}.
     private static final class PrimaryInsertIntoClause
             extends InsertSupports.NonQueryInsertOptionsImpl<MySQLInsert._PrimaryNullOptionSpec>
             implements MySQLInsert._PrimaryOptionSpec,
@@ -208,7 +208,7 @@ abstract class MySQLInserts extends InsertSupports {
 
 
     /// 
-/// This class is the implementation of {@link MySQLInsert._PrimarySingleOptionSpec}.
+    /// This class is the implementation of {@link MySQLInsert._PrimarySingleOptionSpec}.
     private static final class PrimarySingleInsertIntoClause<I extends Item>
             extends InsertSupports.NonQueryInsertOptionsImpl<MySQLInsert._PrimarySingleNullOptionSpec<I>>
             implements MySQLInsert._PrimarySingleOptionSpec<I>,

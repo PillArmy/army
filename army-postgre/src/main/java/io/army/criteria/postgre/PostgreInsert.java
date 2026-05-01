@@ -116,12 +116,12 @@ public interface PostgreInsert extends PostgreStatement {
 
     interface _ConflictOpClassSpec<T> extends ConflictTargetCommaClause<T> {
 
-/// @param operatorClass operator class
-/// @see <a href="https://www.postgresql.org/docs/current/brin-builtin-opclasses.html">Built-in BRIN Operator Classes</a>
+        /// @param operatorClass operator class
+        /// @see <a href="https://www.postgresql.org/docs/current/brin-builtin-opclasses.html">Built-in BRIN Operator Classes</a>
         ConflictTargetCommaClause<T> space(String operatorClass);
 
-/// @param supplier provide operator class
-/// @see <a href="https://www.postgresql.org/docs/current/brin-builtin-opclasses.html">Built-in BRIN Operator Classes</a>
+        /// @param supplier provide operator class
+        /// @see <a href="https://www.postgresql.org/docs/current/brin-builtin-opclasses.html">Built-in BRIN Operator Classes</a>
         ConflictTargetCommaClause<T> ifSpace(Supplier<String> supplier);
     }
 
@@ -129,13 +129,13 @@ public interface PostgreInsert extends PostgreStatement {
     interface _ConflictCollateSpec<T> extends _ConflictOpClassSpec<T> {
 
 
-/// @see <a href="https://www.postgresql.org/docs/16/collation.html">collation</a>
+        /// @see <a href="https://www.postgresql.org/docs/16/collation.html">collation</a>
         _ConflictOpClassSpec<T> collation(String collationName);
 
-/// @see <a href="https://www.postgresql.org/docs/16/collation.html">collation</a>
+        /// @see <a href="https://www.postgresql.org/docs/16/collation.html">collation</a>
         _ConflictOpClassSpec<T> collation(Supplier<String> supplier);
 
-/// @see <a href="https://www.postgresql.org/docs/16/collation.html">collation</a>
+        /// @see <a href="https://www.postgresql.org/docs/16/collation.html">collation</a>
         _ConflictOpClassSpec<T> ifCollation(Supplier<String> supplier);
 
     }
@@ -280,7 +280,7 @@ public interface PostgreInsert extends PostgreStatement {
     /*-------------------below complex insert syntax -------------------*/
 
     /// 
-/// This interface is used by in multi-statement api.
+    /// This interface is used by in multi-statement api.
     interface _ComplexInsertIntoClause<I extends Item> extends Item {
 
         <T> _TableAliasSpec<T, I, I> insertInto(TableMeta<T> table);
@@ -362,7 +362,7 @@ public interface PostgreInsert extends PostgreStatement {
 
 
     /// 
-/// static sub-statement syntax forbid the WITH clause of cte insert,because it destroy the Readability of code.
+    /// static sub-statement syntax forbid the WITH clause of cte insert,because it destroy the Readability of code.
     interface _StaticSubPreferLiteralSpec<I extends Item>
             extends InsertStatement._PreferLiteralClause<_CteInsertIntoClause<I>>,
             _CteInsertIntoClause<I> {
@@ -370,7 +370,7 @@ public interface PostgreInsert extends PostgreStatement {
     }
 
     /// 
-/// static sub-statement syntax forbid the WITH clause of cte insert,because it destroy the Readability of code.
+    /// static sub-statement syntax forbid the WITH clause of cte insert,because it destroy the Readability of code.
     interface _StaticSubNullOptionSpec<I extends Item>
             extends InsertStatement._NullOptionClause<_StaticSubPreferLiteralSpec<I>>,
             _StaticSubPreferLiteralSpec<I> {
@@ -378,7 +378,7 @@ public interface PostgreInsert extends PostgreStatement {
     }
 
     /// 
-/// static sub-statement syntax forbid the WITH clause of cte insert,because it destroy the Readability of code.
+    /// static sub-statement syntax forbid the WITH clause of cte insert,because it destroy the Readability of code.
     interface _StaticSubOptionSpec<I extends Item>
             extends InsertStatement._MigrationOptionClause<_StaticSubNullOptionSpec<I>>,
             _StaticSubNullOptionSpec<I> {

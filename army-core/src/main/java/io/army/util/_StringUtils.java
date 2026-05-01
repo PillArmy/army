@@ -194,7 +194,7 @@ public abstract class _StringUtils {
     }
 
     /// @throws IllegalArgumentException when bitString isn't bit string.
-/// @see #bitSetToBitString(BitSet, boolean)
+    /// @see #bitSetToBitString(BitSet, boolean)
     public static BitSet bitStringToBitSet(final String bitString, final boolean bitEndian)
             throws IllegalArgumentException {
         final int length;

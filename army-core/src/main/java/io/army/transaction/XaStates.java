@@ -25,7 +25,7 @@ import io.army.util._StringUtils;
 /// This enum representing An XA transaction progresses states.
 /// 
 /// 
-/// Application developer can get {@link XaStates} by {@link TransactionInfo#valueOf(Option)} 
+/// Application developer can get {@link XaStates} by {@link TransactionInfo#valueOf(Option)}
 /// when {@link RmSession} in XA transaction block. see {@link TransactionInfo#valueOf(Option)}
 /// 
 /// 
@@ -36,22 +36,22 @@ import io.army.util._StringUtils;
 public enum XaStates {
 
 
-/// 
-/// This instance representing XA transaction started after {@code  RmSession#start(Xid, int, TransactionOption)} method.
-/// 
+    /// 
+    /// This instance representing XA transaction started after {@code  RmSession#start(Xid, int, TransactionOption)} method.
+    /// 
     ACTIVE,
 
-/// 
-/// This instance representing XA transaction IDLE after {@code RmSession#end(Xid, int, Function)} method.
-/// 
-/// 
-/// This states support one-phase commit.
-/// 
+    /// 
+    /// This instance representing XA transaction IDLE after {@code RmSession#end(Xid, int, Function)} method.
+    /// 
+    /// 
+    /// This states support one-phase commit.
+    /// 
     IDLE,
 
-/// 
-/// This instance representing XA transaction PREPARED after {@code RmSession#prepare(Xid, Function)} method.
-/// 
+    /// 
+    /// This instance representing XA transaction PREPARED after {@code RmSession#prepare(Xid, Function)} method.
+    /// 
     PREPARED;
 
 

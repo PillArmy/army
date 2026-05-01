@@ -200,7 +200,7 @@ abstract class LiteralFunctions {
         private final Object arg;
 
         /// @see #oneArgFunc(String, Object)
-/// @see #myOneArgFunc(String, Object)
+        /// @see #myOneArgFunc(String, Object)
         private OneArgFunc(String name, boolean buildIn, @Nullable Object arg) {
             super(name, buildIn);
             this.arg = arg;
@@ -966,7 +966,7 @@ abstract class LiteralFunctions {
     } // StandardCastFunc
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/cast-functions.html#function_cast">CAST(expr AS type [ARRAY])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/cast-functions.html#function_cast">CAST(expr AS type [ARRAY])</a>
     private static String castFuncAppendMySQLDataType(final DataType dataTyp, final ServerMeta meta) {
         if (!(dataTyp instanceof MySQLType)) {
             throw new CriteriaException("");

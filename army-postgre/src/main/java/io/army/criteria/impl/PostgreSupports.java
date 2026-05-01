@@ -366,9 +366,9 @@ abstract class PostgreSupports extends CriteriaSupports {
         }
 
 
-/// @return true exists clause
-/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
-/// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
+        /// @return true exists clause
+        /// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
         boolean endClause() {
             final Boolean breadth = this.breadth;
             final boolean optionIsNull = breadth == null;
@@ -577,9 +577,9 @@ abstract class PostgreSupports extends CriteriaSupports {
             this.cycleMarkDefault = (_LiteralExpression) cycleMarkDefault;
         }
 
-/// @return true exists clause
-/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
-/// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-CYCLE">Cycle Detection</a>
+        /// @return true exists clause
+        /// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-CYCLE">Cycle Detection</a>
         boolean endClause() {
             final List<String> columnList = this.columnList;
             final boolean columnListIsNull = columnList == null;
@@ -1138,8 +1138,8 @@ abstract class PostgreSupports extends CriteriaSupports {
         private final CriteriaContext context;
 
         /// @see DynamicCteSearchSpec#comma()
-/// @see DynamicCteSearchSpec#DynamicCteSearchSpec(DynamicQueryParensClause, SubQuery)
-/// @see DynamicQueryParensClause#subQueryEnd(SubQuery)
+        /// @see DynamicCteSearchSpec#DynamicCteSearchSpec(DynamicQueryParensClause, SubQuery)
+        /// @see DynamicQueryParensClause#subQueryEnd(SubQuery)
         private DialectStatement._CommaClause<?> lastQueryCteEnder;
 
         private PostgreCteBuilder(final boolean recursive, CriteriaContext context) {
@@ -1235,7 +1235,7 @@ abstract class PostgreSupports extends CriteriaSupports {
 
 
     /// @see #closeCursor(String)
-/// @see #closeAllCursor()
+    /// @see #closeAllCursor()
     static final class CloseCursorStatement extends StatementMockSupport implements SimpleDmlStatement, _CloseCursor {
 
         private final Object targetCursor;

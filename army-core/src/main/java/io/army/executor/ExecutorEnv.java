@@ -46,7 +46,7 @@ public interface ExecutorEnv {
     MappingEnv mappingEnv();
 
     /// @see FactoryBuilder#columnConverterFunc(Function)
-/// @see ResultRecord#get(int, Class)
+    /// @see ResultRecord#get(int, Class)
     @Nullable
     Function<Class<?>, Function<Object, ?>> converterFunc();
 

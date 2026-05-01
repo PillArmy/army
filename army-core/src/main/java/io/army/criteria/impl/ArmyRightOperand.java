@@ -20,7 +20,7 @@ import io.army.criteria.RightOperand;
 
 /// package interface. This interface is base interface of :
 /// 
-/// - 
+/// -
 /// - {@link ArmySubQuery}
 /// - {@link ArmySQLExpression}
 /// 

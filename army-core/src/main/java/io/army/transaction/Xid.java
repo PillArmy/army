@@ -44,112 +44,112 @@ import java.util.function.Function;
 public interface Xid extends OptionSpec {
 
 
-/// 
-/// The global transaction identifier string
-/// 
-/// 
-/// 
-/// - Global transaction identifier must have text
-/// 
-/// 
-/// @return a global transaction identifier.
+    /// 
+    /// The global transaction identifier string
+    /// 
+    /// 
+    /// 
+    /// - Global transaction identifier must have text
+    /// 
+    /// 
+    /// @return a global transaction identifier.
     String getGtrid();
 
-/// Obtain the transaction branch identifier part of XID as an string.
-/// 
-/// 
-/// - If non-null,branch transaction identifier must have text
-/// 
-/// 
-/// @return a branch qualifier
+    /// Obtain the transaction branch identifier part of XID as an string.
+    /// 
+    /// 
+    /// - If non-null,branch transaction identifier must have text
+    /// 
+    /// 
+    /// @return a branch qualifier
     @Nullable
     String getBqual();
 
     /// Obtain the format identifier part of the XID.
-/// @return Format identifier. O means the OSI CCR format.
+    /// @return Format identifier. O means the OSI CCR format.
     int getFormatId();
 
-/// The implementation of {@link Xid} must correctly override this method with only following three :
-/// 
-/// - {@link #getGtrid()}
-/// - {@link #getBqual()}
-/// - {@link #getFormatId()}
-/// 
-/// Like following :
-/// <pre>
-/// <code>
-/// &#64;Override
-/// public int hashCode() {
-/// return Objects.hash(this.gtrid, this.bqual, this.formatId);
-/// }
-/// </code>
-/// </pre>
-/// 
+    /// The implementation of {@link Xid} must correctly override this method with only following three :
+    /// 
+    /// - {@link #getGtrid()}
+    /// - {@link #getBqual()}
+    /// - {@link #getFormatId()}
+    /// 
+    /// Like following :
+    /// <pre>
+    /// <code>
+    /// &#64;Override
+    /// public int hashCode() {
+    /// return Objects.hash(this.gtrid, this.bqual, this.formatId);
+    /// }
+    /// </code>
+    /// </pre>
+    /// 
     @Override
     int hashCode();
 
-/// The implementation of {@link Xid} must correctly override this method with only following three :
-/// 
-/// - {@link #getGtrid()}
-/// - {@link #getBqual()}
-/// - {@link #getFormatId()}
-/// 
-/// 
-/// Like following :
-/// <pre>
-/// <code>
-/// &#64;Override
-/// public boolean equals(final Object obj) {
-/// final boolean match;
-/// if (obj == this) {
-/// match = true;
-/// } else if (obj instanceof Xid) {
-/// final Xid o = (Xid) obj;
-/// match = this.gtrid.equals(o.getGtrid())
-/// && Objects.equals(o.getBqual(), this.bqual)
-/// && o.getFormatId() == this.formatId;
-/// } else {
-/// match = false;
-/// }
-/// return match;
-/// }
-/// </code>
-/// </pre>
-/// 
+    /// The implementation of {@link Xid} must correctly override this method with only following three :
+    /// 
+    /// - {@link #getGtrid()}
+    /// - {@link #getBqual()}
+    /// - {@link #getFormatId()}
+    /// 
+    /// 
+    /// Like following :
+    /// <pre>
+    /// <code>
+    /// &#64;Override
+    /// public boolean equals(final Object obj) {
+    /// final boolean match;
+    /// if (obj == this) {
+    /// match = true;
+    /// } else if (obj instanceof Xid) {
+    /// final Xid o = (Xid) obj;
+    /// match = this.gtrid.equals(o.getGtrid())
+    /// && Objects.equals(o.getBqual(), this.bqual)
+    /// && o.getFormatId() == this.formatId;
+    /// } else {
+    /// match = false;
+    /// }
+    /// return match;
+    /// }
+    /// </code>
+    /// </pre>
+    /// 
     @Override
     boolean equals(Object obj);
 
-/// override {@link Object#toString()}
-/// @return xid info, contain : 
-/// - class name
-/// - {@link #getGtrid()}
-/// - {@link #getBqual()}
-/// - {@link #getFormatId()}
-/// - dialect option if exists
-/// - {@link System#identityHashCode(Object)}
-/// 
+    /// override {@link Object#toString()}
+    /// @return xid info, contain :
+    /// - class name
+    /// - {@link #getGtrid()}
+    /// - {@link #getBqual()}
+    /// - {@link #getFormatId()}
+    /// - dialect option if exists
+    /// - {@link System#identityHashCode(Object)}
+    /// 
     @Override
     String toString();
 
     /// {@code  RmSession#recover(int, java.util.function.Function) } maybe add some dialect value.
-/// @return null or dialect option value.
+    /// @return null or dialect option value.
     @Nullable
     @Override
     <T> T valueOf(Option<T> option);
 
     /// Create one {@link Xid} instance.
-/// @param gtrid must have text
-/// @param bqual null or must have text
-/// @throws IllegalArgumentException throw when gtrid or bqual error.
+    /// @param gtrid must have text
+    /// @param bqual null or must have text
+    /// @throws IllegalArgumentException throw when gtrid or bqual error.
     static Xid from(String gtrid, @Nullable String bqual, int formatId) {
         return ArmyXid.from(gtrid, bqual, formatId, Option.EMPTY_FUNC);
     }
 
     /// Create one {@link Xid} instance.
-/// @param gtrid must have text
-/// @param bqual null or must have text
-/// @throws IllegalArgumentException throw when gtrid or bqual error.
-/// @throws NullPointerException     throw when optionFunc is null
+    /// @param gtrid must have text
+    /// @param bqual null or must have text
+    /// @throws IllegalArgumentException throw when gtrid or bqual error.
+    /// @throws NullPointerException     throw when optionFunc is null
     static Xid from(String gtrid, @Nullable String bqual, int formatId, Function<Option<?>, ?> optionFunc) {
         return ArmyXid.from(gtrid, bqual, formatId, optionFunc);
     }

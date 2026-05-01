@@ -153,7 +153,7 @@ public class FunctionTests extends SessionTestSupport {
     }
 
     /// @see MySQLs#jsonSearch(Object, Object, Object, Object, Object)
-/// @see MySQLs#jsonSearch(Object, Object, Object, Object, Object, Object, Object...)
+    /// @see MySQLs#jsonSearch(Object, Object, Object, Object, Object, Object, Object...)
     @Test
     public void jsonSearchFunc(final SyncLocalSession session) {
         final String jsonDoc = "[\"abc\", [{\"k\": \"10\"}, \"def\"], {\"x\":\"abc\"}, {\"y\":\"bcd\"}]";
@@ -176,7 +176,7 @@ public class FunctionTests extends SessionTestSupport {
     }
 
     /// @see MySQLs#elt(Object, Object, Object, Object, Object...)
-/// @see MySQLs#elt(Object, Consumer)
+    /// @see MySQLs#elt(Object, Consumer)
     @Test
     public void eltFunc(final SyncLocalSession session) {
         final Select stmt;

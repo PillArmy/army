@@ -32,13 +32,13 @@ public interface _SelectionGroup extends _SelectItem {
     String tableAlias();
 
 
-/// 
-/// Note,any element of the list couldn't be rendered. so couldn't invoke below method:
-/// 
-/// - {@link io.army.criteria.impl.inner._SelfDescribed#appendSql(StringBuilder, _SqlContext)}
-/// - {@link _Selection#appendSelectItem(StringBuilder, _SqlContext)}
-/// 
-/// @return element list of this group.
+    /// 
+    /// Note,any element of the list couldn't be rendered. so couldn't invoke below method:
+    /// 
+    /// - {@link io.army.criteria.impl.inner._SelfDescribed#appendSql(StringBuilder, _SqlContext)}
+    /// - {@link _Selection#appendSelectItem(StringBuilder, _SqlContext)}
+    /// 
+    /// @return element list of this group.
     List<? extends Selection> selectionList();
 
 

@@ -36,7 +36,7 @@ import java.math.BigInteger;
 /// - {@link Double}
 /// - {@link Float}
 /// - {@link Boolean} true : {@link BigDecimal#ONE} , false: {@link BigDecimal#ZERO}
-/// - {@link String} 
+/// - {@link String}
 /// 
 /// to {@link BigDecimal},if overflow,throw {@link io.army.ArmyException}
 /// @since 0.6.0

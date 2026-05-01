@@ -280,7 +280,7 @@ public class FunctionTests extends SessionTestsSupport {
     }
 
     /// @see MySQLs#CURRENT_DATE
-/// @see MySQLs#currentDate()
+    /// @see MySQLs#currentDate()
     @Test
     public void currentDateFunc(final ReactiveLocalSession session) {
 
@@ -303,7 +303,7 @@ public class FunctionTests extends SessionTestsSupport {
     }
 
     /// @see MySQLs#dateAdd(Object, WordInterval, Object, MySQLTimeUnit)
-/// @see MySQLs#dateSub(Object, WordInterval, Object, MySQLTimeUnit)
+    /// @see MySQLs#dateSub(Object, WordInterval, Object, MySQLTimeUnit)
     @Test
     public void dateAddFunc(final ReactiveLocalSession session) {
 

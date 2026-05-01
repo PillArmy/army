@@ -59,7 +59,7 @@ public interface _InsertContext extends _DmlContext, _SetClauseContext {
     void inConflictSetClause(boolean inSetClause);
 
     /// Just for {@link #appendField(FieldMeta)} in on conflict clause.
-/// @param output default false
+    /// @param output default false
     void outputFieldTableAlias(boolean output);
 
     @Override

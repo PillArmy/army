@@ -34,14 +34,14 @@ public interface Stmt {
     String toString();
 
 
-/// This interface representing  pair sql statement spec.
-/// This interface is base interface of following :
-/// 
-/// - {@link PairStmt}
-/// - {@link PairBatchStmt}
-/// 
-/// *
-/// @since 0.6.0
+    /// This interface representing  pair sql statement spec.
+    /// This interface is base interface of following :
+    /// 
+    /// - {@link PairStmt}
+    /// - {@link PairBatchStmt}
+    /// 
+    /// *
+    /// @since 0.6.0
     interface PairStmtSpec extends Stmt {
 
         SingleSqlStmt firstStmt();

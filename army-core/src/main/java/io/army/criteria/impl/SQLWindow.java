@@ -113,7 +113,7 @@ abstract class SQLWindow<PR, OR, OD, FS, FB, BR, DC, R>
 
 
     /// 
-/// Constructor for named {@link  Window}
+    /// Constructor for named {@link  Window}
     SQLWindow(final String windowName, final CriteriaContext context, final @Nullable String existingWindowName) {
         super(context);
         if (!_StringUtils.hasText(windowName)) {
@@ -132,7 +132,7 @@ abstract class SQLWindow<PR, OR, OD, FS, FB, BR, DC, R>
 
 
     /// 
-/// Constructor for anonymous {@link  Window}
+    /// Constructor for anonymous {@link  Window}
     SQLWindow(final CriteriaContext context, final @Nullable String existingWindowName) {
         super(context);
         if (existingWindowName != null) {
@@ -679,8 +679,8 @@ abstract class SQLWindow<PR, OR, OD, FS, FB, BR, DC, R>
     }
 
     /// @see #rows(RowModifier)
-/// @see #range(RowModifier)
-/// @see #groups(RowModifier)
+    /// @see #range(RowModifier)
+    /// @see #groups(RowModifier)
     private FS startExtent(final FrameUnits units, final RowModifier modifier) {
         if (this.frameUnits != null) {
             throw ContextStack.clearStackAndCastCriteriaApi();
@@ -694,8 +694,8 @@ abstract class SQLWindow<PR, OR, OD, FS, FB, BR, DC, R>
     }
 
     /// @see #rows(Expression, ExpModifier)
-/// @see #range(Expression, ExpModifier)
-/// @see #groups(Expression, ExpModifier)
+    /// @see #range(Expression, ExpModifier)
+    /// @see #groups(Expression, ExpModifier)
     private FS startExtent(final FrameUnits units, final Expression exp, final ExpModifier modifier) {
         if (this.frameUnits != null) {
             throw ContextStack.clearStackAndCastCriteriaApi();
@@ -712,8 +712,8 @@ abstract class SQLWindow<PR, OR, OD, FS, FB, BR, DC, R>
     }
 
     /// @see #rows()
-/// @see #range()
-/// @see #groups()
+    /// @see #range()
+    /// @see #groups()
     private FB betweenExtent(final FrameUnits units) {
         if (this.frameUnits != null) {
             throw ContextStack.clearStackAndCastCriteriaApi();

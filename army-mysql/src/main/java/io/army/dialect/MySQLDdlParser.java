@@ -41,7 +41,7 @@ final class MySQLDdlParser extends ArmyDdlParser<MySQLParser> {
         super(dialect);
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.4/en/create-table.html">CREATE TABLE Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.4/en/create-table.html">CREATE TABLE Statement</a>
     @Override
     public <T> void createTable(final TableMeta<T> table, final List<String> sqlList) {
         final StringBuilder builder;
@@ -73,7 +73,7 @@ final class MySQLDdlParser extends ArmyDdlParser<MySQLParser> {
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.4/en/alter-table.html">ALTER TABLE Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.4/en/alter-table.html">ALTER TABLE Statement</a>
     @Override
     public void modifyTableComment(final TableMeta<?> table, final List<String> sqlList) {
         final StringBuilder builder = new StringBuilder();
@@ -88,7 +88,7 @@ final class MySQLDdlParser extends ArmyDdlParser<MySQLParser> {
         sqlList.add(builder.toString());
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.4/en/drop-table.html">DROP TABLE Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.4/en/drop-table.html">DROP TABLE Statement</a>
     @Override
     public void dropTable(final List<TableMeta<?>> tableList, final List<String> sqlList) {
         final int listSize = tableList.size();
@@ -110,7 +110,7 @@ final class MySQLDdlParser extends ArmyDdlParser<MySQLParser> {
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.4/en/alter-table.html">ALTER TABLE Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.4/en/alter-table.html">ALTER TABLE Statement</a>
     @Override
     public void addColumn(final List<FieldMeta<?>> fieldList, final List<String> sqlList) {
         final int listSize = fieldList.size();
@@ -148,7 +148,7 @@ final class MySQLDdlParser extends ArmyDdlParser<MySQLParser> {
         sqlList.add(builder.toString());
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.4/en/alter-table.html">ALTER TABLE Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.4/en/alter-table.html">ALTER TABLE Statement</a>
     @Override
     public void modifyColumn(final List<FieldResult> resultList, final List<String> sqlList) {
         final int listSize = resultList.size();

@@ -77,11 +77,11 @@ public class VariableTests extends SessionTestSupport {
     }
 
 
-/// Test {@link MySQLs#setStmt()}.
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">SET Syntax for Variable Assignment</a>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/server-system-variables.html">Server System Variables</a>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/user-variables.html">User-Defined Variables</a>
-/// @since 0.6.6
+    /// Test {@link MySQLs#setStmt()}.
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">SET Syntax for Variable Assignment</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/server-system-variables.html">Server System Variables</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/user-variables.html">User-Defined Variables</a>
+    /// @since 0.6.6
     @Test
     public void simpleSetStmt(final SyncLocalSession session) {
 

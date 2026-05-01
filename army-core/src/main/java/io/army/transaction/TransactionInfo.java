@@ -35,36 +35,36 @@ import io.army.lang.Nullable;
 public interface TransactionInfo extends TransactionSpec {
 
 
-/// {@link io.army.session.Session}'s transaction isolation level.
-/// 
-/// - {@link #inTransaction()} is true : the isolation representing current transaction isolation
-/// - Session level transaction isolation
-/// 
-/// @return non-null
+    /// {@link io.army.session.Session}'s transaction isolation level.
+    /// 
+    /// - {@link #inTransaction()} is true : the isolation representing current transaction isolation
+    /// - Session level transaction isolation
+    /// 
+    /// @return non-null
     @NonNull
     Isolation isolation();
 
-/// Session whether in transaction block or not.
-/// **NOTE** : for XA transaction {@link XaStates#PREPARED} always return false.
-/// @return true : {@link Session} in transaction block.
+    /// Session whether in transaction block or not.
+    /// **NOTE** : for XA transaction {@link XaStates#PREPARED} always return false.
+    /// @return true : {@link Session} in transaction block.
     boolean inTransaction();
 
-/// @return true when
-/// 
-/// - {@link #inTransaction()} is true
-/// - database server demand client rollback(eg: PostgreSQL) or {@link Session#isRollbackOnly()}
-/// 
+    /// @return true when
+    /// 
+    /// - {@link #inTransaction()} is true
+    /// - database server demand client rollback(eg: PostgreSQL) or {@link Session#isRollbackOnly()}
+    /// 
     boolean isRollbackOnly();
 
-/// 
-/// Application developer can get
-/// 
-/// - {@link XaStates} with {@link Option#XA_STATES}
-/// - {@link Xid} with {@link Option#XID}
-/// - {@code flag} of last phase with {@link Option#XA_FLAGS}
-/// 
-/// when this instance is returned by {@link RmSession}.
-/// 
+    /// 
+    /// Application developer can get
+    /// 
+    /// - {@link XaStates} with {@link Option#XA_STATES}
+    /// - {@link Xid} with {@link Option#XID}
+    /// - {@code flag} of last phase with {@link Option#XA_FLAGS}
+    /// 
+    /// when this instance is returned by {@link RmSession}.
+    /// 
     @Override
     <T> T valueOf(Option<T> option);
 
@@ -75,7 +75,7 @@ public interface TransactionInfo extends TransactionSpec {
 
 
     /// Get a {@link TransactionInfo} instance that {@link TransactionInfo#inTransaction()} is false
-/// and option is empty.
+    /// and option is empty.
     static TransactionInfo notInTransaction(Isolation isolation, boolean readOnly) {
         return ArmyTransactionInfo.noInTransaction(isolation, readOnly);
     }
@@ -95,20 +95,20 @@ public interface TransactionInfo extends TransactionSpec {
         return ArmyTransactionInfo.pseudoEnd(info, flags);
     }
 
-/// @throws IllegalArgumentException throw when
-/// 
-/// - info is unknown implementation
-/// - info's {@link TransactionInfo#inTransaction()} is false and info's {@link TransactionInfo#isolation()} isn't {@link Isolation#PSEUDO}
-/// 
+    /// @throws IllegalArgumentException throw when
+    /// 
+    /// - info is unknown implementation
+    /// - info's {@link TransactionInfo#inTransaction()} is false and info's {@link TransactionInfo#isolation()} isn't {@link Isolation#PSEUDO}
+    /// 
     static TransactionInfo forRollbackOnly(TransactionInfo info) {
         return ArmyTransactionInfo.forRollbackOnly(info);
     }
 
-/// @throws IllegalArgumentException throw when
-/// 
-/// - info is unknown implementation
-/// - info's {@link TransactionInfo#inTransaction()} is false 
-/// 
+    /// @throws IllegalArgumentException throw when
+    /// 
+    /// - info is unknown implementation
+    /// - info's {@link TransactionInfo#inTransaction()} is false
+    /// 
     static TransactionInfo forChain(TransactionInfo info) {
         return ArmyTransactionInfo.forChain(info);
     }
@@ -132,14 +132,14 @@ public interface TransactionInfo extends TransactionSpec {
         InfoBuilder option(Xid xid, int flags, XaStates xaStates, TransactionOption option);
 
 
-/// Create a new {@link TransactionInfo} instance.
-/// **NOTE**: if satisfy following :
-/// 
-/// - in transaction is true
-/// - not found {@link Option#START_MILLIS}
-/// 
-/// then this method always auto add {@link Option#START_MILLIS}.
-/// @throws IllegalStateException throw when in transaction and not found {@link Option#DEFAULT_ISOLATION}.
+        /// Create a new {@link TransactionInfo} instance.
+        /// **NOTE**: if satisfy following :
+        /// 
+        /// - in transaction is true
+        /// - not found {@link Option#START_MILLIS}
+        /// 
+        /// then this method always auto add {@link Option#START_MILLIS}.
+        /// @throws IllegalStateException throw when in transaction and not found {@link Option#DEFAULT_ISOLATION}.
         TransactionInfo build();
 
     }

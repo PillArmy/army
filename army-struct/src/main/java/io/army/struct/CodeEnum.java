@@ -59,8 +59,8 @@ public interface CodeEnum {
     }
 
     /// 
-/// see {@code io.army.mapping.CodeEnumType#getInstanceMap(java.lang.Class)}
-/// @return instance map ; unmodified map
+    /// see {@code io.army.mapping.CodeEnumType#getInstanceMap(java.lang.Class)}
+    /// @return instance map ; unmodified map
     static <T extends Enum<T> & CodeEnum> Map<Integer, T> getInstanceMap(Class<T> clazz) throws IllegalArgumentException {
         return EnumHelper.getCodeMap(clazz);
     }

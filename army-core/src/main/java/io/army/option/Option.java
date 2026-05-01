@@ -67,148 +67,148 @@ public final class Option<T> {
     private static final ConcurrentMap<String, Option<?>> INSTANCE_MAP = _Collections.concurrentHashMap();
 
 
-/// 
-/// Representing a name option. For example : transaction name in firebird database.
-/// 
+    /// 
+    /// Representing a name option. For example : transaction name in firebird database.
+    /// 
     public static final Option<String> NAME = Option.from("NAME", String.class);
 
-/// 
-/// Representing a name option. For example : transaction label that is print only by {@link TransactionInfo#toString()}
-/// 
+    /// 
+    /// Representing a name option. For example : transaction label that is print only by {@link TransactionInfo#toString()}
+    /// 
     public static final Option<String> LABEL = Option.from("LABEL", String.class);
 
-/// 
-/// Representing transaction TIMEOUT milliseconds ,for example transaction timeout.
-/// 
+    /// 
+    /// Representing transaction TIMEOUT milliseconds ,for example transaction timeout.
+    /// 
     public static final Option<Integer> TIMEOUT_MILLIS = Option.from("TIMEOUT MILLIS", Integer.class);
 
     /// Representing start time millis ,for example transaction start time millis.
     public static final Option<Long> START_MILLIS = Option.from("START MILLIS", Long.class);
 
-/// 
-/// Representing a wait option. For example : transaction wait option.
-/// 
-/// @see <a href="https://firebirdsql.org/file/documentation/html/en/refdocs/fblangref40/firebird-40-language-reference.html#fblangref40-transacs-settransac">firebird : SET TRANSACTION</a>
+    /// 
+    /// Representing a wait option. For example : transaction wait option.
+    /// 
+    /// @see <a href="https://firebirdsql.org/file/documentation/html/en/refdocs/fblangref40/firebird-40-language-reference.html#fblangref40-transacs-settransac">firebird : SET TRANSACTION</a>
     public static final Option<Boolean> WAIT = Option.from("WAIT", Boolean.class);
 
-/// 
-/// Representing transaction LOCK TIMEOUT milliseconds ,for example firebird database.
-/// 
-/// @see <a href="https://firebirdsql.org/file/documentation/html/en/refdocs/fblangref40/firebird-40-language-reference.html#fblangref40-transacs-settransac">firebird : SET TRANSACTION</a>
+    /// 
+    /// Representing transaction LOCK TIMEOUT milliseconds ,for example firebird database.
+    /// 
+    /// @see <a href="https://firebirdsql.org/file/documentation/html/en/refdocs/fblangref40/firebird-40-language-reference.html#fblangref40-transacs-settransac">firebird : SET TRANSACTION</a>
     public static final Option<Integer> LOCK_TIMEOUT_MILLIS = Option.from("LOCK TIMEOUT", Integer.class);
 
 
-/// 
-/// This option representing transaction isolation level.
-/// 
-/// 
-/// This option always is supported by {@link TransactionOption#valueOf(Option)}.
-/// 
-/// @see #READ_ONLY
+    /// 
+    /// This option representing transaction isolation level.
+    /// 
+    /// 
+    /// This option always is supported by {@link TransactionOption#valueOf(Option)}.
+    /// 
+    /// @see #READ_ONLY
     public static final Option<Isolation> ISOLATION = Option.from("ISOLATION", Isolation.class);
 
     public static final Option<Boolean> DEFAULT_ISOLATION = Option.from("DEFAULT ISOLATION", Boolean.class);
 
-/// 
-/// This option representing read-only transaction.
-/// 
-/// 
-/// This option always is supported by {@link TransactionOption#valueOf(Option)}.
-/// 
-/// 
-/// When this option is supported by {@link Session#valueOf(Option)} , this option representing the session in read-only transaction block
-/// after last statement executing , now the {@link #IN_TRANSACTION} always true.
-/// 
-/// 
-/// When this option is supported by {@link ResultStates#valueOf(Option)} , this option representing the session in read-only transaction block
-/// after current statement executing, now the {@link #IN_TRANSACTION} always true. 
-/// **NOTE** : the 'current' statement perhaps is a part of multi-statement or is CALL command that execute procedures,
-/// that means the read-only transaction maybe have ended by next statement.
-/// 
-/// @see #IN_TRANSACTION
+    /// 
+    /// This option representing read-only transaction.
+    /// 
+    /// 
+    /// This option always is supported by {@link TransactionOption#valueOf(Option)}.
+    /// 
+    /// 
+    /// When this option is supported by {@link Session#valueOf(Option)} , this option representing the session in read-only transaction block
+    /// after last statement executing , now the {@link #IN_TRANSACTION} always true.
+    /// 
+    /// 
+    /// When this option is supported by {@link ResultStates#valueOf(Option)} , this option representing the session in read-only transaction block
+    /// after current statement executing, now the {@link #IN_TRANSACTION} always true.
+    /// **NOTE** : the 'current' statement perhaps is a part of multi-statement or is CALL command that execute procedures,
+    /// that means the read-only transaction maybe have ended by next statement.
+    /// 
+    /// @see #IN_TRANSACTION
     public static final Option<Boolean> READ_ONLY = Option.from("READ ONLY", Boolean.class);
 
 
-/// 
-/// This option representing {@link Session} in transaction block.
-/// 
-/// 
-/// This option always is supported by {@link TransactionInfo#valueOf(Option)}.
-/// 
-/// 
-/// When this option is supported by {@link Session#valueOf(Option)} , this option representing the session in transaction block
-/// after last statement executing. Now this option is equivalent to {@link Session#inTransaction()}.
-/// 
-/// 
-/// When this option is supported by {@link ResultStates#valueOf(Option)} , this option representing the session in transaction block
-/// after current statement executing.
-/// **NOTE** : the 'current' statement perhaps is a part of multi-statement or is CALL command that execute procedures
-/// that means the transaction block maybe have ended by next statement.
-/// 
-/// @see #READ_ONLY
-/// @see Session#inTransaction()
+    /// 
+    /// This option representing {@link Session} in transaction block.
+    /// 
+    /// 
+    /// This option always is supported by {@link TransactionInfo#valueOf(Option)}.
+    /// 
+    /// 
+    /// When this option is supported by {@link Session#valueOf(Option)} , this option representing the session in transaction block
+    /// after last statement executing. Now this option is equivalent to {@link Session#inTransaction()}.
+    /// 
+    /// 
+    /// When this option is supported by {@link ResultStates#valueOf(Option)} , this option representing the session in transaction block
+    /// after current statement executing.
+    /// **NOTE** : the 'current' statement perhaps is a part of multi-statement or is CALL command that execute procedures
+    /// that means the transaction block maybe have ended by next statement.
+    /// 
+    /// @see #READ_ONLY
+    /// @see Session#inTransaction()
     public static final Option<Boolean> IN_TRANSACTION = Option.from("IN TRANSACTION", Boolean.class);
 
     public static final Option<Boolean> ROLLBACK_ONLY = Option.from("ROLLBACK ONLY", Boolean.class);
 
-/// 
-/// When this option is supported by {@link Session#valueOf(Option)} , this option representing the session is auto commit
-/// after last statement executing.
-/// 
-/// 
-/// When this option is supported by {@link ResultStates#valueOf(Option)} , this option representing the session is auto commit
-/// after current statement executing.
-/// **NOTE** : the 'current' statement perhaps is a part of multi-statement or is CALL command that execute procedures
-/// that means the auto commit status maybe have modified by next statement.
-/// 
-/// @see #READ_ONLY
-/// @see #IN_TRANSACTION
+    /// 
+    /// When this option is supported by {@link Session#valueOf(Option)} , this option representing the session is auto commit
+    /// after last statement executing.
+    /// 
+    /// 
+    /// When this option is supported by {@link ResultStates#valueOf(Option)} , this option representing the session is auto commit
+    /// after current statement executing.
+    /// **NOTE** : the 'current' statement perhaps is a part of multi-statement or is CALL command that execute procedures
+    /// that means the auto commit status maybe have modified by next statement.
+    /// 
+    /// @see #READ_ONLY
+    /// @see #IN_TRANSACTION
     public static final Option<Boolean> AUTO_COMMIT = Option.from("AUTO COMMIT", Boolean.class);
 
     /// true : text value support backslash escapes
     public static final Option<Boolean> BACKSLASH_ESCAPES = Option.from("BACKSLASH ESCAPES", Boolean.class);
 
-/// 
-/// representing the XID option of {@link TransactionInfo#valueOf(Option)} from {@link RmSession}.
-/// 
-/// @see Xid
+    /// 
+    /// representing the XID option of {@link TransactionInfo#valueOf(Option)} from {@link RmSession}.
+    /// 
+    /// @see Xid
     public static final Option<Xid> XID = Option.from("XID", Xid.class);
 
-/// 
-/// representing the XA_STATES option of {@link TransactionInfo#valueOf(Option)} from {@link RmSession}.
-/// 
-/// @see XaStates
+    /// 
+    /// representing the XA_STATES option of {@link TransactionInfo#valueOf(Option)} from {@link RmSession}.
+    /// 
+    /// @see XaStates
     public static final Option<XaStates> XA_STATES = Option.from("XA STATES", XaStates.class);
 
-/// 
-/// representing the xa flags option of {@link TransactionInfo#valueOf(Option)} from {@link RmSession}.
-/// 
+    /// 
+    /// representing the xa flags option of {@link TransactionInfo#valueOf(Option)} from {@link RmSession}.
+    /// 
     public static final Option<Integer> XA_FLAGS = Option.from("XA FLAGS", Integer.class);
 
-/// 
-/// This option representing {@link Session} is read only, **usually** (not always) database is read only. 
-/// That means application developer can't modify the read only status by sql.
-/// 
-/// 
-/// This option **perhaps** is supported by following :
-/// 
-/// - {@link ResultStates#valueOf(Option)}
-/// 
-/// 
+    /// 
+    /// This option representing {@link Session} is read only, **usually** (not always) database is read only.
+    /// That means application developer can't modify the read only status by sql.
+    /// 
+    /// 
+    /// This option **perhaps** is supported by following :
+    /// 
+    /// - {@link ResultStates#valueOf(Option)}
+    /// 
+    /// 
     public static final Option<Boolean> READ_ONLY_SESSION = Option.from("READ ONLY SESSION", Boolean.class);
 
-/// 
-/// [NO] CHAIN option of COMMIT command.
-/// 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/commit.html">MySQL : COMMIT [WORK] [AND [NO] CHAIN]</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-commit.html">postgre : COMMIT [ WORK | TRANSACTION ] [ AND [ NO ] CHAIN ]</a>
+    /// 
+    /// [NO] CHAIN option of COMMIT command.
+    /// 
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/commit.html">MySQL : COMMIT [WORK] [AND [NO] CHAIN]</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-commit.html">postgre : COMMIT [ WORK | TRANSACTION ] [ AND [ NO ] CHAIN ]</a>
     public static final Option<Boolean> CHAIN = Option.from("CHAIN", Boolean.class);
 
 
-/// 
-/// [NO] RELEASE option of COMMIT/ROLLBACK command.
-/// 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/commit.html">MySQL : ROLLBACK [WORK] [[NO] RELEASE]</a>
+    /// 
+    /// [NO] RELEASE option of COMMIT/ROLLBACK command.
+    /// 
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/commit.html">MySQL : ROLLBACK [WORK] [[NO] RELEASE]</a>
     public static final Option<Boolean> RELEASE = Option.from("RELEASE", Boolean.class);
 
 

@@ -31,13 +31,13 @@ import java.util.function.Supplier;
 /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show.html">SHOW Statements</a>
 public interface MySQLShow extends MySQLStatement {
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-binlog-events.html">SHOW BINLOG EVENTS Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-binlog-events.html">SHOW BINLOG EVENTS Statement</a>
     interface _BinLogEventsLimitSpec extends _LimitClause<_AsCommandClause<DqlStatement>>, _AsCommandClause<DqlStatement> {
 
 
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-binlog-events.html">SHOW BINLOG EVENTS Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-binlog-events.html">SHOW BINLOG EVENTS Statement</a>
     interface _BinLogEventsFromSpec extends _BinLogEventsLimitSpec {
 
         _BinLogEventsLimitSpec from(Expression pos);
@@ -51,7 +51,7 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-binlog-events.html">SHOW BINLOG EVENTS Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-binlog-events.html">SHOW BINLOG EVENTS Statement</a>
     interface _BinLogEventsInSpec extends _BinLogEventsFromSpec {
 
         _BinLogEventsFromSpec in(Expression logName);
@@ -65,17 +65,17 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-character-set.html">SHOW CHARACTER SET Statement</a>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-collation.html">SHOW COLLATION Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-character-set.html">SHOW CHARACTER SET Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-collation.html">SHOW COLLATION Statement</a>
     interface _CharacterSetWhereAndSpec extends _WhereAndClause<_CharacterSetWhereAndSpec>,
             _AsCommandClause<DqlStatement> {
 
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-character-set.html">SHOW CHARACTER SET Statement</a>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-collation.html">SHOW COLLATION Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-character-set.html">SHOW CHARACTER SET Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-collation.html">SHOW COLLATION Statement</a>
     interface _LikeWhereSpec extends _QueryWhereClause<_AsCommandClause<DqlStatement>, _CharacterSetWhereAndSpec> {
 
         _AsCommandClause<DqlStatement> like(Expression pattern);
@@ -88,7 +88,7 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
     interface _ColumnsFromInDatabaseSpec extends _LikeWhereSpec {
 
         _LikeWhereSpec from(String databaseName);
@@ -101,7 +101,7 @@ public interface MySQLShow extends MySQLStatement {
 
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
     interface _ColumnsFromInTableClause {
 
         _ColumnsFromInDatabaseSpec from(TableMeta<?> table);
@@ -110,7 +110,7 @@ public interface MySQLShow extends MySQLStatement {
 
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
     interface _ColumnFieldClause {
 
         _ColumnsFromInTableClause columns();
@@ -120,7 +120,7 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
     interface _OptionFullSpec extends _ColumnFieldClause {
 
         _ColumnFieldClause full();
@@ -128,7 +128,7 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
     interface _OptionExtendedSpec extends _OptionFullSpec {
 
         _OptionFullSpec extended();
@@ -136,7 +136,7 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-database.html">SHOW CREATE DATABASE Statement</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-database.html">SHOW CREATE DATABASE Statement</a>
     interface _IfNotExistsClause {
 
         _AsCommandClause<DqlStatement> ifNotExists(String databaseName);
@@ -145,7 +145,7 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show.html">SHOW Statements</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show.html">SHOW Statements</a>
     interface _ShowCommandSpec extends _OptionExtendedSpec {
 
         _AsCommandClause<DqlStatement> binaryLogs();
@@ -153,41 +153,41 @@ public interface MySQLShow extends MySQLStatement {
         /// @since MySQL 8.2.0
         _AsCommandClause<DqlStatement> binaryLogsStatus();
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-binlog-events.html">SHOW BINLOG EVENTS Statement</a>
+        /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-binlog-events.html">SHOW BINLOG EVENTS Statement</a>
         _BinLogEventsInSpec binLogEvents();
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-character-set.html">SHOW CHARACTER SET Statement</a>
+        /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-character-set.html">SHOW CHARACTER SET Statement</a>
         _LikeWhereSpec characterSet();
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-collation.html">SHOW COLLATION Statement</a>
+        /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-collation.html">SHOW COLLATION Statement</a>
         _LikeWhereSpec collation();
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-database.html">SHOW CREATE DATABASE Statement</a>
+        /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-database.html">SHOW CREATE DATABASE Statement</a>
         _IfNotExistsClause createDatabase();
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-database.html">SHOW CREATE DATABASE Statement</a>
+        /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-database.html">SHOW CREATE DATABASE Statement</a>
         _AsCommandClause<DqlStatement> createDatabase(String databaseName);
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-event.html">SHOW CREATE EVENT Statement</a>
+        /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-event.html">SHOW CREATE EVENT Statement</a>
         _AsCommandClause<DqlStatement> createEvent(String eventName);
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-function.html">SHOW CREATE FUNCTION Statement</a>
+        /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-function.html">SHOW CREATE FUNCTION Statement</a>
         _AsCommandClause<DqlStatement> createFunction(String funcName);
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-procedure.html">SHOW CREATE PROCEDURE Statement</a>
+        /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-procedure.html">SHOW CREATE PROCEDURE Statement</a>
         _AsCommandClause<DqlStatement> createProcedure(String procName);
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-table.html">SHOW CREATE TABLE Statement</a>
+        /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-table.html">SHOW CREATE TABLE Statement</a>
         _AsCommandClause<DqlStatement> createTable(String tableName);
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-trigger.html">SHOW CREATE TRIGGER Statement</a>
+        /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-trigger.html">SHOW CREATE TRIGGER Statement</a>
         _AsCommandClause<DqlStatement> createTrigger(String triggerName);
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-user.html">SHOW CREATE USER Statement</a>
+        /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-user.html">SHOW CREATE USER Statement</a>
         _AsCommandClause<DqlStatement> createUser(String userName);
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-view.html">SHOW CREATE VIEW Statement</a>
+        /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-view.html">SHOW CREATE VIEW Statement</a>
         _AsCommandClause<DqlStatement> createView(String view);
 
 

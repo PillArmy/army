@@ -46,18 +46,18 @@ import java.util.function.Function;
 public final class PgMultiRangeType extends PgRangeType implements PgRangeType.MultiRangeType {
 
 
-/// @param javaType one dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-/// see {@link PostgreRange}
-/// @param param    from {@link Mapping#params()} ,it's the name of 
-/// - {@link PgType#INT4MULTIRANGE}
-/// - {@link PgType#INT8MULTIRANGE}
-/// - {@link PgType#NUMMULTIRANGE}
-/// - {@link PgType#DATEMULTIRANGE}
-/// - {@link PgType#TSMULTIRANGE}
-/// - {@link PgType#TSTZMULTIRANGE}
-/// 
-/// @throws IllegalArgumentException throw when javaType error
-/// @throws MetaException            throw when param error.
+    /// @param javaType one dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
+    /// see {@link PostgreRange}
+    /// @param param    from {@link Mapping#params()} ,it's the name of
+    /// - {@link PgType#INT4MULTIRANGE}
+    /// - {@link PgType#INT8MULTIRANGE}
+    /// - {@link PgType#NUMMULTIRANGE}
+    /// - {@link PgType#DATEMULTIRANGE}
+    /// - {@link PgType#TSMULTIRANGE}
+    /// - {@link PgType#TSTZMULTIRANGE}
+    /// 
+    /// @throws IllegalArgumentException throw when javaType error
+    /// @throws MetaException            throw when param error.
     public static PgMultiRangeType from(final Class<?> javaType, final String param) throws MetaException {
         final PgType sqlType;
         try {
@@ -72,16 +72,16 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
     }
 
 
-/// @param javaType one dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-/// see {@link PostgreRange}
-/// @param sqlType  from {@link Mapping#params()} ,valid instance: 
-/// - {@link PgType#INT4MULTIRANGE}
-/// - {@link PgType#INT8MULTIRANGE}
-/// - {@link PgType#NUMMULTIRANGE}
-/// - {@link PgType#DATEMULTIRANGE}
-/// - {@link PgType#TSMULTIRANGE}
-/// - {@link PgType#TSTZMULTIRANGE}
-/// 
+    /// @param javaType one dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
+    /// see {@link PostgreRange}
+    /// @param sqlType  from {@link Mapping#params()} ,valid instance:
+    /// - {@link PgType#INT4MULTIRANGE}
+    /// - {@link PgType#INT8MULTIRANGE}
+    /// - {@link PgType#NUMMULTIRANGE}
+    /// - {@link PgType#DATEMULTIRANGE}
+    /// - {@link PgType#TSMULTIRANGE}
+    /// - {@link PgType#TSTZMULTIRANGE}
+    /// 
     public static PgMultiRangeType from(final Class<?> javaType, final PgType sqlType)
             throws IllegalArgumentException {
 
@@ -106,17 +106,17 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
     }
 
 
-/// @param javaType one dimension non-string array class
-/// see {@link PostgreRange}
-/// @param sqlType  from {@link Mapping#params()} ,valid instance: 
-/// - {@link PgType#INT4MULTIRANGE}
-/// - {@link PgType#INT8MULTIRANGE}
-/// - {@link PgType#NUMMULTIRANGE}
-/// - {@link PgType#DATEMULTIRANGE}
-/// - {@link PgType#TSMULTIRANGE}
-/// - {@link PgType#TSTZMULTIRANGE}
-/// 
-/// @throws IllegalArgumentException throw when javaType or sqlType error
+    /// @param javaType one dimension non-string array class
+    /// see {@link PostgreRange}
+    /// @param sqlType  from {@link Mapping#params()} ,valid instance:
+    /// - {@link PgType#INT4MULTIRANGE}
+    /// - {@link PgType#INT8MULTIRANGE}
+    /// - {@link PgType#NUMMULTIRANGE}
+    /// - {@link PgType#DATEMULTIRANGE}
+    /// - {@link PgType#TSMULTIRANGE}
+    /// - {@link PgType#TSTZMULTIRANGE}
+    /// 
+    /// @throws IllegalArgumentException throw when javaType or sqlType error
     public static PgMultiRangeType fromFunc(final Class<?> javaType, final PgType sqlType,
                                             final RangeFunction<?, ?> rangeFunc)
             throws IllegalArgumentException {
@@ -132,19 +132,19 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
     }
 
 
-/// @param javaType   one dimension non-string array class
-/// see {@link PostgreRange}
-/// @param param      from {@link Mapping#params()} ,it's the name of 
-/// - {@link PgType#INT4MULTIRANGE}
-/// - {@link PgType#INT8MULTIRANGE}
-/// - {@link PgType#NUMMULTIRANGE}
-/// - {@link PgType#DATEMULTIRANGE}
-/// - {@link PgType#TSMULTIRANGE}
-/// - {@link PgType#TSTZMULTIRANGE}
-/// 
-/// @param methodName from {@link Mapping#func()}
-/// @throws IllegalArgumentException throw when javaType error
-/// @throws MetaException            throw when param or methodName error.
+    /// @param javaType   one dimension non-string array class
+    /// see {@link PostgreRange}
+    /// @param param      from {@link Mapping#params()} ,it's the name of
+    /// - {@link PgType#INT4MULTIRANGE}
+    /// - {@link PgType#INT8MULTIRANGE}
+    /// - {@link PgType#NUMMULTIRANGE}
+    /// - {@link PgType#DATEMULTIRANGE}
+    /// - {@link PgType#TSMULTIRANGE}
+    /// - {@link PgType#TSTZMULTIRANGE}
+    /// 
+    /// @param methodName from {@link Mapping#func()}
+    /// @throws IllegalArgumentException throw when javaType error
+    /// @throws MetaException            throw when param or methodName error.
     public static PgMultiRangeType fromMethod(final Class<?> javaType, final String param,
                                               final String methodName) throws MetaException {
 
@@ -220,7 +220,7 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
 
 
     /// 
-/// package constructor
+    /// package constructor
     private PgMultiRangeType(PgType sqlType, Class<?> javaType, @Nullable RangeFunction<?, ?> rangeFunc) {
         super(sqlType, javaType, rangeFunc);
     }

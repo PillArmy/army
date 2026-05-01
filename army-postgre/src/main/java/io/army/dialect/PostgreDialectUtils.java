@@ -24,8 +24,8 @@ abstract class PostgreDialectUtils {
         throw new UnsupportedOperationException();
     }
 
-/// @return a modifiable set
-/// @see <a href="https://www.postgresql.org/docs/current/sql-keywords-appendix.html">SQL Key Words</a>
+    /// @return a modifiable set
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-keywords-appendix.html">SQL Key Words</a>
     static Set<String> createKeywordsSet() {
         final Set<String> keywords = new HashSet<>((int) (282 / 0.75f));
         // below postgre  reserved key words,today 2023-03-31

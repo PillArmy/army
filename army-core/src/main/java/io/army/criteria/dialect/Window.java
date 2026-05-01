@@ -56,31 +56,31 @@ public interface Window extends Item {
     }
 
 
-/// 
-/// This interface representing static comma clause in WINDOW clause.
-/// * 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// *
-/// @param <CR> next clause java type
-/// @since 0.6.0
+    /// 
+    /// This interface representing static comma clause in WINDOW clause.
+    /// *
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// *
+    /// @param <CR> next clause java type
+    /// @since 0.6.0
     interface _StaticWindowCommaClause<CR> {
 
         CR comma(String windowName);
     }
 
 
-/// 
-/// This interface representing dynamic WINDOW clause.
-/// * 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// *
-/// @param <T> sub interface of {@link Builder}
-/// @param <R> next clause java type
-/// @since 0.6.0
+    /// 
+    /// This interface representing dynamic WINDOW clause.
+    /// *
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// *
+    /// @param <T> sub interface of {@link Builder}
+    /// @param <R> next clause java type
+    /// @since 0.6.0
     interface _DynamicWindowClause<T extends Item, R extends Item> {
 
 
@@ -107,15 +107,15 @@ public interface Window extends Item {
 
     }
 
-/// 
-/// This interface representing PARTITION BY clause in WINDOW clause.
-/// * 
-/// **Note:**
-/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-/// ,because army don't guarantee compatibility to future distribution.
-/// *
-/// @param <R> next clause java type
-/// @since 0.6.0
+    /// 
+    /// This interface representing PARTITION BY clause in WINDOW clause.
+    /// *
+    /// **Note:**
+    /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+    /// ,because army don't guarantee compatibility to future distribution.
+    /// *
+    /// @param <R> next clause java type
+    /// @since 0.6.0
     interface _PartitionByExpClause<R> extends _WindowSpec {
 
         R partitionBy(Expression exp);
@@ -133,53 +133,53 @@ public interface Window extends Item {
     }
 
 
-/// see :
-/// 
-/// - {@link SQLs#UNBOUNDED_PRECEDING}
-/// - {@link SQLs#CURRENT_ROW}
-/// - {@link SQLs#UNBOUNDED_FOLLOWING}
-/// 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// see :
+    /// 
+    /// - {@link SQLs#UNBOUNDED_PRECEDING}
+    /// - {@link SQLs#CURRENT_ROW}
+    /// - {@link SQLs#UNBOUNDED_FOLLOWING}
+    /// 
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface RowModifier {
 
     }
 
-/// see
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// see
+    /// 
+    /// - {@link SQLs#PRECEDING}
+    /// - {@link SQLs#FOLLOWING}
+    /// 
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface ExpModifier {
 
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _StaticFrameUnitRowsClause<RS, RB> {
 
-/// @param modifier see :
-/// 
-/// - {@link SQLs#UNBOUNDED_PRECEDING}
-/// - {@link SQLs#CURRENT_ROW}
-/// - {@link SQLs#UNBOUNDED_FOLLOWING}
-/// 
+        /// @param modifier see :
+        /// 
+        /// - {@link SQLs#UNBOUNDED_PRECEDING}
+        /// - {@link SQLs#CURRENT_ROW}
+        /// - {@link SQLs#UNBOUNDED_FOLLOWING}
+        /// 
         RS rows(RowModifier modifier);
 
-/// @param modifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
+        /// @param modifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
         RS rows(Expression exp, ExpModifier modifier);
 
-/// @param modifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
+        /// @param modifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
         <T> RS rows(BiFunction<LongType, T, Expression> funcRef, T value, ExpModifier modifier);
 
         RB rows();
@@ -188,30 +188,30 @@ public interface Window extends Item {
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _StaticFrameUnitRangeClause<RS, RB> {
 
-/// @param modifier see :
-/// 
-/// - {@link SQLs#UNBOUNDED_PRECEDING}
-/// - {@link SQLs#CURRENT_ROW}
-/// - {@link SQLs#UNBOUNDED_FOLLOWING}
-/// 
+        /// @param modifier see :
+        /// 
+        /// - {@link SQLs#UNBOUNDED_PRECEDING}
+        /// - {@link SQLs#CURRENT_ROW}
+        /// - {@link SQLs#UNBOUNDED_FOLLOWING}
+        /// 
         RS range(RowModifier modifier);
 
-/// @param modifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
+        /// @param modifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
         RS range(Expression exp, ExpModifier modifier);
 
-/// @param modifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
+        /// @param modifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
         <T> RS range(BiFunction<IntegerType, T, Expression> funcRef, T value, ExpModifier modifier);
 
         RB range();
@@ -219,36 +219,36 @@ public interface Window extends Item {
 
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _StaticFrameUnitRowsRangeSpec<RS, RB> extends _StaticFrameUnitRowsClause<RS, RB>,
             _StaticFrameUnitRangeClause<RS, RB> {
 
     }
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _StaticFrameUnitGroupsClause<RS, RB> {
 
-/// @param modifier see :
-/// 
-/// - {@link SQLs#UNBOUNDED_PRECEDING}
-/// - {@link SQLs#CURRENT_ROW}
-/// - {@link SQLs#UNBOUNDED_FOLLOWING}
-/// 
+        /// @param modifier see :
+        /// 
+        /// - {@link SQLs#UNBOUNDED_PRECEDING}
+        /// - {@link SQLs#CURRENT_ROW}
+        /// - {@link SQLs#UNBOUNDED_FOLLOWING}
+        /// 
         RS groups(RowModifier modifier);
 
-/// @param modifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
+        /// @param modifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
         RS groups(Expression exp, ExpModifier modifier);
 
-/// @param modifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
+        /// @param modifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
         <T> RS groups(BiFunction<IntegerType, T, Expression> funcRef, T value, ExpModifier modifier);
 
         RB groups();
@@ -257,7 +257,7 @@ public interface Window extends Item {
     }
 
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _StaticFrameUnitRowsRangeGroupsSpec<RS, RB> extends _StaticFrameUnitRowsRangeSpec<RS, RB>,
             _StaticFrameUnitGroupsClause<RS, RB> {
 
@@ -265,34 +265,34 @@ public interface Window extends Item {
 
     interface _FrameUnitSpaceClause<RS, RB> {
 
-/// @param modifier see :
-/// 
-/// - {@link SQLs#UNBOUNDED_PRECEDING}
-/// - {@link SQLs#CURRENT_ROW}
-/// - {@link SQLs#UNBOUNDED_FOLLOWING}
-/// 
+        /// @param modifier see :
+        /// 
+        /// - {@link SQLs#UNBOUNDED_PRECEDING}
+        /// - {@link SQLs#CURRENT_ROW}
+        /// - {@link SQLs#UNBOUNDED_FOLLOWING}
+        /// 
         RS space(RowModifier modifier);
 
-/// @param modifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
+        /// @param modifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
         RS space(Expression exp, ExpModifier modifier);
 
-/// @param modifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
+        /// @param modifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
         <T> RS space(BiFunction<IntegerType, T, Expression> funcRef, T value, ExpModifier modifier);
 
         RB space();
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _DynamicFrameUnitRowsClause<T, R> {
 
 
@@ -300,8 +300,8 @@ public interface Window extends Item {
 
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _DynamicFrameUnitRangeClause<T, R> {
 
 
@@ -309,8 +309,8 @@ public interface Window extends Item {
 
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _DynamicFrameUnitRowsRangeClause<T, R> extends _DynamicFrameUnitRowsClause<T, R>,
             _DynamicFrameUnitRangeClause<T, R> {
 
@@ -318,7 +318,7 @@ public interface Window extends Item {
     }
 
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _DynamicFrameUnitGroupsClause<T, R> {
 
 
@@ -326,7 +326,7 @@ public interface Window extends Item {
 
     }
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _DynamicFrameUnitRowsRangeGroupsClause<T, R> extends _DynamicFrameUnitRowsRangeClause<T, R>,
             _DynamicFrameUnitGroupsClause<T, R> {
 
@@ -336,95 +336,95 @@ public interface Window extends Item {
 
     interface _FrameBetweenAndClause<R> {
 
-/// @param endModifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
+        /// @param endModifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
         R and(Expression endExp, ExpModifier endModifier);
 
-/// @param endModifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
+        /// @param endModifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
         <T> R and(BiFunction<IntegerType, T, Expression> funcRef, T value, ExpModifier endModifier);
 
-/// @param frameEnd see :
-/// 
-/// - {@link SQLs#UNBOUNDED_PRECEDING}
-/// - {@link SQLs#CURRENT_ROW}
-/// - {@link SQLs#UNBOUNDED_FOLLOWING}
-/// 
+        /// @param frameEnd see :
+        /// 
+        /// - {@link SQLs#UNBOUNDED_PRECEDING}
+        /// - {@link SQLs#CURRENT_ROW}
+        /// - {@link SQLs#UNBOUNDED_FOLLOWING}
+        /// 
         R and(RowModifier frameEnd);
 
     }
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _FrameBetweenClause<R> {
 
-/// @param frameStart see :
-/// 
-/// - {@link SQLs#UNBOUNDED_PRECEDING}
-/// - {@link SQLs#CURRENT_ROW}
-/// - {@link SQLs#UNBOUNDED_FOLLOWING}
-/// 
-/// @param frameEnd   see :
-/// 
-/// - {@link SQLs#UNBOUNDED_PRECEDING}
-/// - {@link SQLs#CURRENT_ROW}
-/// - {@link SQLs#UNBOUNDED_FOLLOWING}
-/// 
+        /// @param frameStart see :
+        /// 
+        /// - {@link SQLs#UNBOUNDED_PRECEDING}
+        /// - {@link SQLs#CURRENT_ROW}
+        /// - {@link SQLs#UNBOUNDED_FOLLOWING}
+        /// 
+        /// @param frameEnd   see :
+        /// 
+        /// - {@link SQLs#UNBOUNDED_PRECEDING}
+        /// - {@link SQLs#CURRENT_ROW}
+        /// - {@link SQLs#UNBOUNDED_FOLLOWING}
+        /// 
         R between(RowModifier frameStart, SQLs.WordAnd and, RowModifier frameEnd);
 
-/// @param startModifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
-/// @param and           see {@link SQLs#AND}
-/// @param endModifier   see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
+        /// @param startModifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
+        /// @param and           see {@link SQLs#AND}
+        /// @param endModifier   see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
         R between(Expression startExp, ExpModifier startModifier, SQLs.WordAnd and, Expression endExp, ExpModifier endModifier);
 
-/// @param frameStart  see :
-/// 
-/// - {@link SQLs#UNBOUNDED_PRECEDING}
-/// - {@link SQLs#CURRENT_ROW}
-/// - {@link SQLs#UNBOUNDED_FOLLOWING}
-/// 
-/// @param and         see {@link SQLs#AND}
-/// @param endModifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
+        /// @param frameStart  see :
+        /// 
+        /// - {@link SQLs#UNBOUNDED_PRECEDING}
+        /// - {@link SQLs#CURRENT_ROW}
+        /// - {@link SQLs#UNBOUNDED_FOLLOWING}
+        /// 
+        /// @param and         see {@link SQLs#AND}
+        /// @param endModifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
         R between(RowModifier frameStart, SQLs.WordAnd and, Expression endExp, ExpModifier endModifier);
 
-/// @param startModifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
-/// @param and           see {@link SQLs#AND}
-/// @param frameEnd      see :
-/// 
-/// - {@link SQLs#UNBOUNDED_PRECEDING}
-/// - {@link SQLs#CURRENT_ROW}
-/// - {@link SQLs#UNBOUNDED_FOLLOWING}
-/// 
+        /// @param startModifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
+        /// @param and           see {@link SQLs#AND}
+        /// @param frameEnd      see :
+        /// 
+        /// - {@link SQLs#UNBOUNDED_PRECEDING}
+        /// - {@link SQLs#CURRENT_ROW}
+        /// - {@link SQLs#UNBOUNDED_FOLLOWING}
+        /// 
         R between(Expression startExp, ExpModifier startModifier, SQLs.WordAnd and, RowModifier frameEnd);
 
-/// @param startModifier see :
-/// 
-/// - {@link SQLs#PRECEDING}
-/// - {@link SQLs#FOLLOWING}
-/// 
+        /// @param startModifier see :
+        /// 
+        /// - {@link SQLs#PRECEDING}
+        /// - {@link SQLs#FOLLOWING}
+        /// 
         _FrameBetweenAndClause<R> between(Expression startExp, ExpModifier startModifier);
 
         <T> R between(BiFunction<IntegerType, T, Expression> funcRef, T value, ExpModifier startModifier, SQLs.WordAnd and, RowModifier frameEnd);
@@ -440,7 +440,7 @@ public interface Window extends Item {
     }
 
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _FrameExclusionClause<R> {
 
         R excludeCurrentRow();

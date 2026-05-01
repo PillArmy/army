@@ -76,21 +76,21 @@ abstract class PostgreUpdates<I extends Item, Q extends Item, T>
 
 
     /// 
-/// create new simple(non-batch) single-table UPDATE statement that is primary statement.
+    /// create new simple(non-batch) single-table UPDATE statement that is primary statement.
     static PostgreUpdate._SingleWithSpec<Update, ReturningUpdate> simple() {
         return new PrimarySimpleUpdateClause();
     }
 
 
     /// 
-/// create new simple(non-batch) single-table UPDATE statement that is sub statement in with clause.
+    /// create new simple(non-batch) single-table UPDATE statement that is sub statement in with clause.
     static <I extends Item> PostgreUpdate._SingleWithSpec<I, I> subSimpleUpdate(CriteriaContext outerContext,
                                                                                 Function<SubStatement, I> function) {
         return new SubSimpleUpdateClause<>(outerContext, function);
     }
 
     /// 
-/// create new batch single-table UPDATE statement that is primary statement.
+    /// create new batch single-table UPDATE statement that is primary statement.
     static PostgreUpdate._SingleWithSpec<_BatchUpdateParamSpec, _BatchReturningUpdateParamSpec> batchUpdate() {
         return new PrimaryBatchUpdateClause();
     }

@@ -42,11 +42,11 @@ import java.util.Objects;
 abstract class ArmyRowLiteralExpression extends OperationRowExpression implements
         RowLiteralExpression, ArmySimpleExpression {
 
-/// @throws CriteriaException throw when 
-/// - values is empty
-/// - infer return codec {@link TableField}
-/// 
-/// @see SQLs#rowLiteral(TypeInfer, Collection)
+    /// @throws CriteriaException throw when
+    /// - values is empty
+    /// - infer return codec {@link TableField}
+    /// 
+    /// @see SQLs#rowLiteral(TypeInfer, Collection)
     static ArmyRowLiteralExpression multi(final @Nullable TypeInfer infer, final @Nullable Collection<?> values,
                                           final boolean typeName) {
         final TypeMeta type;
@@ -63,12 +63,12 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
     }
 
 
-/// @throws CriteriaException throw when 
-/// - name have no text
-/// - size less than 1
-/// - infer return codec {@link TableField}
-/// 
-/// @see SQLs#namedRowLiteral(TypeInfer, String)
+    /// @throws CriteriaException throw when
+    /// - name have no text
+    /// - size less than 1
+    /// - infer return codec {@link TableField}
+    /// 
+    /// @see SQLs#namedRowLiteral(TypeInfer, String)
 
     static ArmyRowLiteralExpression named(final @Nullable TypeInfer infer, final @Nullable String name,
                                           final boolean typeName) {

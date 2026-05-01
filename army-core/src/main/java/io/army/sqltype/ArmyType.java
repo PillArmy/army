@@ -30,31 +30,31 @@ public enum ArmyType {
     /// Identifies the generic SQL type {@code BOOLEAN}.
     BOOLEAN,
 
-/// Identifies the generic SQL type {@code BIT}, not boolean.
-/// {@code BIT} are strings of 1's and 0's. They can be used to store or visualize bit masks.
-/// {@code BIT} is similar to {@link #VARBIT}, except that must match fixed length.
-/// 
-/// {@link DataRecord#get(int, Class)} support following java type:
-/// 
-/// - {@link Integer}
-/// - {@link Long}
-/// - {@link String}
-/// - {@link java.util.BitSet}
-/// 
-/// 
+    /// Identifies the generic SQL type {@code BIT}, not boolean.
+    /// {@code BIT} are strings of 1's and 0's. They can be used to store or visualize bit masks.
+    /// {@code BIT} is similar to {@link #VARBIT}, except that must match fixed length.
+    /// 
+    /// {@link DataRecord#get(int, Class)} support following java type:
+    /// 
+    /// - {@link Integer}
+    /// - {@link Long}
+    /// - {@link String}
+    /// - {@link java.util.BitSet}
+    /// 
+    /// 
     BIT,
 
-/// Identifies the generic SQL type {@code VARBIT}, not boolean.
-/// {@code VARBIT} are strings of 1's and 0's. They can be used to store or visualize bit masks.
-/// 
-/// {@link DataRecord#get(int, Class)} support following java type:
-/// 
-/// - {@link Integer}
-/// - {@link Long}
-/// - {@link String}
-/// - {@link java.util.BitSet}
-/// 
-/// 
+    /// Identifies the generic SQL type {@code VARBIT}, not boolean.
+    /// {@code VARBIT} are strings of 1's and 0's. They can be used to store or visualize bit masks.
+    /// 
+    /// {@link DataRecord#get(int, Class)} support following java type:
+    /// 
+    /// - {@link Integer}
+    /// - {@link Long}
+    /// - {@link String}
+    /// - {@link java.util.BitSet}
+    /// 
+    /// 
     VARBIT,
 
     /// Identifies the generic SQL type {@code TINYINT}, one byte integer number.
@@ -172,8 +172,8 @@ public enum ArmyType {
 
     JSONB,
 
-/// Identifies the generic SQL type {@code GEOMETRY}, for example Point , LineString,polygon
-/// @see <a href="https://www.ogc.org/standards/sfa">Simple Feature Access - Part 1: Common Architecture PDF</a>
+    /// Identifies the generic SQL type {@code GEOMETRY}, for example Point , LineString,polygon
+    /// @see <a href="https://www.ogc.org/standards/sfa">Simple Feature Access - Part 1: Common Architecture PDF</a>
     GEOMETRY,
 
 
@@ -185,22 +185,22 @@ public enum ArmyType {
 
 
     /// Identifies the generic SQL type {@code REF_CURSOR}.
-/// If {@link RecordMeta#getArmyType(int)} is this enum instance,then {@link DataRecord#get(int)} always is {@link String} instance.
-/// Application developer can get the instance of {@link Cursor} by {@link ResultStates#valueOf(Option)}
-/// @see Cursor
+    /// If {@link RecordMeta#getArmyType(int)} is this enum instance,then {@link DataRecord#get(int)} always is {@link String} instance.
+    /// Application developer can get the instance of {@link Cursor} by {@link ResultStates#valueOf(Option)}
+    /// @see Cursor
     REF_CURSOR,
 
     /// Identifies the generic SQL type {@code ARRAY}.
-///  This enum instance is only returned by {@link RecordMeta#getArmyType(int)}
+    /// This enum instance is only returned by {@link RecordMeta#getArmyType(int)}
     ARRAY,
 
     /// Identifies the generic SQL type {@code COMPOSITE}.
-///  This enum instance is only returned by {@link RecordMeta#getArmyType(int)}
+    /// This enum instance is only returned by {@link RecordMeta#getArmyType(int)}
     COMPOSITE,
 
 
     /// Indicates that the dialect data type  .
-///  This enum instance is only returned by {@link RecordMeta#getArmyType(int)}
+    /// This enum instance is only returned by {@link RecordMeta#getArmyType(int)}
     DIALECT_TYPE;
 
 

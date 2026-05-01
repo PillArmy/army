@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 /// @since 0.6.0
 public interface OracleQuery extends Query, OracleStatement {
 
-/// @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6">Lock wait syntax</a>
+    /// @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6">Lock wait syntax</a>
     interface _OracleLockWaitOptionClause<LR> extends _MinLockStrengthClause<LR> {
 
         LR wait(int seconds);
@@ -44,7 +44,7 @@ public interface OracleQuery extends Query, OracleStatement {
     }
 
 
-/// @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6">Lock of colunn syntax</a>
+    /// @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6">Lock of colunn syntax</a>
     interface _OracleLockOfColumnClause<OR> {
 
         OR of(TableField field);

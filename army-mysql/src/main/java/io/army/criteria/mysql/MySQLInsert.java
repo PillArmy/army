@@ -245,7 +245,7 @@ public interface MySQLInsert extends MySQLStatement {
 
 
     /// 
-/// This interface representing INTO clause that support only {@link SingleTableMeta}.
+    /// This interface representing INTO clause that support only {@link SingleTableMeta}.
     interface _PrimarySingleIntoClause<I extends Item> {
 
         <T> _PartitionSpec<I, T> into(SingleTableMeta<T> table);
@@ -254,7 +254,7 @@ public interface MySQLInsert extends MySQLStatement {
 
 
     /// 
-/// This interface representing INSERT INTO spec that support only {@link SingleTableMeta}.
+    /// This interface representing INSERT INTO spec that support only {@link SingleTableMeta}.
     interface _PrimarySingleInsertIntoSpec<I extends Item> extends _InsertClause<_PrimarySingleIntoClause<I>>, Item {
 
         <T> _PartitionSpec<I, T> insertInto(SingleTableMeta<T> table);
@@ -263,7 +263,7 @@ public interface MySQLInsert extends MySQLStatement {
 
 
     /// 
-/// This interface representing {@link LiteralMode} spec that support only {@link SingleTableMeta}.
+    /// This interface representing {@link LiteralMode} spec that support only {@link SingleTableMeta}.
     interface _PrimarySinglePreferLiteralSpec<I extends Item>
             extends InsertStatement._PreferLiteralClause<_PrimarySingleInsertIntoSpec<I>>,
             _PrimarySingleInsertIntoSpec<I> {
@@ -272,7 +272,7 @@ public interface MySQLInsert extends MySQLStatement {
 
 
     /// 
-/// This interface representing {@link NullMode} spec that support only {@link SingleTableMeta}.
+    /// This interface representing {@link NullMode} spec that support only {@link SingleTableMeta}.
     interface _PrimarySingleNullOptionSpec<I extends Item>
             extends InsertStatement._NullOptionClause<_PrimarySinglePreferLiteralSpec<I>>,
             _PrimarySinglePreferLiteralSpec<I> {
@@ -280,7 +280,7 @@ public interface MySQLInsert extends MySQLStatement {
     }
 
     /// 
-/// This interface representing migration spec that support only {@link SingleTableMeta}.
+    /// This interface representing migration spec that support only {@link SingleTableMeta}.
     interface _PrimarySingleOptionSpec<I extends Item>
             extends InsertStatement._MigrationOptionClause<_PrimarySingleNullOptionSpec<I>>,
             InsertStatement._IgnoreReturnIdsOptionClause<_PrimarySingleNullOptionSpec<I>>,

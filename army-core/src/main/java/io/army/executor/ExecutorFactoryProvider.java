@@ -43,11 +43,11 @@ import java.util.function.Function;
 public interface ExecutorFactoryProvider {
 
     /// Sub interface must override this method return value type.
-/// This method always is invoked before {@link #createFactory(ExecutorEnv)}
+    /// This method always is invoked before {@link #createFactory(ExecutorEnv)}
     Object createServerMeta(@Nullable Function<String, Database> func);
 
     /// Sub interface must override this method return value type.
-/// This method always is invoked after {@link #createServerMeta(Function)}
+    /// This method always is invoked after {@link #createServerMeta(Function)}
     Object createFactory(ExecutorEnv env);
 
 

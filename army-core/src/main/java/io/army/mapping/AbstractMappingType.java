@@ -84,15 +84,15 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         throw dontSupportArrayType(this);
     }
 
-/// Find compatible {@link AbstractMappingType} for targetType.
-/// @param dataType   from {@link StmtExecutor}, underlying api is one of following :
-/// 
-/// - {@code  java.sql.ResultSetMetaData#getTableName(int)}
-/// - {@code io.jdbd.result.ResultRowMeta#getDataType(int)}
-/// 
-/// if dataType is {@link SQLType} instance,then dataType representing appropriate database build-in data type.
-/// @param targetType the target type for application developer
-/// @throws NoMatchMappingException throw when not found compatible {@link AbstractMappingType}
+    /// Find compatible {@link AbstractMappingType} for targetType.
+    /// @param dataType   from {@link StmtExecutor}, underlying api is one of following :
+    /// 
+    /// - {@code  java.sql.ResultSetMetaData#getTableName(int)}
+    /// - {@code io.jdbd.result.ResultRowMeta#getDataType(int)}
+    /// 
+    /// if dataType is {@link SQLType} instance,then dataType representing appropriate database build-in data type.
+    /// @param targetType the target type for application developer
+    /// @throws NoMatchMappingException throw when not found compatible {@link AbstractMappingType}
     @Override
     public <Z> MappingType compatibleFor(final DataType dataType, final Class<Z> targetType)
             throws NoMatchMappingException {
@@ -491,8 +491,8 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
 
 
     /// Throws CloneNotSupportedException.  This guarantees that MappingType
-/// are never cloned
-/// @return (never returns)
+    /// are never cloned
+    /// @return (never returns)
     @Override
     protected final Object clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException();

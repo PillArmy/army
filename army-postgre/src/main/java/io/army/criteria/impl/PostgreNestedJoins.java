@@ -333,9 +333,9 @@ final class PostgreNestedJoins<I extends Item> extends JoinableClause.NestedLeft
         }
 
         /// @see #leftJoin(Function)
-/// @see #join(Function)
-/// @see #rightJoin(Function)
-/// @see #fullJoin(Function)
+        /// @see #join(Function)
+        /// @see #rightJoin(Function)
+        /// @see #fullJoin(Function)
         private PostgreStatement._NestedOnSpec<I> joinNestedEnd(final _JoinType joinType,
                                                                 final _NestedItems nestedItems) {
             final PostgreNestedBlock<I> block;

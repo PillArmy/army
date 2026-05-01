@@ -37,32 +37,32 @@ import java.util.function.Function;
 public interface StmtExecutor extends OptionSpec, DriverSpiHolder {
 
 
-/// 
-/// Session identifier(non-unique, for example : database server cluster),probably is following :
-/// 
-/// - server process id
-/// - server thread id
-/// - other identifier
-/// 
-/// **NOTE**: identifier will probably be updated if reconnect.
-/// 
-/// @return session identifier
-/// @throws DataAccessException throw when underlying database session have closed.
+    /// 
+    /// Session identifier(non-unique, for example : database server cluster),probably is following :
+    /// 
+    /// - server process id
+    /// - server thread id
+    /// - other identifier
+    /// 
+    /// **NOTE**: identifier will probably be updated if reconnect.
+    /// 
+    /// @return session identifier
+    /// @throws DataAccessException throw when underlying database session have closed.
     long sessionIdentifier(Function<Option<?>, ?> sessionFunc) throws DataAccessException;
 
 
     /// @return true : underlying database session in transaction block.
-/// @throws DataAccessException throw when underlying database session have closed.
+    /// @throws DataAccessException throw when underlying database session have closed.
     boolean inTransaction(Function<Option<?>, ?> sessionFunc) throws DataAccessException;
 
     boolean isSameFactory(StmtExecutor s);
 
-/// override {@link Object#toString()}
-/// @return driver info, contain : 
-/// - implementation class name
-/// - session name
-/// - {@link System#identityHashCode(Object)}
-/// 
+    /// override {@link Object#toString()}
+    /// @return driver info, contain :
+    /// - implementation class name
+    /// - session name
+    /// - {@link System#identityHashCode(Object)}
+    /// 
     @Override
     String toString();
 

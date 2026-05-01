@@ -32,9 +32,9 @@ import java.util.stream.Stream;
 /// @since 0.6.0
 public interface SyncStmtCursor extends StmtCursor, SyncCursor {
 
-/// When this option is supported by {@link ResultStates},this option representing the statement that produce
-/// the {@link ResultStates} declare a cursor. For example : execute postgre DECLARE command.
-/// @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
+    /// When this option is supported by {@link ResultStates},this option representing the statement that produce
+    /// the {@link ResultStates} declare a cursor. For example : execute postgre DECLARE command.
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
     Option<SyncStmtCursor> SYNC_STMT_CURSOR = Option.from("SYNC STMT CURSOR", SyncStmtCursor.class);
 
 

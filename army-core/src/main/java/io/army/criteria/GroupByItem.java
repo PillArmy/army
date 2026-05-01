@@ -23,11 +23,11 @@ package io.army.criteria;
 public interface GroupByItem extends Item {
 
 
-/// This interface is base interface of :
-/// 
-/// - {@link Expression}
-/// - {@link ExpressionGroup}
-/// 
+    /// This interface is base interface of :
+    /// 
+    /// - {@link Expression}
+    /// - {@link ExpressionGroup}
+    /// 
     interface ExpressionItem extends GroupByItem {
 
     }

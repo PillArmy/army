@@ -56,7 +56,7 @@ abstract class PostgreSimpleValues<I extends Item> extends SimpleValues<
 
 
     /// 
-/// create primary VALUES statement.
+    /// create primary VALUES statement.
     static ValuesSpec<Values> simpleValues() {
         return new SimplePrimaryValues<>(null, null, SQLs::identity, null);
     }

@@ -1246,12 +1246,12 @@ abstract class PostgreFunctionUtils extends DialectFunctionUtils {
 
     }//OneArgAggWindowFunc
 
-/// 
-/// This class is base class of :
-/// 
-/// - {@link NonOrderedSetAggregateFunction}
-/// - {@link PgWithGroupAggFunc}
-/// 
+    /// 
+    /// This class is base class of :
+    /// 
+    /// - {@link NonOrderedSetAggregateFunction}
+    /// - {@link PgWithGroupAggFunc}
+    /// 
     private static abstract class PostgreAggregateFunction extends OperationExpression.SqlFunctionExpression
             implements PostgreWindowFunctions._PgAggFunc, FunctionOuterClause {
 
@@ -1428,7 +1428,7 @@ abstract class PostgreFunctionUtils extends DialectFunctionUtils {
 
     }//TwoArgAggFunc
 
-    ///@see  <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-AGGREGATES">Aggregate Expressions</a>
+    /// @see  <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-AGGREGATES">Aggregate Expressions</a>
     private static abstract class PgWithGroupAggFunc extends PostgreAggregateFunction
             implements PostgreWindowFunctions._AggWithGroupClause {
 
@@ -1504,7 +1504,7 @@ abstract class PostgreFunctionUtils extends DialectFunctionUtils {
             implements NoArgFunction {
 
         /// @see #zeroArgWithGroupAggFunc(String)
-/// @see #zeroArgMyWithGroupAggFunc(String)
+        /// @see #zeroArgMyWithGroupAggFunc(String)
         private ZeroArgWithGroupAggFunc(String name, boolean buildIn) {
             super(name, buildIn);
         }
@@ -1527,7 +1527,7 @@ abstract class PostgreFunctionUtils extends DialectFunctionUtils {
         private final ArmyExpression one;
 
         /// @see #oneArgWithGroupAggFunc(String, Expression)
-/// @see #oneArgMyWithGroupAggFunc(String, Expression)
+        /// @see #oneArgMyWithGroupAggFunc(String, Expression)
         private OneArgWithGroupAggFunc(String name, boolean buildIn, Expression one) {
             super(name, buildIn);
             this.one = (ArmyExpression) one;

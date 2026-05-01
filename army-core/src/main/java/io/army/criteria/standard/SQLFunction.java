@@ -112,7 +112,7 @@ public interface SQLFunction extends Item {
     interface _SqlCaseWhenClause extends Item {
 
         /// create WHEN clause of CASE function.
-/// @param expression {@link Expression} instance or literal
+        /// @param expression {@link Expression} instance or literal
         Item when(Object expression);
 
         Item when(UnaryOperator<IPredicate> valueOperator, IPredicate predicate);

@@ -44,30 +44,30 @@ import java.util.function.Function;
 public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
 
 
-/// Required.
-/// @param sessionFactoryName non-empty
-/// @return **this**
+    /// Required.
+    /// @param sessionFactoryName non-empty
+    /// @return **this**
     B name(String sessionFactoryName);
 
-/// Required.
-/// @return **this**
+    /// Required.
+    /// @return **this**
     B environment(ArmyEnvironment environment);
 
-/// Required.
-/// dataSource can be the instance of {@link io.army.datasource.ReadWriteSplittingDataSource}.
-/// @return **this**
-/// @see io.army.datasource.ReadWriteSplittingDataSource
+    /// Required.
+    /// dataSource can be the instance of {@link io.army.datasource.ReadWriteSplittingDataSource}.
+    /// @return **this**
+    /// @see io.army.datasource.ReadWriteSplittingDataSource
     B datasource(Object dataSource);
 
     /// Required
-    ///
+    /// 
     /// @see io.army.criteria.impl._TableMetaFactory#getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     B packagesToScan(List<String> packageList);
 
-/// Optional.
-/// @param catalog catalog or empty
-/// @param schema  schema or empty
-/// @return **this**
+    /// Optional.
+    /// @param catalog catalog or empty
+    /// @param schema  schema or empty
+    /// @return **this**
     B schema(String catalog, String schema);
 
     /*
@@ -77,48 +77,48 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
      */
     //   B fieldCodecs(Collection<FieldCodec> fieldCodecs);
 
-/// Optional.
-/// @return **this**
+    /// Optional.
+    /// @return **this**
     B jsonCodec(@Nullable JsonCodec codec);
 
-/// Optional.
-/// @return **this**
+    /// Optional.
+    /// @return **this**
     B xmlCodec(@Nullable XmlCodec codec);
 
-/// Optional.
-/// @return **this**
+    /// Optional.
+    /// @return **this**
     B factoryAdvice(@Nullable Collection<FactoryAdvice> factoryAdvices);
 
 
-/// Optional.
-/// @return **this**
+    /// Optional.
+    /// @return **this**
     B fieldGeneratorFactory(@Nullable FieldGeneratorFactory factory);
 
 
-/// Optional.
-/// See
-/// 
-/// - {@link ExecutorFactoryProvider#createServerMeta(Function)}
-/// - {@link Database#mapToDatabase(String, Function)}
-/// 
-/// @return **this**
+    /// Optional.
+    /// See
+    /// 
+    /// - {@link ExecutorFactoryProvider#createServerMeta(Function)}
+    /// - {@link Database#mapToDatabase(String, Function)}
+    /// 
+    /// @return **this**
     B nameToDatabaseFunc(@Nullable Function<String, Database> function);
 
-/// Optional.
-/// Set a consumer for validating {@link ExecutorFactoryProvider} is the instance which you want.
-/// See {@code io.army.env.SyncKey#EXECUTOR_PROVIDER} and  see {@code io.army.env.ReactiveKey#EXECUTOR_PROVIDER}
-/// @return **this**
+    /// Optional.
+    /// Set a consumer for validating {@link ExecutorFactoryProvider} is the instance which you want.
+    /// See {@code io.army.env.SyncKey#EXECUTOR_PROVIDER} and  see {@code io.army.env.ReactiveKey#EXECUTOR_PROVIDER}
+    /// @return **this**
     B executorFactoryProviderValidator(@Nullable Consumer<ExecutorFactoryProvider> consumer);
 
-/// Optional.
-/// See {@link ResultRecord#get(int, Class)} and {@link ExecutorEnv#converterFunc()}
-/// @return **this**
+    /// Optional.
+    /// See {@link ResultRecord#get(int, Class)} and {@link ExecutorEnv#converterFunc()}
+    /// @return **this**
     B columnConverterFunc(@Nullable Function<Class<?>, Function<Object, ?>> converterFunc);
 
     <T> B dataSourceOption(Option<T> option, @Nullable T value);
 
     /// Default : {@code Thread.currentThread().getContextClassLoader()}
-    ///
+    /// 
     /// @param loader is used to load domain classes.
     /// @see io.army.criteria.impl._TableMetaFactory#getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     B classLoader(@Nullable ClassLoader loader);
@@ -127,7 +127,7 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
     /// To optimize startup performance, loading of the corresponding static model classes
     /// and related validations is disabled by default after TableMeta creation. Enable it
     /// for enhanced safety guarantees.
-    ///
+    /// 
     /// @param load true : load static model after create {@link io.army.meta.TableMeta}.
     /// @see io.army.criteria.impl._TableMetaFactory#getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     B loadStaticModel(boolean load);
@@ -139,18 +139,18 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
 
     B definedTypeMapFunc(@Nullable DefinedTypeMapFunc func);
 
-/// Create {@link SessionFactory} instance
-/// @return 
-/// - sync api : {@link SessionFactory} instance
-/// - reactive api : Mono of {@link SessionFactory} instance
-/// 
-/// @throws SessionFactoryException throw (emit) when
-/// 
-/// - required properties absent
-/// - name duplication
-/// - access database occur error
-/// - properties error
-/// 
+    /// Create {@link SessionFactory} instance
+    /// @return
+    /// - sync api : {@link SessionFactory} instance
+    /// - reactive api : Mono of {@link SessionFactory} instance
+    /// 
+    /// @throws SessionFactoryException throw (emit) when
+    /// 
+    /// - required properties absent
+    /// - name duplication
+    /// - access database occur error
+    /// - properties error
+    /// 
     R build();
 
 }

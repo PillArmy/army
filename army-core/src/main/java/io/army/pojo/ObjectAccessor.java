@@ -29,11 +29,11 @@ public interface ObjectAccessor {
 
     boolean isReadable(int index);
 
-/// Determine whether the specified property is readable.
-/// Returns {@code false} if the property doesn't field exist.
-/// @param propertyName the property to check
-/// (maybe a nested path then/or an indexed/mapped property)
-/// @return whether the property is readable
+    /// Determine whether the specified property is readable.
+    /// Returns {@code false} if the property doesn't field exist.
+    /// @param propertyName the property to check
+    /// (maybe a nested path then/or an indexed/mapped property)
+    /// @return whether the property is readable
     boolean isReadable(String propertyName);
 
 
@@ -41,16 +41,16 @@ public interface ObjectAccessor {
     Object get(Object target, int index) throws ObjectAccessException;
 
 
-/// Get the current value of the specified property.
-/// @param target       one instance of {@link #getAccessedType()}
-/// @param propertyName the name of the property to get the value of
-/// (maybe a nested path then/or an indexed/mapped property)
-/// @return the value of the property
-/// @throws IllegalArgumentException throw when target isn't the instance of {@link #getAccessedType()}
-/// @throws InvalidPropertyException if there is no such property or
-/// if the property isn'field readable
-/// @throws ObjectAccessException  if the property was valid but the
-/// accessor method failed
+    /// Get the current value of the specified property.
+    /// @param target       one instance of {@link #getAccessedType()}
+    /// @param propertyName the name of the property to get the value of
+    /// (maybe a nested path then/or an indexed/mapped property)
+    /// @return the value of the property
+    /// @throws IllegalArgumentException throw when target isn't the instance of {@link #getAccessedType()}
+    /// @throws InvalidPropertyException if there is no such property or
+    /// if the property isn'field readable
+    /// @throws ObjectAccessException  if the property was valid but the
+    /// accessor method failed
     @Nullable
     Object get(Object target, String propertyName) throws ObjectAccessException;
 
@@ -66,35 +66,35 @@ public interface ObjectAccessor {
 
     boolean isWritable(int index);
 
-/// Determine whether the specified property is writable.
-/// Returns {@code false} if the property doesn't field exist.
-/// @param propertyName the property to check
-/// (maybe a nested path then/or an indexed/mapped property)
-/// @return whether the property is writable
+    /// Determine whether the specified property is writable.
+    /// Returns {@code false} if the property doesn't field exist.
+    /// @param propertyName the property to check
+    /// (maybe a nested path then/or an indexed/mapped property)
+    /// @return whether the property is writable
     boolean isWritable(String propertyName);
 
 
     boolean isWritable(int index, Class<?> valueType);
 
-/// Determine whether the specified property is writable.
-/// Returns {@code false} if the property doesn'field exist.
-/// @param propertyName the property to check
-/// (maybe a nested path then/or an indexed/mapped property)
-/// @return whether the property is writable
+    /// Determine whether the specified property is writable.
+    /// Returns {@code false} if the property doesn'field exist.
+    /// @param propertyName the property to check
+    /// (maybe a nested path then/or an indexed/mapped property)
+    /// @return whether the property is writable
     boolean isWritable(String propertyName, Class<?> valueType);
 
 
     void set(Object target, int index, @Nullable Object value) throws ObjectAccessException;
 
 
-/// Set the specified value asType current property value.
-/// @param target       one instance of {@link #getAccessedType()}
-/// @param propertyName the name of the property to set the value of
-/// (maybe a nested path then/or an indexed/mapped property)
-/// @throws InvalidPropertyException if there is no such property or
-/// if the property isn'field writable
-/// @throws ObjectAccessException  if the property was valid but the
-/// accessor method failed or a type mismatch occurred
+    /// Set the specified value asType current property value.
+    /// @param target       one instance of {@link #getAccessedType()}
+    /// @param propertyName the name of the property to set the value of
+    /// (maybe a nested path then/or an indexed/mapped property)
+    /// @throws InvalidPropertyException if there is no such property or
+    /// if the property isn'field writable
+    /// @throws ObjectAccessException  if the property was valid but the
+    /// accessor method failed or a type mismatch occurred
     void set(Object target, String propertyName, @Nullable Object value) throws ObjectAccessException;
 
 

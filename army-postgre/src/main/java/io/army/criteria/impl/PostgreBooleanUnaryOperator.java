@@ -18,14 +18,14 @@ package io.army.criteria.impl;
 
 enum PostgreBooleanUnaryOperator {
 
-/// @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">?- line → boolean
-/// ?- lseg → boolean
-/// Is line horizontal?
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">?- line → boolean
+    /// ?- lseg → boolean
+    /// Is line horizontal?
     QUESTION_HYPHEN(" ?-"),
 
-/// @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">?| line → boolean
-/// ?| lseg → boolean
-/// Is line vertical?
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">?| line → boolean
+    /// ?| lseg → boolean
+    /// Is line vertical?
     QUESTION_VERTICAL(" ?|");
 
     final String spaceOperator;

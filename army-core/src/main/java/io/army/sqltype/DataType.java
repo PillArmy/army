@@ -28,8 +28,8 @@ public interface DataType extends TypeDef {
 
 
     /// SQL type's alias (not type name) in java language.
-/// @see #typeName()
-/// @see Enum#name()
+    /// @see #typeName()
+    /// @see Enum#name()
     String name();
 
 
@@ -52,23 +52,23 @@ public interface DataType extends TypeDef {
     }
 
 
-/// This method is equivalent to {@code   DataType.from(typeName,false)} :
-/// **NOTE**: only when {@link ArmyType} couldn't express appropriate type,you use this method.
-/// It means you should prefer {@link SQLType}.
-/// @param typeName non-null
-/// @return {@link DataType} instance
-/// @see #from(String, boolean)
+    /// This method is equivalent to {@code   DataType.from(typeName,false)} :
+    /// **NOTE**: only when {@link ArmyType} couldn't express appropriate type,you use this method.
+    /// It means you should prefer {@link SQLType}.
+    /// @param typeName non-null
+    /// @return {@link DataType} instance
+    /// @see #from(String, boolean)
     static CustomType from(String typeName) {
         return DataTypeFactory.typeFrom(typeName, false);
     }
 
-/// Get one {@link DataType} instance
-/// **NOTE**: only when {@link ArmyType} couldn't express appropriate type,you use this method.
-/// It means you should prefer {@link SQLType}.
-/// @param typeName        database data type name,if typeName endWith '[]',then {@link DataType#isArray()} always return true.
-/// @param caseSensitivity if false ,then {@link DataType#typeName()} always return upper case.
-/// @return {@link DataType} that representing user-defined type.
-/// @throws IllegalArgumentException throw when typeName have no text.
+    /// Get one {@link DataType} instance
+    /// **NOTE**: only when {@link ArmyType} couldn't express appropriate type,you use this method.
+    /// It means you should prefer {@link SQLType}.
+    /// @param typeName        database data type name,if typeName endWith '[]',then {@link DataType#isArray()} always return true.
+    /// @param caseSensitivity if false ,then {@link DataType#typeName()} always return upper case.
+    /// @return {@link DataType} that representing user-defined type.
+    /// @throws IllegalArgumentException throw when typeName have no text.
     static CustomType from(String typeName, boolean caseSensitivity) {
         return DataTypeFactory.typeFrom(typeName, caseSensitivity);
     }

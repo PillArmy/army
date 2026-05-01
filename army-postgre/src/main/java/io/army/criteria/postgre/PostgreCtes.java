@@ -24,18 +24,18 @@ import io.army.criteria.CteBuilderSpec;
 public interface PostgreCtes extends CteBuilderSpec {
 
    /// 
-/// create new cte that create new single-table INSERT statement that is sub insert statement in dynamic with clause.
-/// @param name cte name
+   /// create new cte that create new single-table INSERT statement that is sub insert statement in dynamic with clause.
+   /// @param name cte name
    PostgreInsert._DynamicCteParensSpec subSingleInsert(String name);
 
    /// 
-/// create new cte that create new single-table UPDATE statement that is sub insert statement in dynamic with clause.
-/// @param name cte name
+   /// create new cte that create new single-table UPDATE statement that is sub insert statement in dynamic with clause.
+   /// @param name cte name
    PostgreUpdate._DynamicCteParensSpec subSingleUpdate(String name);
 
    /// 
-/// create new cte that create new single-table DELETE statement that is sub insert statement in dynamic with clause.
-/// @param name cte name
+   /// create new cte that create new single-table DELETE statement that is sub insert statement in dynamic with clause.
+   /// @param name cte name
    PostgreDelete._DynamicCteParensSpec subSingleDelete(String name);
 
    PostgreQuery._DynamicCteParensSpec subQuery(String name);

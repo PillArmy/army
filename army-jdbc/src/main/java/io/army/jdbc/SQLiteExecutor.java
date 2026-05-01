@@ -109,7 +109,7 @@ final class SQLiteExecutor extends JdbcExecutor implements SyncLocalExecutor {
     }
 
 
-/// @see <a href="https://www.sqlite.org/lang_transaction.html">BEGIN Transaction</a>
+    /// @see <a href="https://www.sqlite.org/lang_transaction.html">BEGIN Transaction</a>
     @Override
     public TransactionInfo startTransaction(final TransactionOption option, final HandleMode mode, Function<Option<?>, ?> sessionFunc) {
         final StringBuilder builder = new StringBuilder(168);

@@ -689,7 +689,7 @@ abstract class MySQLMultiUpdates<I extends Item>
     /*################################## blow inner class  ##################################*/
 
     /// 
-/// This class is the implementation of  multi-table update api.
+    /// This class is the implementation of  multi-table update api.
     private static final class MySQLSimpleUpdate extends MySQLMultiUpdates<Update>
             implements Update, ContextStackHost {
 

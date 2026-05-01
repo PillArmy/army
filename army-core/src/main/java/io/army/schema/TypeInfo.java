@@ -34,9 +34,9 @@ public interface TypeInfo {
 
     /// {@link CompositeField#fieldName} field is meaningless here.
     /// The order of the list matches the order of the fields in the SQL composite type .
-    ///
+    /// 
     /// Lower case {@link CompositeField#columnName} and {@link CompositeField#collation}
-    ///
+    /// 
     /// @return an unmodified list
     List<CompositeField> compositeFieldList();
 

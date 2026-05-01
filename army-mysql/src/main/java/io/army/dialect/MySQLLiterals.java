@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 abstract class MySQLLiterals extends _Literals {
 
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-literals.html#character-escape-sequences">String Literals</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-literals.html#character-escape-sequences">String Literals</a>
     static void mysqlEscapes(final EscapeMode mode, final String literal, final StringBuilder sqlBuilder) {
         //firstly,store start index
         final int startIndex, valueLength;

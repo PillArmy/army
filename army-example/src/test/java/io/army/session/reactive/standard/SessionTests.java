@@ -26,7 +26,7 @@ public class SessionTests extends SessionSupport {
     }
 
     /// @see ReactiveSession#setTransactionCharacteristics(TransactionOption)
-/// @see ReactiveSession#sessionTransactionCharacteristics()
+    /// @see ReactiveSession#sessionTransactionCharacteristics()
     @Test
     public void setTransactionCharacteristics(final ReactiveLocalSession session) {
         final TransactionInfo sessionTxInfo;

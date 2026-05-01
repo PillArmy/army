@@ -127,9 +127,9 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
     }
 
     /// @see #onFromTable(_JoinType, SQLs.TableModifier, TableMeta, String)
-/// @see #onFromDerived(_JoinType, SQLs.DerivedModifier, DerivedTable)
-/// @see PartitionJoinClause#asEnd(MySQLSupports.MySQLBlockParams)
-/// @see #getFromClauseDerived()
+    /// @see #onFromDerived(_JoinType, SQLs.DerivedModifier, DerivedTable)
+    /// @see PartitionJoinClause#asEnd(MySQLSupports.MySQLBlockParams)
+    /// @see #getFromClauseDerived()
     private _TabularBlock fromCrossBlock;
 
     /// @see #onOrderByEvent()
@@ -524,7 +524,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
     }
 
     /// @see #withRollup()
-/// @see #ifWithRollup(BooleanSupplier)
+    /// @see #ifWithRollup(BooleanSupplier)
     @Override
     public final void onOrderByEvent() {
         if (this.groupByWithRollup == null) {
@@ -768,7 +768,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
 
 
     /// @see #from(Function)
-/// @see #crossJoin(Function)
+    /// @see #crossJoin(Function)
     private _JoinSpec<I> fromNestedEnd(final _JoinType joinType, final _NestedItems nestedItems) {
         final _TabularBlock block;
         block = TabularBlocks.fromNestedBlock(joinType, nestedItems);
@@ -778,10 +778,10 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
     }
 
     /// @see #leftJoin(Function)
-/// @see #join(Function)
-/// @see #rightJoin(Function)
-/// @see #fullJoin(Function)
-/// @see #straightJoin(Function)
+    /// @see #join(Function)
+    /// @see #rightJoin(Function)
+    /// @see #fullJoin(Function)
+    /// @see #straightJoin(Function)
     private _OnClause<_JoinSpec<I>> joinNestedEnd(final _JoinType joinType, final _NestedItems nestedItems) {
 
         final TabularBlocks.JoinClauseNestedBlock<_JoinSpec<I>> block;
@@ -792,9 +792,9 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
 
 
     /// @see #onFromDerived(_JoinType, SQLs.DerivedModifier, DerivedTable)
-/// @see #parens(String, String...)
-/// @see #parens(Consumer)
-/// @see #ifParens(Consumer)
+    /// @see #parens(String, String...)
+    /// @see #parens(Consumer)
+    /// @see #ifParens(Consumer)
     private TabularBlocks.FromClauseAliasDerivedBlock getFromClauseDerived() {
         final _TabularBlock block = this.fromCrossBlock;
         if (block != this.context.lastBlock() || !(block instanceof TabularBlocks.FromClauseAliasDerivedBlock)) {
@@ -814,7 +814,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
 
 
     /// @see #windows(Consumer)
-/// @see #window(String)
+    /// @see #window(String)
     private _WindowCommaSpec<I> onAddWindow(final ArmyWindow window) {
         window.endWindowClause();
         List<_Window> windowList = this.windowList;
@@ -828,7 +828,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
     }
 
     /// @see #windows(Consumer)
-/// @see #ifWindows(Consumer)
+    /// @see #ifWindows(Consumer)
     private Window._WindowAsClause<MySQLWindow._PartitionBySpec, Item> createDynamicWindow(String name) {
         return new NamedWindowAsClause<>(this.context, name, this::onAddWindow, MySQLSupports::namedWindow);
     }

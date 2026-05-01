@@ -59,7 +59,7 @@ public abstract class _DialectUtils {
 
 
     /// @return true : representing insert {@link ChildTableMeta} and syntax error
-/// , statement executor couldn't get the auto increment primary key of {@link ParentTableMeta}
+    /// , statement executor couldn't get the auto increment primary key of {@link ParentTableMeta}
     public static boolean isIllegalChildPostInsert(final _Insert._ChildInsert stmt) {
         final _Insert parentStmt;
         parentStmt = stmt.parentStmt();

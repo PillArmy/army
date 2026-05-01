@@ -47,8 +47,8 @@ public interface TextEnum {
     }
 
     /// 
-/// see {@code io.army.mapping.TextEnumType#getTextMap(java.lang.Class)}
-/// @return a unmodified map
+    /// see {@code io.army.mapping.TextEnumType#getTextMap(java.lang.Class)}
+    /// @return a unmodified map
     static <T extends Enum<T> & TextEnum> Map<String, T> getInstanceMap(Class<T> javaType)
             throws IllegalArgumentException {
         return EnumHelper.getTextMap(javaType);

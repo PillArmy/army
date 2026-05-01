@@ -22,7 +22,7 @@ import io.army.modelgen._MetaBridge;
 
 import java.util.List;
 
-///  this interface representing a Java class then tableMeta column mapping.
+/// this interface representing a Java class then tableMeta column mapping.
 /// @param <T> representing Domain Java Type
 public interface FieldMeta<T> extends TypeTableField<T> {
 
@@ -35,7 +35,7 @@ public interface FieldMeta<T> extends TypeTableField<T> {
 
 
     /// 
-/// if this field representing {@link _MetaBridge#ID}
+    /// if this field representing {@link _MetaBridge#ID}
     @Nullable
     GeneratorMeta generator();
 
@@ -44,13 +44,13 @@ public interface FieldMeta<T> extends TypeTableField<T> {
 
 
     /// (Optional) The columnSize for a decimal (exact numeric)
-/// column. (Applies only if a decimal column is used.)
-/// Value must be set by developer if used when generating
-/// the DDL for the column.
+    /// column. (Applies only if a decimal column is used.)
+    /// Value must be set by developer if used when generating
+    /// the DDL for the column.
     int precision();
 
     /// (Optional) The scale for a decimal (exact numeric) column.
-/// (Applies only if a decimal column is used.)
+    /// (Applies only if a decimal column is used.)
     int scale();
 
 
@@ -61,15 +61,15 @@ public interface FieldMeta<T> extends TypeTableField<T> {
     String defaultValue();
 
 
-/// 
-/// If {@link #javaType()} is below type then return element java type,
-/// 
-/// - {@link java.util.Collection}
-/// - {@link java.util.Set }
-/// - {@link java.util.List }
-/// - {@link java.util.Map}
-/// 
-/// else return {@code void.class}.
+    /// 
+    /// If {@link #javaType()} is below type then return element java type,
+    /// 
+    /// - {@link java.util.Collection}
+    /// - {@link java.util.Set }
+    /// - {@link java.util.List }
+    /// - {@link java.util.Map}
+    /// 
+    /// else return {@code void.class}.
     List<Class<?>> elementTypes();
 
 

@@ -100,7 +100,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
         return new JsonValueFunc(jsonDoc, path, clause);
     }
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_char">CHAR(N,... [USING charset_name])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_char">CHAR(N,... [USING charset_name])</a>
     static SimpleExpression charFunc(Consumer<? super FuncExpUtils.VariadicClause> consumer, @Nullable String charName) {
         if (charName != null && !_StringUtils.hasText(charName)) {
             throw ContextStack.clearStackAndCriteriaError("CHAR function charset_name must have text");
@@ -119,8 +119,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
     }
 
 
-/// Create jsonTable function.
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html#function_json-table">JSON_TABLE(expr, path COLUMNS (column_list) [AS] alias)</a>
+    /// Create jsonTable function.
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html#function_json-table">JSON_TABLE(expr, path COLUMNS (column_list) [AS] alias)</a>
     static Functions._TabularFunction jsonTable(final Object jsonDoc, final Object path,
                                                 final Consumer<? super MySQLJsonTableColumns> consumer) {
 
@@ -153,7 +153,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
 
     /// @see #statementDigest(PrimaryStatement, Visible, boolean)
-/// @see #statementDigestText(PrimaryStatement, Visible, boolean)
+    /// @see #statementDigestText(PrimaryStatement, Visible, boolean)
     private static void assertPrimaryStatement(final PrimaryStatement statement, final String funcName) {
         if (statement instanceof _BatchStatement
                 || statement instanceof _Statement._ChildStatement
@@ -1545,7 +1545,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
         private final Map<String, Selection> selectionMap;
 
         /// @param columnList unmodified list
-/// @see #jsonTable(Object, Object, Consumer)
+        /// @see #jsonTable(Object, Object, Consumer)
         private JsonTableFunc(Object jsonDoc, Object pathExp, final List<JsonTableColumn> columnList) {
             this.jsonDoc = jsonDoc;
             this.pathExp = pathExp;
@@ -1647,7 +1647,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
 
         /// @see #appendSql(StringBuilder, _SqlContext)
-/// @see JsonTableNestedField#appendSql(StringBuilder, _SqlContext)
+        /// @see JsonTableNestedField#appendSql(StringBuilder, _SqlContext)
         private static void appendJsonTableColumns(final List<JsonTableColumn> columnList,
                                                    final StringBuilder sqlBuilder, final _SqlContext context) {
             sqlBuilder.append(SQLs.COLUMNS.spaceRender())
@@ -1665,7 +1665,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
         }
 
         /// @see #toString()
-/// @see JsonTableNestedField#toString()
+        /// @see JsonTableNestedField#toString()
         private static void jsonTableColumnsToString(final List<JsonTableColumn> columnList, final StringBuilder builder) {
 
             builder.append(SQLs.COLUMNS.spaceRender())

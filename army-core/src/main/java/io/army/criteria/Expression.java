@@ -30,7 +30,7 @@ import java.util.function.BiFunction;
 import static io.army.dialect.Database.*;
 
 /// Interface representing the sql expression, eg: column,function.
-///  This interface is the base interface of below"
+/// This interface is the base interface of below"
 /// 
 /// - {@link SimpleExpression}
 /// - {@link CompoundExpression}
@@ -43,17 +43,17 @@ public interface Expression extends SortItem, RowElement, RightOperand,
         GroupByItem.ExpressionItem, AssignmentItem, SQLElement, SelectionSpec {
 
 
-    ///
+    /// 
     /// {@code =} operator
-    ///
+    /// 
     /// @param operand right operand , one of below :
     /// 1. {@link Expression}
     /// 2. java literal,if this is {@link TypedExpression} ,then invoke {@link SQLs#param(TypeInfer, Object)} else invoke {@link SQLs#parameter(Object)}
     /// @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-    ///                          {@link SQLs#rowParam(TypeInfer, Collection)}
+    /// {@link SQLs#rowParam(TypeInfer, Collection)}
     /// @see TypedExpression#equal(BiFunction, Object)
     /// @see TypedField#spaceEqual(BiFunction)
-    ///
+    /// 
     IPredicate equal(Object operand);
 
     IPredicate notEqual(Object operand);
@@ -61,11 +61,11 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     @Support({MySQL, PostgreSQL, H2})
     IPredicate nullSafeEqual(Object operand);
 
-/// 
-/// **<** operator
-/// @param operand non-null
-/// @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-/// {@link SQLs#rowParam(TypeInfer, Collection)}
+    /// 
+    /// **<** operator
+    /// @param operand non-null
+    /// @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
+    /// {@link SQLs#rowParam(TypeInfer, Collection)}
     IPredicate less(Object operand);
 
 
@@ -102,37 +102,37 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     @Support({PostgreSQL, H2})
     IPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, Object first, SQLs.WordAnd and, Object second);
 
-/// @param operand 
-/// - {@link SQLs#TRUE}
-/// - {@link SQLs#FALSE}
-/// - {@link SQLs#UNKNOWN}
-/// - {@link SQLs#NULL}
-/// - other
-/// 
+    /// @param operand
+    /// - {@link SQLs#TRUE}
+    /// - {@link SQLs#FALSE}
+    /// - {@link SQLs#UNKNOWN}
+    /// - {@link SQLs#NULL}
+    /// - other
+    /// 
     IPredicate is(SQLs.BoolTestWord operand);
 
-/// @param operand 
-/// - {@link SQLs#TRUE}
-/// - {@link SQLs#FALSE}
-/// - {@link SQLs#UNKNOWN}
-/// - {@link SQLs#NULL}
-/// - other
-/// 
+    /// @param operand
+    /// - {@link SQLs#TRUE}
+    /// - {@link SQLs#FALSE}
+    /// - {@link SQLs#UNKNOWN}
+    /// - {@link SQLs#NULL}
+    /// - other
+    /// 
     IPredicate isNot(SQLs.BoolTestWord operand);
 
     IPredicate isNull();
 
     IPredicate isNotNull();
 
-/// @param operator see 
-/// - {@link SQLs#DISTINCT_FROM}
-/// 
+    /// @param operator see
+    /// - {@link SQLs#DISTINCT_FROM}
+    /// 
     @Support({PostgreSQL, H2})
     IPredicate is(SQLs.IsComparisonWord operator, Object operand);
 
-/// @param operator see 
-/// - {@link SQLs#DISTINCT_FROM}
-/// 
+    /// @param operator see
+    /// - {@link SQLs#DISTINCT_FROM}
+    /// 
     @Support({PostgreSQL, H2})
     IPredicate isNot(SQLs.IsComparisonWord operator, Object operand);
 
@@ -157,12 +157,12 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     IPredicate notSimilarTo(Object pattern, SQLs.WordEscape escape, Object escapeChar);
 
 
-/// 
-/// **= ANY** operator
+    /// 
+    /// **= ANY** operator
     IPredicate equalAny(SubQuery subQuery);
 
     /// Operator {@code = SOME}
-    ///
+    /// 
     /// @see <a href="https://dev.mysql.com/doc/refman/9.6/en/any-in-some-subqueries.html">Subqueries with ANY, IN, or SOME</a>
     IPredicate equalSome(SubQuery subQuery);
 
@@ -215,32 +215,32 @@ public interface Expression extends SortItem, RowElement, RightOperand,
 
 
     /// Bitwise AND
-/// @return {@link BigInteger} expression
+    /// @return {@link BigInteger} expression
     Expression bitwiseAnd(Object operand);
 
     /// Bitwise OR
-/// @return {@link BigInteger} expression
-/// @see #bitwiseAnd(Object)
-/// @see SQLs#bitwiseNot(Expression)
+    /// @return {@link BigInteger} expression
+    /// @see #bitwiseAnd(Object)
+    /// @see SQLs#bitwiseNot(Expression)
     Expression bitwiseOr(Object operand);
 
     /// Bitwise XOR
-/// @return {@link BigInteger} expression
+    /// @return {@link BigInteger} expression
     Expression bitwiseXor(Object operand);
 
 
     /// Shifts a  number to the right.
-/// @return {@link BigInteger} expression
+    /// @return {@link BigInteger} expression
     Expression rightShift(Object bitNumber);
 
 
     /// Shifts a  number to the left.
-/// @return {@link BigInteger} expression
+    /// @return {@link BigInteger} expression
     Expression leftShift(Object bitNumber);
 
-    ///
-    ///  Access the slice of 1D array
-    ///
+    /// 
+    /// Access the slice of 1D array
+    /// 
     /// @param lower lower is one of below:
     /// 1. {@link Expression} : subscript expression
     /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
@@ -254,9 +254,9 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     @Support({H2, PostgreSQL})
     Expression slice(Object lower, SQLs.SymbolColon colon, Object upper);
 
-    ///
-    ///  Access the slice of 1D array
-    ///
+    /// 
+    /// Access the slice of 1D array
+    /// 
     /// @param func  a method reference of one of below:
     /// 1. {@link SQLs#param(TypeInfer, Object)} : parameter function
     /// 2. {@link SQLs#literal(TypeInfer, Object)}  : literal function
@@ -267,9 +267,9 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     @Support({H2, PostgreSQL})
     Expression slice(BiFunction<IntegerType, Integer, Expression> func, int lower, SQLs.SymbolColon colon, int upper);
 
-    ///
-    ///  Access the slice of 1D array without upper
-    ///
+    /// 
+    /// Access the slice of 1D array without upper
+    /// 
     /// @param lower lower is one of below:
     /// 1. {@link Expression} : subscript expression
     /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
@@ -279,9 +279,9 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     @Support({H2, PostgreSQL})
     Expression slice(Object lower, SQLs.SymbolColon colon);
 
-    ///
-    ///  Access the slice of 1D array without lower
-    ///
+    /// 
+    /// Access the slice of 1D array without lower
+    /// 
     /// @param upper upper is one of below:
     /// 1. {@link Expression} : subscript expression
     /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
@@ -291,17 +291,17 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     @Support({H2, PostgreSQL})
     Expression slice(SQLs.SymbolColon colon, Object upper);
 
-    ///
-    ///  Access the slice of 1D array without lower and upper
-    ///
+    /// 
+    /// Access the slice of 1D array without lower and upper
+    /// 
     /// @param colon see {@link SQLs#COLON}
     /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
     @Support({H2, PostgreSQL})
     Expression slice(SQLs.SymbolColon colon);
 
-    ///
-    ///  Access the slice of 2D array
-    ///
+    /// 
+    /// Access the slice of 2D array
+    /// 
     /// @param lower  lower is one of below:
     /// 1. {@link Expression} : subscript expression
     /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
@@ -324,9 +324,9 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     @Support({H2, PostgreSQL})
     Expression slice(Object lower, SQLs.SymbolColon colon, Object upper, Object lower1, SQLs.SymbolColon colon1, Object upper1);
 
-    ///
-    ///  Access the slice of 2D array
-    ///
+    /// 
+    /// Access the slice of 2D array
+    /// 
     /// @param func   a method reference of one of below:
     /// 1. {@link SQLs#param(TypeInfer, Object)} : parameter function
     /// 2. {@link SQLs#literal(TypeInfer, Object)}  : literal function
@@ -338,9 +338,9 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     @Support({H2, PostgreSQL})
     Expression slice(BiFunction<IntegerType, Integer, Expression> func, int lower, SQLs.SymbolColon colon, int upper, int lower1, SQLs.SymbolColon colon1, int upper1);
 
-    ///
-    ///  Access the slice of 2D array without the lower of 1D
-    ///
+    /// 
+    /// Access the slice of 2D array without the lower of 1D
+    /// 
     /// @param colon  see {@link SQLs#COLON}
     /// @param upper  upper is one of below:
     /// 1. {@link Expression} : subscript expression
@@ -359,9 +359,9 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     @Support({H2, PostgreSQL})
     Expression slice(SQLs.SymbolColon colon, Object upper, Object lower1, SQLs.SymbolColon colon1, Object upper1);
 
-    ///
-    ///  Access the slice of 2D array without the upper of 2D
-    ///
+    /// 
+    /// Access the slice of 2D array without the upper of 2D
+    /// 
     /// @param lower  lower is one of below:
     /// 1. {@link Expression} : subscript expression
     /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
@@ -380,18 +380,18 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     @Support({H2, PostgreSQL})
     Expression slice(Object lower, SQLs.SymbolColon colon, Object upper, Object lower1, SQLs.SymbolColon colon1);
 
-    ///
+    /// 
     /// Access the slice of 2D array without all lower and upper
-    ///
+    /// 
     /// @param colon  see {@link SQLs#COLON}
     /// @param colon1 see {@link SQLs#COLON}
     /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
     @Support({H2, PostgreSQL})
     Expression slice(SQLs.SymbolColon colon, SQLs.SymbolColon colon1);
 
-    ///
+    /// 
     /// Access the slice of nD array
-    ///
+    /// 
     /// @param indexList a List with an even size,the element is one of below:
     /// 1. {@link Expression} : subscript expression
     /// 2. {@link SQLs#ABSENT} : placeholder,output nothing
@@ -400,9 +400,9 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     @Support({H2, PostgreSQL})
     Expression sliceAtSubs(List<?> indexList);
 
-    ///
+    /// 
     /// dot operator.
-    ///
+    /// 
     /// @param func      a method reference of one of below:
     /// 1. {@link SQLs#param(TypeInfer, Object)} : parameter function
     /// 2. {@link SQLs#literal(TypeInfer, Object)}  : literal function
@@ -414,9 +414,9 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     Expression sliceAtSubs(BiFunction<MappingType, Integer, Expression> func, List<Integer> indexList);
 
 
-    ///
+    /// 
     /// dot operator.
-    ///
+    /// 
     /// @param key key is one of below:
     /// 1. {@link Expression} : subscript expression
     /// 2. {@link String} literal
@@ -433,9 +433,9 @@ public interface Expression extends SortItem, RowElement, RightOperand,
 
     Expression dots(List<?> subscriptList);
 
-    ///
-    ///  bracket operator.
-    ///
+    /// 
+    /// bracket operator.
+    /// 
     /// @param key key is one of below:
     /// 1. {@link Expression} : subscript expression
     /// 2. {@link String} literal
@@ -451,9 +451,9 @@ public interface Expression extends SortItem, RowElement, RightOperand,
 
     Expression bracket(Object key, Object key1, Object key2, Object key3, Object key4);
 
-    ///
-    ///  bracket operator.
-    ///
+    /// 
+    /// bracket operator.
+    /// 
     /// @param key key is one of below:
     /// 1. {@link Expression} : subscript expression
     /// 2. {@link String} literal
@@ -495,7 +495,7 @@ public interface Expression extends SortItem, RowElement, RightOperand,
 
     /*-------------------below dialect operator method -------------------*/
 
-    ///
+    /// 
     /// @param operator dialect operator
     /// @param right    {@link Expression} or java literal
     Expression space(SQLs.DualOperator operator, Object right);
@@ -503,7 +503,7 @@ public interface Expression extends SortItem, RowElement, RightOperand,
 
     IPredicate space(SQLs.BiOperator operator, Object right);
 
-    ///
+    /// 
     /// @see <a href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP">SIMILAR TO Regular Expressions</a>
     IPredicate space(SQLs.BiOperator operator, Object right, SQLToken modifier, Object optionalExp);
 

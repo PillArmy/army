@@ -15,16 +15,16 @@ interface TransactionSpec extends IterableOptionSpec {
     /// @return true : transaction is read-only.
     boolean isReadOnly();
 
-/// 
-/// override {@link Object#toString()}
-/// 
-/// 
-/// @return transaction info, contain
-/// 
-/// - implementation class name
-/// - transaction info
-/// - {@link System#identityHashCode(Object)}
-/// 
+    /// 
+    /// override {@link Object#toString()}
+    /// 
+    /// 
+    /// @return transaction info, contain
+    /// 
+    /// - implementation class name
+    /// - transaction info
+    /// - {@link System#identityHashCode(Object)}
+    /// 
     @Override
     String toString();
 

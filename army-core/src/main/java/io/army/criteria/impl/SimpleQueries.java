@@ -1746,14 +1746,14 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
         private final TeFunction<String, CriteriaContext, String, T> constructor;
 
-/// @param name        window name
-/// @param function    end function
-/// @param constructor constructor of window. arguments:
-/// 
-/// - first : window name
-/// - second : {@link CriteriaContext}
-/// - third : nullable existingWindowName 
-/// 
+        /// @param name        window name
+        /// @param function    end function
+        /// @param constructor constructor of window. arguments:
+        /// 
+        /// - first : window name
+        /// - second : {@link CriteriaContext}
+        /// - third : nullable existingWindowName
+        /// 
         NamedWindowAsClause(CriteriaContext context, String name, Function<ArmyWindow, R> function,
                             TeFunction<String, CriteriaContext, String, T> constructor) {
             this.context = context;

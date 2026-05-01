@@ -35,7 +35,7 @@ import java.time.LocalTime;
 /// 
 /// - {@link LocalTime}
 /// - {@link LocalDateTime}
-/// - {@link String} 
+/// - {@link String}
 /// 
 /// to {@link LocalTime},if overflow,throw {@link io.army.ArmyException}
 /// @since 0.6.0

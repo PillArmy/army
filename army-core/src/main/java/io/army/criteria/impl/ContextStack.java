@@ -95,7 +95,7 @@ abstract class ContextStack {
     }
 
     /// @param contextHolder statement that hold {@link CriteriaContext}
-/// @see ContextStackHost
+    /// @see ContextStackHost
     static void push(final Item contextHolder, final CriteriaContext context) {
         final CriteriaContext outerContext;
         outerContext = context.getOuterContext();

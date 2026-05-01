@@ -197,18 +197,18 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final WordsAtTimeZone AT_TIME_ZONE = SqlWords.KeyWordsAtTimeZone.AT_TIME_ZONE;
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
     public static final VarScope AT = SqlWords.KeyWordVarScope.AT;
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
     public static final VarScope GLOBAL = SqlWords.KeyWordVarScope.GLOBAL;
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-set.html">Postgre SET Syntax for Variable Assignment</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-set.html">Postgre SET Syntax for Variable Assignment</a>
     public static final VarScope SESSION = SqlWords.KeyWordVarScope.SESSION;
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-set.html">Postgre SET Syntax for Variable Assignment</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-set.html">Postgre SET Syntax for Variable Assignment</a>
     public static final VarScope LOCAL = SqlWords.KeyWordVarScope.LOCAL;
 
 
@@ -386,14 +386,14 @@ public abstract class SQLs extends SQLSyntax {
 
 
     /// 
-/// Batch domain update
+    /// Batch domain update
     public static StandardUpdate._DomainUpdateClause<Statement._BatchUpdateParamSpec> batchDomainUpdate() {
         return StandardUpdates.batchDomain();
     }
 
 
     /// 
-/// Batch domain update
+    /// Batch domain update
     public static StandardUpdate._WithSpec<Statement._BatchUpdateParamSpec> batchSingleUpdate() {
         return StandardUpdates.batchSingleUpdate(StandardDialect.STANDARD20);
     }
@@ -409,7 +409,7 @@ public abstract class SQLs extends SQLSyntax {
     }
 
     /// 
-/// Batch domain delete
+    /// Batch domain delete
     public static StandardDelete._WithSpec<Statement._BatchDeleteParamSpec> batchSingleDelete() {
         return StandardDeletes.batchSingleDelete(StandardDialect.STANDARD20);
     }
@@ -507,10 +507,10 @@ public abstract class SQLs extends SQLSyntax {
 
 
     /// 
-/// package method that is used by army developer.
-/// *
-/// @param value {@link Expression} or parameter.
-/// @see #plusEqual(SqlField, Object)
+    /// package method that is used by army developer.
+    /// *
+    /// @param value {@link Expression} or parameter.
+    /// @see #plusEqual(SqlField, Object)
     static SQLs.ArmyItemPair _itemPair(final @Nullable SqlField field, final @Nullable AssignOperator operator,
                                        final @Nullable Object value) {
         if (field == null || value == null) {
@@ -527,7 +527,7 @@ public abstract class SQLs extends SQLSyntax {
     }
 
     /// 
-/// package method that is used by army developer.
+    /// package method that is used by army developer.
     static _ItemPair _itemExpPair(final SqlField field, @Nullable Expression value) {
         assert value != null;
         return SQLs._itemPair(field, null, value);
@@ -539,9 +539,9 @@ public abstract class SQLs extends SQLSyntax {
 
 
     /// 
-/// This method is similar to {@link Function#identity()}, except that use method reference.
-/// *
-/// @see Function#identity()
+    /// This method is similar to {@link Function#identity()}, except that use method reference.
+    /// *
+    /// @see Function#identity()
     static <T extends Item> T identity(T t) {
         return t;
     }
@@ -728,11 +728,11 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-/// This interface is base interface of following :
-/// 
-/// - {@link WordRows}
-/// - {@link WordLines}
-/// 
+    /// This interface is base interface of following :
+    /// 
+    /// - {@link WordRows}
+    /// - {@link WordLines}
+    /// 
     public interface LinesWord {
 
     }
@@ -878,7 +878,7 @@ public abstract class SQLs extends SQLSyntax {
     }
 
     /// This interface representing binary operator that result is {@link Expression}
-    ///
+    /// 
     /// @see BiOperator
     public sealed interface DualOperator extends Operator permits DualExpOperator, WordsAtTimeZone, WordCollate {
 
@@ -887,7 +887,7 @@ public abstract class SQLs extends SQLSyntax {
 
 
     /// This interface representing binary operator that result is {@link IPredicate}
-    ///
+    /// 
     /// @see DualOperator
     public sealed interface BiOperator extends Operator permits DualBooleanOperator, PgDualBoolOperator {
 
@@ -1144,9 +1144,9 @@ public abstract class SQLs extends SQLSyntax {
     }//CteImpl
 
     /// 
-/// This class representing sql {@code DEFAULT} key word.
-/// *
-/// @see SQLs#DEFAULT
+    /// This class representing sql {@code DEFAULT} key word.
+    /// *
+    /// @see SQLs#DEFAULT
     private static final class DefaultWord extends NonOperationExpression
             implements SQLs.WordDefault, Functions.ArmyKeyWord {
 

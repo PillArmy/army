@@ -37,14 +37,14 @@ final class SQLiteDdlParser extends ArmyDdlParser<SQLiteParser> {
         super(parser);
     }
 
-/// @see <a href="https://www.sqlite.org/lang_createtable.html">CREATE TABLE</a>
+    /// @see <a href="https://www.sqlite.org/lang_createtable.html">CREATE TABLE</a>
     @Override
     public void modifyTableComment(TableMeta<?> table, List<String> sqlList) {
         // no bug , never here
         throw sqLiteDontSupportComment();
     }
 
-/// @see <a href="https://www.sqlite.org/lang_createtable.html">CREATE TABLE</a>
+    /// @see <a href="https://www.sqlite.org/lang_createtable.html">CREATE TABLE</a>
     @Override
     protected void dataType(final FieldMeta<?> field, final DataType dataType, final StringBuilder builder) {
 
@@ -99,7 +99,7 @@ final class SQLiteDdlParser extends ArmyDdlParser<SQLiteParser> {
         }
     }
 
-/// @see <a href="https://www.sqlite.org/lang_createtable.html">CREATE TABLE</a>
+    /// @see <a href="https://www.sqlite.org/lang_createtable.html">CREATE TABLE</a>
     @Override
     protected void postDataType(FieldMeta<?> field, DataType dataType, StringBuilder builder) {
         switch ((SQLiteType) dataType) {
@@ -121,7 +121,7 @@ final class SQLiteDdlParser extends ArmyDdlParser<SQLiteParser> {
 
     }
 
-/// @see <a href="https://www.sqlite.org/lang_createtable.html">CREATE TABLE</a>
+    /// @see <a href="https://www.sqlite.org/lang_createtable.html">CREATE TABLE</a>
     @Override
     protected void appendTableOption(TableMeta<?> table, StringBuilder builder) {
         final String optionClause;
@@ -135,14 +135,14 @@ final class SQLiteDdlParser extends ArmyDdlParser<SQLiteParser> {
 
     }
 
-/// @see <a href="https://www.sqlite.org/lang_createtable.html">CREATE TABLE</a>
+    /// @see <a href="https://www.sqlite.org/lang_createtable.html">CREATE TABLE</a>
     @Override
     protected void appendPostGenerator(FieldMeta<?> field, StringBuilder builder) {
         // no bug , never here
         throw new UnsupportedOperationException();
     }
 
-/// @see <a href="https://www.sqlite.org/lang_altertable.html">ALTER TABLE</a>
+    /// @see <a href="https://www.sqlite.org/lang_altertable.html">ALTER TABLE</a>
     @Override
     protected void doModifyColumn(FieldResult result, StringBuilder builder) {
         // no bug , never here
@@ -156,7 +156,7 @@ final class SQLiteDdlParser extends ArmyDdlParser<SQLiteParser> {
     }
 
 
-/// @see <a href="https://www.sqlite.org/lang_createindex.html">CREATE INDEX</a>
+    /// @see <a href="https://www.sqlite.org/lang_createindex.html">CREATE INDEX</a>
     @Override
     protected <T> void appendIndexOutTableDef(final IndexMeta<T> index, final StringBuilder builder) {
         if (index.isPrimaryKey()) {

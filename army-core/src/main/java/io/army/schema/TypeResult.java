@@ -39,7 +39,7 @@ public interface TypeResult {
 
     /// {@link CompositeField#fieldName} field is meaningless here.
     /// The order of the list matches the order of the fields in the SQL composite type
-    ///
+    /// 
     /// @return an unmodified list
     List<CompositeField> compositeNewFieldList();
 

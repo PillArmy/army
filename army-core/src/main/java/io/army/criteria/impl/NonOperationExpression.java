@@ -33,7 +33,7 @@ import java.util.function.BiFunction;
 
 /// 
 /// This class representing non-operation expression.
-/// This class is base class of following : 
+/// This class is base class of following :
 /// - {@link SQLs#DEFAULT}
 /// - {@link SQLs#ASTERISK}
 /// 
@@ -660,8 +660,8 @@ abstract class NonOperationExpression implements ArmyExpression {
 
 
     /// 
-/// This class representing sql {@code NULL} key word.
-/// @see SQLs#NULL
+    /// This class representing sql {@code NULL} key word.
+    /// @see SQLs#NULL
     static final class NullWord extends NonOperationExpression
             implements SqlValueParam.SingleAnonymousValue,
             ArmySimpleExpression,

@@ -50,7 +50,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
 
     /// @see Postgres#toJson(Object)
-/// @see Postgres#toJsonb(Object)
+    /// @see Postgres#toJsonb(Object)
     @Test
     public void toJsonFunc() {
         final Select stmt;
@@ -92,7 +92,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#rowToJson(RowElement)
-/// @see Postgres#rowToJson(RowElement, Expression)
+    /// @see Postgres#rowToJson(RowElement, Expression)
     @Test
     public void rowToJsonFunc() {
         final Select stmt;
@@ -110,9 +110,9 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonBuildArray(Object)
-/// @see Postgres#jsonBuildArray(Consumer)
-/// @see Postgres#jsonBuildArray(Object)
-/// @see Postgres#jsonbBuildArray(Consumer)
+    /// @see Postgres#jsonBuildArray(Consumer)
+    /// @see Postgres#jsonBuildArray(Object)
+    /// @see Postgres#jsonbBuildArray(Consumer)
     @Test
     public void jsonBuildArrayFunc() {
 
@@ -138,11 +138,11 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonBuildObject(Consumer)
-/// @see Postgres#jsonBuildObject(SymbolSpace, Consumer)
-/// @see Postgres#jsonBuildObject(String, SymbolDot, TableMeta)
-/// @see Postgres#jsonbBuildObject(Consumer)
-/// @see Postgres#jsonbBuildObject(SymbolSpace, Consumer)
-/// @see Postgres#jsonbBuildObject(String, SymbolDot, TableMeta)
+    /// @see Postgres#jsonBuildObject(SymbolSpace, Consumer)
+    /// @see Postgres#jsonBuildObject(String, SymbolDot, TableMeta)
+    /// @see Postgres#jsonbBuildObject(Consumer)
+    /// @see Postgres#jsonbBuildObject(SymbolSpace, Consumer)
+    /// @see Postgres#jsonbBuildObject(String, SymbolDot, TableMeta)
     @Test//(invocationCount = 1000)
     public void jsonBuildObjectFunc() {
         final Select stmt;
@@ -186,11 +186,11 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonObject(Expression)
-/// @see Postgres#jsonObject(BiFunction, Consumer)
-/// @see Postgres#jsonObject(SymbolSpace, BiFunction, Consumer)
-/// @see Postgres#jsonbObject(Expression)
-/// @see Postgres#jsonbObject(BiFunction, Consumer)
-/// @see Postgres#jsonbObject(SymbolSpace, BiFunction, Consumer)
+    /// @see Postgres#jsonObject(BiFunction, Consumer)
+    /// @see Postgres#jsonObject(SymbolSpace, BiFunction, Consumer)
+    /// @see Postgres#jsonbObject(Expression)
+    /// @see Postgres#jsonbObject(BiFunction, Consumer)
+    /// @see Postgres#jsonbObject(SymbolSpace, BiFunction, Consumer)
     @Test
     public void jsonObjectFunc() {
         final Select stmt;
@@ -250,7 +250,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonArrayElements(Expression)
-/// @see Postgres#jsonbArrayElements(Expression)
+    /// @see Postgres#jsonbArrayElements(Expression)
     @Test
     public void jsonArrayElementsFunc() {
         final String json;
@@ -272,7 +272,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
 
     /// @see Postgres#jsonArrayElementsText(Expression)
-/// @see Postgres#jsonArrayElementsText(BiFunction, Object)
+    /// @see Postgres#jsonArrayElementsText(BiFunction, Object)
     @Test
     public void jsonArrayElementsTextFuncScalar() {
         final String json;
@@ -287,7 +287,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonbArrayElementsText(Expression)
-/// @see Postgres#jsonbArrayElementsText(BiFunction, Object)
+    /// @see Postgres#jsonbArrayElementsText(BiFunction, Object)
     @Test
     public void jsonbArrayElementsTextFuncScalar() {
         final String json;
@@ -302,7 +302,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonArrayElementsText(Expression)
-/// @see Postgres#jsonbArrayElementsText(Expression)
+    /// @see Postgres#jsonbArrayElementsText(Expression)
     @Test
     public void jsonArrayElementsTextFunc() {
         final String json;
@@ -323,7 +323,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonArrayLength(Expression)
-/// @see Postgres#jsonbArrayLength(Expression)
+    /// @see Postgres#jsonbArrayLength(Expression)
     @Test
     public void jsonArrayLengthFunc() {
         final String json;
@@ -338,9 +338,9 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonEach(Expression)
-/// @see Postgres#jsonEach(BiFunction, Object)
-/// @see Postgres#jsonbEach(Expression)
-/// @see Postgres#jsonbEach(BiFunction, Object)
+    /// @see Postgres#jsonEach(BiFunction, Object)
+    /// @see Postgres#jsonbEach(Expression)
+    /// @see Postgres#jsonbEach(BiFunction, Object)
     @Test
     public void jsonEachFunc() {
         final String json;
@@ -362,9 +362,9 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonEachText(Expression)
-/// @see Postgres#jsonEachText(BiFunction, Object)
-/// @see Postgres#jsonbEachText(Expression)
-/// @see Postgres#jsonbEachText(BiFunction, Object)
+    /// @see Postgres#jsonEachText(BiFunction, Object)
+    /// @see Postgres#jsonbEachText(Expression)
+    /// @see Postgres#jsonbEachText(BiFunction, Object)
     @Test
     public void jsonEachTextFunc() {
         final String json;
@@ -386,15 +386,15 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonExtractPath(Expression, Expression, Expression...)
-/// @see Postgres#jsonExtractPath(Expression, BiFunction, String, String...)
-/// @see Postgres#jsonExtractPath(Expression, Consumer)
-/// @see Postgres#jsonExtractPath(Expression, BiFunction, Consumer)
-/// @see Postgres#jsonExtractPath(BiFunction, Object, BiFunction, String, String...)
-/// @see Postgres#jsonbExtractPath(Expression, Expression, Expression...)
-/// @see Postgres#jsonbExtractPath(Expression, BiFunction, String, String...)
-/// @see Postgres#jsonbExtractPath(Expression, Consumer)
-/// @see Postgres#jsonbExtractPath(Expression, BiFunction, Consumer)
-/// @see Postgres#jsonbExtractPath(BiFunction, Object, BiFunction, String, String...)
+    /// @see Postgres#jsonExtractPath(Expression, BiFunction, String, String...)
+    /// @see Postgres#jsonExtractPath(Expression, Consumer)
+    /// @see Postgres#jsonExtractPath(Expression, BiFunction, Consumer)
+    /// @see Postgres#jsonExtractPath(BiFunction, Object, BiFunction, String, String...)
+    /// @see Postgres#jsonbExtractPath(Expression, Expression, Expression...)
+    /// @see Postgres#jsonbExtractPath(Expression, BiFunction, String, String...)
+    /// @see Postgres#jsonbExtractPath(Expression, Consumer)
+    /// @see Postgres#jsonbExtractPath(Expression, BiFunction, Consumer)
+    /// @see Postgres#jsonbExtractPath(BiFunction, Object, BiFunction, String, String...)
     @Test
     public void jsonExtractPathFunc() {
         final String json;
@@ -434,15 +434,15 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonExtractPathText(Expression, Expression, Expression...)
-/// @see Postgres#jsonExtractPathText(Expression, BiFunction, String, String...)
-/// @see Postgres#jsonExtractPathText(Expression, Consumer)
-/// @see Postgres#jsonExtractPathText(Expression, BiFunction, Consumer)
-/// @see Postgres#jsonExtractPathText(BiFunction, Object, BiFunction, String, String...)
-/// @see Postgres#jsonbExtractPathText(Expression, Expression, Expression...)
-/// @see Postgres#jsonbExtractPathText(Expression, BiFunction, String, String...)
-/// @see Postgres#jsonbExtractPathText(Expression, Consumer)
-/// @see Postgres#jsonbExtractPathText(Expression, BiFunction, Consumer)
-/// @see Postgres#jsonbExtractPathText(BiFunction, Object, BiFunction, String, String...)
+    /// @see Postgres#jsonExtractPathText(Expression, BiFunction, String, String...)
+    /// @see Postgres#jsonExtractPathText(Expression, Consumer)
+    /// @see Postgres#jsonExtractPathText(Expression, BiFunction, Consumer)
+    /// @see Postgres#jsonExtractPathText(BiFunction, Object, BiFunction, String, String...)
+    /// @see Postgres#jsonbExtractPathText(Expression, Expression, Expression...)
+    /// @see Postgres#jsonbExtractPathText(Expression, BiFunction, String, String...)
+    /// @see Postgres#jsonbExtractPathText(Expression, Consumer)
+    /// @see Postgres#jsonbExtractPathText(Expression, BiFunction, Consumer)
+    /// @see Postgres#jsonbExtractPathText(BiFunction, Object, BiFunction, String, String...)
     @Test
     public void jsonExtractPathTextFunc() {
         final String json;
@@ -482,9 +482,9 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
 
     /// @see Postgres#jsonObjectKeys(Expression)
-/// @see Postgres#jsonObjectKeys(BiFunction, Object)
-/// @see Postgres#jsonbObjectKeys(Expression)
-/// @see Postgres#jsonbObjectKeys(BiFunction, Object)
+    /// @see Postgres#jsonObjectKeys(BiFunction, Object)
+    /// @see Postgres#jsonbObjectKeys(Expression)
+    /// @see Postgres#jsonbObjectKeys(BiFunction, Object)
     @Test
     public void jsonObjectKeysFunc() {
         final String json;
@@ -506,7 +506,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonPopulateRecord(Expression, Expression)
-/// @see Postgres#jsonbPopulateRecord(Expression, Expression)
+    /// @see Postgres#jsonbPopulateRecord(Expression, Expression)
     @Test
     public void jsonPopulateRecordFunc() {
         //TODO add
@@ -533,7 +533,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonPopulateRecordSet(Expression, Expression)
-/// @see Postgres#jsonbPopulateRecordSet(Expression, Expression)
+    /// @see Postgres#jsonbPopulateRecordSet(Expression, Expression)
     @Test
     public void jsonPopulateRecordSetFunc() {
         //TODO add
@@ -559,9 +559,9 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonToRecord(Expression)
-/// @see Postgres#jsonToRecord(BiFunction, Object)
-/// @see Postgres#jsonbToRecord(Expression)
-/// @see Postgres#jsonbToRecord(BiFunction, Object)
+    /// @see Postgres#jsonToRecord(BiFunction, Object)
+    /// @see Postgres#jsonbToRecord(Expression)
+    /// @see Postgres#jsonbToRecord(BiFunction, Object)
     @Test//(invocationCount = 10000)
     public void jsonToRecordFunc() {
         //TODO add
@@ -606,9 +606,9 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonToRecordSet(Expression)
-/// @see Postgres#jsonToRecordSet(BiFunction, Object)
-/// @see Postgres#jsonbToRecordSet(Expression)
-/// @see Postgres#jsonbToRecordSet(BiFunction, Object)
+    /// @see Postgres#jsonToRecordSet(BiFunction, Object)
+    /// @see Postgres#jsonbToRecordSet(Expression)
+    /// @see Postgres#jsonbToRecordSet(BiFunction, Object)
     @Test
     public void jsonToRecordSetFunc() {
         final String json;
@@ -641,12 +641,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
 
     /// @see Postgres#jsonbPathExists(Expression, Expression)
-/// @see Postgres#jsonbPathExists(Expression, Expression, Expression)
-/// @see Postgres#jsonbPathExists(Expression, Expression, Expression, Expression)
-/// @see Postgres#jsonbPathExists(Expression, BiFunction, Object)
-/// @see Postgres#jsonbPathExists(Expression, BiFunction, Object, Expression)
-/// @see Postgres#jsonbPathExists(Expression, BiFunction, Object, Expression, Expression)
-/// @see Postgres#jsonbPathExists(Expression, BiFunction, Object, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathExists(Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathExists(Expression, Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathExists(Expression, BiFunction, Object)
+    /// @see Postgres#jsonbPathExists(Expression, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathExists(Expression, BiFunction, Object, Expression, Expression)
+    /// @see Postgres#jsonbPathExists(Expression, BiFunction, Object, BiFunction, Object, Expression)
     @Test
     public void jsonbPathExistsFunc() {
         final String json, path, varPath, vars;
@@ -669,12 +669,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonbPathMatch(Expression, Expression)
-/// @see Postgres#jsonbPathMatch(Expression, Expression, Expression)
-/// @see Postgres#jsonbPathMatch(Expression, Expression, Expression, Expression)
-/// @see Postgres#jsonbPathMatch(Expression, BiFunction, Object)
-/// @see Postgres#jsonbPathMatch(Expression, BiFunction, Object, Expression)
-/// @see Postgres#jsonbPathMatch(Expression, BiFunction, Object, Expression, Expression)
-/// @see Postgres#jsonbPathMatch(Expression, BiFunction, Object, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathMatch(Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathMatch(Expression, Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathMatch(Expression, BiFunction, Object)
+    /// @see Postgres#jsonbPathMatch(Expression, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathMatch(Expression, BiFunction, Object, Expression, Expression)
+    /// @see Postgres#jsonbPathMatch(Expression, BiFunction, Object, BiFunction, Object, Expression)
     @Test
     public void jsonbPathMatchFunc() {
         final String json, path, varPath, vars;
@@ -697,12 +697,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonbPathQuery(Expression, Expression)
-/// @see Postgres#jsonbPathQuery(Expression, Expression, Expression)
-/// @see Postgres#jsonbPathQuery(Expression, Expression, Expression, Expression)
-/// @see Postgres#jsonbPathQuery(Expression, BiFunction, Object)
-/// @see Postgres#jsonbPathQuery(Expression, BiFunction, Object, Expression)
-/// @see Postgres#jsonbPathQuery(Expression, BiFunction, Object, Expression, Expression)
-/// @see Postgres#jsonbPathQuery(Expression, BiFunction, Object, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathQuery(Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathQuery(Expression, Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathQuery(Expression, BiFunction, Object)
+    /// @see Postgres#jsonbPathQuery(Expression, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathQuery(Expression, BiFunction, Object, Expression, Expression)
+    /// @see Postgres#jsonbPathQuery(Expression, BiFunction, Object, BiFunction, Object, Expression)
     @Test//(invocationCount = 1000)
     public void jsonbPathQueryFunc() {
         final String json, path, varPath, vars;
@@ -756,12 +756,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonbPathQueryArray(Expression, Expression)
-/// @see Postgres#jsonbPathQueryArray(Expression, Expression, Expression)
-/// @see Postgres#jsonbPathQueryArray(Expression, Expression, Expression, Expression)
-/// @see Postgres#jsonbPathQueryArray(Expression, BiFunction, Object)
-/// @see Postgres#jsonbPathQueryArray(Expression, BiFunction, Object, Expression)
-/// @see Postgres#jsonbPathQueryArray(Expression, BiFunction, Object, Expression, Expression)
-/// @see Postgres#jsonbPathQueryArray(Expression, BiFunction, Object, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathQueryArray(Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryArray(Expression, Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryArray(Expression, BiFunction, Object)
+    /// @see Postgres#jsonbPathQueryArray(Expression, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathQueryArray(Expression, BiFunction, Object, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryArray(Expression, BiFunction, Object, BiFunction, Object, Expression)
     @Test
     public void jsonbPathQueryArrayFunc() {
         final String json, path, varPath, vars;
@@ -790,12 +790,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonbPathQueryFirst(Expression, Expression)
-/// @see Postgres#jsonbPathQueryFirst(Expression, Expression, Expression)
-/// @see Postgres#jsonbPathQueryFirst(Expression, Expression, Expression, Expression)
-/// @see Postgres#jsonbPathQueryFirst(Expression, BiFunction, Object)
-/// @see Postgres#jsonbPathQueryFirst(Expression, BiFunction, Object, Expression)
-/// @see Postgres#jsonbPathQueryFirst(Expression, BiFunction, Object, Expression, Expression)
-/// @see Postgres#jsonbPathQueryFirst(Expression, BiFunction, Object, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathQueryFirst(Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryFirst(Expression, Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryFirst(Expression, BiFunction, Object)
+    /// @see Postgres#jsonbPathQueryFirst(Expression, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathQueryFirst(Expression, BiFunction, Object, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryFirst(Expression, BiFunction, Object, BiFunction, Object, Expression)
     @Test
     public void jsonbPathQueryFirstFunc() {
         final String json, path, varPath, vars;
@@ -821,12 +821,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonbPathExistsTz(Expression, Expression)
-/// @see Postgres#jsonbPathExistsTz(Expression, Expression, Expression)
-/// @see Postgres#jsonbPathExistsTz(Expression, Expression, Expression, Expression)
-/// @see Postgres#jsonbPathExistsTz(Expression, BiFunction, Object)
-/// @see Postgres#jsonbPathExistsTz(Expression, BiFunction, Object, Expression)
-/// @see Postgres#jsonbPathExistsTz(Expression, BiFunction, Object, Expression, Expression)
-/// @see Postgres#jsonbPathExistsTz(Expression, BiFunction, Object, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathExistsTz(Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathExistsTz(Expression, Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathExistsTz(Expression, BiFunction, Object)
+    /// @see Postgres#jsonbPathExistsTz(Expression, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathExistsTz(Expression, BiFunction, Object, Expression, Expression)
+    /// @see Postgres#jsonbPathExistsTz(Expression, BiFunction, Object, BiFunction, Object, Expression)
     @Test
     public void jsonbPathExistsTzFunc() {
         final String json, path, varPath, vars;
@@ -851,12 +851,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonbPathMatchTz(Expression, Expression)
-/// @see Postgres#jsonbPathMatchTz(Expression, Expression, Expression)
-/// @see Postgres#jsonbPathMatchTz(Expression, Expression, Expression, Expression)
-/// @see Postgres#jsonbPathMatchTz(Expression, BiFunction, Object)
-/// @see Postgres#jsonbPathMatchTz(Expression, BiFunction, Object, Expression)
-/// @see Postgres#jsonbPathMatchTz(Expression, BiFunction, Object, Expression, Expression)
-/// @see Postgres#jsonbPathMatchTz(Expression, BiFunction, Object, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathMatchTz(Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathMatchTz(Expression, Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathMatchTz(Expression, BiFunction, Object)
+    /// @see Postgres#jsonbPathMatchTz(Expression, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathMatchTz(Expression, BiFunction, Object, Expression, Expression)
+    /// @see Postgres#jsonbPathMatchTz(Expression, BiFunction, Object, BiFunction, Object, Expression)
     @Test
     public void jsonbPathMatchTzFunc() {
         final String json, path, varPath, vars;
@@ -881,12 +881,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     }
 
     /// @see Postgres#jsonbPathQueryTz(Expression, Expression)
-/// @see Postgres#jsonbPathQueryTz(Expression, Expression, Expression)
-/// @see Postgres#jsonbPathQueryTz(Expression, Expression, Expression, Expression)
-/// @see Postgres#jsonbPathQueryTz(Expression, BiFunction, Object)
-/// @see Postgres#jsonbPathQueryTz(Expression, BiFunction, Object, Expression)
-/// @see Postgres#jsonbPathQueryTz(Expression, BiFunction, Object, Expression, Expression)
-/// @see Postgres#jsonbPathQuery(Expression, BiFunction, Object, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathQueryTz(Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryTz(Expression, Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryTz(Expression, BiFunction, Object)
+    /// @see Postgres#jsonbPathQueryTz(Expression, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathQueryTz(Expression, BiFunction, Object, Expression, Expression)
+    /// @see Postgres#jsonbPathQuery(Expression, BiFunction, Object, BiFunction, Object, Expression)
     @Test
     public void jsonbPathQueryTzFunc() {
         final String json, path, varPath, vars;
@@ -949,12 +949,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
 
     /// @see Postgres#jsonbPathQueryArrayTz(Expression, Expression)
-/// @see Postgres#jsonbPathQueryArrayTz(Expression, Expression, Expression)
-/// @see Postgres#jsonbPathQueryArrayTz(Expression, Expression, Expression, Expression)
-/// @see Postgres#jsonbPathQueryArrayTz(Expression, BiFunction, Object)
-/// @see Postgres#jsonbPathQueryArrayTz(Expression, BiFunction, Object, Expression)
-/// @see Postgres#jsonbPathQueryArrayTz(Expression, BiFunction, Object, Expression, Expression)
-/// @see Postgres#jsonbPathQueryArrayTz(Expression, BiFunction, Object, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathQueryArrayTz(Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryArrayTz(Expression, Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryArrayTz(Expression, BiFunction, Object)
+    /// @see Postgres#jsonbPathQueryArrayTz(Expression, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathQueryArrayTz(Expression, BiFunction, Object, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryArrayTz(Expression, BiFunction, Object, BiFunction, Object, Expression)
     @Test
     public void jsonbPathQueryArrayTzFunc() {
         final String json, path, varPath, vars;
@@ -988,12 +988,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
 
     /// @see Postgres#jsonbPathQueryFirstTz(Expression, Expression)
-/// @see Postgres#jsonbPathQueryFirstTz(Expression, Expression, Expression)
-/// @see Postgres#jsonbPathQueryFirstTz(Expression, Expression, Expression, Expression)
-/// @see Postgres#jsonbPathQueryFirstTz(Expression, BiFunction, Object)
-/// @see Postgres#jsonbPathQueryFirstTz(Expression, BiFunction, Object, Expression)
-/// @see Postgres#jsonbPathQueryFirstTz(Expression, BiFunction, Object, Expression, Expression)
-/// @see Postgres#jsonbPathQueryFirstTz(Expression, BiFunction, Object, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathQueryFirstTz(Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryFirstTz(Expression, Expression, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryFirstTz(Expression, BiFunction, Object)
+    /// @see Postgres#jsonbPathQueryFirstTz(Expression, BiFunction, Object, Expression)
+    /// @see Postgres#jsonbPathQueryFirstTz(Expression, BiFunction, Object, Expression, Expression)
+    /// @see Postgres#jsonbPathQueryFirstTz(Expression, BiFunction, Object, BiFunction, Object, Expression)
     @Test
     public void jsonbPathQueryFirstTzFunc() {
         final String json, path, varPath, vars;

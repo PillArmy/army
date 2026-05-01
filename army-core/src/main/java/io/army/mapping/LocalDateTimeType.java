@@ -38,7 +38,7 @@ import java.time.format.DateTimeParseException;
 /// - {@link java.time.LocalDate}
 /// - {@link java.time.OffsetDateTime}
 /// - {@link java.time.ZonedDateTime}
-/// - {@link String} 
+/// - {@link String}
 /// 
 /// to {@link LocalDateTime},if overflow,throw {@link io.army.ArmyException}
 /// * @since 0.6.0

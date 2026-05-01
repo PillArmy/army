@@ -32,15 +32,15 @@ public interface SingleTableMeta<T> extends TableMeta<T> {
     FieldMeta<T> createTime();
 
     /// @throws IllegalArgumentException throw when no this field
-/// @see #tryUpdateTime()
+    /// @see #tryUpdateTime()
     FieldMeta<T> updateTime();
 
     /// @throws IllegalArgumentException throw when no this field
-/// @see #tryVersion()
+    /// @see #tryVersion()
     FieldMeta<T> version();
 
     /// @throws IllegalArgumentException throw when no this field
-/// @see #tryVisible()
+    /// @see #tryVisible()
     FieldMeta<T> visible();
 
     /// @see #updateTime()

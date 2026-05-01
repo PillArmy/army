@@ -33,46 +33,46 @@ public abstract class _NumericType extends _ArmyNoInjectionType {
 
 
 
-/// This class is base class class of below:
-/// 
-/// - {@link ByteType}
-/// - {@link ShortType}
-/// - {@link IntegerType}
-/// - {@link LongType}
-/// - {@link BigIntegerType}
-/// 
+    /// This class is base class class of below:
+    /// 
+    /// - {@link ByteType}
+    /// - {@link ShortType}
+    /// - {@link IntegerType}
+    /// - {@link LongType}
+    /// - {@link BigIntegerType}
+    /// 
     public static abstract class _IntegerType extends _NumericType implements SqlInteger {
 
     }
 
-/// This class is base class class of below:
-/// 
-/// - {@link FloatType}
-/// - {@link DoubleType}
-/// 
+    /// This class is base class class of below:
+    /// 
+    /// - {@link FloatType}
+    /// - {@link DoubleType}
+    /// 
     public static abstract class _FloatNumericType extends _NumericType implements SqlFloat {
 
     }
 
 
-/// This class is base class class of below:
-/// 
-/// - {@link UnsignedBigDecimalType}
-/// - {@link _UnsignedIntegerType}
-/// 
+    /// This class is base class class of below:
+    /// 
+    /// - {@link UnsignedBigDecimalType}
+    /// - {@link _UnsignedIntegerType}
+    /// 
     public static abstract class _UnsignedNumericType extends _NumericType implements SqlUnsignedNumber {
 
     }
 
-/// This class is base class class of below:
-/// 
-/// - {@link UnsignedTinyIntType}
-/// - {@link UnsignedSmallIntType}
-/// - {@link UnsignedMediumIntType}
-/// - {@link UnsignedSqlIntType}
-/// - {@link UnsignedBigintType}
-/// - {@link UnsignedBigIntegerType}
-/// 
+    /// This class is base class class of below:
+    /// 
+    /// - {@link UnsignedTinyIntType}
+    /// - {@link UnsignedSmallIntType}
+    /// - {@link UnsignedMediumIntType}
+    /// - {@link UnsignedSqlIntType}
+    /// - {@link UnsignedBigintType}
+    /// - {@link UnsignedBigIntegerType}
+    /// 
     public static abstract class _UnsignedIntegerType extends _UnsignedNumericType implements SqlInteger {
 
     }

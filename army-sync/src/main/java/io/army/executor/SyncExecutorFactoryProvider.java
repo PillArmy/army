@@ -30,7 +30,7 @@ public interface SyncExecutorFactoryProvider extends ExecutorFactoryProvider {
     ServerMeta createServerMeta(@Nullable Function<String, Database> func) throws DataAccessException;
 
     /// @throws IllegalStateException    throw when invoke this method before {@link #createServerMeta(Function)}
-/// @throws IllegalArgumentException throw when {@link  MappingEnv#serverMeta()} not match.
+    /// @throws IllegalArgumentException throw when {@link  MappingEnv#serverMeta()} not match.
     @Override
     SyncExecutorFactory createFactory(ExecutorEnv env) throws DataAccessException;
 

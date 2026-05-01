@@ -141,21 +141,21 @@ public interface UpdateStatement extends NarrowDmlStatement {
 
     interface _UpdateWhereAndClause<WA> extends Statement._WhereAndClause<WA> {
 
-/// @param numberOperand see 
-/// - {@link io.army.criteria.impl.SQLs#LITERAL_0}
-/// - {@link io.army.criteria.impl.SQLs#LITERAL_DECIMAL_0}
-/// - {@link io.army.criteria.impl.SQLs#PARAM_0}
-/// - {@link io.army.criteria.impl.SQLs#PARAM_DECIMAL_0}
-/// 
+        /// @param numberOperand see
+        /// - {@link io.army.criteria.impl.SQLs#LITERAL_0}
+        /// - {@link io.army.criteria.impl.SQLs#LITERAL_DECIMAL_0}
+        /// - {@link io.army.criteria.impl.SQLs#PARAM_0}
+        /// - {@link io.army.criteria.impl.SQLs#PARAM_DECIMAL_0}
+        /// 
         <T> WA ifAnd(Function<T, Expression> expOperator1, @Nullable T operand1,
                      BiFunction<Expression, Object, IPredicate> expOperator2, Object numberOperand);
 
-/// @param numberOperand see 
-/// - {@link io.army.criteria.impl.SQLs#LITERAL_0}
-/// - {@link io.army.criteria.impl.SQLs#LITERAL_DECIMAL_0}
-/// - {@link io.army.criteria.impl.SQLs#PARAM_0}
-/// - {@link io.army.criteria.impl.SQLs#PARAM_DECIMAL_0}
-/// 
+        /// @param numberOperand see
+        /// - {@link io.army.criteria.impl.SQLs#LITERAL_0}
+        /// - {@link io.army.criteria.impl.SQLs#LITERAL_DECIMAL_0}
+        /// - {@link io.army.criteria.impl.SQLs#PARAM_0}
+        /// - {@link io.army.criteria.impl.SQLs#PARAM_DECIMAL_0}
+        /// 
         <T> WA ifAnd(ExpressionOperator<TypedExpression, T, Expression> expOperator1,
                      BiFunction<TypedExpression, T, Expression> operator, @Nullable T operand1,
                      BiFunction<Expression, Object, IPredicate> expOperator2, Object numberOperand);

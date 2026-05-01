@@ -69,7 +69,7 @@ public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
     protected final PgSingleRangeType.MockRangeFunction<?> mockFunction;
 
     /// 
-/// package constructor
+    /// package constructor
     @SuppressWarnings("unchecked")
     protected _ArmyPgRangeType(final PgType dataType, final Class<?> javaType,
                                final @Nullable RangeFunction<?, ?> rangeFunc) {
@@ -314,8 +314,8 @@ public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
 
 
     /// @throws IllegalArgumentException            when rangeFunc is null and {@link MappingType#javaType()} isn't {@link String#getClass()}
-/// @throws CriteriaException                   when text error and handler throw this type.
-/// @throws DataAccessException when text error and handler throw this type.
+    /// @throws CriteriaException                   when text error and handler throw this type.
+    /// @throws DataAccessException when text error and handler throw this type.
     @SuppressWarnings("unchecked")
     static <T, R> R parseRange(final String text, final @Nullable RangeFunction<T, R> rangeFunc,
                                final Function<String, T> parseFunc, final DataType dataType,

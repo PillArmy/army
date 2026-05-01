@@ -658,16 +658,16 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
     /*-------------------below private method -------------------*/
 
     /// @see #from(Function)
-/// @see #crossJoin(Function)
+    /// @see #crossJoin(Function)
     private _JoinSpec<I> fromNestedEnd(final _JoinType joinType, final _NestedItems nestedItems) {
         this.blockConsumer.accept(TabularBlocks.fromNestedBlock(joinType, nestedItems));
         return this;
     }
 
     /// @see #leftJoin(Function)
-/// @see #join(Function)
-/// @see #rightJoin(Function)
-/// @see #fullJoin(Function)
+    /// @see #join(Function)
+    /// @see #rightJoin(Function)
+    /// @see #fullJoin(Function)
     private _OnClause<_JoinSpec<I>> joinNestedEnd(final _JoinType joinType, final _NestedItems nestedItems) {
 
         final TabularBlocks.JoinClauseNestedBlock<_JoinSpec<I>> block;
@@ -709,7 +709,7 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
     }
 
     /// @see #windows(Consumer)
-/// @see #ifWindows(Consumer)
+    /// @see #ifWindows(Consumer)
     private Window._WindowAsClause<PostgreWindow._PartitionBySpec, Item> createDynamicWindow(String name) {
         return new NamedWindowAsClause<>(this.context, name, this::onAddWindow, PostgreSupports::namedWindow);
     }
@@ -1189,7 +1189,7 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
 
 
     /// @see #createQueryUnion(_UnionType)
-/// @see #createQueryUnion(_UnionType)
+    /// @see #createQueryUnion(_UnionType)
     private static final class SubQueryDispatcher<I extends Item> extends PostgreQueryDispatcher<I> {
 
         private SubQueryDispatcher(CriteriaContext leftContext, Function<RowSet, I> function) {

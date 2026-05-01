@@ -30,7 +30,7 @@ import io.army.lang.Nullable;
 public interface RangeFunction<T, R> {
 
     /// @param lower null representing infinity
-/// @param upper null representing infinity
+    /// @param upper null representing infinity
     R apply(boolean includeLower, @Nullable T lower, @Nullable T upper, boolean includeUpper);
 
 }

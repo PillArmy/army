@@ -36,7 +36,7 @@ import java.time.ZonedDateTime;
 /// - {@link java.time.LocalDate}
 /// - {@link java.time.OffsetDateTime}
 /// - {@link java.time.ZonedDateTime}
-/// - {@link String} 
+/// - {@link String}
 /// 
 /// to {@link ZonedDateTime},if error,throw {@link io.army.ArmyException}
 /// * @since 0.6.0

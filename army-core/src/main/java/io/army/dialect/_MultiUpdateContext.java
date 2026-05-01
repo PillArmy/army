@@ -22,11 +22,11 @@ import io.army.meta.SingleTableMeta;
 public interface _MultiUpdateContext extends _UpdateContext, _MultiTableStmtContext, _SetClauseContext {
 
 
-/// 
-/// 
-/// - dataField table is {@link  SingleTableMeta},return table alias
-/// - dataField table is {@link  io.army.meta.ChildTableMeta} return {@link  io.army.meta.ParentTableMeta} alias
-/// 
+    /// 
+    /// 
+    /// - dataField table is {@link  SingleTableMeta},return table alias
+    /// - dataField table is {@link  io.army.meta.ChildTableMeta} return {@link  io.army.meta.ParentTableMeta} alias
+    /// 
     String singleTableAliasOf(SqlField dataField);
 
 

@@ -16,7 +16,7 @@
 
 package io.army.session;
 
-/// Throw when current session don't support 
+/// Throw when current session don't support
 /// - {@link io.army.criteria.Visible#ONLY_NON_VISIBLE}
 /// - {@link io.army.criteria.Visible#BOTH}
 /// 

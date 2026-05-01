@@ -27,7 +27,7 @@ import java.lang.annotation.*;
 /// tools with JSR-305 support and used by Kotlin to infer nullability of Army API.
 /// Should be used at package level in association with {@link Nullable}
 /// annotations at parameter and return value level.
-///  reference{@code @org.springframework.lang.NonNullApi}
+/// reference{@code @org.springframework.lang.NonNullApi}
 /// @since 0.6.0
 @Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.RUNTIME)

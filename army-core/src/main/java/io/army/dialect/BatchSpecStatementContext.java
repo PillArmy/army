@@ -28,7 +28,7 @@ import io.army.util._Exceptions;
 import java.util.List;
 
 /// 
-/// This class is base class of following 
+/// This class is base class of following
 /// - {@link NarrowDmlStmtContext}
 /// - {@link MultiTableQueryContext}
 /// - {@link ParensSelectContext}

@@ -6,12 +6,12 @@ import java.util.List;
 public interface PageConstructor<T, R> {
 
     /// Create immutable page object
-/// @param pageData      a unmodified list   current page data.
-/// @param totalRowCount total row count
-/// @param pageSize      page size of each page
-/// @param pageNumber    current page number.
-/// @param pageCount     page count.
-/// @return immutable page object
+    /// @param pageData      a unmodified list   current page data.
+    /// @param totalRowCount total row count
+    /// @param pageSize      page size of each page
+    /// @param pageNumber    current page number.
+    /// @param pageCount     page count.
+    /// @return immutable page object
     R apply(List<T> pageData, long totalRowCount, int pageSize, long pageNumber, long pageCount);
 
 

@@ -94,10 +94,10 @@ abstract class PostgreExecutor extends JdbcExecutor {
     }
 
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-set-transaction.html">SET TRANSACTION</a>
-/// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-TRANSACTION-ISOLATION">transaction_isolation</a>
-/// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-TRANSACTION-READ-ONLY">transaction_read_only</a>
-/// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-TRANSACTION-DEFERRABLE">transaction_deferrable</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-set-transaction.html">SET TRANSACTION</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-TRANSACTION-ISOLATION">transaction_isolation</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-TRANSACTION-READ-ONLY">transaction_read_only</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-TRANSACTION-DEFERRABLE">transaction_deferrable</a>
     @Override
     public final TransactionInfo sessionTransactionCharacteristics(Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) {
         final StringBuilder builder = _StringUtils.builder()
@@ -137,7 +137,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
         }
     }
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-set-transaction.html">SET TRANSACTION Statement</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-set-transaction.html">SET TRANSACTION Statement</a>
     @Override
     public final void setTransactionCharacteristics(final TransactionOption option, Function<Option<?>, ?> sessionFunc) throws DataAccessException {
         final StringBuilder builder = new StringBuilder(35);
@@ -484,7 +484,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
     }
 
 
-/// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-DEFAULT-TRANSACTION-ISOLATION">default_transaction_isolation</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-DEFAULT-TRANSACTION-ISOLATION">default_transaction_isolation</a>
     final Isolation readIsolation(final String level) {
         final Isolation isolation;
         switch (level.toUpperCase(Locale.ROOT)) {
@@ -694,8 +694,8 @@ abstract class PostgreExecutor extends JdbcExecutor {
             super(factory, conn, sessionName);
         }
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-start-transaction.html">START TRANSACTION Statement</a>
-/// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-DEFAULT-TRANSACTION-ISOLATION">default_transaction_isolation</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/sql-start-transaction.html">START TRANSACTION Statement</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-DEFAULT-TRANSACTION-ISOLATION">default_transaction_isolation</a>
         @Override
         public TransactionInfo startTransaction(final TransactionOption option, final HandleMode mode, Function<Option<?>, ?> sessionFunc) {
             final StringBuilder builder = new StringBuilder(168);
@@ -771,8 +771,8 @@ abstract class PostgreExecutor extends JdbcExecutor {
         }
 
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-commit.html">COMMIT Statement</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-rollback.html">ROLLBACK Statement</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/sql-commit.html">COMMIT Statement</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/sql-rollback.html">ROLLBACK Statement</a>
         @Nullable
         private TransactionInfo commitOrRollback(final boolean commit, final Function<Option<?>, ?> optionFunc)
                 throws DataAccessException {
@@ -820,8 +820,8 @@ abstract class PostgreExecutor extends JdbcExecutor {
             super(factory, conn, sessionName);
         }
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-start-transaction.html">START TRANSACTION Statement</a>
-/// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-DEFAULT-TRANSACTION-ISOLATION">default_transaction_isolation</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/sql-start-transaction.html">START TRANSACTION Statement</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-DEFAULT-TRANSACTION-ISOLATION">default_transaction_isolation</a>
         @Override
         public final TransactionInfo start(final Xid xid, final int flags, TransactionOption option, Function<Option<?>, ?> sessionFunc)
                 throws RmSessionException {
@@ -883,7 +883,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
         }
 
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-prepare-transaction.html">PREPARE TRANSACTION</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/sql-prepare-transaction.html">PREPARE TRANSACTION</a>
         @Override
         public final int prepare(final Xid xid, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) throws RmSessionException {
 
@@ -918,8 +918,8 @@ abstract class PostgreExecutor extends JdbcExecutor {
             return readOnly ? RmSession.XA_RDONLY : RmSession.XA_OK;
         }
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-commit-prepared.html">COMMIT PREPARED</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-commit.html">COMMIT</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/sql-commit-prepared.html">COMMIT PREPARED</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/sql-commit.html">COMMIT</a>
         @Override
         public final void commit(final Xid xid, final int flags, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc)
                 throws RmSessionException {
@@ -959,8 +959,8 @@ abstract class PostgreExecutor extends JdbcExecutor {
             }
         }
 
-/// @see <a href="https://www.postgresql.org/docs/current/sql-rollback-prepared.html">ROLLBACK PREPARED</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-rollback.html">ROLLBACK</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/sql-rollback-prepared.html">ROLLBACK PREPARED</a>
+        /// @see <a href="https://www.postgresql.org/docs/current/sql-rollback.html">ROLLBACK</a>
         @Override
         public final void rollback(final Xid xid, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) throws RmSessionException {
 

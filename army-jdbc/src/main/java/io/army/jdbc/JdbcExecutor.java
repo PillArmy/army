@@ -91,9 +91,9 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
     private final TypeMappingHandler typeMappingHandler;
 
-/// True : application developer have got the {@link Connection} instance,
-/// so {@link TransactionInfo} perhaps error.
-/// More info,see {@link io.army.env.ArmyKey#DRIVER_SPI_MODE}
+    /// True : application developer have got the {@link Connection} instance,
+    /// so {@link TransactionInfo} perhaps error.
+    /// More info,see {@link io.army.env.ArmyKey#DRIVER_SPI_MODE}
     private boolean driverSpiOpened;
 
     JdbcExecutor(JdbcExecutorFactory factory, Connection conn, String sessionName) {
@@ -942,7 +942,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
 
     /// @return a unmodified list
-/// @see #batchUpdateList(BatchStmt, IntFunction, SyncStmtOption, LongConsumer, Function)
+    /// @see #batchUpdateList(BatchStmt, IntFunction, SyncStmtOption, LongConsumer, Function)
     private List<Long> executeMultiStmtBatchUpdateAsLong(BatchStmt stmt, @Nullable IntFunction<List<Long>> listConstructor,
                                                          SyncStmtOption option, final @Nullable LongConsumer consumer) {
         final List<List<SQLParam>> groupList;
@@ -1011,7 +1011,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
 
     /// @return a unmodified list
-/// @see #batchUpdateList(BatchStmt, IntFunction, SyncStmtOption, LongConsumer, Function)
+    /// @see #batchUpdateList(BatchStmt, IntFunction, SyncStmtOption, LongConsumer, Function)
     private List<Long> executeBatchUpdateAsLong(BatchStmt stmt, @Nullable IntFunction<List<Long>> listConstructor,
                                                 SyncStmtOption option, final @Nullable LongConsumer consumer)
             throws DataAccessException {
@@ -1307,7 +1307,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
 
     /// @see #update(SimpleStmt, SyncStmtOption, Function)
-/// @see #executeBatchQuery(BatchStmt, SyncStmtOption, Function, Function, boolean)
+    /// @see #executeBatchQuery(BatchStmt, SyncStmtOption, Function, Function, boolean)
     private void bindParameters(final PreparedStatement statement, final List<SQLParam> paramGroup)
             throws SQLException {
 
@@ -1507,7 +1507,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
 
     /// invoker must handle all error.
-/// @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
+    /// @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
     private <R> Stream<R> executeSimpleQuery(final SimpleStmt stmt, final SyncStmtOption option,
                                              final Function<? super CurrentRecord, R> function,
                                              final Function<Option<?>, ?> sessionFunc, final boolean resultItemStream)
@@ -1547,7 +1547,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
 
     /// invoker must handle all error.
-/// @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
+    /// @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
     private <R> Stream<R> executeBatchQuery(BatchStmt stmt, SyncStmtOption option,
                                             Function<? super CurrentRecord, R> function,
                                             final Function<Option<?>, ?> sessionFunc,
@@ -1591,7 +1591,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
     /// invoker must handle all error.
-/// @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
+    /// @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
     private <R> Stream<R> executeMultiStmtBatchQuery(final BatchStmt stmt, SyncStmtOption option,
                                                      final Function<? super CurrentRecord, R> function,
                                                      final Function<Option<?>, ?> sessionFunc,
@@ -2175,13 +2175,13 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
     } // JdbcRowSpliterator
 
-/// This class is responsible for spite rows from {@link ResultSet} to {@link Stream} with {@link #readRowStream(int, Consumer)} method.
-/// This class is base class of following
-/// 
-/// - {@link JdbcSimpleSpliterator}
-/// - {@link JdbcBatchSpliterator}
-/// 
-/// @param <R> row java type
+    /// This class is responsible for spite rows from {@link ResultSet} to {@link Stream} with {@link #readRowStream(int, Consumer)} method.
+    /// This class is base class of following
+    /// 
+    /// - {@link JdbcSimpleSpliterator}
+    /// - {@link JdbcBatchSpliterator}
+    /// 
+    /// @param <R> row java type
     private static abstract class JdbcStmtRowSpliterator<R> extends JdbcRowSpliterator<R> {
 
         final JdbcExecutor executor;
@@ -2211,7 +2211,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
 
         /// Read one fetch,if fetchSize is 0 ,read all row.
-/// @param readSize 0 or positive
+        /// @param readSize 0 or positive
         @SuppressWarnings("unchecked")
         final long readRowSet(final ResultSet resultSet, final long totalCount,
                               final JdbcCurrentRecord<R> currentRecord, final int readSize,
@@ -2557,13 +2557,13 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     } // JdbcSimpleSpliterator
 
 
-/// This class is responsible for spite rows from multi {@link ResultSet} to {@link Stream} with {@link #readRowStream(int, Consumer)} method.
-/// This class is base class of following
-/// 
-/// - {@link BatchRowSpliterator}
-/// - {@link MultiSmtBatchRowSpliterator}
-/// 
-/// @param <R> row java type
+    /// This class is responsible for spite rows from multi {@link ResultSet} to {@link Stream} with {@link #readRowStream(int, Consumer)} method.
+    /// This class is base class of following
+    /// 
+    /// - {@link BatchRowSpliterator}
+    /// - {@link MultiSmtBatchRowSpliterator}
+    /// 
+    /// @param <R> row java type
     private static abstract class JdbcBatchSpliterator<R> extends JdbcStmtRowSpliterator<R> {
 
         final Statement statement;
