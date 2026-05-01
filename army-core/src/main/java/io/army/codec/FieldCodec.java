@@ -20,9 +20,7 @@ import io.army.meta.FieldMeta;
 
 import java.util.Set;
 
-/**
- * see {@code io.army.boot.InsertSQLExecutor} and {@code } implementation.
- */
+/// see {@code io.army.boot.InsertSQLExecutor} and {@code } implementation.
 public interface FieldCodec {
 
     Set<FieldMeta<?>> fieldMetaSet();

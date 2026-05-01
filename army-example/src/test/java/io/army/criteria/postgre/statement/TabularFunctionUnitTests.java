@@ -39,9 +39,7 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(TabularFunctionUnitTests.class);
 
-    /**
-     * @see Postgres#unnest(TypedExpression)
-     */
+    /// @see Postgres#unnest(TypedExpression)
     @Test
     public void unnestFunc() {
         final Select stmt;
@@ -58,9 +56,7 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
 
     }
 
-    /**
-     * @see Postgres#unnest(TypedExpression)
-     */
+    /// @see Postgres#unnest(TypedExpression)
     @Test
     public void unnestArray() {
         final Select stmt;
@@ -79,9 +75,7 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see Postgres#unnest(Expression, Expression)
-     */
+    /// @see Postgres#unnest(Expression, Expression)
     @Test
     public void unnestMultiArray() {
         final Select stmt;

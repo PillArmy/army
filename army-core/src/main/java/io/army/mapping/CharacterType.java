@@ -39,9 +39,7 @@ public final class CharacterType extends _ArmyBuildInType implements MappingType
 
     public static final CharacterType INSTANCE = new CharacterType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private CharacterType() {
     }
 

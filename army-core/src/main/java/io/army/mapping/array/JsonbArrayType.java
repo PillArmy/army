@@ -55,9 +55,7 @@ public class JsonbArrayType extends ArmyJsonArrayType {
 
     public static final JsonbArrayType TEXT_UNLIMITED = new JsonbArrayType(Object.class, String.class);
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private JsonbArrayType(Class<?> javaType, Class<?> underlyingJavaType) {
         super(javaType, underlyingJavaType);
     }

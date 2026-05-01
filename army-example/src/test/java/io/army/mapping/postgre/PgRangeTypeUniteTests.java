@@ -26,15 +26,11 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.function.Function;
 
-/**
- * <p>
- * This class is unit test class of {@link PgSingleRangeType}
-*/
+/// 
+/// This class is unit test class of {@link PgSingleRangeType}
 public class PgRangeTypeUniteTests {
 
-    /**
-     * @see PgRangeType#parseNonEmptyRange(String, int, int, RangeFunction, Function)
-     */
+    /// @see PgRangeType#parseNonEmptyRange(String, int, int, RangeFunction, Function)
     @Test
     public void textToRange() {
         String text;
@@ -103,18 +99,14 @@ public class PgRangeTypeUniteTests {
         Assert.assertEquals(timeRange, LocalDateTimeRange.create(false, null, null, false));
     }
 
-    /**
-     * @see PgRangeType#createMockFunction(Class, Class)
-     */
+    /// @see PgRangeType#createMockFunction(Class, Class)
     @Test
     public void mockFunction() {
         PgRangeType.createMockFunction(Int4Range.class, Integer.class);
         PgRangeType.createMockFunction(LocalDateTimeRange.class, LocalDateTime.class);
     }
 
-    /**
-     * @see PgRangeType#createRangeFunction(Class, Class, String)
-     */
+    /// @see PgRangeType#createRangeFunction(Class, Class, String)
     @Test
     public void rangeFunction() {
         String funcRef;
@@ -125,9 +117,7 @@ public class PgRangeTypeUniteTests {
         PgRangeType.createRangeFunction(LocalDateTimeRange.class, LocalDateTime.class, funcRef);
     }
 
-    /**
-     * @see PgRangeType#emptyRange(Class)
-     */
+    /// @see PgRangeType#emptyRange(Class)
     @Test
     public void emptyRange() {
         Int4Range intEmpty;

@@ -25,10 +25,8 @@ import io.army.sqltype.DataType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-/**
- * @see UnsignedSqlIntType
- * @see UnsignedLongType
- */
+/// @see UnsignedSqlIntType
+/// @see UnsignedLongType
 public final class UnsignedIntegerType extends _ArmyNoInjectionType
         implements MappingType.SqlInteger, MappingType.SqlUnsignedNumber {
 
@@ -61,9 +59,7 @@ public final class UnsignedIntegerType extends _ArmyNoInjectionType
     }
 
 
-    /**
-     * @param max unsigned int
-     */
+    /// @param max unsigned int
     public static int toUnsignedInt(final MappingType type, DataType dataType, final Object nonNull, final int max,
                                     final ErrorHandler errorHandler) {
         final int value;

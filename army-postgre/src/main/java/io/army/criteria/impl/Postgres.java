@@ -27,18 +27,13 @@ import io.army.mapping.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-/**
- * <p>
- * This class is Postgre SQL syntax utils.
- *
- * @since 0.6.0
- */
+/// 
+/// This class is Postgre SQL syntax utils.
+/// @since 0.6.0
 public abstract class Postgres extends PostgreSyntax {
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private Postgres() {
     }
 
@@ -174,150 +169,102 @@ public abstract class Postgres extends PostgreSyntax {
     public static final SQLs.BiOperator AT_AT_AT = PgDualBoolOperator.AT_AT_AT;
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  LocalDateType}
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">current_date → date</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  LocalDateType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">current_date → date</a>
     public static final Expression CURRENT_DATE = LiteralFunctions.noParensFunc("current_date");
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  OffsetTimeType}
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">current_time</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  OffsetTimeType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">current_time</a>
     public static final Expression CURRENT_TIME = LiteralFunctions.noParensFunc("current_time");
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  OffsetDateTimeType}
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">current_timestamp → timestamp with time zone</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  OffsetDateTimeType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">current_timestamp → timestamp with time zone</a>
     public static final Expression CURRENT_TIMESTAMP = LiteralFunctions.noParensFunc("current_timestamp");
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  LocalTimeType}
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">localtime → time</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  LocalTimeType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">localtime → time</a>
     public static final Expression LOCALTIME = LiteralFunctions.noParensFunc("localtime");
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  LocalDateTimeType}
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">localtimestamp → timestamp</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  LocalDateTimeType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">localtimestamp → timestamp</a>
     public static final Expression LOCALTIMESTAMP = LiteralFunctions.noParensFunc("localtimestamp");
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  TextType}
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">current_catalog → name</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">current_catalog → name</a>
     public static final Expression CURRENT_CATALOG = LiteralFunctions.noParensFunc("current_catalog");
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  TextType}
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">current_user → name</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">current_user → name</a>
     public static final Expression CURRENT_USER = LiteralFunctions.noParensFunc("current_user");
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  TextType}
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">session_user → name</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">session_user → name</a>
     public static final Expression SESSION_USER = LiteralFunctions.noParensFunc("session_user");
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  TextType}
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">user → name</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-SESSION-TABLE">user → name</a>
     public static final Expression USER = LiteralFunctions.noParensFunc("user");
 
-    /**
-     * <p>create single-table INSERT statement that is primary statement.
-     */
+    /// create single-table INSERT statement that is primary statement.
     public static PostgreInsert._PrimaryOptionSpec singleInsert() {
         return PostgreInserts.singleInsert();
     }
 
-    /**
-     * <p>create simple(non-batch) SELECT statement that is primary statement.
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
-     * @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
-     * @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-CYCLE">Cycle Detection</a>
-     */
+/// create simple(non-batch) SELECT statement that is primary statement.
+/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
+/// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
+/// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-CYCLE">Cycle Detection</a>
     public static PostgreQuery.WithSpec<Select> query() {
         return PostgreQueries.simpleQuery();
     }
 
-    /**
-     * <p>
-     * create batch SELECT statement that is primary statement.
-     */
+    /// 
+/// create batch SELECT statement that is primary statement.
     public static PostgreQuery.WithSpec<Statement._BatchSelectParamSpec> batchQuery() {
         return PostgreQueries.batchQuery();
     }
 
 
-    /**
-     * <p>create SUB-SELECT statement that is sub query statement.
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
-     * @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
-     * @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-CYCLE">Cycle Detection</a>
-     */
+/// create SUB-SELECT statement that is sub query statement.
+/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
+/// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
+/// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-CYCLE">Cycle Detection</a>
     public static PostgreQuery.WithSpec<SubQuery> subQuery() {
         return PostgreQueries.subQuery(ContextStack.peek(), SQLs::identity);
     }
 
-    /**
-     * <p>create SUB-SELECT statement that is sub query statement and would be converted to {@link Expression}.
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
-     */
+/// create SUB-SELECT statement that is sub query statement and would be converted to {@link Expression}.
+/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
     public static PostgreQuery.WithSpec<Expression> scalarSubQuery() {
         return PostgreQueries.subQuery(ContextStack.peek(), Expressions::scalarExpression);
     }
 
-    /**
-     * <p>
-     * create simple(non-batch) single-table UPDATE statement that is primary statement.
-     */
+    /// 
+/// create simple(non-batch) single-table UPDATE statement that is primary statement.
     public static PostgreUpdate._SingleWithSpec<Update, ReturningUpdate> singleUpdate() {
         return PostgreUpdates.simple();
     }
 
-    /**
-     * <p>
-     * create batch single-table UPDATE statement that is primary statement.
-     */
+    /// 
+/// create batch single-table UPDATE statement that is primary statement.
     public static PostgreUpdate._SingleWithSpec<Statement._BatchUpdateParamSpec, Statement._BatchReturningUpdateParamSpec> batchSingleUpdate() {
         return PostgreUpdates.batchUpdate();
     }
 
-    /**
-     * <p>
-     * create simple(non-batch) single-table DELETE statement that is primary statement.
-     */
+    /// 
+/// create simple(non-batch) single-table DELETE statement that is primary statement.
     public static PgSingleDeleteSpec<Delete, ReturningDelete> singleDelete() {
         return PostgreDeletes.simpleDelete();
     }
 
-    /**
-     * <p>
-     * create batch single-table DELETE statement that is primary statement.
-     */
+    /// 
+/// create batch single-table DELETE statement that is primary statement.
     public static PgSingleDeleteSpec<Statement._BatchDeleteParamSpec, Statement._BatchReturningDeleteParamSpec> batchSingleDelete() {
         return PostgreDeletes.batchDelete();
     }
@@ -331,114 +278,90 @@ public abstract class Postgres extends PostgreSyntax {
     }
 
 
-    /**
-     * <p>Create postgre DECLARE statement.
-     * <pre>
-     *     <code><br/>
-     *    &#64;Transactional(readOnly = true)
-     *    &#64;Test
-     *    public void readOnlyCursor(final SyncLocalSession session) {
-     *        final List&lt;ChinaRegion&lt;?>> regionList = createReginListWithCount(300);
-     *        session.batchSave(regionList);
-     *
-     *        final DeclareCursor stmt;
-     *        stmt = Postgres.declareStmt()
-     *                .declare("my_china_region_cursor").cursor()
-     *                .forSpace()
-     *                .select("c", PERIOD, ChinaRegion_.T)
-     *                .from(ChinaRegion_.T, AS, "c")
-     *                .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-     *                .orderBy(ChinaRegion_.id)
-     *                .limit(SQLs::literal, regionList.size())
-     *                .asQuery()
-     *                .asCommand();
-     *
-     *        final ResultStates states;
-     *        states = session.updateAsStates(stmt);
-     *
-     *        try (SyncStmtCursor cursor = states.nonNullOf(SyncStmtCursor.SYNC_STMT_CURSOR)) {
-     *            ChinaRegion&lt;?> region, firstRow;
-     *            int rowCount = 0;
-     *            while ((region = cursor.next(ChinaRegion_.CLASS)) != null) {
-     *                LOG.debug("region : {}", region);
-     *                rowCount++;
-     *                if (rowCount > 200) {
-     *                    break;
-     *                }
-     *            }
-     *            firstRow = cursor.fetchOneObject(Direction.FIRST, ChinaRegion_::constructor, ResultStates.IGNORE_STATES);
-     *            LOG.debug("{} firstRow : {}", session.name(), firstRow);
-     *            cursor.move(Direction.LAST);
-     *
-     *            cursor.fetch(Direction.FORWARD_ALL, ChinaRegion_.CLASS, ResultStates.IGNORE_STATES)
-     *                    .forEach(System.out::println);
-     *        }
-     *
-     *    }
-     *     </code>
-     * </pre>
-     *
-     * @see #closeCursor(String)
-     * @see #closeAllCursor()
-     * @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">DECLARE — define a cursor</a>
-     */
+/// Create postgre DECLARE statement.
+/// <pre>
+/// <code>
+/// &#64;Transactional(readOnly = true)
+/// &#64;Test
+/// public void readOnlyCursor(final SyncLocalSession session) {
+/// final List<ChinaRegion<?>> regionList = createReginListWithCount(300);
+/// session.batchSave(regionList);
+/// final DeclareCursor stmt;
+/// stmt = Postgres.declareStmt()
+/// .declare("my_china_region_cursor").cursor()
+/// .forSpace()
+/// .select("c", PERIOD, ChinaRegion_.T)
+/// .from(ChinaRegion_.T, AS, "c")
+/// .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
+/// .orderBy(ChinaRegion_.id)
+/// .limit(SQLs::literal, regionList.size())
+/// .asQuery()
+/// .asCommand();
+/// final ResultStates states;
+/// states = session.updateAsStates(stmt);
+/// try (SyncStmtCursor cursor = states.nonNullOf(SyncStmtCursor.SYNC_STMT_CURSOR)) {
+/// ChinaRegion<?> region, firstRow;
+/// int rowCount = 0;
+/// while ((region = cursor.next(ChinaRegion_.CLASS)) != null) {
+/// LOG.debug("region : {}", region);
+/// rowCount++;
+/// if (rowCount > 200) {
+/// break;
+/// }
+/// }
+/// firstRow = cursor.fetchOneObject(Direction.FIRST, ChinaRegion_::constructor, ResultStates.IGNORE_STATES);
+/// LOG.debug("{} firstRow : {}", session.name(), firstRow);
+/// cursor.move(Direction.LAST);
+/// cursor.fetch(Direction.FORWARD_ALL, ChinaRegion_.CLASS, ResultStates.IGNORE_STATES)
+/// .forEach(System.out::println);
+/// }
+/// }
+/// </code>
+/// </pre>
+/// @see #closeCursor(String)
+/// @see #closeAllCursor()
+/// @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">DECLARE — define a cursor</a>
     public static PostgreCursor._PostgreDeclareClause declareStmt() {
         return PostgreDeclareCursors.declare();
     }
 
-    /**
-     * <p>Create postgre CLOSE statement.
-     *
-     * @see #closeCursor(String)
-     * @see #declareStmt()
-     * @see <a href="https://www.postgresql.org/docs/current/sql-close.html">CLOSE — close a cursor</a>
-     */
+/// Create postgre CLOSE statement.
+/// @see #closeCursor(String)
+/// @see #declareStmt()
+/// @see <a href="https://www.postgresql.org/docs/current/sql-close.html">CLOSE — close a cursor</a>
     public static SimpleDmlStatement closeCursor(String name) {
         return PostgreSupports.closeCursor(name);
     }
 
-    /**
-     * <p>Create postgre CLOSE statement.
-     *
-     * @see #declareStmt()
-     * @see #closeAllCursor()
-     * @see <a href="https://www.postgresql.org/docs/current/sql-close.html">CLOSE — close a cursor</a>
-     */
+/// Create postgre CLOSE statement.
+/// @see #declareStmt()
+/// @see #closeAllCursor()
+/// @see <a href="https://www.postgresql.org/docs/current/sql-close.html">CLOSE — close a cursor</a>
     public static SimpleDmlStatement closeAllCursor() {
         return PostgreSupports.closeAllCursor();
     }
 
 
-    /**
-     * <p>Create postgre single-table MERGE statement.
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/sql-merge.html">MERGE — conditionally insert, update, or delete rows of a table</a>
-     */
+/// Create postgre single-table MERGE statement.
+/// @see <a href="https://www.postgresql.org/docs/current/sql-merge.html">MERGE — conditionally insert, update, or delete rows of a table</a>
     public static PostgreMerge._WithSpec singleMerge() {
         return PostgreMerges.mergeStmt(null);
     }
 
-    /**
-     * <p>Set statement
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/sql-set.html">SET — change a run-time parameter</a>
-     * @see <a href="https://www.postgresql.org/docs/16/multibyte.html#CHARSET-TABLE">PostgreSQL Character Sets</a>
-     * @see <a href="https://www.postgresql.org/docs/16/runtime-config-client.html">PostgreSQL Client Connection Defaults</a>
-     */
+/// Set statement
+/// @see <a href="https://www.postgresql.org/docs/current/sql-set.html">SET — change a run-time parameter</a>
+/// @see <a href="https://www.postgresql.org/docs/16/multibyte.html#CHARSET-TABLE">PostgreSQL Character Sets</a>
+/// @see <a href="https://www.postgresql.org/docs/16/runtime-config-client.html">PostgreSQL Client Connection Defaults</a>
     public static PostgreCommand._SetClause setStmt() {
         return PostgreSets.setStmt();
     }
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-show.html">SHOW — show the value of a run-time parameter</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-show.html">SHOW — show the value of a run-time parameter</a>
     public static DqlCommand show(String name) {
         return PostgreCommands.show(name);
     }
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-show.html">SHOW — show the value of a run-time parameter</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-show.html">SHOW — show the value of a run-time parameter</a>
     public static DqlCommand showAll() {
         return PostgreCommands.showAll();
     }
@@ -494,12 +417,9 @@ public abstract class Postgres extends PostgreSyntax {
 
     }
 
-    /**
-     * <p>
-     * This interface not start with underscore, so this interface can present in application developer code.
-     *
-     * @since 0.6.0
-     */
+    /// 
+/// This interface not start with underscore, so this interface can present in application developer code.
+/// @since 0.6.0
     public interface XmlTableCommaClause {
 
         XmlTableCommaClause comma(String name, MappingType type, SQLs.WordPath path, Expression columnExp, SQLs.WordDefault wordDefault, Expression defaultExp, SQLs.NullOption nullOption);
@@ -551,12 +471,9 @@ public abstract class Postgres extends PostgreSyntax {
     }
 
 
-    /**
-     * <p>
-     * This interface not start with underscore, so this interface can present in application developer code.
-     *
-     * @since 0.6.0
-     */
+    /// 
+/// This interface not start with underscore, so this interface can present in application developer code.
+/// @since 0.6.0
     public interface _RowsFromCommaClause {
 
         _RowsFromCommaClause comma(SimpleExpression func);

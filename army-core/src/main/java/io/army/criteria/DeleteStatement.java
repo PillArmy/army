@@ -21,18 +21,15 @@ import io.army.meta.ChildTableMeta;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.SingleTableMeta;
 
-/**
- * <p>
- * This interface is base interface of below:
- * <ul>
- *     <li>{@link Delete}</li>
- *     <li>{@link BatchDelete}</li>
- *     <li>{@link io.army.criteria.dialect.ReturningDelete}</li>
- *     <li>{@link io.army.criteria.dialect.BatchReturningDelete}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This interface is base interface of below:
+/// 
+/// - {@link Delete}
+/// - {@link BatchDelete}
+/// - {@link io.army.criteria.dialect.ReturningDelete}
+/// - {@link io.army.criteria.dialect.BatchReturningDelete}
+/// 
+/// @since 0.6.0
 public interface DeleteStatement extends NarrowDmlStatement {
 
 
@@ -41,19 +38,15 @@ public interface DeleteStatement extends NarrowDmlStatement {
 
     }
 
-    /**
-     * <p>
-     * This interface representing FROM clause for single-table DELETE syntax.
-     *
-     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * /
-     *
-     * @param <DT> next clause java type
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing FROM clause for single-table DELETE syntax.
+/// 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// /
+/// @param <DT> next clause java type
+/// @since 0.6.0
     interface _SingleDeleteFromClause<DT> {
 
         DT from(SingleTableMeta<?> table, SQLs.WordAs wordAs, String alias);

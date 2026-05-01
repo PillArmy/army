@@ -174,9 +174,7 @@ public abstract class ExecutorSupport {
     }
 
 
-    /**
-     * @return a unmodified map
-     */
+    /// @return a unmodified map
     protected static Map<String, Integer> createAliasToIndexMap(final List<? extends Selection> selectionList) {
         final int selectionSize = selectionList.size();
         Map<String, Integer> map = _Collections.hashMap((int) (selectionSize / 0.75f));
@@ -197,13 +195,11 @@ public abstract class ExecutorSupport {
         return _Collections.unmodifiableMap(map);
     }
 
-    /**
-     * This method is designed for second query,so :
-     * <ul>
-     *     <li>resultList should be {@link java.util.ArrayList}</li>
-     *     <li>If accessor is {@link ExecutorSupport#SINGLE_COLUMN_PSEUDO_ACCESSOR} ,then resultList representing single column row</li>
-     * </ul>
-     */
+/// This method is designed for second query,so :
+/// 
+/// - resultList should be {@link java.util.ArrayList}
+/// - If accessor is {@link ExecutorSupport#SINGLE_COLUMN_PSEUDO_ACCESSOR} ,then resultList representing single column row
+/// 
     protected static <R> Map<Object, R> createIdToRowMap(final List<R> resultList, final String idFieldName,
                                                          final ObjectAccessor accessor) {
         final int rowSize = resultList.size();
@@ -247,9 +243,7 @@ public abstract class ExecutorSupport {
     }
 
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/data-types.html">MySQL Data Types</a>
-     */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/data-types.html">MySQL Data Types</a>
     protected static MySQLType getMySqlType(final String typeName, final MappingType[] typeArray, final int index) {
         throw new UnsupportedOperationException();
     }
@@ -260,10 +254,8 @@ public abstract class ExecutorSupport {
     }
 
 
-    /**
-     * @see <a href="https://sqlite.org/datatype3.html">Datatypes In SQLite</a>
-     * @see <a href="https://sqlite.org/datatypes.html">Datatypes In SQLite Version 2</a>
-     */
+/// @see <a href="https://sqlite.org/datatype3.html">Datatypes In SQLite</a>
+/// @see <a href="https://sqlite.org/datatypes.html">Datatypes In SQLite Version 2</a>
     protected static DataType getSQLiteType(final String typeName, final MappingType[] typeArray, final int index) {
         throw new UnsupportedOperationException();
     }

@@ -21,20 +21,15 @@ import io.army.option.Option;
 
 import io.army.lang.Nullable;
 
-/**
- * @see TransactionInfo
- * @since 0.6.0
- */
+/// @see TransactionInfo
+/// @since 0.6.0
 public interface TransactionOption extends TransactionSpec {
 
-    /**
-     * <p>This transaction isolation.
-     *
-     * @return <ul>
-     * <li>null : use default isolation</li>
-     * <li>non-null : use specified isolation for this transaction,but does not affect subsequent transactions</li>
-     * </ul>
-     */
+/// This transaction isolation.
+/// @return 
+/// - null : use default isolation
+/// - non-null : use specified isolation for this transaction,but does not affect subsequent transactions
+/// 
     @Nullable
     Isolation isolation();
 
@@ -57,27 +52,22 @@ public interface TransactionOption extends TransactionSpec {
 
     interface Builder {
 
-        /**
-         * set transaction option.
-         *
-         * @param option transaction option key,for example :
-         *               <ul>
-         *                    <li>{@link Option#ISOLATION}</li>
-         *                    <li>{@link Option#READ_ONLY}</li>
-         *                    <li>{@link Option#NAME} ,transaction name</li>
-         *                    <li>{@code  Option#WITH_CONSISTENT_SNAPSHOT}</li>
-         *                    <li>{@code Option#DEFERRABLE}</li>
-         *                    <li>{@link Option#WAIT}</li>
-         *                    <li>{@link Option#LOCK_TIMEOUT_MILLIS}</li>
-         *               </ul>
-         */
+/// set transaction option.
+/// @param option transaction option key,for example :
+/// 
+/// - {@link Option#ISOLATION}
+/// - {@link Option#READ_ONLY}
+/// - {@link Option#NAME} ,transaction name
+/// - {@code  Option#WITH_CONSISTENT_SNAPSHOT}
+/// - {@code Option#DEFERRABLE}
+/// - {@link Option#WAIT}
+/// - {@link Option#LOCK_TIMEOUT_MILLIS}
+/// 
         <T> Builder option(Option<T> option, @Nullable T value);
 
-        /**
-         * @throws IllegalArgumentException throw when <ul>
-         *                                  <li>{@link Option#IN_TRANSACTION} exists</li>
-         *                                  </ul>
-         */
+/// @throws IllegalArgumentException throw when 
+/// - {@link Option#IN_TRANSACTION} exists
+/// 
         TransactionOption build() throws IllegalArgumentException;
 
 

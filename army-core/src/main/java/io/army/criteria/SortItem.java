@@ -17,9 +17,7 @@
 package io.army.criteria;
 
 
-/**
- * @see Expression
- */
+/// @see Expression
 @FunctionalInterface
 public interface SortItem extends Item {
 

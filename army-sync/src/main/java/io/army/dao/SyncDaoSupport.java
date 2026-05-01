@@ -20,11 +20,8 @@ package io.army.dao;
 import io.army.lang.Nullable;
 import java.util.List;
 
-/**
- * <p>This interface is designed for dao layer.
- *
- * @since 0.6.0
- */
+/// This interface is designed for dao layer.
+/// @since 0.6.0
 public interface SyncDaoSupport {
 
     <T> void save(T domain);

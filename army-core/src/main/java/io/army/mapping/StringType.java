@@ -29,36 +29,32 @@ import java.time.*;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalAmount;
 
-/**
- * <p>This class map {@link String} to sql varchar .
- * <p>If you need to map char ,you can use {@link SqlCharType} instead of this class.
- *
- * <p>This mapping type can convert below java type:
- * <ul>
- *     <li>{@link Number}</li>
- *     <li>{@link Boolean} </li>
- *     <li>{@link CodeEnum} </li>
- *     <li>{@link TextEnum} </li>
- *     <li>{@link Enum} </li>
- *     <li>{@link LocalDate} </li>
- *     <li>{@link LocalDateTime} </li>
- *     <li>{@link LocalTime} </li>
- *     <li>{@link OffsetDateTime} </li>
- *     <li>{@link ZonedDateTime} </li>
- *     <li>{@link OffsetTime} </li>
- *     <li>{@link Year}  to {@link Year} string or {@link LocalDate} string</li>
- *     <li>{@link YearMonth}  to {@link LocalDate} string </li>
- *     <li>{@link MonthDay} to {@link LocalDate} string</li>
- *     <li>{@link Instant} to {@link Instant#getEpochSecond()} string</li>
- *     <li>{@link java.time.Duration} </li>
- *     <li>{@link java.time.Period} </li>
- * </ul>
- *  to {@link String},if error,throw {@link io.army.ArmyException}
- *
- * @see TextType
- * @see MediumTextType
- * @since 0.6.0
- */
+/// This class map {@link String} to sql varchar .
+/// If you need to map char ,you can use {@link SqlCharType} instead of this class.
+/// This mapping type can convert below java type:
+/// 
+/// - {@link Number}
+/// - {@link Boolean} 
+/// - {@link CodeEnum} 
+/// - {@link TextEnum} 
+/// - {@link Enum} 
+/// - {@link LocalDate} 
+/// - {@link LocalDateTime} 
+/// - {@link LocalTime} 
+/// - {@link OffsetDateTime} 
+/// - {@link ZonedDateTime} 
+/// - {@link OffsetTime} 
+/// - {@link Year}  to {@link Year} string or {@link LocalDate} string
+/// - {@link YearMonth}  to {@link LocalDate} string 
+/// - {@link MonthDay} to {@link LocalDate} string
+/// - {@link Instant} to {@link Instant#getEpochSecond()} string
+/// - {@link java.time.Duration} 
+/// - {@link java.time.Period} 
+/// 
+/// to {@link String},if error,throw {@link io.army.ArmyException}
+/// @see TextType
+/// @see MediumTextType
+/// @since 0.6.0
 public final class StringType extends _ArmyBuildInType implements MappingType.SqlString {
 
 
@@ -71,9 +67,7 @@ public final class StringType extends _ArmyBuildInType implements MappingType.Sq
 
     public static final StringType INSTANCE = new StringType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private StringType() {
     }
 

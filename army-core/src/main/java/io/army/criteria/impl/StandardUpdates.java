@@ -33,12 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-/**
- * <p>
- * This class hold the implementations of standard update statement.
- *
- * @since 0.6.0
- */
+/// 
+/// This class hold the implementations of standard update statement.
+/// @since 0.6.0
 
 abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
         extends SingleUpdateStatement<I, F, SR, WR, WA, Object, Object, Object, Object, Object>
@@ -358,9 +355,7 @@ abstract class StandardUpdates<I extends Item, F extends TableField, SR, WR, WA>
     }//StandardBatchUpdateClause
 
 
-    /**
-     * domain api don't support WITH clause.
-     */
+    /// domain api don't support WITH clause.
     private static abstract class DomainUpdateClause<I extends Item> extends UpdateClause<_DomainUpdateClause<I>>
             implements _DomainUpdateClause<I> {
 

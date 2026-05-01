@@ -55,9 +55,7 @@ public class BigIntegerArrayType extends _ArmyNoInjectionType implements Mapping
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private BigIntegerArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

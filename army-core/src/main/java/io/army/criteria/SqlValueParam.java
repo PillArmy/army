@@ -19,16 +19,13 @@ package io.army.criteria;
 
 import io.army.lang.Nullable;
 
-/**
- * <p>
- * This interface is base interface of below:
- * <ul>
- *     <li>{@link  SQLParam}</li>
- *      <li>SQL literal expression</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This interface is base interface of below:
+/// 
+/// - {@link  SQLParam}
+/// - SQL literal expression
+/// 
+/// @since 0.6.0
 public interface SqlValueParam extends TypeInfer {
 
 

@@ -64,9 +64,7 @@ public final class ArmyReactiveLocalTransactionManager extends AbstractReactiveT
     private boolean useDatabaseSessionName;
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ArmyReactiveLocalTransactionManager(ReactiveSessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
         this.sessionContext = SpringReactiveSessionContext.create(sessionFactory);
@@ -300,9 +298,7 @@ public final class ArmyReactiveLocalTransactionManager extends AbstractReactiveT
     }
 
 
-    /**
-     * @see #doBegin(TransactionSynchronizationManager, Object, TransactionDefinition)
-     */
+    /// @see #doBegin(TransactionSynchronizationManager, Object, TransactionDefinition)
     private Mono<Void> startTransaction(final ReactiveLocalSession session, final TransactionDefinition definition, final int timeoutMillis) {
 
         final String txLabel;
@@ -357,10 +353,8 @@ public final class ArmyReactiveLocalTransactionManager extends AbstractReactiveT
     }
 
 
-    /**
-     * @see #doCommit(TransactionSynchronizationManager, GenericReactiveTransaction)
-     * @see #doRollback(TransactionSynchronizationManager, GenericReactiveTransaction)
-     */
+    /// @see #doCommit(TransactionSynchronizationManager, GenericReactiveTransaction)
+/// @see #doRollback(TransactionSynchronizationManager, GenericReactiveTransaction)
     private Mono<Void> commitOrRollback(final GenericReactiveTransaction status, final boolean commit) {
         final ReactiveLocalSession session = ((LocalTransactionObject) status.getTransaction()).session;
 

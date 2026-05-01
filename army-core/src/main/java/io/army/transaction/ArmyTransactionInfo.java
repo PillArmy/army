@@ -28,11 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-/**
- * <p>This class is package class.
- *
- * @since 0.6.0
- */
+/// This class is package class.
+/// @since 0.6.0
 final class ArmyTransactionInfo implements TransactionInfo {
 
 
@@ -127,9 +124,7 @@ final class ArmyTransactionInfo implements TransactionInfo {
     }
 
 
-    /**
-     * <p>Create pseudo transaction info for XA transaction start method.
-     */
+    /// Create pseudo transaction info for XA transaction start method.
     static TransactionInfo pseudoStart(final Xid xid, final int flags, final TransactionOption option) {
 
         final Map<Option<?>, Object> map = _Collections.hashMap();
@@ -145,9 +140,7 @@ final class ArmyTransactionInfo implements TransactionInfo {
     }
 
 
-    /**
-     * <p>Create pseudo transaction info for XA transaction end method.
-     */
+    /// Create pseudo transaction info for XA transaction end method.
     static TransactionInfo pseudoEnd(final TransactionInfo info, final int flags) {
         if (info.inTransaction()
                 || info.isolation() != Isolation.PSEUDO
@@ -165,9 +158,7 @@ final class ArmyTransactionInfo implements TransactionInfo {
         return new ArmyTransactionInfo(false, Isolation.PSEUDO, true, map);
     }
 
-    /**
-     * @see #pseudoLocal(TransactionOption)
-     */
+    /// @see #pseudoLocal(TransactionOption)
     @Nullable
     private static Isolation transactionStartMap(final Map<Option<?>, Object> map, final TransactionOption option) {
         map.put(Option.START_MILLIS, System.currentTimeMillis());

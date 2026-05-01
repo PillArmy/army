@@ -27,10 +27,8 @@ import io.army.util._StringUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-/**
- * <p>This class map {@link java.nio.file.Path} to sql varchar .
- * <p>If you need to map char ,you can use {@link SqlCharType} instead of this class.
- */
+/// This class map {@link java.nio.file.Path} to sql varchar .
+/// If you need to map char ,you can use {@link SqlCharType} instead of this class.
 public final class PathType extends _ArmyBuildInType implements MappingType.SqlString {
 
 
@@ -44,9 +42,7 @@ public final class PathType extends _ArmyBuildInType implements MappingType.SqlS
     public static final PathType INSTANCE = new PathType();
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private PathType() {
     }
 

@@ -33,9 +33,7 @@ import java.util.List;
 
 public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permits AbstractMappingType {
 
-    /**
-     * document type mapping ,perhaps return null value ,for example : {@link JsonType#afterGet(DataType, MappingEnv, Object)}
-     */
+    /// document type mapping ,perhaps return null value ,for example : {@link JsonType#afterGet(DataType, MappingEnv, Object)}
     Object DOCUMENT_NULL_VALUE = new Object();
 
     Class<?> javaType();
@@ -48,18 +46,14 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     DataType map(ServerMeta meta) throws UnsupportedDialectException;
 
-    /**
-     * @param dataType from {@link #map(ServerMeta)}
-     * @param source   never null
-     * @return non-null, the instance of the type that {@link SQLType} allow.
-     */
+    /// @param dataType from {@link #map(ServerMeta)}
+/// @param source   never null
+/// @return non-null, the instance of the type that {@link SQLType} allow.
     Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException;
 
-    /**
-     * @param dataType from {@link  StmtExecutor}
-     * @param source   never null
-     * @return non-null, the instance of {@link #javaType()}.
-     */
+    /// @param dataType from {@link  StmtExecutor}
+/// @param source   never null
+/// @return non-null, the instance of {@link #javaType()}.
 
     Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException;
 
@@ -128,13 +122,11 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
-    /**
-     * <p>
-     * This interface is base interface of below:
-     * <ul>
-     *     <li>{@link SqlJsonb}</li>
-     * </ul>
-     */
+/// 
+/// This interface is base interface of below:
+/// 
+/// - {@link SqlJsonb}
+/// 
     interface SqlJson extends SqlDocument {
 
     }
@@ -365,9 +357,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
-    /**
-     * <p>This interface representing row(record) type
-     */
+    /// This interface representing row(record) type
     interface SqlRecord {
 
     }

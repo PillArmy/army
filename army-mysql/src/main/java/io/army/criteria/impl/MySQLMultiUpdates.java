@@ -36,12 +36,10 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 
-/**
- * <p>This class is base class of below:
- * <ul>
- *     <li>{@link MySQLSimpleUpdate} ,MySQL multi update api implementation</li>
- * </ul>
- */
+/// This class is base class of below:
+/// 
+/// - {@link MySQLSimpleUpdate} ,MySQL multi update api implementation
+/// 
 abstract class MySQLMultiUpdates<I extends Item>
         extends JoinableUpdate<
         I,
@@ -690,10 +688,8 @@ abstract class MySQLMultiUpdates<I extends Item>
 
     /*################################## blow inner class  ##################################*/
 
-    /**
-     * <p>
-     * This class is the implementation of  multi-table update api.
-     */
+    /// 
+/// This class is the implementation of  multi-table update api.
     private static final class MySQLSimpleUpdate extends MySQLMultiUpdates<Update>
             implements Update, ContextStackHost {
 
@@ -777,9 +773,7 @@ abstract class MySQLMultiUpdates<I extends Item>
             _MultiJoinSpec<I>>
             implements MySQLUpdate._MultiIndexHintOnSpec<I> {
 
-        /**
-         * @see MySQLSimpleUpdate#onJoinTable(_JoinType, SQLs.TableModifier, TableMeta, String)
-         */
+        /// @see MySQLSimpleUpdate#onJoinTable(_JoinType, SQLs.TableModifier, TableMeta, String)
         private SimpleJoinClauseTableBlock(_JoinType joinType, TableMeta<?> table, String alias,
                                            MySQLUpdate._MultiJoinSpec<I> stmt) {
             super(joinType, table, alias, stmt);

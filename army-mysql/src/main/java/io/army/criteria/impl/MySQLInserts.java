@@ -41,34 +41,26 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * <p>
- * This class is the container of  MySQL insert syntax api implementation class.
- * * <p>
- * Below is chines signature:<br/>
- * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
- * * @since 0.6.0
- */
+/// 
+/// This class is the container of  MySQL insert syntax api implementation class.
+/// * 
+/// Below is chines signature:
+/// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+/// * @since 0.6.0
 abstract class MySQLInserts extends InsertSupports {
 
     private MySQLInserts() {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * <p>
-     * create single-table INSERT statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
-     *
-     */
+    /// 
+/// create single-table INSERT statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
     static MySQLInsert._PrimaryOptionSpec singleInsert() {
         return new PrimaryInsertIntoClause();
     }
 
-    /**
-     * <p>
-     * create single-table INSERT statement that is primary statement for multi-statement and support only {@link SingleTableMeta}.
-     *
-     */
+    /// 
+/// create single-table INSERT statement that is primary statement for multi-statement and support only {@link SingleTableMeta}.
     static <I extends Item> MySQLInsert._PrimarySingleOptionSpec<I> singleInsert(ArmyStmtSpec spec,
                                                                                  Function<? super Insert, I> function) {
         return new PrimarySingleInsertIntoClause<>(spec, function);
@@ -124,11 +116,8 @@ abstract class MySQLInserts extends InsertSupports {
     }
 
 
-    /**
-     * <p>
-     * This class is the implementation of {@link MySQLInsert._PrimaryOptionSpec}.
-     *
-     */
+    /// 
+/// This class is the implementation of {@link MySQLInsert._PrimaryOptionSpec}.
     private static final class PrimaryInsertIntoClause
             extends InsertSupports.NonQueryInsertOptionsImpl<MySQLInsert._PrimaryNullOptionSpec>
             implements MySQLInsert._PrimaryOptionSpec,
@@ -188,9 +177,7 @@ abstract class MySQLInserts extends InsertSupports {
 
         private List<MySQLs.Modifier> modifierList;
 
-        /**
-         * @see PrimaryParentDomainInsertStatement
-         */
+        /// @see PrimaryParentDomainInsertStatement
         private ChildInsertIntoClause(ValueSyntaxOptions options,
                                       Function<MySQLComplexValuesClause<?, ?>, Insert> dmlFunction) {
             super(options, CriteriaContexts.primaryInsertContext(options.getContext().dialect(), null));
@@ -220,11 +207,8 @@ abstract class MySQLInserts extends InsertSupports {
     }//ChildInsertIntoClause
 
 
-    /**
-     * <p>
-     * This class is the implementation of {@link MySQLInsert._PrimarySingleOptionSpec}.
-     *
-     */
+    /// 
+/// This class is the implementation of {@link MySQLInsert._PrimarySingleOptionSpec}.
     private static final class PrimarySingleInsertIntoClause<I extends Item>
             extends InsertSupports.NonQueryInsertOptionsImpl<MySQLInsert._PrimarySingleNullOptionSpec<I>>
             implements MySQLInsert._PrimarySingleOptionSpec<I>,
@@ -821,9 +805,7 @@ abstract class MySQLInserts extends InsertSupports {
 
         private final List<?> domainList;
 
-        /**
-         * @see PrimaryInsertIntoClause#createSingleInsert(MySQLComplexValuesClause)
-         */
+        /// @see PrimaryInsertIntoClause#createSingleInsert(MySQLComplexValuesClause)
         private PrimarySingleDomainInsertStatement(MySQLComplexValuesClause<?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof SingleTableMeta;
@@ -873,9 +855,7 @@ abstract class MySQLInserts extends InsertSupports {
 
         private final List<?> domainList;
 
-        /**
-         * @see PrimaryInsertIntoClause#createParentInsert(MySQLComplexValuesClause)
-         */
+        /// @see PrimaryInsertIntoClause#createParentInsert(MySQLComplexValuesClause)
         private PrimaryParentDomainInsertStatement(MySQLComplexValuesClause<?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ParentTableMeta;
@@ -925,9 +905,7 @@ abstract class MySQLInserts extends InsertSupports {
 
     private static final class PrimarySimpleValueInsertStatement extends ValueInsertStatement<Insert> {
 
-        /**
-         * @see PrimaryInsertIntoClause#createSingleInsert(MySQLComplexValuesClause)
-         */
+        /// @see PrimaryInsertIntoClause#createSingleInsert(MySQLComplexValuesClause)
         private PrimarySimpleValueInsertStatement(MySQLComplexValuesClause<?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof SingleTableMeta;
@@ -961,9 +939,7 @@ abstract class MySQLInserts extends InsertSupports {
             extends ValueInsertStatement<InsertStatement._ParentInsert<MySQLInsert._ChildInsertIntoSpec<P>>>
             implements InsertStatement._ParentInsert<MySQLInsert._ChildInsertIntoSpec<P>> {
 
-        /**
-         * @see PrimaryInsertIntoClause#createParentInsert(MySQLComplexValuesClause)
-         */
+        /// @see PrimaryInsertIntoClause#createParentInsert(MySQLComplexValuesClause)
         private PrimaryParentValueInsertStatement(MySQLComplexValuesClause<?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ParentTableMeta;
@@ -1065,9 +1041,7 @@ abstract class MySQLInserts extends InsertSupports {
 
     private static final class PrimarySimpleAssignmentInsertStatement extends PrimaryAssignmentStatement<Insert> {
 
-        /**
-         * @see PrimaryInsertIntoClause#createSingleInsert(MySQLComplexValuesClause)
-         */
+        /// @see PrimaryInsertIntoClause#createSingleInsert(MySQLComplexValuesClause)
         private PrimarySimpleAssignmentInsertStatement(MySQLComplexValuesClause<?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof SingleTableMeta;
@@ -1099,9 +1073,7 @@ abstract class MySQLInserts extends InsertSupports {
             extends PrimaryAssignmentStatement<InsertStatement._ParentInsert<MySQLInsert._ChildInsertIntoSpec<P>>>
             implements InsertStatement._ParentInsert<MySQLInsert._ChildInsertIntoSpec<P>> {
 
-        /**
-         * @see PrimaryInsertIntoClause#createParentInsert(MySQLComplexValuesClause)
-         */
+        /// @see PrimaryInsertIntoClause#createParentInsert(MySQLComplexValuesClause)
         private PrimaryParentAssignmentInsertStatement(MySQLComplexValuesClause<?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ParentTableMeta;
@@ -1200,9 +1172,7 @@ abstract class MySQLInserts extends InsertSupports {
 
     private static final class PrimarySimpleQueryInsertStatement extends PrimaryQueryInsertStatement<Insert> {
 
-        /**
-         * @see PrimaryInsertIntoClause#createSingleInsert(MySQLComplexValuesClause)
-         */
+        /// @see PrimaryInsertIntoClause#createSingleInsert(MySQLComplexValuesClause)
         private PrimarySimpleQueryInsertStatement(MySQLComplexValuesClause<?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof SimpleTableMeta;
@@ -1240,9 +1210,7 @@ abstract class MySQLInserts extends InsertSupports {
 
         private CodeEnum discriminatorValue;
 
-        /**
-         * @see PrimaryInsertIntoClause#createParentInsert(MySQLComplexValuesClause)
-         */
+        /// @see PrimaryInsertIntoClause#createParentInsert(MySQLComplexValuesClause)
         private PrimaryParentQueryInsertStatement(MySQLComplexValuesClause<?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ParentTableMeta;

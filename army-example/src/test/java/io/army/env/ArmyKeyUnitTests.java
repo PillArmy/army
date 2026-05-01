@@ -23,18 +23,14 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 
-/**
- * <p>
- * This class is unit test class of {@link ArmyKey}
-*/
+/// 
+/// This class is unit test class of {@link ArmyKey}
 public class ArmyKeyUnitTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArmyKeyUnitTests.class);
 
 
-    /**
-     * @see ArmyKey#keyList()
-     */
+    /// @see ArmyKey#keyList()
     @Test
     public void armyKeyList() {
 

@@ -29,9 +29,7 @@ public enum _JoinType implements SQLToken {
     FULL_JOIN(" FULL JOIN"),
     CROSS_JOIN(" CROSS JOIN"),
 
-    /**
-     * MySQL
-     */
+    /// MySQL
     STRAIGHT_JOIN(" STRAIGHT_JOIN");
 
     public final String spaceWords;

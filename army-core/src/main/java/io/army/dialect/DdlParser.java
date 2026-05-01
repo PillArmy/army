@@ -26,18 +26,13 @@ import io.army.schema.TypeResult;
 
 import java.util.List;
 
-/**
- * <p>
- * This interface representing ddl parser. The result of this interface will be used by session factory for updating schema.
- *
- * @see DialectParser#schemaDdl(SchemaResult)
- * @since 0.6.0
- */
+/// 
+/// This interface representing ddl parser. The result of this interface will be used by session factory for updating schema.
+/// @see DialectParser#schemaDdl(SchemaResult)
+/// @since 0.6.0
 interface DdlParser {
 
-    /**
-     * If non-empty,then the result of this interface couldn't bee used. {@link DialectParser#schemaDdl(SchemaResult)} must throw {@link io.army.meta.MetaException}
-     */
+    /// If non-empty,then the result of this interface couldn't bee used. {@link DialectParser#schemaDdl(SchemaResult)} must throw {@link io.army.meta.MetaException}
     List<String> errorMsgList();
 
     List<String> userDefinedTypeStmts();

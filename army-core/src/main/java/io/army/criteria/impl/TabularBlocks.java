@@ -171,9 +171,7 @@ abstract class TabularBlocks {
 
         private final SQLToken modifier;
 
-        /**
-         * @see #fromTableBlock(_JoinType, SQLToken, TableMeta, String)
-         */
+        /// @see #fromTableBlock(_JoinType, SQLToken, TableMeta, String)
         FromClauseModifierTableBlock(_JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> table,
                                      String alias) {
             super(joinType, table, alias);
@@ -552,11 +550,8 @@ abstract class TabularBlocks {
 
         private final String alias;
 
-        /**
-         * private constructor
-         *
-         * @see #joinCteBlock(_JoinType, _Cte, String, Item)
-         */
+        /// private constructor
+/// @see #joinCteBlock(_JoinType, _Cte, String, Item)
         private JoinClauseCteBlock(_JoinType joinType, _Cte cte, String alias, R clause) {
             super(joinType, clause);
             this.cte = cte;
@@ -580,11 +575,8 @@ abstract class TabularBlocks {
 
         private final _NestedItems items;
 
-        /**
-         * private constructor
-         *
-         * @see #joinNestedBlock(_JoinType, _NestedItems, Item)
-         */
+        /// private constructor
+/// @see #joinNestedBlock(_JoinType, _NestedItems, Item)
         private JoinClauseNestedBlock(_JoinType joinType, _NestedItems items, R clause) {
             super(joinType, clause);
             this.items = items;
@@ -605,9 +597,7 @@ abstract class TabularBlocks {
 
     private static final class FromClauseSimpleTableBlock extends FromClauseTableBlock {
 
-        /**
-         * @see #fromTableBlock(_JoinType, SQLToken, TableMeta, String)
-         */
+        /// @see #fromTableBlock(_JoinType, SQLToken, TableMeta, String)
         private FromClauseSimpleTableBlock(_JoinType joinType, TableMeta<?> table, String alias) {
             super(joinType, table, alias);
         }
@@ -618,9 +608,7 @@ abstract class TabularBlocks {
 
     private static final class FromClauseSimpleDerivedBlock extends FromClauseDerivedBlock {
 
-        /**
-         * @see #fromDerivedBlock(_JoinType, SQLToken, DerivedTable, String)
-         */
+        /// @see #fromDerivedBlock(_JoinType, SQLToken, DerivedTable, String)
         private FromClauseSimpleDerivedBlock(_JoinType joinType, DerivedTable table, String alias) {
             super(joinType, table, alias);
         }
@@ -632,9 +620,7 @@ abstract class TabularBlocks {
 
         private final SQLToken modifier;
 
-        /**
-         * @see #fromDerivedBlock(_JoinType, SQLToken, DerivedTable, String)
-         */
+        /// @see #fromDerivedBlock(_JoinType, SQLToken, DerivedTable, String)
         private FromClauseModifierDerivedBlock(_JoinType joinType, @Nullable SQLToken modifier, DerivedTable table,
                                                String alias) {
             super(joinType, table, alias);
@@ -652,9 +638,7 @@ abstract class TabularBlocks {
 
     private static final class JoinClauseSimpleTableBlock<R extends Item> extends JoinClauseTableBlock<R> {
 
-        /**
-         * @see #joinTableBlock(_JoinType, SQLToken, TableMeta, String, Item)
-         */
+        /// @see #joinTableBlock(_JoinType, SQLToken, TableMeta, String, Item)
         private JoinClauseSimpleTableBlock(_JoinType joinType, TableMeta<?> table, String alias, R clause) {
             super(joinType, table, alias, clause);
         }
@@ -664,9 +648,7 @@ abstract class TabularBlocks {
 
     private static final class JoinClauseSimpleModifierTableBlock<R extends Item> extends JoinClauseModifierTableBlock<R> {
 
-        /**
-         * @see #joinTableBlock(_JoinType, SQLToken, TableMeta, String, Item)
-         */
+        /// @see #joinTableBlock(_JoinType, SQLToken, TableMeta, String, Item)
         private JoinClauseSimpleModifierTableBlock(_JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> table,
                                                    String alias, R clause) {
             super(joinType, modifier, table, alias, clause);
@@ -677,9 +659,7 @@ abstract class TabularBlocks {
 
     private static final class JoinClauseSimpleDerivedBlock<R extends Item> extends JoinClauseDerivedBlock<R> {
 
-        /**
-         * @see #joinDerivedBlock(_JoinType, SQLToken, DerivedTable, String, Item)
-         */
+        /// @see #joinDerivedBlock(_JoinType, SQLToken, DerivedTable, String, Item)
         JoinClauseSimpleDerivedBlock(_JoinType joinType, DerivedTable table, String alias, R clause) {
             super(joinType, table, alias, clause);
         }
@@ -690,9 +670,7 @@ abstract class TabularBlocks {
     private static final class JoinClauseSimpleModifierDerivedBlock<R extends Item>
             extends JoinClauseModifierDerivedBlock<R> {
 
-        /**
-         * @see #joinDerivedBlock(_JoinType, SQLToken, DerivedTable, String, Item)
-         */
+        /// @see #joinDerivedBlock(_JoinType, SQLToken, DerivedTable, String, Item)
         JoinClauseSimpleModifierDerivedBlock(_JoinType joinType, @Nullable SQLToken modifier,
                                              DerivedTable table, String alias, R clause) {
             super(joinType, modifier, table, alias, clause);
@@ -704,9 +682,7 @@ abstract class TabularBlocks {
     private static final class JoinClauseSimpleModifierAliasDerivedBlock<R extends Item>
             extends JoinClauseAliasDerivedBlock<R> {
 
-        /**
-         * @see #joinAliasDerivedBlock(_JoinType, SQLToken, DerivedTable, String, Item)
-         */
+        /// @see #joinAliasDerivedBlock(_JoinType, SQLToken, DerivedTable, String, Item)
         private JoinClauseSimpleModifierAliasDerivedBlock(_JoinType joinType, @Nullable SQLToken modifier,
                                                           DerivedTable table, String alias, R clause) {
             super(joinType, modifier, table, alias, clause);
@@ -720,9 +696,7 @@ abstract class TabularBlocks {
 
         private final SQLToken modifier;
 
-        /**
-         * @see #fromAliasDerivedBlock(_JoinType, SQLToken, DerivedTable, String)
-         */
+        /// @see #fromAliasDerivedBlock(_JoinType, SQLToken, DerivedTable, String)
         private FromClauseModifierAliasDerivedBlock(_JoinType joinType, @Nullable SQLToken modifier, DerivedTable table,
                                                     String alias) {
             super(joinType, table, alias);
@@ -740,9 +714,7 @@ abstract class TabularBlocks {
 
     private static final class FromClauseNestedBlock extends FromClauseBlock {
 
-        /**
-         * @see #fromNestedBlock(_JoinType, _NestedItems)
-         */
+        /// @see #fromNestedBlock(_JoinType, _NestedItems)
         private FromClauseNestedBlock(_JoinType joinType, _NestedItems items) {
             super(joinType, items);
         }

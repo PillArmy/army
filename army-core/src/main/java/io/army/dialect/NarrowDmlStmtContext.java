@@ -31,15 +31,13 @@ import io.army.lang.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * <p>
- * This class is base class of below:
- *     <ul>
- *         <li>{@link SingleTableDmlContext}</li>
- *         <li>{@link MultiTableDmlContext}</li>
- *     </ul>
- * * @since 0.6.0
- */
+/// 
+/// This class is base class of below:
+/// 
+/// - {@link SingleTableDmlContext}
+/// - {@link MultiTableDmlContext}
+/// 
+/// * @since 0.6.0
 abstract class NarrowDmlStmtContext extends BatchSpecStatementContext implements NarrowDmlContext, DmlStmtParams {
 
 

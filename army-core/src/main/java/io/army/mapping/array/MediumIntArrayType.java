@@ -74,9 +74,7 @@ public class MediumIntArrayType extends _ArmyNoInjectionType implements MappingT
     private final Class<?> underlyingJavaType;
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private MediumIntArrayType(final Class<?> javaType, Class<?> underlyingJavaType) {
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;

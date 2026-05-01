@@ -24,23 +24,17 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-/**
- * <p>This interface representing blocking {@link StmtCursor} that is produced by {@link io.army.criteria.Statement},army know the {@link Selection} list.
- *
- * @see ResultStates#valueOf(Option)
- * @see SyncStmtCursor#SYNC_STMT_CURSOR
- * @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
- * @see <a href="https://www.postgresql.org/docs/current/sql-fetch.html">PostgreSQL FETCH</a>
- * @since 0.6.0
- */
+/// This interface representing blocking {@link StmtCursor} that is produced by {@link io.army.criteria.Statement},army know the {@link Selection} list.
+/// @see ResultStates#valueOf(Option)
+/// @see SyncStmtCursor#SYNC_STMT_CURSOR
+/// @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
+/// @see <a href="https://www.postgresql.org/docs/current/sql-fetch.html">PostgreSQL FETCH</a>
+/// @since 0.6.0
 public interface SyncStmtCursor extends StmtCursor, SyncCursor {
 
-    /**
-     * <p>When this option is supported by {@link ResultStates},this option representing the statement that produce
-     * the {@link ResultStates} declare a cursor. For example : execute postgre DECLARE command.
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
-     */
+/// When this option is supported by {@link ResultStates},this option representing the statement that produce
+/// the {@link ResultStates} declare a cursor. For example : execute postgre DECLARE command.
+/// @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
     Option<SyncStmtCursor> SYNC_STMT_CURSOR = Option.from("SYNC STMT CURSOR", SyncStmtCursor.class);
 
 

@@ -16,17 +16,14 @@
 
 package io.army.session;
 
-/**
- * <p>This interface representing session context,it is designed for some framework ,for example :
- * {@code org.springframework.transaction.PlatformTransactionManager}.
- * <p>This interface is base interface of following :
- * <ul>
- *     <li>{@code  io.army.sync.SyncSessionContext}</li>
- *     <li>{@code io.army.reactive.ReactiveSessionContext}</li>
- * </ul>
- *
- * @since 0.6.2
- */
+/// This interface representing session context,it is designed for some framework ,for example :
+/// {@code org.springframework.transaction.PlatformTransactionManager}.
+/// This interface is base interface of following :
+/// 
+/// - {@code  io.army.sync.SyncSessionContext}
+/// - {@code io.army.reactive.ReactiveSessionContext}
+/// 
+/// @since 0.6.2
 public interface SessionContext {
 
     SessionFactory sessionFactory();

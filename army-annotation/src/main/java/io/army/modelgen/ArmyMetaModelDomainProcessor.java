@@ -26,9 +26,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Main annotation processor.
- */
+/// Main annotation processor.
 @SupportedAnnotationTypes("io.army.annotation.Table")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
 public class ArmyMetaModelDomainProcessor extends AbstractProcessor {

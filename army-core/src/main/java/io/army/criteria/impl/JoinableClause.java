@@ -33,17 +33,14 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * <p>
- * This class is base class of all implementation of below:
- * <ul>
- *     <li>{@link io.army.criteria.Query}</li>
- *     <li>{@link UpdateStatement}</li>
- *     <li>{@link DeleteStatement}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This class is base class of all implementation of below:
+/// 
+/// - {@link io.army.criteria.Query}
+/// - {@link UpdateStatement}
+/// - {@link DeleteStatement}
+/// 
+/// @since 0.6.0
 @SuppressWarnings("unchecked")
 abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR, LO, LF>
         extends WhereClause<WR, WA, OR, OD, LR, LO, LF>
@@ -66,20 +63,16 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
 
     final Consumer<_TabularBlock> blockConsumer;
 
-    /**
-     * <p>
-     * private constructor
-     */
+    /// 
+/// private constructor
     private JoinableClause(CriteriaContext context, Consumer<_TabularBlock> blockConsumer) {
         super(context);
         this.blockConsumer = blockConsumer;
     }
 
 
-    /**
-     * <p>
-     * package constructor for {@link  Statement}
-     */
+    /// 
+/// package constructor for {@link  Statement}
     JoinableClause(CriteriaContext context) {
         super(context);
         this.blockConsumer = context::onAddBlock;
@@ -741,10 +734,8 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
     abstract FT onFromTable(_JoinType joinType, @Nullable SQLs.TableModifier modifier, TableMeta<?> table,
                             String alias);
 
-    /**
-     * @see #crossJoin(Supplier)
-     * @see #crossJoin(SQLs.DerivedModifier, Supplier)
-     */
+    /// @see #crossJoin(Supplier)
+/// @see #crossJoin(SQLs.DerivedModifier, Supplier)
     abstract FS onFromDerived(final _JoinType joinType, final @Nullable SQLs.DerivedModifier modifier,
                               final DerivedTable table);
 
@@ -932,25 +923,19 @@ abstract class JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR
     }//NestedLeftParenClause
 
 
-    /**
-     * This interface is designed only for validating postgre child insert with sub-insert it's parent.
-     * This interface is implemented by {@link SimpleQueries}
-     */
+    /// This interface is designed only for validating postgre child insert with sub-insert it's parent.
+/// This interface is implemented by {@link SimpleQueries}
     interface SimpleQuery {
 
-        /**
-         * @return <ol>
-         * <li>CTE name</li>
-         * <li>parent id alias</li>
-         * <li>rowNumber alias (optional)</li>
-         * </ol>
-         */
+/// @return 
+/// - CTE name
+/// - parent id alias
+/// - rowNumber alias (optional)
+/// 
         List<String> validateIdDefaultExpression();
 
-        /**
-         * @param names see {@link #validateIdDefaultExpression()}
-         * @return parent sub-insert CTE name
-         */
+        /// @param names see {@link #validateIdDefaultExpression()}
+/// @return parent sub-insert CTE name
         String validateParentSubInsertRowNumberQuery(String thisCteName, List<String> names);
 
     }

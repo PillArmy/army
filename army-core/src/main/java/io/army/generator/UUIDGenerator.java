@@ -32,9 +32,7 @@ public final class UUIDGenerator implements FieldGenerator {
         return INSTANCE;
     }
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private UUIDGenerator() {
     }
 

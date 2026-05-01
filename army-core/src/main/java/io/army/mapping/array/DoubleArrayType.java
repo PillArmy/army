@@ -73,9 +73,7 @@ public class DoubleArrayType extends _ArmyNoInjectionType implements MappingType
 
     private final Class<?> underlyingJavaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private DoubleArrayType(Class<?> javaType, Class<?> underlyingJavaType) {
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;

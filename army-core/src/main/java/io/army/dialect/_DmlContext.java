@@ -24,19 +24,16 @@ import io.army.stmt.BatchStmt;
 
 import java.util.List;
 
-/**
- * <p>
- * Package interface,representing dml statement context,this interface is base interface of below:
- *     <ul>
- *         <li>{@link  _InsertContext}</li>
- *         <li>{@link  _SingleUpdateContext}</li>
- *         <li>{@link  _SingleDeleteContext}</li>
- *         <li>{@link  _MultiUpdateContext}</li>
- *         <li>{@link  _MultiDeleteContext}</li>
- *     </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// Package interface,representing dml statement context,this interface is base interface of below:
+/// 
+/// - {@link  _InsertContext}
+/// - {@link  _SingleUpdateContext}
+/// - {@link  _SingleDeleteContext}
+/// - {@link  _MultiUpdateContext}
+/// - {@link  _MultiDeleteContext}
+/// 
+/// @since 0.6.0
 public interface _DmlContext extends _StmtContext {
 
     @Nullable
@@ -66,13 +63,9 @@ public interface _DmlContext extends _StmtContext {
     }
 
     interface _DomainUpdateSpec {
-        /**
-         * <p>
-         * supported only by domain update.
-         *
-         *
-         * @throws UnsupportedOperationException throw when non-domain update.
-         */
+        /// 
+/// supported only by domain update.
+/// @throws UnsupportedOperationException throw when non-domain update.
         boolean isExistsChildFiledInSetClause();
 
     }
@@ -81,16 +74,11 @@ public interface _DmlContext extends _StmtContext {
 
         void appendFieldFromSub(FieldMeta<?> field);
 
-        /**
-         * <p>
-         * just append column name, no preceding space ,no preceding table alias
-         *
-         * <p>
-         * This method is designed for postgre EXCLUDED in INSERT statement.
-         *
-         *
-         * @see _SqlContext#appendFieldOnly(FieldMeta)
-         */
+        /// 
+/// just append column name, no preceding space ,no preceding table alias
+/// 
+/// This method is designed for postgre EXCLUDED in INSERT statement.
+/// @see _SqlContext#appendFieldOnly(FieldMeta)
         void appendFieldOnlyFromSub(FieldMeta<?> field);
 
     }

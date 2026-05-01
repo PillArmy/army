@@ -37,9 +37,7 @@ public interface _InsertContext extends _DmlContext, _SetClauseContext {
     @Nullable
     String safeTableName();
 
-    /**
-     * For conflict clause
-     */
+    /// For conflict clause
     String safeTableAliasOrSafeTableName();
 
     @Nullable
@@ -57,16 +55,11 @@ public interface _InsertContext extends _DmlContext, _SetClauseContext {
     @Override
     _InsertContext parentContext();
 
-    /**
-     * Just for {@link #appendField(String, FieldMeta)} in on conflict clause.
-     */
+    /// Just for {@link #appendField(String, FieldMeta)} in on conflict clause.
     void inConflictSetClause(boolean inSetClause);
 
-    /**
-     * Just for {@link #appendField(FieldMeta)} in on conflict clause.
-     *
-     * @param output default false
-     */
+    /// Just for {@link #appendField(FieldMeta)} in on conflict clause.
+/// @param output default false
     void outputFieldTableAlias(boolean output);
 
     @Override

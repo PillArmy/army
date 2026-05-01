@@ -70,9 +70,7 @@ public abstract class _TableMetaFactory {
     }
 
 
-    /**
-     * @return an unmodifiable map.
-     */
+    /// @return an unmodifiable map.
     public static Map<Class<?>, TableMeta<?>> getTableMetaMap(final SchemaMeta schemaMeta,
                                                               final List<String> basePackages,
                                                               final boolean loadStaticModel,
@@ -181,9 +179,7 @@ public abstract class _TableMetaFactory {
 
     /*################################## blow private method ##################################*/
 
-    /**
-     * @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
-     */
+    /// @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     private static Stream<ByteBuffer> scanJavaJarForJavaClassFile(final URL url) {
         try {
             final URLConnection conn = url.openConnection();
@@ -204,9 +200,7 @@ public abstract class _TableMetaFactory {
     }
 
 
-    /**
-     * @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
-     */
+    /// @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     private static ByteBuffer readJavaClassFileBytes(final Path classFilePath) {
         try (FileChannel channel = FileChannel.open(classFilePath, StandardOpenOption.READ)) {
             final long fileSize;
@@ -227,10 +221,8 @@ public abstract class _TableMetaFactory {
         }
     }
 
-    /**
-     * @throws TableMetaLoadException when not found table meta holder class of domainClass.
-     * @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
-     */
+    /// @throws TableMetaLoadException when not found table meta holder class of domainClass.
+/// @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     private static TableMeta<?> loadDomainMetaHolder(final Class<?> domainClass) {
 
         final Class<?> holderClass;
@@ -263,10 +255,8 @@ public abstract class _TableMetaFactory {
 
     }
 
-    /**
-     * @throws TableMetaLoadException when occur {@link IOException}
-     * @see #scanJavaJarForJavaClassFile(URL)
-     */
+    /// @throws TableMetaLoadException when occur {@link IOException}
+/// @see #scanJavaJarForJavaClassFile(URL)
     private static ByteBuffer readJavaClassEntryBytes(final JarFile jarFile, final JarEntry entry) {
         final long entrySize = entry.getSize();
         if (entrySize > (Integer.MAX_VALUE - 32)) {
@@ -287,9 +277,7 @@ public abstract class _TableMetaFactory {
         }
     }
 
-    /**
-     * @see #scanJavaJarForJavaClassFile(URL)
-     */
+    /// @see #scanJavaJarForJavaClassFile(URL)
     private static boolean isJavaClassEntry(final String rootEntryName, final JarEntry entry) {
         final String entryName = entry.getName();
         return entryName.startsWith(rootEntryName)
@@ -298,18 +286,14 @@ public abstract class _TableMetaFactory {
     }
 
 
-    /**
-     * @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
-     */
+    /// @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     private static boolean isJavaClassFile(final Path path, BasicFileAttributes attributes) {
         return !Files.isDirectory(path)
                 && Files.isReadable(path)
                 && path.getFileName().toString().endsWith(".class");
     }
 
-    /**
-     * @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
-     */
+    /// @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     private static <T> TableMeta<T> getOrCreateTableMeta(final String className) {
         try {
             final Class<?> clazz;

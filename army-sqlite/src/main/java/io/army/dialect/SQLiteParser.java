@@ -82,10 +82,8 @@ abstract class SQLiteParser extends _ArmyDialectParser {
         return SQLiteDialectUtils.createKeyWordSet();
     }
 
-    /**
-     * @see <a href="https://sqlite.org/lang_naming.html">Database Object Name Resolution</a>
-     * @see <a href="https://www.sqlite.org/lang_keywords.html">SQLite Keywords</a>
-     */
+/// @see <a href="https://sqlite.org/lang_naming.html">Database Object Name Resolution</a>
+/// @see <a href="https://www.sqlite.org/lang_keywords.html">SQLite Keywords</a>
     @Override
     protected final char identifierDelimitedQuote() {
         return _Constant.DOUBLE_QUOTE;
@@ -98,19 +96,15 @@ abstract class SQLiteParser extends _ArmyDialectParser {
         return true;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_update.html">update statement</a>
-     * @see <a href="https://www.sqlite.org/lang_insert.html">upsert clause</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_update.html">update statement</a>
+/// @see <a href="https://www.sqlite.org/lang_insert.html">upsert clause</a>
     @Override
     protected final boolean isSetClauseTableAlias() {
         // false , SQLite don't support
         return false;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
     @Override
     protected final boolean isTableAliasAfterAs() {
         // true , SQLite support
@@ -123,141 +117,111 @@ abstract class SQLiteParser extends _ArmyDialectParser {
         return false;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_insert.html">upsert clause</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_insert.html">upsert clause</a>
     @Override
     protected final boolean isSupportRowAlias() {
         // false , SQLite don't support
         return false;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
     @Override
     protected final boolean isSupportTableOnly() {
         // false , SQLite don't support
         return false;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
-     * @see <a href="https://www.sqlite.org/lang_delete.html">DELETE statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
+/// @see <a href="https://www.sqlite.org/lang_delete.html">DELETE statement</a>
     @Override
     protected final ChildUpdateMode childUpdateMode() {
         return ChildUpdateMode.WITH_ID;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
     @Override
     protected final boolean isSupportSingleUpdateAlias() {
         // true , SQLite support
         return true;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_delete.html">DELETE statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_delete.html">DELETE statement</a>
     @Override
     protected final boolean isSupportSingleDeleteAlias() {
         // true , SQLite support
         return true;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_insert.html">INSERT clause</a>
-     * @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
-     * @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
-     * @see <a href="https://www.sqlite.org/lang_delete.html">DELETE statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_insert.html">INSERT clause</a>
+/// @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
+/// @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
+/// @see <a href="https://www.sqlite.org/lang_delete.html">DELETE statement</a>
     @Override
     protected final boolean isSupportWithClause() {
         // true , SQLite support WITH clause
         return true;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_insert.html">INSERT clause</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_insert.html">INSERT clause</a>
     @Override
     protected final boolean isSupportWithClauseInInsert() {
         // true , SQLite support WITH clause
         return true;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
     @Override
     protected final boolean isSupportWindowClause() {
         // true , SQLite support WINDOW clause
         return true;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
     @Override
     protected final boolean isSupportUpdateRow() {
         // true , SQLite support
         return true;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
     @Override
     protected final boolean isSupportJoinableSingleUpdate() {
         // true , SQLite support
         return true;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
     @Override
     protected final boolean isSupportUpdateDerivedField() {
         // false , SQLite don't support
         return false;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_insert.html">INSERT clause</a>
-     * @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
-     * @see <a href="https://www.sqlite.org/lang_delete.html">DELETE statement</a>
-     * @see <a href="https://www.sqlite.org/lang_insert.html">RETURNING clause</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_insert.html">INSERT clause</a>
+/// @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
+/// @see <a href="https://www.sqlite.org/lang_delete.html">DELETE statement</a>
+/// @see <a href="https://www.sqlite.org/lang_insert.html">RETURNING clause</a>
     @Override
     protected final boolean isSupportReturningClause() {
         // true , SQLite support
         return true;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
     @Override
     protected final boolean isValidateUnionType() {
         // false , SQLite don't need
         return false;
     }
 
-    /**
-     * @see #isValidateUnionType()
-     */
+    /// @see #isValidateUnionType()
     @Override
     protected final void validateUnionType(_UnionType unionType) {
         // no bug,never here
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * @see <a href="https://sqlite.org/lang_naming.html">Database Object Name Resolution</a>
-     */
+/// @see <a href="https://sqlite.org/lang_naming.html">Database Object Name Resolution</a>
     @Override
     protected final String qualifiedSchemaName(final ServerMeta meta) {
         final String catalog, schema, name;
@@ -285,10 +249,8 @@ abstract class SQLiteParser extends _ArmyDialectParser {
     }
 
 
-    /**
-     * @see <a href="https://sqlite.org/lang_naming.html">Database Object Name Resolution</a>
-     * @see <a href="https://www.sqlite.org/lang_keywords.html">SQLite Keywords</a>
-     */
+/// @see <a href="https://sqlite.org/lang_naming.html">Database Object Name Resolution</a>
+/// @see <a href="https://www.sqlite.org/lang_keywords.html">SQLite Keywords</a>
     @Override
     protected final void handleIdentifier(final @Nullable DatabaseObject object, final String effectiveName, final StringBuilder sqlBuilder) {
         final int length,startIndex;
@@ -353,17 +315,13 @@ abstract class SQLiteParser extends _ArmyDialectParser {
         return new SQLiteTypeMappingHandler(env);
     }
 
-    /**
-     * @see <a href="https://sqlite.org/lang_expr.html">Literal Values (Constants)</a>
-     */
+/// @see <a href="https://sqlite.org/lang_expr.html">Literal Values (Constants)</a>
     @Override
     protected final void bindLiteralNull(MappingType type, DataType dataType, boolean typeName, StringBuilder sqlBuilder) {
         sqlBuilder.append(_Constant.NULL);
     }
 
-    /**
-     * @see <a href="https://sqlite.org/lang_expr.html">Literal Values (Constants)</a>
-     */
+/// @see <a href="https://sqlite.org/lang_expr.html">Literal Values (Constants)</a>
     @Override
     protected final void bindLiteral(final TypeMeta typeMeta, final DataType dataType, final Object value,
                                      boolean typeName, final StringBuilder sqlBuilder) {
@@ -590,9 +548,7 @@ abstract class SQLiteParser extends _ArmyDialectParser {
     }
 
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
     @Override
     protected final void parseWithClause(_Statement._WithClauseSpec spec, _SqlContext context) {
         final List<_Cte> cteList;
@@ -612,9 +568,7 @@ abstract class SQLiteParser extends _ArmyDialectParser {
         throw _Exceptions.dontSupportWithClause(this.dialect);
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
     @Override
     protected final void standardLimitClause(final @Nullable _Expression offset, final @Nullable _Expression rowCount,
                                              _SqlContext context) {
@@ -633,18 +587,14 @@ abstract class SQLiteParser extends _ArmyDialectParser {
 
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_select.html">SELECT statement</a>
     @Override
     protected final void standardLockClause(final SQLToken lockMode, final _SqlContext context) {
         throw _Exceptions.dontSupportForUpdateClause(this.dialect);
     }
 
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_update.html">UPDATE statement</a>
     @Override
     protected final void parseDomainChildUpdate(final _SingleUpdate update, final _UpdateContext context) {
         final _DomainUpdate stmt = (_DomainUpdate) update;

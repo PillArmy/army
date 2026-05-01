@@ -22,11 +22,9 @@ import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
-/**
- * @see TinyBlobType
- * @see BlobType
- * @see MediumBlobType
- */
+/// @see TinyBlobType
+/// @see BlobType
+/// @see MediumBlobType
 public final class LongBlobType extends _ArmyBuildInType implements MappingType.SqlBlob {
 
 
@@ -41,9 +39,7 @@ public final class LongBlobType extends _ArmyBuildInType implements MappingType.
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private LongBlobType(Class<?> javaType) {
         this.javaType = javaType;
     }

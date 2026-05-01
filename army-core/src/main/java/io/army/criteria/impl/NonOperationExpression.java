@@ -31,14 +31,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
-/**
- * <p>
- * This class representing non-operation expression.
- * This class is base class of following : <ul>
- * <li>{@link SQLs#DEFAULT}</li>
- * <li>{@link SQLs#ASTERISK}</li>
- * </ul>
- */
+/// 
+/// This class representing non-operation expression.
+/// This class is base class of following : 
+/// - {@link SQLs#DEFAULT}
+/// - {@link SQLs#ASTERISK}
+/// 
 abstract class NonOperationExpression implements ArmyExpression {
 
 
@@ -585,9 +583,7 @@ abstract class NonOperationExpression implements ArmyExpression {
         return String.format("%s don't support any operation.", this.getClass().getName());
     }
 
-    /**
-     * @see SQLs#NULL
-     */
+    /// @see SQLs#NULL
     static SQLs.WordNull nullWord() {
         return NullWord.INSTANCE;
     }
@@ -663,12 +659,9 @@ abstract class NonOperationExpression implements ArmyExpression {
     } // SQLIdentifierImpl
 
 
-    /**
-     * <p>
-     * This class representing sql {@code NULL} key word.
-     *
-     * @see SQLs#NULL
-     */
+    /// 
+/// This class representing sql {@code NULL} key word.
+/// @see SQLs#NULL
     static final class NullWord extends NonOperationExpression
             implements SqlValueParam.SingleAnonymousValue,
             ArmySimpleExpression,

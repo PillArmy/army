@@ -39,9 +39,7 @@ public final class JsonbType extends ArmyJsonType implements MappingType.SqlJson
         return instance;
     }
 
-    /**
-     * This instance map {@link String} to jsonb
-     */
+    /// This instance map {@link String} to jsonb
     public static final JsonbType TEXT = new JsonbType(String.class);
 
     private static final ConcurrentMap<Class<?>, JsonbType> INSTANCE_MAP = _Collections.concurrentHashMap();
@@ -49,9 +47,7 @@ public final class JsonbType extends ArmyJsonType implements MappingType.SqlJson
     private static final Function<Class<?>, JsonbType> CONSTRUCTOR = JsonbType::new;
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private JsonbType(Class<?> javaType) {
         super(javaType);
     }

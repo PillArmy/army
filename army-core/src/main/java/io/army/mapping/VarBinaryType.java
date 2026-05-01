@@ -21,12 +21,9 @@ import io.army.mapping.array.VarBinaryArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
-/**
- * <p>This class map {@code byte[]} to sql varbinary type.
- * <p>If you need to map binary ,you can use {@link BinaryType} instead of this class.
- *
- * @see BinaryType
- */
+/// This class map {@code byte[]} to sql varbinary type.
+/// If you need to map binary ,you can use {@link BinaryType} instead of this class.
+/// @see BinaryType
 public final class VarBinaryType extends _ArmyBuildInType implements MappingType.SqlBinary {
 
     public static VarBinaryType from(final Class<?> fieldType) {
@@ -39,9 +36,7 @@ public final class VarBinaryType extends _ArmyBuildInType implements MappingType
     public static final VarBinaryType INSTANCE = new VarBinaryType();
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private VarBinaryType() {
     }
 

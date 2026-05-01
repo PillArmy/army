@@ -19,14 +19,11 @@ package io.army.criteria.standard;
 import io.army.criteria.Item;
 import io.army.criteria.Statement;
 
-/**
- * <p>
- * This interface representing statement with standard syntax.
- * * @see StandardQuery
- *
- * @see StandardInsert
- * @since 0.6.0
- */
+/// 
+/// This interface representing statement with standard syntax.
+/// * @see StandardQuery
+/// @see StandardInsert
+/// @since 0.6.0
 public interface StandardStatement extends Statement {
 
     interface _StandardDynamicWithClause<WE extends Item> extends _DynamicWithClause<StandardCtes, WE> {

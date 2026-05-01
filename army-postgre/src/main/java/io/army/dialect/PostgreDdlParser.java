@@ -49,9 +49,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         return super.userDefinedTypeStmts();
     }
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-createtable.html">CREATE TABLE— define a new table</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-createtable.html">CREATE TABLE— define a new table</a>
     @Override
     public <T> void createTable(final TableMeta<T> table, final List<String> sqlList) {
         final StringBuilder builder;
@@ -112,9 +110,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     }
 
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-droptable.html">DROP TABLE — remove a table</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-droptable.html">DROP TABLE — remove a table</a>
     @Override
     public void dropTable(final List<TableMeta<?>> tableList, final List<String> sqlList) {
         if (tableList.isEmpty()) {
@@ -134,9 +130,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     }
 
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-altertable.html">ALTER TABLE — change the definition of a table</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-altertable.html">ALTER TABLE — change the definition of a table</a>
     @Override
     public void addColumn(final List<FieldMeta<?>> fieldList, final List<String> sqlList) {
         final int listSize = fieldList.size();
@@ -185,9 +179,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     }
 
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-altertable.html">ALTER TABLE — change the definition of a table</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-altertable.html">ALTER TABLE — change the definition of a table</a>
     @Override
     public void modifyColumn(final List<FieldResult> resultList, final List<String> sqlList) {
         final int listSize = resultList.size();
@@ -285,9 +277,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     }
 
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-createindex.html">CREATE INDEX — define a new index</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-createindex.html">CREATE INDEX — define a new index</a>
     @Override
     public <T> void createIndex(final TableMeta<T> table, final List<String> indexNameList, final List<String> sqlList) {
         final int nameListSize = indexNameList.size();
@@ -315,9 +305,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
 
     }
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-dropindex.html">DROP INDEX — remove an index</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-dropindex.html">DROP INDEX — remove an index</a>
     @Override
     public <T> void dropIndex(final TableMeta<T> table, final List<String> indexNameList, final List<String> sqlList) {
         final int nameListSize = indexNameList.size();
@@ -604,9 +592,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     }
 
 
-    /**
-     * @see #dataType(FieldMeta, DataType, StringBuilder)
-     */
+    /// @see #dataType(FieldMeta, DataType, StringBuilder)
     private void appendTimeDateType(final FieldMeta<?> field, final DataType dataType, final StringBuilder builder) {
         String safeTypeName;
         safeTypeName = dataType.name();
@@ -623,9 +609,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         }
     }
 
-    /**
-     * @see #dataType(FieldMeta, DataType, StringBuilder)
-     */
+    /// @see #dataType(FieldMeta, DataType, StringBuilder)
     private void appendDecimalDateType(final FieldMeta<?> field, final DataType dataType, final StringBuilder builder) {
         int precision, scale;
         precision = field.precision();
@@ -661,12 +645,10 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     }
 
 
-    /**
-     * @see #createTable(TableMeta, List)
-     * @see #addColumn(List, List)
-     * @see <a href="https://www.postgresql.org/docs/current/sql-createtable.html">CREATE TABLE— define a new table</a>
-     * @see <a href="https://www.postgresql.org/docs/current/sql-altertable.html">ALTER TABLE — change the definition of a table</a>
-     */
+/// @see #createTable(TableMeta, List)
+/// @see #addColumn(List, List)
+/// @see <a href="https://www.postgresql.org/docs/current/sql-createtable.html">CREATE TABLE— define a new table</a>
+/// @see <a href="https://www.postgresql.org/docs/current/sql-altertable.html">ALTER TABLE — change the definition of a table</a>
     @Override
     protected void columnDefinition(final FieldMeta<?> field, final StringBuilder builder) {
         columnName(field, builder);
@@ -676,9 +658,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     }
 
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-comment.html">COMMENT — define or change the comment of an object</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-comment.html">COMMENT — define or change the comment of an object</a>
     @Override
     void tableOuterComment(final TableMeta<?> table, final StringBuilder builder) {
         builder.append("COMMENT")
@@ -696,9 +676,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
 
     }
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-comment.html">COMMENT — define or change the comment of an object</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-comment.html">COMMENT — define or change the comment of an object</a>
     @Override
     void columnOuterComment(final FieldMeta<?> field, final StringBuilder builder) {
         builder.append("COMMENT")
@@ -721,10 +699,8 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     /*-------------------below private methods-------------------*/
 
 
-    /**
-     * @see #columnDefinition(FieldMeta, StringBuilder)
-     * @see #modifyColumn(List, List)
-     */
+    /// @see #columnDefinition(FieldMeta, StringBuilder)
+/// @see #modifyColumn(List, List)
     private void fieldDataType(final FieldMeta<?> field, final StringBuilder builder) {
         final DataType dataType;
         dataType = field.mappingType().map(this.parser.serverMeta);

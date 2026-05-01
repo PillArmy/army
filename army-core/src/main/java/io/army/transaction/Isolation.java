@@ -42,48 +42,38 @@ public final class Isolation {
     private static final ConcurrentMap<String, Isolation> INSTANCE_MAP = _Collections.concurrentHashMap((int) (4 / 0.75f));
 
 
-    /**
-     * A constant indicating that dirty reads, non-repeatable reads and phantom reads
-     * can occur. This level allows a row changed by one transaction to be read by
-     * another transaction before any changes in that row have been committed
-     * (a "dirty read"). If any of the changes are rolled back, the second
-     * transaction will have retrieved an invalid row.
-     */
+    /// A constant indicating that dirty reads, non-repeatable reads and phantom reads
+/// can occur. This level allows a row changed by one transaction to be read by
+/// another transaction before any changes in that row have been committed
+/// (a "dirty read"). If any of the changes are rolled back, the second
+/// transaction will have retrieved an invalid row.
     public static final Isolation READ_UNCOMMITTED = from("READ UNCOMMITTED");
 
-    /**
-     * A constant indicating that dirty reads are prevented; non-repeatable reads
-     * and phantom reads can occur. This level only prohibits a transaction
-     * from reading a row with uncommitted changes in it.
-     */
+    /// A constant indicating that dirty reads are prevented; non-repeatable reads
+/// and phantom reads can occur. This level only prohibits a transaction
+/// from reading a row with uncommitted changes in it.
     public static final Isolation READ_COMMITTED = from("READ COMMITTED");
 
-    /**
-     * A constant indicating that dirty reads and non-repeatable reads are
-     * prevented; phantom reads can occur. This level prohibits a transaction
-     * from reading a row with uncommitted changes in it, and it also prohibits
-     * the situation where one transaction reads a row, a second transaction
-     * alters the row, and the first transaction rereads the row, getting
-     * different values the second time (a "non-repeatable read").
-     */
+    /// A constant indicating that dirty reads and non-repeatable reads are
+/// prevented; phantom reads can occur. This level prohibits a transaction
+/// from reading a row with uncommitted changes in it, and it also prohibits
+/// the situation where one transaction reads a row, a second transaction
+/// alters the row, and the first transaction rereads the row, getting
+/// different values the second time (a "non-repeatable read").
     public static final Isolation REPEATABLE_READ = from("REPEATABLE READ");
 
-    /**
-     * A constant indicating that dirty reads, non-repeatable reads and phantom
-     * reads are prevented. This level includes the prohibitions in
-     * {@code ISOLATION_REPEATABLE_READ} and further prohibits the situation
-     * where one transaction reads all rows that satisfy a {@code WHERE}
-     * condition, a second transaction inserts a row that satisfies that
-     * {@code WHERE} condition, and the first transaction rereads for the
-     * same condition, retrieving the additional "phantom" row in the second read.
-     */
+    /// A constant indicating that dirty reads, non-repeatable reads and phantom
+/// reads are prevented. This level includes the prohibitions in
+/// {@code ISOLATION_REPEATABLE_READ} and further prohibits the situation
+/// where one transaction reads all rows that satisfy a {@code WHERE}
+/// condition, a second transaction inserts a row that satisfies that
+/// {@code WHERE} condition, and the first transaction rereads for the
+/// same condition, retrieving the additional "phantom" row in the second read.
     public static final Isolation SERIALIZABLE = from("SERIALIZABLE");
 
 
-    /**
-     * A pseudo isolation,this is used by pseudo transaction :
-     * <p><strong>NOTE</strong>: Only when  {@link Session#isReadonlySession()} is true, pseudo transaction exists.
-     */
+/// A pseudo isolation,this is used by pseudo transaction :
+/// **NOTE**: Only when  {@link Session#isReadonlySession()} is true, pseudo transaction exists.
     public static final Isolation PSEUDO = from("PSEUDO");
 
 

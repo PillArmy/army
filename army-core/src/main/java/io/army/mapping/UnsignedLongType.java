@@ -25,10 +25,8 @@ import io.army.sqltype.DataType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-/**
- * @see UnsignedBigintType
- * @see UnsignedIntegerType
- */
+/// @see UnsignedBigintType
+/// @see UnsignedIntegerType
 public final class UnsignedLongType extends _ArmyNoInjectionType
         implements MappingType.SqlInteger, MappingType.SqlUnsignedNumber {
 

@@ -41,9 +41,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/**
- * @since 0.6.0
- */
+/// @since 0.6.0
 abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMeta<T>, _Selection {
 
     private static final String ID = _MetaBridge.ID;
@@ -52,9 +50,7 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
     private static final ConcurrentMap<FieldMeta<?>, Boolean> CODEC_MAP = new ConcurrentHashMap<>();
 
-    /**
-     * @see DefaultTableMeta#getTableMeta(Class)
-     */
+    /// @see DefaultTableMeta#getTableMeta(Class)
     @SuppressWarnings("unchecked")
     static <T> FieldMeta<T> createFieldMeta(final TableMeta<T> table, final Field field) {
         final String fieldName = field.getName();
@@ -90,9 +86,7 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
     }
 
-    /**
-     * @see DefaultTableMeta#getTableMeta(Class)
-     */
+    /// @see DefaultTableMeta#getTableMeta(Class)
     @SuppressWarnings("unchecked")
     static <T> IndexFieldMeta<T> createIndexFieldMeta(final TableMeta<T> table, final Field field
             , final IndexMeta<T> indexMeta, final int columnCount, final @Nullable Boolean fieldAsc) {

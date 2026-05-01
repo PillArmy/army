@@ -16,17 +16,14 @@
 
 package io.army.criteria;
 
-/**
- * <p>
- * This interface is designed for dialect operator. This interface representing operator result.
- * This interface is base interface of :
- * <ul>
- *     <li>{@link CompoundExpression}</li>
- *     <li>{@link SimpleResultExpression}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This interface is designed for dialect operator. This interface representing operator result.
+/// This interface is base interface of :
+/// 
+/// - {@link CompoundExpression}
+/// - {@link SimpleResultExpression}
+/// 
+/// @since 0.6.0
 public interface ResultExpression extends Expression {
 
 

@@ -18,9 +18,7 @@ package io.army.util;
 
 import io.army.lang.Nullable;
 
-/**
- * @since 0.6.0
- */
+/// @since 0.6.0
 public abstract class ClassUtils {
 
     public static final String PUBLISHER_CLASS_NAME = "org.reactivestreams.Publisher";

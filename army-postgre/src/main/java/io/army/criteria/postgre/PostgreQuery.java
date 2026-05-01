@@ -31,13 +31,10 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 
-/**
- * <p>
- * This interface representing postgre SELECT statement.
- *
- * @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
- * @since 0.6.0
- */
+/// 
+/// This interface representing postgre SELECT statement.
+/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
+/// @since 0.6.0
 public interface PostgreQuery extends Query, PostgreStatement {
 
 
@@ -188,11 +185,9 @@ public interface PostgreQuery extends Query, PostgreStatement {
     }
 
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY">GROUP BY Clause</a>
-     * @see <a href="https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUP">The GROUP BY and HAVING Clauses</a>
-     * @see <a href="https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS">GROUPING SETS, CUBE, and ROLLUP</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY">GROUP BY Clause</a>
+/// @see <a href="https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUP">The GROUP BY and HAVING Clauses</a>
+/// @see <a href="https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS">GROUPING SETS, CUBE, and ROLLUP</a>
     interface _GroupBySpec<I extends Item> extends _StaticGroupByClause<_GroupByCommaSpec<I>>,
             _DynamicGroupByClause<_HavingSpec<I>>,
             _WindowSpec<I> {
@@ -296,9 +291,7 @@ public interface PostgreQuery extends Query, PostgreStatement {
 
     interface _CycleToMarkValueSpec extends _CyclePathColumnClause {
 
-        /**
-         * @param wordDefault see {@link SQLs#DEFAULT}
-         */
+        /// @param wordDefault see {@link SQLs#DEFAULT}
         _CyclePathColumnClause to(LiteralExpression cycleMarkValue, SQLs.WordDefault wordDefault, LiteralExpression cycleMarkDefault);
 
         _CyclePathColumnClause to(Consumer<BiConsumer<LiteralExpression, LiteralExpression>> consumer);
@@ -326,10 +319,8 @@ public interface PostgreQuery extends Query, PostgreStatement {
 
     }
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
-     * @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-CYCLE">Cycle Detection</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
+/// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-CYCLE">Cycle Detection</a>
     interface _CteCycleClause<I extends Item> {
 
         I cycle(Consumer<_CteCycleColumnNameSpace> consumer);
@@ -338,10 +329,8 @@ public interface PostgreQuery extends Query, PostgreStatement {
 
     }
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
-     * @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
+/// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
     interface _SearchBreadthDepthClause {
 
         _SetSearchSeqColumnClause breadthFirstBy(String firstColumnName, String... rest);
@@ -354,10 +343,8 @@ public interface PostgreQuery extends Query, PostgreStatement {
 
     }
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
-     * @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
+/// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
     interface _CteSearchClause<I extends Item> {
 
         I search(Consumer<_SearchBreadthDepthClause> consumer);
@@ -419,12 +406,9 @@ public interface PostgreQuery extends Query, PostgreStatement {
     }
 
 
-    /**
-     * <p>
-     * static sub-statement syntax forbid the WITH clause ,because it destroy the Readability of code.
-     *
-     * @since 0.6.0
-     */
+    /// 
+/// static sub-statement syntax forbid the WITH clause ,because it destroy the Readability of code.
+/// @since 0.6.0
     interface _StaticCteComplexCommandSpec<I extends Item>
             extends _StaticCteSelectSpec<_StaticCteSearchSpec<I>>,
             PostgreValues._PostgreValuesClause<_CteComma<I>>,
@@ -441,12 +425,9 @@ public interface PostgreQuery extends Query, PostgreStatement {
     }
 
 
-    /**
-     * <p>primary-statement syntax support static WITH clause,it's simple and clear and free
-     * <p>This interface is public interface that developer can directly use.
-     *
-     * @since 0.6.0
-     */
+    /// primary-statement syntax support static WITH clause,it's simple and clear and free
+/// This interface is public interface that developer can directly use.
+/// @since 0.6.0
     interface WithSpec<I extends Item> extends _PostgreDynamicWithClause<_SelectSpec<I>>,
             _PostgreStaticWithClause<_SelectSpec<I>>,
             _SelectSpec<I> {

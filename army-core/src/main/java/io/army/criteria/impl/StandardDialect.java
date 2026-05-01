@@ -20,11 +20,8 @@ import io.army.dialect.Database;
 import io.army.dialect.Dialect;
 
 
-/**
- * package enum,This enum is designed for standard statement. For example : {@link StandardQueries}
- *
- * @since 0.6.0
- */
+/// package enum,This enum is designed for standard statement. For example : {@link StandardQueries}
+/// @since 0.6.0
 enum StandardDialect implements Dialect {
 
     STANDARD10(10),

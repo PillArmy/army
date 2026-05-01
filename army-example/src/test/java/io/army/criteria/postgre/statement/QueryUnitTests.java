@@ -68,9 +68,7 @@ public class QueryUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see #undoneColumnFuncErrorColumnAlias()
-     */
+    /// @see #undoneColumnFuncErrorColumnAlias()
     @Test
     public void undoneColumnFuncColumnAlias() {
         final String json, path, varPath, vars;
@@ -104,9 +102,7 @@ public class QueryUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see #undoneColumnFuncColumnAlias()
-     */
+    /// @see #undoneColumnFuncColumnAlias()
     @Test(expectedExceptions = UnknownDerivedFieldException.class)
     public void undoneColumnFuncErrorColumnAlias() {
         final String json, path;

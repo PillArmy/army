@@ -32,9 +32,7 @@ public final class InstantType extends _ArmyNoInjectionType implements MappingTy
 
     public static final InstantType INSTANCE = new InstantType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private InstantType() {
     }
 

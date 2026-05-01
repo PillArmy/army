@@ -25,11 +25,9 @@ import io.army.meta.FieldMeta;
 import io.army.meta.SingleTableMeta;
 import io.army.meta.TableMeta;
 
-/**
- * <p>
- * This interface representing standard update statement.
- * * @since 0.6.0
- */
+/// 
+/// This interface representing standard update statement.
+/// * @since 0.6.0
 public interface StandardUpdate extends StandardStatement {
 
 

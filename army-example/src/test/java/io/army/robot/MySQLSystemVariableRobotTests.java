@@ -14,9 +14,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-/**
- * see {@code io.army.criteria.impl.MySQLExpressions#systemVariable(MySQLs.VarScope, String) }
- */
+/// see {@code io.army.criteria.impl.MySQLExpressions#systemVariable(MySQLs.VarScope, String) }
 public class MySQLSystemVariableRobotTests {
 
 
@@ -39,9 +37,7 @@ public class MySQLSystemVariableRobotTests {
             .toString();
 
 
-    /**
-     * <p>Create MySQL System Variable case statement for {@code io.army.criteria.impl.MySQLExpressions#systemVariable(MySQLs.VarScope, String) }
-     */
+    /// Create MySQL System Variable case statement for {@code io.army.criteria.impl.MySQLExpressions#systemVariable(MySQLs.VarScope, String) }
     @Test(enabled = false)
     public void systemVariableCaseStatement() throws Exception {
 

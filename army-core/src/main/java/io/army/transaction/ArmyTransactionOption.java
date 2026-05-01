@@ -82,16 +82,12 @@ final class ArmyTransactionOption implements TransactionOption {
 
     private final Set<Option<?>> optionSet;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ArmyTransactionOption(@Nullable Isolation isolation, boolean readOnly) {
         this(isolation, readOnly, null);
     }
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ArmyTransactionOption(@Nullable Isolation isolation, boolean readOnly, @Nullable Map<Option<?>, ?> optionMap) {
         this.isolation = isolation;
         this.readOnly = readOnly;

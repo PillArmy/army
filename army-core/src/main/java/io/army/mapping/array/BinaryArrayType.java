@@ -30,13 +30,10 @@ import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
 
-/**
- * <p>This class is array type of {@link BinaryType}.
- *
- * @see BinaryType
- * @see VarBinaryArrayType
- * @since 0.6.0
- */
+/// This class is array type of {@link BinaryType}.
+/// @see BinaryType
+/// @see VarBinaryArrayType
+/// @since 0.6.0
 public class BinaryArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
 
@@ -65,9 +62,7 @@ public class BinaryArrayType extends _ArmyBuildInType implements MappingType.Sql
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private BinaryArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

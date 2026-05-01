@@ -45,9 +45,7 @@ public class MediumTextArrayType extends ArmyTextArrayType {
     public static final MediumTextArrayType LINEAR = new MediumTextArrayType(String[].class);
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private MediumTextArrayType(Class<?> javaType) {
         super(javaType);
     }

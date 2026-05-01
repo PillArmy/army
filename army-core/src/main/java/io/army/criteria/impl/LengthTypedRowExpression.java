@@ -19,11 +19,9 @@ package io.army.criteria.impl;
 
 import io.army.criteria.RowExpression;
 
-/**
- * <p>
- * Package interface and must be package interface.
- * * @since 0.6.0
- */
+/// 
+/// Package interface and must be package interface.
+/// * @since 0.6.0
 interface LengthTypedRowExpression extends ArmySimpleExpression, RowExpression {
 
     /// @return negative : unknown

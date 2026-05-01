@@ -100,9 +100,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
         return new JsonValueFunc(jsonDoc, path, clause);
     }
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_char">CHAR(N,... [USING charset_name])</a>
-     */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_char">CHAR(N,... [USING charset_name])</a>
     static SimpleExpression charFunc(Consumer<? super FuncExpUtils.VariadicClause> consumer, @Nullable String charName) {
         if (charName != null && !_StringUtils.hasText(charName)) {
             throw ContextStack.clearStackAndCriteriaError("CHAR function charset_name must have text");
@@ -121,11 +119,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
     }
 
 
-    /**
-     * <p>Create jsonTable function.
-     *
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html#function_json-table">JSON_TABLE(expr, path COLUMNS (column_list) [AS] alias)</a>
-     */
+/// Create jsonTable function.
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html#function_json-table">JSON_TABLE(expr, path COLUMNS (column_list) [AS] alias)</a>
     static Functions._TabularFunction jsonTable(final Object jsonDoc, final Object path,
                                                 final Consumer<? super MySQLJsonTableColumns> consumer) {
 
@@ -157,10 +152,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
     }
 
 
-    /**
-     * @see #statementDigest(PrimaryStatement, Visible, boolean)
-     * @see #statementDigestText(PrimaryStatement, Visible, boolean)
-     */
+    /// @see #statementDigest(PrimaryStatement, Visible, boolean)
+/// @see #statementDigestText(PrimaryStatement, Visible, boolean)
     private static void assertPrimaryStatement(final PrimaryStatement statement, final String funcName) {
         if (statement instanceof _BatchStatement
                 || statement instanceof _Statement._ChildStatement
@@ -348,9 +341,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
         private NullTreatment nullTreatment;
 
-        /**
-         * @see #twoArgFromFirstWindowFunc(String, Expression, Expression)
-         */
+        /// @see #twoArgFromFirstWindowFunc(String, Expression, Expression)
         public FromFirstLastMultiArgWindowFunc(String name, List<ArmyExpression> argList) {
             super(name, null, argList);
         }
@@ -515,9 +506,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
 
 
-    /**
-     * @see #groupConcatClause(Consumer)
-     */
+    /// @see #groupConcatClause(Consumer)
     private static final class GroupConcatInnerClause
             extends OrderByClause.OrderByClauseClause<MySQLFunction._GroupConcatSeparatorClause, MySQLFunction._GroupConcatSeparatorClause>
             implements MySQLFunction._GroupConcatOrderBySpec, io.army.criteria.impl.ArmyFuncClause {
@@ -664,9 +653,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
     }//NullOrError
 
-    /**
-     * @see JsonValueFunc#appendSql(StringBuilder, _SqlContext)
-     */
+    /// @see JsonValueFunc#appendSql(StringBuilder, _SqlContext)
     private static void appendOnEmptyOrErrorClause(final List<_Pair<Object, JsonValueWord>> actionList
             , final _SqlContext context) {
         final StringBuilder sqlBuilder;
@@ -689,9 +676,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
         }//for
     }
 
-    /**
-     * @see JsonValueFunc#toString()
-     */
+    /// @see JsonValueFunc#toString()
     private static void onEmptyOrErrorClauseToString(final List<_Pair<Object, JsonValueWord>> actionList
             , final StringBuilder builder) {
         assert actionList.size() < 3;
@@ -1135,9 +1120,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
         private final JsonValueOptionClause optionClause;
 
-        /**
-         * @see #jsonValueFunc(Object, Object, Consumer)
-         */
+        /// @see #jsonValueFunc(Object, Object, Consumer)
         private JsonValueFunc(Object jsonDoc, Object path, JsonValueOptionClause clause) {
             super("JSON_VALUE");
             this.jsonDoc = jsonDoc;
@@ -1300,9 +1283,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
         private final List<JsonTableColumn> columnList;
 
-        /**
-         * @param columnList a unmodified list
-         */
+        /// @param columnList a unmodified list
         private JsonTableNestedField(boolean path, Object pathExp, List<JsonTableColumn> columnList) {
             this.path = path;
             this.pathExp = pathExp;
@@ -1563,10 +1544,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
         private final Map<String, Selection> selectionMap;
 
-        /**
-         * @param columnList unmodified list
-         * @see #jsonTable(Object, Object, Consumer)
-         */
+        /// @param columnList unmodified list
+/// @see #jsonTable(Object, Object, Consumer)
         private JsonTableFunc(Object jsonDoc, Object pathExp, final List<JsonTableColumn> columnList) {
             this.jsonDoc = jsonDoc;
             this.pathExp = pathExp;
@@ -1667,10 +1646,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
         }
 
 
-        /**
-         * @see #appendSql(StringBuilder, _SqlContext)
-         * @see JsonTableNestedField#appendSql(StringBuilder, _SqlContext)
-         */
+        /// @see #appendSql(StringBuilder, _SqlContext)
+/// @see JsonTableNestedField#appendSql(StringBuilder, _SqlContext)
         private static void appendJsonTableColumns(final List<JsonTableColumn> columnList,
                                                    final StringBuilder sqlBuilder, final _SqlContext context) {
             sqlBuilder.append(SQLs.COLUMNS.spaceRender())
@@ -1687,10 +1664,8 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
             sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
         }
 
-        /**
-         * @see #toString()
-         * @see JsonTableNestedField#toString()
-         */
+        /// @see #toString()
+/// @see JsonTableNestedField#toString()
         private static void jsonTableColumnsToString(final List<JsonTableColumn> columnList, final StringBuilder builder) {
 
             builder.append(SQLs.COLUMNS.spaceRender())

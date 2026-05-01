@@ -32,11 +32,8 @@ import io.army.util.ClassUtils;
 
 import java.util.Map;
 
-/**
- * <p>This class is mapping class of {@link CodeEnum}.
- *
- * @see CodeEnumType
- */
+/// This class is mapping class of {@link CodeEnum}.
+/// @see CodeEnumType
 public class CodeEnumArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
 
@@ -84,9 +81,7 @@ public class CodeEnumArrayType extends _ArmyNoInjectionType implements MappingTy
 
     private final Map<Integer, ? extends CodeEnum> codeMap;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private CodeEnumArrayType(Class<?> javaType, Class<?> enumClass) {
         this.javaType = javaType;
         this.enumClass = enumClass;

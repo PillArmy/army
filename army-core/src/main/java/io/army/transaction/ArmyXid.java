@@ -23,11 +23,8 @@ import io.army.util._StringUtils;
 import java.util.Objects;
 import java.util.function.Function;
 
-/**
- * <p>This class is package class.
- *
- * @since 0.6.0
- */
+/// This class is package class.
+/// @since 0.6.0
 final class ArmyXid implements Xid {
 
 
@@ -51,9 +48,7 @@ final class ArmyXid implements Xid {
 
     private final Function<Option<?>, ?> optionFunc;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ArmyXid(String gtrid, @Nullable String bqual, int formatId, Function<Option<?>, ?> optionFunc) {
         this.gtrid = gtrid;
         this.bqual = bqual;

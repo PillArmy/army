@@ -26,8 +26,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface OverrideParams {
 
-    /**
-     * Specifies the creation value(s) of {@code io.army.generator.FieldGenerator}.
-     */
+    /// Specifies the creation value(s) of {@code io.army.generator.FieldGenerator}.
     FieldParam[] fields();
 }

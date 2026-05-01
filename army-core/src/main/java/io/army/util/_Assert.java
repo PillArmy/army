@@ -22,9 +22,7 @@ import io.army.lang.Nullable;
 
 import java.util.Collection;
 
-/**
- * @since 0.6.0
- */
+/// @since 0.6.0
 public abstract class _Assert {
 
 

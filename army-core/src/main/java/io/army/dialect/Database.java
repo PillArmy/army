@@ -28,11 +28,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 
-/**
- * <p>This enum representing database product family.
- *
- * @since 0.6.0
- */
+/// This enum representing database product family.
+/// @since 0.6.0
 public enum Database {
 
     MySQL(MySQLDialect::values, MySQLDialect::valueOf),

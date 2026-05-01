@@ -22,14 +22,11 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
 
-/**
- * <p>
- * This class is mapping class of {@code byte[]}.
- *
- * @see VarBinaryType
- * @see BlobType
- * @since 0.6.0
- */
+/// 
+/// This class is mapping class of {@code byte[]}.
+/// @see VarBinaryType
+/// @see BlobType
+/// @since 0.6.0
 public final class MediumBlobType extends _ArmyBuildInType implements MappingType.SqlBlob {
 
     public static MediumBlobType from(final Class<?> fieldType) {
@@ -41,9 +38,7 @@ public final class MediumBlobType extends _ArmyBuildInType implements MappingTyp
 
     public static final MediumBlobType INSTANCE = new MediumBlobType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private MediumBlobType() {
     }
 

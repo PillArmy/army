@@ -31,12 +31,9 @@ import io.army.util.ArrayUtils;
 
 import java.math.BigDecimal;
 
-/**
- * <p>This class representing the mapping that map the array of {@link BigDecimal} to database decimal array,for example {@link PgType#DECIMAL_ARRAY}.
- *
- * @see io.army.mapping.BigDecimalType
- * @since 0.6.0
- */
+/// This class representing the mapping that map the array of {@link BigDecimal} to database decimal array,for example {@link PgType#DECIMAL_ARRAY}.
+/// @see io.army.mapping.BigDecimalType
+/// @since 0.6.0
 public class BigDecimalArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
     public static BigDecimalArrayType from(final Class<?> javaType) {
@@ -63,9 +60,7 @@ public class BigDecimalArrayType extends _ArmyNoInjectionType implements Mapping
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private BigDecimalArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

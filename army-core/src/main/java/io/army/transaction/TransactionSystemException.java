@@ -17,10 +17,8 @@
 package io.army.transaction;
 
 
-/**
- * Exception thrown when a general transaction system error is encountered,
- * like on commit or rollback.
- */
+/// Exception thrown when a general transaction system error is encountered,
+/// like on commit or rollback.
 public final class TransactionSystemException extends TransactionException {
 
 

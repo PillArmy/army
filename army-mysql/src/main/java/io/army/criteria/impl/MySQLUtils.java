@@ -32,9 +32,7 @@ abstract class MySQLUtils extends CriteriaUtils {
     private MySQLUtils() {
     }
 
-    /**
-     * reference last dialect
-     */
+    /// reference last dialect
     static final MySQLDialect DIALECT = MySQLDialect.MySQL80;
 
 

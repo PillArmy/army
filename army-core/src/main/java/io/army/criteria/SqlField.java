@@ -16,16 +16,13 @@
 
 package io.army.criteria;
 
-/**
- * <p>
- * This interface is base interface of below:
- * <ul>
- *     <li>{@link TypedField}</li>
- *     <li>{@link DerivedField}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This interface is base interface of below:
+/// 
+/// - {@link TypedField}
+/// - {@link DerivedField}
+/// 
+/// @since 0.6.0
 public interface SqlField extends NamedExpression {
 
     String fieldName();

@@ -21,10 +21,8 @@ import io.army.sqltype.*;
 
 import java.math.BigInteger;
 
-/**
- * <p>This class representing the mapping from {@link BigInteger} to (unsigned) bigint.
- * @see BigInteger
- */
+/// This class representing the mapping from {@link BigInteger} to (unsigned) bigint.
+/// @see BigInteger
 public final class UnsignedBigintType extends _NumericType._UnsignedIntegerType {
 
     public static UnsignedBigintType from(final Class<?> fieldType) {
@@ -38,9 +36,7 @@ public final class UnsignedBigintType extends _NumericType._UnsignedIntegerType 
 
     public static final UnsignedBigintType INSTANCE = new UnsignedBigintType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private UnsignedBigintType() {
     }
 

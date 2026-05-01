@@ -18,14 +18,11 @@ package io.army.executor;
 
 import io.army.lang.Nullable;
 
-/**
- * <p>Throw(or emit) by driver spi (for example {@code java.sql.Connection} , {@code io.jdbd.session.DatabaseSession} )<br/>
- * when database driver throw {@link Throwable}
- * <p> {@link ServerException} is important sub-class.
- *
- * @see ServerException
- * @since 0.6.0
- */
+/// Throw(or emit) by driver spi (for example {@code java.sql.Connection} , {@code io.jdbd.session.DatabaseSession} )
+/// when database driver throw {@link Throwable}
+///  {@link ServerException} is important sub-class.
+/// @see ServerException
+/// @since 0.6.0
 public class DriverException extends DataAccessException {
 
     private final String sqlState;

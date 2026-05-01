@@ -24,9 +24,7 @@ public interface IndexMeta<T> extends Meta {
 
     TableMeta<T> tableMeta();
 
-    /**
-     * @return index name(lower case)
-     */
+    /// @return index name(lower case)
     String name();
 
     List<IndexFieldMeta<T>> fieldList();

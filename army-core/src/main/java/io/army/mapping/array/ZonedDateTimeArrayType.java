@@ -59,9 +59,7 @@ public class ZonedDateTimeArrayType extends _ArmyNoInjectionType implements Mapp
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ZonedDateTimeArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

@@ -20,13 +20,11 @@ import java.util.Map;
 
 import static io.army.criteria.impl.SQLs.*;
 
-/**
- * <p>This class is test class of following statement :
- * <ul>
- *     <li>{@link MySQLs#valuesStmt()}</li>
- *     <li>{@link MySQLs#subValues()}</li>
- * </ul>
- */
+/// This class is test class of following statement :
+/// 
+/// - {@link MySQLs#valuesStmt()}
+/// - {@link MySQLs#subValues()}
+/// 
 @Test(dataProvider = "localSessionProvider")
 public class ValuesTests extends SessionTestSupport {
 

@@ -16,9 +16,7 @@
 
 package io.army.criteria;
 
-/**
- * <p><strong>NOTE</strong>: {@code void.class} representing out parameter
- */
+/// **NOTE**: {@code void.class} representing out parameter
 public interface CallableStatement extends Statement {
 
 }

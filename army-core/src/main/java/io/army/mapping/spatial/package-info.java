@@ -1,6 +1,4 @@
-/**
- * @see <a href="https://www.ogc.org/standards/sfa">Simple Feature Access - Part 1: Common Architecture PDF</a>
- */
+/// @see <a href="https://www.ogc.org/standards/sfa">Simple Feature Access - Part 1: Common Architecture PDF</a>
 /*
  * Copyright 2023-present the original author or authors.
  *

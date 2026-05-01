@@ -33,12 +33,9 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/**
- * <p>
- * This class is abstract implementation of {@link PostgreValues}.
- *
- * @since 0.6.0
- */
+/// 
+/// This class is abstract implementation of {@link PostgreValues}.
+/// @since 0.6.0
 abstract class PostgreSimpleValues<I extends Item> extends SimpleValues<
         I,
         PostgreValues._OrderByCommaSpec<I>,
@@ -58,33 +55,25 @@ abstract class PostgreSimpleValues<I extends Item> extends SimpleValues<
         PostgreValues {
 
 
-    /**
-     * <p>
-     * create primary VALUES statement.
-     */
+    /// 
+/// create primary VALUES statement.
     static ValuesSpec<Values> simpleValues() {
         return new SimplePrimaryValues<>(null, null, SQLs::identity, null);
     }
 
-    /**
-     * create primary VALUES statement for dispatcher.
-     */
+    /// create primary VALUES statement for dispatcher.
     static <I extends Item> ValuesSpec<I> fromDispatcher(ArmyStmtSpec spec,
                                                          Function<? super Values, I> function) {
         return new SimplePrimaryValues<>(spec, null, function, null);
     }
 
-    /**
-     * create sub VALUES statement for dispatcher.
-     */
+    /// create sub VALUES statement for dispatcher.
     static <I extends Item> ValuesSpec<I> fromSubDispatcher(ArmyStmtSpec spec,
                                                             Function<? super SubValues, I> function) {
         return new SimpleSubValues<>(spec, null, function, null);
     }
 
-    /**
-     * create sub VALUES statement.
-     */
+    /// create sub VALUES statement.
     static <I extends Item> ValuesSpec<I> subValues(CriteriaContext outerContext,
                                                     Function<? super SubValues, I> function) {
         return new SimpleSubValues<>(null, outerContext, function, null);
@@ -157,9 +146,7 @@ abstract class PostgreSimpleValues<I extends Item> extends SimpleValues<
         private final Function<? super Values, I> function;
 
 
-        /**
-         * @param outerBracketContext outer bracket context
-         */
+        /// @param outerBracketContext outer bracket context
         private SimplePrimaryValues(@Nullable ArmyStmtSpec spec, @Nullable CriteriaContext outerBracketContext,
                                     Function<? super Values, I> function, @Nullable CriteriaContext leftContext) {
             super(CriteriaContexts.primaryValuesContext(PostgreUtils.DIALECT, spec, outerBracketContext, leftContext));

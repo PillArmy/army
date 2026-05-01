@@ -42,15 +42,11 @@ public interface ExecutorEnv {
 
     SchemaMeta schemaMeta();
 
-    /**
-     * @return always same instance
-     */
+    /// @return always same instance
     MappingEnv mappingEnv();
 
-    /**
-     * @see FactoryBuilder#columnConverterFunc(Function)
-     * @see ResultRecord#get(int, Class)
-     */
+    /// @see FactoryBuilder#columnConverterFunc(Function)
+/// @see ResultRecord#get(int, Class)
     @Nullable
     Function<Class<?>, Function<Object, ?>> converterFunc();
 

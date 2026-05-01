@@ -16,9 +16,7 @@
 
 package io.army.transaction;
 
-/**
- * Exception to be thrown when a transaction has timed out.
- */
+/// Exception to be thrown when a transaction has timed out.
 public class TransactionTimeOutException extends TransactionException {
 
     public TransactionTimeOutException(String message) {

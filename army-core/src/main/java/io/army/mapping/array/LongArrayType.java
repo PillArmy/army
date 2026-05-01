@@ -76,9 +76,7 @@ public class LongArrayType extends _ArmyNoInjectionType implements MappingType.S
     private final Class<?> underlyingJavaType;
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private LongArrayType(final Class<?> javaType, Class<?> underlyingJavaType) {
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;

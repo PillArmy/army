@@ -39,40 +39,34 @@ import java.util.function.IntFunction;
 import java.util.function.LongConsumer;
 import java.util.stream.Stream;
 
-/**
- * <p>This interface representing blocking {@link StmtExecutor}
- * <p>This interface is base interface of following:
- * <ul>
- *     <li>{@link SyncLocalExecutor}</li>
- *     <li>{@link SyncRmExecutor}</li>
- * </ul>
- * <p><strong>NOTE</strong> : This interface isn't the sub interface of {@link CloseableSpec},
- * so all implementation of methods of this interface don't check underlying database session whether closed or not,<br/>
- * but {@link io.army.session.Session} need to do that.
- * <p>The instance of this interface is created by {@link SyncExecutorFactory}.
- *
- * @see SyncExecutorFactory
- * @since 0.6.0
- */
+/// This interface representing blocking {@link StmtExecutor}
+/// This interface is base interface of following:
+/// 
+/// - {@link SyncLocalExecutor}
+/// - {@link SyncRmExecutor}
+/// 
+/// **NOTE** : This interface isn't the sub interface of {@link CloseableSpec},
+/// so all implementation of methods of this interface don't check underlying database session whether closed or not,
+/// but {@link io.army.session.Session} need to do that.
+/// The instance of this interface is created by {@link SyncExecutorFactory}.
+/// @see SyncExecutorFactory
+/// @since 0.6.0
 public interface SyncExecutor extends StmtExecutor, AutoCloseable {
 
 
-    /**
-     * <p>Session identifier(non-unique, for example : database server cluster),probably is following :
-     *     <ul>
-     *         <li>server process id</li>
-     *         <li>server thread id</li>
-     *         <li>other identifier</li>
-     *     </ul>
-     *     <strong>NOTE</strong>: identifier will probably be updated if reconnect.
-     * <br/>
-     *
-     * @return {@link io.army.env.SyncKey#SESSION_IDENTIFIER_ENABLE} : <ul>
-     * <li>true :  session identifier </li>
-     * <li>false (default) : always 0 , because JDBC spi don't support get server process id (or server thread id)</li>
-     * </ul>
-     * @throws DataAccessException throw when underlying database session have closed
-     */
+/// Session identifier(non-unique, for example : database server cluster),probably is following :
+/// 
+/// - server process id
+/// - server thread id
+/// - other identifier
+/// 
+/// **NOTE**: identifier will probably be updated if reconnect.
+/// 
+/// @return {@link io.army.env.SyncKey#SESSION_IDENTIFIER_ENABLE} : 
+/// - true :  session identifier 
+/// - false (default) : always 0 , because JDBC spi don't support get server process id (or server thread id)
+/// 
+/// @throws DataAccessException throw when underlying database session have closed
     @Override
     long sessionIdentifier(Function<Option<?>, ?> sessionFunc) throws DataAccessException;
 
@@ -92,12 +86,9 @@ public interface SyncExecutor extends StmtExecutor, AutoCloseable {
     ResultStates update(SimpleStmt stmt, SyncStmtOption option, Function<Option<?>, ?> sessionFunc)
             throws DataAccessException;
 
-    /**
-     * <p>This method is designed to be compatible with jdbc.
-     * <p>If listConstructor is null ,then this method always return {@link Collections#emptyList()}.
-     *
-     * @return a unmodified list
-     */
+    /// This method is designed to be compatible with jdbc.
+/// If listConstructor is null ,then this method always return {@link Collections#emptyList()}.
+/// @return a unmodified list
     List<Long> batchUpdateList(BatchStmt stmt, @Nullable IntFunction<List<Long>> listConstructor, SyncStmtOption option,
                                @Nullable LongConsumer consumer, Function<Option<?>, ?> sessionFunc) throws DataAccessException;
 
@@ -114,11 +105,8 @@ public interface SyncExecutor extends StmtExecutor, AutoCloseable {
     @Override
     void close() throws DataAccessException;
 
-    /**
-     * <p><strong>NOTE</strong> : this interface never extends any interface.
-     *
-     * @since 0.6.0
-     */
+/// **NOTE** : this interface never extends any interface.
+/// @since 0.6.0
     interface LocalTransactionSpec {
 
         TransactionInfo startTransaction(TransactionOption option, HandleMode mode, Function<Option<?>, ?> sessionFunc);
@@ -131,33 +119,28 @@ public interface SyncExecutor extends StmtExecutor, AutoCloseable {
 
     }
 
-    /**
-     * <p><strong>NOTE</strong> : this interface never extends any interface.
-     *
-     * @since 0.6.0
-     */
+/// **NOTE** : this interface never extends any interface.
+/// @since 0.6.0
     interface XaTransactionSpec {
 
         TransactionInfo start(Xid xid, int flags, TransactionOption option, Function<Option<?>, ?> sessionFunc) throws RmSessionException;
 
         TransactionInfo end(Xid xid, int flags, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) throws RmSessionException;
 
-        /**
-         * @param xid        target transaction xid
-         * @param optionFunc dialect option function
-         * @return flags :
-         * <ul>
-         *     <li>{@link RmSession#XA_OK} :  prepared</li>
-         *     <li>{@link RmSession#XA_RDONLY} : appropriate transaction is readonly and have committed with one phase</li>
-         * </ul>
-         * @throws RmSessionException throw when
-         *                            <ol>
-         *                                <li>xid and appropriate transaction not match</li>
-         *                                <li>appropriate transaction {@link XaStates} isn't {@link XaStates#IDLE}</li>
-         *                                <li>appropriate transaction is rollback only ,for example : current transaction's {@link RmSession#TM_FAIL} is set </li>
-         *                                <li>database server response error message</li>
-         *                            </ol>
-         */
+/// @param xid        target transaction xid
+/// @param optionFunc dialect option function
+/// @return flags :
+/// 
+/// - {@link RmSession#XA_OK} :  prepared
+/// - {@link RmSession#XA_RDONLY} : appropriate transaction is readonly and have committed with one phase
+/// 
+/// @throws RmSessionException throw when
+/// 
+/// - xid and appropriate transaction not match
+/// - appropriate transaction {@link XaStates} isn't {@link XaStates#IDLE}
+/// - appropriate transaction is rollback only ,for example : current transaction's {@link RmSession#TM_FAIL} is set 
+/// - database server response error message
+/// 
         int prepare(Xid xid, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) throws RmSessionException;
 
         void commit(Xid xid, int flags, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) throws RmSessionException;

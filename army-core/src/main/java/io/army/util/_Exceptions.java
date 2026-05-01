@@ -966,9 +966,7 @@ public abstract class _Exceptions {
     }
 
 
-    /**
-     * @param batchNo based 1
-     */
+    /// @param batchNo based 1
     public static OptimisticLockException batchOptimisticLock(@Nullable TableMeta<?> domainChild,
                                                               int batchNo, long affectedRows) {
         String m = String.format("%s Batch number[%s(based 1)] affected rows is %s,don't satisfy expected rows.",
@@ -1214,9 +1212,7 @@ public abstract class _Exceptions {
         return new DataAccessException(m);
     }
 
-    /**
-     * @param batchNo based 1
-     */
+    /// @param batchNo based 1
     public static DataAccessException batchUpdateReturnResultSet(@Nullable TableMeta<?> table, int batchNo) {
 
         return new DataAccessException(String.format("%s batch update[number:%s(based 1)] return result set",
@@ -1228,9 +1224,7 @@ public abstract class _Exceptions {
         return new DataAccessException(String.format("currently,unsupported database product family %s .", productFamily));
     }
 
-    /**
-     * @param batchNum based 1
-     */
+    /// @param batchNum based 1
     public static ChildUpdateException batchChildUpdateRowsError(@Nullable ChildTableMeta<?> domainTable, int batchNum,
                                                                  long childRows, long parentRows) {
         String m = String.format("%s child [batch %s(based 1) : %s rows] and parent[batch %s(based 1) : %s rows] not match.",

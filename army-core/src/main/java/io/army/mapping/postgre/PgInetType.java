@@ -25,12 +25,9 @@ import io.army.mapping._ArmyNoInjectionType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-/**
- * <p>
- * This class representing Postgre inet type {@link MappingType}
-*
- * @see <a href="https://www.postgresql.org/docs/current/datatype-net-types.html#DATATYPE-INET">inet</a>
- */
+/// 
+/// This class representing Postgre inet type {@link MappingType}
+/// @see <a href="https://www.postgresql.org/docs/current/datatype-net-types.html#DATATYPE-INET">inet</a>
 public final class PgInetType extends _ArmyNoInjectionType {
 
 

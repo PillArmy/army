@@ -65,9 +65,7 @@ final class ValuesInsertContext extends ValuesSyntaxInsertContext implements Ins
 
     private int currentBatchIndex = -1;
 
-    /**
-     * <p>For {@link  io.army.meta.SingleTableMeta}
-     */
+    /// For {@link  io.army.meta.SingleTableMeta}
     private ValuesInsertContext(@Nullable StatementContext outerContext, _Insert._ValuesInsert domainStmt,
                                 ArmyParser parser, SessionSpec sessionSpec) {
         super(outerContext, domainStmt, parser, sessionSpec);
@@ -93,13 +91,10 @@ final class ValuesInsertContext extends ValuesSyntaxInsertContext implements Ins
 
     }
 
-    /**
-     * <p>
-     * For {@link  io.army.meta.ChildTableMeta}
-     * *
-     *
-     * @see #forChild(_SqlContext, _Insert._ChildValuesInsert, ValuesInsertContext)
-     */
+    /// 
+/// For {@link  io.army.meta.ChildTableMeta}
+/// *
+/// @see #forChild(_SqlContext, _Insert._ChildValuesInsert, ValuesInsertContext)
     private ValuesInsertContext(@Nullable StatementContext outerContext, _Insert._ChildValuesInsert stmt,
                                 ValuesInsertContext parentContext) {
         super(outerContext, stmt, parentContext);

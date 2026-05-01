@@ -20,20 +20,15 @@ package io.army.criteria.impl;
 import io.army.dialect.Database;
 import io.army.util._Exceptions;
 
-/**
- * Interface representing sql dual operator.
- */
+/// Interface representing sql dual operator.
 enum DualBooleanOperator implements Operator.SqlDualBooleanOperator, SQLs.BiOperator {
 
 
     EQUAL(" ="),
     NOT_EQUAL(" !="),
 
-    /**
-     * MySQL
-     *
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html#operator_equal-to">NULL-safe equal.</a>
-     */
+/// MySQL
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html#operator_equal-to">NULL-safe equal.</a>
     NULL_SAFE_EQUAL(" <=>"),
 
     LESS(" <"),
@@ -50,9 +45,7 @@ enum DualBooleanOperator implements Operator.SqlDualBooleanOperator, SQLs.BiOper
 
     final String spaceOperator;
 
-    /**
-     * @param spaceOperator space and sign
-     */
+    /// @param spaceOperator space and sign
     DualBooleanOperator(String spaceOperator) {
         this.spaceOperator = spaceOperator;
     }

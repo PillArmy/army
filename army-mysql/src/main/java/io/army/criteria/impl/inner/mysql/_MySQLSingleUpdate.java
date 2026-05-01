@@ -32,9 +32,7 @@ public interface _MySQLSingleUpdate extends _MySQLUpdate, _SingleUpdate, _Statem
     List<? extends _IndexHint> indexHintList();
 
 
-    /**
-     * @return a unmodifiable list
-     */
+    /// @return a unmodifiable list
     List<? extends SortItem> orderByList();
 
 

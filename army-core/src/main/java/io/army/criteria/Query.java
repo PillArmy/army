@@ -29,32 +29,25 @@ import io.army.lang.Nullable;
 import java.util.List;
 import java.util.function.*;
 
-/**
- * <p>
- * This interface representing query,is base interface of below:
- * <ul>
- *     <li>{@link Select}</li>
- *     <li>{@link SubQuery}</li>
- * </ul>
- *
- * @see Select
- * @see SubQuery
- * @since 0.6.0
- */
+/// 
+/// This interface representing query,is base interface of below:
+/// 
+/// - {@link Select}
+/// - {@link SubQuery}
+/// 
+/// @see Select
+/// @see SubQuery
+/// @since 0.6.0
 public interface Query extends RowSet {
 
-    /**
-     * @see SQLs#ALL
-     * @see SQLs#DISTINCT
-     */
+    /// @see SQLs#ALL
+/// @see SQLs#DISTINCT
     interface SelectModifier extends SQLToken {
 
     }
 
-    /**
-     * @see SQLs#ALL
-     * @see SQLs#DISTINCT
-     */
+    /// @see SQLs#ALL
+/// @see SQLs#DISTINCT
     interface UnionModifier {
 
     }
@@ -260,20 +253,15 @@ public interface Query extends RowSet {
     }
 
 
-    /**
-     * <p>
-     * This interface representing dialect FROM clause.
-     *
-     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *
-     *
-     * @param <R> next clause java type
-     * @see Statement._FromClause
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing dialect FROM clause.
+/// 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// @param <R> next clause java type
+/// @see Statement._FromClause
+/// @since 0.6.0
     interface _FromTableClause<R> {
 
         R from(TableMeta<?> table);

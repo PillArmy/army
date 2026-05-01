@@ -353,9 +353,7 @@ abstract class MySQLParser extends _ArmyDialectParser {
         context.sqlBuilder().append(_Constant.SPACE_FOR_UPDATE);
     }
 
-    /**
-     * @see #update(UpdateStatement, boolean, io.army.session.SessionSpec)
-     */
+    /// @see #update(UpdateStatement, boolean, io.army.session.SessionSpec)
     @Override
     protected final void parseDomainChildUpdate(final _SingleUpdate update, final _UpdateContext ctx) {
         final _MultiUpdateContext context = (_MultiUpdateContext) ctx;
@@ -395,9 +393,7 @@ abstract class MySQLParser extends _ArmyDialectParser {
     }
 
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/delete.html">DELETE Statement</a>
-     */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/delete.html">DELETE Statement</a>
     @Override
     protected final void parseDomainChildDelete(final _SingleDelete delete, final _DeleteContext ctx) {
         final _MultiDeleteContext context = (_MultiDeleteContext) ctx;
@@ -542,9 +538,7 @@ abstract class MySQLParser extends _ArmyDialectParser {
         return false;
     }
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/update.html">single-table UPDATE statement</a>
-     */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/update.html">single-table UPDATE statement</a>
     @Override
     protected final boolean isSupportJoinableSingleUpdate() {
         // false ,MySQL don't support single-table joinable update

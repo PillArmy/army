@@ -19,12 +19,9 @@ package io.army.mapping;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
-/**
- * <p>
- * This class representing the mapping from {@link Short} to (unsigned TINY)  INT.
- *
- * @see Short
- */
+/// 
+/// This class representing the mapping from {@link Short} to (unsigned TINY)  INT.
+/// @see Short
 public final class UnsignedTinyIntType extends _NumericType._UnsignedIntegerType {
 
     public static UnsignedTinyIntType from(final Class<?> fieldType) {
@@ -36,9 +33,7 @@ public final class UnsignedTinyIntType extends _NumericType._UnsignedIntegerType
 
     public static final UnsignedTinyIntType INSTANCE = new UnsignedTinyIntType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private UnsignedTinyIntType() {
     }
 

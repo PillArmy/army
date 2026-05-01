@@ -21,12 +21,9 @@ import io.army.mapping.array.SqlCharArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
-/**
- * <p>This class map {@link String} to sql char .
- * <p>If you need to map varchar ,you can use {@link StringType} instead of this class.
- *
- * @since 0.6.0
- */
+/// This class map {@link String} to sql char .
+/// If you need to map varchar ,you can use {@link StringType} instead of this class.
+/// @since 0.6.0
 public final class SqlCharType extends _ArmyBuildInType implements MappingType.SqlString {
 
     public static SqlCharType from(Class<?> javaType) {
@@ -38,9 +35,7 @@ public final class SqlCharType extends _ArmyBuildInType implements MappingType.S
 
     public static final SqlCharType INSTANCE = new SqlCharType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private SqlCharType() {
     }
 

@@ -33,9 +33,7 @@ abstract class PgExpressions {
     }
 
 
-    /**
-     * @see Postgres#period(Expression, Expression)
-     */
+    /// @see Postgres#period(Expression, Expression)
     static Postgres._PeriodOverlapsClause overlaps(final @Nullable Expression start,
                                                    final @Nullable Expression endOrLength) {
         if (start == null || endOrLength == null) {
@@ -90,9 +88,7 @@ abstract class PgExpressions {
 
         private ArmyExpression endOrLength2;
 
-        /**
-         * @see Postgres#period(Expression, Expression)
-         */
+        /// @see Postgres#period(Expression, Expression)
         private PeriodOverlapsPredicate(Expression start1, Expression endOrLength1) {
             this.start1 = (OperationExpression) start1;
             this.endOrLength1 = (OperationExpression) endOrLength1;
@@ -201,9 +197,7 @@ abstract class PgExpressions {
 
     private static final class PostgreUnaryExpression extends Expressions.UnaryExpression {
 
-        /**
-         * @see #unaryExpression(PostgreUnaryExpOperator, Expression)
-         */
+        /// @see #unaryExpression(PostgreUnaryExpOperator, Expression)
         private PostgreUnaryExpression(PostgreUnaryExpOperator operator, Expression operand) {
             super(operator, operand);
         }
@@ -216,9 +210,7 @@ abstract class PgExpressions {
 
         private final ArmyExpression operand;
 
-        /**
-         * @see #unaryPredicate(PostgreBooleanUnaryOperator, Expression)
-         */
+        /// @see #unaryPredicate(PostgreBooleanUnaryOperator, Expression)
         private PostgreUnaryPredicate(PostgreBooleanUnaryOperator operator, Expression operand) {
             this.operator = operator;
             this.operand = (ArmyExpression) operand;

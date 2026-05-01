@@ -25,20 +25,16 @@ import org.testng.annotations.Test;
 
 import java.time.LocalDateTime;
 
-/**
- * <p>
- * This class unit test class of {@link PostgreArrays}.
- * * @see PostgreArrays
- */
+/// 
+/// This class unit test class of {@link PostgreArrays}.
+/// * @see PostgreArrays
 @Test
 public class PostgreArraysUnitTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(PostgreArraysUnitTests.class);
 
 
-    /**
-     * @see PostgreArrays#parseArrayLength(String, int, int)
-     */
+    /// @see PostgreArrays#parseArrayLength(String, int, int)
     @Test
     public void arrayLength() {
         String text;
@@ -308,9 +304,7 @@ public class PostgreArraysUnitTests {
         }
     }
 
-    /**
-     * @see PostgreArrays#decodeElement(String, int, int)
-     */
+    /// @see PostgreArrays#decodeElement(String, int, int)
     @Test
     public void decodeElement() {
         String element, temp;

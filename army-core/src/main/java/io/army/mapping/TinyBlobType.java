@@ -32,9 +32,7 @@ public final class TinyBlobType extends _ArmyBuildInType implements MappingType.
 
     public static final TinyBlobType INSTANCE = new TinyBlobType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private TinyBlobType() {
     }
 

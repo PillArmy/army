@@ -27,23 +27,20 @@ import io.army.util.ClassUtils;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-/**
- * <p>This class is mapping class of {@link Integer}.
- * This mapping type can convert below java type:
- * <ul>
- *     <li>{@link Byte}</li>
- *     <li>{@link Short}</li>
- *     <li>{@link Integer}</li>
- *     <li>{@link Long}</li>
- *     <li>{@link java.math.BigInteger}</li>
- *     <li>{@link java.math.BigDecimal},it has a zero fractional part</li>
- *     <li>{@link Boolean} true : 1 , false: 0</li>
- *     <li>{@link String} </li>
- * </ul>
- *  to {@link Integer},if overflow,throw {@link io.army.ArmyException}
- *
- * @since 0.6.0
- */
+/// This class is mapping class of {@link Integer}.
+/// This mapping type can convert below java type:
+/// 
+/// - {@link Byte}
+/// - {@link Short}
+/// - {@link Integer}
+/// - {@link Long}
+/// - {@link java.math.BigInteger}
+/// - {@link java.math.BigDecimal},it has a zero fractional part
+/// - {@link Boolean} true : 1 , false: 0
+/// - {@link String} 
+/// 
+/// to {@link Integer},if overflow,throw {@link io.army.ArmyException}
+/// @since 0.6.0
 public final class IntegerType extends _NumericType._IntegerType {
 
 
@@ -56,9 +53,7 @@ public final class IntegerType extends _NumericType._IntegerType {
 
     public static final IntegerType INSTANCE = new IntegerType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private IntegerType() {
     }
 

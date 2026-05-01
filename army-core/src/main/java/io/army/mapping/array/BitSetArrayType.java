@@ -32,9 +32,7 @@ import io.army.util._StringUtils;
 
 import java.util.BitSet;
 
-/**
- * @see BitSetType
- */
+/// @see BitSetType
 public class BitSetArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
     public static BitSetArrayType from(final Class<?> javaType) {
@@ -55,22 +53,16 @@ public class BitSetArrayType extends _ArmyNoInjectionType implements MappingType
     }
 
 
-    /**
-     * one dimension array of {@link BitSet}
-     */
+    /// one dimension array of {@link BitSet}
     public static final BitSetArrayType LINEAR = new BitSetArrayType(BitSet[].class);
 
-    /**
-     * unlimited dimension array of {@link BitSet}
-     */
+    /// unlimited dimension array of {@link BitSet}
     public static final BitSetArrayType UNLIMITED = new BitSetArrayType(Object.class);
 
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private BitSetArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

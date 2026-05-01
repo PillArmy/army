@@ -31,13 +31,11 @@ import io.army.stmt.Stmts;
 import java.util.List;
 
 
-/**
- * <p>This class is base class of following :
- * <ul>
- *     <li>{@link SimpleSelectContext}</li>
- *     <li>{@link SimpleSubQueryContext}</li>
- * </ul>
- */
+/// This class is base class of following :
+/// 
+/// - {@link SimpleSelectContext}
+/// - {@link SimpleSubQueryContext}
+/// 
 abstract class MultiTableQueryContext extends BatchSpecStatementContext implements _MultiTableStmtContext, _SimpleQueryContext {
 
     final MultiTableContext multiTableContext;

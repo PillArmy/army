@@ -43,9 +43,7 @@ abstract class CriteriaUtils {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * EMPTY_STRING_LIST couldn't be equals {@link  Collections#EMPTY_LIST}
-     */
+    /// EMPTY_STRING_LIST couldn't be equals {@link  Collections#EMPTY_LIST}
     static final List<String> EMPTY_STRING_LIST = Collections.unmodifiableList(new ArrayList<>(0));
 
 
@@ -348,11 +346,8 @@ abstract class CriteriaUtils {
     }
 
 
-    /**
-     * invoke after {@code asSelect()}
-     *
-     * @return a unmodifiable map
-     */
+    /// invoke after {@code asSelect()}
+/// @return a unmodifiable map
     static Map<String, Selection> createSelectionMap(final List<? extends SelectItem> selectItemList) {
 
         final int selectItemSize = selectItemList.size();
@@ -747,9 +742,7 @@ abstract class CriteriaUtils {
         return ContextStack.clearStackAndCriteriaError(m);
     }
 
-    /**
-     * @param selectionOrdinal based 1
-     */
+    /// @param selectionOrdinal based 1
     static CriteriaException unknownSelection(int selectionOrdinal) {
         String m = String.format("unknown %s[ordinal:%s]", Selection.class.getName(), selectionOrdinal);
         return ContextStack.clearStackAndCriteriaError(m);
@@ -963,9 +956,7 @@ abstract class CriteriaUtils {
     }
 
 
-    /**
-     * @see #returningAll(TableMeta, String, List)
-     */
+    /// @see #returningAll(TableMeta, String, List)
     private static void appendSelectionGroup(final List<_TabularBlock> blockList, final List<_SelectItem> groupList) {
         TabularItem tabularItem;
         for (_TabularBlock block : blockList) {

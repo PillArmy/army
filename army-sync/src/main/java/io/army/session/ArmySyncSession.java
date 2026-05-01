@@ -47,17 +47,14 @@ import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * <p>This class is base class of following :
- * <ul>
- *     <li>{@link ArmySyncLocalSession}</li>
- *     <li>{@link ArmySyncRmSession}</li>
- * </ul>
- * <p>This class extends {@link ArmySession} and implements of {@link SyncSession}.
- *
- * @see ArmySyncSessionFactory
- * @since 0.6.0
- */
+/// This class is base class of following :
+/// 
+/// - {@link ArmySyncLocalSession}
+/// - {@link ArmySyncRmSession}
+/// 
+/// This class extends {@link ArmySession} and implements of {@link SyncSession}.
+/// @see ArmySyncSessionFactory
+/// @since 0.6.0
 non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFactory> implements SyncSession {
 
 
@@ -750,10 +747,8 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
         return states;
     }
 
-    /**
-     * @param option the instance is returned by {@link #replaceIfNeed(SyncStmtOption)}
-     * @see #executeQuery(DqlStatement, SyncStmtOption, ReaderFunction)
-     */
+    /// @param option the instance is returned by {@link #replaceIfNeed(SyncStmtOption)}
+/// @see #executeQuery(DqlStatement, SyncStmtOption, ReaderFunction)
     private <R> Stream<R> executePairInsertQuery(final InsertStatement statement, final SyncStmtOption option,
                                                  final PairStmt stmt, final ReaderFunction<R> readerFunc) {
         final _Insert._ChildInsert childInsert = (_Insert._ChildInsert) statement;
@@ -836,10 +831,8 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
     }
 
 
-    /**
-     * @param option the instance is returned by {@link #replaceIfNeed(SyncStmtOption)}
-     * @see #updateAsStates(SimpleDmlStatement, SyncStmtOption)
-     */
+    /// @param option the instance is returned by {@link #replaceIfNeed(SyncStmtOption)}
+/// @see #updateAsStates(SimpleDmlStatement, SyncStmtOption)
     private ResultStates executeInsert(final InsertStatement statement, final SyncStmtOption option)
             throws ArmyException {
 
@@ -914,10 +907,8 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
     }
 
 
-    /**
-     * @param userOption the instance is returned by {@link #replaceIfNeed(SyncStmtOption)}
-     * @see #updateAsStates(SimpleDmlStatement, SyncStmtOption)
-     */
+    /// @param userOption the instance is returned by {@link #replaceIfNeed(SyncStmtOption)}
+/// @see #updateAsStates(SimpleDmlStatement, SyncStmtOption)
     private ResultStates executeUpdate(final SimpleDmlStatement statement, final SyncStmtOption userOption)
             throws ArmyException {
 
@@ -989,9 +980,7 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
     }
 
 
-    /**
-     * @see #batchUpdate(BatchDmlStatement, IntFunction, SyncStmtOption)
-     */
+    /// @see #batchUpdate(BatchDmlStatement, IntFunction, SyncStmtOption)
     private List<Long> executeBatchUpdateAsLong(BatchDmlStatement statement, IntFunction<List<Long>> listConstructor, SyncStmtOption option) {
         try {
 
@@ -1088,9 +1077,7 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
         return newOption;
     }
 
-    /**
-     * @see #executeQuery(DqlStatement, SyncStmtOption, ReaderFunction)
-     */
+    /// @see #executeQuery(DqlStatement, SyncStmtOption, ReaderFunction)
     private SyncStmtOption replaceForQueryExecutionLogger(final SyncStmtOption optionOfUser, final Stmt stmt) {
 
         final long executionStartNanoSecond;
@@ -1117,9 +1104,7 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
     }
 
 
-    /**
-     * @see #batchUpdate(BatchDmlStatement, IntFunction, SyncStmtOption)
-     */
+    /// @see #batchUpdate(BatchDmlStatement, IntFunction, SyncStmtOption)
     private static LongConsumer rowsOptimisticLockValidator(final @Nullable TableMeta<?> domainTable) {
         final int[] indexHolder = new int[]{0};
         return rows -> {
@@ -1131,9 +1116,7 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
     }
 
 
-    /**
-     * @see #batchUpdate(BatchDmlStatement, IntFunction, SyncStmtOption)
-     */
+    /// @see #batchUpdate(BatchDmlStatement, IntFunction, SyncStmtOption)
     private static LongConsumer batchUpdateValidateParentRows(final List<Long> childList, final ChildTableMeta<?> domainTable) {
         final int batchSize = childList.size();
 
@@ -1152,9 +1135,7 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
 
     }
 
-    /**
-     * @see #batchUpdateAsStates(BatchDmlStatement, SyncStmtOption)
-     */
+    /// @see #batchUpdateAsStates(BatchDmlStatement, SyncStmtOption)
     private static Consumer<ResultStates> statesOptimisticLockValidator(final @Nullable TableMeta<?> domainTable) {
         return states -> {
             if (states.affectedRows() == 0L) {
@@ -1163,9 +1144,7 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
         };
     }
 
-    /**
-     * @see #batchUpdateAsStates(BatchDmlStatement, SyncStmtOption)
-     */
+    /// @see #batchUpdateAsStates(BatchDmlStatement, SyncStmtOption)
     private static Consumer<ResultStates> batchUpdateStatesValidateParentRows(final List<ResultStates> childList, final ChildTableMeta<?> domainTable) {
         final int batchSize = childList.size();
 

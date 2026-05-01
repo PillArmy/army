@@ -25,12 +25,9 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
 
-/**
- * <p>
- * This class representing Postgre circle type {@link MappingType}
-*
- * @see <a href="https://www.postgresql.org/docs/current/datatype-geometric.html#DATATYPE-GEO-TABLE">circle</a>
- */
+/// 
+/// This class representing Postgre circle type {@link MappingType}
+/// @see <a href="https://www.postgresql.org/docs/current/datatype-geometric.html#DATATYPE-GEO-TABLE">circle</a>
 public final class PostgreCircleType extends PostgreGeometricType {
 
 

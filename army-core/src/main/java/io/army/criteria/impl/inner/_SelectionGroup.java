@@ -24,28 +24,21 @@ import io.army.meta.TableMeta;
 
 import java.util.List;
 
-/**
- * <p>
- * This interface representing group consist of multi select list clause items.
- *
- * @since 0.6.0
- */
+/// 
+/// This interface representing group consist of multi select list clause items.
+/// @since 0.6.0
 public interface _SelectionGroup extends _SelectItem {
 
     String tableAlias();
 
 
-    /**
-     * <p>
-     * Note,any element of the list couldn't be rendered. so couldn't invoke below method:
-     *     <ul>
-     *         <li>{@link io.army.criteria.impl.inner._SelfDescribed#appendSql(StringBuilder, _SqlContext)}</li>
-     *         <li>{@link _Selection#appendSelectItem(StringBuilder, _SqlContext)}</li>
-     *     </ul>
-     *
-     *
-     * @return element list of this group.
-     */
+/// 
+/// Note,any element of the list couldn't be rendered. so couldn't invoke below method:
+/// 
+/// - {@link io.army.criteria.impl.inner._SelfDescribed#appendSql(StringBuilder, _SqlContext)}
+/// - {@link _Selection#appendSelectItem(StringBuilder, _SqlContext)}
+/// 
+/// @return element list of this group.
     List<? extends Selection> selectionList();
 
 

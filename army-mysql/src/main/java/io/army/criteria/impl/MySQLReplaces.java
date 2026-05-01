@@ -42,15 +42,12 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * <p>
- * This class hold the implementations of {@link MySQLReplace}.
- * <p>
- * Below is chines signature:<br/>
- * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
- *
- * @since 0.6.0
- */
+/// 
+/// This class hold the implementations of {@link MySQLReplace}.
+/// 
+/// Below is chines signature:
+/// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+/// @since 0.6.0
 abstract class MySQLReplaces extends InsertSupports {
 
     private MySQLReplaces() {
@@ -58,21 +55,15 @@ abstract class MySQLReplaces extends InsertSupports {
     }
 
 
-    /**
-     * <p>
-     * create single-table REPLACE statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
-     *
-     */
+    /// 
+/// create single-table REPLACE statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
     static MySQLReplace._PrimaryOptionSpec singleReplace() {
         return new PrimaryReplaceIntoClause();
     }
 
 
-    /**
-     * <p>
-     * create single-table REPLACE statement that is primary statement for multi-statement and support only {@link SingleTableMeta}.
-     *
-     */
+    /// 
+/// create single-table REPLACE statement that is primary statement for multi-statement and support only {@link SingleTableMeta}.
     static <I extends Item> MySQLReplace._PrimarySingleOptionSpec<I> singleReplace(ArmyStmtSpec spec,
                                                                                    Function<? super Insert, I> function) {
         return new PrimarySingleReplaceIntoClause<>(spec, function);

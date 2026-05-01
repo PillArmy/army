@@ -22,17 +22,14 @@ import io.army.criteria.TableField;
 import io.army.executor.DataAccessException;
 import io.army.stmt.Stmt;
 
-/**
- * Throw when satisfy following all conditions :
- * <ul>
- *     <li>domain contain version field</li>
- *     <li>{@link io.army.criteria.Statement} WHERE clause contain version predicate with {@link TableField#equal(Expression)}</li>
- *     <li>update affectedRows is zero</li>
- * </ul>
- *
- * @see Stmt#hasOptimistic()
- * @since 0.6.0
- */
+/// Throw when satisfy following all conditions :
+/// 
+/// - domain contain version field
+/// - {@link io.army.criteria.Statement} WHERE clause contain version predicate with {@link TableField#equal(Expression)}
+/// - update affectedRows is zero
+/// 
+/// @see Stmt#hasOptimistic()
+/// @since 0.6.0
 public final class OptimisticLockException extends DataAccessException {
 
 

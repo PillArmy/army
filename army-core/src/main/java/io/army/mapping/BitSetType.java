@@ -25,24 +25,22 @@ import io.army.util._StringUtils;
 import java.math.BigInteger;
 import java.util.BitSet;
 
-/**
- * <p>
- * This class is mapping class of {@link BitSet}.
- * This mapping type can convert below java type:
- * <ul>
- *     <li>{@link Byte},non-empty</li>
- *     <li>{@link Short}</li>
- *     <li>{@link Integer}</li>
- *     <li>{@link Long}</li>
- *     <li>{@link java.math.BigInteger}</li>
- *     <li>{@link Boolean}</li>
- *     <li>{@link String} , it must be bit string.</li>
- *     <li>{@code  byte[]}, non-empty</li>
- *     <li>{@code long[]}, non-empty</li>
- * </ul>
- *  to {@link BitSet}
- * * @since 0.6.0
- */
+/// 
+/// This class is mapping class of {@link BitSet}.
+/// This mapping type can convert below java type:
+/// 
+/// - {@link Byte},non-empty
+/// - {@link Short}
+/// - {@link Integer}
+/// - {@link Long}
+/// - {@link java.math.BigInteger}
+/// - {@link Boolean}
+/// - {@link String} , it must be bit string.
+/// - {@code  byte[]}, non-empty
+/// - {@code long[]}, non-empty
+/// 
+/// to {@link BitSet}
+/// * @since 0.6.0
 public final class BitSetType extends _ArmyNoInjectionType implements MappingType.SqlBit {
 
 
@@ -55,9 +53,7 @@ public final class BitSetType extends _ArmyNoInjectionType implements MappingTyp
 
     public static final BitSetType INSTANCE = new BitSetType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private BitSetType() {
     }
 

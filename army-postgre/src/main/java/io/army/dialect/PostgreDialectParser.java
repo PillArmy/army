@@ -35,13 +35,10 @@ import io.army.lang.Nullable;
 import java.util.List;
 
 
-/**
- * <p>This class is the implementation of {@link DialectParser} for  PostgreSQL dialect criteria api.
- * <p>Below is chines signature:<br/>
- * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
- *
- * @since 0.6.0
- */
+/// This class is the implementation of {@link DialectParser} for  PostgreSQL dialect criteria api.
+/// Below is chines signature:
+/// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+/// @since 0.6.0
 final class PostgreDialectParser extends PostgreParser {
 
 
@@ -96,9 +93,7 @@ final class PostgreDialectParser extends PostgreParser {
     }
 
 
-    /**
-     * @see #parseSingleUpdate(_SingleUpdate, _SingleUpdateContext)
-     */
+    /// @see #parseSingleUpdate(_SingleUpdate, _SingleUpdateContext)
     @Override
     protected void postgreWithClause(final List<_Cte> cteList, final boolean recursive, final _SqlContext mainContext) {
 
@@ -205,9 +200,7 @@ final class PostgreDialectParser extends PostgreParser {
 
     }
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-select.html">SELECT Statement</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">SELECT Statement</a>
     @Override
     protected void parseSimpleQuery(final _Query query, final _SimpleQueryContext context) {
         final _PostgreQuery stmt = (_PostgreQuery) query;
@@ -274,9 +267,7 @@ final class PostgreDialectParser extends PostgreParser {
     }
 
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-values.html">VALUES Statement</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-values.html">VALUES Statement</a>
     @Override
     protected void parseSimpleValues(final _ValuesQuery values, final _ValuesContext context) {
         final StringBuilder sqlBuilder;
@@ -296,9 +287,7 @@ final class PostgreDialectParser extends PostgreParser {
     }
 
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-update.html">UPDATE Statement</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-update.html">UPDATE Statement</a>
     @Override
     protected void parseSingleUpdate(final _SingleUpdate update, final _SingleUpdateContext context) {
         final _PostgreUpdate stmt = (_PostgreUpdate) update;
@@ -363,9 +352,7 @@ final class PostgreDialectParser extends PostgreParser {
     }
 
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-delete.html">DELETE Statement</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-delete.html">DELETE Statement</a>
     @Override
     protected void parseSingleDelete(final _SingleDelete delete, final _SingleDeleteContext context) {
         final _PostgreDelete stmt = (_PostgreDelete) delete;
@@ -503,10 +490,8 @@ final class PostgreDialectParser extends PostgreParser {
 
     /*-------------------below private methods -------------------*/
 
-    /**
-     * @see #handleDialectDml(_SqlContext, DmlStatement, SessionSpec)
-     * @see <a href="https://www.postgresql.org/docs/current/sql-set.html">SET — change a run-time parameter</a>
-     */
+/// @see #handleDialectDml(_SqlContext, DmlStatement, SessionSpec)
+/// @see <a href="https://www.postgresql.org/docs/current/sql-set.html">SET — change a run-time parameter</a>
     private void parseSetStmt(final _PostgreCommand._ParamValue pair, final _SqlContext context) {
         final StringBuilder sqlBuilder;
         if (!(sqlBuilder = context.sqlBuilder()).isEmpty()) {
@@ -564,9 +549,7 @@ final class PostgreDialectParser extends PostgreParser {
     }
 
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-merge.html">MERGE — conditionally insert, update, or delete rows of a table</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-merge.html">MERGE — conditionally insert, update, or delete rows of a table</a>
     private void parseMerge(final _PostgreMerge stmt, final _JoinableMergeContext context) {
 
 
@@ -622,10 +605,8 @@ final class PostgreDialectParser extends PostgreParser {
     }
 
 
-    /**
-     * @see #parseMerge(_PostgreMerge, _JoinableMergeContext)
-     * @see <a href="https://www.postgresql.org/docs/current/sql-merge.html">MERGE — conditionally insert, update, or delete rows of a table</a>
-     */
+/// @see #parseMerge(_PostgreMerge, _JoinableMergeContext)
+/// @see <a href="https://www.postgresql.org/docs/current/sql-merge.html">MERGE — conditionally insert, update, or delete rows of a table</a>
     private void parseMergeWhenThenClause(final _PostgreMerge stmt, final StringBuilder sqlBuilder,
                                           final _JoinableMergeContext context) {
 
@@ -683,10 +664,8 @@ final class PostgreDialectParser extends PostgreParser {
 
     }
 
-    /**
-     * @see #parseMergeWhenThenClause(_PostgreMerge, StringBuilder, _JoinableMergeContext)
-     * @see <a href="https://www.postgresql.org/docs/current/sql-merge.html">MERGE — conditionally insert, update, or delete rows of a table</a>
-     */
+/// @see #parseMergeWhenThenClause(_PostgreMerge, StringBuilder, _JoinableMergeContext)
+/// @see <a href="https://www.postgresql.org/docs/current/sql-merge.html">MERGE — conditionally insert, update, or delete rows of a table</a>
     private void parseMergeUpdateSetClause(final List<_ItemPair> itemPairList, final StringBuilder sqlBuilder,
                                            final _JoinableMergeContext context) {
         final int itemPairSize = itemPairList.size();
@@ -707,9 +686,7 @@ final class PostgreDialectParser extends PostgreParser {
 
     }
 
-    /**
-     * @see #handleDialectDml(_SqlContext, DmlStatement, SessionSpec)
-     */
+    /// @see #handleDialectDml(_SqlContext, DmlStatement, SessionSpec)
     private void parseDeclareCursor(final _CursorStmtContext context, final _PostgreDeclareCursor stmt) {
         final StringBuilder sqlBuilder;
 
@@ -766,11 +743,9 @@ final class PostgreDialectParser extends PostgreParser {
     }
 
 
-    /**
-     * @see #parseSimpleQuery(_Query, _SimpleQueryContext)
-     * @see #parseSingleUpdate(_SingleUpdate, _SingleUpdateContext)
-     * @see #parseSingleDelete(_SingleDelete, _SingleDeleteContext)
-     */
+    /// @see #parseSimpleQuery(_Query, _SimpleQueryContext)
+/// @see #parseSingleUpdate(_SingleUpdate, _SingleUpdateContext)
+/// @see #parseSingleDelete(_SingleDelete, _SingleDeleteContext)
     private void postgreFromItemsClause(final List<_TabularBlock> blockList, final _MultiTableStmtContext context,
                                         final boolean nested) {
         final int blockSize = blockList.size();
@@ -907,10 +882,8 @@ final class PostgreDialectParser extends PostgreParser {
     }
 
 
-    /**
-     * @see #postgreFromItemsClause(List, _MultiTableStmtContext, boolean)
-     * @see <a href="https://www.postgresql.org/docs/current/sql-select.html">SELECT syntax</a>
-     */
+/// @see #postgreFromItemsClause(List, _MultiTableStmtContext, boolean)
+/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">SELECT syntax</a>
     private void postgreTableSampleClause(final _PostgreTableBlock block, final StringBuilder sqlBuilder, final _SqlContext context) {
         _Expression expression;
         expression = block.sampleMethod();
@@ -929,11 +902,9 @@ final class PostgreDialectParser extends PostgreParser {
     }
 
 
-    /**
-     * @see #parseValuesInsert(_ValueSyntaxInsertContext, _Insert._ValuesSyntaxInsert)
-     * @see #parseQueryInsert(_QueryInsertContext, _Insert._QueryInsert)
-     * @see <a href="https://www.postgresql.org/docs/current/sql-insert.html">Postgre INSERT syntax</a>
-     */
+/// @see #parseValuesInsert(_ValueSyntaxInsertContext, _Insert._ValuesSyntaxInsert)
+/// @see #parseQueryInsert(_QueryInsertContext, _Insert._QueryInsert)
+/// @see <a href="https://www.postgresql.org/docs/current/sql-insert.html">Postgre INSERT syntax</a>
     private void parsePostgreInsert(final _InsertContext context, final _PostgreInsert stmt) {
         final TableMeta<?> insertTable;
         insertTable = context.insertTable();
@@ -997,10 +968,8 @@ final class PostgreDialectParser extends PostgreParser {
     }
 
 
-    /**
-     * @see #parsePostgreInsert(_InsertContext, _PostgreInsert)
-     * @see <a href="https://www.postgresql.org/docs/current/sql-insert.html">Postgre INSERT syntax</a>
-     */
+/// @see #parsePostgreInsert(_InsertContext, _PostgreInsert)
+/// @see <a href="https://www.postgresql.org/docs/current/sql-insert.html">Postgre INSERT syntax</a>
     private void insertOnConflictClause(final _InsertContext context,
                                         final _PostgreInsert._ConflictActionClauseResult clause) {
         final StringBuilder sqlBuilder;
@@ -1063,10 +1032,8 @@ final class PostgreDialectParser extends PostgreParser {
 
     }
 
-    /**
-     * @see #insertOnConflictClause(_InsertContext, _PostgreInsert._ConflictActionClauseResult)
-     * @see <a href="https://www.postgresql.org/docs/current/sql-insert.html">Postgre INSERT syntax</a>
-     */
+/// @see #insertOnConflictClause(_InsertContext, _PostgreInsert._ConflictActionClauseResult)
+/// @see <a href="https://www.postgresql.org/docs/current/sql-insert.html">Postgre INSERT syntax</a>
     private void insertDoUpdateSetClause(final _InsertContext context,
                                          final _PostgreInsert._ConflictActionClauseResult clause) {
 
@@ -1119,9 +1086,7 @@ final class PostgreDialectParser extends PostgreParser {
     }
 
 
-    /**
-     * @see #parseSimpleQuery(_Query, _SimpleQueryContext)
-     */
+    /// @see #parseSimpleQuery(_Query, _SimpleQueryContext)
     private void postgreLockClause(final _PostgreQuery stmt, final _SimpleQueryContext context) {
         final List<_Query._LockBlock> blockList = stmt.lockBlockList();
         if (blockList.size() == 0) {
@@ -1169,11 +1134,9 @@ final class PostgreDialectParser extends PostgreParser {
 
     /*-------------------below static method -------------------*/
 
-    /**
-     * @see #parsePostgreInsert(_InsertContext, _PostgreInsert)
-     * @see #parseSingleUpdate(_SingleUpdate, _SingleUpdateContext)
-     * @see #parseSingleDelete(_SingleDelete, _SingleDeleteContext)
-     */
+    /// @see #parsePostgreInsert(_InsertContext, _PostgreInsert)
+/// @see #parseSingleUpdate(_SingleUpdate, _SingleUpdateContext)
+/// @see #parseSingleDelete(_SingleDelete, _SingleDeleteContext)
     private static void returningClause(final _SqlContext context, final _ReturningDml stmt) {
         final List<? extends _SelectItem> selectionList;
         selectionList = stmt.returningList();
@@ -1203,9 +1166,7 @@ final class PostgreDialectParser extends PostgreParser {
 
     }
 
-    /**
-     * @see #parseSimpleQuery(_Query, _SimpleQueryContext)
-     */
+    /// @see #parseSimpleQuery(_Query, _SimpleQueryContext)
     private static void distinctOnExpressionsClause(final _PostgreQuery stmt, final _SimpleQueryContext context) {
         final List<_Expression> expList = stmt.distinctOnExpressions();
         final int distinctOnExpSize = expList.size();
@@ -1231,12 +1192,10 @@ final class PostgreDialectParser extends PostgreParser {
 
     }
 
-    /**
-     * @see #parseClauseAfterRightParen(_ParensRowSet, _ParenRowSetContext)
-     * @see #parseSimpleQuery(_Query, _SimpleQueryContext)
-     * @see #parseSimpleValues(_ValuesQuery, _ValuesContext)
-     * @see #parseSimpleValues(_ValuesQuery, _ValuesContext)
-     */
+    /// @see #parseClauseAfterRightParen(_ParensRowSet, _ParenRowSetContext)
+/// @see #parseSimpleQuery(_Query, _SimpleQueryContext)
+/// @see #parseSimpleValues(_ValuesQuery, _ValuesContext)
+/// @see #parseSimpleValues(_ValuesQuery, _ValuesContext)
     private static void postgreLimitClause(final _Statement._SQL2008LimitClauseSpec stmt, final _SqlContext context) {
         final StringBuilder sqlBuilder;
         sqlBuilder = context.sqlBuilder();
@@ -1313,21 +1272,17 @@ final class PostgreDialectParser extends PostgreParser {
     }
 
 
-    /**
-     * @see #parseSingleUpdate(_SingleUpdate, _SingleUpdateContext)
-     * @see #parseSingleDelete(_SingleDelete, _SingleDeleteContext)
-     */
+    /// @see #parseSingleUpdate(_SingleUpdate, _SingleUpdateContext)
+/// @see #parseSingleDelete(_SingleDelete, _SingleDeleteContext)
     private static boolean isNotJoinOnlyCte(final _Statement._JoinableStatement stmt) {
         final List<_TabularBlock> blockList;
         blockList = stmt.tableBlockList();
         return !(blockList.size() == 1 && blockList.get(0).tableItem() instanceof _Cte);
     }
 
-    /**
-     * @param childName child table alias or child cte name
-     * @see #parseSingleUpdate(_SingleUpdate, _SingleUpdateContext)
-     * @see #postgreWithClause(List, boolean, _SqlContext)
-     */
+    /// @param childName child table alias or child cte name
+/// @see #parseSingleUpdate(_SingleUpdate, _SingleUpdateContext)
+/// @see #postgreWithClause(List, boolean, _SqlContext)
     private static String parentCteName(final String childName) {
         return _StringUtils.builder(childName.length() + 18)
                 .append("_army_")

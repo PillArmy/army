@@ -26,11 +26,8 @@ import io.army.util._Exceptions;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.Function;
 
-/**
- * <p>This class is a implementation of {@link SyncSessionFactory}.
- *
- * @since 0.6.0
- */
+/// This class is a implementation of {@link SyncSessionFactory}.
+/// @since 0.6.0
 final class ArmySyncSessionFactory extends ArmySessionFactory implements SyncSessionFactory {
 
     static ArmySyncSessionFactory create(ArmySyncFactoryBuilder builder) {
@@ -52,9 +49,7 @@ final class ArmySyncSessionFactory extends ArmySessionFactory implements SyncSes
 
     private volatile int factoryClosed;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ArmySyncSessionFactory(ArmySyncFactoryBuilder builder) throws SessionFactoryException {
         super(builder);
         this.executorFactory = builder.stmtExecutorFactory;

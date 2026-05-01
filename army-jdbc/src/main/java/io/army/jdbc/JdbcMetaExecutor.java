@@ -50,9 +50,7 @@ class JdbcMetaExecutor implements SyncMetaExecutor {
 
     private final Connection conn;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
 
     private JdbcMetaExecutor(JdbcExecutor syncExecutor) {
         this.syncExecutor = syncExecutor;

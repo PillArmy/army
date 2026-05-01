@@ -18,17 +18,14 @@ package io.army.criteria;
 
 import io.army.criteria.impl.SQLs;
 
-/**
- * <p>This interface representing simple {@link Expression} :
- * <ul>
- *     <li>{@link SqlField}</li>
- *     <li>single-value parameter/literal,for example {@link SQLs#param(TypeInfer, Object)}; see {@link ValueExpression}</li>
- *     <li>sql function,for example {@link SQLs#count(Expression)}</li>
- *     <li>sql variable</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// This interface representing simple {@link Expression} :
+/// 
+/// - {@link SqlField}
+/// - single-value parameter/literal,for example {@link SQLs#param(TypeInfer, Object)}; see {@link ValueExpression}
+/// - sql function,for example {@link SQLs#count(Expression)}
+/// - sql variable
+/// 
+/// @since 0.6.0
 public interface SimpleExpression extends Expression {
 
 

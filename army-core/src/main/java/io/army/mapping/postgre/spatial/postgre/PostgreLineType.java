@@ -24,11 +24,9 @@ import io.army.mapping.MappingType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-/**
- * <p>
- * This class representing Postgre line type {@link MappingType}
- * * @see <a href="https://www.postgresql.org/docs/current/datatype-geometric.html#DATATYPE-GEO-TABLE">line</a>
- */
+/// 
+/// This class representing Postgre line type {@link MappingType}
+/// * @see <a href="https://www.postgresql.org/docs/current/datatype-geometric.html#DATATYPE-GEO-TABLE">line</a>
 public final class PostgreLineType extends PostgreGeometricType {
 
     public static final PostgreLineType INSTANCE = new PostgreLineType();

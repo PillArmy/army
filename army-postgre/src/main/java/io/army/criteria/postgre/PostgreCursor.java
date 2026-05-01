@@ -6,12 +6,9 @@ import io.army.criteria.dialect.DmlCommand;
 
 import java.util.function.BooleanSupplier;
 
-/**
- * <p>This interface representing Postgre DECLARE cursor statement
- *
- * @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">DECLARE — define a cursor</a>
- * @see <a href="https://www.postgresql.org/docs/current/sql-fetch.html">FETCH — retrieve rows from a query using a cursor</a>
- */
+/// This interface representing Postgre DECLARE cursor statement
+/// @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">DECLARE — define a cursor</a>
+/// @see <a href="https://www.postgresql.org/docs/current/sql-fetch.html">FETCH — retrieve rows from a query using a cursor</a>
 public interface PostgreCursor extends PostgreStatement {
 
 

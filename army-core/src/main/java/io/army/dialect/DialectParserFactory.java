@@ -53,9 +53,7 @@ public abstract class DialectParserFactory {
         return (DialectParser) ReflectionUtils.invokeStaticFactoryMethod(method, environment);
     }
 
-    /**
-     * <p>Inner method
-     */
+    /// Inner method
     @Deprecated
     protected static DialectParser invokeFactoryMethod(Class<?> dialectType, String className, DialectEnv environment) {
         final Class<?> clazz;

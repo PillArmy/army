@@ -76,9 +76,7 @@ public class IntegerArrayType extends _ArmyNoInjectionType implements MappingTyp
     private final Class<?> underlyingJavaType;
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private IntegerArrayType(final Class<?> javaType, Class<?> underlyingJavaType) {
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;

@@ -35,9 +35,7 @@ public final class TinyTextType extends ArmyTextType {
 
     public static final TinyTextType INSTANCE = new TinyTextType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private TinyTextType() {
     }
 

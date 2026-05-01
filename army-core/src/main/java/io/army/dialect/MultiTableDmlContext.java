@@ -25,16 +25,13 @@ import io.army.session.SessionSpec;
 
 import java.util.Map;
 
-/**
- * <p>
- * This class is base class of below:
- * <ul>
- *     <li>{@link MultiUpdateContext}</li>
- *     <li>{@link MultiDeleteContext}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This class is base class of below:
+/// 
+/// - {@link MultiUpdateContext}
+/// - {@link MultiDeleteContext}
+/// 
+/// @since 0.6.0
 abstract class MultiTableDmlContext extends NarrowDmlStmtContext implements _MultiTableStmtContext {
 
     final MultiTableContext multiTableContext;

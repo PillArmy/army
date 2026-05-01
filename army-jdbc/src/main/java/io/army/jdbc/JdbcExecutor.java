@@ -67,19 +67,16 @@ import java.util.function.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-/**
- * <p>This class is a abstract implementation of {@link SyncExecutor} with JDBC spi.
- * <p>This class is base class of following jdbd executor:
- * <ul>
- *     <li>{@link MySQLExecutor}</li>
- *     <li>{@link PostgreExecutor}</li>
- * </ul>
- * <p>Following is chinese signature:<br/>
- * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
- *
- * @see JdbcExecutorFactory
- * @see <a href="https://docs.oracle.com/javase/tutorial/jdbc/basics/index.html">JDBC</a>
- */
+/// This class is a abstract implementation of {@link SyncExecutor} with JDBC spi.
+/// This class is base class of following jdbd executor:
+/// 
+/// - {@link MySQLExecutor}
+/// - {@link PostgreExecutor}
+/// 
+/// Following is chinese signature:
+/// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+/// @see JdbcExecutorFactory
+/// @see <a href="https://docs.oracle.com/javase/tutorial/jdbc/basics/index.html">JDBC</a>
 abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor {
 
     private static final AtomicLong EXECUTOR_IDENTIFIER = new AtomicLong(0);
@@ -94,11 +91,9 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
     private final TypeMappingHandler typeMappingHandler;
 
-    /**
-     * <p>True : application developer have got the {@link Connection} instance,<br/>
-     * so {@link TransactionInfo} perhaps error.
-     * <p>More info,see {@link io.army.env.ArmyKey#DRIVER_SPI_MODE}
-     */
+/// True : application developer have got the {@link Connection} instance,
+/// so {@link TransactionInfo} perhaps error.
+/// More info,see {@link io.army.env.ArmyKey#DRIVER_SPI_MODE}
     private boolean driverSpiOpened;
 
     JdbcExecutor(JdbcExecutorFactory factory, Connection conn, String sessionName) {
@@ -409,16 +404,12 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     @Nullable
     abstract Object get(ResultSet resultSet, int indexBasedOne, MappingType type, DataType dataType) throws SQLException;
 
-    /**
-     * @return current transaction cache instance
-     */
+    /// @return current transaction cache instance
     @Nullable
     abstract TransactionInfo obtainTransaction();
 
 
-    /**
-     * @see #readIsolationAndClose(ResultSet)
-     */
+    /// @see #readIsolationAndClose(ResultSet)
     abstract Isolation readIsolation(String level);
 
 
@@ -509,9 +500,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
 
-    /**
-     * @see #executeStartTransaction(int, Isolation, String)
-     */
+    /// @see #executeStartTransaction(int, Isolation, String)
     final Isolation readIsolationAndClose(final ResultSet rs) throws SQLException {
         try (ResultSet resultSet = rs) {
             if (!resultSet.next()) {
@@ -521,9 +510,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
         }
     }
 
-    /**
-     * @throws DataAccessException throw when chain is true and {@link #obtainTransaction()} is null.
-     */
+    /// @throws DataAccessException throw when chain is true and {@link #obtainTransaction()} is null.
     final boolean transactionChain(final Function<Option<?>, ?> optionFunc, final StringBuilder builder)
             throws DataAccessException {
 
@@ -591,9 +578,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
 
-    /**
-     * @see #bindParameters(PreparedStatement, List)
-     */
+    /// @see #bindParameters(PreparedStatement, List)
     final void bindArmyType(PreparedStatement stmt, final int indexBasedOne, final MappingType type,
                             final DataType dataType, final ArmyType armyType, Object value) throws SQLException {
         switch (armyType) {
@@ -941,9 +926,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     /*################################## blow private method ##################################*/
 
 
-    /**
-     * @see #update(SimpleStmt, SyncStmtOption, Function)
-     */
+    /// @see #update(SimpleStmt, SyncStmtOption, Function)
     private void putExecutorOptions(final @Nullable SQLWarning jdbcWarning, final Map<Option<?>, Object> map) {
         map.put(SERVER_META, this.factory.serverMeta);
         if (jdbcWarning != null) {
@@ -958,10 +941,8 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
 
-    /**
-     * @return a unmodified list
-     * @see #batchUpdateList(BatchStmt, IntFunction, SyncStmtOption, LongConsumer, Function)
-     */
+    /// @return a unmodified list
+/// @see #batchUpdateList(BatchStmt, IntFunction, SyncStmtOption, LongConsumer, Function)
     private List<Long> executeMultiStmtBatchUpdateAsLong(BatchStmt stmt, @Nullable IntFunction<List<Long>> listConstructor,
                                                          SyncStmtOption option, final @Nullable LongConsumer consumer) {
         final List<List<SQLParam>> groupList;
@@ -1029,10 +1010,8 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
 
-    /**
-     * @return a unmodified list
-     * @see #batchUpdateList(BatchStmt, IntFunction, SyncStmtOption, LongConsumer, Function)
-     */
+    /// @return a unmodified list
+/// @see #batchUpdateList(BatchStmt, IntFunction, SyncStmtOption, LongConsumer, Function)
     private List<Long> executeBatchUpdateAsLong(BatchStmt stmt, @Nullable IntFunction<List<Long>> listConstructor,
                                                 SyncStmtOption option, final @Nullable LongConsumer consumer)
             throws DataAccessException {
@@ -1090,9 +1069,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
     }
 
-    /**
-     * @see #batchUpdate(BatchStmt, SyncStmtOption, Function)
-     */
+    /// @see #batchUpdate(BatchStmt, SyncStmtOption, Function)
     private Stream<ResultStates> executeMultiStmtBatchUpdate(final BatchStmt stmt, final SyncStmtOption option,
                                                              final Function<Option<?>, ?> sessionFunc) {
         final List<List<SQLParam>> groupList;
@@ -1170,9 +1147,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
     }
 
-    /**
-     * @see #batchUpdate(BatchStmt, SyncStmtOption, Function)
-     */
+    /// @see #batchUpdate(BatchStmt, SyncStmtOption, Function)
     private Stream<ResultStates> executeBatchUpdate(final BatchStmt stmt, final SyncStmtOption option,
                                                     final Function<Option<?>, ?> sessionFunc)
             throws DataAccessException {
@@ -1266,9 +1241,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
 
-    /**
-     * @see #update(SimpleStmt, SyncStmtOption, Function)
-     */
+    /// @see #update(SimpleStmt, SyncStmtOption, Function)
     private Statement bindStatement(final SimpleStmt stmt, final SyncStmtOption option)
             throws TimeoutException, SQLException {
 
@@ -1303,9 +1276,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
 
-    /**
-     * @see #bindStatement(SimpleStmt, SyncStmtOption)
-     */
+    /// @see #bindStatement(SimpleStmt, SyncStmtOption)
     private void bindStatementOption(final Statement statement, final SingleSqlStmt stmt,
                                      final SyncStmtOption option) throws SQLException {
 
@@ -1335,10 +1306,8 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
 
-    /**
-     * @see #update(SimpleStmt, SyncStmtOption, Function)
-     * @see #executeBatchQuery(BatchStmt, SyncStmtOption, Function, Function, boolean)
-     */
+    /// @see #update(SimpleStmt, SyncStmtOption, Function)
+/// @see #executeBatchQuery(BatchStmt, SyncStmtOption, Function, Function, boolean)
     private void bindParameters(final PreparedStatement statement, final List<SQLParam> paramGroup)
             throws SQLException {
 
@@ -1418,9 +1387,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
 
-    /**
-     * @see #bindParameters(PreparedStatement, List)
-     */
+    /// @see #bindParameters(PreparedStatement, List)
     private int mapToJdbcType(final SQLType dataType) {
         final int jdbcType;
         switch (dataType.armyType()) {
@@ -1539,11 +1506,8 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
 
-    /**
-     * invoker must handle all error.
-     *
-     * @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
-     */
+    /// invoker must handle all error.
+/// @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
     private <R> Stream<R> executeSimpleQuery(final SimpleStmt stmt, final SyncStmtOption option,
                                              final Function<? super CurrentRecord, R> function,
                                              final Function<Option<?>, ?> sessionFunc, final boolean resultItemStream)
@@ -1582,11 +1546,8 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
 
-    /**
-     * invoker must handle all error.
-     *
-     * @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
-     */
+    /// invoker must handle all error.
+/// @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
     private <R> Stream<R> executeBatchQuery(BatchStmt stmt, SyncStmtOption option,
                                             Function<? super CurrentRecord, R> function,
                                             final Function<Option<?>, ?> sessionFunc,
@@ -1629,11 +1590,8 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
         }
     }
 
-    /**
-     * invoker must handle all error.
-     *
-     * @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
-     */
+    /// invoker must handle all error.
+/// @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
     private <R> Stream<R> executeMultiStmtBatchQuery(final BatchStmt stmt, SyncStmtOption option,
                                                      final Function<? super CurrentRecord, R> function,
                                                      final Function<Option<?>, ?> sessionFunc,
@@ -1700,9 +1658,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
 
-    /**
-     * @return row number
-     */
+    /// @return row number
     private int readRowId(final ResultSet idResultSet, final @Nullable long[] firstIdHolder,
                           final GeneratedKeyStmt stmt) throws SQLException {
 
@@ -1825,9 +1781,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
 
-    /**
-     * <p>Invoke {@link PreparedStatement#executeQuery()} or {@link Statement#executeQuery(String)} for {@link ResultSet} auto close.
-     */
+    /// Invoke {@link PreparedStatement#executeQuery()} or {@link Statement#executeQuery(String)} for {@link ResultSet} auto close.
     private static ResultSet jdbcExecuteQuery(final Statement statement, final String sql) throws SQLException {
         final ResultSet resultSet;
         if (statement instanceof PreparedStatement) {
@@ -2221,16 +2175,13 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
     } // JdbcRowSpliterator
 
-    /**
-     * <p>This class is responsible for spite rows from {@link ResultSet} to {@link Stream} with {@link #readRowStream(int, Consumer)} method.
-     * <p>This class is base class of following
-     * <ul>
-     *     <li>{@link JdbcSimpleSpliterator}</li>
-     *     <li>{@link JdbcBatchSpliterator}</li>
-     * </ul>
-     *
-     * @param <R> row java type
-     */
+/// This class is responsible for spite rows from {@link ResultSet} to {@link Stream} with {@link #readRowStream(int, Consumer)} method.
+/// This class is base class of following
+/// 
+/// - {@link JdbcSimpleSpliterator}
+/// - {@link JdbcBatchSpliterator}
+/// 
+/// @param <R> row java type
     private static abstract class JdbcStmtRowSpliterator<R> extends JdbcRowSpliterator<R> {
 
         final JdbcExecutor executor;
@@ -2259,11 +2210,8 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
         }
 
 
-        /**
-         * <p>Read one fetch,if fetchSize is 0 ,read all row.
-         *
-         * @param readSize 0 or positive
-         */
+        /// Read one fetch,if fetchSize is 0 ,read all row.
+/// @param readSize 0 or positive
         @SuppressWarnings("unchecked")
         final long readRowSet(final ResultSet resultSet, final long totalCount,
                               final JdbcCurrentRecord<R> currentRecord, final int readSize,
@@ -2609,16 +2557,13 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     } // JdbcSimpleSpliterator
 
 
-    /**
-     * <p>This class is responsible for spite rows from multi {@link ResultSet} to {@link Stream} with {@link #readRowStream(int, Consumer)} method.
-     * <p>This class is base class of following
-     * <ul>
-     *     <li>{@link BatchRowSpliterator}</li>
-     *     <li>{@link MultiSmtBatchRowSpliterator}</li>
-     * </ul>
-     *
-     * @param <R> row java type
-     */
+/// This class is responsible for spite rows from multi {@link ResultSet} to {@link Stream} with {@link #readRowStream(int, Consumer)} method.
+/// This class is base class of following
+/// 
+/// - {@link BatchRowSpliterator}
+/// - {@link MultiSmtBatchRowSpliterator}
+/// 
+/// @param <R> row java type
     private static abstract class JdbcBatchSpliterator<R> extends JdbcStmtRowSpliterator<R> {
 
         final Statement statement;
@@ -3269,9 +3214,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
         private boolean closed;
 
-        /**
-         * @see #batchQuery(BatchStmt, SyncStmtOption, Function)
-         */
+        /// @see #batchQuery(BatchStmt, SyncStmtOption, Function)
         private JdbcBatchQuery(boolean closeStatement, JdbcExecutor executor, BatchStmt stmt, SyncStmtOption stmtOption,
                                Function<Option<?>, ?> sessionFunc, PreparedStatement statement) {
             this.executor = executor;

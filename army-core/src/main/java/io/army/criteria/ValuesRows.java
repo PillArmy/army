@@ -20,20 +20,15 @@ import io.army.criteria.impl.SQLs;
 
 import java.util.function.Consumer;
 
-/**
- * <p>This interface representing dynamic row clause in  VALUES statement.
- * <p>This interface is similar to {@link ValuesParens}, except method name
- *
- * @see ValuesParens
- */
+/// This interface representing dynamic row clause in  VALUES statement.
+/// This interface is similar to {@link ValuesParens}, except method name
+/// @see ValuesParens
 public interface ValuesRows {
 
 
     ValuesRows row(Consumer<Values._ValueStaticColumnSpaceClause> consumer);
 
-    /**
-     * <p>Create new row
-     */
+    /// Create new row
     ValuesRows row(SQLs.SymbolSpace space, Consumer<Values._ValuesDynamicColumnClause> consumer);
 
 }

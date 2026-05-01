@@ -35,9 +35,7 @@ public final class MultiLineStringType extends _ArmyBuildInType implements Mappi
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private MultiLineStringType(Class<?> javaType) {
         this.javaType = javaType;
     }

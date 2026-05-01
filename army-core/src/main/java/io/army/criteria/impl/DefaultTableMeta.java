@@ -32,9 +32,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/**
- * @since 0.6.0
- */
+/// @since 0.6.0
 abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
     static final Class<?> LOCK = DefaultTableMeta.class;

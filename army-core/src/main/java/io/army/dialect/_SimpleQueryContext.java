@@ -17,14 +17,11 @@
 package io.army.dialect;
 
 
-/**
- * <p>
- * This interface representing simple query context.
- *
- * @see _SelectContext
- * @see _SubQueryContext
- * @since 0.6.0
- */
+/// 
+/// This interface representing simple query context.
+/// @see _SelectContext
+/// @see _SubQueryContext
+/// @since 0.6.0
 public interface _SimpleQueryContext extends _StmtContext, _MultiTableStmtContext, SelectItemListContext {
 
 

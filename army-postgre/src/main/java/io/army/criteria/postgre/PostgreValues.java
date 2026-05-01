@@ -22,9 +22,7 @@ import io.army.criteria.Values;
 import io.army.criteria.ValuesQuery;
 
 
-/**
- * @see <a href="https://www.postgresql.org/docs/current/sql-values.html">VALUES Statement</a>
- */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-values.html">VALUES Statement</a>
 public interface PostgreValues extends PostgreStatement, ValuesQuery {
 
 

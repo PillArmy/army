@@ -35,30 +35,25 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-/**
- * <p>
- * This class representing army build-in postgre range array type.
- *
- * @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-BUILTIN">Built-in Range and Multirange Types</a>
- * @since 0.6.0
- */
+/// 
+/// This class representing army build-in postgre range array type.
+/// @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-BUILTIN">Built-in Range and Multirange Types</a>
+/// @since 0.6.0
 public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements MappingType.SqlArray {
 
 
-    /**
-     * @param javaType one dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-     *                 see {@link PostgreRange}
-     * @param param    from {@link Mapping#params()} ,it's the name of <ul>
-     *                 <li>{@link PgType#INT4RANGE_ARRAY}</li>
-     *                 <li>{@link PgType#INT8RANGE_ARRAY}</li>
-     *                 <li>{@link PgType#NUMRANGE_ARRAY}</li>
-     *                 <li>{@link PgType#DATERANGE_ARRAY}</li>
-     *                 <li>{@link PgType#TSRANGE_ARRAY}</li>
-     *                 <li>{@link PgType#TSTZRANGE_ARRAY}</li>
-     *                 </ul>
-     * @throws IllegalArgumentException throw when javaType error
-     * @throws MetaException            throw when param error.
-     */
+/// @param javaType one dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
+/// see {@link PostgreRange}
+/// @param param    from {@link Mapping#params()} ,it's the name of 
+/// - {@link PgType#INT4RANGE_ARRAY}
+/// - {@link PgType#INT8RANGE_ARRAY}
+/// - {@link PgType#NUMRANGE_ARRAY}
+/// - {@link PgType#DATERANGE_ARRAY}
+/// - {@link PgType#TSRANGE_ARRAY}
+/// - {@link PgType#TSTZRANGE_ARRAY}
+/// 
+/// @throws IllegalArgumentException throw when javaType error
+/// @throws MetaException            throw when param error.
     public static PostgreSingleRangeArrayType from(final Class<?> javaType, final String param) throws MetaException {
         final PgType sqlType;
         try {
@@ -73,18 +68,16 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
     }
 
 
-    /**
-     * @param javaType one dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-     *                 see {@link PostgreRange}
-     * @param sqlType  valid instance <ul>
-     *                 <li>{@link PgType#INT4RANGE_ARRAY}</li>
-     *                 <li>{@link PgType#INT8RANGE_ARRAY}</li>
-     *                 <li>{@link PgType#NUMRANGE_ARRAY}</li>
-     *                 <li>{@link PgType#DATERANGE_ARRAY}</li>
-     *                 <li>{@link PgType#TSRANGE_ARRAY}</li>
-     *                 <li>{@link PgType#TSTZRANGE_ARRAY}</li>
-     *                 </ul>
-     */
+/// @param javaType one dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
+/// see {@link PostgreRange}
+/// @param sqlType  valid instance 
+/// - {@link PgType#INT4RANGE_ARRAY}
+/// - {@link PgType#INT8RANGE_ARRAY}
+/// - {@link PgType#NUMRANGE_ARRAY}
+/// - {@link PgType#DATERANGE_ARRAY}
+/// - {@link PgType#TSRANGE_ARRAY}
+/// - {@link PgType#TSTZRANGE_ARRAY}
+/// 
     public static PostgreSingleRangeArrayType from(final Class<?> javaType, final PgType sqlType)
             throws IllegalArgumentException {
 
@@ -109,19 +102,17 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
     }
 
 
-    /**
-     * @param javaType one dimension or higher dimension non-string array class
-     *                 see {@link PostgreRange}
-     * @param sqlType  valid instance <ul>
-     *                 <li>{@link PgType#INT4RANGE_ARRAY}</li>
-     *                 <li>{@link PgType#INT8RANGE_ARRAY}</li>
-     *                 <li>{@link PgType#NUMRANGE_ARRAY}</li>
-     *                 <li>{@link PgType#DATERANGE_ARRAY}</li>
-     *                 <li>{@link PgType#TSRANGE_ARRAY}</li>
-     *                 <li>{@link PgType#TSTZRANGE_ARRAY}</li>
-     *                 </ul>
-     * @throws IllegalArgumentException throw when javaType or sqlType error
-     */
+/// @param javaType one dimension or higher dimension non-string array class
+/// see {@link PostgreRange}
+/// @param sqlType  valid instance 
+/// - {@link PgType#INT4RANGE_ARRAY}
+/// - {@link PgType#INT8RANGE_ARRAY}
+/// - {@link PgType#NUMRANGE_ARRAY}
+/// - {@link PgType#DATERANGE_ARRAY}
+/// - {@link PgType#TSRANGE_ARRAY}
+/// - {@link PgType#TSTZRANGE_ARRAY}
+/// 
+/// @throws IllegalArgumentException throw when javaType or sqlType error
     public static PostgreSingleRangeArrayType fromFunc(final Class<?> javaType,
                                                        final PgType sqlType,
                                                        final RangeFunction<?, ?> rangeFunc)
@@ -138,21 +129,19 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
     }
 
 
-    /**
-     * @param javaType   one dimension or higher dimension array class
-     *                   see {@link PostgreRange}
-     * @param param      from {@link Mapping#params()} ,it's the name of <ul>
-     *                   <li>{@link PgType#INT4RANGE_ARRAY}</li>
-     *                   <li>{@link PgType#INT8RANGE_ARRAY}</li>
-     *                   <li>{@link PgType#NUMRANGE_ARRAY}</li>
-     *                   <li>{@link PgType#DATERANGE_ARRAY}</li>
-     *                   <li>{@link PgType#TSRANGE_ARRAY}</li>
-     *                   <li>{@link PgType#TSTZRANGE_ARRAY}</li>
-     *                   </ul>
-     * @param methodName from {@link Mapping#func()}
-     * @throws IllegalArgumentException throw when javaType error
-     * @throws MetaException            throw when param or methodName error.
-     */
+/// @param javaType   one dimension or higher dimension array class
+/// see {@link PostgreRange}
+/// @param param      from {@link Mapping#params()} ,it's the name of 
+/// - {@link PgType#INT4RANGE_ARRAY}
+/// - {@link PgType#INT8RANGE_ARRAY}
+/// - {@link PgType#NUMRANGE_ARRAY}
+/// - {@link PgType#DATERANGE_ARRAY}
+/// - {@link PgType#TSRANGE_ARRAY}
+/// - {@link PgType#TSTZRANGE_ARRAY}
+/// 
+/// @param methodName from {@link Mapping#func()}
+/// @throws IllegalArgumentException throw when javaType error
+/// @throws MetaException            throw when param or methodName error.
     public static PostgreSingleRangeArrayType fromMethod(final Class<?> javaType, final String param,
                                                          final String methodName) throws MetaException {
 
@@ -190,9 +179,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
     public static final PostgreSingleRangeArrayType TS_TZ_RANGE_LINEAR = new PostgreSingleRangeArrayType(PgType.TSTZRANGE_ARRAY, String[].class, null);
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private PostgreSingleRangeArrayType(PgType sqlType, Class<?> javaType, @Nullable RangeFunction<?, ?> rangeFunc) {
         super(sqlType, javaType, rangeFunc);
     }
@@ -280,10 +267,8 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
         return value;
     }
 
-    /**
-     * @param boundSerializer serializer of bound
-     * @param <T>             java type of subtype of range
-     */
+    /// @param boundSerializer serializer of bound
+/// @param <T>             java type of subtype of range
     public static <T> String arrayBeforeBind(final Object nonNull, final BiConsumer<T, StringBuilder> boundSerializer,
                                              final DataType dataType, final MappingType type,
                                              final ErrorHandler handler) {

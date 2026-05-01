@@ -28,20 +28,18 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 
-/**
- * <p>
- * This class is mapping class of {@link ZonedDateTime}.
- * This mapping type can convert below java type:
- * <ul>
- *     <li>{@link LocalDateTime}</li>
- *     <li>{@link java.time.LocalDate}</li>
- *     <li>{@link java.time.OffsetDateTime}</li>
- *     <li>{@link java.time.ZonedDateTime}</li>
- *     <li>{@link String} </li>
- * </ul>
- *  to {@link ZonedDateTime},if error,throw {@link io.army.ArmyException}
- ** @since 0.6.0
- */
+/// 
+/// This class is mapping class of {@link ZonedDateTime}.
+/// This mapping type can convert below java type:
+/// 
+/// - {@link LocalDateTime}
+/// - {@link java.time.LocalDate}
+/// - {@link java.time.OffsetDateTime}
+/// - {@link java.time.ZonedDateTime}
+/// - {@link String} 
+/// 
+/// to {@link ZonedDateTime},if error,throw {@link io.army.ArmyException}
+/// * @since 0.6.0
 public final class ZonedDateTimeType extends _ArmyNoInjectionType implements MappingType.SqlOffsetDateTime {
 
 
@@ -54,9 +52,7 @@ public final class ZonedDateTimeType extends _ArmyNoInjectionType implements Map
 
     public static final ZonedDateTimeType INSTANCE = new ZonedDateTimeType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ZonedDateTimeType() {
     }
 

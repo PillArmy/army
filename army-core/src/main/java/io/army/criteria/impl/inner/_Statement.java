@@ -38,23 +38,17 @@ public interface _Statement extends Statement {
         List<? extends SortItem> orderByList();
     }
 
-    /**
-     * This interface representing dialect WITH clause support update/delete, for example postgre.
-     */
+/// This interface representing dialect WITH clause support update/delete, for example postgre.
     interface _WithDmlSpec {
 
     }
 
     interface _ReturningListSpec {
 
-        /**
-         * @throws UnsupportedOperationException throw when this isn't instance of {@link _ReturningDml}
-         */
+        /// @throws UnsupportedOperationException throw when this isn't instance of {@link _ReturningDml}
         List<? extends _SelectItem> returningList();
 
-        /**
-         * @throws UnsupportedOperationException throw when this isn't instance of {@link _ReturningDml}
-         */
+        /// @throws UnsupportedOperationException throw when this isn't instance of {@link _ReturningDml}
         List<? extends _Selection> flatSelectItem();
 
     }
@@ -73,9 +67,7 @@ public interface _Statement extends Statement {
 
     }
 
-    /**
-     * SQL:2008 introduced a different syntax
-     */
+    /// SQL:2008 introduced a different syntax
     interface _SQL2008LimitClauseSpec extends _LimitClauseSpec {
 
         @Nullable
@@ -85,9 +77,7 @@ public interface _Statement extends Statement {
         SQLToken fetchFirstOrNext();
 
 
-        /**
-         * @return row count or percent {@link io.army.criteria.Expression }
-         */
+        /// @return row count or percent {@link io.army.criteria.Expression }
         @Override
         _Expression rowCountExp();
 
@@ -105,9 +95,7 @@ public interface _Statement extends Statement {
 
     interface _ItemPairList {
 
-        /**
-         * @return a unmodifiable list,non-empty
-         */
+        /// @return a unmodifiable list,non-empty
         List<_ItemPair> itemPairList();
 
     }
@@ -129,20 +117,16 @@ public interface _Statement extends Statement {
 
     interface _JoinableStatement extends _Statement {
 
-        /**
-         * @return a unmodifiable list
-         */
+        /// @return a unmodifiable list
         List<_TabularBlock> tableBlockList();
 
     }
 
-    /**
-     * <p>This interface is base interface of following :
-     * <ul>
-     *     <li>{@link io.army.criteria.impl.inner._SingleUpdate._ChildUpdate}</li>
-     *     <li>{@link io.army.criteria.impl.inner._SingleDelete._ChildDelete}</li>
-     * </ul>
-     */
+/// This interface is base interface of following :
+/// 
+/// - {@link io.army.criteria.impl.inner._SingleUpdate._ChildUpdate}
+/// - {@link io.army.criteria.impl.inner._SingleDelete._ChildDelete}
+/// 
     interface _ChildStatement {
 
         TableMeta<?> table();

@@ -34,13 +34,10 @@ import io.army.util._Exceptions;
 import java.util.*;
 import java.util.function.*;
 
-/**
- * <p>This class hold the base class(interface) of the implementation of all insert syntax interfaces.
- * <p>Below is chines signature:<br/>
- * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
- *
- * @since 0.6.0
- */
+/// This class hold the base class(interface) of the implementation of all insert syntax interfaces.
+/// Below is chines signature:
+/// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+/// @since 0.6.0
 abstract class InsertSupports {
 
     InsertSupports() {
@@ -111,9 +108,7 @@ abstract class InsertSupports {
 
     interface ColumnListClause extends CriteriaContextSpec {
 
-        /**
-         * @param value if non-null and  {@link  FieldMeta#notNull()},then validate value isn't non-null expression
-         */
+        /// @param value if non-null and  {@link  FieldMeta#notNull()},then validate value isn't non-null expression
         void validateField(FieldMeta<?> field, @Nullable ArmyExpression value);
 
 
@@ -673,9 +668,7 @@ abstract class InsertSupports {
         }
 
 
-        /**
-         * For RETURNING clause
-         */
+        /// For RETURNING clause
         final List<? extends TableField> effictiveFieldList() {
             return this.fieldList();
         }
@@ -1043,9 +1036,7 @@ abstract class InsertSupports {
         }
 
 
-        /**
-         * @see #domainListForSingle()
-         */
+        /// @see #domainListForSingle()
         @Override
         public final <TS extends T> VR values(final @Nullable List<TS> domainList) {
             if (domainList == null || domainList.size() == 0) {
@@ -1135,9 +1126,7 @@ abstract class InsertSupports {
             return rowCount;
         }
 
-        /**
-         * @param rowPairList a unmodified list,empty is allowed.
-         */
+        /// @param rowPairList a unmodified list,empty is allowed.
         final VR staticValuesClauseEnd(final List<Map<FieldMeta<?>, _Expression>> rowPairList) {
             if (this.insertMode != null || this.rowPairList != null) {
                 throw ContextStack.clearStackAndCastCriteriaApi();
@@ -1181,9 +1170,7 @@ abstract class InsertSupports {
             return mode;
         }
 
-        /**
-         * @return a unmodified list,new instance each time.
-         */
+        /// @return a unmodified list,new instance each time.
         final List<?> domainListForSingle() {
             assert this.insertTable instanceof SingleTableMeta;
             final List<?> domainList = this.originalDomainList;
@@ -1195,9 +1182,7 @@ abstract class InsertSupports {
             return _Collections.asUnmodifiableList(domainList);
         }
 
-        /**
-         * @return a original list
-         */
+        /// @return a original list
         final List<?> originalDomainList() {
             assert !(this.insertTable instanceof SimpleTableMeta);
             final List<?> domainList = this.originalDomainList;
@@ -1209,9 +1194,7 @@ abstract class InsertSupports {
             return domainList;
         }
 
-        /**
-         * validate originalList for child insert statement
-         */
+        /// validate originalList for child insert statement
         final void domainListForChild(final List<?> originalList) {
             assert this.insertTable instanceof ChildTableMeta;
 
@@ -1377,10 +1360,8 @@ abstract class InsertSupports {
     private static final class AssignmentsImpl<T> extends DynamicAssignmentSetClause<T, Assignments<T>>
             implements Assignments<T> {
 
-        /**
-         * @see ValuesParensClauseImpl#parens(SQLs.SymbolSpace, Consumer)
-         * @see ComplexInsertValuesAssignmentClause#ifSets(Consumer)
-         */
+        /// @see ValuesParensClauseImpl#parens(SQLs.SymbolSpace, Consumer)
+/// @see ComplexInsertValuesAssignmentClause#ifSets(Consumer)
         private AssignmentsImpl(CriteriaContext context, BiConsumer<FieldMeta<T>, Expression> consumer) {
             super(context, consumer);
         }
@@ -1831,9 +1812,7 @@ abstract class InsertSupports {
             implements Statement._CommaClause<ValuesConstructor<T>>,
             ValuesConstructor<T> {
 
-        /**
-         * @see ComplexInsertValuesClause#values(Consumer)
-         */
+        /// @see ComplexInsertValuesClause#values(Consumer)
         private ValuesConstructorImpl(CriteriaContext context, boolean migration,
                                       BiConsumer<FieldMeta<?>, ArmyExpression> validator) {
             super(context, migration, validator);
@@ -2341,12 +2320,9 @@ abstract class InsertSupports {
 
     }
 
-    /**
-     * <p>Try find parent insert sub-statement for childStmt in cteList.
-     * This method is designed for child sub-insert.
-     *
-     * @param childStmt must be {@link SubStatement}
-     */
+    /// Try find parent insert sub-statement for childStmt in cteList.
+/// This method is designed for child sub-insert.
+/// @param childStmt must be {@link SubStatement}
     static ParentSubInsert parentSubInsertOfChildSubInsert(final ArmyInsert childStmt, final int rowCount,
                                                            final List<_Cte> cteListOfChild) {
 
@@ -2368,11 +2344,8 @@ abstract class InsertSupports {
     }
 
 
-    /**
-     * <p>Find parent insert sub-statement for childStmt in cteList.
-     *
-     * @param childStmt {@link PrimaryStatement} or {@link SubStatement}
-     */
+    /// Find parent insert sub-statement for childStmt in cteList.
+/// @param childStmt {@link PrimaryStatement} or {@link SubStatement}
     static ParentSubInsert parentSubInsert(final ArmyInsert childStmt, final int rowCount, final List<_Cte> cteList) {
         final ParentSubInsert parentSubInsert;
         parentSubInsert = tryParentSubInsert0(childStmt, rowCount, cteList, true);
@@ -2495,10 +2468,8 @@ abstract class InsertSupports {
     }
 
 
-    /**
-     * @return see {@link JoinableClause.SimpleQuery#validateIdDefaultExpression()}
-     * @see #parentSubInsert(ArmyInsert, int, List)
-     */
+    /// @return see {@link JoinableClause.SimpleQuery#validateIdDefaultExpression()}
+/// @see #parentSubInsert(ArmyInsert, int, List)
     private static List<String> getIdScalarExpressionNames(final ArmyInsert childStmt, final InsertMode childMode,
                                                            final ChildTableMeta<?> child) {
 
@@ -2523,11 +2494,9 @@ abstract class InsertSupports {
         return ((Expressions.ScalarExpression) idScalarExp).validateIdDefaultExpression();
     }
 
-    /**
-     * @param nameList empty or name list ;  see {@link JoinableClause.SimpleQuery#validateIdDefaultExpression()}
-     * @return parent sub-insert CTE name.
-     * @see #parentSubInsert(ArmyInsert, int, List)
-     */
+    /// @param nameList empty or name list ;  see {@link JoinableClause.SimpleQuery#validateIdDefaultExpression()}
+/// @return parent sub-insert CTE name.
+/// @see #parentSubInsert(ArmyInsert, int, List)
     private static String validateParentRowNumberCte(final ChildTableMeta<?> child, final _Cte cte,
                                                      final List<String> nameList) {
         final SubStatement subStatement = cte.subStatement();
@@ -2542,9 +2511,7 @@ abstract class InsertSupports {
         return ((JoinableClause.SimpleQuery) subStatement).validateParentSubInsertRowNumberQuery(cte.name(), nameList);
     }
 
-    /**
-     * @see #parentSubInsert(ArmyInsert, int, List)
-     */
+    /// @see #parentSubInsert(ArmyInsert, int, List)
     private static void validatePostParentSubInsert(final _Cte cte, final ChildTableMeta<?> child, final String idAlias) {
         Selection idSelection = cte.refSelection(idAlias);
         if (idSelection == null) {
@@ -2579,9 +2546,7 @@ abstract class InsertSupports {
 
     }
 
-    /**
-     * @see #validatePostParentSubInsert(_Cte, ChildTableMeta, String)
-     */
+    /// @see #validatePostParentSubInsert(_Cte, ChildTableMeta, String)
     private static IllegalOneStmtModeException idSelectionIsNotParentId(String cteName, ChildTableMeta<?> child,
                                                                         String idAlias) {
         String m = String.format("selection[%s] isn't parent id selection of %s in CTE[%s]", idAlias, child, cteName);
@@ -2611,12 +2576,9 @@ abstract class InsertSupports {
     }
 
 
-    /**
-     * <p>
-     * Check insert statement for safety.
-     *
-     * @see ArmyInsertStatement#asInsertStatement()
-     */
+    /// 
+/// Check insert statement for safety.
+/// @see ArmyInsertStatement#asInsertStatement()
     private static void insertStatementGuard(final _Insert statement) {
         if (!(statement instanceof _Insert._ChildInsert)) {
             if (statement instanceof _Insert._SupportWithClauseInsert) { // for example,postgre insert
@@ -2639,18 +2601,14 @@ abstract class InsertSupports {
     }
 
 
-    /**
-     * @param statement {@link PrimaryStatement} and not {@link _Insert._ChildInsert}
-     * @see #insertStatementGuard(_Insert)
-     */
+    /// @param statement {@link PrimaryStatement} and not {@link _Insert._ChildInsert}
+/// @see #insertStatementGuard(_Insert)
     private static void validateSupportWithClauseInsert(final _Insert._SupportWithClauseInsert statement) {
 
         //TODO
     }
 
-    /**
-     * @see #validateParentQueryDiscriminator(TableMeta, List, SubQuery)
-     */
+    /// @see #validateParentQueryDiscriminator(TableMeta, List, SubQuery)
     private static CodeEnum findParentQueryDiscriminator(final FieldMeta<?> discField, final List<?> fieldList,
                                                          final SubQuery query) {
         final int fieldSize = fieldList.size();
@@ -2669,9 +2627,7 @@ abstract class InsertSupports {
         return findDiscriminatorFromQuery(discField, discIndex, query);
     }
 
-    /**
-     * @see #findParentQueryDiscriminator(FieldMeta, List, SubQuery)
-     */
+    /// @see #findParentQueryDiscriminator(FieldMeta, List, SubQuery)
     private static CodeEnum findDiscriminatorFromQuery(final FieldMeta<?> discField, final int discIndex,
                                                        final SubQuery query) {
 
@@ -2690,9 +2646,7 @@ abstract class InsertSupports {
     }
 
 
-    /**
-     * @see #findDiscriminatorFromQuery(FieldMeta, int, SubQuery)
-     */
+    /// @see #findDiscriminatorFromQuery(FieldMeta, int, SubQuery)
     private static CodeEnum findDiscriminatorFromSimpleQuery(final FieldMeta<?> discField, final int discIndex,
                                                              final _Query query) {
 //        final Selection selection;
@@ -2714,9 +2668,7 @@ abstract class InsertSupports {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * @see #findDiscriminatorFromQuery(FieldMeta, int, SubQuery)
-     */
+    /// @see #findDiscriminatorFromQuery(FieldMeta, int, SubQuery)
     private static CodeEnum findDiscriminatorFromUnionRowSet(final FieldMeta<?> discField, final int discIndex,
                                                              final _UnionRowSet query) {
         final RowSet left, right;
@@ -2749,9 +2701,7 @@ abstract class InsertSupports {
         return leftEnum;
     }
 
-    /**
-     * @see #findDiscriminatorFromQuery(FieldMeta, int, SubQuery)
-     */
+    /// @see #findDiscriminatorFromQuery(FieldMeta, int, SubQuery)
     private static CodeEnum findDiscriminatorFromParensRowSet(final FieldMeta<?> discField, final int discIndex,
                                                               final _ParensRowSet query) {
         final CodeEnum codeEnum;
@@ -2767,10 +2717,8 @@ abstract class InsertSupports {
         return codeEnum;
     }
 
-    /**
-     * @see #findDiscriminatorFromParensRowSet(FieldMeta, int, _ParensRowSet)
-     * @see #findDiscriminatorFromUnionRowSet(FieldMeta, int, _UnionRowSet)
-     */
+    /// @see #findDiscriminatorFromParensRowSet(FieldMeta, int, _ParensRowSet)
+/// @see #findDiscriminatorFromUnionRowSet(FieldMeta, int, _UnionRowSet)
     private static CodeEnum findDiscriminatorFromValues(final FieldMeta<?> discField, final int discIndex,
                                                         final SubValues values) {
         final CodeEnum codeEnum;
@@ -2787,9 +2735,7 @@ abstract class InsertSupports {
         return codeEnum;
     }
 
-    /**
-     * @see #findDiscriminatorFromValues(FieldMeta, int, SubValues)
-     */
+    /// @see #findDiscriminatorFromValues(FieldMeta, int, SubValues)
     private static CodeEnum findDiscriminatorFromSimpleValues(final FieldMeta<?> discField, final int discIndex,
                                                               final _ValuesQuery values) {
         return null;
@@ -2873,9 +2819,7 @@ abstract class InsertSupports {
         return discriminatorSelection;
     }
 
-    /**
-     * @see #insertStatementGuard(_Insert)
-     */
+    /// @see #insertStatementGuard(_Insert)
     private static void validateChildDomainInsert(final _Insert._ChildDomainInsert childStmt) {
         final List<?> childDomainList, parentDomainList;
         childDomainList = childStmt.domainList();
@@ -2887,9 +2831,7 @@ abstract class InsertSupports {
         }
     }
 
-    /**
-     * @see #insertStatementGuard(_Insert)
-     */
+    /// @see #insertStatementGuard(_Insert)
     private static void validateChildValueInsert(final _Insert._ChildValuesInsert childStmt) {
         final List<?> childPairList, parentPairList;
         childPairList = childStmt.rowPairList();

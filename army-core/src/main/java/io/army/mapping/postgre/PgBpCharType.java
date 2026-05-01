@@ -13,13 +13,10 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 
 
-/**
- * <p>This class map {@link String} to postgre bpchar .
- * <p>If you need to map varchar ,you can use {@link StringType} instead of this class.
- *
- * @see <a href="https://www.postgresql.org/docs/current/datatype-character.html">bpchar</a>
- * @since 0.6.4
- */
+/// This class map {@link String} to postgre bpchar .
+/// If you need to map varchar ,you can use {@link StringType} instead of this class.
+/// @see <a href="https://www.postgresql.org/docs/current/datatype-character.html">bpchar</a>
+/// @since 0.6.4
 public final class PgBpCharType extends _ArmyBuildInType implements MappingType.SqlString {
 
     public static PgBpCharType from(final Class<?> javaType) {
@@ -31,9 +28,7 @@ public final class PgBpCharType extends _ArmyBuildInType implements MappingType.
 
     public static final PgBpCharType INSTANCE = new PgBpCharType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private PgBpCharType() {
     }
 

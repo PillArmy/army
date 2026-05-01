@@ -11,11 +11,8 @@ import io.army.util._StringUtils;
 
 import java.util.Locale;
 
-/**
- * <p>Package class.
- *
- * @since 0.6.4
- */
+/// Package class.
+/// @since 0.6.4
 abstract class MySQLExpressions {
 
     private MySQLExpressions() {
@@ -50,13 +47,10 @@ abstract class MySQLExpressions {
     }
 
 
-    /**
-     * <p>Create system variable expression
-     * <p>See {@code io.army.robot.MySQLSystemVariableRobotTests#systemVariableCaseStatement()}
-     *
-     * @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">SET Syntax for Variable Assignment</a>
-     * @see <a href="https://dev.mysql.com/doc/refman/8.3/en/server-system-variables.html">Server System Variables</a>
-     */
+/// Create system variable expression
+/// See {@code io.army.robot.MySQLSystemVariableRobotTests#systemVariableCaseStatement()}
+/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">SET Syntax for Variable Assignment</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/server-system-variables.html">Server System Variables</a>
     static SimpleExpression systemVariable(final SQLs.VarScope varScope, final String name) {
         if (!(varScope instanceof SqlWords.KeyWordVarScope)) {
             throw CriteriaUtils.unknownWords(varScope);
@@ -463,9 +457,7 @@ abstract class MySQLExpressions {
 
     /*-------------------below private static methods -------------------*/
 
-    /**
-     * @see #systemVariable(SQLs.VarScope, String)
-     */
+    /// @see #systemVariable(SQLs.VarScope, String)
     private static CriteriaException systemVariableScopeError(SqlWords.KeyWordVarScope scope, String name) {
         String m = String.format("system variable[%s] isn't %s scope", name, scope.name());
         return ContextStack.clearStackAndCriteriaError(m);
@@ -556,9 +548,7 @@ abstract class MySQLExpressions {
 
         private final MappingType type;
 
-        /**
-         * @see #systemVariable(SQLs.VarScope, String)
-         */
+        /// @see #systemVariable(SQLs.VarScope, String)
         private SystemVariableExpression(SqlWords.KeyWordVarScope scope, String name, MappingType type) {
             this.scope = scope;
             this.name = name;

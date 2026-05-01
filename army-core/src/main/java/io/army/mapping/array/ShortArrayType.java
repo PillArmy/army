@@ -76,9 +76,7 @@ public class ShortArrayType extends _ArmyNoInjectionType implements MappingType.
     private final Class<?> underlyingJavaType;
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ShortArrayType(final Class<?> javaType, Class<?> underlyingJavaType) {
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;

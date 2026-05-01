@@ -37,10 +37,8 @@ import io.army.util._Collections;
 import java.util.concurrent.ConcurrentMap;
 
 
-/**
- * @see Enum
- * @see NameEnumType
- */
+/// @see Enum
+/// @see NameEnumType
 public class NameEnumArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
     public static NameEnumArrayType from(final Class<?> arrayClass) {
@@ -82,9 +80,7 @@ public class NameEnumArrayType extends _ArmyBuildInType implements MappingType.S
 
     private final Class<?> enumClass;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private NameEnumArrayType(Class<?> javaType, Class<?> enumClass) {
         this.javaType = javaType;
         this.enumClass = enumClass;

@@ -17,9 +17,7 @@
 package io.army.mapping.optional;
 
 
-/**
- * currently , is supported by only postgre dialect
- */
+/// currently , is supported by only postgre dialect
 public interface NoCastType {
 
 }

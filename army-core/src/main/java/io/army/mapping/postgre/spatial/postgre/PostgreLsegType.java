@@ -24,12 +24,9 @@ import io.army.mapping.MappingType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-/**
- * <p>
- * This class representing Postgre lseg type {@link MappingType}
-*
- * @see <a href="https://www.postgresql.org/docs/current/datatype-geometric.html#DATATYPE-GEO-TABLE">lseg</a>
- */
+/// 
+/// This class representing Postgre lseg type {@link MappingType}
+/// @see <a href="https://www.postgresql.org/docs/current/datatype-geometric.html#DATATYPE-GEO-TABLE">lseg</a>
 public final class PostgreLsegType extends PostgreGeometricType implements MappingType.SqlLine {
 
 

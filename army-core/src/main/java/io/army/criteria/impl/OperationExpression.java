@@ -34,22 +34,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 
-/**
- * this class is base class of most implementation of {@link Expression}
- *
- * @since 0.6.0
- */
+/// this class is base class of most implementation of {@link Expression}
+/// @since 0.6.0
 abstract class OperationExpression implements ArmyExpression {
 
 
-    /**
-     * <p>
-     * Private constructor
-     *
-     * @see OperationSimpleExpression#OperationSimpleExpression()
-     * @see OperationCompoundExpression#OperationCompoundExpression()
-     * @see PredicateExpression#PredicateExpression()
-     */
+    /// 
+/// Private constructor
+/// @see OperationSimpleExpression#OperationSimpleExpression()
+/// @see OperationCompoundExpression#OperationCompoundExpression()
+/// @see PredicateExpression#PredicateExpression()
     OperationExpression() {
     }
 
@@ -645,9 +639,7 @@ abstract class OperationExpression implements ArmyExpression {
             implements SimpleExpression,
             ArmySimpleExpression {
 
-        /**
-         * package constructor
-         */
+        /// package constructor
         OperationSimpleExpression() {
 
         }
@@ -957,17 +949,13 @@ abstract class OperationExpression implements ArmyExpression {
 
         private final boolean buildIn;
 
-        /**
-         * package constructor
-         */
+        /// package constructor
         SqlFunctionExpression(String name) {
             this.name = name;
             this.buildIn = true;
         }
 
-        /**
-         * package constructor
-         */
+        /// package constructor
         SqlFunctionExpression(String name, boolean buildIn) {
             this.name = name;
             this.buildIn = buildIn;
@@ -1034,9 +1022,7 @@ abstract class OperationExpression implements ArmyExpression {
 
     static abstract class OperationCompoundExpression extends OperationExpression {
 
-        /**
-         * package constructor
-         */
+        /// package constructor
         OperationCompoundExpression() {
         }
 
@@ -1046,9 +1032,7 @@ abstract class OperationExpression implements ArmyExpression {
 
     static abstract class PredicateExpression extends OperationTypedExpression implements _Predicate {
 
-        /**
-         * package constructor
-         */
+        /// package constructor
         PredicateExpression() {
         }
 
@@ -1066,12 +1050,9 @@ abstract class OperationExpression implements ArmyExpression {
 
         private final ArmyExpression expression;
 
-        /**
-         * <p>
-         * <strong>Private constructor</strong>
-         *
-         * @see #bracketExp(Expression)
-         */
+/// 
+/// **Private constructor**
+/// @see #bracketExp(Expression)
         private BracketsExpression(ArmyExpression expression) {
             this.expression = expression;
         }

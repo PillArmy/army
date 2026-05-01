@@ -37,12 +37,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 
-/**
- * <p>
- * This class hold the implementation of Postgre nested join.
- *
- * @since 0.6.0
- */
+/// 
+/// This class hold the implementation of Postgre nested join.
+/// @since 0.6.0
 
 final class PostgreNestedJoins<I extends Item> extends JoinableClause.NestedLeftParenClause<
         I,
@@ -335,12 +332,10 @@ final class PostgreNestedJoins<I extends Item> extends JoinableClause.NestedLeft
             };
         }
 
-        /**
-         * @see #leftJoin(Function)
-         * @see #join(Function)
-         * @see #rightJoin(Function)
-         * @see #fullJoin(Function)
-         */
+        /// @see #leftJoin(Function)
+/// @see #join(Function)
+/// @see #rightJoin(Function)
+/// @see #fullJoin(Function)
         private PostgreStatement._NestedOnSpec<I> joinNestedEnd(final _JoinType joinType,
                                                                 final _NestedItems nestedItems) {
             final PostgreNestedBlock<I> block;
@@ -350,9 +345,7 @@ final class PostgreNestedJoins<I extends Item> extends JoinableClause.NestedLeft
             return block;
         }
 
-        /**
-         * @see #crossJoin(Function)
-         */
+        /// @see #crossJoin(Function)
         private PostgreStatement._NestedJoinSpec<I> crossNestedEnd(final _JoinType joinType, final _NestedItems items) {
             assert joinType == _JoinType.CROSS_JOIN;
             final PostgreNestedBlock<I> block;

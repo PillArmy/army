@@ -63,9 +63,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
 
     protected static final MappingSupport.ErrorHandler ACCESS_ERROR_HANDLER = AbstractMappingType::dataAccessError;
 
-    /**
-     * package constructor
-     */
+    /// package constructor
     AbstractMappingType() {
     }
 
@@ -80,26 +78,21 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
     }
 
 
-    /**
-     * @throws CriteriaException when this instance don't support array type.
-     */
+    /// @throws CriteriaException when this instance don't support array type.
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         throw dontSupportArrayType(this);
     }
 
-    /**
-     * <p>Find compatible {@link AbstractMappingType} for targetType.
-     *
-     * @param dataType   from {@link StmtExecutor}, underlying api is one of following :
-     *                   <ul>
-     *                        <li>{@code  java.sql.ResultSetMetaData#getTableName(int)}</li>
-     *                        <li>{@code io.jdbd.result.ResultRowMeta#getDataType(int)}</li>
-     *                   </ul>
-     *                   if dataType is {@link SQLType} instance,then dataType representing appropriate database build-in data type.
-     * @param targetType the target type for application developer
-     * @throws NoMatchMappingException throw when not found compatible {@link AbstractMappingType}
-     */
+/// Find compatible {@link AbstractMappingType} for targetType.
+/// @param dataType   from {@link StmtExecutor}, underlying api is one of following :
+/// 
+/// - {@code  java.sql.ResultSetMetaData#getTableName(int)}
+/// - {@code io.jdbd.result.ResultRowMeta#getDataType(int)}
+/// 
+/// if dataType is {@link SQLType} instance,then dataType representing appropriate database build-in data type.
+/// @param targetType the target type for application developer
+/// @throws NoMatchMappingException throw when not found compatible {@link AbstractMappingType}
     @Override
     public <Z> MappingType compatibleFor(final DataType dataType, final Class<Z> targetType)
             throws NoMatchMappingException {
@@ -497,12 +490,9 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
     }
 
 
-    /**
-     * Throws CloneNotSupportedException.  This guarantees that MappingType
-     * are never cloned
-     *
-     * @return (never returns)
-     */
+    /// Throws CloneNotSupportedException.  This guarantees that MappingType
+/// are never cloned
+/// @return (never returns)
     @Override
     protected final Object clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException();
@@ -543,17 +533,13 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
     }
 
 
-    /**
-     * prevent default deserialization
-     */
+    /// prevent default deserialization
     private void readObject(ObjectInputStream in) throws IOException,
             ClassNotFoundException {
         throw new InvalidObjectException(String.format("can't deserialize %s", AbstractMappingType.class.getName()));
     }
 
-    /**
-     * prevent default deserialization
-     */
+    /// prevent default deserialization
     private void readObjectNoData() throws ObjectStreamException {
         throw new InvalidObjectException(String.format("can't deserialize %s", AbstractMappingType.class.getName()));
     }

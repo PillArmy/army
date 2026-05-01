@@ -13,9 +13,7 @@ public final class _Triple<F, S, T> {
 
     public final T third;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private _Triple(F first, S second, T third) {
         this.first = first;
         this.second = second;

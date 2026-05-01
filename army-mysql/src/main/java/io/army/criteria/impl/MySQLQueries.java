@@ -39,11 +39,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 
-/**
- * <p>
- * This class is base class of the implementation of {@link MySQLQuery}:
- * * @since 0.6.0
- */
+/// 
+/// This class is base class of the implementation of {@link MySQLQuery}:
+/// * @since 0.6.0
 abstract class MySQLQueries<I extends Item> extends SimpleQueries<
         I,
         MySQLCtes,
@@ -128,17 +126,13 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
         return spec;
     }
 
-    /**
-     * @see #onFromTable(_JoinType, SQLs.TableModifier, TableMeta, String)
-     * @see #onFromDerived(_JoinType, SQLs.DerivedModifier, DerivedTable)
-     * @see PartitionJoinClause#asEnd(MySQLSupports.MySQLBlockParams)
-     * @see #getFromClauseDerived()
-     */
+    /// @see #onFromTable(_JoinType, SQLs.TableModifier, TableMeta, String)
+/// @see #onFromDerived(_JoinType, SQLs.DerivedModifier, DerivedTable)
+/// @see PartitionJoinClause#asEnd(MySQLSupports.MySQLBlockParams)
+/// @see #getFromClauseDerived()
     private _TabularBlock fromCrossBlock;
 
-    /**
-     * @see #onOrderByEvent()
-     */
+    /// @see #onOrderByEvent()
     private Boolean groupByWithRollup;
 
     private List<_Window> windowList;
@@ -501,9 +495,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
     }
 
 
-    /**
-     * @see #onOrderByEvent()
-     */
+    /// @see #onOrderByEvent()
     @Override
     public final _HavingSpec<I> withRollup() {
         if (this.groupByWithRollup == null) {//@see #onOrderByEvent()
@@ -514,9 +506,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
         return this;
     }
 
-    /**
-     * @see #onOrderByEvent()
-     */
+    /// @see #onOrderByEvent()
     @Override
     public final _HavingSpec<I> ifWithRollup(final BooleanSupplier supplier) {
         if (supplier.getAsBoolean()) {
@@ -533,10 +523,8 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
         return this;
     }
 
-    /**
-     * @see #withRollup()
-     * @see #ifWithRollup(BooleanSupplier)
-     */
+    /// @see #withRollup()
+/// @see #ifWithRollup(BooleanSupplier)
     @Override
     public final void onOrderByEvent() {
         if (this.groupByWithRollup == null) {
@@ -779,10 +767,8 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
     /*################################## blow private method ##################################*/
 
 
-    /**
-     * @see #from(Function)
-     * @see #crossJoin(Function)
-     */
+    /// @see #from(Function)
+/// @see #crossJoin(Function)
     private _JoinSpec<I> fromNestedEnd(final _JoinType joinType, final _NestedItems nestedItems) {
         final _TabularBlock block;
         block = TabularBlocks.fromNestedBlock(joinType, nestedItems);
@@ -791,13 +777,11 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
         return this;
     }
 
-    /**
-     * @see #leftJoin(Function)
-     * @see #join(Function)
-     * @see #rightJoin(Function)
-     * @see #fullJoin(Function)
-     * @see #straightJoin(Function)
-     */
+    /// @see #leftJoin(Function)
+/// @see #join(Function)
+/// @see #rightJoin(Function)
+/// @see #fullJoin(Function)
+/// @see #straightJoin(Function)
     private _OnClause<_JoinSpec<I>> joinNestedEnd(final _JoinType joinType, final _NestedItems nestedItems) {
 
         final TabularBlocks.JoinClauseNestedBlock<_JoinSpec<I>> block;
@@ -807,12 +791,10 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
     }
 
 
-    /**
-     * @see #onFromDerived(_JoinType, SQLs.DerivedModifier, DerivedTable)
-     * @see #parens(String, String...)
-     * @see #parens(Consumer)
-     * @see #ifParens(Consumer)
-     */
+    /// @see #onFromDerived(_JoinType, SQLs.DerivedModifier, DerivedTable)
+/// @see #parens(String, String...)
+/// @see #parens(Consumer)
+/// @see #ifParens(Consumer)
     private TabularBlocks.FromClauseAliasDerivedBlock getFromClauseDerived() {
         final _TabularBlock block = this.fromCrossBlock;
         if (block != this.context.lastBlock() || !(block instanceof TabularBlocks.FromClauseAliasDerivedBlock)) {
@@ -831,10 +813,8 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
     }
 
 
-    /**
-     * @see #windows(Consumer)
-     * @see #window(String)
-     */
+    /// @see #windows(Consumer)
+/// @see #window(String)
     private _WindowCommaSpec<I> onAddWindow(final ArmyWindow window) {
         window.endWindowClause();
         List<_Window> windowList = this.windowList;
@@ -847,10 +827,8 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
         return this;
     }
 
-    /**
-     * @see #windows(Consumer)
-     * @see #ifWindows(Consumer)
-     */
+    /// @see #windows(Consumer)
+/// @see #ifWindows(Consumer)
     private Window._WindowAsClause<MySQLWindow._PartitionBySpec, Item> createDynamicWindow(String name) {
         return new NamedWindowAsClause<>(this.context, name, this::onAddWindow, MySQLSupports::namedWindow);
     }
@@ -1187,9 +1165,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
 
         private final Function<Boolean, I> function;
 
-        /**
-         * @see #staticCteComma(CriteriaContext, boolean, Function)
-         */
+        /// @see #staticCteComma(CriteriaContext, boolean, Function)
         private StaticCteComma(CriteriaContext context, final boolean recursive, Function<Boolean, I> function) {
             context.onBeforeWithClause(recursive);
             this.context = context;
@@ -1224,9 +1200,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
 
         private List<String> columnAliasList;
 
-        /**
-         * @see StaticCteComma#comma(String)
-         */
+        /// @see StaticCteComma#comma(String)
         private StaticCteParensClause(StaticCteComma<I> comma, String name) {
             this.comma = comma;
             this.name = name;
@@ -1511,9 +1485,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
     } // SubQueryDispatcher
 
 
-    /**
-     * <p>This class is base class of {@link StaticCteComplexCommand}
-     */
+    /// This class is base class of {@link StaticCteComplexCommand}
     private static class StaticCteSubQuery<I extends Item>
             extends MySQLSelectClauseDispatcher<I, Item>
             implements MySQLQuery._StaticCteSelectSpec<I> {
@@ -1560,9 +1532,7 @@ abstract class MySQLQueries<I extends Item> extends SimpleQueries<
 
         private final Function<SubStatement, _CteComma<I>> function;
 
-        /**
-         * @see StaticCteParensClause#as(Function)
-         */
+        /// @see StaticCteParensClause#as(Function)
         private StaticCteComplexCommand(CriteriaContext outerContext, Function<SubQuery, _CteComma<I>> queryFunction,
                                         Function<SubStatement, _CteComma<I>> function) {
             super(outerContext, queryFunction);

@@ -29,44 +29,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-/**
- * A common interface to all dialect of dialect.
- */
+/// A common interface to all dialect of dialect.
 public interface DialectParser {
 
 
-    /**
-     * @return one of :
-     * <ul>
-     *     <li>{@link SimpleStmt}</li>
-     *     <li>{@link io.army.stmt.GeneratedKeyStmt}</li>
-     *     <li>{@link io.army.stmt.PairStmt}</li>
-     * </ul>
-     */
+/// @return one of :
+/// 
+/// - {@link SimpleStmt}
+/// - {@link io.army.stmt.GeneratedKeyStmt}
+/// - {@link io.army.stmt.PairStmt}
+/// 
     Stmt insert(InsertStatement insert, SessionSpec sessionSpec);
 
-    /**
-     * @return one of <ul>
-     * <li>{@link SimpleStmt}</li>
-     * <li>{@link io.army.stmt.BatchStmt}</li>
-     * </ul>
-     */
+/// @return one of 
+/// - {@link SimpleStmt}
+/// - {@link io.army.stmt.BatchStmt}
+/// 
     Stmt update(UpdateStatement update, boolean useMultiStmt, SessionSpec sessionSpec);
 
-    /**
-     * @return one of <ul>
-     * <li>{@link SimpleStmt}</li>
-     * <li>{@link io.army.stmt.BatchStmt}</li>
-     * </ul>
-     */
+/// @return one of 
+/// - {@link SimpleStmt}
+/// - {@link io.army.stmt.BatchStmt}
+/// 
     Stmt delete(DeleteStatement delete, boolean useMultiStmt, SessionSpec sessionSpec);
 
-    /**
-     * @return one of <ul>
-     * <li>{@link SimpleStmt}</li>
-     * <li>{@link io.army.stmt.BatchStmt}</li>
-     * </ul>
-     */
+/// @return one of 
+/// - {@link SimpleStmt}
+/// - {@link io.army.stmt.BatchStmt}
+/// 
     Stmt select(SelectStatement select, boolean useMultiStmt, SessionSpec sessionSpec);
 
     Stmt values(Values values, SessionSpec sessionSpec);

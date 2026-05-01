@@ -18,16 +18,13 @@ package io.army.dialect;
 
 import io.army.stmt.Stmt;
 
-/**
- * <p>
- * Package interface, this interface is base interface of below:
- * <ul>
- *     <li>{@link  _SelectContext}</li>
- *     <li>{@link  _ValuesContext}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// Package interface, this interface is base interface of below:
+/// 
+/// - {@link  _SelectContext}
+/// - {@link  _ValuesContext}
+/// 
+/// @since 0.6.0
 interface PrimaryQueryContext extends _StmtContext {
 
     @Override

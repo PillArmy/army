@@ -32,14 +32,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
-/**
- * <p>
- * This class representing the mapping from {@link TextEnum} to {@link SQLType}.
- *
- * @see TextEnum
- * @see NameEnumType
- * @see CodeEnumType
- */
+/// 
+/// This class representing the mapping from {@link TextEnum} to {@link SQLType}.
+/// @see TextEnum
+/// @see NameEnumType
+/// @see CodeEnumType
 public class TextEnumType extends _ArmyBuildInType {
 
     public static TextEnumType from(final Class<?> enumType) {
@@ -99,9 +96,7 @@ public class TextEnumType extends _ArmyBuildInType {
 
     private final Map<String, ? extends TextEnum> textMap;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private TextEnumType(final Class<?> enumClass) {
         this.enumClass = enumClass;
         this.textMap = TextEnum.getTextToEnumMap(enumClass);

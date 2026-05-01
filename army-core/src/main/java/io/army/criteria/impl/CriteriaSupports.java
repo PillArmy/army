@@ -103,9 +103,7 @@ abstract class CriteriaSupports {
     }
 
 
-    /**
-     * This interface is base interface of All implementation of {@link CteBuilderSpec}
-     */
+    /// This interface is base interface of All implementation of {@link CteBuilderSpec}
     interface CteBuilder extends CteBuilderSpec {
 
         void endLastCte();
@@ -285,19 +283,15 @@ abstract class CriteriaSupports {
         private boolean optionalClause;
 
 
-        /**
-         * <p>
-         * private constructor for {@link  #stringQuadra(CriteriaContext, Function)}
-         */
+        /// 
+/// private constructor for {@link  #stringQuadra(CriteriaContext, Function)}
         private ParenStringConsumerClause(CriteriaContext context, Function<List<String>, RR> function) {
             this.context = context;
             this.function = function;
         }
 
-        /**
-         * <p>
-         * package constructor for sub class
-         */
+        /// 
+/// package constructor for sub class
         ParenStringConsumerClause(CriteriaContext context) {
             assert this.getClass() != ParenStringConsumerClause.class;
             this.context = context;

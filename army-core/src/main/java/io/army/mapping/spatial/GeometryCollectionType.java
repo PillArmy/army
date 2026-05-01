@@ -35,9 +35,7 @@ public final class GeometryCollectionType extends _ArmyBuildInType implements Ma
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private GeometryCollectionType(Class<?> javaType) {
         this.javaType = javaType;
     }

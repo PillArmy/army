@@ -17,9 +17,7 @@
 package io.army.session;
 
 
-/**
- * <p>Package interface
- */
+/// Package interface
 non-sealed interface PackageFactoryBuilder<B, R> extends FactoryBuilder<B, R> {
 
 }

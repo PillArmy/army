@@ -51,9 +51,7 @@ abstract class ClauseUtils {
     }
 
 
-    /**
-     * @return a unmodified list
-     */
+    /// @return a unmodified list
     static <T> List<T> invokingDynamicConsumer(boolean required, boolean nonNull, Consumer<Consumer<T>> consumer) {
         final List<T> list = _Collections.arrayList();
         invokingDynamicConsumer(required, list, nonNull, consumer);

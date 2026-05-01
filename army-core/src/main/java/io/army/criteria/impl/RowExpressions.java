@@ -25,15 +25,12 @@ import io.army.util._Exceptions;
 
 import java.util.List;
 
-/**
- * <p>
- * This class hold the methods that create {@link io.army.criteria.RowExpression}.
- * <p>
- * Below is chines signature:<br/>
- * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
- *
- * @since 0.6.0
- */
+/// 
+/// This class hold the methods that create {@link io.army.criteria.RowExpression}.
+/// 
+/// Below is chines signature:
+/// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+/// @since 0.6.0
 abstract class RowExpressions {
 
     private RowExpressions() {

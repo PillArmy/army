@@ -24,24 +24,21 @@ import io.army.sqltype.DataType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-/**
- * <p>
- * This class is mapping class of {@link BigInteger}.
- * This mapping type can convert below java type:
- * <ul>
- *     <li>{@link Byte}</li>
- *     <li>{@link Short}</li>
- *     <li>{@link Integer}</li>
- *     <li>{@link Long}</li>
- *     <li>{@link java.math.BigInteger}</li>
- *     <li>{@link java.math.BigDecimal},it has a zero fractional part</li>
- *     <li>{@link Boolean} true : {@link BigInteger#ONE} , false: {@link BigInteger#ZERO}</li>
- *     <li>{@link String} </li>
- * </ul>
- *  to {@link BigInteger},if overflow,throw {@link io.army.ArmyException}
- *
- * @since 0.6.0
- */
+/// 
+/// This class is mapping class of {@link BigInteger}.
+/// This mapping type can convert below java type:
+/// 
+/// - {@link Byte}
+/// - {@link Short}
+/// - {@link Integer}
+/// - {@link Long}
+/// - {@link java.math.BigInteger}
+/// - {@link java.math.BigDecimal},it has a zero fractional part
+/// - {@link Boolean} true : {@link BigInteger#ONE} , false: {@link BigInteger#ZERO}
+/// - {@link String} 
+/// 
+/// to {@link BigInteger},if overflow,throw {@link io.army.ArmyException}
+/// @since 0.6.0
 public final class BigIntegerType extends _NumericType._IntegerType {
 
 
@@ -54,9 +51,7 @@ public final class BigIntegerType extends _NumericType._IntegerType {
 
     public static final BigIntegerType INSTANCE = new BigIntegerType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private BigIntegerType() {
     }
 

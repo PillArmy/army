@@ -48,48 +48,37 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * <p>This class hold the implementation of postgre insert syntax interfaces.
- * <p>Below is chines signature:<br/>
- * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
- *
- * @since 0.6.0
- */
+/// This class hold the implementation of postgre insert syntax interfaces.
+/// Below is chines signature:
+/// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+/// @since 0.6.0
 abstract class PostgreInserts extends InsertSupports {
 
     private PostgreInserts() {
     }
 
-    /**
-     * <p>
-     * create new single-table INSERT statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
-     */
+    /// 
+/// create new single-table INSERT statement that is primary statement and support {@link io.army.meta.ChildTableMeta}.
     static PostgreInsert._PrimaryOptionSpec singleInsert() {
         return new PrimaryInsertIntoClause();
     }
 
-    /**
-     * <p>
-     * create new single-table INSERT statement that is primary statement for multi-statement and don't support {@link io.army.meta.ChildTableMeta}.
-     */
+    /// 
+/// create new single-table INSERT statement that is primary statement for multi-statement and don't support {@link io.army.meta.ChildTableMeta}.
     static <I extends Item> PostgreInsert._ComplexOptionSpec<I> fromDispatcher(ArmyStmtSpec spec,
                                                                                Function<PrimaryStatement, I> function) {
         return new ComplexInsertIntoClause<>(spec, function);
     }
 
-    /**
-     * <p>
-     * create new single-table INSERT statement that is sub insert statement in dynamic with clause.
-     */
+    /// 
+/// create new single-table INSERT statement that is sub insert statement in dynamic with clause.
     static <I extends Item> PostgreInsert._DynamicSubOptionSpec<I> dynamicSubInsert(
             CriteriaContext outContext, Function<SubStatement, I> function) {
         return new DynamicSubInsertIntoClause<>(outContext, function);
     }
 
-    /**
-     * <p>
-     * create new single-table INSERT statement that is sub insert statement in static with clause.
-     */
+    /// 
+/// create new single-table INSERT statement that is sub insert statement in static with clause.
     static <I extends Item> PostgreInsert._StaticSubOptionSpec<I> staticSubInsert(ArmyStmtSpec spec,
                                                                                   Function<SubStatement, I> function) {
         return new StaticSubInsertIntoClause<>(spec, function);
@@ -983,9 +972,7 @@ abstract class PostgreInserts extends InsertSupports {
             Statement._DqlInsertClause<Q>,
             ContextStackHost.ContextStackHostHolder {
 
-        /**
-         * Retain the object reference to prevent premature garbage collection of the host
-         */
+        /// Retain the object reference to prevent premature garbage collection of the host
         private final ContextStackHost contextStackHost;
 
         private final Function<PostgreComplexValuesClause<?, ?, ?>, I> dmlFunction;
@@ -1005,11 +992,9 @@ abstract class PostgreInserts extends InsertSupports {
         private List<_SelectItem> returningList;
 
 
-        /**
-         * @see PrimaryInsertIntoClause#insertInto(TableMeta)
-         * @see PrimaryInsertIntoClause#insertInto(ParentTableMeta)
-         * @see ChildInsertIntoClause#insertInto(ComplexTableMeta)
-         */
+        /// @see PrimaryInsertIntoClause#insertInto(TableMeta)
+/// @see PrimaryInsertIntoClause#insertInto(ParentTableMeta)
+/// @see ChildInsertIntoClause#insertInto(ComplexTableMeta)
         private PostgreComplexValuesClause(WithValueSyntaxOptions options, TableMeta<T> table, boolean twoStmtMode,
                                            Function<PostgreComplexValuesClause<?, ?, ?>, I> dmlFunction,
                                            Function<PostgreComplexValuesClause<?, ?, ?>, Q> dqlFunction) {
@@ -1586,9 +1571,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final List<?> domainList;
 
-        /**
-         * @see PostgreInserts#insertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#insertEnd(PostgreComplexValuesClause)
         private PrimarySingleDomainInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert this.insertTable instanceof SingleTableMeta;
@@ -1608,9 +1591,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final ParentDomainSubInsert parentStmt;
 
-        /**
-         * @see PostgreInserts#insertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#insertEnd(PostgreComplexValuesClause)
         private PrimaryChildDomainInsertOneStmt(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
 
@@ -1670,9 +1651,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final List<?> domainList;
 
-        /**
-         * @see PostgreInserts#parentInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#parentInsertEnd(PostgreComplexValuesClause)
         private PrimaryParentDomainInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             this.originalDomainList = clause.originalDomainList();
@@ -1711,9 +1690,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final List<?> domainList;
 
-        /**
-         * @see PostgreInserts#returningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#returningInsertEnd(PostgreComplexValuesClause)
         private PrimarySingleDomainReturningInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             this.domainList = clause.domainListForSingle();
@@ -1734,9 +1711,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final ParentDomainSubInsert parentSubInsert;
 
-        /**
-         * @see PostgreInserts#returningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#returningInsertEnd(PostgreComplexValuesClause)
         private PrimaryChildDomainReturningInsertOneStatement(final PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             final List<?> originalList = clause.originalDomainList();
@@ -1800,9 +1775,7 @@ abstract class PostgreInserts extends InsertSupports {
         private final List<?> originalDomainList;
         private final List<?> domainList;
 
-        /**
-         * @see PostgreInserts#parentReturningEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#parentReturningEnd(PostgreComplexValuesClause)
         private PrimaryParentDomainReturningInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             this.originalDomainList = clause.originalDomainList();
@@ -1839,9 +1812,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final List<?> domainList;
 
-        /**
-         * @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
         private SubSimpleDomainInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof SimpleTableMeta;
@@ -1864,9 +1835,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private TableMeta<?> domainTable;
 
-        /**
-         * @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
         private SubParentDomainInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ParentTableMeta;
@@ -1927,9 +1896,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final ParentDomainSubInsert parentSubInsert;
 
-        /**
-         * @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
         private SubChildDomainInsertStatement(final PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             final List<?> originalList = clause.originalDomainList();
@@ -1957,9 +1924,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final List<?> domainList;
 
-        /**
-         * @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
         private SubSimpleDomainReturningInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             this.domainList = clause.domainListForSingle();
@@ -1979,9 +1944,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final ParentDomainSubInsert parentSubInsert;
 
-        /**
-         * @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
         private SubChildDomainReturningInsertStatement(final PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             final List<?> originalList = clause.originalDomainList();
@@ -2013,9 +1976,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private TableMeta<?> domainTable;
 
-        /**
-         * @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
         private SubParentDomainReturningInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert this.insertTable instanceof ParentTableMeta;
@@ -2097,9 +2058,7 @@ abstract class PostgreInserts extends InsertSupports {
             extends ValueInsertStatement<Insert, ReturningInsert>
             implements Insert {
 
-        /**
-         * @see PostgreInserts#insertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#insertEnd(PostgreComplexValuesClause)
         private PrimarySingleValueInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof SingleTableMeta;
@@ -2113,9 +2072,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final ParentSubInsert parentSubInsert;
 
-        /**
-         * @see PostgreInserts#insertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#insertEnd(PostgreComplexValuesClause)
         private PrimaryChildValueInsertOneStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             final ParentSubInsert parentSubInsert;
@@ -2158,9 +2115,7 @@ abstract class PostgreInserts extends InsertSupports {
             extends ValueInsertStatement<PostgreInsert._ParentInsert<P>, ReturningInsert>
             implements Insert, PostgreInsert._ParentInsert<P>, ValueSyntaxOptions {
 
-        /**
-         * @see PostgreInserts#parentInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#parentInsertEnd(PostgreComplexValuesClause)
         private PrimaryParentValueInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
         }
@@ -2208,9 +2163,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final ParentSubInsert parentSubInsert;
 
-        /**
-         * @see PostgreInserts#returningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#returningInsertEnd(PostgreComplexValuesClause)
         private PrimaryChildValueReturningInsertOneStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ChildTableMeta;
@@ -2254,9 +2207,7 @@ abstract class PostgreInserts extends InsertSupports {
             extends ValueInsertStatement<InsertStatement, PostgreInsert._ParentReturnInsert<P>>
             implements PostgreInsert._ParentReturnInsert<P>, ValueSyntaxOptions, _ReturningDml {
 
-        /**
-         * @see PostgreInserts#parentReturningEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#parentReturningEnd(PostgreComplexValuesClause)
         private PrimaryParentValueReturningInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
         }
@@ -2291,9 +2242,7 @@ abstract class PostgreInserts extends InsertSupports {
             extends ValueInsertStatement<SubStatement, SubStatement>
             implements SubStatement {
 
-        /**
-         * @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
         private SubSimpleValueInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
         }
@@ -2307,9 +2256,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private TableMeta<?> domainTable;
 
-        /**
-         * @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
         private SubParentValueInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ParentTableMeta;
@@ -2355,9 +2302,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final ParentSubInsert parentSubInsert;
 
-        /**
-         * @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
         private SubChildValueInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             this.parentSubInsert = parentSubInsertOfChildSubInsert(this, this.rowPairList.size(), clause.cteList);
@@ -2375,9 +2320,7 @@ abstract class PostgreInserts extends InsertSupports {
             extends ValueInsertStatement<SubStatement, SubStatement>
             implements SubStatement, _ReturningDml {
 
-        /**
-         * @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
         private SubSimpleValueReturningInsertStatement(final PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof SimpleTableMeta;
@@ -2391,9 +2334,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private TableMeta<?> domainTable;
 
-        /**
-         * @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
         private SubParentValueReturningInsertStatement(final PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ParentTableMeta;
@@ -2438,9 +2379,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final ParentSubInsert parentSubInsert;
 
-        /**
-         * @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
         private SubChildValueReturningInsertStatement(final PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             this.parentSubInsert = parentSubInsertOfChildSubInsert(this, this.rowPairList().size(), clause.cteList);
@@ -2586,9 +2525,7 @@ abstract class PostgreInserts extends InsertSupports {
             extends PostgreQueryInsertStatement<Insert, ReturningInsert>
             implements Insert {
 
-        /**
-         * @see PostgreInserts#insertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#insertEnd(PostgreComplexValuesClause)
         private PrimarySingleQueryInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert this.insertTable instanceof SingleTableMeta;
@@ -2603,9 +2540,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final ParentSubInsert parentSubInsert;
 
-        /**
-         * @see PostgreInserts#insertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#insertEnd(PostgreComplexValuesClause)
         private PrimaryChildQueryInsertOneStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ChildTableMeta;
@@ -2648,9 +2583,7 @@ abstract class PostgreInserts extends InsertSupports {
             extends PostgrePrimaryParentQueryInsertStatement<PostgreInsert._ParentInsert<P>, ReturningInsert>
             implements PostgreInsert._ParentInsert<P> {
 
-        /**
-         * @see PostgreInserts#parentInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#parentInsertEnd(PostgreComplexValuesClause)
         private PrimaryParentQueryInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
         }
@@ -2679,9 +2612,7 @@ abstract class PostgreInserts extends InsertSupports {
             extends PostgreQueryInsertStatement<Insert, ReturningInsert>
             implements ReturningInsert, _ReturningDml {
 
-        /**
-         * @see PostgreInserts#returningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#returningInsertEnd(PostgreComplexValuesClause)
         private PrimarySingleQueryReturningInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof SingleTableMeta;
@@ -2696,9 +2627,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final ParentSubInsert parentSubInsert;
 
-        /**
-         * @see PostgreInserts#returningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#returningInsertEnd(PostgreComplexValuesClause)
         private PrimaryChildQueryReturningInsertOneStatement(final PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ChildTableMeta;
@@ -2740,9 +2669,7 @@ abstract class PostgreInserts extends InsertSupports {
             implements PostgreInsert._ParentReturnInsert<P>,
             _ReturningDml {
 
-        /**
-         * @see PostgreInserts#parentReturningEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#parentReturningEnd(PostgreComplexValuesClause)
         private PrimaryParentQueryReturningInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
         }
@@ -2769,9 +2696,7 @@ abstract class PostgreInserts extends InsertSupports {
     private static final class SubSimpleQueryInsertStatement extends PostgreQueryInsertStatement<SubStatement, SubStatement>
             implements SubStatement {
 
-        /**
-         * @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
         private SubSimpleQueryInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof SimpleTableMeta;
@@ -2786,9 +2711,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private TableMeta<?> domainTable;
 
-        /**
-         * @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
         private SubParentQueryInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ParentTableMeta;
@@ -2834,9 +2757,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final ParentSubInsert parentSubInsert;
 
-        /**
-         * @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subInsertEnd(PostgreComplexValuesClause)
         private SubChildQueryInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ChildTableMeta;
@@ -2855,9 +2776,7 @@ abstract class PostgreInserts extends InsertSupports {
             extends PostgreQueryInsertStatement<SubStatement, SubStatement>
             implements SubStatement, _ReturningDml {
 
-        /**
-         * @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
         private SubSimpleQueryReturningInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof SimpleTableMeta;
@@ -2873,9 +2792,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private TableMeta<?> domainTable;
 
-        /**
-         * @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
         private SubParentQueryReturningInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ParentTableMeta;
@@ -2923,9 +2840,7 @@ abstract class PostgreInserts extends InsertSupports {
 
         private final ParentSubInsert parentSubInsert;
 
-        /**
-         * @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
-         */
+        /// @see PostgreInserts#subReturningInsertEnd(PostgreComplexValuesClause)
         private SubChildQueryReturningInsertStatement(PostgreComplexValuesClause<?, ?, ?> clause) {
             super(clause);
             assert clause.insertTable instanceof ChildTableMeta;

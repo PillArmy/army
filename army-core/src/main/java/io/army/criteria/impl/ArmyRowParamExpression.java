@@ -31,28 +31,23 @@ import java.util.List;
 import java.util.Objects;
 
 
-/**
- * <p>
- * This class representing multi-value parameter expression.
- * <p>
- * Below is chines signature:<br/>
- * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
- *
- * @see ArmyParamExpression
- * @see ArmyLiteralExpression
- * @see ArmyRowLiteralExpression
- * @since 0.6.0
- */
+/// 
+/// This class representing multi-value parameter expression.
+/// 
+/// Below is chines signature:
+/// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+/// @see ArmyParamExpression
+/// @see ArmyLiteralExpression
+/// @see ArmyRowLiteralExpression
+/// @since 0.6.0
 abstract class ArmyRowParamExpression extends OperationRowExpression
         implements RowParamExpression, ArmySimpleExpression {
 
-    /**
-     * @throws CriteriaException throw when <ul>
-     *                           <li>values is empty</li>
-     *                           <li>infer return codec {@link TableField}</li>
-     *                           </ul>
-     * @see SQLs#rowParam(TypeInfer, Collection)
-     */
+/// @throws CriteriaException throw when 
+/// - values is empty
+/// - infer return codec {@link TableField}
+/// 
+/// @see SQLs#rowParam(TypeInfer, Collection)
     static ArmyRowParamExpression multi(final @Nullable TypeInfer infer, final @Nullable Collection<?> values) {
         final TypeMeta type;
         if (infer == null) {
@@ -67,14 +62,12 @@ abstract class ArmyRowParamExpression extends OperationRowExpression
         return new AnonymousMultiParam(type, values);
     }
 
-    /**
-     * @throws CriteriaException throw when <ul>
-     *                           <li>name have no text</li>
-     *                           <li>size less than 1</li>
-     *                           <li>infer return codec {@link TableField}</li>
-     *                           </ul>
-     * @see SQLs#namedRowParam(TypeInfer, String, int)
-     */
+/// @throws CriteriaException throw when 
+/// - name have no text
+/// - size less than 1
+/// - infer return codec {@link TableField}
+/// 
+/// @see SQLs#namedRowParam(TypeInfer, String, int)
     static ArmyRowParamExpression named(final @Nullable TypeInfer infer, final @Nullable String name, final int size) {
         final TypeMeta type;
         if (infer == null) {
@@ -103,9 +96,7 @@ abstract class ArmyRowParamExpression extends OperationRowExpression
         return ContextStack.clearStackAndCriteriaError(m);
     }
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ArmyRowParamExpression() {
     }
 
@@ -194,9 +185,7 @@ abstract class ArmyRowParamExpression extends OperationRowExpression
 
         private final int valueSize;
 
-        /**
-         * @see #named(TypeInfer, String, int)
-         */
+        /// @see #named(TypeInfer, String, int)
         private ArmyNamedRowParam(TypeMeta type, String name, int valueSize) {
             assert valueSize > 0;
             if (type instanceof QualifiedField) {

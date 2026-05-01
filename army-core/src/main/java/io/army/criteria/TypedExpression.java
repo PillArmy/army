@@ -28,14 +28,12 @@ import static io.army.dialect.Database.H2;
 import static io.army.dialect.Database.PostgreSQL;
 
 
-/**
- * <p>This interface is base interface of following :
- * <ul>
- *     <li>{@link TypedField}</li>
- *     <li>{@link ValueExpression}</li>
- *     <li>{@link IPredicate}</li>
- * </ul>
- */
+/// This interface is base interface of following :
+/// 
+/// - {@link TypedField}
+/// - {@link ValueExpression}
+/// - {@link IPredicate}
+/// 
 public interface TypedExpression extends Expression, TypeInfer {
 
 

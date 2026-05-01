@@ -21,12 +21,10 @@ import io.army.criteria.Statement;
 import io.army.criteria.dialect.Window;
 
 
-/**
- * @see <a href="https://www.postgresql.org/docs/current/functions-window.html">Window Functions</a>
- * @see <a href="https://www.postgresql.org/docs/current/tutorial-window.html">Window Functions tutorial</a>
- * @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Window Function Calls</a>
- * @since 0.6.0
- */
+/// @see <a href="https://www.postgresql.org/docs/current/functions-window.html">Window Functions</a>
+/// @see <a href="https://www.postgresql.org/docs/current/tutorial-window.html">Window Functions tutorial</a>
+/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Window Function Calls</a>
+/// @since 0.6.0
 public interface PostgreWindow extends Window {
 
 

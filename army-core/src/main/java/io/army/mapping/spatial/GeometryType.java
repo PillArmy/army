@@ -24,9 +24,7 @@ import io.army.mapping.MappingType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-/**
- * @see <a href="https://www.ogc.org/standards/sfa">Simple Feature Access - Part 1: Common Architecture PDF</a>
- */
+/// @see <a href="https://www.ogc.org/standards/sfa">Simple Feature Access - Part 1: Common Architecture PDF</a>
 public final class GeometryType extends ArmyGeometryType implements MappingType.SqlGeometry {
 
     public static final GeometryType TEXT = new GeometryType(String.class);

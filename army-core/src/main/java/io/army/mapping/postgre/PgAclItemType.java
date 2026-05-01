@@ -29,11 +29,9 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 
 
-/**
- * <p>
- * This class representing Postgre aclitem type {@link MappingType}
- * * @see <a href="https://www.postgresql.org/docs/current/ddl-priv.html">Privileges</a>
- */
+/// 
+/// This class representing Postgre aclitem type {@link MappingType}
+/// * @see <a href="https://www.postgresql.org/docs/current/ddl-priv.html">Privileges</a>
 public final class PgAclItemType extends _ArmyBuildInType {
 
     public static PgAclItemType from(final Class<?> javaType) {

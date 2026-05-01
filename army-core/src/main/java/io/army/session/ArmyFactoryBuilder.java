@@ -439,9 +439,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     }
 
 
-    /**
-     * @return a modified map
-     */
+    /// @return a modified map
     private Map<FieldMeta<?>, FieldCodec> createCodecMap() {
         final Collection<FieldCodec> codecs = this.fieldCodecs;
         final Map<FieldMeta<?>, FieldCodec> map;
@@ -567,9 +565,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     }
 
-    /**
-     * @return true : error
-     */
+    /// @return true : error
     @Nullable
     protected static SessionFactoryException validateSchema(SessionFactory sessionFactory, SchemaResult schemaResult) {
 

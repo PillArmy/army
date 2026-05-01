@@ -48,9 +48,7 @@ public class TextArrayType extends ArmyTextArrayType implements MappingType.SqlA
 
     public static final TextArrayType LINEAR = new TextArrayType(String[].class);
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private TextArrayType(Class<?> javaType) {
         super(javaType);
     }

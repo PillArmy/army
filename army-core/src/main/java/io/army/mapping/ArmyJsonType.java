@@ -19,23 +19,18 @@ package io.army.mapping;
 
 import io.army.sqltype.DataType;
 
-/**
- * <p>Package class
- * <p>This class is base class of following :
- * <ul>
- *     <li>{@link JsonType}</li>
- *     <li>{@link JsonbType}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// Package class
+/// This class is base class of following :
+/// 
+/// - {@link JsonType}
+/// - {@link JsonbType}
+/// 
+/// @since 0.6.0
 abstract class ArmyJsonType extends _ArmyBuildInType {
 
     final Class<?> javaType;
 
-    /**
-     * Package constructor
-     */
+    /// Package constructor
     ArmyJsonType(Class<?> javaType) {
         this.javaType = javaType;
     }

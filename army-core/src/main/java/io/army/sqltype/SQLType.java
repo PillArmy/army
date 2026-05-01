@@ -35,17 +35,14 @@ public interface SQLType extends DataType {
     Class<?> secondJavaType();
 
 
-    /**
-     * <p>
-     * For example:
-     *    <ul>
-     *        <li>one dimension BIGINT_ARRAY return BIGINT</li>
-     *        <li>tow dimension BIGINT_ARRAY return BIGINT too</li>
-     *    </ul>
-     * <br/>
-     *
-     * @return element type of array(1-n dimension)
-     */
+/// 
+/// For example:
+/// 
+/// - one dimension BIGINT_ARRAY return BIGINT
+/// - tow dimension BIGINT_ARRAY return BIGINT too
+/// 
+/// 
+/// @return element type of array(1-n dimension)
     @Nullable
     SQLType elementType();
 

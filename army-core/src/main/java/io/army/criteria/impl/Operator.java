@@ -18,9 +18,7 @@ package io.army.criteria.impl;
 
 import io.army.dialect.Database;
 
-/**
- * Package interface
- */
+/// Package interface
 interface Operator {
 
     String name();

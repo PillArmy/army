@@ -27,18 +27,15 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * <p>
- * This interface representing primary update statement.This interface is base interface of below:
- * <ul>
- *     <li>{@link Update}</li>
- *     <li>{@link BatchUpdate}</li>
- *     <li>{@link io.army.criteria.dialect.ReturningUpdate}</li>
- *     <li>{@link io.army.criteria.dialect.BatchReturningUpdate}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This interface representing primary update statement.This interface is base interface of below:
+/// 
+/// - {@link Update}
+/// - {@link BatchUpdate}
+/// - {@link io.army.criteria.dialect.ReturningUpdate}
+/// - {@link io.army.criteria.dialect.BatchReturningUpdate}
+/// 
+/// @since 0.6.0
 public interface UpdateStatement extends NarrowDmlStatement {
 
     @Deprecated
@@ -56,9 +53,7 @@ public interface UpdateStatement extends NarrowDmlStatement {
 
     }
 
-    /**
-     * @param <SR> java type of next clause.
-     */
+    /// @param <SR> java type of next clause.
     interface _StaticSetClause<F extends SqlField, SR> extends Item {
 
         SR set(F field, @Nullable Object value);
@@ -77,9 +72,7 @@ public interface UpdateStatement extends NarrowDmlStatement {
 
 
 
-    /**
-     * @param <SR> java type of next clause.
-     */
+    /// @param <SR> java type of next clause.
     interface _StaticBatchSetClause<F extends SqlField, SR> extends _StaticSetClause<F, SR> {
 
 
@@ -148,25 +141,21 @@ public interface UpdateStatement extends NarrowDmlStatement {
 
     interface _UpdateWhereAndClause<WA> extends Statement._WhereAndClause<WA> {
 
-        /**
-         * @param numberOperand see <ul>
-         *                      <li>{@link io.army.criteria.impl.SQLs#LITERAL_0}</li>
-         *                      <li>{@link io.army.criteria.impl.SQLs#LITERAL_DECIMAL_0}</li>
-         *                      <li>{@link io.army.criteria.impl.SQLs#PARAM_0}</li>
-         *                      <li>{@link io.army.criteria.impl.SQLs#PARAM_DECIMAL_0}</li>
-         *                      </ul>
-         */
+/// @param numberOperand see 
+/// - {@link io.army.criteria.impl.SQLs#LITERAL_0}
+/// - {@link io.army.criteria.impl.SQLs#LITERAL_DECIMAL_0}
+/// - {@link io.army.criteria.impl.SQLs#PARAM_0}
+/// - {@link io.army.criteria.impl.SQLs#PARAM_DECIMAL_0}
+/// 
         <T> WA ifAnd(Function<T, Expression> expOperator1, @Nullable T operand1,
                      BiFunction<Expression, Object, IPredicate> expOperator2, Object numberOperand);
 
-        /**
-         * @param numberOperand see <ul>
-         *                      <li>{@link io.army.criteria.impl.SQLs#LITERAL_0}</li>
-         *                      <li>{@link io.army.criteria.impl.SQLs#LITERAL_DECIMAL_0}</li>
-         *                      <li>{@link io.army.criteria.impl.SQLs#PARAM_0}</li>
-         *                      <li>{@link io.army.criteria.impl.SQLs#PARAM_DECIMAL_0}</li>
-         *                      </ul>
-         */
+/// @param numberOperand see 
+/// - {@link io.army.criteria.impl.SQLs#LITERAL_0}
+/// - {@link io.army.criteria.impl.SQLs#LITERAL_DECIMAL_0}
+/// - {@link io.army.criteria.impl.SQLs#PARAM_0}
+/// - {@link io.army.criteria.impl.SQLs#PARAM_DECIMAL_0}
+/// 
         <T> WA ifAnd(ExpressionOperator<TypedExpression, T, Expression> expOperator1,
                      BiFunction<TypedExpression, T, Expression> operator, @Nullable T operand1,
                      BiFunction<Expression, Object, IPredicate> expOperator2, Object numberOperand);

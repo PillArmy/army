@@ -18,19 +18,14 @@ package io.army.criteria.impl;
 
 import io.army.criteria.RowExpression;
 
-/**
- * <p>
- * This class is an abstract implementation of {@link io.army.criteria.RowExpression}.
- *
- * @since 0.6.0
- */
+/// 
+/// This class is an abstract implementation of {@link io.army.criteria.RowExpression}.
+/// @since 0.6.0
 abstract class OperationRowExpression extends OperationExpression
         implements RowExpression {
 
 
-    /**
-     * package constructor
-     */
+    /// package constructor
     OperationRowExpression() {
     }
 

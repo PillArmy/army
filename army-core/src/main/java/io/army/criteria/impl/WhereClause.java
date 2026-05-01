@@ -34,12 +34,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * <p>
- * package class
- *
- * @since 0.6.0
- */
+/// 
+/// package class
+/// @since 0.6.0
 @SuppressWarnings("unchecked")
 abstract class WhereClause<WR, WA, OR, OD, LR, LO, LF> extends LimitRowOrderByClause<OR, OD, LR, LO, LF>
         implements Statement._WhereClause<WR, WA>

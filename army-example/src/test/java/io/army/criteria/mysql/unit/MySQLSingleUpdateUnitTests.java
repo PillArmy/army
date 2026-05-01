@@ -30,10 +30,8 @@ import java.time.LocalDateTime;
 
 import static io.army.criteria.impl.SQLs.AS;
 
-/**
- * <p>
- * This class is unit test class of {@link MySQLs#singleUpdate()} and {@link MySQLs#batchSingleUpdate()}
- */
+/// 
+/// This class is unit test class of {@link MySQLs#singleUpdate()} and {@link MySQLs#batchSingleUpdate()}
 public class MySQLSingleUpdateUnitTests extends MySQLUnitTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySQLSingleUpdateUnitTests.class);

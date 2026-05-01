@@ -66,9 +66,7 @@ abstract class InsertContext extends StatementContext
 
     final List<FieldMeta<?>> fieldList;
 
-    /**
-     * nullable map
-     */
+    /// nullable map
     final Map<FieldMeta<?>, Boolean> fieldMap;
 
     private final boolean joinableInsertStmt;
@@ -91,22 +89,16 @@ abstract class InsertContext extends StatementContext
 
     final List<? extends Selection> returnSelectionList;
 
-    /**
-     * {@link #insertTable} instanceof {@link  SingleTableMeta} and  dialect support returning clause nad generated key.
-     */
+    /// {@link #insertTable} instanceof {@link  SingleTableMeta} and  dialect support returning clause nad generated key.
     final PrimaryFieldMeta<?> returnId;
 
-    /**
-     * @see #returnId
-     */
+    /// @see #returnId
     final int idSelectionIndex;
 
 
     private final boolean appendReturningClause;
 
-    /**
-     * @see #twoStmtQuery
-     */
+    /// @see #twoStmtQuery
     private final int maxColumnSize;
 
     private boolean columnListClauseEnd;
@@ -119,18 +111,14 @@ abstract class InsertContext extends StatementContext
 
     private boolean inSetClause;
 
-    /**
-     * @see #outputFieldTableAlias(boolean)
-     */
+    /// @see #outputFieldTableAlias(boolean)
     private boolean outputFieldTableAlias;
 
     private boolean appendedUpdateTime;
 
 
-    /**
-     * <p>
-     * For {@link  io.army.meta.SingleTableMeta}
-     */
+    /// 
+/// For {@link  io.army.meta.SingleTableMeta}
     InsertContext(@Nullable StatementContext outerContext, final _Insert domainStmt,
                   ArmyParser parser, SessionSpec sessionSpec) {
         super(outerContext, parser, sessionSpec);
@@ -274,10 +262,8 @@ abstract class InsertContext extends StatementContext
     }
 
 
-    /**
-     * <p>
-     * For {@link  io.army.meta.ChildTableMeta}
-     */
+    /// 
+/// For {@link  io.army.meta.ChildTableMeta}
     InsertContext(@Nullable StatementContext outerContext, final _Insert._ChildInsert stmt,
                   final InsertContext parentContext) {
         super(outerContext, parentContext.parser, parentContext.sessionSpec);
@@ -819,9 +805,7 @@ abstract class InsertContext extends StatementContext
     }
 
 
-    /**
-     * @return output values size
-     */
+    /// @return output values size
     int doAppendValuesList(int outputColumnSize, List<FieldMeta<?>> fieldList) {
         throw new UnsupportedOperationException();
     }
@@ -830,9 +814,7 @@ abstract class InsertContext extends StatementContext
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * @return selection count of sub query
-     */
+    /// @return selection count of sub query
     int doAppendSubQuery(int outputColumnSize, List<FieldMeta<?>> fieldList) {
         throw new UnsupportedOperationException();
     }
@@ -1099,10 +1081,8 @@ abstract class InsertContext extends StatementContext
         @Nullable
         abstract Object getGeneratedValue(FieldMeta<?> field);
 
-        /**
-         * <p>
-         * Must read row value not default value of column
-         */
+        /// 
+/// Must read row value not default value of column
         @Nullable
         abstract _Expression getExpression(FieldMeta<?> field);
 

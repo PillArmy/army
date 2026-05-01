@@ -79,10 +79,8 @@ public class ArmyKey<T> {
 
     public static final ArmyKey<ObjectNameCacheMode> OBJECT_NAME_CACHE_MODE = new ArmyKey<>("object_name_cache_mode", ObjectNameCacheMode.class, ObjectNameCacheMode.DEFAULT);
 
-    /**
-     * @see Column#scale()
-     * @see FieldMeta#scale()
-     */
+    /// @see Column#scale()
+/// @see FieldMeta#scale()
     public static final ArmyKey<Boolean> TRUNCATED_TIME_TYPE = new ArmyKey<>("truncated.time_type", Boolean.class, Boolean.TRUE);
 
     public static final ArmyKey<NameMode> FUNC_NAME_MODE = new ArmyKey<>("func.name.mode", NameMode.class, NameMode.DEFAULT);
@@ -91,10 +89,8 @@ public class ArmyKey<T> {
 
     public static final ArmyKey<SqlLogMode> SQL_LOG_MODE = new ArmyKey<>("sql.log.mode", SqlLogMode.class, SqlLogMode.OFF);
 
-    /**
-     * <p>Whether print meta sql or not ,when application startup.
-     * <p>Currently,jdbd support only this option
-     */
+    /// Whether print meta sql or not ,when application startup.
+/// Currently,jdbd support only this option
     public static final ArmyKey<Boolean> SQL_LOG_PRINT_META = new ArmyKey<>("sql.log.print_meta", Boolean.class, Boolean.FALSE);
 
     public static final ArmyKey<Boolean> SQL_LOG_PARSING_COST_TIME = new ArmyKey<>("sql.log.sql_parsing_cost_time", Boolean.class, Boolean.FALSE);

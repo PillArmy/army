@@ -313,10 +313,8 @@ abstract class SqlWords {
 
     enum KeyWordDocument implements SQLs.WordDocument, SQLs.ArmyKeyWord {
 
-        /**
-         * @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PREDICATES">xml IS DOCUMENT → boolean<br/>
-         * </a>
-         */
+/// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PREDICATES">xml IS DOCUMENT → boolean
+/// </a>
         DOCUMENT(" DOCUMENT");
 
         private final String spaceWord;
@@ -362,12 +360,9 @@ abstract class SqlWords {
     }//KeyWordContent
 
 
-    /**
-     * <p>
-     * package enum
-     *
-     * @since 0.6.0
-     */
+    /// 
+/// package enum
+/// @since 0.6.0
     enum BooleanTestKeyWord implements SQLs.BoolTestWord, SQLs.ArmyKeyWord {
 
         JSON(" JSON"),
@@ -816,9 +811,7 @@ abstract class SqlWords {
 
     }//KeyWordEscape
 
-    /**
-     * @see SQLs#ALL
-     */
+    /// @see SQLs#ALL
     enum QueryOperator implements SQLs.QuantifiedWord {
 
         ANY(" ANY"),

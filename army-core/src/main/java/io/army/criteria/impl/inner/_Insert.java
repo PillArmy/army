@@ -33,9 +33,7 @@ public interface _Insert extends _Statement {
     @Nullable
     String tableAlias();
 
-    /**
-     * @return non-zero,negative : query insert.
-     */
+    /// @return non-zero,negative : query insert.
     int insertRowCount();
 
     interface _SupportConflictClauseSpec {
@@ -45,9 +43,7 @@ public interface _Insert extends _Statement {
 
         boolean hasConflictAction();
 
-        /**
-         * @return true: possibly ignore when conflict
-         */
+        /// @return true: possibly ignore when conflict
         boolean isIgnorableConflict();
 
         boolean isDoNothing();
@@ -79,10 +75,8 @@ public interface _Insert extends _Statement {
     }
 
 
-    /**
-     * <p>
-     * This interface representing dialect support sub insert statement in with clause,for example PostgreSQL.
-     */
+    /// 
+/// This interface representing dialect support sub insert statement in with clause,for example PostgreSQL.
     interface _SupportWithClauseInsert extends _Insert, _WithClauseSpec {
 
     }
@@ -100,9 +94,7 @@ public interface _Insert extends _Statement {
 
     interface _ColumnListInsert extends _Insert {
 
-        /**
-         * @return a unmodifiable list ,non-empty.
-         */
+        /// @return a unmodifiable list ,non-empty.
         List<FieldMeta<?>> fieldList();
 
         Map<FieldMeta<?>, Boolean> fieldMap();
@@ -183,11 +175,8 @@ public interface _Insert extends _Statement {
 
     }
 
-    /**
-     * Primary parent query insert
-     *
-     * @see _ParentSubInsert
-     */
+    /// Primary parent query insert
+/// @see _ParentSubInsert
     interface _ParentQueryInsert extends _QueryInsert, PrimaryStatement {
 
         @Deprecated

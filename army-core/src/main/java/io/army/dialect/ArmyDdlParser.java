@@ -33,44 +33,28 @@ import java.util.Set;
 
 public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements DdlParser {
 
-    /**
-     * non-static
-     */
+    /// non-static
     protected final String SPACE_UNSIGNED = " UNSIGNED";
 
-    /**
-     * non-static
-     */
+    /// non-static
     protected final String SPACE_COMMENT = " COMMENT";
 
-    /**
-     * non-static
-     */
+    /// non-static
     protected final String COMMA_PRIMARY_KEY = " ,\n\tPRIMARY KEY";
 
-    /**
-     * non-static
-     */
+    /// non-static
     protected final String COMMA_UNIQUE = " ,\n\tUNIQUE";
 
-    /**
-     * non-static
-     */
+    /// non-static
     protected final String COMMA_INDEX = " ,\n\tINDEX";
 
-    /**
-     * non-static
-     */
+    /// non-static
     protected final String ALTER_COLUMN_SPACE = "ALTER COLUMN ";
 
-    /**
-     * non-static
-     */
+    /// non-static
     protected final String SPACE_DROP_DEFAULT = " DROP DEFAULT";
 
-    /**
-     * non-static
-     */
+    /// non-static
     protected final String SPACE_SET_DEFAULT_SPACE = " SET DEFAULT ";
 
 
@@ -657,9 +641,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
     }
 
 
-    /**
-     * @param builder length is zero
-     */
+    /// @param builder length is zero
     protected <T> void appendIndexOutTableDef(final IndexMeta<T> index, final StringBuilder builder) {
 
     }
@@ -705,9 +687,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
     }
 
 
-    /**
-     * @return true : complete
-     */
+    /// @return true : complete
     protected final boolean checkDefaultComplete(final FieldMeta<?> field, final String value) {
         final char[] array = value.toCharArray();
         final char identifierQuote = this.parser.identifierQuote;
@@ -966,9 +946,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
     }
 
 
-    /**
-     * @see #createTable(TableMeta, List)
-     */
+    /// @see #createTable(TableMeta, List)
     private <T> void appendOuterComment(final TableMeta<T> table, final List<String> sqlList) {
         StringBuilder commentBuilder;
 
@@ -1003,9 +981,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
 
     }
 
-    /**
-     * @see #createTable(TableMeta, List)
-     */
+    /// @see #createTable(TableMeta, List)
     private <T> void doAppendIndexInTableDef(final TableMeta<T> table, final StringBuilder builder) {
         final ArmyParser parser = this.parser;
         for (IndexMeta<T> index : table.indexList()) {
@@ -1038,9 +1014,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
 
     }
 
-    /**
-     * @see #createTable(TableMeta, List)
-     */
+    /// @see #createTable(TableMeta, List)
     private <T> void appendIndexAfterTableDef(final TableMeta<T> table, final List<String> sqlList) {
         final ArmyParser parser = this.parser;
         final StringBuilder builder = new StringBuilder(30);

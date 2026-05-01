@@ -35,9 +35,7 @@ public final class PolygonType extends _ArmyBuildInType implements MappingType.S
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private PolygonType(Class<?> javaType) {
         this.javaType = javaType;
     }

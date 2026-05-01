@@ -26,24 +26,19 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
 
-/**
- * <p>Package class
- * <p>This class is base class of following :
- * <ul>
- *     <li>{@link TinyTextArrayType}</li>
- *     <li>{@link TextArrayType}</li>
- *     <li>{@link MediumTextArrayType}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// Package class
+/// This class is base class of following :
+/// 
+/// - {@link TinyTextArrayType}
+/// - {@link TextArrayType}
+/// - {@link MediumTextArrayType}
+/// 
+/// @since 0.6.0
 abstract class ArmyTextArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
     final Class<?> javaType;
 
-    /**
-     * package constructor
-     */
+    /// package constructor
     ArmyTextArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

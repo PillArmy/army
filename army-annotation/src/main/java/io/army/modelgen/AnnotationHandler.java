@@ -526,9 +526,7 @@ final class AnnotationHandler {
     }
 
 
-    /**
-     * @return lower case column
-     */
+    /// @return lower case column
     private String getColumnName(final String className, final String fieldName, final Column column) {
         final String customColumnName, lowerCaseColumnName;
         customColumnName = column.name();

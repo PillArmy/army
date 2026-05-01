@@ -37,9 +37,7 @@ public final class NoCastTextType extends _ArmyBuildInType implements MappingTyp
 
     public static final NoCastTextType INSTANCE = new NoCastTextType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private NoCastTextType() {
     }
 

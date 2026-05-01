@@ -26,10 +26,8 @@ import java.math.BigDecimal;
 import java.time.*;
 
 
-/**
- * @see <a href="https://sqlite.org/datatype3.html">Datatypes In SQLite</a>
- * @see <a href="https://sqlite.org/datatypes.html">Datatypes In SQLite Version 2</a>
- */
+/// @see <a href="https://sqlite.org/datatype3.html">Datatypes In SQLite</a>
+/// @see <a href="https://sqlite.org/datatypes.html">Datatypes In SQLite Version 2</a>
 public enum SQLiteType implements SQLType {
 
     NULL("NULL", ArmyType.NULL, Object.class),

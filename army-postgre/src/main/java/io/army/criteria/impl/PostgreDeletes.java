@@ -41,13 +41,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * <p>
- * This class is the implementation of Postgre DELETE syntax.
- *
- * @see PostgreDelete
- * @since 0.6.0
- */
+/// 
+/// This class is the implementation of Postgre DELETE syntax.
+/// @see PostgreDelete
+/// @since 0.6.0
 abstract class PostgreDeletes<I extends Item, Q extends Item> extends JoinableDelete<
         I,
         PostgreCtes,
@@ -875,9 +872,7 @@ abstract class PostgreDeletes<I extends Item, Q extends Item> extends JoinableDe
 
         private final Function<SubStatement, I> function;
 
-        /**
-         * @see #subSimpleDelete(CriteriaContext, Function)
-         */
+        /// @see #subSimpleDelete(CriteriaContext, Function)
         private SubSimpleDelete(CriteriaContext outerContext, Function<SubStatement, I> function) {
             super(null, CriteriaContexts.subJoinableSingleDeleteContext(PostgreUtils.DIALECT, outerContext));
             this.function = function;

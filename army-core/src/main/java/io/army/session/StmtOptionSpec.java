@@ -22,29 +22,24 @@ import io.army.lang.Nullable;
 import java.util.function.Consumer;
 
 
-/**
- * <p>This interface is base interface of following :
- * <ul>
- *     <li>{@link StmtOption}</li>
- *     <li>{@code  io.army.sync.StreamOption}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// This interface is base interface of following :
+/// 
+/// - {@link StmtOption}
+/// - {@code  io.army.sync.StreamOption}
+/// 
+/// @since 0.6.0
 public interface StmtOptionSpec {
 
 
-    /**
-     * <p>If fetch size is positive then use database server forward cursor.
-     * <p><strong>Limitations</strong> of fetch size :
-     * <ul>
-     *     <li>JDBC :
-     *          <ul>
-     *              <li>Postgre : postgre jdbc command {@code java.sql.Connection} is auto commit,so you have to use fetch size in transaction. More document see {@code  io.army.env.SyncKey.POSTGRE_FETCH_SIZE_AUTO_COMMIT}</li>
-     *          </ul>
-     *     </li>
-     * </ul>
-     */
+/// If fetch size is positive then use database server forward cursor.
+/// **Limitations** of fetch size :
+/// 
+/// - JDBC :
+/// 
+/// - Postgre : postgre jdbc command {@code java.sql.Connection} is auto commit,so you have to use fetch size in transaction. More document see {@code  io.army.env.SyncKey.POSTGRE_FETCH_SIZE_AUTO_COMMIT}
+/// 
+/// 
+/// 
     int fetchSize();
 
     Consumer<ResultStates> stateConsumer();

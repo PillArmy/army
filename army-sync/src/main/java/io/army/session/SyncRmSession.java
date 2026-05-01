@@ -25,41 +25,39 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-/**
- * <p>This interface representing blocking RM(Resource Manager) {@link SyncSession} in XA transaction.
- * <p>This interface extends {@link RmSession} for support XA interface based on
- * the X/Open CAE Specification (Distributed Transaction Processing: The XA Specification).<br/>
- * This document is published by The Open Group and available at
- * <a href="http://www.opengroup.org/public/pubs/catalog/c193.htm">The XA Specification</a>,
- * here ,you can download the pdf about The XA Specification.
- * <p>The instance of this interface is created by {@link SyncSessionFactory.RmSessionBuilder#build()}.
- * <p>Application developer can control XA transaction by following methods :
- * <ol>
- *     <li>{@link #start(Xid, int, TransactionOption)}</li>
- *     <li>{@link #end(Xid, int, Function)}</li>
- *     <li>{@link #prepare(Xid, Function)}</li>
- *     <li>{@link #commit(Xid, int, Function)}</li>
- *     <li>{@link #rollback(Xid, Function)}</li>
- *     <li>{@link #forget(Xid, Function)}</li>
- *     <li>{@link #recoverList(int, Function)}</li>
- *     <li>{@link #recover(int, Function, StreamOption)}</li>
- *     <li>{@link #isSupportForget()}</li>
- * </ol>
- * and following methods :
- * <ul>
- *     <li>{@link #inTransaction()}</li>
- *     <li>{@link #hasTransactionInfo()}</li>
- *     <li>{@link #isRollbackOnly()}</li>
- *     <li>{@link #transactionInfo()}</li>
- *     <li>{@link #setTransactionCharacteristics(TransactionOption)}</li>
- *     <li>{@link #startSupportFlags()}</li>
- *     <li>{@link #endSupportFlags()}</li>
- *     <li>{@link #recoverSupportFlags()}</li>
- *     <li>{@link #isSameRm(XaTransactionSupportSpec)}</li>
- * </ul>
- * @see SyncSessionFactory
- * @since 0.6.0
- */
+/// This interface representing blocking RM(Resource Manager) {@link SyncSession} in XA transaction.
+/// This interface extends {@link RmSession} for support XA interface based on
+/// the X/Open CAE Specification (Distributed Transaction Processing: The XA Specification).
+/// This document is published by The Open Group and available at
+/// <a href="http://www.opengroup.org/public/pubs/catalog/c193.htm">The XA Specification</a>,
+/// here ,you can download the pdf about The XA Specification.
+/// The instance of this interface is created by {@link SyncSessionFactory.RmSessionBuilder#build()}.
+/// Application developer can control XA transaction by following methods :
+/// 
+/// - {@link #start(Xid, int, TransactionOption)}
+/// - {@link #end(Xid, int, Function)}
+/// - {@link #prepare(Xid, Function)}
+/// - {@link #commit(Xid, int, Function)}
+/// - {@link #rollback(Xid, Function)}
+/// - {@link #forget(Xid, Function)}
+/// - {@link #recoverList(int, Function)}
+/// - {@link #recover(int, Function, StreamOption)}
+/// - {@link #isSupportForget()}
+/// 
+/// and following methods :
+/// 
+/// - {@link #inTransaction()}
+/// - {@link #hasTransactionInfo()}
+/// - {@link #isRollbackOnly()}
+/// - {@link #transactionInfo()}
+/// - {@link #setTransactionCharacteristics(TransactionOption)}
+/// - {@link #startSupportFlags()}
+/// - {@link #endSupportFlags()}
+/// - {@link #recoverSupportFlags()}
+/// - {@link #isSameRm(XaTransactionSupportSpec)}
+/// 
+/// @see SyncSessionFactory
+/// @since 0.6.0
 public sealed interface SyncRmSession extends SyncSession, PackageSession.PackageRmSession permits ArmySyncRmSession {
 
     TransactionInfo start(Xid xid);
@@ -90,13 +88,11 @@ public sealed interface SyncRmSession extends SyncSession, PackageSession.Packag
 
     void forget(Xid xid);
 
-    /**
-     * @throws SessionException throw when
-     *                          <ul>
-     *                              <li>{@link #isSupportForget()} return false</li>
-     *                          </ul>
-     * @see #isSupportForget()
-     */
+/// @throws SessionException throw when
+/// 
+/// - {@link #isSupportForget()} return false
+/// 
+/// @see #isSupportForget()
     void forget(Xid xid, Function<Option<?>, ?> optionFunc);
 
     List<Xid> recoverList(int flags);

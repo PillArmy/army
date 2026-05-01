@@ -28,22 +28,19 @@ import io.army.util.ClassUtils;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-/**
- * <p>
- * This class is mapping class of {@link Double}.
- * This mapping type can convert below java type:
- * <ul>
- *     <li>{@link Byte}</li>
- *     <li>{@link Short}</li>
- *     <li>{@link Integer}</li>
- *     <li>{@link Float}</li>
- *     <li>{@link Boolean},true:1d,false:0d</li>
- *     <li>{@link String} </li>
- * </ul>
- *  to {@link Double},if overflow,throw {@link io.army.ArmyException}
- *
- * @since 0.6.0
- */
+/// 
+/// This class is mapping class of {@link Double}.
+/// This mapping type can convert below java type:
+/// 
+/// - {@link Byte}
+/// - {@link Short}
+/// - {@link Integer}
+/// - {@link Float}
+/// - {@link Boolean},true:1d,false:0d
+/// - {@link String} 
+/// 
+/// to {@link Double},if overflow,throw {@link io.army.ArmyException}
+/// @since 0.6.0
 public final class DoubleType extends _NumericType._FloatNumericType {
 
 
@@ -56,9 +53,7 @@ public final class DoubleType extends _NumericType._FloatNumericType {
 
     public static final DoubleType INSTANCE = new DoubleType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private DoubleType() {
     }
 

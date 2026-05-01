@@ -25,15 +25,12 @@ import io.army.criteria.impl.SQLs;
 import io.army.lang.Nullable;
 import java.util.function.Consumer;
 
-/**
- * <p>This interface representing MySQL SET statement.
- * <p>More document see {@link MySQLs#setStmt()}.
- *
- * @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">SET Syntax for Variable Assignment</a>
- * @see <a href="https://dev.mysql.com/doc/refman/8.3/en/server-system-variables.html">Server System Variables</a>
- * @see <a href="https://dev.mysql.com/doc/refman/8.3/en/user-variables.html">User-Defined Variables</a>
- * @since 0.6.6
- */
+/// This interface representing MySQL SET statement.
+/// More document see {@link MySQLs#setStmt()}.
+/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">SET Syntax for Variable Assignment</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/server-system-variables.html">Server System Variables</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/user-variables.html">User-Defined Variables</a>
+/// @since 0.6.6
 public interface MySQLSet extends MySQLStatement {
 
 

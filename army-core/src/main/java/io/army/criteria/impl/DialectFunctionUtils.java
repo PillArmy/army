@@ -159,10 +159,8 @@ abstract class DialectFunctionUtils extends FunctionUtils {
         return selectionList;
     }
 
-    /**
-     * <p>
-     * For {@link UndoneFunction}
-     */
+    /// 
+/// For {@link UndoneFunction}
     static _FunctionField funcField(final @Nullable String name, final @Nullable MappingType type) {
         if (name == null) {
             throw ContextStack.clearStackAndNullPointer();
@@ -184,10 +182,8 @@ abstract class DialectFunctionUtils extends FunctionUtils {
 
     /*-------------------below inner class -------------------*/
 
-    /**
-     * <p>
-     * This class don't support {@link Functions._WithOrdinalityClause}.
-     */
+    /// 
+/// This class don't support {@link Functions._WithOrdinalityClause}.
     private static final class CompositeTabularFunction implements Functions._TabularFunction, _DerivedTable,
             _SelfDescribed {
 
@@ -482,9 +478,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
 
         private final ArmyExpression one;
 
-        /**
-         * @see #oneArgColumnFunction(String, Expression, String)
-         */
+        /// @see #oneArgColumnFunction(String, Expression, String)
         private OneArgColumnFunction(String name, boolean buildIn, @Nullable String fieldName, Expression one) {
             super(name, buildIn, fieldName);
             this.one = (ArmyExpression) one;
@@ -586,9 +580,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
 
         private final ArmyExpression four;
 
-        /**
-         * @see #fourArgColumnFunction(String, Expression, Expression, Expression, Expression, String)
-         */
+        /// @see #fourArgColumnFunction(String, Expression, Expression, Expression, Expression, String)
         private FourArgColumnFunction(String name, boolean buildIn, @Nullable String fieldName, Expression one, Expression two,
                                       Expression three, Expression four) {
             super(name, buildIn, fieldName);
@@ -759,9 +751,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
 
         private final FunctionArg one;
 
-        /**
-         * @see DialectFunctionUtils#oneArgTabularFunc(String, Expression, List)
-         */
+        /// @see DialectFunctionUtils#oneArgTabularFunc(String, Expression, List)
         private OneArgTabularFunction(String name, boolean buildIn, Expression one, List<Selection> funcFieldList) {
             super(name, buildIn, funcFieldList);
             this.one = (FunctionArg) one;
@@ -787,9 +777,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
 
         private final FunctionArg two;
 
-        /**
-         * @see DialectFunctionUtils#twoArgTabularFunc(String, Expression, Expression, List)
-         */
+        /// @see DialectFunctionUtils#twoArgTabularFunc(String, Expression, Expression, List)
         private TwoArgTabularFunction(String name, boolean buildIn, Expression one, Expression two, List<Selection> funcFieldList) {
             super(name, buildIn, funcFieldList);
             this.one = (FunctionArg) one;
@@ -823,9 +811,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
 
         private final FunctionArg three;
 
-        /**
-         * @see DialectFunctionUtils#twoArgTabularFunc(String, Expression, Expression, List)
-         */
+        /// @see DialectFunctionUtils#twoArgTabularFunc(String, Expression, Expression, List)
         private ThreeArgTabularFunction(String name, boolean buildIn, Expression one, Expression two, Expression three,
                                         List<Selection> funcFieldList) {
             super(name, buildIn, funcFieldList);
@@ -947,9 +933,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
 
         private final ArmyExpression one;
 
-        /**
-         * @see #oneArgUndoneFunc(String, Expression)
-         */
+        /// @see #oneArgUndoneFunc(String, Expression)
         private OneArgUndoneFunction(String name, boolean buildIn, Expression one) {
             super(name, buildIn);
             this.one = (ArmyExpression) one;
@@ -998,9 +982,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
             return this.name;
         }
 
-        /**
-         * @return function field must return {@link MappingType}, not {@link TableField}
-         */
+        /// @return function field must return {@link MappingType}, not {@link TableField}
         @Override
         public final MappingType typeMeta() {
             return this.type;
@@ -1022,16 +1004,12 @@ abstract class DialectFunctionUtils extends FunctionUtils {
     } // FunctionField
 
 
-    /**
-     * <p>
-     * For {@link UndoneFunction}
-     */
+    /// 
+/// For {@link UndoneFunction}
     private static final class NamedFunctionField extends FunctionField {
 
 
-        /**
-         * @see #funcField(String, MappingType)
-         */
+        /// @see #funcField(String, MappingType)
         private NamedFunctionField(String name, MappingType type) {
             super(name, type);
         }

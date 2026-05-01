@@ -21,13 +21,10 @@ import io.army.criteria.impl.inner._BatchStatement;
 import io.army.criteria.impl.inner._PrimaryRowSet;
 
 
-/**
- * <p>
- * package interface
- *
- * @see ArmySelect
- * @since 0.6.0
- */
+/// 
+/// package interface
+/// @see ArmySelect
+/// @since 0.6.0
 interface ArmyBatchSelect extends _PrimaryRowSet, BatchSelect, _BatchStatement {
 
 

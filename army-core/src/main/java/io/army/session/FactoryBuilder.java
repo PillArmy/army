@@ -35,40 +35,28 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/**
- * <p>This interface representing the builder spec of {@link SessionFactory} .
- * <p>This interface is base interface of all factory builder.
- * <p>package interface
- *
- * @param <B> factory builder java type,it is the sub interface of this interface
- * @param <R> sync session factory or Mono
- * @since 0.6.0
- */
+/// This interface representing the builder spec of {@link SessionFactory} .
+/// This interface is base interface of all factory builder.
+/// package interface
+/// @param <B> factory builder java type,it is the sub interface of this interface
+/// @param <R> sync session factory or Mono
+/// @since 0.6.0
 public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
 
 
-    /**
-     * <p>Required.
-     *
-     * @param sessionFactoryName non-empty
-     * @return <strong>this</strong>
-     */
+/// Required.
+/// @param sessionFactoryName non-empty
+/// @return **this**
     B name(String sessionFactoryName);
 
-    /**
-     * <p>Required.
-     *
-     * @return <strong>this</strong>
-     */
+/// Required.
+/// @return **this**
     B environment(ArmyEnvironment environment);
 
-    /**
-     * <p>Required.
-     * <p>dataSource can be the instance of {@link io.army.datasource.ReadWriteSplittingDataSource}.
-     *
-     * @return <strong>this</strong>
-     * @see io.army.datasource.ReadWriteSplittingDataSource
-     */
+/// Required.
+/// dataSource can be the instance of {@link io.army.datasource.ReadWriteSplittingDataSource}.
+/// @return **this**
+/// @see io.army.datasource.ReadWriteSplittingDataSource
     B datasource(Object dataSource);
 
     /// Required
@@ -76,13 +64,10 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
     /// @see io.army.criteria.impl._TableMetaFactory#getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     B packagesToScan(List<String> packageList);
 
-    /**
-     * <p>Optional.
-     *
-     * @param catalog catalog or empty
-     * @param schema  schema or empty
-     * @return <strong>this</strong>
-     */
+/// Optional.
+/// @param catalog catalog or empty
+/// @param schema  schema or empty
+/// @return **this**
     B schema(String catalog, String schema);
 
     /*
@@ -92,63 +77,42 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
      */
     //   B fieldCodecs(Collection<FieldCodec> fieldCodecs);
 
-    /**
-     * <p>Optional.
-     *
-     * @return <strong>this</strong>
-     */
+/// Optional.
+/// @return **this**
     B jsonCodec(@Nullable JsonCodec codec);
 
-    /**
-     * <p>Optional.
-     *
-     * @return <strong>this</strong>
-     */
+/// Optional.
+/// @return **this**
     B xmlCodec(@Nullable XmlCodec codec);
 
-    /**
-     * <p>Optional.
-     *
-     * @return <strong>this</strong>
-     */
+/// Optional.
+/// @return **this**
     B factoryAdvice(@Nullable Collection<FactoryAdvice> factoryAdvices);
 
 
-    /**
-     * <p>Optional.
-     *
-     * @return <strong>this</strong>
-     */
+/// Optional.
+/// @return **this**
     B fieldGeneratorFactory(@Nullable FieldGeneratorFactory factory);
 
 
-    /**
-     * <p>Optional.
-     * See
-     * <ul>
-     *     <li>{@link ExecutorFactoryProvider#createServerMeta(Function)}</li>
-     *     <li>{@link Database#mapToDatabase(String, Function)}</li>
-     * </ul>
-     *
-     * @return <strong>this</strong>
-     */
+/// Optional.
+/// See
+/// 
+/// - {@link ExecutorFactoryProvider#createServerMeta(Function)}
+/// - {@link Database#mapToDatabase(String, Function)}
+/// 
+/// @return **this**
     B nameToDatabaseFunc(@Nullable Function<String, Database> function);
 
-    /**
-     * <p>Optional.
-     * <p>Set a consumer for validating {@link ExecutorFactoryProvider} is the instance which you want.
-     * <p>See {@code io.army.env.SyncKey#EXECUTOR_PROVIDER} and  see {@code io.army.env.ReactiveKey#EXECUTOR_PROVIDER}
-     *
-     * @return <strong>this</strong>
-     */
+/// Optional.
+/// Set a consumer for validating {@link ExecutorFactoryProvider} is the instance which you want.
+/// See {@code io.army.env.SyncKey#EXECUTOR_PROVIDER} and  see {@code io.army.env.ReactiveKey#EXECUTOR_PROVIDER}
+/// @return **this**
     B executorFactoryProviderValidator(@Nullable Consumer<ExecutorFactoryProvider> consumer);
 
-    /**
-     * <p>Optional.
-     * <p>See {@link ResultRecord#get(int, Class)} and {@link ExecutorEnv#converterFunc()}
-     *
-     * @return <strong>this</strong>
-     */
+/// Optional.
+/// See {@link ResultRecord#get(int, Class)} and {@link ExecutorEnv#converterFunc()}
+/// @return **this**
     B columnConverterFunc(@Nullable Function<Class<?>, Function<Object, ?>> converterFunc);
 
     <T> B dataSourceOption(Option<T> option, @Nullable T value);
@@ -175,21 +139,18 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
 
     B definedTypeMapFunc(@Nullable DefinedTypeMapFunc func);
 
-    /**
-     * <p>Create {@link SessionFactory} instance
-     *
-     * @return <ul>
-     * <li>sync api : {@link SessionFactory} instance</li>
-     * <li>reactive api : Mono of {@link SessionFactory} instance</li>
-     * </ul>
-     * @throws SessionFactoryException throw (emit) when
-     *                                 <ul>
-     *                                     <li>required properties absent</li>
-     *                                     <li>name duplication</li>
-     *                                     <li>access database occur error</li>
-     *                                     <li>properties error</li>
-     *                                 </ul>
-     */
+/// Create {@link SessionFactory} instance
+/// @return 
+/// - sync api : {@link SessionFactory} instance
+/// - reactive api : Mono of {@link SessionFactory} instance
+/// 
+/// @throws SessionFactoryException throw (emit) when
+/// 
+/// - required properties absent
+/// - name duplication
+/// - access database occur error
+/// - properties error
+/// 
     R build();
 
 }

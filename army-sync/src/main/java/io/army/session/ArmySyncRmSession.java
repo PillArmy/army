@@ -33,12 +33,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * <p>This class is a implementation of {@link SyncRmSession}
- *
- * @see ArmySyncSessionFactory
- * @since 0.6.0
- */
+/// This class is a implementation of {@link SyncRmSession}
+/// @see ArmySyncSessionFactory
+/// @since 0.6.0
 non-sealed class ArmySyncRmSession extends ArmySyncSession implements SyncRmSession {
 
     static ArmySyncRmSession create(ArmySyncSessionFactory.RmBuilder builder) {
@@ -58,9 +55,7 @@ non-sealed class ArmySyncRmSession extends ArmySyncSession implements SyncRmSess
 
     private boolean rollbackOnly;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ArmySyncRmSession(ArmySyncSessionFactory.RmBuilder builder) {
         super(builder);
         assert this.executor instanceof SyncRmExecutor;

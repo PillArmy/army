@@ -35,9 +35,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-/**
- * @see JoinableUpdate
- */
+/// @see JoinableUpdate
 
 @SuppressWarnings("unchecked")
 abstract class SetWhereClause<F extends TableField, SR, WR, WA, OR, OD, LR, LO, LF>
@@ -53,9 +51,7 @@ abstract class SetWhereClause<F extends TableField, SR, WR, WA, OR, OD, LR, LO, 
 
     final String tableAlias;
 
-    /**
-     * @param tableAlias for {@link SingleUpdateStatement} non-null and  non-empty,for other non-null
-     */
+    /// @param tableAlias for {@link SingleUpdateStatement} non-null and  non-empty,for other non-null
     SetWhereClause(CriteriaContext context, TableMeta<?> updateTable, String tableAlias) {
         super(context);
         ContextStack.assertNonNull(updateTable);

@@ -30,16 +30,13 @@ import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * <p>
- * This class is mapping of enum that implements {@link CodeEnum}.
- * * @see Enum
- *
- * @see io.army.struct.CodeEnum
- * @see TextEnumType
- * @see NameEnumType
- * @since 0.6.0
- */
+/// 
+/// This class is mapping of enum that implements {@link CodeEnum}.
+/// * @see Enum
+/// @see io.army.struct.CodeEnum
+/// @see TextEnumType
+/// @see NameEnumType
+/// @since 0.6.0
 public final class CodeEnumType extends _ArmyNoInjectionType {
 
 
@@ -64,9 +61,7 @@ public final class CodeEnumType extends _ArmyNoInjectionType {
 
     private final Map<Integer, ? extends CodeEnum> codeMap;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private CodeEnumType(Class<?> enumClass) {
         this.enumClass = enumClass;
         this.codeMap = CodeEnum.getCodeToEnumMap(enumClass);

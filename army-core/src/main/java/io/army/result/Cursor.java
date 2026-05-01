@@ -22,39 +22,30 @@ import io.army.session.Session;
 import io.army.spec.CloseableSpec;
 import io.army.spec.OptionSpec;
 
-/**
- * <p>This interface representing database cursor.
- * <p>This interface is base interface of following :
- * <ul>
- *     <li>{@link StmtCursor},it's produced by statement,army know {@link Selection} list</li>
- *     <li>{@link ProcCursor},it's produced by procedure,army don't know {@link Selection} list</li>
- *     <li>{@code io.army.sync.SyncCursor} blocking cursor</li>
- *     <li>{@code io.army.reactive.ReactiveCursor} reactive cursor</li>
- * </ul>
- *
- * @see ResultStates#valueOf(Option)
- * @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
- * @see <a href="https://www.postgresql.org/docs/current/sql-fetch.html">PostgreSQL FETCH</a>
- * @since 0.6.0
- */
+/// This interface representing database cursor.
+/// This interface is base interface of following :
+/// 
+/// - {@link StmtCursor},it's produced by statement,army know {@link Selection} list
+/// - {@link ProcCursor},it's produced by procedure,army don't know {@link Selection} list
+/// - {@code io.army.sync.SyncCursor} blocking cursor
+/// - {@code io.army.reactive.ReactiveCursor} reactive cursor
+/// 
+/// @see ResultStates#valueOf(Option)
+/// @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
+/// @see <a href="https://www.postgresql.org/docs/current/sql-fetch.html">PostgreSQL FETCH</a>
+/// @since 0.6.0
 public interface Cursor extends CloseableSpec, OptionSpec {
 
 
-    /**
-     * <p>Get cursor name from DECLARE cursor statement or stored procedure.
-     * <p>Postgre example 1 : my_cursor -> my_cursor
-     * <p>Postgre example 2 : myCursor -> myCursor
-     *
-     * @see StmtCursor#safeName()
-     */
+    /// Get cursor name from DECLARE cursor statement or stored procedure.
+/// Postgre example 1 : my_cursor -> my_cursor
+/// Postgre example 2 : myCursor -> myCursor
+/// @see StmtCursor#safeName()
     String name();
 
 
-    /**
-     * Get The {@link Session} that create this instance.
-     *
-     * @return The {@link Session} that create this instance.
-     */
+    /// Get The {@link Session} that create this instance.
+/// @return The {@link Session} that create this instance.
     Session session();
 
 

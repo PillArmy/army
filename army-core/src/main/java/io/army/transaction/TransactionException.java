@@ -18,9 +18,7 @@ package io.army.transaction;
 
 import io.army.session.SessionException;
 
-/**
- * Superclass for all transaction exceptions.
- */
+/// Superclass for all transaction exceptions.
 public abstract class TransactionException extends SessionException {
 
 

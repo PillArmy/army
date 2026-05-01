@@ -30,8 +30,7 @@ import java.util.Locale;
 import static java.time.temporal.ChronoField.*;
 
 
-/**
-*/
+
 public abstract class _TimeUtils {
 
     private _TimeUtils() {
@@ -43,9 +42,7 @@ public abstract class _TimeUtils {
 
     private static final String NO_OFFSET_TEXT = "+00:00";
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/time.html">The TIME Type</a>
-     */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/time.html">The TIME Type</a>
     private static final int MYSQL_DURATION_MAX_SECOND = 838 * 3600 + 59 * 60 + 59;
 
 
@@ -335,10 +332,8 @@ public abstract class _TimeUtils {
     }
 
 
-    /**
-     * @return true: timeText representing {@link Duration}.
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/time.html">The TIME Type</a>
-     */
+/// @return true: timeText representing {@link Duration}.
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/time.html">The TIME Type</a>
     public static boolean isDuration(final String timeText) {
         int index = timeText.indexOf(':');
         final boolean duration;
@@ -353,10 +348,8 @@ public abstract class _TimeUtils {
     }
 
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/time.html">The TIME Type</a>
-     * @see #convertToDuration(LocalTime)
-     */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/time.html">The TIME Type</a>
+/// @see #convertToDuration(LocalTime)
     public static Duration parseTimeAsDuration(final String timeText) throws DateTimeException {
 
         try {
@@ -453,11 +446,9 @@ public abstract class _TimeUtils {
         return builder.toString();
     }
 
-    /**
-     * @param time {@link LocalTime} that underlying {@link java.time.ZoneOffset} match with database.
-     * @see #parseTimeAsDuration(String)
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/time.html">The TIME Type</a>
-     */
+/// @param time {@link LocalTime} that underlying {@link java.time.ZoneOffset} match with database.
+/// @see #parseTimeAsDuration(String)
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/time.html">The TIME Type</a>
     public static Duration convertToDuration(LocalTime time) throws IllegalArgumentException {
         final long totalSecond;
         totalSecond = time.getHour() * 3600L + time.getMinute() * 60L + time.getSecond();
@@ -647,29 +638,22 @@ public abstract class _TimeUtils {
     }//OffsetTimeFormatterExtensionHolder
 
 
-    /**
-     * This TemporalUnit is designed for following :
-     * <ul>
-     *     <li>{@link LocalDateTime#truncatedTo(TemporalUnit)}</li>
-     *     <li>{@link OffsetDateTime#truncatedTo(TemporalUnit)}</li>
-     *     <li>{@link ZonedDateTime#truncatedTo(TemporalUnit)}</li>
-     *     <li>{@link LocalTime#truncatedTo(TemporalUnit)}</li>
-     *     <li>{@link OffsetTime#truncatedTo(TemporalUnit)}</li>
-     * </ul>
-     *
-     * @since 0.6.0
-     */
+/// This TemporalUnit is designed for following :
+/// 
+/// - {@link LocalDateTime#truncatedTo(TemporalUnit)}
+/// - {@link OffsetDateTime#truncatedTo(TemporalUnit)}
+/// - {@link ZonedDateTime#truncatedTo(TemporalUnit)}
+/// - {@link LocalTime#truncatedTo(TemporalUnit)}
+/// - {@link OffsetTime#truncatedTo(TemporalUnit)}
+/// 
+/// @since 0.6.0
     private enum TruncatedUnit implements TemporalUnit {
 
-        /**
-         * @see ChronoUnit#MICROS
-         */
+        /// @see ChronoUnit#MICROS
         MICROS_10(Duration.ofNanos(10_000)),
         MICROS_100(Duration.ofNanos(100_000)),
 
-        /**
-         * @see ChronoUnit#MILLIS
-         */
+        /// @see ChronoUnit#MILLIS
         MILLIS_10(Duration.ofMillis(10)),
         MILLIS_100(Duration.ofMillis(100));
 

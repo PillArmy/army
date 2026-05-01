@@ -22,9 +22,7 @@ public interface ColumnInfo {
 
     String columnName();
 
-    /**
-     * @return upper case type name.
-     */
+    /// @return upper case type name.
     String typeName();
 
     @Nullable

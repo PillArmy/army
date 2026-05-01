@@ -45,9 +45,7 @@ public class OperatorUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see Postgres#collate(Expression, String)
-     */
+    /// @see Postgres#collate(Expression, String)
     @Test
     public void collateOpe() {
         Select stmt;

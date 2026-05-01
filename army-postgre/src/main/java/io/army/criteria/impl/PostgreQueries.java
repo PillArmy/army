@@ -657,21 +657,17 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
 
     /*-------------------below private method -------------------*/
 
-    /**
-     * @see #from(Function)
-     * @see #crossJoin(Function)
-     */
+    /// @see #from(Function)
+/// @see #crossJoin(Function)
     private _JoinSpec<I> fromNestedEnd(final _JoinType joinType, final _NestedItems nestedItems) {
         this.blockConsumer.accept(TabularBlocks.fromNestedBlock(joinType, nestedItems));
         return this;
     }
 
-    /**
-     * @see #leftJoin(Function)
-     * @see #join(Function)
-     * @see #rightJoin(Function)
-     * @see #fullJoin(Function)
-     */
+    /// @see #leftJoin(Function)
+/// @see #join(Function)
+/// @see #rightJoin(Function)
+/// @see #fullJoin(Function)
     private _OnClause<_JoinSpec<I>> joinNestedEnd(final _JoinType joinType, final _NestedItems nestedItems) {
 
         final TabularBlocks.JoinClauseNestedBlock<_JoinSpec<I>> block;
@@ -680,9 +676,7 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
         return block;
     }
 
-    /**
-     * @return get the table block of last FROM or CROSS JOIN clause
-     */
+    /// @return get the table block of last FROM or CROSS JOIN clause
     private PostgreSupports.FromClauseTableBlock getFromClauseBlock() {
         final _TabularBlock block = this.fromCrossBlock;
         if (block != this.context.lastBlock() || !(block instanceof PostgreSupports.FromClauseTableBlock)) {
@@ -691,9 +685,7 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
         return (PostgreSupports.FromClauseTableBlock) block;
     }
 
-    /**
-     * @return get the derived block of last FROM or CROSS JOIN clause
-     */
+    /// @return get the derived block of last FROM or CROSS JOIN clause
     private TabularBlocks.FromClauseAliasDerivedBlock getFromDerivedBlock() {
         final _TabularBlock block = this.fromCrossBlock;
         if (block != this.context.lastBlock() || !(block instanceof TabularBlocks.FromClauseAliasDerivedBlock)) {
@@ -703,9 +695,7 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
     }
 
 
-    /**
-     * @see #comma(String)
-     */
+    /// @see #comma(String)
     private _WindowCommaSpec<I> onAddWindow(final ArmyWindow window) {
         window.endWindowClause();
         List<_Window> list = this.windowList;
@@ -718,10 +708,8 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
         return this;
     }
 
-    /**
-     * @see #windows(Consumer)
-     * @see #ifWindows(Consumer)
-     */
+    /// @see #windows(Consumer)
+/// @see #ifWindows(Consumer)
     private Window._WindowAsClause<PostgreWindow._PartitionBySpec, Item> createDynamicWindow(String name) {
         return new NamedWindowAsClause<>(this.context, name, this::onAddWindow, PostgreSupports::namedWindow);
     }
@@ -752,9 +740,7 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
             implements PostgreQuery._TableSampleOnSpec<I>,
             PostgreQuery._RepeatableOnClause<I> {
 
-        /**
-         * @see #onJoinTable(_JoinType, SQLs.TableModifier, TableMeta, String)
-         */
+        /// @see #onJoinTable(_JoinType, SQLs.TableModifier, TableMeta, String)
         private JonClauseTableBlock(_JoinType joinType, @Nullable SQLToken modifier, TableMeta<?> tableItem, String alias,
                                     PostgreQuery._JoinSpec<I> stmt) {
             super(joinType, modifier, tableItem, alias, stmt);
@@ -1202,10 +1188,8 @@ abstract class PostgreQueries<I extends Item> extends SimpleQueries.WithCteDisti
     }//SelectDispatcher
 
 
-    /**
-     * @see #createQueryUnion(_UnionType)
-     * @see #createQueryUnion(_UnionType)
-     */
+    /// @see #createQueryUnion(_UnionType)
+/// @see #createQueryUnion(_UnionType)
     private static final class SubQueryDispatcher<I extends Item> extends PostgreQueryDispatcher<I> {
 
         private SubQueryDispatcher(CriteriaContext leftContext, Function<RowSet, I> function) {

@@ -16,15 +16,12 @@
 
 package io.army.criteria;
 
-/**
- * <p>This interface is base interface of following :
- * <ul>
- *     <li>{@link io.army.mapping.MappingType}</li>
- *     <li>{@link TypeDef}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// This interface is base interface of following :
+/// 
+/// - {@link io.army.mapping.MappingType}
+/// - {@link TypeDef}
+/// 
+/// @since 0.6.0
 public interface TypeItem extends Item {
 
 }

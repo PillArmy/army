@@ -10,18 +10,14 @@ import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 
-/**
- * <p>Just for {@link SQLs#NULL}
- */
+/// Just for {@link SQLs#NULL}
 public final class NullType extends _ArmyBuildInType {
 
 
     public final static NullType INSTANCE = new NullType();
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private NullType() {
     }
 

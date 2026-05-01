@@ -5,9 +5,7 @@ import io.army.criteria.Clause;
 
 import java.util.List;
 
-/**
- * package interface
- */
+/// package interface
 interface ArmyAcceptClause<T> extends Clause {
 
 

@@ -40,9 +40,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
     private static final Logger LOG = LoggerFactory.getLogger(JsonOperatorUnitTests.class);
 
 
-    /**
-     * @see Postgres#hyphenGt(Expression, Expression)
-     */
+    /// @see Postgres#hyphenGt(Expression, Expression)
     @Test
     public void hyphenGt() {
         final String jsonText = "[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]";
@@ -65,9 +63,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
 //        Assert.assertTrue(expType instanceof JsonType);
     }
 
-    /**
-     * @see Postgres#hyphenGtGt(Expression, Expression)
-     */
+    /// @see Postgres#hyphenGtGt(Expression, Expression)
     @Test
     public void hyphenGtGt() {
         final String jsonText = "[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]";
@@ -88,9 +84,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
 //        Assert.assertTrue(expType instanceof TextType);
     }
 
-    /**
-     * @see Postgres#poundGt(Expression, Expression)
-     */
+    /// @see Postgres#poundGt(Expression, Expression)
     @Test
     public void poundGt() {
         final String jsonText = "{\"a\": {\"b\": [\"foo\",\"bar\"]}}";
@@ -111,9 +105,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
 //        Assert.assertTrue(expType instanceof JsonType);
     }
 
-    /**
-     * @see Postgres#poundGtGt(Expression, Expression)
-     */
+    /// @see Postgres#poundGtGt(Expression, Expression)
     @Test
     public void poundGtGt() {
         final String jsonText = "{\"a\": {\"b\": [\"foo\",\"bar\"]}}";
@@ -138,9 +130,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
     }
 
 
-    /**
-     * @see Postgres#atGt(Expression, Expression)
-     */
+    /// @see Postgres#atGt(Expression, Expression)
     @Test
     public void atGt() {
         final String firstJson = "{\"a\":1, \"b\":2}", secondJson = "{\"b\":2}";
@@ -154,9 +144,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see Postgres#ltAt(Expression, Expression)
-     */
+    /// @see Postgres#ltAt(Expression, Expression)
     @Test
     public void ltAt() {
         final String firstJson = "{\"a\":1, \"b\":2}", secondJson = "{\"b\":2}";
@@ -170,9 +158,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see Postgres#question(Expression, Expression)
-     */
+    /// @see Postgres#question(Expression, Expression)
     @Test
     public void question() {
         final String jsonb = "{\"a\":1, \"b\":2, \"c\":3}";
@@ -186,9 +172,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see Postgres#questionVertical(Expression, Expression)
-     */
+    /// @see Postgres#questionVertical(Expression, Expression)
     @Test
     public void questionVertical() {
         final String jsonb = "{\"a\":1, \"b\":2, \"c\":3}";
@@ -202,9 +186,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see Postgres#questionAmp(Expression, Expression)
-     */
+    /// @see Postgres#questionAmp(Expression, Expression)
     @Test
     public void questionAmp() {
         final String jsonb = "{\"a\":1, \"b\":2, \"c\":3}";
@@ -218,9 +200,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see Postgres#doubleVertical(Expression, Expression)
-     */
+    /// @see Postgres#doubleVertical(Expression, Expression)
     @Test
     public void doubleVertical() {
         final String leftArray, rightArray, leftObject, rightObject;
@@ -255,9 +235,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
 
     }
 
-    /**
-     * @see Postgres#minus(Expression, Expression)
-     */
+    /// @see Postgres#minus(Expression, Expression)
     @Test
     public void minus() {
         final String leftArray, leftObject;
@@ -295,9 +273,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
 
     }
 
-    /**
-     * @see Postgres#poundHyphen(Expression, Expression)
-     */
+    /// @see Postgres#poundHyphen(Expression, Expression)
     @Test
     public void poundHyphen() {
         final String jsonbArray;
@@ -317,9 +293,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
 //        Assert.assertSame(expType, JsonbType.TEXT);
     }
 
-    /**
-     * @see Postgres#atQuestion(Expression, Expression)
-     */
+    /// @see Postgres#atQuestion(Expression, Expression)
     @Test
     public void atQuestion() {
         final String json;
@@ -335,9 +309,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
 
     }
 
-    /**
-     * @see Postgres#doubleAt(Expression, Expression)
-     */
+    /// @see Postgres#doubleAt(Expression, Expression)
     @Test
     public void doubleAt() {
         final String json;

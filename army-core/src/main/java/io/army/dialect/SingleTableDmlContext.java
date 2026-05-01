@@ -33,15 +33,13 @@ import io.army.modelgen._MetaBridge;
 import io.army.session.SessionSpec;
 import io.army.util._Exceptions;
 
-/**
- * <p>
- * This class is base class of below:
- * <ul>
- *     <li>{@link  DomainDmlStmtContext}</li>
- *     <li>{@link  SingleDmlContext}</li>
- *     <li>{@link  SingleJoinableDmlContext}</li>
- * </ul>
- */
+/// 
+/// This class is base class of below:
+/// 
+/// - {@link  DomainDmlStmtContext}
+/// - {@link  SingleDmlContext}
+/// - {@link  SingleJoinableDmlContext}
+/// 
 abstract class SingleTableDmlContext extends NarrowDmlStmtContext implements _SingleTableContext
         , _DmlContext._SetClauseContextSpec {
 
@@ -60,9 +58,7 @@ abstract class SingleTableDmlContext extends NarrowDmlStmtContext implements _Si
 
     private boolean appendedUpdateTime;
 
-    /**
-     * <p>For {@link SingleTableMeta}
-     */
+    /// For {@link SingleTableMeta}
     SingleTableDmlContext(@Nullable StatementContext outerContext, _SingleDml stmt, ArmyParser parser,
                           SessionSpec sessionSpec) {
         super(outerContext, stmt, parser, sessionSpec);
@@ -96,12 +92,9 @@ abstract class SingleTableDmlContext extends NarrowDmlStmtContext implements _Si
     }
 
 
-    /**
-     * <p>
-     * For {@link  ChildTableMeta}
-     *
-     * @see #decideParentContext(SingleTableDmlContext)
-     */
+    /// 
+/// For {@link  ChildTableMeta}
+/// @see #decideParentContext(SingleTableDmlContext)
     SingleTableDmlContext(_SingleDml stmt, SingleTableDmlContext parentContext) {
         super(decideParentContext(parentContext), stmt, parentContext.parser, parentContext.sessionSpec);
 

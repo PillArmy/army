@@ -32,11 +32,8 @@ import io.army.util._Exceptions;
 import io.army.lang.Nullable;
 import java.util.List;
 
-/**
- * <p>This class representing standard domain delete statement.
- *
- * @since 0.6.0
- */
+/// This class representing standard domain delete statement.
+/// @since 0.6.0
 abstract class StandardDeletes<I extends Item, WE extends Item, DR>
         extends SingleDeleteStatement<
         I,

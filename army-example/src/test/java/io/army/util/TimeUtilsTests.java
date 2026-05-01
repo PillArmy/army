@@ -24,18 +24,14 @@ import org.testng.annotations.Test;
 import java.time.LocalDateTime;
 import java.time.temporal.Temporal;
 
-/**
- * <p>
- * This class is test class of {@link _TimeUtils}
-*/
+/// 
+/// This class is test class of {@link _TimeUtils}
 public class TimeUtilsTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(TimeUtilsTests.class);
 
 
-    /**
-     * @see _TimeUtils#truncatedIfNeed(int, Temporal)
-     */
+    /// @see _TimeUtils#truncatedIfNeed(int, Temporal)
     @Test
     public void truncatedIfNeed() {
         final LocalDateTime dateTime = LocalDateTime.parse("2023-06-29T01:42:03.999999");

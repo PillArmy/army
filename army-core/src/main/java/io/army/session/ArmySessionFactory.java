@@ -38,17 +38,14 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
-/**
- * <p>A abstract implementation of  {@link SessionFactory}.
- * <p>This class is base class of following :
- * <ul>
- *     <li>{@code  io.army.reactive.ArmyReactiveSessionFactory}</li>
- *     <li>{@code io.army.sync.ArmySyncSessionFactory}</li>
- * </ul>
- * <p>Package class
- *
- * @since 0.6.0
- */
+/// A abstract implementation of  {@link SessionFactory}.
+/// This class is base class of following :
+/// 
+/// - {@code  io.army.reactive.ArmyReactiveSessionFactory}
+/// - {@code io.army.sync.ArmySyncSessionFactory}
+/// 
+/// Package class
+/// @since 0.6.0
 abstract class ArmySessionFactory implements PackageSessionFactory {
 
     protected static final ConcurrentMap<String, Boolean> FACTORY_MAP = _Collections.concurrentHashMap(3);
@@ -90,9 +87,7 @@ abstract class ArmySessionFactory implements PackageSessionFactory {
     final boolean sqlParsingCostTime;
 
 
-    /**
-     * <p>Package constructor
-     */
+    /// Package constructor
     ArmySessionFactory(final ArmyFactoryBuilder<?, ?> support) throws SessionFactoryException {
         final String name = _Assert.hasText(support.name, "factory name required");
         final ArmyEnvironment env = Objects.requireNonNull(support.environment);
@@ -296,9 +291,7 @@ abstract class ArmySessionFactory implements PackageSessionFactory {
     }
 
 
-    /**
-     * @return a unmodified map
-     */
+    /// @return a unmodified map
     private static Map<String, Boolean> createWhitMap(final AllowMode mode, final ArmyEnvironment env,
                                                       final ArmyKey<String> key) {
         final Map<String, Boolean> whiteMap;

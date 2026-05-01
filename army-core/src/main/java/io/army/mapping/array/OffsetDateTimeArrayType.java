@@ -60,9 +60,7 @@ public class OffsetDateTimeArrayType extends _ArmyNoInjectionType implements Map
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private OffsetDateTimeArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

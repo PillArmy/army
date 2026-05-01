@@ -21,28 +21,22 @@ import io.army.option.Option;
 
 import java.util.List;
 
-/**
- * <p>This interface representing the database cursor that is produced by {@link io.army.criteria.Statement},army know the {@link Selection} list.
- * <p>This interface is base interface of following :
- * <ul>
- *     <li>{@code  io.army.sync.SyncStmtCursor}</li>
- *     <li>{@code io.army.reactive.ReactiveStmtCursor}</li>
- * </ul>
- *
- * @see ResultStates#valueOf(Option)
- * @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
- * @see <a href="https://www.postgresql.org/docs/current/sql-fetch.html">PostgreSQL FETCH</a>
- * @since 0.6.0
- */
+/// This interface representing the database cursor that is produced by {@link io.army.criteria.Statement},army know the {@link Selection} list.
+/// This interface is base interface of following :
+/// 
+/// - {@code  io.army.sync.SyncStmtCursor}
+/// - {@code io.army.reactive.ReactiveStmtCursor}
+/// 
+/// @see ResultStates#valueOf(Option)
+/// @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
+/// @see <a href="https://www.postgresql.org/docs/current/sql-fetch.html">PostgreSQL FETCH</a>
+/// @since 0.6.0
 public interface StmtCursor extends Cursor {
 
-    /**
-     * <p>Get safe cursor name.
-     * <p>Postgre example 1 : my_cursor -> my_cursor
-     * <p>Postgre example 2 : myCursor -> "myCursor"
-     *
-     * @see #name()
-     */
+    /// Get safe cursor name.
+/// Postgre example 1 : my_cursor -> my_cursor
+/// Postgre example 2 : myCursor -> "myCursor"
+/// @see #name()
     String safeName();
 
 

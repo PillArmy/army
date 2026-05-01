@@ -101,24 +101,16 @@ abstract class ArmySchemaComparer implements SchemaComparer {
     }
 
 
-    /**
-     * @return true : schema isn't match.
-     */
+    /// @return true : schema isn't match.
     abstract boolean compareSchema(SchemaInfo schemaInfo, SchemaMeta schemaMeta);
 
-    /**
-     * @return true : sql type definition is different.
-     */
+    /// @return true : sql type definition is different.
     abstract boolean compareSqlType(ColumnInfo columnInfo, FieldMeta<?> field, DataType dataType);
 
-    /**
-     * @return true : default expression definition is different.
-     */
+    /// @return true : default expression definition is different.
     abstract boolean compareDefault(ColumnInfo columnInfo, FieldMeta<?> field, DataType sqlType);
 
-    /**
-     * @return true : support column comment.
-     */
+    /// @return true : support column comment.
     abstract boolean supportColumnComment();
 
     abstract boolean supportTableComment();

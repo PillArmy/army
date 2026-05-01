@@ -26,9 +26,7 @@ import io.army.sqltype.MySQLType;
 
 import java.util.BitSet;
 
-/**
- * @see Long
- */
+/// @see Long
 public final class MySqlBitType extends _ArmyNoInjectionType {
 
     public static MySqlBitType from(Class<?> javaType) {
@@ -40,9 +38,7 @@ public final class MySqlBitType extends _ArmyNoInjectionType {
 
     public static final MySqlBitType INSTANCE = new MySqlBitType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private MySqlBitType() {
     }
 

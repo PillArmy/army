@@ -24,12 +24,9 @@ import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
-/**
- * <p>This class map {@code byte[]} to sql binary type.
- * <p>If you need to map varbinary ,you can use {@link VarBinaryType} instead of this class.
- *
- * @see VarBinaryType
- */
+/// This class map {@code byte[]} to sql binary type.
+/// If you need to map varbinary ,you can use {@link VarBinaryType} instead of this class.
+/// @see VarBinaryType
 public final class BinaryType extends _ArmyBuildInType implements MappingType.SqlBinary {
 
 
@@ -43,9 +40,7 @@ public final class BinaryType extends _ArmyBuildInType implements MappingType.Sq
     public static final BinaryType INSTANCE = new BinaryType();
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private BinaryType() {
     }
 

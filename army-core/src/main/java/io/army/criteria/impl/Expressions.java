@@ -41,15 +41,12 @@ import java.util.Properties;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-/**
- * <p>
- * This class hold the methods that create {@link Expression} and {@link IPredicate}.
- * <p>
- * Below is chines signature:<br/>
- * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
- *
- * @since 0.6.0
- */
+/// 
+/// This class hold the methods that create {@link Expression} and {@link IPredicate}.
+/// 
+/// Below is chines signature:
+/// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+/// @since 0.6.0
 abstract class Expressions {
 
     private static final Logger LOG = LoggerFactory.getLogger(Expressions.class);
@@ -211,9 +208,7 @@ abstract class Expressions {
     }
 
 
-    /**
-     * @see #dualExp(Expression, SQLs.DualOperator, Object)
-     */
+    /// @see #dualExp(Expression, SQLs.DualOperator, Object)
     static SimpleResultExpression collateExp(final Expression exp, final Object collation) {
         if (!(collation instanceof String)) {
             if (!(collation instanceof NonOperationExpression.IdentifierExpression)) {
@@ -529,9 +524,7 @@ abstract class Expressions {
 
     /*-------------------below private method-------------------*/
 
-    /**
-     * @see CastTypeExpression
-     */
+    /// @see CastTypeExpression
     private static void appendTypeCastSuffix(StringBuilder sqlBuilder, _SqlContext context, MappingType type) {
         switch (context.dialectDatabase()) {
             case PostgreSQL: {
@@ -546,10 +539,8 @@ abstract class Expressions {
         }
     }
 
-    /**
-     * @see #scalarExpression(SubQuery)
-     * @see #array(SubQuery)
-     */
+    /// @see #scalarExpression(SubQuery)
+/// @see #array(SubQuery)
     private static void validateScalarSubQuery(final SubQuery subQuery) {
         validateSubQueryContext(subQuery);
         final List<? extends Selection> selectionList;
@@ -664,9 +655,7 @@ abstract class Expressions {
     }
 
 
-    /**
-     * @see #inPredicate(OperationExpression, boolean, SQLColumnList)
-     */
+    /// @see #inPredicate(OperationExpression, boolean, SQLColumnList)
     private static CriteriaException inOpeRowAndSubQueryNotMatch(int leftSize, int rightSize) {
         String m = String.format("Left operand of IN  is row expression and column size is %s, but subquery selection count is %s",
                 leftSize, rightSize);
@@ -680,12 +669,9 @@ abstract class Expressions {
     }
 
 
-    /**
-     * This class is an implementation of {@link Expression}.
-     * The expression consist of a left {@link Expression} ,a {@link DualBooleanOperator} and right {@link Expression}.
-     *
-     * @since 0.6.0
-     */
+    /// This class is an implementation of {@link Expression}.
+/// The expression consist of a left {@link Expression} ,a {@link DualBooleanOperator} and right {@link Expression}.
+/// @since 0.6.0
     private static class DualExpression extends OperationExpression.OperationCompoundExpression {
 
         final ArmyExpression left;
@@ -694,9 +680,7 @@ abstract class Expressions {
 
         final ArmyExpression right;
 
-        /**
-         * @see #dualExp(Expression, SQLs.DualOperator, Object)
-         */
+        /// @see #dualExp(Expression, SQLs.DualOperator, Object)
         private DualExpression(final Expression left, final SQLs.DualOperator operator, final Expression right) {
             this.left = (ArmyExpression) left;
             this.operator = operator;
@@ -731,22 +715,18 @@ abstract class Expressions {
     }//DualExpression
 
 
-    /**
-     * <p>
-     * This class representing unary expression,unary expression always out outer bracket.
-     * <p>
-     * This class is a implementation of {@link Expression}.
-     * The expression consist of a  {@link Expression} and a {@link UnaryExpOperator}.
-     */
+    /// 
+/// This class representing unary expression,unary expression always out outer bracket.
+/// 
+/// This class is a implementation of {@link Expression}.
+/// The expression consist of a  {@link Expression} and a {@link UnaryExpOperator}.
     static class UnaryExpression extends OperationExpression.OperationSimpleExpression {
 
         private final Operator.SqlUnaryExpOperator operator;
 
         final ArmyExpression operand;
 
-        /**
-         * @see #unaryExp(UnaryExpOperator, Expression)
-         */
+        /// @see #unaryExp(UnaryExpOperator, Expression)
         UnaryExpression(Operator.SqlUnaryExpOperator operator, Expression operand) {
             this.operator = operator;
             this.operand = (ArmyExpression) operand;
@@ -781,9 +761,7 @@ abstract class Expressions {
 
         private final SubQuery subQuery;
 
-        /**
-         * @see #scalarExpression(SubQuery)
-         */
+        /// @see #scalarExpression(SubQuery)
         private ScalarExpression(SubQuery subQuery) {
             this.subQuery = subQuery;
         }
@@ -805,9 +783,7 @@ abstract class Expressions {
                     .toString();
         }
 
-        /**
-         * @return see {@link JoinableClause.SimpleQuery#validateIdDefaultExpression()}
-         */
+        /// @return see {@link JoinableClause.SimpleQuery#validateIdDefaultExpression()}
         List<String> validateIdDefaultExpression() {
             final SubQuery subQuery = this.subQuery;
             if (!(subQuery instanceof SimpleQueries)) {
@@ -828,9 +804,7 @@ abstract class Expressions {
 
         private final ArmySubQuery subQuery;
 
-        /**
-         * @see #existsPredicate(boolean, SubQuery)
-         */
+        /// @see #existsPredicate(boolean, SubQuery)
         private ExistsPredicate(boolean not, SubQuery subQuery) {
             this.not = not;
             this.subQuery = (ArmySubQuery) subQuery;
@@ -923,9 +897,7 @@ abstract class Expressions {
 
         private final ArmyExpression escapeChar;
 
-        /**
-         * @see #likePredicate(Expression, DualBooleanOperator, Object, SQLToken, Object)
-         */
+        /// @see #likePredicate(Expression, DualBooleanOperator, Object, SQLToken, Object)
         private LikePredicate(OperationExpression left, DualBooleanOperator operator, Expression right,
                               @Nullable Expression escapeChar) {
             this.left = left;
@@ -1000,9 +972,7 @@ abstract class Expressions {
 
         private final ArmyExpression right;
 
-        /**
-         * @see #betweenPredicate(OperationExpression, boolean, SQLs.BetweenModifier, Object, Object)
-         */
+        /// @see #betweenPredicate(OperationExpression, boolean, SQLs.BetweenModifier, Object, Object)
         private BetweenPredicate(Expression left, boolean not, @Nullable SQLs.BetweenModifier modifier,
                                  Expression center, Expression right) {
             this.not = not;
@@ -1147,9 +1117,7 @@ abstract class Expressions {
 
         private final SQLColumnList right;
 
-        /**
-         * @see #compareQueryPredicate(OperationExpression, DualBooleanOperator, SQLs.QuantifiedWord, SQLColumnList)
-         */
+        /// @see #compareQueryPredicate(OperationExpression, DualBooleanOperator, SQLs.QuantifiedWord, SQLColumnList)
         private SubQueryPredicate(OperationExpression left, DualBooleanOperator operator,
                                   SQLs.QuantifiedWord queryOperator, SQLColumnList right) {
             this.left = left;
@@ -1207,9 +1175,7 @@ abstract class Expressions {
 
         private final SQLs.BoolTestWord operand;
 
-        /**
-         * @see #booleanTestPredicate(OperationExpression, boolean, SQLs.BoolTestWord)
-         */
+        /// @see #booleanTestPredicate(OperationExpression, boolean, SQLs.BoolTestWord)
         private BooleanTestPredicate(Expression expression, boolean not, SQLs.BoolTestWord operand) {
             this.expression = (ArmyExpression) expression;
             this.not = not;
@@ -1256,9 +1222,7 @@ abstract class Expressions {
         private final ArmyExpression right;
 
 
-        /**
-         * @see #isComparisonPredicate(OperationExpression, boolean, SQLs.IsComparisonWord, Object)
-         */
+        /// @see #isComparisonPredicate(OperationExpression, boolean, SQLs.IsComparisonWord, Object)
         private IsComparisonPredicate(OperationExpression left, boolean not, SQLs.IsComparisonWord operator,
                                       ArmyExpression right) {
             this.left = left;
@@ -1310,9 +1274,7 @@ abstract class Expressions {
         final SQLColumnList right;
 
 
-        /**
-         * @see #inPredicate(OperationExpression, boolean, SQLColumnList)
-         */
+        /// @see #inPredicate(OperationExpression, boolean, SQLColumnList)
         private InOperationPredicate(OperationExpression left, boolean not, SQLColumnList right) {
             this.left = left;
             this.not = not;
@@ -1367,9 +1329,7 @@ abstract class Expressions {
 
         private final List<?> subscriptList;
 
-        /**
-         * @see #arraySliceExp(OperationExpression, List)
-         */
+        /// @see #arraySliceExp(OperationExpression, List)
         private ArraySliceExpression(OperationExpression expression, List<?> subscriptList) {
             assertSliceSubscriptListSize(subscriptList);
             this.expression = expression;
@@ -1602,16 +1562,12 @@ abstract class Expressions {
         private final List<?> elementList;
 
 
-        /**
-         * @see #array(List)
-         */
+        /// @see #array(List)
         private SimpleArrayExpression(List<?> elementList) {
             this.elementList = List.copyOf(elementList);
         }
 
-        /**
-         * @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS">Array Constructors</a>
-         */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS">Array Constructors</a>
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
             final List<?> elementList = this.elementList;

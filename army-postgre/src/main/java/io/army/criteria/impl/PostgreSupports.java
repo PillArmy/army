@@ -366,11 +366,9 @@ abstract class PostgreSupports extends CriteriaSupports {
         }
 
 
-        /**
-         * @return true exists clause
-         * @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
-         * @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
-         */
+/// @return true exists clause
+/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
+/// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
         boolean endClause() {
             final Boolean breadth = this.breadth;
             final boolean optionIsNull = breadth == null;
@@ -579,11 +577,9 @@ abstract class PostgreSupports extends CriteriaSupports {
             this.cycleMarkDefault = (_LiteralExpression) cycleMarkDefault;
         }
 
-        /**
-         * @return true exists clause
-         * @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
-         * @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-CYCLE">Cycle Detection</a>
-         */
+/// @return true exists clause
+/// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
+/// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-CYCLE">Cycle Detection</a>
         boolean endClause() {
             final List<String> columnList = this.columnList;
             final boolean columnListIsNull = columnList == null;
@@ -966,9 +962,7 @@ abstract class PostgreSupports extends CriteriaSupports {
 
         private SQLs.WordMaterialized modifier;
 
-        /**
-         * @see PostgreCteBuilder#subSingleInsert(String)
-         */
+        /// @see PostgreCteBuilder#subSingleInsert(String)
         private DynamicCteInsertParensSpec(String name, PostgreCteBuilder builder) {
             super(name, builder.context);
             this.builder = builder;
@@ -1004,9 +998,7 @@ abstract class PostgreSupports extends CriteriaSupports {
 
         private SQLs.WordMaterialized modifier;
 
-        /**
-         * @see PostgreCteBuilder#subSingleUpdate(String)
-         */
+        /// @see PostgreCteBuilder#subSingleUpdate(String)
         private DynamicUpdateParensClause(String name, PostgreCteBuilder builder) {
             super(name, builder.context);
             this.builder = builder;
@@ -1042,9 +1034,7 @@ abstract class PostgreSupports extends CriteriaSupports {
 
         private SQLs.WordMaterialized modifier;
 
-        /**
-         * @see PostgreCteBuilder#subSingleDelete(String)
-         */
+        /// @see PostgreCteBuilder#subSingleDelete(String)
         private DynamicDeleteParensClause(String name, PostgreCteBuilder builder) {
             super(name, builder.context);
             this.builder = builder;
@@ -1080,9 +1070,7 @@ abstract class PostgreSupports extends CriteriaSupports {
 
         private SQLs.WordMaterialized modifier;
 
-        /**
-         * @see PostgreCteBuilder#subQuery(String)
-         */
+        /// @see PostgreCteBuilder#subQuery(String)
         private DynamicQueryParensClause(String name, PostgreCteBuilder builder) {
             super(name, builder.context);
             this.builder = builder;
@@ -1122,9 +1110,7 @@ abstract class PostgreSupports extends CriteriaSupports {
         }
 
 
-        /**
-         * @see DynamicCteSearchSpec#comma()
-         */
+        /// @see DynamicCteSearchSpec#comma()
         PostgreCtes searchClauseEnd(final DynamicCteSearchSpec spec) {
             final Statement._CommaClause<?> commaClause = this.builder.lastQueryCteEnder;
             if (commaClause != spec) {
@@ -1151,11 +1137,9 @@ abstract class PostgreSupports extends CriteriaSupports {
 
         private final CriteriaContext context;
 
-        /**
-         * @see DynamicCteSearchSpec#comma()
-         * @see DynamicCteSearchSpec#DynamicCteSearchSpec(DynamicQueryParensClause, SubQuery)
-         * @see DynamicQueryParensClause#subQueryEnd(SubQuery)
-         */
+        /// @see DynamicCteSearchSpec#comma()
+/// @see DynamicCteSearchSpec#DynamicCteSearchSpec(DynamicQueryParensClause, SubQuery)
+/// @see DynamicQueryParensClause#subQueryEnd(SubQuery)
         private DialectStatement._CommaClause<?> lastQueryCteEnder;
 
         private PostgreCteBuilder(final boolean recursive, CriteriaContext context) {
@@ -1197,9 +1181,7 @@ abstract class PostgreSupports extends CriteriaSupports {
         }
 
 
-        /**
-         * @see DynamicQueryParensClause#searchClauseEnd(DynamicCteSearchSpec)
-         */
+        /// @see DynamicQueryParensClause#searchClauseEnd(DynamicCteSearchSpec)
         @Override
         public void endLastCte() {
             final DialectStatement._CommaClause<?> ender = this.lastQueryCteEnder;
@@ -1238,16 +1220,12 @@ abstract class PostgreSupports extends CriteriaSupports {
             PostgreWindow._PostgreFrameExclusionClause,
             PostgreWindow._FrameUnitSpaceSpec {
 
-        /**
-         * @see #namedWindow(String, CriteriaContext, String)
-         */
+        /// @see #namedWindow(String, CriteriaContext, String)
         private PostgreWindowImpl(String windowName, CriteriaContext context, @Nullable String existingWindowName) {
             super(windowName, context, existingWindowName);
         }
 
-        /**
-         * @see #anonymousWindow(CriteriaContext, String)
-         */
+        /// @see #anonymousWindow(CriteriaContext, String)
         private PostgreWindowImpl(CriteriaContext context, @Nullable String existingWindowName) {
             super(context, existingWindowName);
         }
@@ -1256,10 +1234,8 @@ abstract class PostgreSupports extends CriteriaSupports {
     } // PostgreWindow
 
 
-    /**
-     * @see #closeCursor(String)
-     * @see #closeAllCursor()
-     */
+    /// @see #closeCursor(String)
+/// @see #closeAllCursor()
     static final class CloseCursorStatement extends StatementMockSupport implements SimpleDmlStatement, _CloseCursor {
 
         private final Object targetCursor;

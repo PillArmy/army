@@ -23,25 +23,19 @@ public final class SyncKey<T> extends ArmyKey<T> {
 
     public static final SyncKey<Boolean> JDBC_FORBID_V18 = new SyncKey<>("sync.jdbc.v18", Boolean.class, Boolean.FALSE);
 
-    /**
-     * <p>Postgre jdbc command ,see
-     * <ul>
-     *     <li>{@code org.postgresql.jdbc.PgStatement.executeInternal()}</li>
-     *     <li>org.postgresql.core.QueryExecutor.QUERY_FORWARD_CURSOR</li>
-     * </ul>
-     */
+/// Postgre jdbc command ,see
+/// 
+/// - {@code org.postgresql.jdbc.PgStatement.executeInternal()}
+/// - org.postgresql.core.QueryExecutor.QUERY_FORWARD_CURSOR
+/// 
     public static final SyncKey<Boolean> POSTGRE_FETCH_SIZE_AUTO_COMMIT = new SyncKey<>("sync.jdbc.postgre.fetch_size_auto_commit", Boolean.class, Boolean.TRUE);
 
     public static final SyncKey<Boolean> SESSION_IDENTIFIER_ENABLE = new SyncKey<>("sync.session.identifier.enable", Boolean.class, Boolean.FALSE);
 
-    /**
-     * @see #EXECUTOR_PROVIDER_MD5
-     */
+    /// @see #EXECUTOR_PROVIDER_MD5
     public static final SyncKey<String> EXECUTOR_PROVIDER = new SyncKey<>("sync.executor.provider", String.class, "io.army.jdbc.JdbcExecutorFactoryProvider");
 
-    /**
-     * @see #EXECUTOR_PROVIDER
-     */
+    /// @see #EXECUTOR_PROVIDER
     public static final SyncKey<String> EXECUTOR_PROVIDER_MD5 = new SyncKey<>("sync.executor.provider_md5", String.class, "0e6c8da4cf23b959d280ff0b1122db5c");
 
     private SyncKey(String name, Class<T> javaType, @Nullable T defaultValue) {

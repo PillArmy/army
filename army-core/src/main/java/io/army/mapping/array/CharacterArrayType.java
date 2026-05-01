@@ -29,9 +29,7 @@ import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
-/**
- * @see CharacterType
- */
+/// @see CharacterType
 public class CharacterArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
     public static CharacterArrayType from(final Class<?> javaType) {
@@ -55,24 +53,16 @@ public class CharacterArrayType extends _ArmyBuildInType implements MappingType.
         return instance;
     }
 
-    /**
-     * unlimited dimension array of {@code char}
-     */
+    /// unlimited dimension array of {@code char}
     public static final CharacterArrayType PRIMITIVE_UNLIMITED = new CharacterArrayType(Object.class, char.class);
 
-    /**
-     * one dimension array of {@code  char}
-     */
+    /// one dimension array of {@code  char}
     public static final CharacterArrayType PRIMITIVE_LINEAR = new CharacterArrayType(char[].class, char.class);
 
-    /**
-     * one dimension array of {@link Character}
-     */
+    /// one dimension array of {@link Character}
     public static final CharacterArrayType LINEAR = new CharacterArrayType(Character[].class, Character.class);
 
-    /**
-     * unlimited dimension array of {@link Character}
-     */
+    /// unlimited dimension array of {@link Character}
     public static final CharacterArrayType UNLIMITED = new CharacterArrayType(Object.class, Character.class);
 
 
@@ -80,9 +70,7 @@ public class CharacterArrayType extends _ArmyBuildInType implements MappingType.
 
     private final Class<?> underlyingJavaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private CharacterArrayType(Class<?> javaType, Class<?> underlyingJavaType) {
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;

@@ -18,17 +18,14 @@ package io.army.criteria;
 
 import io.army.meta.DatabaseObject;
 
-/**
- * <p>
- * This interface is base interface of below:
- * <ul>
- *     <li>{@link SQLToken}</li>
- *     <li>{@link Expression}</li>
- *     <li>{@link DatabaseObject}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This interface is base interface of below:
+/// 
+/// - {@link SQLToken}
+/// - {@link Expression}
+/// - {@link DatabaseObject}
+/// 
+/// @since 0.6.0
 public interface SQLElement extends Item {
 
 

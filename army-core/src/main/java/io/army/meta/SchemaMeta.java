@@ -16,15 +16,12 @@
 
 package io.army.meta;
 
-/**
- * represent a schema.
- * <ul>
- *     <li> MySQL : database</li>
- *     <li> Oracle : schema</li>
- * </ul>
- *
- * @see TableMeta
- */
+/// represent a schema.
+/// 
+/// -  MySQL : database
+/// -  Oracle : schema
+/// 
+/// @see TableMeta
 public interface SchemaMeta extends Meta {
 
 

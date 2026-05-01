@@ -19,19 +19,14 @@ package io.army.mapping;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-/**
- * <p>This class representing the mapping from {@code  void} to nothing,that returned by some special {@link io.army.criteria.Expression}.
-*
- * @see Void
- */
+/// This class representing the mapping from {@code  void} to nothing,that returned by some special {@link io.army.criteria.Expression}.
+/// @see Void
 
 public final class VoidType extends _ArmyBuildInType {
 
     public static final VoidType VOID = new VoidType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private VoidType() {
     }
 

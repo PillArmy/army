@@ -21,18 +21,14 @@ import java.util.Map;
 
 public interface TableInfo {
 
-    /**
-     * @return lower case table name
-     */
+    /// @return lower case table name
     String name();
 
 
     @Nullable
     String comment();
 
-    /**
-     * @return map, key : column name (lower case),value: {@link ColumnInfo}.
-     */
+    /// @return map, key : column name (lower case),value: {@link ColumnInfo}.
     Map<String, ColumnInfo> columnMap();
 
     Map<String, IndexInfo> indexMap();

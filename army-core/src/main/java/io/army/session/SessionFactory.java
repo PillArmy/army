@@ -32,15 +32,12 @@ import io.army.lang.Nullable;
 import java.time.ZoneOffset;
 import java.util.Map;
 
-/**
- * <p>This interface is base interface of following:
- * <ul>
- *     <li>{@code  io.army.sync.SyncSessionFactory}</li>
- *     <li>{@code io.army.reactive.ReactiveSessionFactory}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// This interface is base interface of following:
+/// 
+/// - {@code  io.army.sync.SyncSessionFactory}
+/// - {@code io.army.reactive.ReactiveSessionFactory}
+/// 
+/// @since 0.6.0
 public sealed interface SessionFactory extends CloseableSpec, OptionSpec permits PackageSessionFactory {
 
     String name();
@@ -64,17 +61,13 @@ public sealed interface SessionFactory extends CloseableSpec, OptionSpec permits
 
     AllowMode queryInsertMode();
 
-    /**
-     * See {@link ExecutorFactory#driverSpiName()}
-     */
+    /// See {@link ExecutorFactory#driverSpiName()}
     String driverSpiName();
 
 
     boolean isSupportSavePoints();
 
-    /**
-     * @see ExecutorFactory#isResultItemDriverSpi()
-     */
+    /// @see ExecutorFactory#isResultItemDriverSpi()
     boolean isResultItemDriverSpi();
 
 
@@ -90,9 +83,7 @@ public sealed interface SessionFactory extends CloseableSpec, OptionSpec permits
 
         B name(@Nullable String name);
 
-        /**
-         * Optional,default is {@link SessionFactory#isReadonly()}
-         */
+        /// Optional,default is {@link SessionFactory#isReadonly()}
         B readonly(boolean readonly);
 
         B allowQueryInsert(boolean allow);

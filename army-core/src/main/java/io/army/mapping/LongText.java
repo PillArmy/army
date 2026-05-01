@@ -29,11 +29,9 @@ import io.army.util.ClassUtils;
 
 import java.io.Reader;
 
-/**
- * @see TinyTextType
- * @see TextType
- * @see MediumTextType
- */
+/// @see TinyTextType
+/// @see TextType
+/// @see MediumTextType
 public final class LongText extends _ArmyBuildInType implements MappingType.SqlText {
 
     public static LongText from(final Class<?> javaType) {
@@ -58,9 +56,7 @@ public final class LongText extends _ArmyBuildInType implements MappingType.SqlT
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private LongText(Class<?> javaType) {
         this.javaType = javaType;
     }

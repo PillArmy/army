@@ -34,14 +34,11 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 
-/**
- * <p>This interface representing MySQL LOAD DATA Statement
- * <p>More document see {@link MySQLs#loadDataStmt()}
- *
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_local_infile">Server local_infile system variables</a>
- * @see <a href="https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-security.html">client allowLoadLocalInfile property </a>
- */
+/// This interface representing MySQL LOAD DATA Statement
+/// More document see {@link MySQLs#loadDataStmt()}
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_local_infile">Server local_infile system variables</a>
+/// @see <a href="https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-security.html">client allowLoadLocalInfile property </a>
 public interface MySQLLoadData extends MySQLStatement, DmlCommand {
 
 
@@ -76,26 +73,21 @@ public interface MySQLLoadData extends MySQLStatement, DmlCommand {
 
     interface _EscapedByClause {
 
-        /**
-         * <p>This method is equivalent to following :
-         * <pre>
-         *         <code><br/>
-         *             // this is instance of {@link _EscapedByClause}
-         *             this.escapedBy(String.valueOf(ch)) ;
-         *         </code>
-         * </pre>
-         *
-         * @see #escapedBy(String)
-         */
+/// This method is equivalent to following :
+/// <pre>
+/// <code>
+/// // this is instance of {@link _EscapedByClause}
+/// this.escapedBy(String.valueOf(ch)) ;
+/// </code>
+/// </pre>
+/// @see #escapedBy(String)
         void escapedBy(char ch);
 
-        /**
-         * <p><strong>NOTE</strong>:
-         * <ul>
-         *     <li>ch always is parsed with {@link io.army.env.EscapeMode#BACK_SLASH},ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE}.</li>
-         * </ul>
-         *  @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
-         */
+/// **NOTE**:
+/// 
+/// - ch always is parsed with {@link io.army.env.EscapeMode#BACK_SLASH},ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE}.
+/// 
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
         void escapedBy(String ch);
 
         void ifEscapedBy(Supplier<String> supplier);
@@ -104,50 +96,40 @@ public interface MySQLLoadData extends MySQLStatement, DmlCommand {
 
     interface _EnclosedBySpec extends _EscapedByClause, Item {
 
-        /**
-         * <p>This method is equivalent to following :
-         * <pre>
-         *         <code><br/>
-         *             // this is instance of {@link _EnclosedBySpec}
-         *             this.enclosedBy(String.valueOf(ch)) ;
-         *         </code>
-         * </pre>
-         *
-         * @see #escapedBy(String)
-         */
+/// This method is equivalent to following :
+/// <pre>
+/// <code>
+/// // this is instance of {@link _EnclosedBySpec}
+/// this.enclosedBy(String.valueOf(ch)) ;
+/// </code>
+/// </pre>
+/// @see #escapedBy(String)
         _EscapedByClause enclosedBy(char ch);
 
-        /**
-         * <p><strong>NOTE</strong>:
-         * <ul>
-         *     <li>ch always is parsed with {@link io.army.env.EscapeMode#BACK_SLASH},ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE}.</li>
-         * </ul>
-         *  @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
-         */
+/// **NOTE**:
+/// 
+/// - ch always is parsed with {@link io.army.env.EscapeMode#BACK_SLASH},ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE}.
+/// 
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
         _EscapedByClause enclosedBy(String ch);
 
         _EscapedByClause ifEnclosedBy(Supplier<String> supplier);
 
-        /**
-         * <p>This method is equivalent to following :
-         * <pre>
-         *         <code><br/>
-         *             // this is instance of {@link _EnclosedBySpec}
-         *             this.optionallyEnclosedBy(String.valueOf(ch)) ;
-         *         </code>
-         * </pre>
-         *
-         * @see #escapedBy(String)
-         */
+/// This method is equivalent to following :
+/// <pre>
+/// <code>
+/// // this is instance of {@link _EnclosedBySpec}
+/// this.optionallyEnclosedBy(String.valueOf(ch)) ;
+/// </code>
+/// </pre>
+/// @see #escapedBy(String)
         _EscapedByClause optionallyEnclosedBy(char ch);
 
-        /**
-         * <p><strong>NOTE</strong>:
-         * <ul>
-         *     <li>ch always is parsed with {@link io.army.env.EscapeMode#BACK_SLASH},ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE}.</li>
-         * </ul>
-         *  @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
-         */
+/// **NOTE**:
+/// 
+/// - ch always is parsed with {@link io.army.env.EscapeMode#BACK_SLASH},ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE}.
+/// 
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
         _EscapedByClause optionallyEnclosedBy(String ch);
 
         _EscapedByClause ifOptionallyEnclosedBy(Supplier<String> supplier);
@@ -157,13 +139,11 @@ public interface MySQLLoadData extends MySQLStatement, DmlCommand {
 
     interface _TerminatedByClause {
 
-        /**
-         * <p><strong>NOTE</strong>:
-         * <ul>
-         *     <li>string always is parsed with {@link io.army.env.EscapeMode#BACK_SLASH},ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE}.</li>
-         * </ul>
-         *  @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
-         */
+/// **NOTE**:
+/// 
+/// - string always is parsed with {@link io.army.env.EscapeMode#BACK_SLASH},ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE}.
+/// 
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
         Item terminatedBy(String string);
 
         Item terminatedBy(Supplier<String> supplier);
@@ -174,13 +154,11 @@ public interface MySQLLoadData extends MySQLStatement, DmlCommand {
 
     interface _ColumnTerminatedBySpec extends _TerminatedByClause, _EnclosedBySpec {
 
-        /**
-         * <p><strong>NOTE</strong>:
-         * <ul>
-         *     <li>string always is parsed with {@link io.army.env.EscapeMode#BACK_SLASH},ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE}.</li>
-         * </ul>
-         *  @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
-         */
+/// **NOTE**:
+/// 
+/// - string always is parsed with {@link io.army.env.EscapeMode#BACK_SLASH},ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE}.
+/// 
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
         @Override
         _EnclosedBySpec terminatedBy(String string);
 
@@ -194,13 +172,11 @@ public interface MySQLLoadData extends MySQLStatement, DmlCommand {
 
     interface _StartingBySpec extends _TerminatedByClause {
 
-        /**
-         * <p><strong>NOTE</strong>:
-         * <ul>
-         *     <li>string always is parsed with {@link io.army.env.EscapeMode#BACK_SLASH},ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE}.</li>
-         * </ul>
-         *  @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
-         */
+/// **NOTE**:
+/// 
+/// - string always is parsed with {@link io.army.env.EscapeMode#BACK_SLASH},ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE}.
+/// 
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
         _TerminatedByClause startingBy(String string);
 
         _TerminatedByClause ifStartingBy(Supplier<String> supplier);

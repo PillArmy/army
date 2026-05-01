@@ -19,26 +19,19 @@ package io.army.struct;
 import io.army.lang.Nullable;
 import java.util.Map;
 
-/**
- * This interface is base interface of the enum that mapping to {@code io.army.mapping.TextEnumType}.
- * <p>
- * Army will persist {@link #text()} to database table column not {@link Enum#name()}.
- * If you want to persist {@link Enum#name()},then you should use {@code io.army.mapping.NameEnumType},
- * but never persist {@link Enum#ordinal()}.
- *
- * @see CodeEnum
- * @since 0.6.0
- */
+/// This interface is base interface of the enum that mapping to {@code io.army.mapping.TextEnumType}.
+/// 
+/// Army will persist {@link #text()} to database table column not {@link Enum#name()}.
+/// If you want to persist {@link Enum#name()},then you should use {@code io.army.mapping.NameEnumType},
+/// but never persist {@link Enum#ordinal()}.
+/// @see CodeEnum
+/// @since 0.6.0
 public interface TextEnum {
 
-    /**
-     * @see Enum#name()
-     */
+    /// @see Enum#name()
     String name();
 
-    /**
-     * @return text that can representing this enum instance
-     */
+    /// @return text that can representing this enum instance
     String text();
 
     default TextEnum family() {
@@ -53,13 +46,9 @@ public interface TextEnum {
         return map.get(text);
     }
 
-    /**
-     * <p>
-     * see {@code io.army.mapping.TextEnumType#getTextMap(java.lang.Class)}
-     *
-     *
-     * @return a unmodified map
-     */
+    /// 
+/// see {@code io.army.mapping.TextEnumType#getTextMap(java.lang.Class)}
+/// @return a unmodified map
     static <T extends Enum<T> & TextEnum> Map<String, T> getInstanceMap(Class<T> javaType)
             throws IllegalArgumentException {
         return EnumHelper.getTextMap(javaType);

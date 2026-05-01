@@ -27,14 +27,11 @@ import io.army.meta.SingleTableMeta;
 import java.util.List;
 import java.util.function.Supplier;
 
-/**
- * <p>This interface representing MySQL REPLACE statement.
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html">MySQL 8.0 Optimizer Hints</a>
- *
- * @see <a href="https://dev.mysql.com/doc/refman/5.7/en/optimizer-hints.html">MySQL 5.7 Optimizer Hints</a>
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/replace.html">REPLACE Statement</a>
- * @since 0.6.0
- */
+/// This interface representing MySQL REPLACE statement.
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html">MySQL 8.0 Optimizer Hints</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/5.7/en/optimizer-hints.html">MySQL 5.7 Optimizer Hints</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/replace.html">REPLACE Statement</a>
+/// @since 0.6.0
 public interface MySQLReplace extends MySQLStatement {
 
 
@@ -141,50 +138,40 @@ public interface MySQLReplace extends MySQLStatement {
     }
 
 
-    /**
-     * <p>
-     * This interface representing INTO clause that support only {@link SingleTableMeta}.
-     *     */
+    /// 
+/// This interface representing INTO clause that support only {@link SingleTableMeta}.
     interface _PrimarySingleIntoClause<I extends Item> {
 
         <T> _PartitionSpec<I, T> into(SingleTableMeta<T> table);
 
     }
 
-    /**
-     * <p>
-     * This interface representing REPLACE INTO spec that support only {@link SingleTableMeta}.
-     *     */
+    /// 
+/// This interface representing REPLACE INTO spec that support only {@link SingleTableMeta}.
     interface _PrimarySingleReplaceIntoSpec<I extends Item> extends _ReplaceClause<_PrimarySingleIntoClause<I>> {
 
         <T> _PartitionSpec<I, T> replaceInto(SingleTableMeta<T> table);
 
     }
 
-    /**
-     * <p>
-     * This interface representing {@link LiteralMode} spec that support only {@link SingleTableMeta}.
-     *     */
+    /// 
+/// This interface representing {@link LiteralMode} spec that support only {@link SingleTableMeta}.
     interface _PrimarySinglePreferLiteralSpec<I extends Item>
             extends InsertStatement._PreferLiteralClause<_PrimarySingleReplaceIntoSpec<I>>,
             _PrimarySingleReplaceIntoSpec<I> {
 
     }
 
-    /**
-     * <p>
-     * This interface representing {@link NullMode} spec that support only {@link SingleTableMeta}.
-     *     */
+    /// 
+/// This interface representing {@link NullMode} spec that support only {@link SingleTableMeta}.
     interface _PrimarySingleNullOptionSpec<I extends Item>
             extends InsertStatement._NullOptionClause<_PrimarySinglePreferLiteralSpec<I>>,
             _PrimarySinglePreferLiteralSpec<I> {
 
     }
 
-    /**
-     * <p>
-     * This interface representing migration spec that support only {@link SingleTableMeta}.
-     *     */
+    /// 
+/// This interface representing migration spec that support only {@link SingleTableMeta}.
     interface _PrimarySingleOptionSpec<I extends Item>
             extends InsertStatement._MigrationOptionClause<_PrimarySingleNullOptionSpec<I>>,
             InsertStatement._IgnoreReturnIdsOptionClause<_PrimarySingleNullOptionSpec<I>>,

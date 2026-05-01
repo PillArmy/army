@@ -110,10 +110,8 @@ public interface MySQLFunction extends SQLFunction {
 
     interface _JsonTableColumnCommaClause {
 
-        /**
-         * @param name          column name
-         * @param forOrdinality see {@link SQLs#FOR_ORDINALITY}
-         */
+        /// @param name          column name
+/// @param forOrdinality see {@link SQLs#FOR_ORDINALITY}
         _JsonTableColumnCommaClause comma(String name, SQLs.WordsForOrdinality forOrdinality);
 
         _JsonTableColumnCommaClause comma(String name, TypeItem type, SQLs.WordPath path, Object pathExp);

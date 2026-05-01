@@ -36,9 +36,7 @@ public final class UUIDType extends _ArmyNoInjectionType {
 
     public static final UUIDType INSTANCE = new UUIDType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private UUIDType() {
 
     }

@@ -39,10 +39,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.ObjIntConsumer;
 
-/**
- * <p>
- * This class representing standard value insert context.
- */
+/// 
+/// This class representing standard value insert context.
 final class DomainInsertContext extends ValuesSyntaxInsertContext implements InsertStmtParams {
 
 
@@ -72,9 +70,7 @@ final class DomainInsertContext extends ValuesSyntaxInsertContext implements Ins
     private int currentBatchIndex = -1;
 
 
-    /**
-     * create for {@link  SingleTableMeta}
-     */
+    /// create for {@link  SingleTableMeta}
     private DomainInsertContext(@Nullable StatementContext outerContext, _Insert._DomainInsert domainStmt,
                                 ArmyParser dialect, SessionSpec sessionSpec) {
         super(outerContext, domainStmt, dialect, sessionSpec);
@@ -84,9 +80,7 @@ final class DomainInsertContext extends ValuesSyntaxInsertContext implements Ins
     }
 
 
-    /**
-     * create for {@link  ChildTableMeta}
-     */
+    /// create for {@link  ChildTableMeta}
     private DomainInsertContext(@Nullable StatementContext outerContext, _Insert._ChildDomainInsert stmt,
                                 DomainInsertContext parentContext) {
         super(outerContext, stmt, parentContext);

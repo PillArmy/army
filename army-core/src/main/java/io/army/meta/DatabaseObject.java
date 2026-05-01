@@ -19,24 +19,19 @@ package io.army.meta;
 import io.army.criteria.SQLElement;
 import io.army.criteria.TableField;
 
-/**
- * <p>
- * This interface representing database object ,this interface is base interface of below:
- * <ul>
- *     <li>{@link  TableMeta}</li>
- *     <li>{@link  TableField}</li>
- *     <li>{@link  io.army.mapping.MappingType.SqlUserDefined}</li>
- *     <li>{@link io.army.mapping.optional.CompositeField}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This interface representing database object ,this interface is base interface of below:
+/// 
+/// - {@link  TableMeta}
+/// - {@link  TableField}
+/// - {@link  io.army.mapping.MappingType.SqlUserDefined}
+/// - {@link io.army.mapping.optional.CompositeField}
+/// 
+/// @since 0.6.0
 public interface DatabaseObject extends SQLElement {
 
-    /**
-     * @see TableMeta#tableName()
-     * @see FieldMeta#columnName()
-     */
+    /// @see TableMeta#tableName()
+/// @see FieldMeta#columnName()
     String objectName();
 
     String comment();

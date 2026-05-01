@@ -24,13 +24,10 @@ import java.util.function.BiFunction;
 import static io.army.dialect.Database.H2;
 import static io.army.dialect.Database.PostgreSQL;
 
-/**
- * <p>
- * This interface representing array {@link Expression}.
- *
- * @see <a href="https://www.postgresql.org/docs/current/arrays.html">Arrays</a>
- * @since 0.6.0
- */
+/// 
+/// This interface representing array {@link Expression}.
+/// @see <a href="https://www.postgresql.org/docs/current/arrays.html">Arrays</a>
+/// @since 0.6.0
 //@Deprecated
 public interface ArrayExpression extends SimpleExpression, TypedExpression {
 

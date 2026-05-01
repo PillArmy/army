@@ -38,10 +38,8 @@ public abstract class Stmts {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * <p>
-     * Post insert for generated key
-     */
+    /// 
+/// Post insert for generated key
     public static GeneratedKeyStmt postStmt(final InsertStmtParams params) {
         final GeneratedKeyStmt stmt;
         if (params.isTwoStmtQuery()) {
@@ -133,11 +131,9 @@ public abstract class Stmts {
     }
 
 
-    /**
-     * @return a modified list
-     * @see #batchDmlStmt(StmtParams, List)
-     * @see #batchQueryStmt(StmtParams, List)
-     */
+    /// @return a modified list
+/// @see #batchDmlStmt(StmtParams, List)
+/// @see #batchQueryStmt(StmtParams, List)
     private static List<List<SQLParam>> createParamGroupList(final StmtParams params, final List<?> namedParamList) {
         final List<SQLParam> paramGroup = params.paramList();
         final int paramSize = paramGroup.size();
@@ -693,9 +689,7 @@ public abstract class Stmts {
 
         private final List<? extends Selection> selectionList;
 
-        /**
-         * @param selectionList unmodified list
-         */
+        /// @param selectionList unmodified list
         private QueryStmtItem(boolean optimistic, List<? extends Selection> selectionList) {
             this.optimistic = optimistic;
             this.selectionList = selectionList;

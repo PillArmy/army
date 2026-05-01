@@ -898,9 +898,7 @@ abstract class FunctionUtils {
         }
     }
 
-    /**
-     * @see #twoAndMaxRestForSingleExpFunc(String, Expression, Expression, int, Expression...)
-     */
+    /// @see #twoAndMaxRestForSingleExpFunc(String, Expression, Expression, int, Expression...)
     static void appendTwoSingleExp(List<ArmyExpression> argList, String name
             , Expression one, Expression two) {
         if (one instanceof SqlValueParam.MultiParamValue) {
@@ -962,9 +960,7 @@ abstract class FunctionUtils {
 
     /*-------------------below private method -------------------*/
 
-    /**
-     * @see #sixNotationFunc(String, Predicate, Expression, Expression, Expression, Expression, Expression, Expression)
-     */
+    /// @see #sixNotationFunc(String, Predicate, Expression, Expression, Expression, Expression, Expression, Expression)
     @Nullable
     private static String assertNotation(final String funcName, @Nullable String notation, Predicate<String> validator,
                                          final Expression argument) {
@@ -1063,9 +1059,7 @@ abstract class FunctionUtils {
 
         private final ArmyExpression argument;
 
-        /**
-         * @see #namedNotation(String, Expression)
-         */
+        /// @see #namedNotation(String, Expression)
         private NamedNotation(String name, ArmyExpression argument) {
             if (argument instanceof SqlValueParam.MultiParamValue) {
                 throw namedNotationIsMultiValue();
@@ -1137,9 +1131,7 @@ abstract class FunctionUtils {
             implements NoArgFunction, SimpleFunction {
 
 
-        /**
-         * @see #zeroArgFunc(String)
-         */
+        /// @see #zeroArgFunc(String)
         private ZeroArgFunction(String name, boolean buildIn) {
             super(name, buildIn);
         }
@@ -1186,9 +1178,7 @@ abstract class FunctionUtils {
 
         private final ArmyExpression two;
 
-        /**
-         * @see #twoArgFunc(String, Expression, Expression)
-         */
+        /// @see #twoArgFunc(String, Expression, Expression)
         private TwoArgFunction(String name, Expression one, Expression two) {
             super(name);
             this.one = (ArmyExpression) one;
@@ -1222,9 +1212,7 @@ abstract class FunctionUtils {
 
         private final ArmyExpression three;
 
-        /**
-         * @see #threeArgFunc(String, Expression, Expression, Expression)
-         */
+        /// @see #threeArgFunc(String, Expression, Expression, Expression)
         private ThreeArgFunction(String name, Expression one, Expression two, Expression three) {
             super(name);
             this.one = (ArmyExpression) one;
@@ -1268,9 +1256,7 @@ abstract class FunctionUtils {
 
         private final ArmyExpression four;
 
-        /**
-         * @see #fourArgFunc(String, Expression, Expression, Expression, Expression)
-         */
+        /// @see #fourArgFunc(String, Expression, Expression, Expression, Expression)
         private FourArgFunction(String name, Expression one, Expression two, Expression three,
                                 Expression four) {
             super(name);
@@ -1324,9 +1310,7 @@ abstract class FunctionUtils {
         private final ArmyExpression five;
 
 
-        /**
-         * @see #fiveArgFunc(String, Expression, Expression, Expression, Expression, Expression)
-         */
+        /// @see #fiveArgFunc(String, Expression, Expression, Expression, Expression, Expression)
         private FiveArgFunction(String name, Expression one, Expression two, Expression three,
                                 Expression four, Expression five) {
             super(name);
@@ -1389,9 +1373,7 @@ abstract class FunctionUtils {
         private final ArmyExpression six;
 
 
-        /**
-         * @see #sixArgFunc(String, Expression, Expression, Expression, Expression, Expression, Expression)
-         */
+        /// @see #sixArgFunc(String, Expression, Expression, Expression, Expression, Expression, Expression)
         private SixArgFunction(String name, Expression one, Expression two, Expression three,
                                Expression four, Expression five, Expression six) {
             super(name);
@@ -1463,9 +1445,7 @@ abstract class FunctionUtils {
         private final ArmyExpression seven;
 
 
-        /**
-         * @see #sevenArgFunc(String, Expression, Expression, Expression, Expression, Expression, Expression, Expression)
-         */
+        /// @see #sevenArgFunc(String, Expression, Expression, Expression, Expression, Expression, Expression, Expression)
         private SevenArgFunction(String name, Expression one, Expression two, Expression three,
                                  Expression four, Expression five, Expression six,
                                  Expression seven) {
@@ -1597,9 +1577,7 @@ abstract class FunctionUtils {
 
     }//OneArgFuncPredicate
 
-    /**
-     * @see #threeArgPredicateFunc(String, Expression, Expression, Expression)
-     */
+    /// @see #threeArgPredicateFunc(String, Expression, Expression, Expression)
     private static final class MultiArgFuncPredicate extends OperationPredicate.SqlFunctionPredicate {
 
         private final SQLToken option;
@@ -1628,17 +1606,13 @@ abstract class FunctionUtils {
     }//MultiArgFuncPredicate
 
 
-    /**
-     * @see ComplexArgFuncExpression
-     */
+    /// @see ComplexArgFuncExpression
     private static final class ComplexArgFuncPredicate extends OperationPredicate.SqlFunctionPredicate {
 
 
         private final List<?> argumentList;
 
-        /**
-         * @see #complexArgPredicate(String, List)
-         */
+        /// @see #complexArgPredicate(String, List)
         private ComplexArgFuncPredicate(String name, boolean buildIn, List<?> argumentList) {
             super(name, buildIn);
             this.argumentList = argumentList;
@@ -1659,15 +1633,11 @@ abstract class FunctionUtils {
     }//ComplexArgFuncPredicate
 
 
-    /**
-     * @see ComplexArgFuncPredicate
-     */
+    /// @see ComplexArgFuncPredicate
     private static class ComplexArgFuncExpression extends OperationExpression.SqlFunctionExpression {
         private final List<?> argList;
 
-        /**
-         * @see #complexArgFunc(String, Object...)
-         */
+        /// @see #complexArgFunc(String, Object...)
         private ComplexArgFuncExpression(String name, boolean buildIn, List<?> argList) {
             super(name, buildIn);
             assert !argList.isEmpty();
@@ -1712,9 +1682,7 @@ abstract class FunctionUtils {
 
         private final ArmyFuncClause clause;
 
-        /**
-         * @see #clauseFunc(String, ArmyFuncClause, TypeMeta)
-         */
+        /// @see #clauseFunc(String, ArmyFuncClause, TypeMeta)
         private ArmyFuncClauseFunction(String name, ArmyFuncClause clause) {
             super(name);
             this.clause = clause;
@@ -1740,9 +1708,7 @@ abstract class FunctionUtils {
             Statement._SimpleOrderByClause,
             Statement._SimpleOrderByCommaClause {
 
-        /**
-         * @see #orderByOptionClause()
-         */
+        /// @see #orderByOptionClause()
         private OrderByOptionClause() {
             super(ContextStack.peek());
         }
@@ -1939,16 +1905,12 @@ abstract class FunctionUtils {
     }//JsonObjectFunction
 
 
-    /**
-     * only accept {@link Expression} not {@link RowExpression} ,for example : MySQL
-     */
+    /// only accept {@link Expression} not {@link RowExpression} ,for example : MySQL
     private static final class JsonMapFunc extends OperationExpression.SqlFunctionExpression {
 
         private final Map<String, ?> map;
 
-        /**
-         * @see #jsonMapFunc(String, Map, TypeMeta)
-         */
+        /// @see #jsonMapFunc(String, Map, TypeMeta)
         private JsonMapFunc(String name, Map<String, ?> map) {
             super(name);
             this.map = Collections.unmodifiableMap(_Collections.hashMap(map));
@@ -2025,16 +1987,12 @@ abstract class FunctionUtils {
     } // JsonMapFunc
 
 
-    /**
-     * key  accept {@link Expression} or {@link String} only, not {@link RowExpression} ,for example : MySQL
-     */
+    /// key  accept {@link Expression} or {@link String} only, not {@link RowExpression} ,for example : MySQL
     private static final class SimpleJsonObjectFunc extends OperationExpression.SqlFunctionExpression {
 
         private final List<?> argList;
 
-        /**
-         * @see #simpleJsonObjectFunc(String, List, TypeMeta)
-         */
+        /// @see #simpleJsonObjectFunc(String, List, TypeMeta)
         private SimpleJsonObjectFunc(String name, List<?> argList) {
             super(name);
             this.argList = argList;

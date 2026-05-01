@@ -22,44 +22,33 @@ import io.army.lang.Nullable;
 
 import java.util.List;
 
-/**
- * <p>
- * Package interface,this interface is base interface of below:
- * <ul>
- *     <li>{@link _AliasDerivedBlock}</li>
- *     <li>{@link _DerivedTable}</li>
- *     <li>{@link  _Cte}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// Package interface,this interface is base interface of below:
+/// 
+/// - {@link _AliasDerivedBlock}
+/// - {@link _DerivedTable}
+/// - {@link  _Cte}
+/// 
+/// @since 0.6.0
 public interface _SelectionMap {
 
-    /**
-     * <p>
-     * Note,the {@link Selection} couldn't be rendered. so couldn't invoke below method:
-     *     <ul>
-     *         <li>{@link io.army.criteria.impl.inner._SelfDescribed#appendSql(StringBuilder, _SqlContext)}</li>
-     *         <li>{@link _Selection#appendSelectItem(StringBuilder, _SqlContext)}</li>
-     *     </ul>
-     *
-     *
-     * @return the {@link Selection} that couldn't be rendered.
-     */
+/// 
+/// Note,the {@link Selection} couldn't be rendered. so couldn't invoke below method:
+/// 
+/// - {@link io.army.criteria.impl.inner._SelfDescribed#appendSql(StringBuilder, _SqlContext)}
+/// - {@link _Selection#appendSelectItem(StringBuilder, _SqlContext)}
+/// 
+/// @return the {@link Selection} that couldn't be rendered.
     @Nullable
     Selection refSelection(String name);
 
-    /**
-     * <p>
-     * Note,any {@link Selection} of list couldn't be rendered. so couldn't invoke below method:
-     *     <ul>
-     *         <li>{@link io.army.criteria.impl.inner._SelfDescribed#appendSql(StringBuilder, _SqlContext)}</li>
-     *         <li>{@link _Selection#appendSelectItem(StringBuilder, _SqlContext)}</li>
-     *     </ul>
-     *
-     *
-     * @return a unmodified list, the list of {@link Selection} that couldn't be rendered.
-     */
+/// 
+/// Note,any {@link Selection} of list couldn't be rendered. so couldn't invoke below method:
+/// 
+/// - {@link io.army.criteria.impl.inner._SelfDescribed#appendSql(StringBuilder, _SqlContext)}
+/// - {@link _Selection#appendSelectItem(StringBuilder, _SqlContext)}
+/// 
+/// @return a unmodified list, the list of {@link Selection} that couldn't be rendered.
     List<? extends Selection> refAllSelection();
 
 

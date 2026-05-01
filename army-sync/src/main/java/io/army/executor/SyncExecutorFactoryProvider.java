@@ -23,18 +23,14 @@ import io.army.meta.ServerMeta;
 import io.army.lang.Nullable;
 import java.util.function.Function;
 
-/**
- * <p>This interface representing provider of blocking executor.
- */
+/// This interface representing provider of blocking executor.
 public interface SyncExecutorFactoryProvider extends ExecutorFactoryProvider {
 
     @Override
     ServerMeta createServerMeta(@Nullable Function<String, Database> func) throws DataAccessException;
 
-    /**
-     * @throws IllegalStateException    throw when invoke this method before {@link #createServerMeta(Function)}
-     * @throws IllegalArgumentException throw when {@link  MappingEnv#serverMeta()} not match.
-     */
+    /// @throws IllegalStateException    throw when invoke this method before {@link #createServerMeta(Function)}
+/// @throws IllegalArgumentException throw when {@link  MappingEnv#serverMeta()} not match.
     @Override
     SyncExecutorFactory createFactory(ExecutorEnv env) throws DataAccessException;
 

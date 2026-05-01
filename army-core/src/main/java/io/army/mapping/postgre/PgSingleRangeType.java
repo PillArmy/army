@@ -35,29 +35,24 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-/**
- * <p>
- * This class representing Postgre Built-in Range  Types type {@link MappingType}
-*
- * @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-BUILTIN">Built-in Range and Multirange Types</a>
- */
+/// 
+/// This class representing Postgre Built-in Range  Types type {@link MappingType}
+/// @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-BUILTIN">Built-in Range and Multirange Types</a>
 public final class PgSingleRangeType extends PgRangeType implements PgRangeType.SingleRangeType {
 
 
-    /**
-     * @param javaType non-array class. If javaType isn't String array,then must declare static 'create' factory method.
-     *                 see {@link PostgreRange}
-     * @param param    from {@link Mapping#params()} ,it's the name of <ul>
-     *                 <li>{@link PgType#INT4RANGE}</li>
-     *                 <li>{@link PgType#INT8RANGE}</li>
-     *                 <li>{@link PgType#NUMRANGE}</li>
-     *                 <li>{@link PgType#DATERANGE}</li>
-     *                 <li>{@link PgType#TSRANGE}</li>
-     *                 <li>{@link PgType#TSTZRANGE}</li>
-     *                 </ul>
-     * @throws IllegalArgumentException throw when javaType error
-     * @throws MetaException            throw when param error.
-     */
+/// @param javaType non-array class. If javaType isn't String array,then must declare static 'create' factory method.
+/// see {@link PostgreRange}
+/// @param param    from {@link Mapping#params()} ,it's the name of 
+/// - {@link PgType#INT4RANGE}
+/// - {@link PgType#INT8RANGE}
+/// - {@link PgType#NUMRANGE}
+/// - {@link PgType#DATERANGE}
+/// - {@link PgType#TSRANGE}
+/// - {@link PgType#TSTZRANGE}
+/// 
+/// @throws IllegalArgumentException throw when javaType error
+/// @throws MetaException            throw when param error.
     public static PgSingleRangeType from(final Class<?> javaType, final String param) throws MetaException {
         final PgType sqlType;
         try {
@@ -72,18 +67,16 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
     }
 
 
-    /**
-     * @param javaType non-array class. If javaType isn't String array,then must declare static 'create' factory method.
-     *                 see {@link PostgreRange}
-     * @param sqlType  valid instance:<ul>
-     *                 <li>{@link PgType#INT4RANGE}</li>
-     *                 <li>{@link PgType#INT8RANGE}</li>
-     *                 <li>{@link PgType#NUMRANGE}</li>
-     *                 <li>{@link PgType#DATERANGE}</li>
-     *                 <li>{@link PgType#TSRANGE}</li>
-     *                 <li>{@link PgType#TSTZRANGE}</li>
-     *                 </ul>
-     */
+/// @param javaType non-array class. If javaType isn't String array,then must declare static 'create' factory method.
+/// see {@link PostgreRange}
+/// @param sqlType  valid instance:
+/// - {@link PgType#INT4RANGE}
+/// - {@link PgType#INT8RANGE}
+/// - {@link PgType#NUMRANGE}
+/// - {@link PgType#DATERANGE}
+/// - {@link PgType#TSRANGE}
+/// - {@link PgType#TSTZRANGE}
+/// 
     public static PgSingleRangeType from(final Class<?> javaType, final PgType sqlType)
             throws IllegalArgumentException {
 
@@ -105,19 +98,17 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
     }
 
 
-    /**
-     * @param javaType non-array and non-string class.
-     *                 see {@link PostgreRange}
-     * @param sqlType  valid instance: <ul>
-     *                 <li>{@link PgType#INT4RANGE}</li>
-     *                 <li>{@link PgType#INT8RANGE}</li>
-     *                 <li>{@link PgType#NUMRANGE}</li>
-     *                 <li>{@link PgType#DATERANGE}</li>
-     *                 <li>{@link PgType#TSRANGE}</li>
-     *                 <li>{@link PgType#TSTZRANGE}</li>
-     *                 </ul>
-     * @throws IllegalArgumentException throw when javaType or sqlType error
-     */
+/// @param javaType non-array and non-string class.
+/// see {@link PostgreRange}
+/// @param sqlType  valid instance: 
+/// - {@link PgType#INT4RANGE}
+/// - {@link PgType#INT8RANGE}
+/// - {@link PgType#NUMRANGE}
+/// - {@link PgType#DATERANGE}
+/// - {@link PgType#TSRANGE}
+/// - {@link PgType#TSTZRANGE}
+/// 
+/// @throws IllegalArgumentException throw when javaType or sqlType error
     public static <T, R> PgSingleRangeType fromFunc(final Class<? extends R> javaType, final PgType sqlType,
                                                     final RangeFunction<T, R> rangeFunc)
             throws IllegalArgumentException {
@@ -131,20 +122,18 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
     }
 
 
-    /**
-     * @param javaType non-array and non-string class.
-     *                 see {@link PostgreRange}
-     * @param param    from {@link Mapping#params()} ,it's the name of <ul>
-     *                 <li>{@link PgType#INT4RANGE}</li>
-     *                 <li>{@link PgType#INT8RANGE}</li>
-     *                 <li>{@link PgType#NUMRANGE}</li>
-     *                 <li>{@link PgType#DATERANGE}</li>
-     *                 <li>{@link PgType#TSRANGE}</li>
-     *                 <li>{@link PgType#TSTZRANGE}</li>
-     *                 </ul>
-     * @throws IllegalArgumentException throw when javaType error
-     * @throws MetaException            throw when param or methodName error.
-     */
+/// @param javaType non-array and non-string class.
+/// see {@link PostgreRange}
+/// @param param    from {@link Mapping#params()} ,it's the name of 
+/// - {@link PgType#INT4RANGE}
+/// - {@link PgType#INT8RANGE}
+/// - {@link PgType#NUMRANGE}
+/// - {@link PgType#DATERANGE}
+/// - {@link PgType#TSRANGE}
+/// - {@link PgType#TSTZRANGE}
+/// 
+/// @throws IllegalArgumentException throw when javaType error
+/// @throws MetaException            throw when param or methodName error.
     public static PgSingleRangeType fromMethod(final Class<?> javaType, final String param,
                                                final String methodName) throws MetaException {
 
@@ -179,9 +168,7 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
     public static final PgSingleRangeType TS_TZ_RANGE_TEXT = new PgSingleRangeType(PgType.TSTZRANGE, String.class, null);
 
 
-    /**
-     * package method
-     */
+    /// package method
     static PgSingleRangeType fromMultiType(final PgMultiRangeType type) {
         final PgType sqlType;
         switch (type.dataType) {
@@ -220,11 +207,8 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
     }
 
 
-    /**
-     * <p>
-     * package constructor
-     *
-     */
+    /// 
+/// package constructor
     private PgSingleRangeType(PgType sqlType, Class<?> javaType, @Nullable RangeFunction<?, ?> rangeFunc) {
         super(sqlType, javaType, rangeFunc);
     }
@@ -334,15 +318,13 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
     }
 
 
-    /**
-     * @param parseFunc <ul>
-     *                  <li>argument of function possibly is notion 'infinity',see {@link PgRangeType#INFINITY}</li>
-     *                  <li>function must return null when argument is notion 'infinity' and support it,see {@link PgRangeType#INFINITY}</li>
-     *                  <li>function must throw {@link IllegalArgumentException} when argument is notion 'infinity' and don't support it,see {@link PgRangeType#INFINITY}</li>
-     *                  </ul>
-     * @throws IllegalArgumentException when rangeFunc is null and {@link MappingType#javaType()} isn't {@link String#getClass()}
-     * @throws CriteriaException        when text error and handler throw this type.
-     */
+/// @param parseFunc 
+/// - argument of function possibly is notion 'infinity',see {@link PgRangeType#INFINITY}
+/// - function must return null when argument is notion 'infinity' and support it,see {@link PgRangeType#INFINITY}
+/// - function must throw {@link IllegalArgumentException} when argument is notion 'infinity' and don't support it,see {@link PgRangeType#INFINITY}
+/// 
+/// @throws IllegalArgumentException when rangeFunc is null and {@link MappingType#javaType()} isn't {@link String#getClass()}
+/// @throws CriteriaException        when text error and handler throw this type.
     @SuppressWarnings("unchecked")
     public static <T, R> R rangeConvert(final Object nonNull, final @Nullable RangeFunction<T, R> rangeFunc,
                                         final Function<String, T> parseFunc, final DataType dataType,
@@ -386,15 +368,13 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
         return value;
     }
 
-    /**
-     * @param parseFunc <ul>
-     *                  <li>argument of function possibly is notion 'infinity',see {@link PgRangeType#INFINITY}</li>
-     *                  <li>function must return null when argument is notion 'infinity' and support it,see {@link PgRangeType#INFINITY}</li>
-     *                  <li>function must throw {@link IllegalArgumentException} when argument is notion 'infinity' and don't support it,see {@link PgRangeType#INFINITY}</li>
-     *                  </ul>
-     * @throws IllegalArgumentException            when rangeFunc is null and {@link MappingType#javaType()} isn't {@link String#getClass()}
-     * @throws DataAccessException when text error and handler throw this type.
-     */
+/// @param parseFunc 
+/// - argument of function possibly is notion 'infinity',see {@link PgRangeType#INFINITY}
+/// - function must return null when argument is notion 'infinity' and support it,see {@link PgRangeType#INFINITY}
+/// - function must throw {@link IllegalArgumentException} when argument is notion 'infinity' and don't support it,see {@link PgRangeType#INFINITY}
+/// 
+/// @throws IllegalArgumentException            when rangeFunc is null and {@link MappingType#javaType()} isn't {@link String#getClass()}
+/// @throws DataAccessException when text error and handler throw this type.
     public static <T, R> R rangeAfterGet(final Object nonNull, final @Nullable RangeFunction<T, R> rangeFunc,
                                          final Function<String, T> parseFunc, final DataType dataType,
                                          final MappingType type, final MappingSupport.ErrorHandler handler) {

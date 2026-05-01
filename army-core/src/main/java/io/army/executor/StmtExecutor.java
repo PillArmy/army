@@ -23,57 +23,46 @@ import io.army.spec.OptionSpec;
 
 import java.util.function.Function;
 
-/**
- * <p>This interface representing executor or {@link io.army.stmt.Stmt}.
- * <p>This interface is base interface of following :
- * <ul>
- *     <li>{@code io.army.executor.SyncStmtExecutor}</li>
- *     <li>{@code io.army.reactive.executor.ReactiveStmtExecutor}</li>
- * </ul>
- * <p><strong>NOTE</strong> : This interface isn't the sub interface of {@link CloseableSpec},
- * so all implementation of methods of this interface don't check whether closed or not,<br/>
- * but {@link io.army.session.Session} need to do that.
- *
- * @see ExecutorFactory
- * @since 0.6.0
- */
+/// This interface representing executor or {@link io.army.stmt.Stmt}.
+/// This interface is base interface of following :
+/// 
+/// - {@code io.army.executor.SyncStmtExecutor}
+/// - {@code io.army.reactive.executor.ReactiveStmtExecutor}
+/// 
+/// **NOTE** : This interface isn't the sub interface of {@link CloseableSpec},
+/// so all implementation of methods of this interface don't check whether closed or not,
+/// but {@link io.army.session.Session} need to do that.
+/// @see ExecutorFactory
+/// @since 0.6.0
 public interface StmtExecutor extends OptionSpec, DriverSpiHolder {
 
 
-    /**
-     * <p>
-     * Session identifier(non-unique, for example : database server cluster),probably is following :
-     *     <ul>
-     *         <li>server process id</li>
-     *         <li>server thread id</li>
-     *         <li>other identifier</li>
-     *     </ul>
-     *     <strong>NOTE</strong>: identifier will probably be updated if reconnect.
-     * <br/>
-     *
-     * @return session identifier
-     * @throws DataAccessException throw when underlying database session have closed.
-     */
+/// 
+/// Session identifier(non-unique, for example : database server cluster),probably is following :
+/// 
+/// - server process id
+/// - server thread id
+/// - other identifier
+/// 
+/// **NOTE**: identifier will probably be updated if reconnect.
+/// 
+/// @return session identifier
+/// @throws DataAccessException throw when underlying database session have closed.
     long sessionIdentifier(Function<Option<?>, ?> sessionFunc) throws DataAccessException;
 
 
-    /**
-     * @return true : underlying database session in transaction block.
-     * @throws DataAccessException throw when underlying database session have closed.
-     */
+    /// @return true : underlying database session in transaction block.
+/// @throws DataAccessException throw when underlying database session have closed.
     boolean inTransaction(Function<Option<?>, ?> sessionFunc) throws DataAccessException;
 
     boolean isSameFactory(StmtExecutor s);
 
-    /**
-     * override {@link Object#toString()}
-     *
-     * @return driver info, contain : <ol>
-     * <li>implementation class name</li>
-     * <li>session name</li>
-     * <li>{@link System#identityHashCode(Object)}</li>
-     * </ol>
-     */
+/// override {@link Object#toString()}
+/// @return driver info, contain : 
+/// - implementation class name
+/// - session name
+/// - {@link System#identityHashCode(Object)}
+/// 
     @Override
     String toString();
 

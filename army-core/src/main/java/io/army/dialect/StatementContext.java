@@ -39,12 +39,9 @@ import java.util.Locale;
 import java.util.function.Function;
 import java.util.function.IntSupplier;
 
-/**
- * <p>
- * This class is base class of all the implementation of {@link  _SqlContext}.
- *
- * @since 0.6.0
- */
+/// 
+/// This class is base class of all the implementation of {@link  _SqlContext}.
+/// @since 0.6.0
 abstract class StatementContext implements _StmtContext, StmtParams {
 
     static final String SPACE_PLACEHOLDER = " ?";
@@ -374,11 +371,9 @@ abstract class StatementContext implements _StmtContext, StmtParams {
         return this.paramAccepter.hasNamedParam;
     }
 
-    /**
-     * @see InsertContext#appendSetLeftItem(SqlField, Expression)
-     * @see SingleUpdateContext#appendSetLeftItem(SqlField, Expression)
-     * @see MultiUpdateContext#appendSetLeftItem(SqlField, Expression)
-     */
+    /// @see InsertContext#appendSetLeftItem(SqlField, Expression)
+/// @see SingleUpdateContext#appendSetLeftItem(SqlField, Expression)
+/// @see MultiUpdateContext#appendSetLeftItem(SqlField, Expression)
     final void appendUpdateTimePlaceholder(final FieldMeta<?> updateTime, final Expression updateTimePlaceholder) {
         if (!_MetaBridge.UPDATE_TIME.equals(updateTime.fieldName())) {
             final String m = String.format("Expression %s present in error context", updateTimePlaceholder);
@@ -407,9 +402,7 @@ abstract class StatementContext implements _StmtContext, StmtParams {
         throw new CriteriaException(m);
     }
 
-    /**
-     * @return batch index(based zero)
-     */
+    /// @return batch index(based zero)
     int readCurrentBatchIndex() {
         String m = String.format("context[%s] don't batchNo.", this.getClass().getName());
         throw new CriteriaException(m);

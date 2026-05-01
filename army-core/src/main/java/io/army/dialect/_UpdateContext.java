@@ -19,14 +19,12 @@ package io.army.dialect;
 
 import io.army.lang.Nullable;
 
-/**
- * <p>
- * This interface is base interface of below:
- *     <ul>
- *         <li>{@link _SingleUpdateContext}</li>
- *         <li>{@link _MultiUpdateContext}</li>
- *     </ul>
-*/
+/// 
+/// This interface is base interface of below:
+/// 
+/// - {@link _SingleUpdateContext}
+/// - {@link _MultiUpdateContext}
+/// 
 public interface _UpdateContext extends _SqlContext, NarrowDmlContext, _DmlContext._ConditionFieldsSpec,
         _SetClauseContext {
 

@@ -52,9 +52,7 @@ public class XmlArrayType extends _ArmyBuildInType {
 
     private final Class<?> underlyingType;
 
-    /**
-     * @see #UNLIMITED
-     */
+    /// @see #UNLIMITED
     private XmlArrayType() {
         this.javaType = Object.class;
         this.underlyingType = Object.class;

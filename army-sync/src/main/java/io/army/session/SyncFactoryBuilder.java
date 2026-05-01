@@ -16,12 +16,9 @@
 
 package io.army.session;
 
-/**
- * <p>This interface representing the builder of {@link SyncSessionFactory}.
- * <p>The instance of This interface is created by {@link #builder()}.
- *
- * @since 0.6.0
- */
+/// This interface representing the builder of {@link SyncSessionFactory}.
+/// The instance of This interface is created by {@link #builder()}.
+/// @since 0.6.0
 public sealed interface SyncFactoryBuilder extends PackageFactoryBuilder<SyncFactoryBuilder, SyncSessionFactory>
         permits ArmySyncFactoryBuilder {
 

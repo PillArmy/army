@@ -215,9 +215,7 @@ public abstract class TableMetaUtils {
     }
 
 
-    /**
-     * @see #createFieldMetaPair(TableMeta)
-     */
+    /// @see #createFieldMetaPair(TableMeta)
     static DomainPair mappedClassPair(final Class<?> domainClass) throws MetaException {
         List<Class<?>> list = new ArrayList<>(6);
         // add entity class firstly
@@ -381,11 +379,9 @@ public abstract class TableMetaUtils {
     /*################################ private method ####################################*/
 
 
-    /**
-     * @param parentDomainClass domain class annotated by {@link Inheritance}.
-     * @return first: field name set; second: id field.
-     * @see #createFieldMetaPair(TableMeta)
-     */
+    /// @param parentDomainClass domain class annotated by {@link Inheritance}.
+/// @return first: field name set; second: id field.
+/// @see #createFieldMetaPair(TableMeta)
     private static Pair<Set<String>, Field> parentFieldPair(final Class<?> parentDomainClass) throws MetaException {
         Map<Class<?>, Pair<Set<String>, Field>> parentFieldPairCache = TableMetaUtils.parentFieldPairCache;
 
@@ -450,9 +446,7 @@ public abstract class TableMetaUtils {
     }
 
 
-    /**
-     * @return map(unmodifiable) ,key: column name,value : {@link Field} ,
-     */
+    /// @return map(unmodifiable) ,key: column name,value : {@link Field} ,
     private static Map<String, Field> columnToFieldMap(TableMeta<?> tableMeta, List<Class<?>> mappedClassList) {
         final Map<String, Field> map = _Collections.hashMap();
         final Set<String> fieldNameSet = new HashSet<>();
@@ -580,13 +574,10 @@ public abstract class TableMetaUtils {
     /*################################# indexMap meta part private method  start ###################################*/
 
 
-    /**
-     * debugSQL {@link Index}'s {@link IndexFieldMeta}
-     *
-     * @param createdColumnSet created column set  in  other indexMap
-     * @param <T>              entity java class
-     * @return value indexMap's {@link IndexFieldMeta}
-     */
+    /// debugSQL {@link Index}'s {@link IndexFieldMeta}
+/// @param createdColumnSet created column set  in  other indexMap
+/// @param <T>              entity java class
+/// @return value indexMap's {@link IndexFieldMeta}
     private static <T> List<IndexFieldMeta<T>> createIndexFieldMetaList(
             final String[] indexColumns,
             final IndexMeta<T> indexMeta,
@@ -637,9 +628,7 @@ public abstract class TableMetaUtils {
     }
 
 
-    /**
-     * @see #createIndexFieldMetaList(String[], IndexMeta, Map, Set)
-     */
+    /// @see #createIndexFieldMetaList(String[], IndexMeta, Map, Set)
     private static boolean isAscIndexColumn(final String order, IndexMeta<?> indexMeta, String indexColumnDefinition) {
         final boolean asc;
         if (ASC.equalsIgnoreCase(order)) {
@@ -653,9 +642,7 @@ public abstract class TableMetaUtils {
     }
 
 
-    /**
-     * @see #mappedClassPair(Class)
-     */
+    /// @see #mappedClassPair(Class)
     private static MetaException inheritanceDuplication(Class<?> domainClass) {
         String m = String.format("Domain[%s] extends link %s count great than 1 in link of extends",
                 domainClass.getName(),
@@ -663,61 +650,47 @@ public abstract class TableMetaUtils {
         return new MetaException(m);
     }
 
-    /**
-     * @see #createFieldMetaPair(TableMeta)
-     */
+    /// @see #createFieldMetaPair(TableMeta)
     private static MetaException columnNameDuplication(Class<?> mappedClass, String columnName) {
         String m = String.format("Mapped class[%s] column name[%s] duplication.", mappedClass.getName(), columnName);
         return new MetaException(m);
     }
 
-    /**
-     * @see #parentFieldPair(Class)
-     */
+    /// @see #parentFieldPair(Class)
     private static MetaException fieldOverride(Class<?> mappedClass, Field field) {
         String m = String.format("Mapped class[%s] property[%s] override.", mappedClass.getName(), field.getName());
         return new MetaException(m);
     }
 
-    /**
-     * @see #parentFieldPair(Class)
-     */
+    /// @see #parentFieldPair(Class)
     private static MetaException missingProperties(Class<?> domainClass, Set<String> missingProps) {
         String m = String.format("Domain class[%s] missing properties %s.", domainClass.getName(), missingProps);
         return new MetaException(m);
     }
 
-    /**
-     * @see #createIndexFieldMetaList(String[], IndexMeta, Map, Set)
-     */
+    /// @see #createIndexFieldMetaList(String[], IndexMeta, Map, Set)
     private static MetaException indexColumnCreatedError(TableMeta<?> tableMeta, String columnName) {
         String m = String.format("Domain[%s] index column[%s] duplication in index."
                 , tableMeta.javaType().getName(), columnName);
         return new MetaException(m);
     }
 
-    /**
-     * @see #createIndexFieldMetaList(String[], IndexMeta, Map, Set)
-     * @see #isAscIndexColumn(String, IndexMeta, String)
-     */
+    /// @see #createIndexFieldMetaList(String[], IndexMeta, Map, Set)
+/// @see #isAscIndexColumn(String, IndexMeta, String)
     private static MetaException indexColumnDefinitionError(IndexMeta<?> indexMeta, String indexColumnDefinition) {
         String m = String.format("Domain[%s] index[%s] column definition[%s] error",
                 indexMeta.tableMeta().javaType().getName(), indexMeta.name(), indexColumnDefinition);
         throw new MetaException(m);
     }
 
-    /**
-     * @see #createIndexFieldMetaList(String[], IndexMeta, Map, Set)
-     */
+    /// @see #createIndexFieldMetaList(String[], IndexMeta, Map, Set)
     private static MetaException notFoundIndexColumn(IndexMeta<?> indexMeta, String columnName) {
         String m = String.format("Not found index column[%s] in Domain[%s] for index[%s]"
                 , columnName, indexMeta.tableMeta().javaType().getName(), indexMeta.name());
         throw new MetaException(m);
     }
 
-    /**
-     * @see #createFieldMetaPair(TableMeta)
-     */
+    /// @see #createFieldMetaPair(TableMeta)
     private static IllegalStateException fieldMetaDuplication(IndexFieldMeta<?> fieldMeta) {
         String m = String.format("Domain[%s] filed meta[%s] duplication.",
                 fieldMeta.tableMeta().javaType().getName(), fieldMeta.fieldName());
@@ -725,10 +698,8 @@ public abstract class TableMetaUtils {
     }
 
 
-    /**
-     * @param <T> domain java type
-     * @see #createFieldMetaPair(TableMeta)
-     */
+    /// @param <T> domain java type
+/// @see #createFieldMetaPair(TableMeta)
     private static final class DefaultIndexMeta<T> implements IndexMeta<T> {
 
         private final TableMeta<T> table;
@@ -743,10 +714,8 @@ public abstract class TableMetaUtils {
 
         private final boolean primaryKey;
 
-        /**
-         * @param index            indexMap or null ( when debugSQL primary key for which user don'field definite {@link Index})
-         * @param columnToFieldMap a unmodifiable map
-         */
+        /// @param index            indexMap or null ( when debugSQL primary key for which user don'field definite {@link Index})
+/// @param columnToFieldMap a unmodifiable map
         private DefaultIndexMeta(final TableMeta<T> table, @Nullable Index index, Map<String, Field> columnToFieldMap,
                                  Set<String> createdColumnSet) {
             this.table = table;

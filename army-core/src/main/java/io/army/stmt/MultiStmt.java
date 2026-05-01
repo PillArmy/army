@@ -34,14 +34,10 @@ public interface MultiStmt extends Stmt {
 
     interface ProcedureItem extends StmtItem {
 
-        /**
-         * @return empty or result item list
-         */
+        /// @return empty or result item list
         List<StmtItem> resultItemList();
 
-        /**
-         * @return always false
-         */
+        /// @return always false
         @Override
         boolean hasOptimistic();
 
@@ -58,9 +54,7 @@ public interface MultiStmt extends Stmt {
 
         private final boolean optimistic;
 
-        /**
-         * private constructor
-         */
+        /// private constructor
         private UpdateStmt(boolean optimistic) {
             this.optimistic = optimistic;
         }

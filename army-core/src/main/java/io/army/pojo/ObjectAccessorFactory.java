@@ -33,9 +33,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 
-/**
- * @since 0.6.0
- */
+/// @since 0.6.0
 public abstract class ObjectAccessorFactory {
 
     private ObjectAccessorFactory() {

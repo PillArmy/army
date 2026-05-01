@@ -28,9 +28,7 @@ public abstract class DruidDataSourceUtils extends DataSourceUtils {
     }
 
 
-    /**
-     * create {@link DruidDataSource}
-     */
+    /// create {@link DruidDataSource}
     public static DruidDataSource createDataSource(Environment env, Properties properties, final String tag, String role) {
         DruidDataSource ds = new DruidDataSource();
         setDataSourceProperties(ds, env, properties, tag, role);

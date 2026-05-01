@@ -17,16 +17,14 @@
 package io.army.criteria;
 
 
-/**
- * <p>
- * This interface representing the element of ROW constructor. This interface is base interface of :
- *     <ul>
- *         <li>{@link SubQuery}</li>
- *         <li>{@link Expression}</li>
- *         <li>{@code  io.army.criteria.impl.SelectionGroups.RowElementGroup}</li>
- *     </ul>
- * * @since 0.6.0
- */
+/// 
+/// This interface representing the element of ROW constructor. This interface is base interface of :
+/// 
+/// - {@link SubQuery}
+/// - {@link Expression}
+/// - {@code  io.army.criteria.impl.SelectionGroups.RowElementGroup}
+/// 
+/// * @since 0.6.0
 public interface RowElement extends Item {
 
 

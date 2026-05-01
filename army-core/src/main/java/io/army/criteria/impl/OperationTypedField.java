@@ -23,16 +23,14 @@ import io.army.mapping.StringType;
 
 import java.util.function.BiFunction;
 
-/**
- * <p>
- * This class is a implementation of {@link SqlField},and This class is base class of below:
- * <ul>
- *     <li>{@link TableFieldMeta}</li>
- *     <li>{@link QualifiedFieldImpl}</li>
- *     <li>{@link  CriteriaContexts.ImmutableDerivedField}</li>
- *     <li>{@code   CriteriaContexts.MutableDerivedField}</li>
- * </ul>
- */
+/// 
+/// This class is a implementation of {@link SqlField},and This class is base class of below:
+/// 
+/// - {@link TableFieldMeta}
+/// - {@link QualifiedFieldImpl}
+/// - {@link  CriteriaContexts.ImmutableDerivedField}
+/// - {@code   CriteriaContexts.MutableDerivedField}
+/// 
 abstract class OperationTypedField extends OperationExpression.OperationTypedExpression implements TypedField,
         _Selection, ArmySimpleExpression {
 

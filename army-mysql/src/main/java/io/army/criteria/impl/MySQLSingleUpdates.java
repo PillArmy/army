@@ -39,10 +39,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-/**
- * <p>
- * This class is an implementation of single-table {@link MySQLUpdate}
- */
+/// 
+/// This class is an implementation of single-table {@link MySQLUpdate}
 
 abstract class MySQLSingleUpdates<I extends Item, T>
         extends SingleUpdateStatement<
@@ -62,18 +60,14 @@ abstract class MySQLSingleUpdates<I extends Item, T>
         MySQLUpdate._SingleWhereAndSpec<I>,
         MySQLUpdate._OrderByCommaSpec<I> {
 
-    /**
-     * <p>
-     * create simple(non-batch) single-table UPDATE statement that is primary statement.
-     */
+    /// 
+/// create simple(non-batch) single-table UPDATE statement that is primary statement.
     static _SingleWithSpec<Update> simple() {
         return new SimpleUpdateClause();
     }
 
-    /**
-     * <p>
-     * create batch single-table UPDATE statement that is primary statement.
-     */
+    /// 
+/// create batch single-table UPDATE statement that is primary statement.
     static _SingleWithSpec<_BatchUpdateParamSpec> batch() {
         return new BatchUpdateClause();
     }

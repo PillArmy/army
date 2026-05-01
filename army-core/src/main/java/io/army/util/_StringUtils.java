@@ -141,9 +141,7 @@ public abstract class _StringUtils {
                 .toString();
     }
 
-    /**
-     * @return a unmodified map
-     */
+    /// @return a unmodified map
     @SuppressWarnings("all")
     public static Map<String, Boolean> whiteMap(final @Nullable String whitelist) {
         if (whitelist == null) {
@@ -171,9 +169,7 @@ public abstract class _StringUtils {
     }
 
 
-    /**
-     * @see #bitStringToBitSet(String, boolean)
-     */
+    /// @see #bitStringToBitSet(String, boolean)
     public static String bitSetToBitString(final BitSet bitSet, final boolean bitEndian) {
         final int length = bitSet.length();
         final char[] bitChars = new char[length];
@@ -197,10 +193,8 @@ public abstract class _StringUtils {
         return new String(bitChars);
     }
 
-    /**
-     * @throws IllegalArgumentException when bitString isn't bit string.
-     * @see #bitSetToBitString(BitSet, boolean)
-     */
+    /// @throws IllegalArgumentException when bitString isn't bit string.
+/// @see #bitSetToBitString(BitSet, boolean)
     public static BitSet bitStringToBitSet(final String bitString, final boolean bitEndian)
             throws IllegalArgumentException {
         final int length;

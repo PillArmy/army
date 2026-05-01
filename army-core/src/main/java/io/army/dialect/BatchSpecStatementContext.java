@@ -27,15 +27,13 @@ import io.army.util._Exceptions;
 
 import java.util.List;
 
-/**
- * <p>
- * This class is base class of following <ul>
- * <li>{@link NarrowDmlStmtContext}</li>
- * <li>{@link MultiTableQueryContext}</li>
- * <li>{@link ParensSelectContext}</li>
- * </ul>
- * * @see 1.0
- */
+/// 
+/// This class is base class of following 
+/// - {@link NarrowDmlStmtContext}
+/// - {@link MultiTableQueryContext}
+/// - {@link ParensSelectContext}
+/// 
+/// * @see 1.0
 abstract class BatchSpecStatementContext extends StatementContext implements BatchSpecContext {
 
 

@@ -18,18 +18,15 @@ package io.army.criteria.impl.inner;
 
 import io.army.criteria.RowSet;
 
-/**
- * <p>
- * This interface is inner interface of {@link RowSet}.This interface is base interface of below:
- * <ul>
- *     <li>{@link _ParensRowSet}</li>
- *     <li>{@link _PartRowSet}</li>
- *     <li>{@link _UnionRowSet}</li>
- *     <li>{@link _PrimaryRowSet}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This interface is inner interface of {@link RowSet}.This interface is base interface of below:
+/// 
+/// - {@link _ParensRowSet}
+/// - {@link _PartRowSet}
+/// - {@link _UnionRowSet}
+/// - {@link _PrimaryRowSet}
+/// 
+/// @since 0.6.0
 public interface _RowSet extends _Statement, _Statement._SelectItemListSpec, RowSet {
 
     int selectionSize();

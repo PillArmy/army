@@ -28,255 +28,193 @@ import io.army.lang.Nullable;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * <p>This interface representing database session.
- * <p>This interface is direct base interface of following :
- * <ul>
- *     <li>{@link LocalSession}</li>
- *     <li>{@link RmSession}</li>
- *     <li>{@code io.army.sync.SyncSession}</li>
- *     <li>{@code io.army.reactive.ReactiveSession}</li>
- * </ul>
- *
- * @see SessionFactory
- */
+/// This interface representing database session.
+/// This interface is direct base interface of following :
+/// 
+/// - {@link LocalSession}
+/// - {@link RmSession}
+/// - {@code io.army.sync.SyncSession}
+/// - {@code io.army.reactive.ReactiveSession}
+/// 
+/// @see SessionFactory
 public sealed interface Session extends CloseableSpec, SessionSpec permits LocalSession, RmSession, PackageSession {
 
 
-    /**
-     * <p>
-     * Session identifier(non-unique, for example : database server cluster),probably is following :
-     * <ul>
-     *     <li>server process id</li>
-     *     <li>server thread id</li>
-     *     <li>other identifier</li>
-     * </ul>
-     * <strong>NOTE</strong>: identifier will probably be updated if reconnect.
-     * *
-     *
-     * @throws SessionException throw when session have closed.
-     */
+/// 
+/// Session identifier(non-unique, for example : database server cluster),probably is following :
+/// 
+/// - server process id
+/// - server thread id
+/// - other identifier
+/// 
+/// **NOTE**: identifier will probably be updated if reconnect.
+/// *
+/// @throws SessionException throw when session have closed.
     long sessionIdentifier() throws SessionException;
 
-    /**
-     * <p><strong>NOTE</strong> : This method don't check whether session closed or not.
-     */
+/// **NOTE** : This method don't check whether session closed or not.
     SessionFactory sessionFactory();
 
-    /**
-     * <p><strong>NOTE</strong> : This method don't check whether session closed or not.
-     */
+/// **NOTE** : This method don't check whether session closed or not.
     boolean isReadonlySession();
 
-    /**
-     * @return session in transaction block.
-     * @throws SessionException throw when session have closed
-     */
+    /// @return session in transaction block.
+/// @throws SessionException throw when session have closed
     boolean inTransaction() throws SessionException;
 
     boolean inPseudoTransaction();
 
-    /**
-     * <p>Test session whether hold one  {@link TransactionInfo} instance or not, the instance is current transaction info of this session.
-     * <p><strong>NOTE</strong> :
-     * <ol>
-     *     <li>This method don't check whether session closed or not</li>
-     *     <li>This method don't invoke {@link TransactionInfo#inTransaction()} method</li>
-     * </ol>
-     * <pre>The implementation of this method like following
-     *         <code><br/>
-     *   &#64;Override
-     *   public boolean hasTransactionInfo() {
-     *       return this.transactionInfo != null;
-     *   }
-     *         </code>
-     * </pre>
-     *
-     * @return true : session hold one  {@link TransactionInfo} instance.
-     */
+/// Test session whether hold one  {@link TransactionInfo} instance or not, the instance is current transaction info of this session.
+/// **NOTE** :
+/// 
+/// - This method don't check whether session closed or not
+/// - This method don't invoke {@link TransactionInfo#inTransaction()} method
+/// 
+/// <pre>The implementation of this method like following
+/// <code>
+/// &#64;Override
+/// public boolean hasTransactionInfo() {
+/// return this.transactionInfo != null;
+/// }
+/// </code>
+/// </pre>
+/// @return true : session hold one  {@link TransactionInfo} instance.
     boolean hasTransactionInfo();
 
-    /**
-     * <p>This method is equivalent to following :
-     * <pre>
-     *         <code><br/>
-     *             // session is instance of {@link Session}
-     *             session.inTransaction() || session.inPseudoTransaction()
-     *         </code>
-     * </pre>
-     *
-     * @throws SessionException throw when {@link #inTransaction()} throw
-     */
+/// This method is equivalent to following :
+/// <pre>
+/// <code>
+/// // session is instance of {@link Session}
+/// session.inTransaction() || session.inPseudoTransaction()
+/// </code>
+/// </pre>
+/// @throws SessionException throw when {@link #inTransaction()} throw
     boolean inAnyTransaction() throws SessionException;
 
-    /**
-     * <p>Test session is whether rollback only or not.
-     * <p> How to mark {@link Session}'s rollback only status ?
-     * <ul>
-     *     <li>local transaction  :
-     *          <ol>
-     *              <li>{@link #markRollbackOnly()}</li>
-     *              <li>throw {@link ChildUpdateException} when execute dml</li>
-     *          </ol>
-     *     </li>
-     *     <li>XA transaction :
-     *          <ol>
-     *              <li>{@link #markRollbackOnly()}</li>
-     *              <li>pass {@link RmSession#TM_FAIL} flag to {@link RmSession}'s end() method</li>
-     *              <li>throw {@link ChildUpdateException} when execute dml</li>
-     *          </ol>
-     *     </li>
-     * </ul>
-     * <p> How to clear {@link Session}'s rollback only status ?
-     * <ul>
-     *     <li>local transaction  :
-     *          <ol>
-     *              <li>rollback transaction</li>
-     *              <li>start new transaction</li>
-     *          </ol>
-     *     </li>
-     *     <li>XA transaction :
-     *          <ol>
-     *              <li>prepare current transaction</li>
-     *              <li>one phase rollback transaction</li>
-     *              <li>start new transaction</li>
-     *          </ol>
-     *     </li>
-     * </ul>
-     * <p><strong>NOTE</strong> : This method don't check session whether closed or not.
-     *
-     * @return true : session is rollback only.
-     * @see #markRollbackOnly()
-     * @see RmSession#TM_FAIL
-     */
+/// Test session is whether rollback only or not.
+///  How to mark {@link Session}'s rollback only status ?
+/// 
+/// - local transaction  :
+/// 
+/// - {@link #markRollbackOnly()}
+/// - throw {@link ChildUpdateException} when execute dml
+/// 
+/// 
+/// - XA transaction :
+/// 
+/// - {@link #markRollbackOnly()}
+/// - pass {@link RmSession#TM_FAIL} flag to {@link RmSession}'s end() method
+/// - throw {@link ChildUpdateException} when execute dml
+/// 
+/// 
+/// 
+///  How to clear {@link Session}'s rollback only status ?
+/// 
+/// - local transaction  :
+/// 
+/// - rollback transaction
+/// - start new transaction
+/// 
+/// 
+/// - XA transaction :
+/// 
+/// - prepare current transaction
+/// - one phase rollback transaction
+/// - start new transaction
+/// 
+/// 
+/// 
+/// **NOTE** : This method don't check session whether closed or not.
+/// @return true : session is rollback only.
+/// @see #markRollbackOnly()
+/// @see RmSession#TM_FAIL
     boolean isRollbackOnly();
 
-    /**
-     * <p>Mark session rollback only
-     * <p>More info ,see {@link #isRollbackOnly()}
-     *
-     * @throws SessionException throw when session have closed.
-     * @see #isRollbackOnly()
-     */
+    /// Mark session rollback only
+/// More info ,see {@link #isRollbackOnly()}
+/// @throws SessionException throw when session have closed.
+/// @see #isRollbackOnly()
     void markRollbackOnly();
 
 
-    /**
-     * <p><strong>NOTE</strong> : This method don't check whether session closed or not.
-     */
+/// **NOTE** : This method don't check whether session closed or not.
     boolean isReadOnlyStatus();
 
 
-    /**
-     * <p><strong>NOTE</strong> : This method don't check whether session closed or not.
-     */
+/// **NOTE** : This method don't check whether session closed or not.
     boolean isReactive();
 
 
-    /**
-     * <p><strong>NOTE</strong> : This method don't check whether session closed or not.
-     */
+/// **NOTE** : This method don't check whether session closed or not.
     boolean isQueryInsertAllowed();
 
     Database serverDatabase();
 
 
-    /**
-     * <p><strong>NOTE</strong> : This method don't check whether session closed or not.
-     *
-     * @throws IllegalArgumentException throw,when not found {@link TableMeta}.
-     */
+/// **NOTE** : This method don't check whether session closed or not.
+/// @throws IllegalArgumentException throw,when not found {@link TableMeta}.
     <T> TableMeta<T> tableMeta(Class<T> domainClass);
 
 
-    /**
-     * @param key The key of the attribute to return
-     * @return The attribute
-     */
+    /// @param key The key of the attribute to return
+/// @return The attribute
     @Nullable
     Object getAttribute(Object key);
 
-    /**
-     * Set a custom attribute.
-     *
-     * @param key   The attribute name
-     * @param value The attribute value
-     */
+    /// Set a custom attribute.
+/// @param key   The attribute name
+/// @param value The attribute value
     void setAttribute(Object key, Object value);
 
-    /**
-     * @return all the attributes names,a unmodified set.
-     */
+    /// @return all the attributes names,a unmodified set.
     Set<Object> getAttributeKeys();
 
-    /**
-     * Remove the attribute
-     *
-     * @param key The attribute key
-     * @return the attribute value if found, null otherwise
-     */
+    /// Remove the attribute
+/// @param key The attribute key
+/// @return the attribute value if found, null otherwise
     @Nullable
     Object removeAttribute(Object key);
 
     int attributeSize();
 
-    /**
-     * @return a unmodified set.
-     */
+    /// @return a unmodified set.
     Set<Map.Entry<Object, Object>> attributeEntrySet();
 
-    /**
-     * override {@link Object#toString()}
-     *
-     * @return driver info, contain : <ol>
-     * <li>implementation class name</li>
-     * <li>{@link #name()}</li>
-     * <li>{@link System#identityHashCode(Object)}</li>
-     * </ol>
-     */
+/// override {@link Object#toString()}
+/// @return driver info, contain : 
+/// - implementation class name
+/// - {@link #name()}
+/// - {@link System#identityHashCode(Object)}
+/// 
     @Override
     String toString();
 
 
-    /**
-     * <p>This interface is base interface of following :
-     * <ul>
-     *     <li>{@link RmSession}</li>
-     *     <li>RM {@link StmtExecutor}</li>
-     * </ul>
-     * /**
-     * <p><strong>NOTE</strong> : this interface never extends any interface.
-     *
-     * @since 0.6.0
-     */
+/// This interface is base interface of following :
+/// 
+/// - {@link RmSession}
+/// - RM {@link StmtExecutor}
+/// 
+/// **NOTE** : this interface never extends any interface.
+/// @since 0.6.0
     interface XaTransactionSupportSpec {
 
         boolean isSupportForget();
 
-        /**
-         * @return the sub set of {@code  #start(Xid, int, TransactionOption)} support flags(bit set).
-         */
+        /// @return the sub set of {@code  #start(Xid, int, TransactionOption)} support flags(bit set).
         int startSupportFlags();
 
-        /**
-         * @return the sub set of {@code #end(Xid, int, Function)} support flags(bit set).
-         */
+        /// @return the sub set of {@code #end(Xid, int, Function)} support flags(bit set).
         int endSupportFlags();
 
-        /**
-         * @return the sub set of {@code #commit(Xid, int, Function)} support flags(bit set).
-         */
+        /// @return the sub set of {@code #commit(Xid, int, Function)} support flags(bit set).
         int commitSupportFlags();
 
-        /**
-         * @return the sub set of {@code #recover(int, Function)} support flags(bit set).
-         */
+        /// @return the sub set of {@code #recover(int, Function)} support flags(bit set).
         int recoverSupportFlags();
 
 
-        /**
-         * @throws SessionException throw when underlying database session have closed.
-         */
+        /// @throws SessionException throw when underlying database session have closed.
         boolean isSameRm(XaTransactionSupportSpec s) throws SessionException;
 
     }

@@ -170,11 +170,9 @@ public class ValuesTests extends PostgreUnitTests {
     }
 
 
-    /**
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use the interface that start with {@code _ }
-     * ,because army don't guarantee compatibility to future distribution.
-     */
+/// **Note:**
+/// Application developer isn't allowed to directly use the interface that start with {@code _ }
+/// ,because army don't guarantee compatibility to future distribution.
     private <V extends ValuesQuery> PostgreValues._UnionOrderBySpec<V> createSimpleValues(Supplier<PostgreValues.ValuesSpec<V>> supplier) {
 
         return supplier.get()

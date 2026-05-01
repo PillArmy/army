@@ -35,10 +35,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * @see FieldMeta
- * @see TableFieldMeta
- */
+/// @see FieldMeta
+/// @see TableFieldMeta
 abstract class FieldMetaUtils extends TableMetaUtils {
 
     private FieldMetaUtils() {
@@ -323,9 +321,7 @@ abstract class FieldMetaUtils extends TableMetaUtils {
     }
 
 
-    /**
-     * @see #columnGeneratorMeta(Generator, FieldMeta, boolean)
-     */
+    /// @see #columnGeneratorMeta(Generator, FieldMeta, boolean)
     private static Class<?> loadPreGeneratorClass(FieldMeta<?> fieldMeta, final String className) {
         if (!_StringUtils.hasText(className)) {
             String m = String.format("%s generator no class name", fieldMeta);

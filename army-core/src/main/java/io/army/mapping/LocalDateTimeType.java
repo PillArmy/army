@@ -30,20 +30,18 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 
-/**
- * <p>
- * This class is mapping class of {@link LocalDateTime}.
- * This mapping type can convert below java type:
- * <ul>
- *     <li>{@link LocalDateTime}</li>
- *     <li>{@link java.time.LocalDate}</li>
- *     <li>{@link java.time.OffsetDateTime}</li>
- *     <li>{@link java.time.ZonedDateTime}</li>
- *     <li>{@link String} </li>
- * </ul>
- *  to {@link LocalDateTime},if overflow,throw {@link io.army.ArmyException}
- ** @since 0.6.0
- */
+/// 
+/// This class is mapping class of {@link LocalDateTime}.
+/// This mapping type can convert below java type:
+/// 
+/// - {@link LocalDateTime}
+/// - {@link java.time.LocalDate}
+/// - {@link java.time.OffsetDateTime}
+/// - {@link java.time.ZonedDateTime}
+/// - {@link String} 
+/// 
+/// to {@link LocalDateTime},if overflow,throw {@link io.army.ArmyException}
+/// * @since 0.6.0
 public final class LocalDateTimeType extends _ArmyNoInjectionType implements MappingType.SqlLocalDateTime {
 
 
@@ -56,9 +54,7 @@ public final class LocalDateTimeType extends _ArmyNoInjectionType implements Map
 
     public static final LocalDateTimeType INSTANCE = new LocalDateTimeType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private LocalDateTimeType() {
     }
 

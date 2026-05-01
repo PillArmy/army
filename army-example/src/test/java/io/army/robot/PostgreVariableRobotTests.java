@@ -26,9 +26,7 @@ public class PostgreVariableRobotTests {
     private static final String TWO_TAB = "\t\t", THREE_TAB = "\t\t\t", FOUR_TAB = "\t\t\t\t";
 
 
-    /**
-     * <p>See {@code  PostgreCommands#show(String)}
-     */
+    /// See {@code  PostgreCommands#show(String)}
     @Test(enabled = false)
     public void variableCaseStatement() throws SQLException {
         try (DruidDataSource dataSource = DataSourceUtils.createDataSource(Database.PostgreSQL)) {

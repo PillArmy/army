@@ -38,9 +38,7 @@ public class FuncUnitTests extends PostgreUnitTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(FuncUnitTests.class);
 
-    /**
-     * @see SQLs#cases()
-     */
+    /// @see SQLs#cases()
     @Test
     public void caseFunc() {
         final Select stmt;
@@ -55,9 +53,7 @@ public class FuncUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see Postgres#coalesce(Expression, Expression...)
-     */
+    /// @see Postgres#coalesce(Expression, Expression...)
     @Test
     public void coalesceFunc() {
         final Select stmt;
@@ -72,9 +68,7 @@ public class FuncUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see SQLs#nullIf(Object, Object)
-     */
+    /// @see SQLs#nullIf(Object, Object)
     @Test
     public void nullIfFunc() {
         final Select stmt;
@@ -85,10 +79,8 @@ public class FuncUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see Postgres#greatest(Expression, Expression...)
-     * @see Postgres#greatest(Consumer)
-     */
+    /// @see Postgres#greatest(Expression, Expression...)
+/// @see Postgres#greatest(Consumer)
     @Test
     public void greatestFunc() {
         final Select stmt;
@@ -103,10 +95,8 @@ public class FuncUnitTests extends PostgreUnitTests {
         printStmt(LOG, stmt);
     }
 
-    /**
-     * @see Postgres#least(Expression, Expression...)
-     * @see Postgres#least(Consumer)
-     */
+    /// @see Postgres#least(Expression, Expression...)
+/// @see Postgres#least(Consumer)
     @Test
     public void leastFunc() {
         final Select stmt;

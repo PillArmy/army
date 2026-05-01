@@ -20,9 +20,7 @@ import io.army.spec.OptionSpec;
 
 public interface Warning extends OptionSpec {
 
-    /**
-     * @return warning message
-     */
+    /// @return warning message
     String message();
 
 }

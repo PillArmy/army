@@ -19,11 +19,9 @@ package io.army.stmt;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-/**
- * @see SimpleStmt
- * @see PairStmt
- * @see BatchStmt
- */
+/// @see SimpleStmt
+/// @see PairStmt
+/// @see BatchStmt
 public interface Stmt {
 
     boolean hasOptimistic();
@@ -36,17 +34,14 @@ public interface Stmt {
     String toString();
 
 
-    /**
-     * <p>This interface representing  pair sql statement spec.
-     * <p>This interface is base interface of following :
-     * <ul>
-     *     <li>{@link PairStmt}</li>
-     *     <li>{@link PairBatchStmt}</li>
-     * </ul>
-     * *
-     *
-     * @since 0.6.0
-     */
+/// This interface representing  pair sql statement spec.
+/// This interface is base interface of following :
+/// 
+/// - {@link PairStmt}
+/// - {@link PairBatchStmt}
+/// 
+/// *
+/// @since 0.6.0
     interface PairStmtSpec extends Stmt {
 
         SingleSqlStmt firstStmt();

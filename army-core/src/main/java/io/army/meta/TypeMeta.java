@@ -19,18 +19,15 @@ package io.army.meta;
 import io.army.criteria.TableField;
 import io.army.mapping.MappingType;
 
-/**
- * <p>
- * This interface representing the meta data of parameter.
- * This interface is base interface of below:
- *     <ul>
- *         <li>{@link MappingType}</li>
- *         <li>{@link TableField}</li>
- *     </ul>
-*
- * @see MappingType
- * @see FieldMeta
- */
+/// 
+/// This interface representing the meta data of parameter.
+/// This interface is base interface of below:
+/// 
+/// - {@link MappingType}
+/// - {@link TableField}
+/// 
+/// @see MappingType
+/// @see FieldMeta
 public interface TypeMeta extends Meta {
 
     MappingType mappingType();

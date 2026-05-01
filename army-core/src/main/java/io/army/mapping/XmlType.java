@@ -44,9 +44,7 @@ public final class XmlType extends _ArmyBuildInType {
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private XmlType(Class<?> javaType) {
         this.javaType = javaType;
     }

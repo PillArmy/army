@@ -27,23 +27,20 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Locale;
 
-/**
- * <p>This class is mapping class of {@link Boolean}.
- * This mapping type can convert below java type:
- * <ul>
- *     <li>{@link Byte},non-zero is true</li>
- *     <li>{@link Short},non-zero is true</li>
- *     <li>{@link Integer},non-zero is true</li>
- *     <li>{@link Long},non-zero is true</li>
- *     <li>{@link java.math.BigInteger},non-zero is true</li>
- *     <li>{@link java.math.BigDecimal},non-zero is true</li>
- *     <li>{@link String} , true or false ,case insensitive</li>
- * </ul>
- *  to {@link Boolean},if overflow,throw {@link io.army.ArmyException}
- * * @since 0.6.0
- *
- * @see <a href="https://www.postgresql.org/docs/current/catalog-pg-type.html">Postgre pg_type table ,oid : 16</a>
- */
+/// This class is mapping class of {@link Boolean}.
+/// This mapping type can convert below java type:
+/// 
+/// - {@link Byte},non-zero is true
+/// - {@link Short},non-zero is true
+/// - {@link Integer},non-zero is true
+/// - {@link Long},non-zero is true
+/// - {@link java.math.BigInteger},non-zero is true
+/// - {@link java.math.BigDecimal},non-zero is true
+/// - {@link String} , true or false ,case insensitive
+/// 
+/// to {@link Boolean},if overflow,throw {@link io.army.ArmyException}
+/// * @since 0.6.0
+/// @see <a href="https://www.postgresql.org/docs/current/catalog-pg-type.html">Postgre pg_type table ,oid : 16</a>
 public final class BooleanType extends _ArmyNoInjectionType implements MappingType.SqlBoolean {
 
 
@@ -61,9 +58,7 @@ public final class BooleanType extends _ArmyNoInjectionType implements MappingTy
 
     public static final String FALSE = "FALSE";
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private BooleanType() {
     }
 

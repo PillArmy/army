@@ -20,11 +20,8 @@ import io.army.mapping._ArmyNoInjectionType;
 
 public abstract class PostgreGeometricType extends _ArmyNoInjectionType {
 
-    /**
-     * <p>
-     * <strong>Package constructor</strong> and must <strong>Package constructor</strong>
-     *
-     */
+/// 
+/// **Package constructor** and must **Package constructor**
     PostgreGeometricType() {
     }
 

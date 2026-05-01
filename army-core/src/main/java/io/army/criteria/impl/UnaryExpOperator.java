@@ -20,9 +20,7 @@ package io.army.criteria.impl;
 import io.army.dialect.Database;
 import io.army.util._Exceptions;
 
-/**
- * representing Unary SQL Operator
- */
+/// representing Unary SQL Operator
 enum UnaryExpOperator implements Operator.SqlUnaryExpOperator {
 
     NEGATE(" -"),

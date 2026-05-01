@@ -20,9 +20,7 @@ import java.util.List;
 
 public interface _DomainUpdate extends _SingleUpdate, _SingleDml._DomainDml {
 
-    /**
-     * @return a unmodifiable list,probably empty
-     */
+    /// @return a unmodifiable list,probably empty
     List<_ItemPair> childItemPairList();
 
 }

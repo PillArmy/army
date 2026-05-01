@@ -55,9 +55,7 @@ public class StringArrayType extends _ArmyBuildInType implements MappingType.Sql
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private StringArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

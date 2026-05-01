@@ -35,9 +35,7 @@ public final class MultiPointType extends _ArmyBuildInType implements MappingTyp
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private MultiPointType(Class<?> javaType) {
         this.javaType = javaType;
     }

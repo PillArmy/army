@@ -39,9 +39,7 @@ public class TextEnumArrayType extends _ArmyBuildInType implements MappingType.S
     }
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private TextEnumArrayType() {
     }
 

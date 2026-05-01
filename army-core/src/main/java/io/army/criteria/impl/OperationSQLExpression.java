@@ -17,22 +17,17 @@
 package io.army.criteria.impl;
 
 
-/**
- * <p>
- * This class is a abstract implementation of {@link io.army.criteria.SQLExpression}. This class is base class of :
- * <ul>
- *     <li>{@link OperationExpression}</li>
- *     <li>{@link OperationRowExpression}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This class is a abstract implementation of {@link io.army.criteria.SQLExpression}. This class is base class of :
+/// 
+/// - {@link OperationExpression}
+/// - {@link OperationRowExpression}
+/// 
+/// @since 0.6.0
 @Deprecated
 abstract class OperationSQLExpression implements ArmySQLExpression {
 
-    /**
-     * package constructor
-     */
+    /// package constructor
     OperationSQLExpression() {
     }
 

@@ -48,12 +48,9 @@ public abstract class PostgreArrays extends ArrayMappings {
         return HexUtils.decodeHex(bytea, 0, bytea.length);
     }
 
-    /**
-     * decode array element
-     *
-     * @see #encodeElement(String, StringBuilder)
-     * @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
-     */
+/// decode array element
+/// @see #encodeElement(String, StringBuilder)
+/// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
     public static String decodeElement(final String text, int offset, int end) {
         final boolean enclose;
         if (text.charAt(offset) == _Constant.DOUBLE_QUOTE) {
@@ -105,12 +102,9 @@ public abstract class PostgreArrays extends ArrayMappings {
         return elementText;
     }
 
-    /**
-     * escape array element
-     *
-     * @see #decodeElement(String, int, int)
-     * @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
-     */
+/// escape array element
+/// @see #decodeElement(String, int, int)
+/// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
     public static void encodeElement(final String element, final StringBuilder builder) {
 
         builder.append(_Constant.DOUBLE_QUOTE); // left doubleQuote
@@ -279,15 +273,12 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    /**
-     * TODO handle UNLIMITED array
-     *
-     * @param nonNull     true : element of one dimension array non-null
-     * @param elementFunc <ul>
-     *                    <li>offset is non-whitespace,non-whitespace before end</li>
-     *                    <li>no notation <strong>null</strong>,because have handled</li>
-     *                    </ul>
-     */
+/// TODO handle UNLIMITED array
+/// @param nonNull     true : element of one dimension array non-null
+/// @param elementFunc 
+/// - offset is non-whitespace,non-whitespace before end
+/// - no notation **null**,because have handled
+/// 
     public static Object parseArray(final String text, final boolean nonNull, final TextFunction<?> elementFunc,
                                     final char delimiter, final DataType dataType, final MappingType type,
                                     final ErrorHandler handler) throws IllegalArgumentException {
@@ -418,13 +409,10 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    /**
-     * <p>
-     * parse postgre array text.
-     * *
-     *
-     * @see <a href="https://www.postgresql.org/docs/15/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
-     */
+/// 
+/// parse postgre array text.
+/// *
+/// @see <a href="https://www.postgresql.org/docs/15/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
     static Object parseArrayText(final Class<?> javaType, final String text, final boolean nonNull, final char delimiter,
                                  final TextFunction<?> function) throws IllegalArgumentException {
         final int length;
@@ -485,15 +473,12 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    /**
-     * <p>
-     * parse postgre array text.
-     * *
-     *
-     * @param function       before end index possibly with trailing whitespace.
-     * @param dimensionIndex based one
-     * @see <a href="https://www.postgresql.org/docs/15/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
-     */
+/// 
+/// parse postgre array text.
+/// *
+/// @param function       before end index possibly with trailing whitespace.
+/// @param dimensionIndex based one
+/// @see <a href="https://www.postgresql.org/docs/15/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
     private static Object _parseArray(final Class<?> javaType, final String text, final boolean nonNull,
                                       final int offset, final int end, final char delimiter, final int dimension,
                                       final int dimensionIndex, final boolean doubleQuoteEscapes, final TextFunction<?> function) {
@@ -624,9 +609,7 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    /**
-     * @see #toArrayText(Object, BiConsumer, StringBuilder)
-     */
+    /// @see #toArrayText(Object, BiConsumer, StringBuilder)
     private static void arrayToArrayText(final Object array, final BiConsumer<Object, StringBuilder> consumer,
                                          final StringBuilder builder) {
 
@@ -656,9 +639,7 @@ public abstract class PostgreArrays extends ArrayMappings {
         builder.append(_Constant.RIGHT_BRACE);
     }
 
-    /**
-     * @see #toArrayText(Object, BiConsumer, StringBuilder)
-     */
+    /// @see #toArrayText(Object, BiConsumer, StringBuilder)
     private static void listToArrayText(final List<?> list, final BiConsumer<Object, StringBuilder> consumer,
                                         final StringBuilder builder) {
 
@@ -722,9 +703,7 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    /**
-     * @see #byteaArrayToText(MappingType, DataType, Object, StringBuilder, ErrorHandler)
-     */
+    /// @see #byteaArrayToText(MappingType, DataType, Object, StringBuilder, ErrorHandler)
     private static void _byteaArrayToText(final MappingType type, final DataType dataType, final Object source,
                                           final int dimension, final StringBuilder builder,
                                           final ErrorHandler errorHandler) {

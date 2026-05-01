@@ -18,9 +18,7 @@ package io.army.meta;
 
 import io.army.ArmyException;
 
-/**
- * throw when {@link io.army.meta.Meta} error.
- */
+/// throw when {@link io.army.meta.Meta} error.
 public final class MetaException extends ArmyException {
 
 

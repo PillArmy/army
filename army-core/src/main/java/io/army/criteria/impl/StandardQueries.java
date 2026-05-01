@@ -37,12 +37,9 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/**
- * <p>
- * This class is a implementation of {@link StandardQuery}.
- *
- * @since 0.6.0
- */
+/// 
+/// This class is a implementation of {@link StandardQuery}.
+/// @since 0.6.0
 abstract class StandardQueries<I extends Item> extends SimpleQueries<
         I,
         StandardCtes,
@@ -401,21 +398,17 @@ abstract class StandardQueries<I extends Item> extends SimpleQueries<
     }
 
 
-    /**
-     * @see #from(Function)
-     * @see #crossJoin(Function)
-     */
+    /// @see #from(Function)
+/// @see #crossJoin(Function)
     private _JoinSpec<I> fromNestedEnd(final _JoinType joinType, final _NestedItems nestedItems) {
         this.blockConsumer.accept(TabularBlocks.fromNestedBlock(joinType, nestedItems));
         return this;
     }
 
-    /**
-     * @see #leftJoin(Function)
-     * @see #join(Function)
-     * @see #rightJoin(Function)
-     * @see #fullJoin(Function)
-     */
+    /// @see #leftJoin(Function)
+/// @see #join(Function)
+/// @see #rightJoin(Function)
+/// @see #fullJoin(Function)
     private _OnClause<_JoinSpec<I>> joinNestedEnd(final _JoinType joinType, final _NestedItems nestedItems) {
         final TabularBlocks.JoinClauseBlock<_JoinSpec<I>> block;
         block = TabularBlocks.joinNestedBlock(joinType, nestedItems, this);
@@ -423,10 +416,8 @@ abstract class StandardQueries<I extends Item> extends SimpleQueries<
         return block;
     }
 
-    /**
-     * @see #windows(Consumer)
-     * @see #window(String)
-     */
+    /// @see #windows(Consumer)
+/// @see #window(String)
     private _WindowCommaSpec<I> onAddWindow(final ArmyWindow window) {
         window.endWindowClause();
         List<_Window> windowList = this.windowList;
@@ -489,10 +480,8 @@ abstract class StandardQueries<I extends Item> extends SimpleQueries<
 
         private final Function<? super Select, I> function;
 
-        /**
-         * <p>
-         * Primary constructor
-         */
+        /// 
+/// Primary constructor
         private SimpleSelect(StandardDialect dialect, @Nullable ArmyStmtSpec spec,
                              @Nullable CriteriaContext outerBracketContext, Function<? super Select, I> function,
                              @Nullable CriteriaContext leftContext) {
@@ -737,9 +726,7 @@ abstract class StandardQueries<I extends Item> extends SimpleQueries<
 
         private final Function<Boolean, I> function;
 
-        /**
-         * @see #staticCteComma(CriteriaContext, boolean, Function)
-         */
+        /// @see #staticCteComma(CriteriaContext, boolean, Function)
         private StaticCteComma(CriteriaContext context, final boolean recursive, Function<Boolean, I> function) {
             context.onBeforeWithClause(recursive);
             this.context = context;
@@ -774,9 +761,7 @@ abstract class StandardQueries<I extends Item> extends SimpleQueries<
 
         private List<String> columnAliasList;
 
-        /**
-         * @see StaticCteComma#comma(String)
-         */
+        /// @see StaticCteComma#comma(String)
         private StaticCteParensClause(StaticCteComma<I> comma, String name) {
             this.comma = comma;
             this.name = name;

@@ -31,13 +31,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * <p>
- * This class hold the implementation of standard nested join
- *
- * @see StandardQueries
- * @since 0.6.0
- */
+/// 
+/// This class hold the implementation of standard nested join
+/// @see StandardQueries
+/// @since 0.6.0
 final class StandardNestedJoins<I extends Item> extends JoinableClause.NestedLeftParenClause<
         I,
         StandardStatement._StandardNestedJoinClause<I>,
@@ -241,12 +238,10 @@ final class StandardNestedJoins<I extends Item> extends JoinableClause.NestedLef
             throw ContextStack.clearStackAndCastCriteriaApi();
         }
 
-        /**
-         * @see #leftJoin(Function)
-         * @see #join(Function)
-         * @see #rightJoin(Function)
-         * @see #fullJoin(Function)
-         */
+        /// @see #leftJoin(Function)
+/// @see #join(Function)
+/// @see #rightJoin(Function)
+/// @see #fullJoin(Function)
         private StandardStatement._NestedOnSpec<I> joinNestedEnd(final _JoinType joinType, final _NestedItems nestedItems) {
             final StandardNestedBlock<I> block;
             block = new StandardNestedBlock<>(this.context, this.blockConsumer, joinType, null, nestedItems, "",
@@ -255,9 +250,7 @@ final class StandardNestedJoins<I extends Item> extends JoinableClause.NestedLef
             return block;
         }
 
-        /**
-         * @see #crossJoin(Function)
-         */
+        /// @see #crossJoin(Function)
         private StandardStatement._NestedJoinSpec<I> fromNestedEnd(final _JoinType joinType, final _NestedItems items) {
             assert joinType == _JoinType.CROSS_JOIN;
             final StandardNestedBlock<I> block;

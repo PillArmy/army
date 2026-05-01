@@ -30,17 +30,13 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 
-/**
- * <p>
- * This interface representing sql predicate in WHERE clause or HAVING clause.
- * This interface name is 'IPredicate' not 'Predicate', because of {@link java.util.function.Predicate}.
- * * @since 0.6.0
- */
+/// 
+/// This interface representing sql predicate in WHERE clause or HAVING clause.
+/// This interface name is 'IPredicate' not 'Predicate', because of {@link java.util.function.Predicate}.
+/// * @since 0.6.0
 public interface IPredicate extends TypedExpression, Statement._WhereAndClause<IPredicate> {
 
-    /**
-     * @return always return {@link BooleanType#INSTANCE}
-     */
+    /// @return always return {@link BooleanType#INSTANCE}
     @Override
     BooleanType typeMeta();
 

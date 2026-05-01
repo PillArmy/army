@@ -13,9 +13,7 @@ import org.testng.annotations.Test;
 public class SessionTests extends SessionSupport {
 
 
-    /**
-     * @see ReactiveSession#transactionInfo()
-     */
+    /// @see ReactiveSession#transactionInfo()
     @Test
     public void transactionInfo(final ReactiveLocalSession session) {
         final TransactionInfo info;
@@ -27,10 +25,8 @@ public class SessionTests extends SessionSupport {
         LOG.debug("info: {}", info);
     }
 
-    /**
-     * @see ReactiveSession#setTransactionCharacteristics(TransactionOption)
-     * @see ReactiveSession#sessionTransactionCharacteristics()
-     */
+    /// @see ReactiveSession#setTransactionCharacteristics(TransactionOption)
+/// @see ReactiveSession#sessionTransactionCharacteristics()
     @Test
     public void setTransactionCharacteristics(final ReactiveLocalSession session) {
         final TransactionInfo sessionTxInfo;

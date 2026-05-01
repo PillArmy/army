@@ -58,10 +58,8 @@ public abstract class _DialectUtils {
     }
 
 
-    /**
-     * @return true : representing insert {@link ChildTableMeta} and syntax error
-     * , statement executor couldn't get the auto increment primary key of {@link ParentTableMeta}
-     */
+    /// @return true : representing insert {@link ChildTableMeta} and syntax error
+/// , statement executor couldn't get the auto increment primary key of {@link ParentTableMeta}
     public static boolean isIllegalChildPostInsert(final _Insert._ChildInsert stmt) {
         final _Insert parentStmt;
         parentStmt = stmt.parentStmt();
@@ -78,9 +76,7 @@ public abstract class _DialectUtils {
         return needReturnId && cannotReturnId;
     }
 
-    /**
-     * @deprecated validate by statement executor.
-     */
+    /// @deprecated validate by statement executor.
     @Deprecated
     public static boolean isIgnorableConflict(final _Insert._ChildInsert childStmt) {
         final _Insert parentStmt = childStmt.parentStmt();
@@ -98,9 +94,7 @@ public abstract class _DialectUtils {
         return !(childStmt instanceof _ReturningDml) && childStmt.parentStmt() instanceof _ReturningDml;
     }
 
-    /**
-     * @param stmt non {@link io.army.criteria.impl.inner._Insert._ChildInsert}
-     */
+    /// @param stmt non {@link io.army.criteria.impl.inner._Insert._ChildInsert}
     public static boolean isCannotReturnId(final _Insert._DomainInsert stmt) {
         final TableMeta<?> table = stmt.table();
         if (table instanceof ChildTableMeta) {
@@ -123,9 +117,7 @@ public abstract class _DialectUtils {
     }
 
 
-    /**
-     * @return a unmodified list
-     */
+    /// @return a unmodified list
     public static List<_Selection> flatSelectItem(final List<? extends SelectItem> selectItemList) {
         final int itemSize;
         itemSize = selectItemList.size();
@@ -152,9 +144,7 @@ public abstract class _DialectUtils {
     }
 
 
-    /**
-     * @see ArmyParser#safeObjectName(DatabaseObject)
-     */
+    /// @see ArmyParser#safeObjectName(DatabaseObject)
     public static boolean isSimpleIdentifier(final String objectName) {
         final int length = objectName.length();
         char ch;
@@ -303,9 +293,7 @@ public abstract class _DialectUtils {
 
     }
 
-    /**
-     * @return a unmodified map
-     */
+    /// @return a unmodified map
     static Map<String, Boolean> createKeyWordMap(final Set<String> keyWordSet) {
         final Map<String, Boolean> map;
         map = _Collections.hashMap((int) (keyWordSet.size() / 0.75f));
@@ -386,9 +374,7 @@ public abstract class _DialectUtils {
     /*-------------------below private method -------------------*/
 
 
-    /**
-     * @see #createKeyWordMap(Set)
-     */
+    /// @see #createKeyWordMap(Set)
     private static Map<String, Boolean> fieldCoreKeyWordMap() {
         final Map<String, Boolean> map;
         map = _Collections.hashMap();

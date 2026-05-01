@@ -20,12 +20,9 @@ package io.army.result;
 import io.army.session.Session;
 import io.army.session.SessionException;
 
-/**
- * <p>
- * Throw when {@link Session#isQueryInsertAllowed()} is false and try execute query insert.
-*
- * @see io.army.env.ArmyKey#QUERY_INSERT_MODE
- */
+/// 
+/// Throw when {@link Session#isQueryInsertAllowed()} is false and try execute query insert.
+/// @see io.army.env.ArmyKey#QUERY_INSERT_MODE
 public class QueryInsertException extends SessionException {
 
     public QueryInsertException(String message) {

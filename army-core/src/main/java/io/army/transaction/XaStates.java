@@ -21,46 +21,37 @@ import io.army.session.RmSession;
 import io.army.util._StringUtils;
 
 
-/**
- * <p>
- * This enum representing An XA transaction progresses states.
- * <br/>
- * <p>
- * Application developer can get {@link XaStates} by {@link TransactionInfo#valueOf(Option)} <br/>
- * when {@link RmSession} in XA transaction block. see {@link TransactionInfo#valueOf(Option)}
- * <p>
- * <br/>
- *
- * @see Option#XA_STATES
- * @see RmSession
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-states.html">XA Transaction States</a>
- * @since 0.6.0
- */
+/// 
+/// This enum representing An XA transaction progresses states.
+/// 
+/// 
+/// Application developer can get {@link XaStates} by {@link TransactionInfo#valueOf(Option)} 
+/// when {@link RmSession} in XA transaction block. see {@link TransactionInfo#valueOf(Option)}
+/// 
+/// 
+/// @see Option#XA_STATES
+/// @see RmSession
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-states.html">XA Transaction States</a>
+/// @since 0.6.0
 public enum XaStates {
 
 
-    /**
-     * <p>
-     * This instance representing XA transaction started after {@code  RmSession#start(Xid, int, TransactionOption)} method.
-     * <br/>
-     */
+/// 
+/// This instance representing XA transaction started after {@code  RmSession#start(Xid, int, TransactionOption)} method.
+/// 
     ACTIVE,
 
-    /**
-     * <p>
-     * This instance representing XA transaction IDLE after {@code RmSession#end(Xid, int, Function)} method.
-     * <br/>
-     * <p>
-     * This states support one-phase commit.
-     * <br/>
-     */
+/// 
+/// This instance representing XA transaction IDLE after {@code RmSession#end(Xid, int, Function)} method.
+/// 
+/// 
+/// This states support one-phase commit.
+/// 
     IDLE,
 
-    /**
-     * <p>
-     * This instance representing XA transaction PREPARED after {@code RmSession#prepare(Xid, Function)} method.
-     * <br/>
-     */
+/// 
+/// This instance representing XA transaction PREPARED after {@code RmSession#prepare(Xid, Function)} method.
+/// 
     PREPARED;
 
 

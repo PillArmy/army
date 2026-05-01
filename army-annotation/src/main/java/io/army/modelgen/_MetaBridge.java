@@ -22,9 +22,7 @@ import io.army.lang.Nullable;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Meta Constant set
- */
+/// Meta Constant set
 public abstract class _MetaBridge {
 
     private _MetaBridge() {

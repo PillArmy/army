@@ -38,12 +38,9 @@ import java.util.List;
 import java.util.function.*;
 
 
-/**
- * <p>
- * This class is base class of all simple SELECT query.
- *
- * @since 0.6.0
- */
+/// 
+/// This class is base class of all simple SELECT query.
+/// @since 0.6.0
 @SuppressWarnings("unchecked")
 abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extends Item, W extends Query.SelectModifier, SR extends Item, SD, FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, GR, GD, HR, HD, OR, OD, LR, LO, LF, SP>
         extends JoinableClause<FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, OR, OD, LR, LO, LF>
@@ -1749,16 +1746,14 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
         private final TeFunction<String, CriteriaContext, String, T> constructor;
 
-        /**
-         * @param name        window name
-         * @param function    end function
-         * @param constructor constructor of window. arguments:
-         *                    <ul>
-         *                      <li>first : window name</li>
-         *                      <li>second : {@link CriteriaContext}</li>
-         *                      <li>third : nullable existingWindowName </li>
-         *                    </ul>
-         */
+/// @param name        window name
+/// @param function    end function
+/// @param constructor constructor of window. arguments:
+/// 
+/// - first : window name
+/// - second : {@link CriteriaContext}
+/// - third : nullable existingWindowName 
+/// 
         NamedWindowAsClause(CriteriaContext context, String name, Function<ArmyWindow, R> function,
                             TeFunction<String, CriteriaContext, String, T> constructor) {
             this.context = context;
@@ -2158,9 +2153,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
 
         private boolean spaceFirst;
 
-        /**
-         * @see #selects(Consumer)
-         */
+        /// @see #selects(Consumer)
         private SelectionConsumerImpl(CriteriaContext context) {
             this.context = context;
         }

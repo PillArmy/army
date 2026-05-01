@@ -60,17 +60,14 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * <p>This class is all implementation of {@link Session}.
- * <p>This class is direct base class of following :
- * <ul>
- *     <li>{@code  io.army.sync.ArmySyncSession}</li>
- *     <li>{@code io.army.reactive.ArmyReactiveSession}</li>
- * </ul>
- * <p>Package class
- *
- * @since 0.6.0
- */
+/// This class is all implementation of {@link Session}.
+/// This class is direct base class of following :
+/// 
+/// - {@code  io.army.sync.ArmySyncSession}
+/// - {@code io.army.reactive.ArmyReactiveSession}
+/// 
+/// Package class
+/// @since 0.6.0
 abstract class ArmySession<F extends ArmySessionFactory> implements PackageSession {
 
     protected static final String PSEUDO_SAVE_POINT = "ARMY_PSEUDO_SAVE_POINT";
@@ -88,9 +85,7 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
 
     private final Visible visible;
 
-    /**
-     * <p>Package constructor
-     */
+    /// Package constructor
     ArmySession(ArmySessionFactory.ArmySessionBuilder<F, ?, ?> builder) {
 
         this.name = builder.name;

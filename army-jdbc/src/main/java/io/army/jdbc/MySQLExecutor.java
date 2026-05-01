@@ -79,20 +79,16 @@ abstract class MySQLExecutor extends JdbcExecutor {
     private static final Logger LOG = LoggerFactory.getLogger(MySQLExecutor.class);
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private MySQLExecutor(JdbcExecutorFactory factory, Connection conn, String sessionName) {
         super(factory, conn, sessionName);
     }
 
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_transaction_isolation">transaction_isolation</a>
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_transaction_read_only">transaction_read_only</a>
-     * @see <a href="https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_tx_isolation">tx_isolation</a>
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_tx_read_only">tx_read_only</a>
-     */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_transaction_isolation">transaction_isolation</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_transaction_read_only">transaction_read_only</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_tx_isolation">tx_isolation</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_tx_read_only">tx_read_only</a>
     @Override
     public final TransactionInfo sessionTransactionCharacteristics(Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) {
         final String sql;
@@ -125,9 +121,7 @@ abstract class MySQLExecutor extends JdbcExecutor {
         }
     }
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/set-transaction.html">SET TRANSACTION Statement</a>
-     */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/set-transaction.html">SET TRANSACTION Statement</a>
     @Override
     public final void setTransactionCharacteristics(final TransactionOption option, Function<Option<?>, ?> sessionFunc) throws DataAccessException {
         final StringBuilder builder = new StringBuilder(30);
@@ -349,11 +343,9 @@ abstract class MySQLExecutor extends JdbcExecutor {
             super(factory, conn, sessionName);
         }
 
-        /**
-         * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/commit.html">START TRANSACTION Statement</a>
-         * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_transaction_isolation">transaction_isolation</a>
-         * @see <a href="https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_tx_isolation">tx_isolation</a>
-         */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/commit.html">START TRANSACTION Statement</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_transaction_isolation">transaction_isolation</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_tx_isolation">tx_isolation</a>
         @Override
         public TransactionInfo startTransaction(final TransactionOption option, final HandleMode mode, Function<Option<?>, ?> sessionFunc) {
 
@@ -421,18 +413,14 @@ abstract class MySQLExecutor extends JdbcExecutor {
             return info;
         }
 
-        /**
-         * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/commit.html">COMMIT Statement</a>
-         */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/commit.html">COMMIT Statement</a>
         @Nullable
         @Override
         public TransactionInfo commit(final Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) {
             return commitOrRollback(true, optionFunc);
         }
 
-        /**
-         * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/commit.html">ROLLBACK Statement</a>
-         */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/commit.html">ROLLBACK Statement</a>
         @Nullable
         @Override
         public TransactionInfo rollback(final Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) {
@@ -507,12 +495,9 @@ abstract class MySQLExecutor extends JdbcExecutor {
             super(factory, conn, sessionName);
         }
 
-        /**
-         * <p>the conversion process of xid is same with MySQL Connector/J .
-         * <br/>
-         *
-         * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
-         */
+/// the conversion process of xid is same with MySQL Connector/J .
+/// 
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
         @Override
         public final TransactionInfo start(final Xid xid, final int flags, final TransactionOption option, Function<Option<?>, ?> sessionFunc)
                 throws RmSessionException {
@@ -576,12 +561,9 @@ abstract class MySQLExecutor extends JdbcExecutor {
             return info;
         }
 
-        /**
-         * <p>the conversion process of xid is same with MySQL Connector/J .
-         * <br/>
-         *
-         * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
-         */
+/// the conversion process of xid is same with MySQL Connector/J .
+/// 
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
         @Override
         public final TransactionInfo end(final Xid xid, final int flags, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) {
 
@@ -612,12 +594,9 @@ abstract class MySQLExecutor extends JdbcExecutor {
             return newInfo;
         }
 
-        /**
-         * <p>the conversion process of xid is same with MySQL Connector/J .
-         * <br/>
-         *
-         * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
-         */
+/// the conversion process of xid is same with MySQL Connector/J .
+/// 
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
         @Override
         public final int prepare(final Xid xid, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) {
 
@@ -652,12 +631,9 @@ abstract class MySQLExecutor extends JdbcExecutor {
             return readOnly ? RmSession.XA_RDONLY : RmSession.XA_OK;
         }
 
-        /**
-         * <p>the conversion process of xid is same with MySQL Connector/J .
-         * <br/>
-         *
-         * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
-         */
+/// the conversion process of xid is same with MySQL Connector/J .
+/// 
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
         @Override
         public final void commit(final Xid xid, final int flags, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) {
 
@@ -695,12 +671,9 @@ abstract class MySQLExecutor extends JdbcExecutor {
 
         }
 
-        /**
-         * <p>the conversion process of xid is same with MySQL Connector/J .
-         * <br/>
-         *
-         * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
-         */
+/// the conversion process of xid is same with MySQL Connector/J .
+/// 
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
         @Override
         public final void rollback(final Xid xid, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) {
 

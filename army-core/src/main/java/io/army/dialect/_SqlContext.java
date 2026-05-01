@@ -24,12 +24,10 @@ import io.army.lang.Nullable;
 import io.army.meta.TypeMeta;
 import io.army.session.SessionSpec;
 
-/**
- * <p>
- * This interface representing sql context,that is used by {@link  DialectParser} and the implementation of criteria api,
- * for example {@link  io.army.criteria.impl.inner._Expression}.
- * * @since 0.6.0
- */
+/// 
+/// This interface representing sql context,that is used by {@link  DialectParser} and the implementation of criteria api,
+/// for example {@link  io.army.criteria.impl.inner._Expression}.
+/// * @since 0.6.0
 public interface _SqlContext extends SqlContextSpec {
 
 
@@ -50,30 +48,24 @@ public interface _SqlContext extends SqlContextSpec {
 
     StringBuilder sqlBuilder();
 
-    /**
-     * <p>
-     * This method is designed for parameter expression.
-     *     * <p> steps:
-     *     <ol>
-     *         <li>append one space</li>
-     *         <li>append '?' to {@link #sqlBuilder()}</li>
-     *         <li>append sqlParam to param list</li>
-     *     </ol>
-     *     */
+/// 
+/// This method is designed for parameter expression.
+/// *  steps:
+/// 
+/// - append one space
+/// - append '?' to {@link #sqlBuilder()}
+/// - append sqlParam to param list
+/// 
     void appendParam(SQLParam sqlParam);
 
     void appendLiteral(TypeMeta typeMeta, @Nullable Object value, boolean typeName);
 
     void appendLiteral(NamedLiteral namedLiteral, boolean typeName);
 
-    /**
-     * @see DialectParser#identifier(String, StringBuilder)
-     */
+    /// @see DialectParser#identifier(String, StringBuilder)
     StringBuilder identifier(String identifier, StringBuilder builder);
 
-    /**
-     * @see DialectParser#identifier(String)
-     */
+    /// @see DialectParser#identifier(String)
     String identifier(String identifier);
 
     Visible visible();

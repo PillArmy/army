@@ -37,10 +37,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/**
- * @see Enum
- * @see TextEnumType
- */
+/// @see Enum
+/// @see TextEnumType
 public class NameEnumType extends _ArmyNoInjectionType {
 
     public static NameEnumType from(final Class<?> enumType) {
@@ -92,9 +90,7 @@ public class NameEnumType extends _ArmyNoInjectionType {
 
     private final Class<?> enumClass;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private NameEnumType(Class<?> enumClass) {
         this.enumClass = enumClass;
     }

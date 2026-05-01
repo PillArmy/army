@@ -81,9 +81,7 @@ public abstract class Converters {
     }
 
 
-    /**
-     * @throws IllegalStateException throw when not found match convertor.
-     */
+    /// @throws IllegalStateException throw when not found match convertor.
     @SuppressWarnings("unchecked")
     public static <T> BiFunction<Class<T>, String, T> findConvertor(final Class<T> targetClass)
             throws IllegalStateException {
@@ -134,9 +132,7 @@ public abstract class Converters {
 
     }
 
-    /**
-     * @see #createInstanceFromSupplier(Class, String)
-     */
+    /// @see #createInstanceFromSupplier(Class, String)
     private static Object invokeSupplierMethod(final Class<?> interfaceClass, final Method method,
                                                final String supplierRef)
             throws InvocationTargetException, IllegalAccessException {

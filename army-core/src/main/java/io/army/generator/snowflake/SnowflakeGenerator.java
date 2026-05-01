@@ -41,9 +41,7 @@ import java.util.concurrent.ConcurrentMap;
 import static java.time.temporal.ChronoField.*;
 
 
-/**
- * @see SnowflakeClient
- */
+/// @see SnowflakeClient
 public final class SnowflakeGenerator implements FieldGenerator {
 
     public static SnowflakeGenerator create(final FieldMeta<?> field, final SnowflakeClient client) {
@@ -109,11 +107,8 @@ public final class SnowflakeGenerator implements FieldGenerator {
     private static final ConcurrentMap<Long, SnowflakeGenerator> INSTANCE_MAP = new ConcurrentHashMap<>();
 
 
-    /**
-     * <p>mills
-     *
-     * @see Param
-     */
+    /// mills
+/// @see Param
     public static final String START_TIME = "startTime";
 
     public static final String DATE = "date";

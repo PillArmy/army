@@ -26,41 +26,30 @@ import io.army.meta.TypeMeta;
 
 import java.lang.reflect.Field;
 
-/**
- * <p>
- * This interface representing column of database table. This interface is base interface of below interfaces:
- * <ul>
- *     <li>{@link FieldMeta}</li>
- *      <li>{@link QualifiedField}</li>
- * </ul>
-*
- * @see FieldMeta
- * @see QualifiedField
- */
+/// 
+/// This interface representing column of database table. This interface is base interface of below interfaces:
+/// 
+/// - {@link FieldMeta}
+/// - {@link QualifiedField}
+/// 
+/// @see FieldMeta
+/// @see QualifiedField
 @SuppressWarnings("unused")
 public interface TableField extends TypedField, FieldSelection, TypeMeta, DatabaseObject.FieldObject {
 
     TableMeta<?> tableMeta();
 
-    /**
-     * @return domain mapping property java type.
-     */
+    /// @return domain mapping property java type.
     Class<?> javaType();
 
     MappingType mappingType();
 
-    /**
-     * @return mapping  field name,see {@link Field#getName()}.
-     */
+    /// @return mapping  field name,see {@link Field#getName()}.
     String fieldName();
 
-    /**
-     * <p>
-     * Equivalence : {@link  FieldMeta#objectName()}
-     *
-     *
-     * @return column name(lower case).
-     */
+    /// 
+/// Equivalence : {@link  FieldMeta#objectName()}
+/// @return column name(lower case).
     String columnName();
 
 

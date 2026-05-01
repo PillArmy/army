@@ -27,28 +27,22 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-/**
- * <p>This interface representing MySQL delete statement,the instance of this interface can only be parsed by MySQL dialect instance.
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html">MySQL 8.0 Optimizer Hints</a>
- *
- * @see <a href="https://dev.mysql.com/doc/refman/5.7/en/optimizer-hints.html">MySQL 5.7 Optimizer Hints</a>
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/delete.html">DELETE Statement</a>
- * @since 0.6.0
- */
+/// This interface representing MySQL delete statement,the instance of this interface can only be parsed by MySQL dialect instance.
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html">MySQL 8.0 Optimizer Hints</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/5.7/en/optimizer-hints.html">MySQL 5.7 Optimizer Hints</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/delete.html">DELETE Statement</a>
+/// @since 0.6.0
 public interface MySQLDelete extends MySQLStatement {
 
-    /**
-     * <p>
-     * This interface representing single-table DELETE clause for MySQL syntax.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <T> next clause java type
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing single-table DELETE clause for MySQL syntax.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <T> next clause java type
+/// @since 0.6.0
     interface _SingleDeleteClause<T> extends DeleteStatement._SingleDeleteClause<T> {
 
 
@@ -57,20 +51,18 @@ public interface MySQLDelete extends MySQLStatement {
     }
 
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link io.army.criteria.Statement._DmlRowCountLimitClause}</li>
-     *          <li>{@link _DmlDeleteSpec}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - {@link io.army.criteria.Statement._DmlRowCountLimitClause}
+/// - {@link _DmlDeleteSpec}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _LimitSpec<I extends Item> extends Statement._DmlRowCountLimitClause<_DmlDeleteSpec<I>>,
             _DmlDeleteSpec<I> {
 
@@ -80,52 +72,46 @@ public interface MySQLDelete extends MySQLStatement {
 
     }
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link _StaticOrderByClause}</li>
-     *          <li>{@link _LimitSpec}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - {@link _StaticOrderByClause}
+/// - {@link _LimitSpec}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _OrderBySpec<I extends Item> extends _StaticOrderByClause<_OrderByCommaSpec<I>>, _LimitSpec<I> {
 
     }
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link io.army.criteria.Statement._WhereAndClause}</li>
-     *          <li>{@link _OrderBySpec}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - {@link io.army.criteria.Statement._WhereAndClause}
+/// - {@link _OrderBySpec}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _SingleWhereAndSpec<I extends Item> extends _WhereAndClause<_SingleWhereAndSpec<I>>, _OrderBySpec<I> {
 
     }
 
-    /**
-     * <p>
-     * This interface representing WHERE clause for single-table DELETE syntax.
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing WHERE clause for single-table DELETE syntax.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _SingleWhereClause<I extends Item> extends _WhereClause<_OrderBySpec<I>, _SingleWhereAndSpec<I>> {
 
     }
@@ -136,36 +122,32 @@ public interface MySQLDelete extends MySQLStatement {
 
     }
 
-    /**
-     * <p>
-     * This interface representing single-table DELETE clause.
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing single-table DELETE clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _SimpleSingleDeleteClause<I extends Item> extends _SingleDeleteClause<_SinglePartitionSpec<I>> {
 
 
     }
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link _DynamicWithClause}</li>
-     *          <li>{@link _StaticWithClause}</li>
-     *          <li>{@link _SimpleSingleDeleteClause}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - {@link _DynamicWithClause}
+/// - {@link _StaticWithClause}
+/// - {@link _SimpleSingleDeleteClause}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _SingleWithSpec<I extends Item>
             extends _MySQLDynamicWithClause<_SimpleSingleDeleteClause<I>>,
             _MySQLStaticWithClause<_SimpleSingleDeleteClause<I>>,
@@ -177,35 +159,30 @@ public interface MySQLDelete extends MySQLStatement {
     /*################################## blow multi-table delete api interface ##################################*/
 
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link Statement._WhereAndClause}</li>
-     *          <li>{@link Statement._DmlDeleteSpec}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - {@link Statement._WhereAndClause}
+/// - {@link Statement._DmlDeleteSpec}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _MultiWhereAndSpec<I extends Item> extends _WhereAndClause<_MultiWhereAndSpec<I>>, _DmlDeleteSpec<I> {
 
     }
 
-    /**
-     * /**
-     * <p>
-     * This interface representing WHERE clause multi-table DELETE syntax.
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing WHERE clause multi-table DELETE syntax.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _MultiWhereClause<I extends Item> extends _WhereClause<_DmlDeleteSpec<I>, _MultiWhereAndSpec<I>> {
 
     }
@@ -217,35 +194,30 @@ public interface MySQLDelete extends MySQLStatement {
 
     }
 
-    /**
-     * /**
-     * <p>
-     * This interface representing PARTITION clause multi-table DELETE syntax.
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing PARTITION clause multi-table DELETE syntax.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _MultiPartitionOnClause<I extends Item> extends _PartitionAsClause<_MultiIndexHintOnSpec<I>> {
 
     }
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>JOIN clause</li>
-     *          <li>{@link MySQLDelete._MultiWhereClause}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - JOIN clause
+/// - {@link MySQLDelete._MultiWhereClause}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _MultiJoinSpec<I extends Item>
             extends _MySQLJoinClause<_MultiIndexHintOnSpec<I>, _AsParensOnClause<_MultiJoinSpec<I>>>,
             _MySQLCrossClause<_MultiIndexHintJoinSpec<I>, _ParensJoinSpec<I>>,
@@ -270,17 +242,14 @@ public interface MySQLDelete extends MySQLStatement {
 
     }
 
-    /**
-     * /**
-     * <p>
-     * This interface representing PARTITION clause multi-table DELETE syntax.
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing PARTITION clause multi-table DELETE syntax.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _MultiPartitionJoinClause<I extends Item> extends _PartitionAsClause<_MultiIndexHintJoinSpec<I>> {
 
     }
@@ -332,16 +301,14 @@ public interface MySQLDelete extends MySQLStatement {
     }
 
 
-    /**
-     * <p>
-     * This interface representing DELETE clause for multi-table DELETE syntax.
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing DELETE clause for multi-table DELETE syntax.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _MySQLMultiDeleteClause<I extends Item> extends Item {
 
         _MultiDeleteFromAliasClause<I> delete(Supplier<List<Hint>> hints, List<MySQLs.Modifier> modifiers);
@@ -360,21 +327,19 @@ public interface MySQLDelete extends MySQLStatement {
 
     }
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link _MySQLDynamicWithClause}</li>
-     *          <li>{@link _StaticWithClause}</li>
-     *          <li>{@link _MySQLMultiDeleteClause}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - {@link _MySQLDynamicWithClause}
+/// - {@link _StaticWithClause}
+/// - {@link _MySQLMultiDeleteClause}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _MultiWithSpec<I extends Item> extends _MySQLDynamicWithClause<_MySQLMultiDeleteClause<I>>,
             _MySQLStaticWithClause<_MySQLMultiDeleteClause<I>>,
             _MySQLMultiDeleteClause<I> {

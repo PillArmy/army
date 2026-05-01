@@ -33,9 +33,7 @@ public final class SpringArmyEnvironment implements ArmyEnvironment {
 
     private final Environment env;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private SpringArmyEnvironment(String factoryName, Environment env) {
         this.prefix = ARMY_PERIOD + factoryName + '.';
         this.env = env;

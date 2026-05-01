@@ -60,9 +60,7 @@ public class LocalTimeArrayType extends _ArmyNoInjectionType implements MappingT
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private LocalTimeArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

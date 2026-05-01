@@ -294,9 +294,7 @@ abstract class PostgreWords {
 
         private final String spaceLiteral;
 
-        /**
-         * private constructor
-         */
+        /// private constructor
         private NullTreatModeExpression(final String spaceLiteral) {
             assert spaceLiteral.charAt(0) == _Constant.SPACE;
             assert spaceLiteral.charAt(1) == _Constant.QUOTE;

@@ -44,12 +44,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * <p>
- * This class is a abstract implementation of {@link PostgreUpdate}.
- *
- * @since 0.6.0
- */
+/// 
+/// This class is a abstract implementation of {@link PostgreUpdate}.
+/// @since 0.6.0
 abstract class PostgreUpdates<I extends Item, Q extends Item, T>
         extends JoinableUpdate<
         I,
@@ -78,28 +75,22 @@ abstract class PostgreUpdates<I extends Item, Q extends Item, T>
         PostgreUpdate._StaticReturningCommaSpec<Q> {
 
 
-    /**
-     * <p>
-     * create new simple(non-batch) single-table UPDATE statement that is primary statement.
-     */
+    /// 
+/// create new simple(non-batch) single-table UPDATE statement that is primary statement.
     static PostgreUpdate._SingleWithSpec<Update, ReturningUpdate> simple() {
         return new PrimarySimpleUpdateClause();
     }
 
 
-    /**
-     * <p>
-     * create new simple(non-batch) single-table UPDATE statement that is sub statement in with clause.
-     */
+    /// 
+/// create new simple(non-batch) single-table UPDATE statement that is sub statement in with clause.
     static <I extends Item> PostgreUpdate._SingleWithSpec<I, I> subSimpleUpdate(CriteriaContext outerContext,
                                                                                 Function<SubStatement, I> function) {
         return new SubSimpleUpdateClause<>(outerContext, function);
     }
 
-    /**
-     * <p>
-     * create new batch single-table UPDATE statement that is primary statement.
-     */
+    /// 
+/// create new batch single-table UPDATE statement that is primary statement.
     static PostgreUpdate._SingleWithSpec<_BatchUpdateParamSpec, _BatchReturningUpdateParamSpec> batchUpdate() {
         return new PrimaryBatchUpdateClause();
     }
@@ -1183,9 +1174,7 @@ abstract class PostgreUpdates<I extends Item, Q extends Item, T>
     } // PostgreBatchReturningUpdate
 
 
-    /**
-     * @see PostgreSubUpdate
-     */
+    /// @see PostgreSubUpdate
     static final class PostgreSubReturningUpdate extends PostgreUpdateWrapper
             implements SubStatement {
 

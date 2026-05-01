@@ -56,9 +56,7 @@ public class MediumBlobArrayType extends _ArmyBuildInType implements MappingType
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private MediumBlobArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

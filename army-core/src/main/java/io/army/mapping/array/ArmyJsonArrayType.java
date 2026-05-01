@@ -29,16 +29,13 @@ import io.army.sqltype.DataType;
 import java.util.function.BiConsumer;
 
 
-/**
- * <p>Package class
- * <p>This class is base class of following :
- * <ul>
- *     <li>{@link JsonArrayType}</li>
- *     <li>{@link JsonbArrayType}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// Package class
+/// This class is base class of following :
+/// 
+/// - {@link JsonArrayType}
+/// - {@link JsonbArrayType}
+/// 
+/// @since 0.6.0
 abstract class ArmyJsonArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
 
@@ -46,9 +43,7 @@ abstract class ArmyJsonArrayType extends _ArmyBuildInType implements MappingType
 
     final Class<?> underlyingJavaType;
 
-    /**
-     * package constructor
-     */
+    /// package constructor
     ArmyJsonArrayType(Class<?> javaType, Class<?> underlyingJavaType) {
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;

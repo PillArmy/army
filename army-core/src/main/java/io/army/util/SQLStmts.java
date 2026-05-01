@@ -109,9 +109,7 @@ public abstract class SQLStmts {
         return stmt;
     }
 
-    /**
-     * @see TableMeta#fieldList()
-     */
+    /// @see TableMeta#fieldList()
     @SuppressWarnings("unchecked")
     public static List<FieldMeta<?>> castFieldList(TableMeta<?> table) {
         final List<?> fieldList;

@@ -36,16 +36,16 @@ public final class Snowflake {
     }
 
 
-    /** bit number of worker(dataCenterId + workerId) */
+    /// bit number of worker(dataCenterId + workerId)
     public static final byte WORKER_BIT_SIZE = 10;
 
-    /** bit number of sequence id */
+    /// bit number of sequence id
     public static final byte SEQUENCE_BITS = 12;
 
-    /** bit number that timestamp left shift */
+    /// bit number that timestamp left shift
     public static final byte TIMESTAMP_LEFT_SHIFT = WORKER_BIT_SIZE + SEQUENCE_BITS;
 
-    /** max value of sequence */
+    /// max value of sequence
     public static final short SEQUENCE_MASK = ~(-1 << SEQUENCE_BITS);
 
     public static final byte DATA_CENTER_SHIFT = SEQUENCE_BITS + 5;
@@ -56,7 +56,7 @@ public final class Snowflake {
 
     public final long startTime;
 
-    /** (0~4095) */
+    /// (0~4095)
     private long sequence = 0L;
 
     private long lastTimestamp;

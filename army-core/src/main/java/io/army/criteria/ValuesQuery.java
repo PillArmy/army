@@ -16,14 +16,12 @@
 
 package io.army.criteria;
 
-/**
- * <p>
- * This interface is base interface of below:
- *     <ul>
- *         <li>{@link  Values}</li>
- *         <li>{@link  SubValues}</li>
- *     </ul>
-*/
+/// 
+/// This interface is base interface of below:
+/// 
+/// - {@link  Values}
+/// - {@link  SubValues}
+/// 
 public interface ValuesQuery extends RowSet {
 
 }

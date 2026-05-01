@@ -23,46 +23,29 @@ import io.army.pojo.ReadWrapper;
 
 import java.time.temporal.Temporal;
 
-/**
- * <p>
- * package interface
- *
- * @since 0.6.0
- */
+/// 
+/// package interface
+/// @since 0.6.0
 interface RowWrapper {
 
-    /**
-     * <p>
-     * This method is invoked by {@link FieldValueGenerator#generate(TableMeta, boolean, RowWrapper)}
-     *
-     *
-     * @see FieldValueGenerator#generate(TableMeta, boolean, RowWrapper)
-     */
+    /// 
+/// This method is invoked by {@link FieldValueGenerator#generate(TableMeta, boolean, RowWrapper)}
+/// @see FieldValueGenerator#generate(TableMeta, boolean, RowWrapper)
     void set(FieldMeta<?> field, @Nullable Object value);
 
-    /**
-     * <p>
-     * This method is invoked by {@link  FieldValueGenerator#validate(TableMeta, RowWrapper) }.
-     * Note: couldn't read value from default expression map.
-     *
-     *
-     * @see FieldValueGenerator#validate(TableMeta, RowWrapper)
-     */
+    /// 
+/// This method is invoked by {@link  FieldValueGenerator#validate(TableMeta, RowWrapper) }.
+/// Note: couldn't read value from default expression map.
+/// @see FieldValueGenerator#validate(TableMeta, RowWrapper)
     boolean isNullValueParam(FieldMeta<?> field);
 
 
-    /**
-     * <p>
-     * This method is invoked by {@link FieldValueGenerator#generate(TableMeta, boolean, RowWrapper)}
-     *
-     *
-     * @see FieldValueGenerator#generate(TableMeta, boolean, RowWrapper)
-     */
+    /// 
+/// This method is invoked by {@link FieldValueGenerator#generate(TableMeta, boolean, RowWrapper)}
+/// @see FieldValueGenerator#generate(TableMeta, boolean, RowWrapper)
     ReadWrapper readonlyWrapper();
 
-    /**
-     * @return context create time for createTime field
-     */
+    /// @return context create time for createTime field
     Temporal getCreateTime();
 
     boolean isManageVisible();

@@ -27,18 +27,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 
-/**
- * <p>
- * This interface representing Oracle SELECT syntax.
- * * @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6">Oracle SELECT syntax</a>
- *
- * @since 0.6.0
- */
+/// 
+/// This interface representing Oracle SELECT syntax.
+/// * @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6">Oracle SELECT syntax</a>
+/// @since 0.6.0
 public interface OracleQuery extends Query, OracleStatement {
 
-    /**
-     * @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6">Lock wait syntax</a>
-     */
+/// @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6">Lock wait syntax</a>
     interface _OracleLockWaitOptionClause<LR> extends _MinLockStrengthClause<LR> {
 
         LR wait(int seconds);
@@ -49,9 +44,7 @@ public interface OracleQuery extends Query, OracleStatement {
     }
 
 
-    /**
-     * @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6">Lock of colunn syntax</a>
-     */
+/// @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6">Lock of colunn syntax</a>
     interface _OracleLockOfColumnClause<OR> {
 
         OR of(TableField field);

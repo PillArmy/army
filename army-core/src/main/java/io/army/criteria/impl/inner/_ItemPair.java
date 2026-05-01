@@ -26,9 +26,7 @@ import java.util.List;
 public interface _ItemPair extends ItemPair {
 
 
-    /**
-     * @param sqlBuilder must be {@link _SqlContext#sqlBuilder()} of context . For reducing method invoking.
-     */
+    /// @param sqlBuilder must be {@link _SqlContext#sqlBuilder()} of context . For reducing method invoking.
     void appendItemPair(StringBuilder sqlBuilder, _SetClauseContext context);
 
 

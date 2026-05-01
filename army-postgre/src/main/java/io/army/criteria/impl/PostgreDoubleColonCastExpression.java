@@ -27,12 +27,9 @@ import io.army.mapping.optional.NoCastTextType;
 import io.army.meta.TypeMeta;
 import io.army.util._StringUtils;
 
-/**
- * <p>
- * This class representing PostgreSQL-style typecast expression
- *
- * @since 0.6.0
- */
+/// 
+/// This class representing PostgreSQL-style typecast expression
+/// @since 0.6.0
 final class PostgreDoubleColonCastExpression extends OperationExpression.OperationTypedExpression
         implements LiteralExpression {
 

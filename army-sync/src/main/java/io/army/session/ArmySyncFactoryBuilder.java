@@ -40,19 +40,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-/**
- * <p>This class is a implementation of {@link SyncFactoryBuilder}.
- * <p>This class is the builder of {@link ArmySyncSessionFactory}.
- *
- * @see ArmySyncSessionFactory
- * @since 0.6.0
- */
+/// This class is a implementation of {@link SyncFactoryBuilder}.
+/// This class is the builder of {@link ArmySyncSessionFactory}.
+/// @see ArmySyncSessionFactory
+/// @since 0.6.0
 final class ArmySyncFactoryBuilder
         extends ArmyFactoryBuilder<SyncFactoryBuilder, SyncSessionFactory> implements SyncFactoryBuilder {
 
-    /**
-     * @see SyncFactoryBuilder#builder()
-     */
+    /// @see SyncFactoryBuilder#builder()
     static SyncFactoryBuilder create() {
         return new ArmySyncFactoryBuilder();
     }
@@ -61,9 +56,7 @@ final class ArmySyncFactoryBuilder
 
     SyncExecutorFactory stmtExecutorFactory;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ArmySyncFactoryBuilder() {
     }
 
@@ -143,9 +136,7 @@ final class ArmySyncFactoryBuilder
     }
 
 
-    /**
-     * @see #buildAfterScanTableMeta(String, Object, ArmyEnvironment)
-     */
+    /// @see #buildAfterScanTableMeta(String, Object, ArmyEnvironment)
     private void initializingFactory(final ArmySyncSessionFactory sessionFactory) throws SessionFactoryException {
 
         if (LOG.isDebugEnabled()) {
@@ -171,9 +162,7 @@ final class ArmySyncFactoryBuilder
     }
 
 
-    /**
-     * @see #initializingFactory(ArmySyncSessionFactory)
-     */
+    /// @see #initializingFactory(ArmySyncSessionFactory)
     private void initializingSchema(final ArmySyncSessionFactory sessionFactory, final DdlMode ddlMode) {
 
         final long startTime;

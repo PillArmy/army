@@ -33,16 +33,11 @@ import org.slf4j.LoggerFactory;
 import java.util.ConcurrentModificationException;
 import java.util.function.Function;
 
-/**
- * <p>This class is a implementation of {@link SyncLocalSession}
- *
- * @see ArmySyncSessionFactory
- */
+/// This class is a implementation of {@link SyncLocalSession}
+/// @see ArmySyncSessionFactory
 non-sealed class ArmySyncLocalSession extends ArmySyncSession implements SyncLocalSession {
 
-    /**
-     * @see ArmySyncSessionFactory.LocalBuilder#createSession(String, boolean, Function)
-     */
+    /// @see ArmySyncSessionFactory.LocalBuilder#createSession(String, boolean, Function)
     static ArmySyncLocalSession create(ArmySyncSessionFactory.LocalBuilder builder) {
         final ArmySyncLocalSession session;
         if (builder.inOpenDriverSpi()) {
@@ -59,11 +54,8 @@ non-sealed class ArmySyncLocalSession extends ArmySyncSession implements SyncLoc
 
     private boolean rollbackOnly;
 
-    /**
-     * private constructor
-     *
-     * @see ArmySyncLocalSession#create(ArmySyncSessionFactory.LocalBuilder)
-     */
+    /// private constructor
+/// @see ArmySyncLocalSession#create(ArmySyncSessionFactory.LocalBuilder)
     private ArmySyncLocalSession(final ArmySyncSessionFactory.LocalBuilder builder) {
         super(builder);
         assert this.executor instanceof SyncLocalExecutor;
@@ -261,10 +253,8 @@ non-sealed class ArmySyncLocalSession extends ArmySyncSession implements SyncLoc
 
     /*-------------------below private methods-------------------*/
 
-    /**
-     * @see #commit(Function)
-     * @see #rollback(Function)
-     */
+    /// @see #commit(Function)
+/// @see #rollback(Function)
     @Nullable
     private TransactionInfo commitOrRollback(final boolean commit, final Function<Option<?>, ?> optionFunc) {
         final Boolean chain, release;
@@ -334,9 +324,7 @@ non-sealed class ArmySyncLocalSession extends ArmySyncSession implements SyncLoc
 
     private static final class OpenDriverSpiSession extends ArmySyncLocalSession implements DriverSpiHolder {
 
-        /**
-         * @see ArmySyncLocalSession#create(ArmySyncSessionFactory.LocalBuilder)
-         */
+        /// @see ArmySyncLocalSession#create(ArmySyncSessionFactory.LocalBuilder)
         private OpenDriverSpiSession(ArmySyncSessionFactory.LocalBuilder builder) {
             super(builder);
         }

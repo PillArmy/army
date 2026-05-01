@@ -622,9 +622,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
         return true;
     }
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-update.html">UPDATE statement</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-update.html">UPDATE statement</a>
     @Override
     protected final boolean isSupportJoinableSingleUpdate() {
         // true ,Postgre support single-table joinable update
@@ -870,9 +868,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
 
     }
 
-    /**
-     * @see <a href="https://www.postgresql.org/docs/current/sql-delete.html">Postgre DELETE syntax</a>
-     */
+/// @see <a href="https://www.postgresql.org/docs/current/sql-delete.html">Postgre DELETE syntax</a>
     @Override
     protected final void parseDomainChildDelete(final _SingleDelete stmt, final _DeleteContext context) {
 
@@ -1019,9 +1015,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
     /*-------------------below private methods -------------------*/
 
 
-    /**
-     * @see #bindLiteral(TypeMeta, DataType, Object, boolean, StringBuilder)
-     */
+    /// @see #bindLiteral(TypeMeta, DataType, Object, boolean, StringBuilder)
     private void bindUserDefinedLiteral(final TypeMeta typeMeta, final DataType dataType, final String value,
                                         final boolean typeName, final StringBuilder sqlBuilder) {
 
@@ -1044,9 +1038,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
     }
 
 
-    /**
-     * @see #bindLiteral(TypeMeta, DataType, Object, boolean, StringBuilder)
-     */
+    /// @see #bindLiteral(TypeMeta, DataType, Object, boolean, StringBuilder)
     private void stringEscape(final CharSequence value, final StringBuilder builder) {
         switch (this.literalEscapeMode) {
             case DEFAULT:

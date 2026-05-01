@@ -491,9 +491,7 @@ abstract class SyncStmtOptions extends StmtOptions {
 
         private static final OnlyPreferServerPrepareOption INSTANCE = new OnlyPreferServerPrepareOption();
 
-        /**
-         * @see SyncStmtOptions#preferServerPrepare(boolean)
-         */
+        /// @see SyncStmtOptions#preferServerPrepare(boolean)
         private OnlyPreferServerPrepareOption() {
         }
 

@@ -20,27 +20,21 @@ import io.army.lang.Nullable;
 
 public interface ReadWrapper {
 
-    /**
-     * Determine whether the specified property is readable.
-     * <p>Returns {@code false} if the property doesn'field exist.
-     *
-     * @param propertyName the property to check
-     *                     (maybe a nested path then/or an indexed/mapped property)
-     * @return whether the property is readable
-     */
+/// Determine whether the specified property is readable.
+/// Returns {@code false} if the property doesn'field exist.
+/// @param propertyName the property to check
+/// (maybe a nested path then/or an indexed/mapped property)
+/// @return whether the property is readable
     boolean isReadable(String propertyName);
 
-    /**
-     * Get the current value of the specified property.
-     *
-     * @param propertyName the name of the property to get the value of
-     *                     (maybe a nested path then/or an indexed/mapped property)
-     * @return the value of the property
-     * @throws InvalidPropertyException if there is no such property or
-     *                                  if the property isn'field readable
-     * @throws ObjectAccessException  if the property was valid but the
-     *                                  accessor method failed
-     */
+/// Get the current value of the specified property.
+/// @param propertyName the name of the property to get the value of
+/// (maybe a nested path then/or an indexed/mapped property)
+/// @return the value of the property
+/// @throws InvalidPropertyException if there is no such property or
+/// if the property isn'field readable
+/// @throws ObjectAccessException  if the property was valid but the
+/// accessor method failed
     @Nullable
     Object get(String propertyName) throws ObjectAccessException;
 

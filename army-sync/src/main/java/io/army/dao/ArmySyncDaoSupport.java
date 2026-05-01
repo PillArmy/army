@@ -27,11 +27,8 @@ import io.army.util.SyncCriteria;
 
 import java.util.List;
 
-/**
- * <p>This class is a abstract implementation of {@link SyncDaoSupport}
- *
- * @since 0.6.0
- */
+/// This class is a abstract implementation of {@link SyncDaoSupport}
+/// @since 0.6.0
 public abstract class ArmySyncDaoSupport implements SyncDaoSupport {
 
     protected final SyncSessionContext sessionContext;

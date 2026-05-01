@@ -17,9 +17,7 @@
 package io.army.dialect;
 
 
-/**
- * <p>This class is used by {@link DialectParserFactory#createDialectParser(DialectEnv)} by reflection.
- */
+/// This class is used by {@link DialectParserFactory#createDialectParser(DialectEnv)} by reflection.
 @SuppressWarnings("unused")
 public abstract class _PostgreParserFactory {
 

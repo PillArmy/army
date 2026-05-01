@@ -25,12 +25,9 @@ import java.util.function.BiFunction;
 import static io.army.dialect.Database.MySQL;
 import static io.army.dialect.Database.PostgreSQL;
 
-/**
- * <p>
- * This interface representing json {@link Expression}.
- *
- * @since 0.6.0
- */
+/// 
+/// This interface representing json {@link Expression}.
+/// @since 0.6.0
 @Deprecated
 public interface JsonExpression extends SimpleExpression,TypedExpression {
 
@@ -47,18 +44,16 @@ public interface JsonExpression extends SimpleExpression,TypedExpression {
     @Support({MySQL, PostgreSQL})
     JsonExpression atPath(Expression jsonPath);
 
-    /**
-     * @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
-     *                <ul>
-     *                    <li>{@link SQLs#param(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                    <li>{@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax</li>
-     *                    <li>{@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax</li>
-     *                    <li>developer custom method</li>
-     *                </ul>.
-     *                The first argument of funcRef always is {@link io.army.mapping.optional.JsonPathType#INSTANCE}.
-     * @param value   non-null,it will be passed to funcRef as the second argument of funcRef
-     */
+/// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
+/// 
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax
+/// - {@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax
+/// - developer custom method
+/// .
+/// The first argument of funcRef always is {@link io.army.mapping.optional.JsonPathType#INSTANCE}.
+/// @param value   non-null,it will be passed to funcRef as the second argument of funcRef
     @Support({MySQL, PostgreSQL})
     <T> JsonExpression atPath(BiFunction<MappingType, T, Expression> funcRef, T value);
 

@@ -18,17 +18,14 @@ package io.army.criteria;
 
 import io.army.meta.FieldMeta;
 
-/**
- * <p>
- * This interface representing single select item in select list clause.
- * * @see io.army.meta.FieldMeta
- *
- * @see QualifiedField
- * @see Expression#as(String)
- * @see FieldMeta#as(String)
- * @see QualifiedField#as(String)
- * @since 0.6.0
- */
+/// 
+/// This interface representing single select item in select list clause.
+/// * @see io.army.meta.FieldMeta
+/// @see QualifiedField
+/// @see Expression#as(String)
+/// @see FieldMeta#as(String)
+/// @see QualifiedField#as(String)
+/// @since 0.6.0
 public interface Selection extends SelectItem {
 
     String label();

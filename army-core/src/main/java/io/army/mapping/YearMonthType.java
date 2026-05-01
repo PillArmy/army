@@ -25,22 +25,19 @@ import java.time.*;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 
-/**
- * <p>
- * This class is mapping class of {@link YearMonth}.
- * This mapping type can convert below java type:
- * <ul>
- *     <li>{@link LocalDate}</li>
- *     <li>{@link LocalDateTime}</li>
- *     <li>{@link java.time.LocalDate}</li>
- *     <li>{@link java.time.OffsetDateTime}</li>
- *     <li>{@link java.time.ZonedDateTime}</li>
- *     <li>{@link String} ,{@link YearMonth} string or {@link LocalDate} string</li>
- * </ul>
- *  to {@link YearMonth},if error,throw {@link io.army.ArmyException}
- *
- * @since 0.6.0
- */
+/// 
+/// This class is mapping class of {@link YearMonth}.
+/// This mapping type can convert below java type:
+/// 
+/// - {@link LocalDate}
+/// - {@link LocalDateTime}
+/// - {@link java.time.LocalDate}
+/// - {@link java.time.OffsetDateTime}
+/// - {@link java.time.ZonedDateTime}
+/// - {@link String} ,{@link YearMonth} string or {@link LocalDate} string
+/// 
+/// to {@link YearMonth},if error,throw {@link io.army.ArmyException}
+/// @since 0.6.0
 public final class YearMonthType extends _ArmyNoInjectionType implements MappingType.SqlLocalDate {
 
     public static YearMonthType from(final Class<?> fieldType) {
@@ -52,9 +49,7 @@ public final class YearMonthType extends _ArmyNoInjectionType implements Mapping
 
     public static final YearMonthType INSTANCE = new YearMonthType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private YearMonthType() {
     }
 

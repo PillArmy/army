@@ -26,12 +26,9 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
 
-/**
- * <p>
- * This class representing Postgre pg_lsn array type {@link MappingType}
-*
- * @see <a href="https://www.postgresql.org/docs/15/datatype-pg-lsn.html">pg_lsn</a>
- */
+/// 
+/// This class representing Postgre pg_lsn array type {@link MappingType}
+/// @see <a href="https://www.postgresql.org/docs/15/datatype-pg-lsn.html">pg_lsn</a>
 public class PostgrePgLsnArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
 
 

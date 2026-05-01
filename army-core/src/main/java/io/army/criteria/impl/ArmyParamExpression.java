@@ -28,24 +28,19 @@ import io.army.util._StringUtils;
 
 import java.util.Objects;
 
-/**
- * <p>
- * This class representing single-value parameter expression.
- * * <p>
- * Below is chines signature:<br/>
- * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
- * * @see ArmyLiteralExpression
- *
- * @see ArmyRowParamExpression
- * @see ArmyRowLiteralExpression
- * @since 0.6.0
- */
+/// 
+/// This class representing single-value parameter expression.
+/// * 
+/// Below is chines signature:
+/// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+/// * @see ArmyLiteralExpression
+/// @see ArmyRowParamExpression
+/// @see ArmyRowLiteralExpression
+/// @since 0.6.0
 abstract class ArmyParamExpression extends OperationExpression.OperationTypedExpression
         implements ParamExpression, ArmySimpleExpression {
 
-    /**
-     * @see SQLs#parameter(Object)
-     */
+    /// @see SQLs#parameter(Object)
     static ParamExpression from(final @Nullable Object value) {
         if (value == null) {
             throw ContextStack.clearStackAndNullPointer();
@@ -63,10 +58,8 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
     }
 
 
-    /**
-     * @throws CriteriaException throw when infer return codec {@link TableField}.
-     * @see SQLs#param(TypeInfer, Object)
-     */
+    /// @throws CriteriaException throw when infer return codec {@link TableField}.
+/// @see SQLs#param(TypeInfer, Object)
     static ArmyParamExpression single(final @Nullable TypeInfer infer, final @Nullable Object value) {
         final TypeMeta type;
         if (infer == null) {
@@ -78,13 +71,11 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
     }
 
 
-    /**
-     * @throws CriteriaException throw when <ul>
-     *                           <li>infer return codec {@link FieldMeta}.</li>
-     *                           <li>name have no text</li>
-     *                           </ul>
-     * @see SQLs#namedParam(TypeInfer, String)
-     */
+/// @throws CriteriaException throw when 
+/// - infer return codec {@link FieldMeta}.
+/// - name have no text
+/// 
+/// @see SQLs#namedParam(TypeInfer, String)
     static ArmyParamExpression named(final @Nullable TypeInfer infer, final @Nullable String name) {
         final TypeMeta type;
         if (infer == null) {
@@ -98,13 +89,11 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
     }
 
 
-    /**
-     * @throws CriteriaException throw when <ul>
-     *                           <li>infer return codec {@link FieldMeta}.</li>
-     *                           <li>name have no text</li>
-     *                           </ul>
-     * @see SQLs#namedNullableParam(TypeInfer, String)
-     */
+/// @throws CriteriaException throw when 
+/// - infer return codec {@link FieldMeta}.
+/// - name have no text
+/// 
+/// @see SQLs#namedNullableParam(TypeInfer, String)
     static ArmyParamExpression namedNullable(@Nullable TypeInfer infer, @Nullable String name) {
         final TypeMeta type;
         if (infer == null) {
@@ -118,10 +107,8 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
     }
 
 
-    /**
-     * @throws CriteriaException throw when infer isn't codec {@link TableField}.
-     * @see SQLs#encodingParam(TypeInfer, Object)
-     */
+    /// @throws CriteriaException throw when infer isn't codec {@link TableField}.
+/// @see SQLs#encodingParam(TypeInfer, Object)
     static ArmyParamExpression encodingSingle(final @Nullable TypeInfer infer, final @Nullable Object value) {
         if (infer == null) {
             throw ContextStack.clearStackAndNullPointer();
@@ -132,13 +119,11 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
     }
 
 
-    /**
-     * @throws CriteriaException throw when <ul>
-     *                           <li>infer isn't codec {@link TableField}.</li>
-     *                           <li>name have no text</li>
-     *                           </ul>
-     * @see SQLs#encodingNamedParam(TypeInfer, String)
-     */
+/// @throws CriteriaException throw when 
+/// - infer isn't codec {@link TableField}.
+/// - name have no text
+/// 
+/// @see SQLs#encodingNamedParam(TypeInfer, String)
     static ArmyParamExpression encodingNamed(final @Nullable TypeInfer infer, final @Nullable String name) {
         if (infer == null) {
             throw ContextStack.clearStackAndNullPointer();
@@ -150,13 +135,11 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
         return new ImmutableNamedNonNullParam(name, (TableField) infer);
     }
 
-    /**
-     * @throws CriteriaException throw when <ul>
-     *                           <li>infer isn't codec {@link FieldMeta}.</li>
-     *                           <li>name have no text</li>
-     *                           </ul>
-     * @see SQLs#encodingNamedNullableParam(TypeInfer, String)
-     */
+/// @throws CriteriaException throw when 
+/// - infer isn't codec {@link FieldMeta}.
+/// - name have no text
+/// 
+/// @see SQLs#encodingNamedNullableParam(TypeInfer, String)
     static ArmyParamExpression encodingNamedNullable(final @Nullable TypeInfer infer, final @Nullable String name) {
         if (infer == null) {
             throw ContextStack.clearStackAndNullPointer();
@@ -186,9 +169,7 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
         return ContextStack.clearStackAndCriteriaError("name must have text for single-parameter.");
     }
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ArmyParamExpression() {
     }
 
@@ -206,9 +187,7 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
         private final Object value;
 
 
-        /**
-         * @see #single(TypeInfer, Object)
-         */
+        /// @see #single(TypeInfer, Object)
         private AnonymousParam(TypeMeta type, @Nullable Object value) {
             if (type instanceof QualifiedField) {
                 this.type = ((QualifiedField<?>) type).fieldMeta();
@@ -264,10 +243,8 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
         private final TypeMeta type;
 
 
-        /**
-         * @see #namedNullable(TypeInfer, String)
-         * @see #encodingNamedNullable(TypeInfer, String)
-         */
+        /// @see #namedNullable(TypeInfer, String)
+/// @see #encodingNamedNullable(TypeInfer, String)
         private ImmutableNamedParam(String name, TypeMeta type) {
             this.name = name;
             if (type instanceof QualifiedField) {
@@ -322,10 +299,8 @@ abstract class ArmyParamExpression extends OperationExpression.OperationTypedExp
     private static final class ImmutableNamedNonNullParam extends ImmutableNamedParam
             implements SqlValueParam.NonNullValue {
 
-        /**
-         * @see #named(TypeInfer, String)
-         * @see #encodingNamed(TypeInfer, String)
-         */
+        /// @see #named(TypeInfer, String)
+/// @see #encodingNamed(TypeInfer, String)
         private ImmutableNamedNonNullParam(String name, TypeMeta type) {
             super(name, type);
         }

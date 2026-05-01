@@ -35,9 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 
-/**
- * @since 0.6.0
- */
+/// @since 0.6.0
 final class TableContext {
 
     final Map<String, TabularItem> aliasToTable;
@@ -184,9 +182,7 @@ final class TableContext {
     }
 
 
-    /**
-     * @see #forUpdate(_JoinableUpdate, ArmyParser, Visible)
-     */
+    /// @see #forUpdate(_JoinableUpdate, ArmyParser, Visible)
     @Nullable
     private static Map<ChildTableMeta<?>, Boolean> handleUpdateField(final SqlField dataField
             , @Nullable Map<ChildTableMeta<?>, Boolean> childMap) {
@@ -318,9 +314,7 @@ final class TableContext {
     }
 
 
-    /**
-     * @return null : finding failure
-     */
+    /// @return null : finding failure
     @Nullable
     private static _TabularBlock findParentFromLeft(final ChildTableMeta<?> child, final @Nullable String parentAlias
             , final List<? extends _TabularBlock> blockList, final int fromIndex) {

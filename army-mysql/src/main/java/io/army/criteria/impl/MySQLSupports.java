@@ -324,12 +324,9 @@ abstract class MySQLSupports extends CriteriaSupports {
     } // MySQLFromClauseTableBlock
 
 
-    /**
-     * <p>sub class must implements RR .
-     *
-     * @param <RR> sub interface of {@link  io.army.criteria.Statement._OnClause}
-     * @param <OR> sub interface of {@link MySQLQuery._MySQLJoinClause}
-     */
+    /// sub class must implements RR .
+/// @param <RR> sub interface of {@link  io.army.criteria.Statement._OnClause}
+/// @param <OR> sub interface of {@link MySQLQuery._MySQLJoinClause}
     static abstract class MySQLJoinClauseBlock<RR extends Item, OR extends Item>
             extends TabularBlocks.JoinClauseTableBlock<OR>
             implements _MySQLTableBlock, MySQLStatement._IndexHintFoPurposeClause<RR> {
@@ -736,9 +733,7 @@ abstract class MySQLSupports extends CriteriaSupports {
 
         private final List<String> indexNameList;
 
-        /**
-         * @param indexNameList unmodified list
-         */
+        /// @param indexNameList unmodified list
         private MySQLIndexHint(IndexHintCommand command, @Nullable SQLs.IndexHintPurpose purpose, List<String> indexNameList) {
             if (indexNameList.size() == 0) {
                 throw ContextStack.clearStackAndCriteriaError("index hint index name list must not empty.");

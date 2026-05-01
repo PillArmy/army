@@ -48,9 +48,7 @@ abstract class PostgreUtils extends CriteriaUtils {
     private PostgreUtils() {
     }
 
-    /**
-     * reference last dialect
-     */
+    /// reference last dialect
     static final PostgreDialect DIALECT = PostgreDialect.POSTGRE16;
 
 
@@ -231,9 +229,7 @@ abstract class PostgreUtils extends CriteriaUtils {
 
     /*-------------------below private methods-------------------*/
 
-    /**
-     * @see #validateDmlInWithClause(List, PostgreStatement)
-     */
+    /// @see #validateDmlInWithClause(List, PostgreStatement)
     private static CriteriaException cteChildNoJoinParent(@Nullable String cteName, ChildTableMeta<?> child, String tableAlias) {
         if (cteName == null) {
             cteName = "";
@@ -245,9 +241,7 @@ abstract class PostgreUtils extends CriteriaUtils {
         return ContextStack.clearStackAnd(IllegalOneStmtModeException::new, m);
     }
 
-    /**
-     * @see #validateDmlInWithClause(List, PostgreStatement)
-     */
+    /// @see #validateDmlInWithClause(List, PostgreStatement)
     private static void validateParentCte(final ChildTableMeta<?> child, String childAlias, final _TabularBlock block,
                                           final @Nullable String childCteName, final DerivedField refField) {
         final ParentTableMeta<?> parent = child.parentMeta();
@@ -272,10 +266,8 @@ abstract class PostgreUtils extends CriteriaUtils {
 
     }
 
-    /**
-     * @param currentCteIndex -1 or positive
-     * @see #validateDmlInWithClause(List, PostgreStatement)
-     */
+    /// @param currentCteIndex -1 or positive
+/// @see #validateDmlInWithClause(List, PostgreStatement)
     @Nullable
     private static DerivedField validateParentTable(final ChildTableMeta<?> child, final _Cte childCte,
                                                     final int currentCteIndex, final List<_Cte> cteList) {
@@ -353,10 +345,8 @@ abstract class PostgreUtils extends CriteriaUtils {
     }
 
 
-    /**
-     * @return false : error
-     * @see #validateDmlInWithClause(List, PostgreStatement)
-     */
+    /// @return false : error
+/// @see #validateDmlInWithClause(List, PostgreStatement)
     private static boolean validatePrimaryIdSelection(final ChildTableMeta<?> child, final String alias,
                                                       final _Statement._ReturningListSpec spec,
                                                       final DerivedField refField) {
@@ -407,9 +397,7 @@ abstract class PostgreUtils extends CriteriaUtils {
                 && alias.equals(((QualifiedField<?>) tableField).tableAlias()));
     }
 
-    /**
-     * @see #validateDmlInWithClause(List, PostgreStatement)
-     */
+    /// @see #validateDmlInWithClause(List, PostgreStatement)
     @Nullable
     private static DerivedField validateParentTableFromMainStmt(final PrimaryFieldMeta<?> idField, final String refCteName,
                                                                 final _SingleDml mainStmt) {
@@ -452,11 +440,9 @@ abstract class PostgreUtils extends CriteriaUtils {
     }
 
 
-    /**
-     * @see #validateParentTableFromMainStmt(PrimaryFieldMeta, String, _SingleDml)
-     * @see #validateParentTable(ChildTableMeta, _Cte, int, List)
-     * @see #validateParentCte(ChildTableMeta, String, _TabularBlock, String, DerivedField)
-     */
+    /// @see #validateParentTableFromMainStmt(PrimaryFieldMeta, String, _SingleDml)
+/// @see #validateParentTable(ChildTableMeta, _Cte, int, List)
+/// @see #validateParentCte(ChildTableMeta, String, _TabularBlock, String, DerivedField)
     @Nullable
     private static DerivedField idFieldEqualCteIdField(final _Predicate predicate, final PrimaryFieldMeta<?> idField) {
 
@@ -576,10 +562,8 @@ abstract class PostgreUtils extends CriteriaUtils {
 
         final Map<String, _FunctionField> fieldMap;
 
-        /**
-         * @param fieldList unmodified list
-         * @param fieldMap  unmodified map
-         */
+        /// @param fieldList unmodified list
+/// @param fieldMap  unmodified map
         private DoneFunc(UndoneFunction funcItem, List<_FunctionField> fieldList,
                          Map<String, _FunctionField> fieldMap) {
             this.funcItem = funcItem;
@@ -593,9 +577,7 @@ abstract class PostgreUtils extends CriteriaUtils {
             return this.funcItem.name();
         }
 
-        /**
-         * this method for ROWS FROM( ... ) syntax.
-         */
+        /// this method for ROWS FROM( ... ) syntax.
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
             ((ArmySQLFunction) this.funcItem).appendSql(sqlBuilder, context);

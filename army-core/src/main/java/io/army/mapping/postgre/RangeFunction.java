@@ -20,22 +20,17 @@ import io.army.type.DaoLayer;
 
 import io.army.lang.Nullable;
 
-/**
- * <p>
- * This interface representing the function that create postgre range instance.
- * <p>
- * <strong>NOTE</strong> :This interface present only in DAO layer,not service layer,business layer,web layer.
- *
- * @see PgSingleRangeType
- * @since 0.6.0
- */
+/// 
+/// This interface representing the function that create postgre range instance.
+/// 
+/// **NOTE** :This interface present only in DAO layer,not service layer,business layer,web layer.
+/// @see PgSingleRangeType
+/// @since 0.6.0
 @DaoLayer
 public interface RangeFunction<T, R> {
 
-    /**
-     * @param lower null representing infinity
-     * @param upper null representing infinity
-     */
+    /// @param lower null representing infinity
+/// @param upper null representing infinity
     R apply(boolean includeLower, @Nullable T lower, @Nullable T upper, boolean includeUpper);
 
 }

@@ -47,9 +47,7 @@ public class FunctionTests extends SessionTestSupport {
     private static final Logger LOG = LoggerFactory.getLogger(FunctionTests.class);
 
 
-    /**
-     * @see MySQLs#jsonTable(Object, Object, SQLs.WordColumns, Consumer)
-     */
+    /// @see MySQLs#jsonTable(Object, Object, SQLs.WordColumns, Consumer)
     @Test
     public void jsonTableFuncStatic(final SyncLocalSession session) {
         final String jsonDocument;
@@ -113,9 +111,7 @@ public class FunctionTests extends SessionTestSupport {
 
     }
 
-    /**
-     * @see MySQLs#jsonTable(Object, Object, SQLs.WordColumns, Consumer)
-     */
+    /// @see MySQLs#jsonTable(Object, Object, SQLs.WordColumns, Consumer)
     @Test
     public void jsonTableFuncNested(final SyncLocalSession session) {
         final String jsonDocument;
@@ -137,9 +133,7 @@ public class FunctionTests extends SessionTestSupport {
                 .forEach(row -> LOG.debug(JSON.toJSONString(row)));
     }
 
-    /**
-     * @see MySQLs#jsonValue(Object, Object, Consumer)
-     */
+    /// @see MySQLs#jsonValue(Object, Object, Consumer)
     @Test
     public void jsonValueFunc(final SyncLocalSession session) {
         final String jsonDoc = "{\"fname\": \"Joe\", \"lname\": \"Palmer\",\"date\":\"2023-12-18\"}";
@@ -158,10 +152,8 @@ public class FunctionTests extends SessionTestSupport {
         Assert.assertEquals(row.get("date"), LocalDate.parse("2023-12-18"));
     }
 
-    /**
-     * @see MySQLs#jsonSearch(Object, Object, Object, Object, Object)
-     * @see MySQLs#jsonSearch(Object, Object, Object, Object, Object, Object, Object...)
-     */
+    /// @see MySQLs#jsonSearch(Object, Object, Object, Object, Object)
+/// @see MySQLs#jsonSearch(Object, Object, Object, Object, Object, Object, Object...)
     @Test
     public void jsonSearchFunc(final SyncLocalSession session) {
         final String jsonDoc = "[\"abc\", [{\"k\": \"10\"}, \"def\"], {\"x\":\"abc\"}, {\"y\":\"bcd\"}]";
@@ -183,10 +175,8 @@ public class FunctionTests extends SessionTestSupport {
         Assert.assertEquals(JSON.parseArray((String) row.getOrDefault("variadic2", "[]"), String.class), Arrays.asList("$[0]", "$[2].x"));
     }
 
-    /**
-     * @see MySQLs#elt(Object, Object, Object, Object, Object...)
-     * @see MySQLs#elt(Object, Consumer)
-     */
+    /// @see MySQLs#elt(Object, Object, Object, Object, Object...)
+/// @see MySQLs#elt(Object, Consumer)
     @Test
     public void eltFunc(final SyncLocalSession session) {
         final Select stmt;
@@ -208,9 +198,7 @@ public class FunctionTests extends SessionTestSupport {
         Assert.assertEquals(row.get("strStatic"), "Bb");
     }
 
-    /**
-     * @see MySQLs#exportSet(Object, Object, Object, Object, Object)
-     */
+    /// @see MySQLs#exportSet(Object, Object, Object, Object, Object)
     @Test//(invocationCount = 10)
     public void exportSetFunc(final SyncLocalSession session) {
         final Select stmt;
@@ -225,9 +213,7 @@ public class FunctionTests extends SessionTestSupport {
 
     }
 
-    /**
-     * @see MySQLs#fromBase64(Object)
-     */
+    /// @see MySQLs#fromBase64(Object)
     @Test
     public void fromBase64Func(final SyncLocalSession session) {
         final String source = "QinArmy's army,I love army. 秦军的 army";
@@ -243,9 +229,7 @@ public class FunctionTests extends SessionTestSupport {
 
     }
 
-    /**
-     * @see MySQLs#groupConcat(SQLs.ArgDistinct, Consumer, Consumer)
-     */
+    /// @see MySQLs#groupConcat(SQLs.ArgDistinct, Consumer, Consumer)
     @Test
     public void groupConcatFunc(final SyncLocalSession session) {
         final Select stmt;

@@ -25,9 +25,7 @@ public interface _ParenRowSetContext extends _SqlContext {
 
     void appendOuterField(FieldMeta<?> field);
 
-    /**
-     * @see _SqlContext#appendFieldOnly(FieldMeta)
-     */
+    /// @see _SqlContext#appendFieldOnly(FieldMeta)
     void appendOuterFieldOnly(FieldMeta<?> field);
 
 }

@@ -40,18 +40,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * This class is base class of all {@link IPredicate} implementation .
- */
+/// This class is base class of all {@link IPredicate} implementation .
 abstract class OperationPredicate extends OperationExpression.PredicateExpression {
 
-    /**
-     * <p>
-     * Private constructor .
-     *
-     * @see OperationSimplePredicate#OperationSimplePredicate()
-     * @see OperationCompoundPredicate#OperationPredicate()
-     */
+    /// 
+/// Private constructor .
+/// @see OperationSimplePredicate#OperationSimplePredicate()
+/// @see OperationCompoundPredicate#OperationPredicate()
     private OperationPredicate() {
 
     }
@@ -383,10 +378,8 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
     }
 
 
-    /**
-     * @see SQLs#TRUE
-     * @see SQLs#FALSE
-     */
+    /// @see SQLs#TRUE
+/// @see SQLs#FALSE
     static SQLs.WordBoolean booleanWord(final boolean value) {
         return value ? BooleanWord.TRUE : BooleanWord.FALSE;
     }
@@ -444,21 +437,17 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
         return result;
     }
 
-    /**
-     * <p>
-     * Private class.This class is base class of below:
-     * <li>{@link BooleanWord}</li>
-     * <li>{@link BracketPredicate}</li>
-     * <li>{@link SqlFunctionPredicate}</li>
-     * <li>{@link OrPredicate},because OR/XOR operator always have outer parentheses。</li>
-     */
+/// 
+/// Private class.This class is base class of below:
+/// - {@link BooleanWord}
+/// - {@link BracketPredicate}
+/// - {@link SqlFunctionPredicate}
+/// - {@link OrPredicate},because OR/XOR operator always have outer parentheses。
     static abstract class OperationSimplePredicate extends OperationPredicate
             implements SimplePredicate, ArmySimpleExpression {
 
-        /**
-         * <p>
-         * <strong>Private constructor</strong>
-         */
+/// 
+/// **Private constructor**
         private OperationSimplePredicate() {
         }
 
@@ -694,9 +683,7 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
 
         private final OperationPredicate predicate;
 
-        /**
-         * @see #notPredicate(IPredicate)
-         */
+        /// @see #notPredicate(IPredicate)
         private NotPredicate(OperationPredicate predicate) {
             this.predicate = predicate;
         }
@@ -744,10 +731,8 @@ abstract class OperationPredicate extends OperationExpression.PredicateExpressio
     }//NotPredicate
 
 
-    /**
-     * @see SQLs#TRUE
-     * @see SQLs#FALSE
-     */
+    /// @see SQLs#TRUE
+/// @see SQLs#FALSE
     static final class BooleanWord extends OperationSimplePredicate
             implements SQLs.WordBoolean, SQLs.ArmyKeyWord, _LiteralExpression, SqlValueParam.SingleAnonymousValue {
 

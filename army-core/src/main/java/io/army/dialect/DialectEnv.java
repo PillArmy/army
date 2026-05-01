@@ -33,9 +33,7 @@ import java.time.ZoneOffset;
 import java.util.Map;
 
 
-/**
- * <p>The instance of this interface is created by the implementation of {@link FactoryBuilder}.
- */
+/// The instance of this interface is created by the implementation of {@link FactoryBuilder}.
 public interface DialectEnv {
 
     String factoryName();
@@ -47,23 +45,17 @@ public interface DialectEnv {
 
     boolean isReactive();
 
-    /**
-     * @return always same instance
-     */
+    /// @return always same instance
     ServerMeta serverMeta();
 
     @Nullable
     ZoneOffset zoneOffset();
 
-    /**
-     * @throws IllegalStateException throw when don't support  {@link JsonCodec}.
-     */
+    /// @throws IllegalStateException throw when don't support  {@link JsonCodec}.
     @Nullable
     JsonCodec jsonCodec();
 
-    /**
-     * @throws IllegalStateException throw when don't support  {@link XmlCodec}.
-     */
+    /// @throws IllegalStateException throw when don't support  {@link XmlCodec}.
     @Nullable
     XmlCodec xmlCodec();
 

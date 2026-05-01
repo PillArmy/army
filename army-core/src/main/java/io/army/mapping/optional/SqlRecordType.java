@@ -37,13 +37,10 @@ import java.util.List;
 import java.util.Objects;
 
 
-/**
- * <p>This class mapping List to database record (for example : postgre record ,oid : 2249)
- *
- * @see io.army.type.SqlRecord
- * @see io.army.mapping.array.SqlRecordArrayType
- * @see <a href="https://www.postgresql.org/docs/current/catalog-pg-type.html">Postgre pg_type table ,oid : 2249</a>
- */
+/// This class mapping List to database record (for example : postgre record ,oid : 2249)
+/// @see io.army.type.SqlRecord
+/// @see io.army.mapping.array.SqlRecordArrayType
+/// @see <a href="https://www.postgresql.org/docs/current/catalog-pg-type.html">Postgre pg_type table ,oid : 2249</a>
 public final class SqlRecordType extends _SqlRecordSupport implements MappingType.SqlRecord {
 
     public static SqlRecordType fromColumn(final MappingType columnType) {
@@ -67,9 +64,7 @@ public final class SqlRecordType extends _SqlRecordSupport implements MappingTyp
 
     public static final SqlRecordType UNLIMITED = new SqlRecordType(Collections.emptyList());
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private SqlRecordType(List<MappingType> columnTypeList) {
         super(columnTypeList);
     }

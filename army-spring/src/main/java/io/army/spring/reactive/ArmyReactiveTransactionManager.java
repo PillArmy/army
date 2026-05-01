@@ -64,104 +64,86 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
 
     /*-------------------below protected template methods -------------------*/
 
-    /**
-     * Return whether to use a savepoint for a nested transaction.
-     * <p>Default is {@code true}, which causes delegation to DefaultTransactionStatus
-     * for creating and holding a savepoint. If the transaction object does not implement
-     * the SavepointManager interface, a NestedTransactionNotSupportedException will be
-     * thrown. Else, the SavepointManager will be asked to create a new savepoint to
-     * demarcate the start of the nested transaction.
-     * <p>Subclasses can override this to return {@code false}, causing a further
-     * call to {@code doBegin} - within the context of an already existing transaction.
-     * The {@code doBegin} implementation needs to handle this accordingly in such
-     * a scenario. This is appropriate for JTA, for example.
-     *
-     * @see DefaultTransactionStatus#createAndHoldSavepoint
-     * @see DefaultTransactionStatus#rollbackToHeldSavepoint
-     * @see DefaultTransactionStatus#releaseHeldSavepoint
-     * @see #doBegin
-     */
+    /// Return whether to use a savepoint for a nested transaction.
+/// Default is {@code true}, which causes delegation to DefaultTransactionStatus
+/// for creating and holding a savepoint. If the transaction object does not implement
+/// the SavepointManager interface, a NestedTransactionNotSupportedException will be
+/// thrown. Else, the SavepointManager will be asked to create a new savepoint to
+/// demarcate the start of the nested transaction.
+/// Subclasses can override this to return {@code false}, causing a further
+/// call to {@code doBegin} - within the context of an already existing transaction.
+/// The {@code doBegin} implementation needs to handle this accordingly in such
+/// a scenario. This is appropriate for JTA, for example.
+/// @see DefaultTransactionStatus#createAndHoldSavepoint
+/// @see DefaultTransactionStatus#rollbackToHeldSavepoint
+/// @see DefaultTransactionStatus#releaseHeldSavepoint
+/// @see #doBegin
     protected boolean useSavepointForNestedTransaction() {
         return true;
     }
 
     protected abstract Object doGetTransaction(TransactionSynchronizationManager manager);
 
-    /**
-     * Check if the given transaction object indicates an existing transaction
-     * (that is, a transaction which has already started).
-     * <p>The result will be evaluated according to the specified propagation
-     * behavior for the new transaction. An existing transaction might get
-     * suspended (in case of PROPAGATION_REQUIRES_NEW), or the new transaction
-     * might participate in the existing one (in case of PROPAGATION_REQUIRED).
-     * <p>The default implementation returns {@code false}, assuming that
-     * participating in existing transactions is generally not supported.
-     * Subclasses are of course encouraged to provide such support.
-     *
-     * @param transaction the transaction object returned by doGetTransaction
-     * @return if there is an existing transaction
-     * @see #doGetTransaction
-     */
+    /// Check if the given transaction object indicates an existing transaction
+/// (that is, a transaction which has already started).
+/// The result will be evaluated according to the specified propagation
+/// behavior for the new transaction. An existing transaction might get
+/// suspended (in case of PROPAGATION_REQUIRES_NEW), or the new transaction
+/// might participate in the existing one (in case of PROPAGATION_REQUIRED).
+/// The default implementation returns {@code false}, assuming that
+/// participating in existing transactions is generally not supported.
+/// Subclasses are of course encouraged to provide such support.
+/// @param transaction the transaction object returned by doGetTransaction
+/// @return if there is an existing transaction
+/// @see #doGetTransaction
     protected abstract boolean isExistingTransaction(Object transaction);
 
-    /**
-     * Begin a new transaction with semantics according to the given transaction
-     * definition. Does not have to care about applying the propagation behavior,
-     * as this has already been handled by this abstract manager.
-     * <p>This method gets called when the transaction manager has decided to actually
-     * start a new transaction. Either there wasn't any transaction before, or the
-     * previous transaction has been suspended.
-     * <p>A special scenario is a nested transaction: This method will be called to
-     * start a nested transaction when necessary. In such a context, there will be an
-     * active transaction: The implementation of this method has to detect this and
-     * start an appropriate nested transaction.
-     *
-     * @param manager     the synchronization manager bound to the new transaction
-     * @param transaction the transaction object returned by {@code doGetTransaction}
-     * @param definition  a TransactionDefinition instance, describing propagation
-     *                    behavior, isolation level, read-only flag, timeout, and transaction name
-     * @throws org.springframework.transaction.NestedTransactionNotSupportedException if the underlying transaction does not support nesting (e.g. through savepoints)
-     */
+    /// Begin a new transaction with semantics according to the given transaction
+/// definition. Does not have to care about applying the propagation behavior,
+/// as this has already been handled by this abstract manager.
+/// This method gets called when the transaction manager has decided to actually
+/// start a new transaction. Either there wasn't any transaction before, or the
+/// previous transaction has been suspended.
+/// A special scenario is a nested transaction: This method will be called to
+/// start a nested transaction when necessary. In such a context, there will be an
+/// active transaction: The implementation of this method has to detect this and
+/// start an appropriate nested transaction.
+/// @param manager     the synchronization manager bound to the new transaction
+/// @param transaction the transaction object returned by {@code doGetTransaction}
+/// @param definition  a TransactionDefinition instance, describing propagation
+/// behavior, isolation level, read-only flag, timeout, and transaction name
+/// @throws org.springframework.transaction.NestedTransactionNotSupportedException if the underlying transaction does not support nesting (e.g. through savepoints)
     protected abstract Mono<Void> doBegin(TransactionSynchronizationManager manager,
                                           Object transaction, TransactionDefinition definition);
 
-    /**
-     * Perform an actual commit of the given transaction.
-     * <p>An implementation does not need to check the "new transaction" flag
-     * or the rollback-only flag; this will already have been handled before.
-     * Usually, a straight commit will be performed on the transaction object
-     * contained in the passed-in status.
-     *
-     * @param manager the synchronization manager bound to the current transaction
-     * @param status  the status representation of the transaction
-     * @see GenericReactiveTransaction#getTransaction
-     */
+    /// Perform an actual commit of the given transaction.
+/// An implementation does not need to check the "new transaction" flag
+/// or the rollback-only flag; this will already have been handled before.
+/// Usually, a straight commit will be performed on the transaction object
+/// contained in the passed-in status.
+/// @param manager the synchronization manager bound to the current transaction
+/// @param status  the status representation of the transaction
+/// @see GenericReactiveTransaction#getTransaction
     protected abstract Mono<Void> doCommit(TransactionSynchronizationManager manager,
                                            GenericReactiveTransaction status);
 
-    /**
-     * Perform an actual rollback of the given transaction.
-     * <p>An implementation does not need to check the "new transaction" flag;
-     * this will already have been handled before. Usually, a straight rollback
-     * will be performed on the transaction object contained in the passed-in status.
-     *
-     * @param manager the synchronization manager bound to the current transaction
-     * @param status  the status representation of the transaction
-     * @see GenericReactiveTransaction#getTransaction
-     */
+    /// Perform an actual rollback of the given transaction.
+/// An implementation does not need to check the "new transaction" flag;
+/// this will already have been handled before. Usually, a straight rollback
+/// will be performed on the transaction object contained in the passed-in status.
+/// @param manager the synchronization manager bound to the current transaction
+/// @param status  the status representation of the transaction
+/// @see GenericReactiveTransaction#getTransaction
     protected abstract Mono<Void> doRollback(TransactionSynchronizationManager manager,
                                              GenericReactiveTransaction status);
 
-    /**
-     * Set the given transaction rollback-only. Only called on rollback
-     * if the current transaction participates in an existing one.
-     * <p>The default implementation throws an IllegalTransactionStateException,
-     * assuming that participating in existing transactions is generally not
-     * supported. Subclasses are of course encouraged to provide such support.
-     *
-     * @param manager the synchronization manager bound to the current transaction
-     * @param status  the status representation of the transaction
-     */
+    /// Set the given transaction rollback-only. Only called on rollback
+/// if the current transaction participates in an existing one.
+/// The default implementation throws an IllegalTransactionStateException,
+/// assuming that participating in existing transactions is generally not
+/// supported. Subclasses are of course encouraged to provide such support.
+/// @param manager the synchronization manager bound to the current transaction
+/// @param status  the status representation of the transaction
     protected Mono<Void> doSetRollbackOnly(TransactionSynchronizationManager manager,
                                            GenericReactiveTransaction status) {
         final String m;
@@ -170,19 +152,16 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
         throw new IllegalTransactionStateException(m);
     }
 
-    /**
-     * Suspend the resources of the current transaction.
-     * Transaction synchronization will already have been suspended.
-     * <p>The default implementation throws a TransactionSuspensionNotSupportedException,
-     * assuming that transaction suspension is generally not supported.
-     *
-     * @param manager     the synchronization manager bound to the current transaction
-     * @param transaction the transaction object returned by {@code doGetTransaction}
-     * @return an object that holds suspended resources
-     * (will be kept unexamined for passing it into doResume)
-     * @throws org.springframework.transaction.TransactionSuspensionNotSupportedException if suspending is not supported by the transaction manager implementation
-     * @see #doResume
-     */
+    /// Suspend the resources of the current transaction.
+/// Transaction synchronization will already have been suspended.
+/// The default implementation throws a TransactionSuspensionNotSupportedException,
+/// assuming that transaction suspension is generally not supported.
+/// @param manager     the synchronization manager bound to the current transaction
+/// @param transaction the transaction object returned by {@code doGetTransaction}
+/// @return an object that holds suspended resources
+/// (will be kept unexamined for passing it into doResume)
+/// @throws org.springframework.transaction.TransactionSuspensionNotSupportedException if suspending is not supported by the transaction manager implementation
+/// @see #doResume
     protected Mono<Object> doSuspend(TransactionSynchronizationManager manager,
                                      Object transaction) {
 
@@ -190,19 +169,16 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
                 "Transaction manager [" + getClass().getName() + "] does not support transaction suspension");
     }
 
-    /**
-     * Resume the resources of the current transaction.
-     * Transaction synchronization will be resumed afterwards.
-     * <p>The default implementation throws a TransactionSuspensionNotSupportedException,
-     * assuming that transaction suspension is generally not supported.
-     *
-     * @param manager            the synchronization manager bound to the current transaction
-     * @param transaction        the transaction object returned by {@code doGetTransaction}
-     * @param suspendedResources the object that holds suspended resources,
-     *                           as returned by doSuspend
-     * @throws org.springframework.transaction.TransactionSuspensionNotSupportedException if suspending is not supported by the transaction manager implementation
-     * @see #doSuspend
-     */
+    /// Resume the resources of the current transaction.
+/// Transaction synchronization will be resumed afterwards.
+/// The default implementation throws a TransactionSuspensionNotSupportedException,
+/// assuming that transaction suspension is generally not supported.
+/// @param manager            the synchronization manager bound to the current transaction
+/// @param transaction        the transaction object returned by {@code doGetTransaction}
+/// @param suspendedResources the object that holds suspended resources,
+/// as returned by doSuspend
+/// @throws org.springframework.transaction.TransactionSuspensionNotSupportedException if suspending is not supported by the transaction manager implementation
+/// @see #doSuspend
     protected Mono<Void> doResume(TransactionSynchronizationManager manager,
                                   @Nullable Object transaction, Object suspendedResources) {
 
@@ -210,17 +186,14 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
                 "Transaction manager [" + getClass().getName() + "] does not support transaction suspension");
     }
 
-    /**
-     * Make preparations for commit, to be performed before the
-     * {@code beforeCommit} synchronization callbacks occur.
-     * <p>Note that exceptions will get propagated to the commit caller
-     * and cause a rollback of the transaction.
-     *
-     * @param manager the synchronization manager bound to the current transaction
-     * @param status  the status representation of the transaction
-     * @throws RuntimeException in case of errors; will be <b>propagated to the caller</b>
-     *                          (note: do not throw TransactionException subclasses here!)
-     */
+/// Make preparations for commit, to be performed before the
+/// {@code beforeCommit} synchronization callbacks occur.
+/// Note that exceptions will get propagated to the commit caller
+/// and cause a rollback of the transaction.
+/// @param manager the synchronization manager bound to the current transaction
+/// @param status  the status representation of the transaction
+/// @throws RuntimeException in case of errors; will be **propagated to the caller**
+/// (note: do not throw TransactionException subclasses here!)
     protected Mono<Void> prepareForCommit(TransactionSynchronizationManager manager,
                                           GenericReactiveTransaction status) {
 
@@ -228,22 +201,19 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
     }
 
 
-    /**
-     * Register the given list of transaction synchronizations with the existing transaction.
-     * <p>Invoked when the control of the Spring transaction manager and thus all Spring
-     * transaction synchronizations end, without the transaction being completed yet. This
-     * is for example the case when participating in an existing JTA or EJB CMT transaction.
-     * <p>The default implementation simply invokes the {@code afterCompletion} methods
-     * immediately, passing in "STATUS_UNKNOWN". This is the best we can do if there's no
-     * chance to determine the actual outcome of the outer transaction.
-     *
-     * @param manager          the synchronization manager bound to the current transaction
-     * @param transaction      the transaction object returned by {@code doGetTransaction}
-     * @param synchronizations a List of TransactionSynchronization objects
-     * @see #invokeAfterCompletion(TransactionSynchronizationManager, List, int)
-     * @see TransactionSynchronization#afterCompletion(int)
-     * @see TransactionSynchronization#STATUS_UNKNOWN
-     */
+    /// Register the given list of transaction synchronizations with the existing transaction.
+/// Invoked when the control of the Spring transaction manager and thus all Spring
+/// transaction synchronizations end, without the transaction being completed yet. This
+/// is for example the case when participating in an existing JTA or EJB CMT transaction.
+/// The default implementation simply invokes the {@code afterCompletion} methods
+/// immediately, passing in "STATUS_UNKNOWN". This is the best we can do if there's no
+/// chance to determine the actual outcome of the outer transaction.
+/// @param manager          the synchronization manager bound to the current transaction
+/// @param transaction      the transaction object returned by {@code doGetTransaction}
+/// @param synchronizations a List of TransactionSynchronization objects
+/// @see #invokeAfterCompletion(TransactionSynchronizationManager, List, int)
+/// @see TransactionSynchronization#afterCompletion(int)
+/// @see TransactionSynchronization#STATUS_UNKNOWN
     protected Mono<Void> registerAfterCompletionWithExistingTransaction(TransactionSynchronizationManager manager,
                                                                         Object transaction, List<TransactionSynchronization> synchronizations) {
 
@@ -252,15 +222,12 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
         return invokeAfterCompletion(manager, synchronizations, TransactionSynchronization.STATUS_UNKNOWN);
     }
 
-    /**
-     * Cleanup resources after transaction completion.
-     * <p>Called after {@code doCommit} and {@code doRollback} execution,
-     * on any outcome. The default implementation does nothing.
-     * <p>Should not throw any exceptions but just issue warnings on errors.
-     *
-     * @param manager     the synchronization manager bound to the current transaction
-     * @param transaction the transaction object returned by {@code doGetTransaction}
-     */
+    /// Cleanup resources after transaction completion.
+/// Called after {@code doCommit} and {@code doRollback} execution,
+/// on any outcome. The default implementation does nothing.
+/// Should not throw any exceptions but just issue warnings on errors.
+/// @param manager     the synchronization manager bound to the current transaction
+/// @param transaction the transaction object returned by {@code doGetTransaction}
     protected Mono<Void> doCleanupAfterCompletion(TransactionSynchronizationManager manager, Object transaction) {
 
         return Mono.empty();
@@ -270,9 +237,7 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
 
     /*-------------------below private methods -------------------*/
 
-    /**
-     * @see #getReactiveTransaction(TransactionDefinition)
-     */
+    /// @see #getReactiveTransaction(TransactionDefinition)
     private Mono<ReactiveTransaction> getTransaction(final TransactionSynchronizationManager manager,
                                                      final TransactionDefinition def) {
         final Object transaction;
@@ -309,9 +274,7 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
         return mono;
     }
 
-    /**
-     * @see #getTransaction(TransactionSynchronizationManager, TransactionDefinition)
-     */
+    /// @see #getTransaction(TransactionSynchronizationManager, TransactionDefinition)
     private Mono<ReactiveTransaction> handleExistingTransaction(final TransactionSynchronizationManager manager,
                                                                 final TransactionDefinition def,
                                                                 final Object transaction) {
@@ -382,9 +345,7 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
     }
 
 
-    /**
-     * @see #getTransaction(TransactionSynchronizationManager, TransactionDefinition)
-     */
+    /// @see #getTransaction(TransactionSynchronizationManager, TransactionDefinition)
     private Mono<ReactiveTransaction> startNewTransaction(final TransactionSynchronizationManager manager,
                                                           final TransactionDefinition def,
                                                           final Object transaction) {
@@ -423,36 +384,30 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
 
     }
 
-    /**
-     * Suspend the given transaction. Suspends transaction synchronization first,
-     * then delegates to the {@code doSuspend} template method.
-     *
-     * @param manager     the synchronization manager bound to the current transaction
-     * @param transaction the current transaction object
-     *                    (or {@code null} to just suspend active synchronizations, if any)
-     * @return an object that holds suspended resources
-     * (or {@code null} if neither transaction nor synchronization active)
-     * @see #doSuspend
-     * @see #resume
-     */
+    /// Suspend the given transaction. Suspends transaction synchronization first,
+/// then delegates to the {@code doSuspend} template method.
+/// @param manager     the synchronization manager bound to the current transaction
+/// @param transaction the current transaction object
+/// (or {@code null} to just suspend active synchronizations, if any)
+/// @return an object that holds suspended resources
+/// (or {@code null} if neither transaction nor synchronization active)
+/// @see #doSuspend
+/// @see #resume
     private Mono<SuspendedResourcesHolder> suspend(final TransactionSynchronizationManager manager,
                                                    final @Nullable Object transaction) {
         return Mono.empty();
     }
 
 
-    /**
-     * Resume the given transaction. Delegates to the {@code doResume}
-     * template method first, then resuming transaction synchronization.
-     *
-     * @param manager         the synchronization manager bound to the current transaction
-     * @param transaction     the current transaction object
-     * @param resourcesHolder the object that holds suspended resources,
-     *                        as returned by {@code suspend} (or {@code null} to just
-     *                        resume synchronizations, if any)
-     * @see #doResume
-     * @see #suspend
-     */
+    /// Resume the given transaction. Delegates to the {@code doResume}
+/// template method first, then resuming transaction synchronization.
+/// @param manager         the synchronization manager bound to the current transaction
+/// @param transaction     the current transaction object
+/// @param resourcesHolder the object that holds suspended resources,
+/// as returned by {@code suspend} (or {@code null} to just
+/// resume synchronizations, if any)
+/// @see #doResume
+/// @see #suspend
     private Mono<Void> resume(final TransactionSynchronizationManager manager,
                               final @Nullable Object transaction, final @Nullable SuspendedResourcesHolder resourcesHolder) {
 
@@ -476,13 +431,10 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
         return resume;
     }
 
-    /**
-     * Reactivate transaction synchronization for the current transaction context
-     * and resume all given synchronizations.
-     *
-     * @param manager                   the synchronization manager bound to the current transaction
-     * @param suspendedSynchronizations a List of TransactionSynchronization objects
-     */
+    /// Reactivate transaction synchronization for the current transaction context
+/// and resume all given synchronizations.
+/// @param manager                   the synchronization manager bound to the current transaction
+/// @param suspendedSynchronizations a List of TransactionSynchronization objects
     private Mono<Void> doResumeSynchronization(TransactionSynchronizationManager manager,
                                                List<TransactionSynchronization> suspendedSynchronizations) {
 
@@ -492,11 +444,8 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
                         .doOnSuccess(ignore -> manager.registerSynchronization(synchronization))).then();
     }
 
-    /**
-     * Resume outer transaction after inner transaction begin failed.
-     *
-     * @see #handleExistingTransaction(TransactionSynchronizationManager, TransactionDefinition, Object)
-     */
+    /// Resume outer transaction after inner transaction begin failed.
+/// @see #handleExistingTransaction(TransactionSynchronizationManager, TransactionDefinition, Object)
     private Mono<Void> resumeAfterBeginException(TransactionSynchronizationManager manager, Object transaction,
                                                  @Nullable SuspendedResourcesHolder suspendedResources, Throwable beginEx) {
 
@@ -506,9 +455,7 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
     }
 
 
-    /**
-     * Initialize transaction synchronization as appropriate.
-     */
+    /// Initialize transaction synchronization as appropriate.
     private void prepareSynchronization(final TransactionSynchronizationManager manager,
                                         final GenericReactiveTransaction status, final TransactionDefinition def) {
 
@@ -523,9 +470,7 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
         }
     }
 
-    /**
-     * Create a ReactiveTransaction instance for the given arguments.
-     */
+    /// Create a ReactiveTransaction instance for the given arguments.
     private GenericReactiveTransaction newReactiveTransaction(
             TransactionSynchronizationManager synchronizationManager, TransactionDefinition definition,
             @Nullable Object transaction, boolean newTransaction, boolean debug, @Nullable Object suspendedResources) {
@@ -536,21 +481,18 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
 //                definition.isReadOnly(), debug, suspendedResources);
     }
 
-    /**
-     * Actually invoke the {@code afterCompletion} methods of the
-     * given TransactionSynchronization objects.
-     * <p>To be called by this abstract manager itself, or by special implementations
-     * of the {@code registerAfterCompletionWithExistingTransaction} callback.
-     *
-     * @param manager          the synchronization manager bound to the current transaction
-     * @param synchronizations a List of TransactionSynchronization objects
-     * @param completionStatus the completion status according to the
-     *                         constants in the TransactionSynchronization interface
-     * @see #registerAfterCompletionWithExistingTransaction(TransactionSynchronizationManager, Object, List)
-     * @see TransactionSynchronization#STATUS_COMMITTED
-     * @see TransactionSynchronization#STATUS_ROLLED_BACK
-     * @see TransactionSynchronization#STATUS_UNKNOWN
-     */
+    /// Actually invoke the {@code afterCompletion} methods of the
+/// given TransactionSynchronization objects.
+/// To be called by this abstract manager itself, or by special implementations
+/// of the {@code registerAfterCompletionWithExistingTransaction} callback.
+/// @param manager          the synchronization manager bound to the current transaction
+/// @param synchronizations a List of TransactionSynchronization objects
+/// @param completionStatus the completion status according to the
+/// constants in the TransactionSynchronization interface
+/// @see #registerAfterCompletionWithExistingTransaction(TransactionSynchronizationManager, Object, List)
+/// @see TransactionSynchronization#STATUS_COMMITTED
+/// @see TransactionSynchronization#STATUS_ROLLED_BACK
+/// @see TransactionSynchronization#STATUS_UNKNOWN
     private Mono<Void> invokeAfterCompletion(TransactionSynchronizationManager manager,
                                              List<TransactionSynchronization> synchronizations, int completionStatus) {
 
@@ -559,10 +501,8 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
     }
 
 
-    /**
-     * Holder for suspended resources.
-     * Used internally by {@code suspend} and {@code resume}.
-     */
+    /// Holder for suspended resources.
+/// Used internally by {@code suspend} and {@code resume}.
     protected static final class SuspendedResourcesHolder {
 
         private final Object suspendedResources;
@@ -585,14 +525,10 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
     } // SuspendedResourcesHolder
 
 
-    /**
-     * Predicates for exception types that transactional error handling applies to.
-     */
+    /// Predicates for exception types that transactional error handling applies to.
     private enum ErrorPredicates implements Predicate<Throwable> {
 
-        /**
-         * Predicate matching {@link RuntimeException} or {@link Error}.
-         */
+        /// Predicate matching {@link RuntimeException} or {@link Error}.
         RUNTIME_OR_ERROR {
             @Override
             public boolean test(Throwable throwable) {
@@ -600,9 +536,7 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
             }
         },
 
-        /**
-         * Predicate matching {@link TransactionException}.
-         */
+        /// Predicate matching {@link TransactionException}.
         TRANSACTION_EXCEPTION {
             @Override
             public boolean test(Throwable throwable) {
@@ -610,9 +544,7 @@ abstract class ArmyReactiveTransactionManager implements ReactiveTransactionMana
             }
         },
 
-        /**
-         * Predicate matching {@link UnexpectedRollbackException}.
-         */
+        /// Predicate matching {@link UnexpectedRollbackException}.
         UNEXPECTED_ROLLBACK {
             @Override
             public boolean test(Throwable throwable) {

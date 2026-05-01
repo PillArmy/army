@@ -32,24 +32,20 @@ import io.army.stmt.Stmt;
 import java.util.List;
 import java.util.function.*;
 
-/**
- * <p>
- * This interface representing sql statement,this interface is base interface of below:
- * <ul>
- *     <li>{@link Select}</li>
- *     <li>{@link InsertStatement}</li>
- *     <li>{@link UpdateStatement}</li>
- *     <li>{@link DeleteStatement}</li>
- *     <li>{@link SubQuery}</li>
- *     <li>{@link Values}</li>
- * </ul>
- * * @since 0.6.0
- */
+/// 
+/// This interface representing sql statement,this interface is base interface of below:
+/// 
+/// - {@link Select}
+/// - {@link InsertStatement}
+/// - {@link UpdateStatement}
+/// - {@link DeleteStatement}
+/// - {@link SubQuery}
+/// - {@link Values}
+/// 
+/// * @since 0.6.0
 public interface Statement extends Item {
 
-    /**
-     * assert statement prepared
-     */
+    /// assert statement prepared
     void prepared();
 
     boolean isPrepared();
@@ -57,9 +53,7 @@ public interface Statement extends Item {
 
     interface StatementMockSpec {
 
-        /**
-         * @param none nothing
-         */
+        /// @param none nothing
         String mockAsString(Dialect dialect, Visible visible, boolean none);
 
         Stmt mockAsStmt(Dialect dialect, Visible visible);
@@ -148,18 +142,15 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * <p>
-     * This interface representing AS clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <AR> next clause java type
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing AS clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <AR> next clause java type
+/// @since 0.6.0
     interface _AsClause<AR> extends Item {
 
         AR as(String alias);
@@ -181,18 +172,15 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * <p>
-     * This interface representing bind params clause for batch update(delete).
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <R> next clause java type
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing bind params clause for batch update(delete).
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <R> next clause java type
+/// @since 0.6.0
     interface _BatchParamClause<R extends Item> extends Item {
 
         R namedParamList(List<?> paramList);
@@ -224,18 +212,15 @@ public interface Statement extends Item {
         R leftParen(Function<T, R> function);
     }
 
-    /**
-     * <p>
-     * This interface representing RIGHT BRACKET clause in join expression.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <RR> next clause java type
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing RIGHT BRACKET clause in join expression.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <RR> next clause java type
+/// @since 0.6.0
     interface _RightParenClause<RR> extends Item {
 
         RR rightParen();
@@ -243,18 +228,15 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * <p>
-     * This interface representing ON clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <OR> next clause java type
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing ON clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <OR> next clause java type
+/// @since 0.6.0
     interface _OnClause<OR> extends Item {
 
         OR on(IPredicate predicate);
@@ -272,19 +254,16 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * <p>
-     * This interface representing FROM clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <FT> next clause java type
-     * @param <FS> next clause java type
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing FROM clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <FT> next clause java type
+/// @param <FS> next clause java type
+/// @since 0.6.0
     interface _FromClause<FT, FS> extends Item {
 
         FT from(TableMeta<?> table, SQLs.WordAs as, String tableAlias);
@@ -315,19 +294,16 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * <p>
-     * This interface representing dialect FROM clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <R> same with the FS of {@link _FromClause}
-     * @see _FromClause
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing dialect FROM clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <R> same with the FS of {@link _FromClause}
+/// @see _FromClause
+/// @since 0.6.0
     interface _FromCteClause<R> {
 
         R from(String cteName);
@@ -355,19 +331,16 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * <p>
-     * This interface representing FROM clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <FT> next clause java type
-     * @param <FS> next clause java type
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing FROM clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <FT> next clause java type
+/// @param <FS> next clause java type
+/// @since 0.6.0
     interface _UsingItemClause<FT, FS> extends Item {
 
         FT using(TableMeta<?> table, SQLs.WordAs wordAs, String tableAlias);
@@ -397,19 +370,16 @@ public interface Statement extends Item {
 
     }
 
-    /**
-     * <p>
-     * This interface representing dialect FROM clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <FC> same with the FS of {@link _FromClause}
-     * @see _FromClause
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing dialect FROM clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <FC> same with the FS of {@link _FromClause}
+/// @see _FromClause
+/// @since 0.6.0
     interface _UsingCteClause<FC> {
 
         FC using(String cteName);
@@ -437,20 +407,17 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * <p>
-     * This interface representing JOIN clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <JT> next clause java type,it's sub interface of {@link _OnClause}
-     * @param <JS> next clause java type,it's sub interface of {@link _OnClause}
-     * @see _CrossJoinClause
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing JOIN clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <JT> next clause java type,it's sub interface of {@link _OnClause}
+/// @param <JS> next clause java type,it's sub interface of {@link _OnClause}
+/// @see _CrossJoinClause
+/// @since 0.6.0
     interface _JoinClause<JT, JS> extends Item {
 
         JT leftJoin(TableMeta<?> table, SQLs.WordAs wordAs, String tableAlias);
@@ -537,17 +504,14 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * <p>
-     * This interface representing CROSS JOIN clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing CROSS JOIN clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _CrossJoinClause<FT, FS> {
 
         FT crossJoin(TableMeta<?> table, SQLs.WordAs wordAs, String tableAlias);
@@ -629,18 +593,15 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * <p>
-     * This interface representing JOIN CTE clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <JC> same with the JS of {@link _JoinClause}
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing JOIN CTE clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <JC> same with the JS of {@link _JoinClause}
+/// @since 0.6.0
     interface _JoinCteClause<JC> {
 
         JC leftJoin(String cteName);
@@ -698,19 +659,16 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * <p>
-     * This interface representing a left bracket clause after key word 'FROM' or key word 'JOIN'.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <LT> next clause java type
-     * @param <LS> next clause java type
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing a left bracket clause after key word 'FROM' or key word 'JOIN'.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <LT> next clause java type
+/// @param <LS> next clause java type
+/// @since 0.6.0
     interface _NestedLeftParenClause<LT, LS> extends Item {
 
         LT leftParen(TableMeta<?> table, SQLs.WordAs wordAs, String tableAlias);
@@ -819,19 +777,16 @@ public interface Statement extends Item {
         WR ifWhere(Consumer<Consumer<IPredicate>> consumer);
     }
 
-    /**
-     * <p>
-     * This interface representing WHERE clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <WR> next clause java type
-     * @param <WA> next clause java type
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing WHERE clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <WR> next clause java type
+/// @param <WA> next clause java type
+/// @since 0.6.0
     interface _WhereClause<WR, WA> extends _MinWhereClause<WR, WA> {
 
         <T> WA where(Function<T, IPredicate> expOperator, T operand);
@@ -858,19 +813,16 @@ public interface Statement extends Item {
 
     }
 
-    /**
-     * <p>
-     * This interface representing WHERE clause in SELECT statement.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <WR> next clause java type
-     * @param <WA> next clause java type
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing WHERE clause in SELECT statement.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <WR> next clause java type
+/// @param <WA> next clause java type
+/// @since 0.6.0
     interface _QueryWhereClause<WR, WA> extends _WhereClause<WR, WA>, _MinQueryWhereClause<WR, WA> {
 
     }
@@ -885,18 +837,15 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * <p>
-     * This interface representing AND clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @param <WA> next clause java type
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing AND clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @param <WA> next clause java type
+/// @since 0.6.0
     interface _WhereAndClause<WA> extends _MinWhereAndClause<WA> {
 
         <T> WA and(Function<T, IPredicate> expOperator, T operand);
@@ -983,17 +932,14 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * <p>
-     * This interface representing row count limit clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing row count limit clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _RowCountLimitClause<R> extends Item {
 
         R limit(Expression rowCount);
@@ -1034,67 +980,55 @@ public interface Statement extends Item {
         R offset(Expression start);
 
 
-        /**
-         * @param operator the method reference of below:
-         *                 <ul>
-         *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                      <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                 </ul>
-         * @param start    non-negative integer
-         */
+/// @param operator the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param start    non-negative integer
         R offset(BiFunction<MappingType, Number, Expression> operator, long start);
 
 
-        /**
-         * @param operator the method reference of below:
-         *                 <ul>
-         *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                      <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                 </ul>
-         * @param supplier return non-negative integer
-         */
+/// @param operator the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param supplier return non-negative integer
         <N extends Number> R offset(BiFunction<MappingType, Number, Expression> operator, Supplier<N> supplier);
 
-        /**
-         * @param operator the method reference of below:
-         *                 <ul>
-         *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                      <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                 </ul>
-         * @param function {@link Function#apply(Object)} return non-negative integer
-         * @param keyName  keyName that is passed to function
-         */
+/// @param operator the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param function {@link Function#apply(Object)} return non-negative integer
+/// @param keyName  keyName that is passed to function
         R offset(BiFunction<MappingType, Object, Expression> operator, Function<String, ?> function, String keyName);
 
-        /**
-         * @param operator the method reference of below:
-         *                 <ul>
-         *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                      <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                 </ul>
-         * @param start    non-negative integer
-         */
+/// @param operator the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param start    non-negative integer
         R ifOffset(BiFunction<MappingType, Number, Expression> operator, @Nullable Number start);
 
-        /**
-         * @param operator the method reference of below:
-         *                 <ul>
-         *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                      <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                 </ul>
-         * @param supplier return non-negative integer
-         */
+/// @param operator the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param supplier return non-negative integer
         <N extends Number> R ifOffset(BiFunction<MappingType, Number, Expression> operator, Supplier<N> supplier);
 
-        /**
-         * @param operator the method reference of below:
-         *                 <ul>
-         *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                      <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                 </ul>
-         * @param function {@link Function#apply(Object)} return non-negative integer
-         * @param keyName  keyName that is passed to function
-         */
+/// @param operator the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param function {@link Function#apply(Object)} return non-negative integer
+/// @param keyName  keyName that is passed to function
         R ifOffset(BiFunction<MappingType, Object, Expression> operator, Function<String, ?> function, String keyName);
 
     }
@@ -1105,173 +1039,147 @@ public interface Statement extends Item {
         R offset(Expression start, SQLs.FetchRow row);
 
 
-        /**
-         * @param operator the method reference of below:
-         *                 <ul>
-         *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                      <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                 </ul>
-         * @param start    non-negative integer
-         * @param row      {@link SQLs#ROW} or {@link SQLs#ROWS}
-         */
+/// @param operator the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param start    non-negative integer
+/// @param row      {@link SQLs#ROW} or {@link SQLs#ROWS}
         R offset(BiFunction<MappingType, Number, Expression> operator, long start, SQLs.FetchRow row);
 
 
-        /**
-         * @param operator the method reference of below:
-         *                 <ul>
-         *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                      <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                 </ul>
-         * @param supplier return non-negative integer
-         * @param row      {@link SQLs#ROW} or {@link SQLs#ROWS}
-         */
+/// @param operator the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param supplier return non-negative integer
+/// @param row      {@link SQLs#ROW} or {@link SQLs#ROWS}
         <N extends Number> R offset(BiFunction<MappingType, Number, Expression> operator, Supplier<N> supplier,
                                     SQLs.FetchRow row);
 
-        /**
-         * @param operator the method reference of below:
-         *                 <ul>
-         *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                      <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                 </ul>
-         * @param function {@link Function#apply(Object)} return non-negative integer
-         * @param keyName  keyName that is passed to function
-         * @param row      {@link SQLs#ROW} or {@link SQLs#ROWS}
-         */
+/// @param operator the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param function {@link Function#apply(Object)} return non-negative integer
+/// @param keyName  keyName that is passed to function
+/// @param row      {@link SQLs#ROW} or {@link SQLs#ROWS}
         R offset(BiFunction<MappingType, Object, Expression> operator, Function<String, ?> function, String keyName, SQLs.FetchRow row);
 
-        /**
-         * @param operator the method reference of below:
-         *                 <ul>
-         *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                      <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                 </ul>
-         * @param start    non-negative integer
-         * @param row      {@link SQLs#ROW} or {@link SQLs#ROWS}
-         */
+/// @param operator the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param start    non-negative integer
+/// @param row      {@link SQLs#ROW} or {@link SQLs#ROWS}
         R ifOffset(BiFunction<MappingType, Number, Expression> operator, @Nullable Number start, SQLs.FetchRow row);
 
-        /**
-         * @param operator the method reference of below:
-         *                 <ul>
-         *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                      <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                 </ul>
-         * @param supplier return non-negative integer
-         * @param row      {@link SQLs#ROW} or {@link SQLs#ROWS}
-         */
+/// @param operator the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param supplier return non-negative integer
+/// @param row      {@link SQLs#ROW} or {@link SQLs#ROWS}
         <N extends Number> R ifOffset(BiFunction<MappingType, Number, Expression> operator, Supplier<N> supplier, SQLs.FetchRow row);
 
-        /**
-         * @param operator the method reference of below:
-         *                 <ul>
-         *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                      <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                 </ul>
-         * @param function {@link Function#apply(Object)} return non-negative integer
-         * @param keyName  keyName that is passed to function
-         * @param row      {@link SQLs#ROW} or {@link SQLs#ROWS}
-         */
+/// @param operator the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param function {@link Function#apply(Object)} return non-negative integer
+/// @param keyName  keyName that is passed to function
+/// @param row      {@link SQLs#ROW} or {@link SQLs#ROWS}
         R ifOffset(BiFunction<MappingType, Object, Expression> operator, Function<String, ?> function, String keyName, SQLs.FetchRow row);
 
     }
 
     interface _QueryFetchClause<R> {
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param count        non-negative
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+        /// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param count        non-negative
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         R fetch(SQLs.FetchFirstNext firstOrNext, Expression count, SQLs.FetchRow row
                 , SQLs.FetchOnlyWithTies onlyWithTies);
 
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param operator     the method reference of below:
-         *                     <ul>
-         *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                     </ul>
-         * @param count        non-negative
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+/// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param operator     the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param count        non-negative
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         R fetch(SQLs.FetchFirstNext firstOrNext, BiFunction<MappingType, Number, Expression> operator
                 , long count, SQLs.FetchRow row, SQLs.FetchOnlyWithTies onlyWithTies);
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param operator     the method reference of below:
-         *                     <ul>
-         *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                     </ul>
-         * @param supplier     return non-negative integer
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+/// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param operator     the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param supplier     return non-negative integer
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         <N extends Number> R fetch(SQLs.FetchFirstNext firstOrNext, BiFunction<MappingType, Number, Expression> operator
                 , Supplier<N> supplier, SQLs.FetchRow row, SQLs.FetchOnlyWithTies onlyWithTies);
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param operator     the method reference of below:
-         *                     <ul>
-         *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                     </ul>
-         * @param function     {@link Function#apply(Object)} return non-negative integer
-         * @param keyName      keyName that is passed to function
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+/// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param operator     the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param function     {@link Function#apply(Object)} return non-negative integer
+/// @param keyName      keyName that is passed to function
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         R fetch(SQLs.FetchFirstNext firstOrNext, BiFunction<MappingType, Object, Expression> operator
                 , Function<String, ?> function, String keyName, SQLs.FetchRow row, SQLs.FetchOnlyWithTies onlyWithTies);
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param operator     the method reference of below:
-         *                     <ul>
-         *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                     </ul>
-         * @param count        non-negative
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+/// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param operator     the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param count        non-negative
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         R ifFetch(SQLs.FetchFirstNext firstOrNext, BiFunction<MappingType, Number, Expression> operator
                 , @Nullable Number count, SQLs.FetchRow row, SQLs.FetchOnlyWithTies onlyWithTies);
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param operator     the method reference of below:
-         *                     <ul>
-         *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                     </ul>
-         * @param supplier     return non-negative integer
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+/// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param operator     the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param supplier     return non-negative integer
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         <N extends Number> R ifFetch(SQLs.FetchFirstNext firstOrNext, BiFunction<MappingType, Number, Expression> operator
                 , Supplier<N> supplier, SQLs.FetchRow row, SQLs.FetchOnlyWithTies onlyWithTies);
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param operator     the method reference of below:
-         *                     <ul>
-         *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                     </ul>
-         * @param function     {@link Function#apply(Object)} return non-negative integer
-         * @param keyName      keyName that is passed to function
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+/// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param operator     the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param function     {@link Function#apply(Object)} return non-negative integer
+/// @param keyName      keyName that is passed to function
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         R ifFetch(SQLs.FetchFirstNext firstOrNext, BiFunction<MappingType, Object, Expression> operator
                 , Function<String, ?> function, String keyName, SQLs.FetchRow row, SQLs.FetchOnlyWithTies onlyWithTies);
     }
@@ -1299,110 +1207,96 @@ public interface Statement extends Item {
 
     interface _FetchPercentClause<R> extends _QueryFetchClause<R> {
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param percent      the percentage of the total number of selected rows
-         * @param wordPercent  {@link SQLs#PERCENT}
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+        /// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param percent      the percentage of the total number of selected rows
+/// @param wordPercent  {@link SQLs#PERCENT}
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         R fetch(SQLs.FetchFirstNext firstOrNext, Expression percent, SQLs.WordPercent wordPercent, SQLs.FetchRow row
                 , SQLs.FetchOnlyWithTies onlyWithTies);
 
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param operator     the method reference of below:
-         *                     <ul>
-         *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                     </ul>
-         * @param percent      non-null,the percentage of the total number of selected rows
-         * @param wordPercent  {@link SQLs#PERCENT}
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+/// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param operator     the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param percent      non-null,the percentage of the total number of selected rows
+/// @param wordPercent  {@link SQLs#PERCENT}
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         R fetch(SQLs.FetchFirstNext firstOrNext, BiFunction<MappingType, Number, Expression> operator
                 , Number percent, SQLs.WordPercent wordPercent, SQLs.FetchRow row, SQLs.FetchOnlyWithTies onlyWithTies);
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param operator     the method reference of below:
-         *                     <ul>
-         *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                     </ul>
-         * @param supplier     {@link  Supplier#get()} return non-null percent
-         * @param wordPercent  {@link SQLs#PERCENT}
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+/// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param operator     the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param supplier     {@link  Supplier#get()} return non-null percent
+/// @param wordPercent  {@link SQLs#PERCENT}
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         <N extends Number> R fetch(SQLs.FetchFirstNext firstOrNext, BiFunction<MappingType, Number, Expression> operator
                 , Supplier<N> supplier, SQLs.WordPercent wordPercent, SQLs.FetchRow row
                 , SQLs.FetchOnlyWithTies onlyWithTies);
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param operator     the method reference of below:
-         *                     <ul>
-         *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                     </ul>
-         * @param function     {@link Function#apply(Object)} return non-null percent
-         * @param keyName      keyName that is passed to function
-         * @param wordPercent  {@link SQLs#PERCENT}
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+/// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param operator     the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param function     {@link Function#apply(Object)} return non-null percent
+/// @param keyName      keyName that is passed to function
+/// @param wordPercent  {@link SQLs#PERCENT}
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         R fetch(SQLs.FetchFirstNext firstOrNext, BiFunction<MappingType, Object, Expression> operator
                 , Function<String, ?> function, String keyName, SQLs.WordPercent wordPercent
                 , SQLs.FetchRow row, SQLs.FetchOnlyWithTies onlyWithTies);
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param operator     the method reference of below:
-         *                     <ul>
-         *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                     </ul>
-         * @param percent      nullable,percent
-         * @param wordPercent  {@link SQLs#PERCENT}
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+/// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param operator     the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param percent      nullable,percent
+/// @param wordPercent  {@link SQLs#PERCENT}
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         R ifFetch(SQLs.FetchFirstNext firstOrNext, BiFunction<MappingType, Number, Expression> operator
                 , @Nullable Number percent, SQLs.WordPercent wordPercent, SQLs.FetchRow row
                 , SQLs.FetchOnlyWithTies onlyWithTies);
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param operator     the method reference of below:
-         *                     <ul>
-         *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                     </ul>
-         * @param supplier     return nullable percent
-         * @param wordPercent  {@link SQLs#PERCENT}
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+/// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param operator     the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param supplier     return nullable percent
+/// @param wordPercent  {@link SQLs#PERCENT}
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         <N extends Number> R ifFetch(SQLs.FetchFirstNext firstOrNext, BiFunction<MappingType, Number, Expression> operator
                 , Supplier<N> supplier, SQLs.WordPercent wordPercent, SQLs.FetchRow row
                 , SQLs.FetchOnlyWithTies onlyWithTies);
 
-        /**
-         * @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
-         * @param operator     the method reference of below:
-         *                     <ul>
-         *                          <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-         *                          <li>{@link SQLs#param(TypeInfer, Object)}</li>
-         *                     </ul>
-         * @param function     {@link Function#apply(Object)} return nullable percent
-         * @param keyName      keyName that is passed to function
-         * @param wordPercent  {@link SQLs#PERCENT}
-         * @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
-         * @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
-         */
+/// @param firstOrNext  {@link SQLs#FIRST} or {@link SQLs#NEXT}
+/// @param operator     the method reference of below:
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)}
+/// 
+/// @param function     {@link Function#apply(Object)} return nullable percent
+/// @param keyName      keyName that is passed to function
+/// @param wordPercent  {@link SQLs#PERCENT}
+/// @param row          {@link SQLs#ROW} or {@link SQLs#ROWS}
+/// @param onlyWithTies {@link SQLs#ONLY} or {@link SQLs#WITH_TIES}
         R ifFetch(SQLs.FetchFirstNext firstOrNext, BiFunction<MappingType, Object, Expression> operator
                 , Function<String, ?> function, String keyName, SQLs.WordPercent wordPercent
                 , SQLs.FetchRow row, SQLs.FetchOnlyWithTies onlyWithTies);
@@ -1550,28 +1444,22 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * This is base interface of below:
-     * <ul>
-     *     <li>{@link UpdateStatement}</li>
-     *     <li>{@link SubUpdate}</li>
-     * </ul>
-     *
-     * @since 0.6.0
-     */
+/// This is base interface of below:
+/// 
+/// - {@link UpdateStatement}
+/// - {@link SubUpdate}
+/// 
+/// @since 0.6.0
     interface DmlUpdate {
 
 
     }
 
-    /**
-     * This is base interface of below:
-     * <ul>
-     *     <li>{@link DeleteStatement}</li>
-     * </ul>
-     *
-     * @since 0.6.0
-     */
+/// This is base interface of below:
+/// 
+/// - {@link DeleteStatement}
+/// 
+/// @since 0.6.0
     @Deprecated
     interface DmlDelete {
 
@@ -1584,14 +1472,11 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * This is base interface of below:
-     * <ul>
-     *     <li>{@link InsertStatement}</li>
-     * </ul>
-     *
-     * @since 0.6.0
-     */
+/// This is base interface of below:
+/// 
+/// - {@link InsertStatement}
+/// 
+/// @since 0.6.0
     @Deprecated
     interface DmlInsert extends Item {
 
@@ -1647,28 +1532,24 @@ public interface Statement extends Item {
     }
 
 
-    /**
-     * <p>This interface is public interface that developer can directly use,but just method reference,for example :
-     * <pre>
-     *     <code><br/>
-     *    &#64;Test
-     *    public void simple(final SyncLocalSession session) {
-     *
-     *        final PostgreMerge stmt;
-     *        stmt = Postgres.singleMerge()
-     *                .mergeInto(Captcha_.T, AS, "c")
-     *                .using(RegisterRecord_.T, AS, "r").on(Captcha_.requestNo::equal, RegisterRecord_.requestNo)
-     *                .whenNotMatched().then(Statement.DoNothingClause::doNothing)
-     *                .whenMatched().then(PostgreMerge.MatchedMergeActionSpec::delete)
-     *                .asCommand();
-     *
-     *        final long rows;
-     *        rows = session.update(stmt);
-     *        LOG.debug("{} row : {}", session.name(), rows);
-     *    }
-     *     </code>
-     * </pre>
-     */
+/// This interface is public interface that developer can directly use,but just method reference,for example :
+/// <pre>
+/// <code>
+/// &#64;Test
+/// public void simple(final SyncLocalSession session) {
+/// final PostgreMerge stmt;
+/// stmt = Postgres.singleMerge()
+/// .mergeInto(Captcha_.T, AS, "c")
+/// .using(RegisterRecord_.T, AS, "r").on(Captcha_.requestNo::equal, RegisterRecord_.requestNo)
+/// .whenNotMatched().then(Statement.DoNothingClause::doNothing)
+/// .whenMatched().then(PostgreMerge.MatchedMergeActionSpec::delete)
+/// .asCommand();
+/// final long rows;
+/// rows = session.update(stmt);
+/// LOG.debug("{} row : {}", session.name(), rows);
+/// }
+/// </code>
+/// </pre>
     interface DoNothingClause<R extends Item> {
 
         R doNothing();
@@ -1681,16 +1562,16 @@ public interface Statement extends Item {
 
     interface _DeferContextSpec {
 
-//        /**
-//         * <p>
-//         * This method is similar to {@link SQLs#refThis(String, String)},except that this method don't access {@link ThreadLocal}.
-//        *//         */
+/// //
+/// //         * 
+/// //         * This method is similar to {@link SQLs#refThis(String, String)},except that this method don't access {@link ThreadLocal}.
+/// //        /
 //        DerivedField refThis(String derivedAlias, String selectionAlias);
 //
-//        /**
-//         * <p>
-//         * This method is similar to {@link SQLs#refOuter(String, String)},except that this method don't access {@link ThreadLocal}.
-//        *//         */
+/// //
+/// //         * 
+/// //         * This method is similar to {@link SQLs#refOuter(String, String)},except that this method don't access {@link ThreadLocal}.
+/// //        /
 //        DerivedField refOuter(String derivedAlias, String selectionAlias);
 //
 //        <T> QualifiedField<T> field(String tableAlias, FieldMeta<T> field);
@@ -1700,20 +1581,20 @@ public interface Statement extends Item {
 
     interface _DeferClauseSpec extends _DeferContextSpec {
 
-//        /**
-//         * <p>
-//         * This method is similar to {@link SQLs#refSelection(String)},except that :
-//         * <ul>
-//         *     <li>this method </li>
-//         *     <li>this method don't access {@link ThreadLocal}.</li>
-//         * </ul>
-//        *//         */
+/// //
+/// //         * 
+/// //         * This method is similar to {@link SQLs#refSelection(String)},except that :
+/// //         * 
+/// //         *     - this method 
+/// //         *     - this method don't access {@link ThreadLocal}.
+/// //         * 
+/// //        /
 //        Expression refSelection(String selectionName);
 //
-//        /**
-//         * <p>
-//         * This method is similar to {@link SQLs#refSelection(int)},except that this method don't access {@link ThreadLocal}.
-//        *//         *
+/// //
+/// //         * 
+/// //         * This method is similar to {@link SQLs#refSelection(int)},except that this method don't access {@link ThreadLocal}.
+/// //        /         *
 //         * @param selectionOrdinal based 1
 //         */
 //        Expression refSelection(int selectionOrdinal);

@@ -24,8 +24,6 @@ public interface GeneratorMeta extends Meta {
 
     Class<?> javaType();
 
-    /**
-     * @return a immutable map
-     */
+    /// @return a immutable map
     Map<String, String> params();
 }

@@ -23,10 +23,8 @@ public enum LiteralMode {
     DEFAULT,
     PREFERENCE,
 
-    /**
-     * the fields that is managed by army output literal , but child id that is created by database.
-     * @see StmtOption#isPreferServerPrepare()
-     */
+    /// the fields that is managed by army output literal , but child id that is created by database.
+/// @see StmtOption#isPreferServerPrepare()
     LITERAL,
 
     CONST;

@@ -28,24 +28,19 @@ import io.army.util._StringUtils;
 import java.util.Objects;
 
 
-/**
- * <p>
- * This class representing single-literal expression.
- * <p>
- * Below is chines signature:<br/>
- * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
- *
- * @see ArmyParamExpression
- * @see ArmyRowLiteralExpression
- * @see ArmyRowParamExpression
- * @since 0.6.0
- */
+/// 
+/// This class representing single-literal expression.
+/// 
+/// Below is chines signature:
+/// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+/// @see ArmyParamExpression
+/// @see ArmyRowLiteralExpression
+/// @see ArmyRowParamExpression
+/// @since 0.6.0
 abstract class ArmyLiteralExpression extends OperationExpression.OperationTypedExpression
         implements _LiteralExpression, ArmySimpleExpression {
 
-    /**
-     * @see SQLs#literalValue(Object)
-     */
+    /// @see SQLs#literalValue(Object)
     static LiteralExpression from(final @Nullable Object value, final boolean typeName) {
         if (value == null) {
             throw ContextStack.clearStackAndNullPointer();
@@ -67,10 +62,8 @@ abstract class ArmyLiteralExpression extends OperationExpression.OperationTypedE
     }
 
 
-    /**
-     * @throws CriteriaException throw when infer return codec {@link TableField}.
-     * @see SQLs#literal(TypeInfer, Object)
-     */
+    /// @throws CriteriaException throw when infer return codec {@link TableField}.
+/// @see SQLs#literal(TypeInfer, Object)
     static LiteralExpression single(final @Nullable TypeInfer infer, final @Nullable Object value, final boolean typeName) {
         final TypeMeta type;
         if (infer == null) {
@@ -85,13 +78,11 @@ abstract class ArmyLiteralExpression extends OperationExpression.OperationTypedE
         return new AnonymousLiteral(type, value, typeName);
     }
 
-    /**
-     * @throws CriteriaException throw when <ul>
-     *                           <li>infer return codec {@link TableField}.</li>
-     *                           <li>name have no text</li>
-     *                           </ul>
-     * @see SQLs#namedLiteral(TypeInfer, String)
-     */
+/// @throws CriteriaException throw when 
+/// - infer return codec {@link TableField}.
+/// - name have no text
+/// 
+/// @see SQLs#namedLiteral(TypeInfer, String)
     static ArmyLiteralExpression named(final @Nullable TypeInfer infer, final @Nullable String name, final boolean typeName) {
         final TypeMeta type;
         if (infer == null) {
@@ -171,9 +162,7 @@ abstract class ArmyLiteralExpression extends OperationExpression.OperationTypedE
 
     final boolean typeName;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ArmyLiteralExpression(TypeMeta type, boolean typeName) {
         if (type instanceof QualifiedField) {
             this.type = ((QualifiedField<?>) type).fieldMeta();
@@ -197,9 +186,7 @@ abstract class ArmyLiteralExpression extends OperationExpression.OperationTypedE
         private final Object value;
 
 
-        /**
-         * @see #single(TypeInfer, Object, boolean)
-         */
+        /// @see #single(TypeInfer, Object, boolean)
         private AnonymousLiteral(TypeMeta type, @Nullable Object value, boolean typeName) {
             super(type, typeName);
             this.value = value;

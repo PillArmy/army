@@ -17,9 +17,7 @@ public final class ZoneOffsetType extends _ArmyNoInjectionType implements Mappin
 
     public static final ZoneOffsetType INSTANCE = new ZoneOffsetType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ZoneOffsetType() {
     }
 

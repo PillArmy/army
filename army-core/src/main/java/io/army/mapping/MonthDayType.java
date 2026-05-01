@@ -34,20 +34,17 @@ import java.util.Locale;
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 
-/**
- * <p>
- * This class is mapping class of {@link MonthDay}.
- * This mapping type can convert below java type:
- * <ul>
- *     <li>{@link LocalDate}</li>
- *     <li>{@link LocalDateTime}</li>
- *     <li>{@link java.time.LocalDate}</li>
- *     <li>{@link String} </li>
- * </ul>
- *  to {@link MonthDay},if error,throw {@link io.army.ArmyException}
- *
- * @since 0.6.0
- */
+/// 
+/// This class is mapping class of {@link MonthDay}.
+/// This mapping type can convert below java type:
+/// 
+/// - {@link LocalDate}
+/// - {@link LocalDateTime}
+/// - {@link java.time.LocalDate}
+/// - {@link String} 
+/// 
+/// to {@link MonthDay},if error,throw {@link io.army.ArmyException}
+/// @since 0.6.0
 public final class MonthDayType extends _ArmyNoInjectionType implements MappingType.SqlLocalDate {
 
     public static MonthDayType from(final Class<?> fieldType) {
@@ -65,9 +62,7 @@ public final class MonthDayType extends _ArmyNoInjectionType implements MappingT
             .appendValue(DAY_OF_MONTH, 2)
             .toFormatter(Locale.ENGLISH);
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private MonthDayType() {
     }
 

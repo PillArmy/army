@@ -31,13 +31,11 @@ import io.army.util._Exceptions;
 import java.util.List;
 
 
-/**
- * <p>This class is base class of following :
- * <ul>
- *     <li>{@link SqlRecordType}</li>
- *     <li>{@link io.army.mapping.array.SqlRecordArrayType}</li>
- * </ul>
- */
+/// This class is base class of following :
+/// 
+/// - {@link SqlRecordType}
+/// - {@link io.army.mapping.array.SqlRecordArrayType}
+/// 
 public abstract class _SqlRecordSupport extends _ArmyBuildInType {
 
 

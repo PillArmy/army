@@ -22,82 +22,60 @@ import io.army.spec.OptionSpec;
 
 import java.util.function.Function;
 
-/**
- * <p>This interface representing {@link StmtExecutor} factory spec .
- * <p>This interface is base interface of following :
- * <ul>
- *     <li>{@code io.army.executor.SyncExecutorFactory}</li>
- *     <li>{@code io.army.reactive.executor.ReactiveStmtExecutorFactory}</li>
- * </ul>
- * The sub interface must override following methods :
- * <ul>
- *     <li>{@link #metaExecutor(Function)}</li>
- *     <li>{@link #localExecutor(String, boolean, Function)}</li>
- *     <li>{@link #rmExecutor(String, boolean, Function)}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// This interface representing {@link StmtExecutor} factory spec .
+/// This interface is base interface of following :
+/// 
+/// - {@code io.army.executor.SyncExecutorFactory}
+/// - {@code io.army.reactive.executor.ReactiveStmtExecutorFactory}
+/// 
+/// The sub interface must override following methods :
+/// 
+/// - {@link #metaExecutor(Function)}
+/// - {@link #localExecutor(String, boolean, Function)}
+/// - {@link #rmExecutor(String, boolean, Function)}
+/// 
+/// @since 0.6.0
 public interface ExecutorFactory extends CloseableSpec, OptionSpec {
 
 
 
-    /**
-     * <p>For example:
-     * <ul>
-     *     <li>JDBC</li>
-     *     <li>JDBD</li>
-     *     <li>ODBC</li>
-     * </ul>
-     *
-     * @return driver spi name,The value returned typically is the name for this driver spi.
-     */
+/// For example:
+/// 
+/// - JDBC
+/// - JDBD
+/// - ODBC
+/// 
+/// @return driver spi name,The value returned typically is the name for this driver spi.
     String driverSpiName();
 
-    /**
-     * @return JDBC always return false, JDBD always return true.
-     */
+    /// @return JDBC always return false, JDBD always return true.
     boolean isResultItemDriverSpi();
 
 
-    /**
-     * <p>For example: io.army.jdbc or io.army.jdbd
-     *
-     * @return executor vendor,The value returned typically is the package name for this vendor.
-     */
+    /// For example: io.army.jdbc or io.army.jdbd
+/// @return executor vendor,The value returned typically is the package name for this vendor.
     String executorVendor();
 
 
-    /**
-     * Sub interface must override this method return value type.
-     */
+    /// Sub interface must override this method return value type.
     Object metaExecutor(Function<Option<?>, ?> optionFunc);
 
 
-    /**
-     * Sub interface must override this method return value type.
-     *
-     * @param sessionName {@link io.army.session.Session}'s name.
-     */
+    /// Sub interface must override this method return value type.
+/// @param sessionName {@link io.army.session.Session}'s name.
     Object localExecutor(String sessionName, boolean readOnly, Function<Option<?>, ?> optionFunc);
 
 
-    /**
-     * Sub interface must override this method return value type.
-     *
-     * @param sessionName {@link io.army.session.Session}'s name.
-     */
+    /// Sub interface must override this method return value type.
+/// @param sessionName {@link io.army.session.Session}'s name.
     Object rmExecutor(String sessionName, boolean readOnly, Function<Option<?>, ?> optionFunc);
 
-    /**
-     * override {@link Object#toString()}
-     *
-     * @return driver info, contain : <ol>
-     * <li>implementation class name</li>
-     * <li>session factory name</li>
-     * <li>{@link System#identityHashCode(Object)}</li>
-     * </ol>
-     */
+/// override {@link Object#toString()}
+/// @return driver info, contain : 
+/// - implementation class name
+/// - session factory name
+/// - {@link System#identityHashCode(Object)}
+/// 
     @Override
     String toString();
 

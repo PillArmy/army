@@ -16,14 +16,10 @@
 package io.army.criteria.impl;
 
 
-/**
- * @see <a href="https://www.sqlite.org/lang.html">SQLite syntax</a>
- */
+/// @see <a href="https://www.sqlite.org/lang.html">SQLite syntax</a>
 public abstract class SQLites extends SQLiteSyntax {
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private SQLites() {
     }
 

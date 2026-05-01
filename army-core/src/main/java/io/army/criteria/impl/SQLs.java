@@ -43,16 +43,12 @@ import java.util.function.UnaryOperator;
 import static io.army.dialect.Database.H2;
 import static io.army.dialect.Database.PostgreSQL;
 
-/**
- * <p>
- * This class is util class used to create standard sql statement.
- */
+/// 
+/// This class is util class used to create standard sql statement.
 @SuppressWarnings("unused")
 public abstract class SQLs extends SQLSyntax {
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private SQLs() {
     }
 
@@ -201,26 +197,18 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final WordsAtTimeZone AT_TIME_ZONE = SqlWords.KeyWordsAtTimeZone.AT_TIME_ZONE;
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
-     */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
     public static final VarScope AT = SqlWords.KeyWordVarScope.AT;
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
-     */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
     public static final VarScope GLOBAL = SqlWords.KeyWordVarScope.GLOBAL;
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
-     * @see <a href="https://www.postgresql.org/docs/current/sql-set.html">Postgre SET Syntax for Variable Assignment</a>
-     */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
+/// @see <a href="https://www.postgresql.org/docs/current/sql-set.html">Postgre SET Syntax for Variable Assignment</a>
     public static final VarScope SESSION = SqlWords.KeyWordVarScope.SESSION;
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
-     * @see <a href="https://www.postgresql.org/docs/current/sql-set.html">Postgre SET Syntax for Variable Assignment</a>
-     */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/set-variable.html">MySQL SET Syntax for Variable Assignment</a>
+/// @see <a href="https://www.postgresql.org/docs/current/sql-set.html">Postgre SET Syntax for Variable Assignment</a>
     public static final VarScope LOCAL = SqlWords.KeyWordVarScope.LOCAL;
 
 
@@ -263,16 +251,12 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final LiteralExpression LITERAL_DECIMAL_0;
 
-    /**
-     * @see #PARAM_EMPTY_STRING
-     */
+    /// @see #PARAM_EMPTY_STRING
     public static final LiteralExpression LITERAL_EMPTY_STRING = ArmyLiteralExpression.unsafeLiteral(StringType.INSTANCE, "");
 
     public static final LiteralExpression LITERAL_SPACE = ArmyLiteralExpression.unsafeLiteral(StringType.INSTANCE, " ");
 
-    /**
-     * @see #BATCH_NO_PARAM
-     */
+    /// @see #BATCH_NO_PARAM
     public static final LiteralExpression BATCH_NO_LITERAL = SQLs.namedLiteral(IntegerType.INSTANCE, "$ARMY_BATCH_NO$");
 
     /*-------------------below const-------------------*/
@@ -309,16 +293,12 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final LiteralExpression CONST_DECIMAL_0;
 
-    /**
-     * @see #PARAM_EMPTY_STRING
-     */
+    /// @see #PARAM_EMPTY_STRING
     public static final LiteralExpression CONST_EMPTY_STRING = ArmyLiteralExpression.unsafeConst(StringType.INSTANCE, "");
 
     public static final LiteralExpression CONST_SPACE = ArmyLiteralExpression.unsafeConst(StringType.INSTANCE, " ");
 
-    /**
-     * @see #BATCH_NO_PARAM
-     */
+    /// @see #BATCH_NO_PARAM
     public static final LiteralExpression BATCH_NO_CONST = SQLs.namedConst(IntegerType.INSTANCE, "$ARMY_BATCH_NO$");
 
 
@@ -355,27 +335,19 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final ParamExpression PARAM_DECIMAL_0;
 
-    /**
-     * @see #TRUE
-     */
+    /// @see #TRUE
     public static final ParamExpression PARAM_TRUE = ArmyParamExpression.unsafeParam(BooleanType.INSTANCE, Boolean.TRUE);
 
-    /**
-     * @see #FALSE
-     */
+    /// @see #FALSE
     public static final ParamExpression PARAM_FALSE = ArmyParamExpression.unsafeParam(BooleanType.INSTANCE, Boolean.FALSE);
 
-    /**
-     * @see #LITERAL_EMPTY_STRING
-     */
+    /// @see #LITERAL_EMPTY_STRING
     public static final ParamExpression PARAM_EMPTY_STRING = ArmyParamExpression.unsafeParam(StringType.INSTANCE, "");
 
     public static final ParamExpression PARAM_SPACE = ArmyParamExpression.unsafeParam(StringType.INSTANCE, " ");
 
 
-    /**
-     * @see #BATCH_NO_LITERAL
-     */
+    /// @see #BATCH_NO_LITERAL
     public static final ParamExpression BATCH_NO_PARAM = SQLs.namedParam(IntegerType.INSTANCE, "$ARMY_BATCH_NO$");
 
 
@@ -413,19 +385,15 @@ public abstract class SQLs extends SQLSyntax {
     }
 
 
-    /**
-     * <p>
-     * Batch domain update
-     */
+    /// 
+/// Batch domain update
     public static StandardUpdate._DomainUpdateClause<Statement._BatchUpdateParamSpec> batchDomainUpdate() {
         return StandardUpdates.batchDomain();
     }
 
 
-    /**
-     * <p>
-     * Batch domain update
-     */
+    /// 
+/// Batch domain update
     public static StandardUpdate._WithSpec<Statement._BatchUpdateParamSpec> batchSingleUpdate() {
         return StandardUpdates.batchSingleUpdate(StandardDialect.STANDARD20);
     }
@@ -440,10 +408,8 @@ public abstract class SQLs extends SQLSyntax {
         return StandardDeletes.domainDelete();
     }
 
-    /**
-     * <p>
-     * Batch domain delete
-     */
+    /// 
+/// Batch domain delete
     public static StandardDelete._WithSpec<Statement._BatchDeleteParamSpec> batchSingleDelete() {
         return StandardDeletes.batchSingleDelete(StandardDialect.STANDARD20);
     }
@@ -540,14 +506,11 @@ public abstract class SQLs extends SQLSyntax {
     }
 
 
-    /**
-     * <p>
-     * package method that is used by army developer.
-     * *
-     *
-     * @param value {@link Expression} or parameter.
-     * @see #plusEqual(SqlField, Object)
-     */
+    /// 
+/// package method that is used by army developer.
+/// *
+/// @param value {@link Expression} or parameter.
+/// @see #plusEqual(SqlField, Object)
     static SQLs.ArmyItemPair _itemPair(final @Nullable SqlField field, final @Nullable AssignOperator operator,
                                        final @Nullable Object value) {
         if (field == null || value == null) {
@@ -563,10 +526,8 @@ public abstract class SQLs extends SQLSyntax {
         return itemPair;
     }
 
-    /**
-     * <p>
-     * package method that is used by army developer.
-     */
+    /// 
+/// package method that is used by army developer.
     static _ItemPair _itemExpPair(final SqlField field, @Nullable Expression value) {
         assert value != null;
         return SQLs._itemPair(field, null, value);
@@ -577,13 +538,10 @@ public abstract class SQLs extends SQLSyntax {
     }
 
 
-    /**
-     * <p>
-     * This method is similar to {@link Function#identity()}, except that use method reference.
-     * *
-     *
-     * @see Function#identity()
-     */
+    /// 
+/// This method is similar to {@link Function#identity()}, except that use method reference.
+/// *
+/// @see Function#identity()
     static <T extends Item> T identity(T t) {
         return t;
     }
@@ -661,9 +619,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    /**
-     * @see SQLs#DISTINCT
-     */
+    /// @see SQLs#DISTINCT
     public interface ArgDistinct extends SQLToken {
 
     }
@@ -772,13 +728,11 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
-    /**
-     * <p>This interface is base interface of following :
-     * <ul>
-     *     <li>{@link WordRows}</li>
-     *     <li>{@link WordLines}</li>
-     * </ul>
-     */
+/// This interface is base interface of following :
+/// 
+/// - {@link WordRows}
+/// - {@link WordLines}
+/// 
     public interface LinesWord {
 
     }
@@ -959,9 +913,7 @@ public abstract class SQLs extends SQLSyntax {
         }
     }//ArmyItemPair
 
-    /**
-     * @see #_itemPair(SqlField, AssignOperator, Expression)
-     */
+    /// @see #_itemPair(SqlField, AssignOperator, Expression)
     static class FieldItemPair extends ArmyItemPair implements _ItemPair._FieldItemPair {
 
         final SqlField field;
@@ -1143,9 +1095,7 @@ public abstract class SQLs extends SQLSyntax {
             this(name, Collections.emptyList(), subStatement);
         }
 
-        /**
-         * @param columnNameList unmodified list
-         */
+        /// @param columnNameList unmodified list
         CteImpl(String name, List<String> columnNameList, SubStatement subStatement) {
             this.name = name;
             this.columnNameList = columnNameList;
@@ -1193,13 +1143,10 @@ public abstract class SQLs extends SQLSyntax {
 
     }//CteImpl
 
-    /**
-     * <p>
-     * This class representing sql {@code DEFAULT} key word.
-     * *
-     *
-     * @see SQLs#DEFAULT
-     */
+    /// 
+/// This class representing sql {@code DEFAULT} key word.
+/// *
+/// @see SQLs#DEFAULT
     private static final class DefaultWord extends NonOperationExpression
             implements SQLs.WordDefault, Functions.ArmyKeyWord {
 
@@ -1225,9 +1172,7 @@ public abstract class SQLs extends SQLSyntax {
     }// DefaultWord
 
 
-    /**
-     * @see SQLs#ASTERISK
-     */
+    /// @see SQLs#ASTERISK
     private static final class LiteralSymbolAsterisk extends NonOperationExpression
             implements FunctionArg.SingleFunctionArg, SymbolAsterisk {
 

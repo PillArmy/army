@@ -29,19 +29,15 @@ import java.math.BigDecimal;
 import java.time.*;
 import java.util.BitSet;
 
-/**
- * @see <a href="https://www.postgresql.org/docs/current/datatype.html">Postgre Data Types</a>
- */
+/// @see <a href="https://www.postgresql.org/docs/current/datatype.html">Postgre Data Types</a>
 public enum PgType implements SQLType {
 
 
-    /**
-     * <p>
-     * <ul>
-     *     <li>{@link MappingType#beforeBind(DataType, MappingEnv, Object)} must return {@link Boolean}</li>
-     *     <li>{@link MappingType#afterGet(DataType, MappingEnv, Object)} nonNull parameter must be {@link Boolean}</li>
-     * </ul>
-     */
+/// 
+/// 
+/// - {@link MappingType#beforeBind(DataType, MappingEnv, Object)} must return {@link Boolean}
+/// - {@link MappingType#afterGet(DataType, MappingEnv, Object)} nonNull parameter must be {@link Boolean}
+/// 
     BOOLEAN("BOOLEAN", ArmyType.BOOLEAN, Boolean.class),
 
     SMALLINT("SMALLINT", ArmyType.SMALLINT, Short.class),
@@ -67,11 +63,8 @@ public enum PgType implements SQLType {
 
     CHAR("CHAR", ArmyType.CHAR, String.class),
 
-    /**
-     * <p>As of postgre 16 .
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/datatype-character.html">bpchar</a>
-     */
+/// As of postgre 16 .
+/// @see <a href="https://www.postgresql.org/docs/current/datatype-character.html">bpchar</a>
     BPCHAR("BPCHAR", ArmyType.CHAR, String.class),
     VARCHAR("VARCHAR", ArmyType.VARCHAR, String.class),
     MONEY("MONEY", ArmyType.DIALECT_TYPE, String.class),

@@ -21,33 +21,23 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * @since 0.6.0
- */
+/// @since 0.6.0
 @Target({})
 @Retention(RUNTIME)
 public @interface Index {
 
-    /**
-     * (Optional) The name of the indexMap; defaults to a provider-generated name.
-     */
+    /// (Optional) The name of the indexMap; defaults to a provider-generated name.
     String name();
 
-    /**
-     * (Optional) The names of the columnMap to be included in the indexMap,
-     * in asSort.
-     */
+    /// (Optional) The names of the columnMap to be included in the indexMap,
+/// in asSort.
     String[] fieldList() default {};
 
-    /**
-     * (Optional) The names of the columnMap to be included in the indexMap,
-     * in asSort.
-     */
+    /// (Optional) The names of the columnMap to be included in the indexMap,
+/// in asSort.
     IndexField[] fields() default {};
 
-    /**
-     * (Optional) Whether the indexMap is unique.
-     */
+    /// (Optional) Whether the indexMap is unique.
     boolean unique() default false;
 
     /*-------------------TODO add FULLTEXT index and SPATIAL index -------------------*/

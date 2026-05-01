@@ -37,9 +37,7 @@ public final class NoCastIntegerType extends _NumericType._IntegerType implement
 
     public static final NoCastIntegerType INSTANCE = new NoCastIntegerType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private NoCastIntegerType() {
     }
 

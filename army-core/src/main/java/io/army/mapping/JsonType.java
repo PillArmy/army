@@ -48,9 +48,7 @@ public final class JsonType extends ArmyJsonType implements MappingType.SqlJson 
     private static final Function<Class<?>, JsonType> CONSTRUCTOR = JsonType::new;
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private JsonType(Class<?> javaType) {
         super(javaType);
     }

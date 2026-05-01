@@ -37,18 +37,15 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/**
- * {@link FactoryBean} that creates Army {@link io.army.session.SessionFactory}. This is the usual
- * way to set up a shared Army SessionFactory in a Spring application context; the
- * SessionFactory can then be passed to data access objects via dependency injection.
- * <p>This class is base class of following :
- * <ul>
- *     <li>{@link io.army.spring.sync.ArmySyncSessionFactoryBean}</li>
- *     <li>{@link io.army.spring.reactive.ArmyReactiveSessionFactoryBean}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// {@link FactoryBean} that creates Army {@link io.army.session.SessionFactory}. This is the usual
+/// way to set up a shared Army SessionFactory in a Spring application context; the
+/// SessionFactory can then be passed to data access objects via dependency injection.
+/// This class is base class of following :
+/// 
+/// - {@link io.army.spring.sync.ArmySyncSessionFactoryBean}
+/// - {@link io.army.spring.reactive.ArmyReactiveSessionFactoryBean}
+/// 
+/// @since 0.6.0
 public abstract class ArmySessionFactoryBeanSupport implements InitializingBean,
         ApplicationContextAware, BeanNameAware, DisposableBean {
 

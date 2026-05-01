@@ -27,19 +27,16 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 
-/**
- * <p>This interface representing blocking {@link Cursor}.
- * <p>This interface is base interface of following :
- * <ul>
- *     <li>{@link SyncStmtCursor},it's produced by statement,army know {@link Selection} list</li>
- *     <li>{@link SyncProcCursor},it's produced by procedure,army don't know {@link Selection} list</li>
- * </ul>
- *
- * @see ResultStates#valueOf(Option)
- * @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
- * @see <a href="https://www.postgresql.org/docs/current/sql-fetch.html">PostgreSQL FETCH</a>
- * @since 0.6.0
- */
+/// This interface representing blocking {@link Cursor}.
+/// This interface is base interface of following :
+/// 
+/// - {@link SyncStmtCursor},it's produced by statement,army know {@link Selection} list
+/// - {@link SyncProcCursor},it's produced by procedure,army don't know {@link Selection} list
+/// 
+/// @see ResultStates#valueOf(Option)
+/// @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">PostgreSQL DECLARE</a>
+/// @see <a href="https://www.postgresql.org/docs/current/sql-fetch.html">PostgreSQL FETCH</a>
+/// @since 0.6.0
 public interface SyncCursor extends Cursor, AutoCloseable {
 
 

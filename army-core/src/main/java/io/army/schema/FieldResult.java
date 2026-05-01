@@ -18,9 +18,7 @@ package io.army.schema;
 
 import io.army.meta.FieldMeta;
 
-/**
- * @see TableResult
- */
+/// @see TableResult
 public interface FieldResult {
 
     FieldMeta<?> field();

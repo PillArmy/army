@@ -18,61 +18,39 @@ package io.army.result;
 
 import io.army.util._StringUtils;
 
-/**
- * <p> This enum representing cursor
- */
+///  This enum representing cursor
 public enum Direction {
 
 
-    /**
-     * Fetch the next row.
-     */
+    /// Fetch the next row.
     NEXT,
 
-    /**
-     * Fetch the prior row.
-     */
+    /// Fetch the prior row.
     PRIOR,
 
-    /**
-     * Fetch the first row of the query (same as ABSOLUTE 1).
-     */
+    /// Fetch the first row of the query (same as ABSOLUTE 1).
     FIRST,
 
-    /**
-     * Fetch the last row of the query (same as ABSOLUTE -1).
-     */
+    /// Fetch the last row of the query (same as ABSOLUTE -1).
     LAST,
 
-    /**
-     * must specified count
-     */
+    /// must specified count
     ABSOLUTE,
 
-    /**
-     * must specified count
-     */
+    /// must specified count
     RELATIVE,
 
-    /**
-     * Fetch the next row (same as NEXT).
-     * must specified count
-     */
+    /// Fetch the next row (same as NEXT).
+/// must specified count
     FORWARD,
 
-    /**
-     * Fetch all remaining rows.
-     */
+    /// Fetch all remaining rows.
     FORWARD_ALL,
 
-    /**
-     * must specified count
-     */
+    /// must specified count
     BACKWARD,
 
-    /**
-     * Fetch all prior rows (scanning backwards).
-     */
+    /// Fetch all prior rows (scanning backwards).
     BACKWARD_ALL;
 
 

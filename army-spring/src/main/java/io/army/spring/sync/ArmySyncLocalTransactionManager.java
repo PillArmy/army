@@ -34,11 +34,8 @@ import org.springframework.transaction.support.SmartTransactionObject;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
-/**
- * <p>This class is Army sync local transaction manager
- *
- * @since 0.6.0
- */
+/// This class is Army sync local transaction manager
+/// @since 0.6.0
 public final class ArmySyncLocalTransactionManager extends AbstractPlatformTransactionManager implements InitializingBean {
 
     public static ArmySyncLocalTransactionManager create(SyncSessionFactory sessionFactory) {
@@ -61,9 +58,7 @@ public final class ArmySyncLocalTransactionManager extends AbstractPlatformTrans
     private boolean useDatabaseSessionName;
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ArmySyncLocalTransactionManager(SyncSessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
         this.sessionContext = SpringSyncSessionContext.create(sessionFactory);

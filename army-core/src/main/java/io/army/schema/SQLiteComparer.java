@@ -40,9 +40,7 @@ final class SQLiteComparer extends ArmySchemaComparer {
         return false;
     }
 
-    /**
-     * @see <a href="https://www.sqlite.org/lang_altertable.html">ALTER TABLE</a>
-     */
+/// @see <a href="https://www.sqlite.org/lang_altertable.html">ALTER TABLE</a>
     @Override
     boolean compareSqlType(final ColumnInfo columnInfo, final FieldMeta<?> field, final DataType dataType) {
         if (!(dataType instanceof SQLiteType)) {

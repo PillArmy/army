@@ -29,19 +29,16 @@ import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-/**
- * <p>
- * This class is mapping class of {@link LocalTime}.
- * This mapping type can convert below java type:
- * <ul>
- *     <li>{@link LocalTime}</li>
- *     <li>{@link LocalDateTime}</li>
- *     <li>{@link String} </li>
- * </ul>
- *  to {@link LocalTime},if overflow,throw {@link io.army.ArmyException}
- *
- * @since 0.6.0
- */
+/// 
+/// This class is mapping class of {@link LocalTime}.
+/// This mapping type can convert below java type:
+/// 
+/// - {@link LocalTime}
+/// - {@link LocalDateTime}
+/// - {@link String} 
+/// 
+/// to {@link LocalTime},if overflow,throw {@link io.army.ArmyException}
+/// @since 0.6.0
 public final class LocalTimeType extends _ArmyNoInjectionType implements MappingType.SqlLocalTime {
 
 
@@ -54,9 +51,7 @@ public final class LocalTimeType extends _ArmyNoInjectionType implements Mapping
 
     public static final LocalTimeType INSTANCE = new LocalTimeType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private LocalTimeType() {
     }
 

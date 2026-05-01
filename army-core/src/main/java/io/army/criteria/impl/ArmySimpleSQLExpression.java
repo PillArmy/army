@@ -17,9 +17,7 @@
 package io.army.criteria.impl;
 
 
-/**
- * @since 0.6.0
- */
+/// @since 0.6.0
 interface ArmySimpleSQLExpression extends ArmySQLExpression {
 
 }

@@ -24,12 +24,9 @@ import io.army.lang.Nullable;
 
 import java.util.List;
 
-/**
- * <p>
- * This interface is inner interface of {@link Query}.
- *
- * @since 0.6.0
- */
+/// 
+/// This interface is inner interface of {@link Query}.
+/// @since 0.6.0
 public interface _Query extends Query, _PartRowSet, _RowSet._SelectItemListSpec, _Statement._WithClauseSpec {
 
     List<Hint> hintList();
@@ -39,19 +36,13 @@ public interface _Query extends Query, _PartRowSet, _RowSet._SelectItemListSpec,
 
     List<_TabularBlock> tableBlockList();
 
-    /**
-     * @return a unmodifiable list
-     */
+    /// @return a unmodifiable list
     List<_Predicate> wherePredicateList();
 
-    /**
-     * @return a unmodifiable list
-     */
+    /// @return a unmodifiable list
     List<? extends GroupByItem> groupByList();
 
-    /**
-     * @return a unmodifiable list
-     */
+    /// @return a unmodifiable list
     List<_Predicate> havingList();
 
 

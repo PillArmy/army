@@ -128,13 +128,13 @@ final class SourceCodeCreator {
 
             commentBuilder = new StringBuilder(80)
                     .append(COMMENT_PREFIX)
-                    .append("/** {@link ")
+                    .append("/// {@link ")
                     .append(simpleClassName)
                     .append('#')
                     .append(fieldName)
                     .append(" } ")
                     .append(getComment(field))
-                    .append(" */\n");
+                    .append("\n");
 
             commentLine = commentBuilder.toString();
 
@@ -254,9 +254,7 @@ final class SourceCodeCreator {
     }
 
 
-    /**
-     * debugSQL meta source code class definition part
-     */
+    /// debugSQL meta source code class definition part
     private void appendClassDefinition(final TypeElement element, final String simpleClassName,
                                        final MappingMode mode, final StringBuilder builder) {
 
@@ -491,9 +489,9 @@ final class SourceCodeCreator {
         if (paramSize > 0) {
             safeXmlDomainName = domainName.replace("<", "&lt;");
             builder.append(MEMBER_PRE)
-                    .append("/** Due to ")
+                    .append("/// Due to ")
                     .append(safeXmlDomainName)
-                    .append(" contains type parameter(s) , army generate static CLASS for army session query api. */\n")
+                    .append(" contains type parameter(s) , army generate static CLASS for army session query api.\n")
                     .append(FIELD_PREFIX)
                     .append("Class<")
                     .append(domainName)
@@ -584,9 +582,9 @@ final class SourceCodeCreator {
         if (paramSize > 0) {
             // generate static constructor method.
             builder.append(MEMBER_PRE)
-                    .append("/** Due to ")
+                    .append("/// Due to ")
                     .append(safeXmlDomainName)
-                    .append(" contains type parameter(s) , army generate static constructor method for army session query api. */\n")
+                    .append(" contains type parameter(s) , army generate static constructor method for army session query api.\n")
                     .append(MEMBER_PRE)
                     .append("public static ")
                     .append(domainName)

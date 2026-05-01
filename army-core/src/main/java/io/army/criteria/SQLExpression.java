@@ -16,16 +16,13 @@
 
 package io.army.criteria;
 
-/**
- * <p>
- * This interface is base interface of below:
- * <ul>
- *     <li>{@link Expression}</li>
- *     <li>{@link RowExpression}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This interface is base interface of below:
+/// 
+/// - {@link Expression}
+/// - {@link RowExpression}
+/// 
+/// @since 0.6.0
 @Deprecated
 public interface SQLExpression extends RowElement, RightOperand {
 

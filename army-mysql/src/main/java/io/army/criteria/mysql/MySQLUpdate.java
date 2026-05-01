@@ -31,32 +31,26 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 
-/**
- * <p>This interface representing MySQL update statement,the instance of this interface can only be parsed by MySQL dialect instance.
- *
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html">MySQL 8.0 Optimizer Hints</a>
- * @see <a href="https://dev.mysql.com/doc/refman/5.7/en/optimizer-hints.html">MySQL 5.7 Optimizer Hints</a>
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/update.html">UPDATE Statement</a>
- * @since 0.6.0
- */
+/// This interface representing MySQL update statement,the instance of this interface can only be parsed by MySQL dialect instance.
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html">MySQL 8.0 Optimizer Hints</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/5.7/en/optimizer-hints.html">MySQL 5.7 Optimizer Hints</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/update.html">UPDATE Statement</a>
+/// @since 0.6.0
 public interface MySQLUpdate extends MySQLStatement {
 
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link UpdateStatement._DmlUpdateSpec}</li>
-     *          <li>method {@link Statement._DmlRowCountLimitClause}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - {@link UpdateStatement._DmlUpdateSpec}
+/// - method {@link Statement._DmlRowCountLimitClause}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _LimitSpec<I extends Item> extends Statement._DmlRowCountLimitClause<_DmlUpdateSpec<I>>,
             _DmlUpdateSpec<I> {
 
@@ -66,41 +60,35 @@ public interface MySQLUpdate extends MySQLStatement {
 
     }
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link MySQLUpdate._LimitSpec}</li>
-     *          <li>method {@link _StaticOrderByClause}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - {@link MySQLUpdate._LimitSpec}
+/// - method {@link _StaticOrderByClause}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _OrderBySpec<I extends Item> extends _StaticOrderByClause<_OrderByCommaSpec<I>>,
             _LimitSpec<I> {
 
     }
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link MySQLUpdate._OrderBySpec}</li>
-     *          <li>method {@link Statement._WhereAndClause}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - {@link MySQLUpdate._OrderBySpec}
+/// - method {@link Statement._WhereAndClause}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _SingleWhereAndSpec<I extends Item> extends UpdateStatement._UpdateWhereAndClause<_SingleWhereAndSpec<I>>,
             _OrderBySpec<I> {
 
@@ -110,57 +98,48 @@ public interface MySQLUpdate extends MySQLStatement {
 
     }
 
-    /**
-     * <p>
-     * This interface representing SET clause for single-table UPDATE syntax.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing SET clause for single-table UPDATE syntax.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _SingleSetClause<I extends Item, T>
             extends UpdateStatement._StaticBatchSetClause<FieldMeta<T>, _SingleWhereSpec<I, T>>,
             UpdateStatement._DynamicSetClause<UpdateStatement._BatchItemPairs<FieldMeta<T>>, _SingleWhereClause<I>> {
     }
 
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link _SingleSetClause}</li>
-     *          <li>method {@link Statement._WhereClause}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - {@link _SingleSetClause}
+/// - method {@link Statement._WhereClause}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _SingleWhereSpec<I extends Item, T> extends _SingleWhereClause<I>, _SingleSetClause<I, T> {
 
     }
 
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>method {@link _SingleSetClause}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/index-hints.html">Index Hints</a>
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - method {@link _SingleSetClause}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/index-hints.html">Index Hints</a>
+/// @since 0.6.0
     interface _SingleIndexHintSpec<I extends Item, T>
             extends _IndexHintFoPurposeClause<_SingleIndexHintSpec<I, T>>,
             _SingleSetClause<I, T> {
@@ -199,22 +178,19 @@ public interface MySQLUpdate extends MySQLStatement {
     }
 
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link _MySQLDynamicWithClause}</li>
-     *          <li>{@link _MySQLDynamicWithClause}</li>
-     *          <li>method {@link _SingleUpdateClause}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - {@link _MySQLDynamicWithClause}
+/// - {@link _MySQLDynamicWithClause}
+/// - method {@link _SingleUpdateClause}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _SingleWithSpec<I extends Item>
             extends _MySQLDynamicWithClause<_SingleUpdateClause<I>>,
             _MySQLStaticWithClause<_SingleUpdateClause<I>>,
@@ -229,56 +205,46 @@ public interface MySQLUpdate extends MySQLStatement {
     /*################################## blow multi-table update api interface ##################################*/
 
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link UpdateStatement._UpdateWhereAndClause}</li>
-     *          <li>{@link Statement._DmlUpdateSpec}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *     *
-     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - {@link UpdateStatement._UpdateWhereAndClause}
+/// - {@link Statement._DmlUpdateSpec}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _MultiWhereAndSpec<I extends Item> extends UpdateStatement._UpdateWhereAndClause<_MultiWhereAndSpec<I>>,
             _DmlUpdateSpec<I> {
 
     }
 
-    /**
-     * <p>
-     * This interface representing SET clause for multi-table update clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing SET clause for multi-table update clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _MultiSetClause<I extends Item> extends UpdateStatement._StaticBatchSetClause<TableField, _MultiWhereSpec<I>>,
             UpdateStatement._DynamicSetClause<UpdateStatement._BatchItemPairs<TableField>, _MultiWhereSpec<I>> {
 
     }
 
-    /**
-     * <p>This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link Statement._WhereClause}</li>
-     *          <li>{@link MySQLUpdate._MultiSetClause}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *
-     *
-     * @since 0.6.0
-     */
+/// This interface representing the composite of below:
+/// 
+/// - {@link Statement._WhereClause}
+/// - {@link MySQLUpdate._MultiSetClause}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// @since 0.6.0
     interface _MultiWhereSpec<I extends Item> extends _WhereClause<_DmlUpdateSpec<I>, _MultiWhereAndSpec<I>>,
             _MultiSetClause<I> {
 
@@ -286,51 +252,42 @@ public interface MySQLUpdate extends MySQLStatement {
     }
 
 
-    /**
-     * <p>This interface representing the composite of below:
-     *     <ul>
-     *          <li>method {@link Statement._AsClause}</li>
-     *     </ul>
-     *<p><strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *
-     *
-     * @since 0.6.0
-     */
+/// This interface representing the composite of below:
+/// 
+/// - method {@link Statement._AsClause}
+/// 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// @since 0.6.0
     interface _MultiIndexHintOnSpec<I extends Item>
             extends _IndexHintFoPurposeClause<_MultiIndexHintOnSpec<I>>,
             _OnClause<_MultiJoinSpec<I>> {
 
     }
 
-    /**
-     * <p>
-     * This interface representing PARTITION clause for multi-table update clause.
-     * * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     * *
-     *
-     * @since 0.6.0
-     */
+/// 
+/// This interface representing PARTITION clause for multi-table update clause.
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// *
+/// @since 0.6.0
     interface _MultiPartitionOnClause<I extends Item> extends _PartitionAsClause<_MultiIndexHintOnSpec<I>> {
 
     }
 
-    /**
-     * <p>
-     * This interface representing the composite of below:
-     *     <ul>
-     *          <li>join clause</li>
-     *          <li>{@link  _MultiSetClause}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     */
+/// 
+/// This interface representing the composite of below:
+/// 
+/// - join clause
+/// - {@link  _MultiSetClause}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
     interface _MultiJoinSpec<I extends Item>
             extends _MySQLJoinClause<_MultiIndexHintOnSpec<I>, _AsParensOnClause<_MultiJoinSpec<I>>>,
             _MySQLCrossClause<_MultiIndexHintJoinSpec<I>, _ParensJoinSpec<I>>,
@@ -352,33 +309,25 @@ public interface MySQLUpdate extends MySQLStatement {
     }
 
 
-    /**
-     * <p>This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link _MultiJoinSpec}</li>
-     *     </ul>
-     * <p><strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *
-     *
-     * @since 0.6.0
-     */
+/// This interface representing the composite of below:
+/// 
+/// - {@link _MultiJoinSpec}
+/// 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// @since 0.6.0
     interface _MultiIndexHintJoinSpec<I extends Item>
             extends _IndexHintFoPurposeClause<_MultiIndexHintJoinSpec<I>>,
             _MultiJoinSpec<I> {
 
     }
 
-    /**
-     * <p>This interface representing PARTITION clause for multi-table update clause.
-     * <p><strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *
-     *
-     * @since 0.6.0
-     */
+/// This interface representing PARTITION clause for multi-table update clause.
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// @since 0.6.0
     interface _MultiPartitionJoinClause<I extends Item> extends _PartitionAsClause<_MultiIndexHintJoinSpec<I>> {
 
     }
@@ -406,15 +355,11 @@ public interface MySQLUpdate extends MySQLStatement {
     }
 
 
-    /**
-     * <p>This interface representing multi-table UPDATE clause for MySQL syntax.
-     * <p><strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *
-     *
-     * @since 0.6.0
-     */
+/// This interface representing multi-table UPDATE clause for MySQL syntax.
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// @since 0.6.0
     interface _MultiUpdateClause<I extends Item> extends Item {
 
         _MultiUpdateSpaceClause<I> update(Supplier<List<Hint>> hints, List<MySQLs.Modifier> modifiers);
@@ -441,21 +386,17 @@ public interface MySQLUpdate extends MySQLStatement {
     }
 
 
-    /**
-     * <p>This interface representing the composite of below:
-     *     <ul>
-     *          <li>{@link _MySQLDynamicWithClause}</li>
-     *          <li>{@link _StaticWithClause}</li>
-     *          <li>{@link _MultiUpdateClause}</li>
-     *     </ul>
-     *     * <p>
-     * <strong>Note:</strong><br/>
-     * Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
-     * ,because army don't guarantee compatibility to future distribution.
-     *
-     *
-     * @since 0.6.0
-     */
+/// This interface representing the composite of below:
+/// 
+/// - {@link _MySQLDynamicWithClause}
+/// - {@link _StaticWithClause}
+/// - {@link _MultiUpdateClause}
+/// 
+/// * 
+/// **Note:**
+/// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
+/// ,because army don't guarantee compatibility to future distribution.
+/// @since 0.6.0
     interface _MultiWithSpec<I extends Item> extends _MySQLDynamicWithClause<_MultiUpdateClause<I>>,
             _MySQLStaticWithClause<_MultiUpdateClause<I>>,
             _MultiUpdateClause<I> {

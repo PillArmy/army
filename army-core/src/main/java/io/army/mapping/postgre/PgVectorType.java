@@ -28,12 +28,9 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 
 
-/**
- * <p>
- * This class representing Postgre tsvector type {@link MappingType}
-*
- * @see <a href="https://www.postgresql.org/docs/current/datatype-textsearch.html#DATATYPE-TSVECTOR">tsvector</a>
- */
+/// 
+/// This class representing Postgre tsvector type {@link MappingType}
+/// @see <a href="https://www.postgresql.org/docs/current/datatype-textsearch.html#DATATYPE-TSVECTOR">tsvector</a>
 public final class PgVectorType extends _ArmyNoInjectionType {
 
 

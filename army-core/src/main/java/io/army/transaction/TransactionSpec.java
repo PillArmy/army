@@ -2,36 +2,29 @@ package io.army.transaction;
 
 import io.army.spec.IterableOptionSpec;
 
-/**
- * <p>Package interface
- * <p>This interface is base interface of following :
- * <ul>
- *     <li>{@link TransactionOption}</li>
- *     <li>{@link TransactionInfo}</li>
- * </ul>
- */
+/// Package interface
+/// This interface is base interface of following :
+/// 
+/// - {@link TransactionOption}
+/// - {@link TransactionInfo}
+/// 
 interface TransactionSpec extends IterableOptionSpec {
 
 
 
-    /**
-     * @return true : transaction is read-only.
-     */
+    /// @return true : transaction is read-only.
     boolean isReadOnly();
 
-    /**
-     * <p>
-     * override {@link Object#toString()}
-     * <p>
-     * <br/>
-     *
-     * @return transaction info, contain
-     * <ul>
-     *     <li>implementation class name</li>
-     *     <li>transaction info</li>
-     *     <li>{@link System#identityHashCode(Object)}</li>
-     * </ul>
-     */
+/// 
+/// override {@link Object#toString()}
+/// 
+/// 
+/// @return transaction info, contain
+/// 
+/// - implementation class name
+/// - transaction info
+/// - {@link System#identityHashCode(Object)}
+/// 
     @Override
     String toString();
 

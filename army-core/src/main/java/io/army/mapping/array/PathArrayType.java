@@ -40,9 +40,7 @@ public class PathArrayType extends _ArmyBuildInType implements MappingType.SqlAr
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private PathArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

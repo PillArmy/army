@@ -25,18 +25,13 @@ import io.army.lang.Nullable;
 import java.util.*;
 import java.util.function.BiFunction;
 
-/**
- * <p>
- * package class,hold postgre string functions and operators method.
-*
- * @see <a href="https://www.postgresql.org/docs/current/functions-string.html">String Functions and Operators</a>
- */
+/// 
+/// package class,hold postgre string functions and operators method.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html">String Functions and Operators</a>
 @SuppressWarnings("unused")
 abstract class PostgreStringFunctions extends Functions {
 
-    /**
-     * package constructor
-     */
+    /// package constructor
     PostgreStringFunctions() {
     }
 
@@ -140,63 +135,43 @@ abstract class PostgreStringFunctions extends Functions {
 
     /*-------------------below SQL String Functions and Operators-------------------*/
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  IntegerType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">bit_length ( text ) → integer</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">bit_length ( bit ) → integer</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">bit_length ( bytea ) → integer</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  IntegerType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">bit_length ( text ) → integer</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">bit_length ( bit ) → integer</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">bit_length ( bytea ) → integer</a>
     public static SimpleExpression bitLength(Expression exp) {
         return LiteralFunctions.oneArgFunc("BIT_LENGTH", exp);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  IntegerType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">char_length ( text ) → integer</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  IntegerType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">char_length ( text ) → integer</a>
     public static SimpleExpression charLength(Expression exp) {
         return LiteralFunctions.oneArgFunc("CHAR_LENGTH", exp);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  TextType} .
-     *
-     *
-     * @see #upper(Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">lower ( text ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-range.html#RANGE-FUNCTIONS-TABLE">lower ( anyrange ) → anyelement</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  TextType} .
+/// @see #upper(Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">lower ( text ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-range.html#RANGE-FUNCTIONS-TABLE">lower ( anyrange ) → anyelement</a>
     public static SimpleExpression lower(Expression exp) {
         return LiteralFunctions.oneArgFunc("LOWER", exp);
     }
 
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link  MappingType} of exp.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">normalize ( text [, form ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link  MappingType} of exp.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">normalize ( text [, form ] ) → text</a>
     public static SimpleExpression normalize(Expression exp) {
         return LiteralFunctions.oneArgFunc("NORMALIZE", exp);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link  MappingType} of exp.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">normalize ( text [, form ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link  MappingType} of exp.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">normalize ( text [, form ] ) → text</a>
     public static SimpleExpression normalize(final Expression exp, final WordNormalizeForm form) {
         final String name = "NORMALIZE";
         final SimpleExpression func;
@@ -211,44 +186,32 @@ abstract class PostgreStringFunctions extends Functions {
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type:  {@link  IntegerType}.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">octet_length ( text ) → integer ; octet_length ( character ) → integer</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">octet_length ( bit ) → integer</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">octet_length ( bytea ) → integer</a>
-     */
+/// 
+/// The {@link MappingType} of function return type:  {@link  IntegerType}.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">octet_length ( text ) → integer ; octet_length ( character ) → integer</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">octet_length ( bit ) → integer</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">octet_length ( bytea ) → integer</a>
     public static SimpleExpression octetLength(Expression exp) {
         return LiteralFunctions.oneArgFunc("OCTET_LENGTH", exp);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @see #overlay(Expression, WordPlacing, Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">overlay ( string text PLACING newsubstring text FROM start integer [ FOR count integer ] ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">overlay ( bits bit PLACING newsubstring bit FROM start integer [ FOR count integer ] ) → bit</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">overlay ( bytes bytea PLACING newsubstring bytea FROM start integer [ FOR count integer ] ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @see #overlay(Expression, WordPlacing, Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">overlay ( string text PLACING newsubstring text FROM start integer [ FOR count integer ] ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">overlay ( bits bit PLACING newsubstring bit FROM start integer [ FOR count integer ] ) → bit</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">overlay ( bytes bytea PLACING newsubstring bytea FROM start integer [ FOR count integer ] ) → bytea</a>
     public static SimpleExpression overlay(Expression string, WordPlacing placing, Expression newSubstring,
                                            SQLs.WordFrom from, Expression start) {
         return _overlay(string, placing, newSubstring, from, start, SQLs.FOR, null);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @see #overlay(Expression, WordPlacing, Expression, SQLs.WordFrom, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">overlay ( string text PLACING newsubstring text FROM start integer [ FOR count integer ] ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">overlay ( bits bit PLACING newsubstring bit FROM start integer [ FOR count integer ] ) → bit</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">overlay ( bytes bytea PLACING newsubstring bytea FROM start integer [ FOR count integer ] ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @see #overlay(Expression, WordPlacing, Expression, SQLs.WordFrom, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">overlay ( string text PLACING newsubstring text FROM start integer [ FOR count integer ] ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">overlay ( bits bit PLACING newsubstring bit FROM start integer [ FOR count integer ] ) → bit</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">overlay ( bytes bytea PLACING newsubstring bytea FROM start integer [ FOR count integer ] ) → bytea</a>
     public static SimpleExpression overlay(Expression string, WordPlacing placing, Expression newSubstring,
                                            SQLs.WordFrom from, Expression start, SQLs.WordFor wordFor,
                                            Expression count) {
@@ -257,16 +220,12 @@ abstract class PostgreStringFunctions extends Functions {
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type:  {@link  IntegerType}.
-     *
-     *
-     * @param in {@link SQLs#IN}
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">position ( substring text IN string text ) → integer</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">position ( substring bit IN bits bit ) → integer</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">position ( substring bytea IN bytes bytea ) → integer</a>
-     */
+/// 
+/// The {@link MappingType} of function return type:  {@link  IntegerType}.
+/// @param in {@link SQLs#IN}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">position ( substring text IN string text ) → integer</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">position ( substring bit IN bits bit ) → integer</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">position ( substring bytea IN bytes bytea ) → integer</a>
     public static SimpleExpression position(Expression substring, SQLs.WordIn in, Expression string) {
         final String name = "POSITION";
         final SimpleExpression func;
@@ -282,54 +241,42 @@ abstract class PostgreStringFunctions extends Functions {
         return func;
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @param from {@link SQLs#FROM}
-     * @see #substring(Expression, SQLs.WordFor, Expression)
-     * @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">substring ( string text [ FROM start integer ] [ FOR count integer ] ) → text ; substring ( string text FROM pattern text ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">substring ( bits bit [ FROM start integer ] [ FOR count integer ] ) → bit</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">substring ( bytes bytea [ FROM start integer ] [ FOR count integer ] ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @param from {@link SQLs#FROM}
+/// @see #substring(Expression, SQLs.WordFor, Expression)
+/// @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">substring ( string text [ FROM start integer ] [ FOR count integer ] ) → text ; substring ( string text FROM pattern text ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">substring ( bits bit [ FROM start integer ] [ FOR count integer ] ) → bit</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">substring ( bytes bytea [ FROM start integer ] [ FOR count integer ] ) → bytea</a>
     public static SimpleExpression substring(Expression string, SQLs.WordFrom from, Expression startOrPattern) {
         ContextStack.assertNonNull(startOrPattern);
         return _substring(string, from, startOrPattern, SQLs.FOR, null);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @param wordFor {@link SQLs#FOR}
-     * @see #substring(Expression, SQLs.WordFrom, Expression)
-     * @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">substring ( string text [ FROM start integer ] [ FOR count integer ] ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">substring ( bits bit [ FROM start integer ] [ FOR count integer ] ) → bit</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">substring ( bytes bytea [ FROM start integer ] [ FOR count integer ] ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @param wordFor {@link SQLs#FOR}
+/// @see #substring(Expression, SQLs.WordFrom, Expression)
+/// @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">substring ( string text [ FROM start integer ] [ FOR count integer ] ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">substring ( bits bit [ FROM start integer ] [ FOR count integer ] ) → bit</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">substring ( bytes bytea [ FROM start integer ] [ FOR count integer ] ) → bytea</a>
     public static SimpleExpression substring(Expression string, SQLs.WordFor wordFor, Expression count) {
         ContextStack.assertNonNull(count);
         return _substring(string, SQLs.FROM, null, wordFor, count);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @param from    {@link SQLs#FROM}
-     * @param wordFor {@link SQLs#FOR}
-     * @see #substring(Expression, SQLs.WordFrom, Expression)
-     * @see #substring(Expression, SQLs.WordFor, Expression)
-     * @see #substring(Expression, SQLs.WordSimilar, Expression, SQLs.WordEscape, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">substring ( string text [ FROM start integer ] [ FOR count integer ] ) → text ; substring ( string text FROM pattern text FOR escape text ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">substring ( bits bit [ FROM start integer ] [ FOR count integer ] ) → bit</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">substring ( bytes bytea [ FROM start integer ] [ FOR count integer ] ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @param from    {@link SQLs#FROM}
+/// @param wordFor {@link SQLs#FOR}
+/// @see #substring(Expression, SQLs.WordFrom, Expression)
+/// @see #substring(Expression, SQLs.WordFor, Expression)
+/// @see #substring(Expression, SQLs.WordSimilar, Expression, SQLs.WordEscape, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">substring ( string text [ FROM start integer ] [ FOR count integer ] ) → text ; substring ( string text FROM pattern text FOR escape text ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">substring ( bits bit [ FROM start integer ] [ FOR count integer ] ) → bit</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">substring ( bytes bytea [ FROM start integer ] [ FOR count integer ] ) → bytea</a>
     public static SimpleExpression substring(Expression string, SQLs.WordFrom from, Expression startOrPattern,
                                              SQLs.WordFor wordFor, Expression countOrEscape) {
         ContextStack.assertNonNull(startOrPattern);
@@ -337,16 +284,12 @@ abstract class PostgreStringFunctions extends Functions {
         return _substring(string, from, startOrPattern, wordFor, countOrEscape);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @param similar    {@link SQLs#SIMILAR}
-     * @param wordEscape {@link SQLs#ESCAPE}
-     * @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">substring ( string text SIMILAR pattern text ESCAPE escape text ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @param similar    {@link SQLs#SIMILAR}
+/// @param wordEscape {@link SQLs#ESCAPE}
+/// @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">substring ( string text SIMILAR pattern text ESCAPE escape text ) → text</a>
     public static SimpleExpression substring(Expression string, SQLs.WordSimilar similar, Expression pattern,
                                              SQLs.WordEscape wordEscape, Expression escape) {
 
@@ -368,25 +311,17 @@ abstract class PostgreStringFunctions extends Functions {
         return func;
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
     public static SimpleExpression trim(Expression string) {
         return LiteralFunctions.oneArgFunc("TRIM", string);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @param from {@link SQLs#FROM}
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @param from {@link SQLs#FROM}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
     public static SimpleExpression trim(SQLs.WordFrom from, Expression string) {
         final String name = "TRIM";
         if (from != SQLs.FROM) {
@@ -397,21 +332,17 @@ abstract class PostgreStringFunctions extends Functions {
         return LiteralFunctions.compositeFunc(name, List.of(from, string));
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @param position below:
-     *                 <ul>
-     *                      <li>{@link SQLs#LEADING}</li>
-     *                      <li>{@link SQLs#TRAILING}</li>
-     *                      <li>{@link SQLs#BOTH}</li>
-     *                 </ul>
-     * @param from     {@link SQLs#FROM}
-     * @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ characters text ] FROM string text ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @param position below:
+/// 
+/// - {@link SQLs#LEADING}
+/// - {@link SQLs#TRAILING}
+/// - {@link SQLs#BOTH}
+/// 
+/// @param from     {@link SQLs#FROM}
+/// @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ characters text ] FROM string text ) → text</a>
     public static SimpleExpression trim(SQLs.TrimSpec position, SQLs.WordFrom from, Expression string) {
         final String name = "TRIM";
         if (string instanceof SqlValueParam.MultiParamValue) {
@@ -424,16 +355,12 @@ abstract class PostgreStringFunctions extends Functions {
         return LiteralFunctions.compositeFunc(name, List.of(position, from, string));
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @param from {@link SQLs#FROM}
-     * @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ characters text ] FROM string text ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] bytesremoved bytea FROM bytes bytea ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @param from {@link SQLs#FROM}
+/// @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ characters text ] FROM string text ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] bytesremoved bytea FROM bytes bytea ) → bytea</a>
     public static SimpleExpression trim(Expression characters, SQLs.WordFrom from, Expression string) {
         final String name = "TRIM";
         if (characters instanceof SqlValueParam.MultiParamValue) {
@@ -446,22 +373,18 @@ abstract class PostgreStringFunctions extends Functions {
         return LiteralFunctions.compositeFunc(name, List.of(characters, from, string));
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @param position below:
-     *                 <ul>
-     *                      <li>{@link SQLs#LEADING}</li>
-     *                      <li>{@link SQLs#TRAILING}</li>
-     *                      <li>{@link SQLs#BOTH}</li>
-     *                 </ul>
-     * @param from     {@link SQLs#FROM}
-     * @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ characters text ] FROM string text ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] bytesremoved bytea FROM bytes bytea ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @param position below:
+/// 
+/// - {@link SQLs#LEADING}
+/// - {@link SQLs#TRAILING}
+/// - {@link SQLs#BOTH}
+/// 
+/// @param from     {@link SQLs#FROM}
+/// @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ characters text ] FROM string text ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] bytesremoved bytea FROM bytes bytea ) → bytea</a>
     public static SimpleExpression trim(SQLs.TrimSpec position, Expression characters, SQLs.WordFrom from, Expression string) {
         final String name = "TRIM";
         if (characters instanceof SqlValueParam.MultiParamValue) {
@@ -476,14 +399,10 @@ abstract class PostgreStringFunctions extends Functions {
         return LiteralFunctions.compositeFunc(name, List.of(position, characters, from, string));
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] bytes bytea, bytesremoved bytea ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] bytes bytea, bytesremoved bytea ) → bytea</a>
     public static SimpleExpression trim(Expression string, Expression characters) {
         final String name = "TRIM";
         if (string instanceof SqlValueParam.MultiParamValue) {
@@ -494,14 +413,10 @@ abstract class PostgreStringFunctions extends Functions {
         return LiteralFunctions.twoArgFunc(name, string, characters);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] bytes bytea, bytesremoved bytea ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] bytes bytea, bytesremoved bytea ) → bytea</a>
     public static SimpleExpression trim(SQLs.WordFrom from, Expression string, Expression characters) {
         final String name = "TRIM";
         if (from != SQLs.FROM) {
@@ -515,21 +430,17 @@ abstract class PostgreStringFunctions extends Functions {
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @param position below:
-     *                 <ul>
-     *                      <li>{@link SQLs#LEADING}</li>
-     *                      <li>{@link SQLs#TRAILING}</li>
-     *                      <li>{@link SQLs#BOTH}</li>
-     *                 </ul>
-     * @param from     {@link SQLs#FROM}
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] bytes bytea, bytesremoved bytea ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @param position below:
+/// 
+/// - {@link SQLs#LEADING}
+/// - {@link SQLs#TRAILING}
+/// - {@link SQLs#BOTH}
+/// 
+/// @param from     {@link SQLs#FROM}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] bytes bytea, bytesremoved bytea ) → bytea</a>
     public static SimpleExpression trim(SQLs.TrimSpec position, SQLs.WordFrom from, Expression string, Expression characters) {
         final String name = "TRIM";
         if (string instanceof SqlValueParam.MultiParamValue) {
@@ -544,110 +455,78 @@ abstract class PostgreStringFunctions extends Functions {
         return LiteralFunctions.compositeFunc(name, List.of(position, from, string, SqlWords.FuncWord.COMMA, characters));
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  TextType} .
-     *
-     *
-     * @see #lower(Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">upper ( text ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  TextType} .
+/// @see #lower(Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">upper ( text ) → text</a>
     public static SimpleExpression upper(Expression exp) {
         return LiteralFunctions.oneArgFunc("UPPER", exp);
     }
 
     /*-------------------below Other String Functions and Operators -------------------*/
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link  IntegerType} .
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">ascii ( text ) → integer</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link  IntegerType} .
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">ascii ( text ) → integer</a>
     public static SimpleExpression ascii(Expression exp) {
         return LiteralFunctions.oneArgFunc("ASCII", exp);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link  MappingType} of exp.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">btrim ( string text [, characters text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link  MappingType} of exp.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">btrim ( string text [, characters text ] ) → text</a>
     public static SimpleExpression btrim(Expression exp) {
         return LiteralFunctions.oneArgFunc("BTRIM", exp);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link  MappingType} of exp.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">btrim ( string text [, characters text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link  MappingType} of exp.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">btrim ( string text [, characters text ] ) → text</a>
     public static SimpleExpression btrim(Expression exp, Expression characters) {
         return LiteralFunctions.twoArgFunc("BTRIM", exp, characters);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link StringType}.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">chr ( integer ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link StringType}.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">chr ( integer ) → text</a>
     public static SimpleExpression chr(Expression exp) {
         return LiteralFunctions.oneArgFunc("CHR", exp);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link StringType}.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">concat ( val1 "any" [, val2 "any" [, ...] ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link StringType}.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">concat ( val1 "any" [, val2 "any" [, ...] ] ) → text</a>
     public static SimpleExpression concat(Expression exp1, Expression... rest) {
         return FunctionUtils.oneAndRestFunc("CONCAT", exp1, rest);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link StringType}.
-     *
-     *
-     * @param expList non-null and non-empty.
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">concat ( val1 "any" [, val2 "any" [, ...] ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link StringType}.
+/// @param expList non-null and non-empty.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">concat ( val1 "any" [, val2 "any" [, ...] ] ) → text</a>
     public static SimpleExpression concat(List<Expression> expList) {
         return FunctionUtils.multiArgFunc("CONCAT", expList);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link StringType}.
-     *
-     *
-     * @param sep  non-multi param value
-     * @param exp1 expression ,possibly be multi param value:
-     *             <ul>
-     *                 <li>{@link SQLs#rowParam(TypeInfer, Collection)} </li>
-     *                 <li>{@link SQLs#rowLiteral(TypeInfer, Collection)}</li>
-     *                 <li>{@link SQLs#namedRowParam(TypeInfer, String, int)} </li>
-     *                 <li>{@link SQLs#namedRowLiteral(TypeInfer, String, int)}</li>
-     *             </ul>
-     * @param rest element possibly be multi param value:
-     *             <ul>
-     *                 <li>{@link SQLs#rowParam(TypeInfer, Collection)} </li>
-     *                 <li>{@link SQLs#rowLiteral(TypeInfer, Collection)}</li>
-     *                 <li>{@link SQLs#namedRowParam(TypeInfer, String, int)} </li>
-     *                 <li>{@link SQLs#namedRowLiteral(TypeInfer, String, int)}</li>
-     *             </ul>
-     * @see #concatWs(Expression, List)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">concat_ws ( sep text, val1 "any" [, val2 "any" [, ...] ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link StringType}.
+/// @param sep  non-multi param value
+/// @param exp1 expression ,possibly be multi param value:
+/// 
+/// - {@link SQLs#rowParam(TypeInfer, Collection)} 
+/// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
+/// - {@link SQLs#namedRowParam(TypeInfer, String, int)} 
+/// - {@link SQLs#namedRowLiteral(TypeInfer, String, int)}
+/// 
+/// @param rest element possibly be multi param value:
+/// 
+/// - {@link SQLs#rowParam(TypeInfer, Collection)} 
+/// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
+/// - {@link SQLs#namedRowParam(TypeInfer, String, int)} 
+/// - {@link SQLs#namedRowLiteral(TypeInfer, String, int)}
+/// 
+/// @see #concatWs(Expression, List)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">concat_ws ( sep text, val1 "any" [, val2 "any" [, ...] ] ) → text</a>
     public static SimpleExpression concatWs(final Expression sep, final Expression exp1, final Expression... rest) {
         final List<Expression> list = new ArrayList<>(1 + rest.length);
         list.add(exp1);
@@ -655,149 +534,101 @@ abstract class PostgreStringFunctions extends Functions {
         return concatWs(sep, list);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link StringType}.
-     *
-     *
-     * @param sep     non-multi param value
-     * @param expList non-null and non-empty,element possibly be multi param value:
-     *                <ul>
-     *                    <li>{@link SQLs#rowParam(TypeInfer, Collection)} </li>
-     *                    <li>{@link SQLs#rowLiteral(TypeInfer, Collection)}</li>
-     *                    <li>{@link SQLs#namedRowParam(TypeInfer, String, int)} </li>
-     *                    <li>{@link SQLs#namedRowLiteral(TypeInfer, String, int)}</li>
-     *                </ul>
-     * @see #concatWs(Expression, Expression, Expression...)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">concat_ws ( sep text, val1 "any" [, val2 "any" [, ...] ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link StringType}.
+/// @param sep     non-multi param value
+/// @param expList non-null and non-empty,element possibly be multi param value:
+/// 
+/// - {@link SQLs#rowParam(TypeInfer, Collection)} 
+/// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
+/// - {@link SQLs#namedRowParam(TypeInfer, String, int)} 
+/// - {@link SQLs#namedRowLiteral(TypeInfer, String, int)}
+/// 
+/// @see #concatWs(Expression, Expression, Expression...)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">concat_ws ( sep text, val1 "any" [, val2 "any" [, ...] ] ) → text</a>
     public static SimpleExpression concatWs(Expression sep, List<Expression> expList) {
         return FunctionUtils.oneAndMultiArgFunc("CONCAT_WS", sep, expList);
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of formatStr.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">format ( formatstr text [, formatarg "any" [, ...] ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of formatStr.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">format ( formatstr text [, formatarg "any" [, ...] ] ) → text</a>
     public static SimpleExpression format(Expression formatStr) {
         return LiteralFunctions.oneArgFunc("FORMAT", formatStr);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of formatStr.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">format ( formatstr text [, formatarg "any" [, ...] ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of formatStr.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">format ( formatstr text [, formatarg "any" [, ...] ] ) → text</a>
     public static SimpleExpression format(Expression formatStr, Expression... formatArgs) {
         return FunctionUtils.oneAndRestFunc("FORMAT", formatStr, formatArgs);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of exp.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">initcap ( text ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of exp.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">initcap ( text ) → text</a>
     public static SimpleExpression initcap(Expression exp) {
         return LiteralFunctions.oneArgFunc("INITCAP", exp);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">left ( string text, n integer ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">left ( string text, n integer ) → text</a>
     public static SimpleExpression left(Expression string, Expression n) {
         return LiteralFunctions.twoArgFunc("LEFT", string, n);
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @see #lpad(Expression, Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">lpad ( string text, length integer [, fill text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @see #lpad(Expression, Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">lpad ( string text, length integer [, fill text ] ) → text</a>
     public static SimpleExpression lpad(Expression string, Expression length) {
         return LiteralFunctions.twoArgFunc("LPAD", string, length);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @see #lpad(Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">lpad ( string text, length integer [, fill text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @see #lpad(Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">lpad ( string text, length integer [, fill text ] ) → text</a>
     public static SimpleExpression lpad(Expression string, Expression length, Expression fill) {
         return LiteralFunctions.threeArgFunc("LPAD", string, length, fill);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">ltrim ( string text [, characters text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">ltrim ( string text [, characters text ] ) → text</a>
     public static SimpleExpression ltrim(Expression string) {
         return LiteralFunctions.oneArgFunc("LTRIM", string);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">ltrim ( string text [, characters text ] ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">ltrim ( bytes bytea, bytesremoved bytea ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">ltrim ( string text [, characters text ] ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">ltrim ( bytes bytea, bytesremoved bytea ) → bytea</a>
     public static SimpleExpression ltrim(Expression string, Expression characters) {
         return LiteralFunctions.twoArgFunc("LTRIM", string, characters);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}.
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">md5 ( text ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">md5 ( bytea ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}.
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">md5 ( text ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">md5 ( bytea ) → text</a>
     public static SimpleExpression md5(Expression string) {
         return LiteralFunctions.oneArgFunc("MD5", string);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type:  {@link TextArrayType} .
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">parse_ident ( qualified_identifier text [, strict_mode boolean DEFAULT true ] ) → text[]</a>
-     */
+/// 
+/// The {@link MappingType} of function return type:  {@link TextArrayType} .
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">parse_ident ( qualified_identifier text [, strict_mode boolean DEFAULT true ] ) → text[]</a>
     public static SimpleExpression parseIdent(Expression qualifiedIdentifier) {
         return LiteralFunctions.oneArgFunc("PARSE_IDENT", qualifiedIdentifier);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type:  {@link TextArrayType} .
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">parse_ident ( qualified_identifier text [, strict_mode boolean DEFAULT true ] ) → text[]</a>
-     */
+/// 
+/// The {@link MappingType} of function return type:  {@link TextArrayType} .
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">parse_ident ( qualified_identifier text [, strict_mode boolean DEFAULT true ] ) → text[]</a>
     public static SimpleExpression parseIdent(Expression qualifiedIdentifier, SQLs.WordBoolean strictMode) {
         final String name = "PARSE_IDENT";
         if (strictMode != SQLs.TRUE && strictMode != SQLs.FALSE) {
@@ -807,136 +638,100 @@ abstract class PostgreStringFunctions extends Functions {
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type:  {@link StringType} .
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">pg_client_encoding ( ) → name</a>
-     */
+/// 
+/// The {@link MappingType} of function return type:  {@link StringType} .
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">pg_client_encoding ( ) → name</a>
     public static SimpleExpression pgClientEncoding() {
         return FunctionUtils.zeroArgFunc("PG_CLIENT_ENCODING");
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type:
-     * <ul>
-     *     <li>If the {@link MappingType} of anyElement is string type,then the {@link MappingType} of anyElement</li>
-     *     <li>Else {@link StringType}</li>
-     * </ul>
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">quote_literal ( anyelement ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type:
+/// 
+/// - If the {@link MappingType} of anyElement is string type,then the {@link MappingType} of anyElement
+/// - Else {@link StringType}
+/// 
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">quote_literal ( anyelement ) → text</a>
     public static SimpleExpression quoteLiteral(Expression anyElement) {
         return LiteralFunctions.oneArgFunc("QUOTE_LITERAL", anyElement);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type:
-     * <ul>
-     *     <li>If the {@link MappingType} of anyElement is string type,then the {@link MappingType} of anyElement</li>
-     *     <li>Else {@link StringType}</li>
-     * </ul>
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">quote_nullable ( anyelement ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type:
+/// 
+/// - If the {@link MappingType} of anyElement is string type,then the {@link MappingType} of anyElement
+/// - Else {@link StringType}
+/// 
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">quote_nullable ( anyelement ) → text</a>
     public static SimpleExpression quoteNullable(Expression anyElement) {
         return LiteralFunctions.oneArgFunc("QUOTE_NULLABLE", anyElement);
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link IntegerType}
-     *
-     *
-     * @see #regexpCount(Expression, Expression, Expression)
-     * @see #regexpCount(Expression, Expression, Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_count ( string text, pattern text [, start integer [, flags text ] ] ) → integer</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link IntegerType}
+/// @see #regexpCount(Expression, Expression, Expression)
+/// @see #regexpCount(Expression, Expression, Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_count ( string text, pattern text [, start integer [, flags text ] ] ) → integer</a>
     public static SimpleExpression regexpCount(Expression string, Expression pattern) {
         return LiteralFunctions.twoArgFunc("REGEXP_COUNT", string, pattern);
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link IntegerType}
-     *
-     *
-     * @see #regexpCount(Expression, Expression)
-     * @see #regexpCount(Expression, Expression, Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_count ( string text, pattern text [, start integer [, flags text ] ] ) → integer</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link IntegerType}
+/// @see #regexpCount(Expression, Expression)
+/// @see #regexpCount(Expression, Expression, Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_count ( string text, pattern text [, start integer [, flags text ] ] ) → integer</a>
     public static SimpleExpression regexpCount(Expression string, Expression pattern, Expression start) {
         return LiteralFunctions.threeArgFunc("REGEXP_COUNT", string, pattern, start);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link IntegerType}
-     *
-     *
-     * @see #regexpCount(Expression, Expression)
-     * @see #regexpCount(Expression, Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_count ( string text, pattern text [, start integer [, flags text ] ] ) → integer</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link IntegerType}
+/// @see #regexpCount(Expression, Expression)
+/// @see #regexpCount(Expression, Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_count ( string text, pattern text [, start integer [, flags text ] ] ) → integer</a>
     public static SimpleExpression regexpCount(Expression string, Expression pattern, Expression start, Expression flags) {
         return FunctionUtils.fourArgFunc("REGEXP_COUNT", string, pattern, start, flags);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link io.army.mapping.BooleanType}
-     *
-     *
-     * @param valueFunc valid function are :
-     *                  <ul>
-     *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                      <li>{@link SQLs#param(TypeInfer, Object)} </li>
-     *                      <li>{@link SQLs#namedLiteral(TypeInfer, String)}</li>
-     *                      <li>{@link SQLs#namedParam(TypeInfer, String)}</li>
-     *                  </ul>
-     * @see #regexpLike(Expression, Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link io.army.mapping.BooleanType}
+/// @param valueFunc valid function are :
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)} 
+/// - {@link SQLs#namedLiteral(TypeInfer, String)}
+/// - {@link SQLs#namedParam(TypeInfer, String)}
+/// 
+/// @see #regexpLike(Expression, Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
     public static IPredicate regexpLike(Expression string, BiFunction<MappingType, String, Expression> valueFunc,
                                         String pattern) {
         return regexpLike(string, valueFunc.apply(StringType.INSTANCE, pattern));
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link io.army.mapping.BooleanType}
-     *
-     *
-     * @see #regexpLike(Expression, Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link io.army.mapping.BooleanType}
+/// @see #regexpLike(Expression, Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
     public static IPredicate regexpLike(Expression string, Expression pattern) {
         return FunctionUtils.twoArgPredicateFunc("REGEXP_LIKE", string, pattern);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link io.army.mapping.BooleanType}
-     *
-     *
-     * @param valueFunc valid function are :
-     *                  <ul>
-     *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                      <li>{@link SQLs#param(TypeInfer, Object)} </li>
-     *                      <li>{@link SQLs#namedLiteral(TypeInfer, String)}</li>
-     *                      <li>{@link SQLs#namedParam(TypeInfer, String)}</li>
-     *                  </ul>
-     * @see #regexpLike(Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link io.army.mapping.BooleanType}
+/// @param valueFunc valid function are :
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)} 
+/// - {@link SQLs#namedLiteral(TypeInfer, String)}
+/// - {@link SQLs#namedParam(TypeInfer, String)}
+/// 
+/// @see #regexpLike(Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
     public static IPredicate regexpLike(Expression string, BiFunction<MappingType, String, Expression> valueFunc,
                                         String pattern, String flags) {
         return regexpLike(
@@ -944,481 +739,321 @@ abstract class PostgreStringFunctions extends Functions {
         );
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link io.army.mapping.BooleanType}
-     *
-     *
-     * @param valueFunc valid function are :
-     *                  <ul>
-     *                      <li>{@link SQLs#literal(TypeInfer, Object)}</li>
-     *                      <li>{@link SQLs#param(TypeInfer, Object)} </li>
-     *                      <li>{@link SQLs#namedLiteral(TypeInfer, String)}</li>
-     *                      <li>{@link SQLs#namedParam(TypeInfer, String)}</li>
-     *                  </ul>
-     * @see #regexpLike(Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link io.army.mapping.BooleanType}
+/// @param valueFunc valid function are :
+/// 
+/// - {@link SQLs#literal(TypeInfer, Object)}
+/// - {@link SQLs#param(TypeInfer, Object)} 
+/// - {@link SQLs#namedLiteral(TypeInfer, String)}
+/// - {@link SQLs#namedParam(TypeInfer, String)}
+/// 
+/// @see #regexpLike(Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
     public static IPredicate regexpLike(Expression string, BiFunction<MappingType, String, Expression> valueFunc,
                                         String pattern, Expression flags) {
         return regexpLike(string, valueFunc.apply(StringType.INSTANCE, pattern), flags);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link io.army.mapping.BooleanType}
-     *
-     *
-     * @see #regexpLike(Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link io.army.mapping.BooleanType}
+/// @see #regexpLike(Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
     public static IPredicate regexpLike(Expression string, Expression pattern, Expression flags) {
         return FunctionUtils.threeArgPredicateFunc("REGEXP_LIKE", string, pattern, flags);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextArrayType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_match ( string text, pattern text [, flags text ] ) → text[] </a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextArrayType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_match ( string text, pattern text [, flags text ] ) → text[] </a>
     public static SimpleExpression regexpMatch(Expression string, Expression pattern) {
         return LiteralFunctions.twoArgFunc("REGEXP_MATCH", string, pattern);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextArrayType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_match ( string text, pattern text [, flags text ] ) → text[]</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextArrayType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_match ( string text, pattern text [, flags text ] ) → text[]</a>
     public static SimpleExpression regexpMatch(Expression string, Expression pattern, Expression flags) {
         return LiteralFunctions.threeArgFunc("REGEXP_MATCH", string, pattern, flags);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextArrayType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextArrayType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
     public static _ColumnWithOrdinalityFunction regexpMatches(Expression string, Expression pattern) {
         return DialectFunctionUtils.twoArgColumnFunction("REGEXP_MATCHES", string, pattern, null);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextArrayType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextArrayType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_like ( string text, pattern text [, flags text ] ) → boolean</a>
     public static _ColumnWithOrdinalityFunction regexpMatches(Expression string, Expression pattern, Expression flags) {
         final String name = "REGEXP_MATCHES";
         return DialectFunctionUtils.threeArgColumnFunction(name, string, pattern, flags,
                 name.toLowerCase(Locale.ROOT));
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_replace ( string text, pattern text, replacement text [, start integer ] [, flags text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_replace ( string text, pattern text, replacement text [, start integer ] [, flags text ] ) → text</a>
     public static SimpleExpression regexpReplace(Expression string, Expression pattern, Expression replacement) {
         return LiteralFunctions.threeArgFunc("REGEXP_REPLACE", string, pattern, replacement);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_replace ( string text, pattern text, replacement text [, start integer ] [, flags text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_replace ( string text, pattern text, replacement text [, start integer ] [, flags text ] ) → text</a>
     public static SimpleExpression regexpReplace(Expression string, Expression pattern, Expression replacement, Expression startOrFlag) {
         return FunctionUtils.fourArgFunc("REGEXP_REPLACE", string, pattern, replacement, startOrFlag);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see #regexpLike(Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_replace ( string text, pattern text, replacement text [, start integer ] [, flags text ] ) → text ;
-     * regexp_replace ( string text, pattern text, replacement text, start integer, N integer [, flags text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see #regexpLike(Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_replace ( string text, pattern text, replacement text [, start integer ] [, flags text ] ) → text ;
+/// regexp_replace ( string text, pattern text, replacement text, start integer, N integer [, flags text ] ) → text</a>
     public static SimpleExpression regexpReplace(Expression string, Expression pattern, Expression replacement, Expression start, Expression nOrFlat) {
         return FunctionUtils.fiveArgFunc("REGEXP_REPLACE", string, pattern, replacement, start, nOrFlat);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see #regexpReplace(Expression, Expression, Expression, Expression, Expression)
-     * @see #regexpReplace(Expression, Expression, Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_replace ( string text, pattern text, replacement text [, start integer ] [, flags text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see #regexpReplace(Expression, Expression, Expression, Expression, Expression)
+/// @see #regexpReplace(Expression, Expression, Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_replace ( string text, pattern text, replacement text [, start integer ] [, flags text ] ) → text</a>
     public static SimpleExpression regexpReplace(Expression string, Expression pattern, Expression replacement, Expression start, Expression n, Expression flags) {
         return FunctionUtils.sixArgFunc("REGEXP_REPLACE", string, pattern, replacement, start, n, flags);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextArrayType}
-     *
-     *
-     * @see #regexpSplitToArray(Expression, Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_split_to_array ( string text, pattern text [, flags text ] ) → text[]</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextArrayType}
+/// @see #regexpSplitToArray(Expression, Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_split_to_array ( string text, pattern text [, flags text ] ) → text[]</a>
     public static SimpleExpression regexpSplitToArray(Expression string, Expression pattern) {
         return LiteralFunctions.twoArgFunc("REGEXP_SPLIT_TO_ARRAY", string, pattern);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextArrayType}
-     *
-     *
-     * @see #regexpSplitToArray(Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_split_to_array ( string text, pattern text [, flags text ] ) → text[]</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextArrayType}
+/// @see #regexpSplitToArray(Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_split_to_array ( string text, pattern text [, flags text ] ) → text[]</a>
     public static SimpleExpression regexpSplitToArray(Expression string, Expression pattern, Expression flags) {
         return LiteralFunctions.threeArgFunc("REGEXP_SPLIT_TO_ARRAY", string, pattern, flags);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see #regexpSplitToTable(Expression, Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_split_to_table ( string text, pattern text [, flags text ] ) → setof text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see #regexpSplitToTable(Expression, Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_split_to_table ( string text, pattern text [, flags text ] ) → setof text</a>
     public static _ColumnWithOrdinalityFunction regexpSplitToTable(Expression string, Expression pattern) {
         return DialectFunctionUtils.twoArgColumnFunction("REGEXP_SPLIT_TO_TABLE", string, pattern, null);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see #regexpSplitToTable(Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_split_to_table ( string text, pattern text [, flags text ] ) → setof text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see #regexpSplitToTable(Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_split_to_table ( string text, pattern text [, flags text ] ) → setof text</a>
     public static _ColumnWithOrdinalityFunction regexpSplitToTable(Expression string, Expression pattern, Expression flags) {
         final String name = "REGEXP_SPLIT_TO_TABLE";
         return DialectFunctionUtils.threeArgColumnFunction(name, string, pattern, flags, name.toLowerCase(Locale.ROOT));
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_substr ( string text, pattern text [, start integer [, N integer [, flags text [, subexpr integer ] ] ] ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_substr ( string text, pattern text [, start integer [, N integer [, flags text [, subexpr integer ] ] ] ] ) → text</a>
     public static SimpleExpression regexpSubstr(Expression string, Expression pattern, Expression start) {
         return LiteralFunctions.threeArgFunc("REGEXP_SUBSTR", string, pattern, start);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_substr ( string text, pattern text [, start integer [, N integer [, flags text [, subexpr integer ] ] ] ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_substr ( string text, pattern text [, start integer [, N integer [, flags text [, subexpr integer ] ] ] ] ) → text</a>
     public static SimpleExpression regexpSubstr(Expression string, Expression pattern, Expression start, Expression n) {
         return FunctionUtils.fourArgFunc("REGEXP_SUBSTR", string, pattern, start, n);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_substr ( string text, pattern text [, start integer [, N integer [, flags text [, subexpr integer ] ] ] ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_substr ( string text, pattern text [, start integer [, N integer [, flags text [, subexpr integer ] ] ] ] ) → text</a>
     public static SimpleExpression regexpSubstr(Expression string, Expression pattern, Expression start, Expression n, Expression flags) {
         return FunctionUtils.fiveArgFunc("REGEXP_SUBSTR", string, pattern, start, n, flags);
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_substr ( string text, pattern text [, start integer [, N integer [, flags text [, subexpr integer ] ] ] ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">regexp_substr ( string text, pattern text [, start integer [, N integer [, flags text [, subexpr integer ] ] ] ] ) → text</a>
     public static SimpleExpression regexpSubstr(Expression string, Expression pattern, Expression start, Expression n, Expression flags, Expression subExpr) {
         return FunctionUtils.sixArgFunc("REGEXP_SUBSTR", string, pattern, start, n, flags, subExpr);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">repeat ( string text, number integer ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">repeat ( string text, number integer ) → text</a>
     public static SimpleExpression repeat(Expression string, Expression number) {
         return LiteralFunctions.twoArgFunc("REPEAT", string, number);
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">replace ( string text, from text, to text ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">replace ( string text, from text, to text ) → text</a>
     public static SimpleExpression replace(Expression string, Expression from, Expression to) {
         return LiteralFunctions.threeArgFunc("REPLACE", string, from, to);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">reverse ( text ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">reverse ( text ) → text</a>
     public static SimpleExpression reverse(Expression string) {
         return LiteralFunctions.oneArgFunc("REVERSE", string);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">right ( string text, n integer ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">right ( string text, n integer ) → text</a>
     public static SimpleExpression right(Expression string, Expression n) {
         return LiteralFunctions.twoArgFunc("RIGHT", string, n);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">rpad ( string text, length integer [, fill text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">rpad ( string text, length integer [, fill text ] ) → text</a>
     public static SimpleExpression rpad(Expression string, Expression length) {
         return LiteralFunctions.twoArgFunc("RPAD", string, length);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">rpad ( string text, length integer [, fill text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">rpad ( string text, length integer [, fill text ] ) → text</a>
     public static SimpleExpression rpad(Expression string, Expression length, Expression fill) {
         return LiteralFunctions.threeArgFunc("RPAD", string, length, fill);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">rtrim ( string text [, characters text ] ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">rtrim ( string text [, characters text ] ) → text</a>
     public static SimpleExpression rtrim(Expression string) {
         return LiteralFunctions.oneArgFunc("RTRIM", string);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">rtrim ( string text [, characters text ] ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">rtrim ( bytes bytea, bytesremoved bytea ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">rtrim ( string text [, characters text ] ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">rtrim ( bytes bytea, bytesremoved bytea ) → bytea</a>
     public static SimpleExpression rtrim(Expression string, Expression characters) {
         return LiteralFunctions.twoArgFunc("RTRIM", string, characters);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">split_part ( string text, delimiter text, n integer ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">split_part ( string text, delimiter text, n integer ) → text</a>
     public static SimpleExpression splitPart(Expression string, Expression delimiter, Expression n) {
         return LiteralFunctions.threeArgFunc("SPLIT_PART", string, delimiter, n);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link BooleanType}
-     *
-     *
-     * @see Postgres#caretAt(Expression, Expression)
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">starts_with ( string text, prefix text ) → boolean</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link BooleanType}
+/// @see Postgres#caretAt(Expression, Expression)
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">starts_with ( string text, prefix text ) → boolean</a>
     public static IPredicate startsWith(Expression string, Expression prefix) {
         return FunctionUtils.twoArgPredicateFunc("STARTS_WITH", string, prefix);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextArrayType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">string_to_array ( string text, delimiter text [, null_string text ] ) → text[]</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextArrayType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">string_to_array ( string text, delimiter text [, null_string text ] ) → text[]</a>
     public static SimpleExpression stringToArray(Expression string, Expression delimiter) {
         return LiteralFunctions.twoArgFunc("STRING_TO_ARRAY", string, delimiter);
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextArrayType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">string_to_array ( string text, delimiter text [, null_string text ] ) → text[]</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextArrayType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">string_to_array ( string text, delimiter text [, null_string text ] ) → text[]</a>
     public static SimpleExpression stringToArray(Expression string, Expression delimiter, Expression nullString) {
         return LiteralFunctions.threeArgFunc("STRING_TO_ARRAY", string, delimiter, nullString);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">string_to_table ( string text, delimiter text [, null_string text ] ) → setof text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">string_to_table ( string text, delimiter text [, null_string text ] ) → setof text</a>
     public static _ColumnWithOrdinalityFunction stringToTable(Expression string, Expression delimiter) {
         return DialectFunctionUtils.twoArgColumnFunction("STRING_TO_TABLE", string, delimiter, null);
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">string_to_table ( string text, delimiter text [, null_string text ] ) → setof text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">string_to_table ( string text, delimiter text [, null_string text ] ) → setof text</a>
     public static _ColumnWithOrdinalityFunction stringToTable(Expression string, Expression delimiter, Expression nullString) {
         return DialectFunctionUtils.threeArgColumnFunction("STRING_TO_TABLE", string, delimiter, nullString, null);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link IntegerType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">strpos ( string text, substring text ) → integer</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link IntegerType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">strpos ( string text, substring text ) → integer</a>
     public static SimpleExpression strPos(Expression string, Expression substring) {
         return LiteralFunctions.twoArgFunc("STRPOS", string, substring);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">substr ( string text, start integer [, count integer ] ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">substr ( bytes bytea, start integer [, count integer ] ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">substr ( string text, start integer [, count integer ] ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">substr ( bytes bytea, start integer [, count integer ] ) → bytea</a>
     public static SimpleExpression substr(Expression string, Expression start) {
         return LiteralFunctions.twoArgFunc("SUBSTR", string, start);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of string
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">substr ( string text, start integer [, count integer ] ) → text</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">substr ( bytes bytea, start integer [, count integer ] ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of string
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">substr ( string text, start integer [, count integer ] ) → text</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">substr ( bytes bytea, start integer [, count integer ] ) → bytea</a>
     public static SimpleExpression substr(Expression string, Expression start, Expression count) {
         return LiteralFunctions.threeArgFunc("SUBSTR", string, start, count);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">to_ascii ( string text ) → text <br/>
-     * to_ascii ( string text, encoding name ) → text <br/>
-     * to_ascii ( string text, encoding integer ) → text
-     * </a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">to_ascii ( string text ) → text 
+/// to_ascii ( string text, encoding name ) → text 
+/// to_ascii ( string text, encoding integer ) → text
+/// </a>
     public static SimpleExpression toAscii(Expression string) {
         return LiteralFunctions.oneArgFunc("TO_ASCII", string);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">to_ascii ( string text ) → text <br/>
-     * to_ascii ( string text, encoding name ) → text <br/>
-     * to_ascii ( string text, encoding integer ) → text
-     * </a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">to_ascii ( string text ) → text 
+/// to_ascii ( string text, encoding name ) → text 
+/// to_ascii ( string text, encoding integer ) → text
+/// </a>
     public static SimpleExpression toAscii(Expression string, Expression encoding) {
         return LiteralFunctions.twoArgFunc("TO_ASCII", string, encoding);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">to_hex ( integer ) → text <br/>
-     * to_hex ( bigint ) → text
-     * </a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">to_hex ( integer ) → text 
+/// to_hex ( bigint ) → text
+/// </a>
     public static SimpleExpression toHex(Expression integer) {
         return LiteralFunctions.oneArgFunc("TO_HEX", integer);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">translate ( string text, from text, to text ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">translate ( string text, from text, to text ) → text</a>
     public static SimpleExpression translate(Expression string, Expression from, Expression to) {
         return LiteralFunctions.threeArgFunc("TRANSLATE", string, from, to);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">unistr ( text ) → text<br/>
-     * to_hex ( bigint ) → text
-     * </a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">unistr ( text ) → text
+/// to_hex ( bigint ) → text
+/// </a>
     public static SimpleExpression uniStr(Expression string) {
         return LiteralFunctions.oneArgFunc("UNISTR", string);
     }
@@ -1426,183 +1061,120 @@ abstract class PostgreStringFunctions extends Functions {
 
     /*-------------------below Bit String Functions and Operators -------------------*/
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link LongType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">bit_count ( bit ) → bigint</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">bit_count ( bytes bytea ) → bigint</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link LongType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">bit_count ( bit ) → bigint</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">bit_count ( bytes bytea ) → bigint</a>
     public static SimpleExpression bitCount(Expression bit) {
         return LiteralFunctions.oneArgFunc("BIT_COUNT", bit);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link IntegerType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">get_bit ( bits bit, n integer ) → integer</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">get_bit ( bytes bytea, n bigint ) → integer</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link IntegerType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">get_bit ( bits bit, n integer ) → integer</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">get_bit ( bytes bytea, n bigint ) → integer</a>
     public static SimpleExpression getBit(Expression bits, Expression n) {
         return LiteralFunctions.twoArgFunc("GET_BIT", bits, n);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of bits
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">set_bit ( bits bit, n integer, newvalue integer ) → bit</a>
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">set_bit ( bytes bytea, n bigint, newvalue integer ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of bits
+/// @see <a href="https://www.postgresql.org/docs/current/functions-bitstring.html#FUNCTIONS-BIT-STRING-TABLE">set_bit ( bits bit, n integer, newvalue integer ) → bit</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">set_bit ( bytes bytea, n bigint, newvalue integer ) → bytea</a>
     public static SimpleExpression setBit(Expression bits, Expression n) {
         return LiteralFunctions.twoArgFunc("SET_BIT", bits, n);
     }
 
     /*-------------------below Binary String Functions and Operators -------------------*/
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link IntegerType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">get_bit ( bytes bytea, n bigint ) → integer</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link IntegerType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">get_bit ( bytes bytea, n bigint ) → integer</a>
     public static SimpleExpression getByte(Expression bits, Expression n) {
         return LiteralFunctions.twoArgFunc("GET_BIT", bits, n);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: {@link IntegerType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">length ( bytes bytea, encoding name ) → integer</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: {@link IntegerType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">length ( bytes bytea, encoding name ) → integer</a>
     public static SimpleExpression length(Expression bytes, Expression encoding) {
         return LiteralFunctions.twoArgFunc("LENGTH", bytes, encoding);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of bits
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">set_bit ( bytes bytea, n bigint, newvalue integer ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of bits
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">set_bit ( bytes bytea, n bigint, newvalue integer ) → bytea</a>
     public static SimpleExpression setBit(Expression bits, Expression n, Expression newValue) {
         return LiteralFunctions.threeArgFunc("SET_BIT", bits, n, newValue);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of bits
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">set_byte ( bytes bytea, n integer, newvalue integer ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of bits
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">set_byte ( bytes bytea, n integer, newvalue integer ) → bytea</a>
     public static SimpleExpression setByte(Expression bits, Expression n, Expression newValue) {
         return LiteralFunctions.threeArgFunc("SET_BYTE", bits, n, newValue);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of bytea
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">sha224 ( bytea ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of bytea
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">sha224 ( bytea ) → bytea</a>
     public static SimpleExpression sha224(Expression bytea) {
         return LiteralFunctions.oneArgFunc("SHA224", bytea);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of bytea
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">sha256 ( bytea ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of bytea
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">sha256 ( bytea ) → bytea</a>
     public static SimpleExpression sha256(Expression bytea) {
         return LiteralFunctions.oneArgFunc("SHA256", bytea);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of bytea
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">sha384 ( bytea ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of bytea
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">sha384 ( bytea ) → bytea</a>
     public static SimpleExpression sha384(Expression bytea) {
         return LiteralFunctions.oneArgFunc("SHA384", bytea);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of bytea
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">sha512 ( bytea ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of bytea
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER">sha512 ( bytea ) → bytea</a>
     public static SimpleExpression sha512(Expression bytea) {
         return LiteralFunctions.oneArgFunc("SHA512", bytea);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type: the {@link MappingType} of bytea
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">convert ( bytes bytea, src_encoding name, dest_encoding name ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type: the {@link MappingType} of bytea
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">convert ( bytes bytea, src_encoding name, dest_encoding name ) → bytea</a>
     public static SimpleExpression convert(Expression bytea, Expression srcEncoding, Expression destEncoding) {
         return LiteralFunctions.threeArgFunc("CONVERT", bytea, srcEncoding, destEncoding);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type:  {@link TextType} .
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">convert_from ( bytes bytea, src_encoding name ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type:  {@link TextType} .
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">convert_from ( bytes bytea, src_encoding name ) → text</a>
     public static SimpleExpression convertFrom(Expression bytea, Expression srcEncoding) {
         return LiteralFunctions.twoArgFunc("CONVERT_FROM", bytea, srcEncoding);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type:  {@link VarBinaryType} .
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">convert_to ( string text, dest_encoding name ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type:  {@link VarBinaryType} .
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">convert_to ( string text, dest_encoding name ) → bytea</a>
     public static SimpleExpression convertTo(Expression bytea, Expression destEncoding) {
         return LiteralFunctions.twoArgFunc("CONVERT_TO", bytea, destEncoding);
     }
 
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type:  {@link TextType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">encode ( bytes bytea, format text ) → text</a>
-     */
+/// 
+/// The {@link MappingType} of function return type:  {@link TextType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">encode ( bytes bytea, format text ) → text</a>
     public static SimpleExpression encode(Expression bytea, Expression format) {
         return LiteralFunctions.twoArgFunc("ENCODE", bytea, format);
     }
 
-    /**
-     * <p>
-     * The {@link MappingType} of function return type:  {@link VarBinaryType}
-     *
-     *
-     * @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">decode ( string text, format text ) → bytea</a>
-     */
+/// 
+/// The {@link MappingType} of function return type:  {@link VarBinaryType}
+/// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-CONVERSIONS">decode ( string text, format text ) → bytea</a>
     public static SimpleExpression decode(Expression text, Expression format) {
         return LiteralFunctions.twoArgFunc("DECODE", text, format);
     }
@@ -1613,10 +1185,8 @@ abstract class PostgreStringFunctions extends Functions {
     /*-------------------below private method -------------------*/
 
 
-    /**
-     * @see #overlay(Expression, WordPlacing, Expression, SQLs.WordFrom, Expression)
-     * @see #overlay(Expression, WordPlacing, Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
-     */
+    /// @see #overlay(Expression, WordPlacing, Expression, SQLs.WordFrom, Expression)
+/// @see #overlay(Expression, WordPlacing, Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
     private static SimpleExpression _overlay(Expression string, WordPlacing placing, Expression newSubstring,
                                              SQLs.WordFrom from, Expression start, @Nullable SQLs.WordFor wordFor,
                                              @Nullable Expression count) {
@@ -1645,11 +1215,9 @@ abstract class PostgreStringFunctions extends Functions {
     }
 
 
-    /**
-     * @see #substring(Expression, SQLs.WordFrom, Expression)
-     * @see #substring(Expression, SQLs.WordFor, Expression)
-     * @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
-     */
+    /// @see #substring(Expression, SQLs.WordFrom, Expression)
+/// @see #substring(Expression, SQLs.WordFor, Expression)
+/// @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
     private static SimpleExpression _substring(Expression string, SQLs.WordFrom from, @Nullable Expression start,
                                                SQLs.WordFor wordFor, @Nullable Expression count) {
         final String name = "SUBSTRING";
@@ -1678,10 +1246,8 @@ abstract class PostgreStringFunctions extends Functions {
 
     }
 
-    /**
-     * @see #lower(Expression)
-     * @see #upper(Expression)
-     */
+    /// @see #lower(Expression)
+/// @see #upper(Expression)
     private static MappingType lowerOrUpperType(final MappingType type) {
         final MappingType returnType;
         if (type instanceof PgRangeType.RangeType) {

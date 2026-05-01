@@ -23,10 +23,8 @@ import java.util.function.Supplier;
 import static io.army.criteria.impl.SQLs.*;
 
 
-/**
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/update.html">UPDATE Statement</a>
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html">MySQL 8.0 Optimizer Hints</a>
- */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/update.html">UPDATE Statement</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html">MySQL 8.0 Optimizer Hints</a>
 @Test(dataProvider = "localSessionProvider")
 public class MultiUpdateTests extends SessionTestSupport {
 

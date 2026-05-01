@@ -19,16 +19,13 @@ package io.army.criteria;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/**
- * <p>
- * This interface The statement that can present in UNION clause,this interface is base interface of below:
- * <ul>
- *     <li>{@link Query}</li>
- *     <li>{@link ValuesQuery}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This interface The statement that can present in UNION clause,this interface is base interface of below:
+/// 
+/// - {@link Query}
+/// - {@link ValuesQuery}
+/// 
+/// @since 0.6.0
 public interface RowSet extends Statement {
 
     @Deprecated

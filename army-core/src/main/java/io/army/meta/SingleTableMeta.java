@@ -19,54 +19,39 @@ package io.army.meta;
 
 import io.army.lang.Nullable;
 
-/**
- * <p>
- * This interface is base interface of below:
- * <ul>
- *     <li>{@link SimpleTableMeta}</li>
- *     <li>{@link ParentTableMeta}</li>
- * </ul>
- *
- * @param <T> domain java type
- */
+/// 
+/// This interface is base interface of below:
+/// 
+/// - {@link SimpleTableMeta}
+/// - {@link ParentTableMeta}
+/// 
+/// @param <T> domain java type
 public interface SingleTableMeta<T> extends TableMeta<T> {
 
 
     FieldMeta<T> createTime();
 
-    /**
-     * @throws IllegalArgumentException throw when no this field
-     * @see #tryUpdateTime()
-     */
+    /// @throws IllegalArgumentException throw when no this field
+/// @see #tryUpdateTime()
     FieldMeta<T> updateTime();
 
-    /**
-     * @throws IllegalArgumentException throw when no this field
-     * @see #tryVersion()
-     */
+    /// @throws IllegalArgumentException throw when no this field
+/// @see #tryVersion()
     FieldMeta<T> version();
 
-    /**
-     * @throws IllegalArgumentException throw when no this field
-     * @see #tryVisible()
-     */
+    /// @throws IllegalArgumentException throw when no this field
+/// @see #tryVisible()
     FieldMeta<T> visible();
 
-    /**
-     * @see #updateTime()
-     */
+    /// @see #updateTime()
     @Nullable
     FieldMeta<T> tryUpdateTime();
 
-    /**
-     * @see #version() v
-     */
+    /// @see #version() v
     @Nullable
     FieldMeta<T> tryVersion();
 
-    /**
-     * @see #visible()
-     */
+    /// @see #visible()
     @Nullable
     FieldMeta<T> tryVisible();
 

@@ -23,44 +23,35 @@ import io.army.session.FactoryBuilder;
 import java.util.function.Function;
 
 
-/**
- * <p>This interface representing routing DataSource for Read/Write Splitting.
- *
- * @since 0.6.0
- */
+/// This interface representing routing DataSource for Read/Write Splitting.
+/// @since 0.6.0
 public interface ReadWriteSplittingDataSource {
 
-    /**
-     * <p>Select one read write DataSource
-     * <p>Above options is passed by application developer with following methods :
-     * <ul>
-     *     <li>{@link io.army.session.SessionFactory.SessionBuilderSpec#dataSourceOption(Option, Object)} </li>
-     *     <li>{@link FactoryBuilder#dataSourceOption(Option, Object)}</li>
-     * </ul>
-     *
-     * @param func option function, default {@link Option#EMPTY_FUNC}
-     * @return a DataSource that can support read/write
-     */
+/// Select one read write DataSource
+/// Above options is passed by application developer with following methods :
+/// 
+/// - {@link io.army.session.SessionFactory.SessionBuilderSpec#dataSourceOption(Option, Object)} 
+/// - {@link FactoryBuilder#dataSourceOption(Option, Object)}
+/// 
+/// @param func option function, default {@link Option#EMPTY_FUNC}
+/// @return a DataSource that can support read/write
     Object readWriteDataSource(final Function<Option<?>, ?> func);
 
 
-    /**
-     * <p>Select one readonly DataSource
-     * <p>The implementation of this method perhaps support some of following :
-     * <ul>
-     *     <li>{@link Option#TIMEOUT_MILLIS} : transaction timeout</li>
-     *     <li>{@link Option#LOCK_TIMEOUT_MILLIS : max lock time}</li>
-     * </ul>
-     * above options can help application to select optimal DataSource.
-     * <p>Above options is passed by application developer with following methods :
-     * <ul>
-     *     <li>{@link io.army.session.SessionFactory.SessionBuilderSpec#dataSourceOption(Option, Object)} </li>
-     *     <li>{@link FactoryBuilder#dataSourceOption(Option, Object)}</li>
-     * </ul>l
-     *
-     * @param func option function, default {@link Option#EMPTY_FUNC}
-     * @return a readonly DataSource
-     */
+/// Select one readonly DataSource
+/// The implementation of this method perhaps support some of following :
+/// 
+/// - {@link Option#TIMEOUT_MILLIS} : transaction timeout
+/// - {@link Option#LOCK_TIMEOUT_MILLIS : max lock time}
+/// 
+/// above options can help application to select optimal DataSource.
+/// Above options is passed by application developer with following methods :
+/// 
+/// - {@link io.army.session.SessionFactory.SessionBuilderSpec#dataSourceOption(Option, Object)} 
+/// - {@link FactoryBuilder#dataSourceOption(Option, Object)}
+/// l
+/// @param func option function, default {@link Option#EMPTY_FUNC}
+/// @return a readonly DataSource
     Object readOnlyDataSource(final Function<Option<?>, ?> func);
 
 

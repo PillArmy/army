@@ -22,18 +22,15 @@ import io.army.criteria.Statement;
 import io.army.criteria.Values;
 import io.army.criteria.impl.MySQLs;
 
-/**
- * <p>This interface representing MySQL Values statement,this interface is base interface of below:
- * <ul>
- *     <li>MySQL {@link  io.army.criteria.Values}</li>
- *     <li>MySQL {@link io.army.criteria.SubValues}</li>
- * </ul>
- *
- * @see MySQLs#valuesStmt()
- * @see MySQLs#subValues()
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/values.html">VALUES Statement</a>
- * @since 0.6.0
- */
+/// This interface representing MySQL Values statement,this interface is base interface of below:
+/// 
+/// - MySQL {@link  io.army.criteria.Values}
+/// - MySQL {@link io.army.criteria.SubValues}
+/// 
+/// @see MySQLs#valuesStmt()
+/// @see MySQLs#subValues()
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/values.html">VALUES Statement</a>
+/// @since 0.6.0
 public interface MySQLValues extends MySQLStatement, RowSet {
 
 
@@ -102,9 +99,7 @@ public interface MySQLValues extends MySQLStatement, RowSet {
     }
 
 
-    /**
-     * <p>VALUES statement don't support WITH clause.
-     */
+    /// VALUES statement don't support WITH clause.
     interface _SelectComplexCommandSpec<I extends Item> extends MySQLQuery._MySQLSelectClause<I>,
             _DynamicParensRowSetClause<_ValueWithComplexSpec<_UnionOrderBySpec<I>>, _UnionOrderBySpec<I>> {
 

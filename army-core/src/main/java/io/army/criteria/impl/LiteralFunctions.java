@@ -199,10 +199,8 @@ abstract class LiteralFunctions {
 
         private final Object arg;
 
-        /**
-         * @see #oneArgFunc(String, Object)
-         * @see #myOneArgFunc(String, Object)
-         */
+        /// @see #oneArgFunc(String, Object)
+/// @see #myOneArgFunc(String, Object)
         private OneArgFunc(String name, boolean buildIn, @Nullable Object arg) {
             super(name, buildIn);
             this.arg = arg;
@@ -484,16 +482,12 @@ abstract class LiteralFunctions {
     } // MultiArgPredicate
 
 
-    /**
-     * only accept {@link Expression} not {@link RowExpression} ,for example : MySQL
-     */
+    /// only accept {@link Expression} not {@link RowExpression} ,for example : MySQL
     private static final class JsonMapFunc extends OperationExpression.SqlFunctionExpression {
 
         private final Map<String, ?> map;
 
-        /**
-         * @see #jsonMapFunc(String, Map)
-         */
+        /// @see #jsonMapFunc(String, Map)
         private JsonMapFunc(String name, Map<String, ?> map) {
             super(name);
             this.map = Collections.unmodifiableMap(_Collections.hashMap(map));
@@ -923,9 +917,7 @@ abstract class LiteralFunctions {
     private static final class NoParensFunctionExpression extends OperationExpression.SqlFunctionExpression
             implements FunctionUtils.NoParensFunction {
 
-        /**
-         * @see #noParensFunc(String)
-         */
+        /// @see #noParensFunc(String)
         private NoParensFunctionExpression(String name) {
             super(name, true); //no parens function must be build-in,currently
         }
@@ -974,9 +966,7 @@ abstract class LiteralFunctions {
     } // StandardCastFunc
 
 
-    /**
-     * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/cast-functions.html#function_cast">CAST(expr AS type [ARRAY])</a>
-     */
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/cast-functions.html#function_cast">CAST(expr AS type [ARRAY])</a>
     private static String castFuncAppendMySQLDataType(final DataType dataTyp, final ServerMeta meta) {
         if (!(dataTyp instanceof MySQLType)) {
             throw new CriteriaException("");

@@ -21,17 +21,14 @@ import io.army.executor.DataAccessException;
 import io.army.sqltype.DataType;
 
 
-/**
- * <p>Package class
- * <p>This class is base class of following :
- * <ul>
- *     <li>{@link TinyTextType}</li>
- *     <li>{@link TextType}</li>
- *     <li>{@link MediumTextType}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// Package class
+/// This class is base class of following :
+/// 
+/// - {@link TinyTextType}
+/// - {@link TextType}
+/// - {@link MediumTextType}
+/// 
+/// @since 0.6.0
 abstract class ArmyTextType extends _ArmyBuildInType implements MappingType.SqlText {
 
 

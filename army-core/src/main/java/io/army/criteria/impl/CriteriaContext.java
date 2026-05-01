@@ -57,20 +57,15 @@ interface CriteriaContext {
 
     List<_Cte> getCteList();
 
-    /**
-     * <p>
-     * This method is invoked by sub-dml,now WITH clause have not ended.
-     * *
-     *
-     * @return unmodified list
-     */
+    /// 
+/// This method is invoked by sub-dml,now WITH clause have not ended.
+/// *
+/// @return unmodified list
     List<_Cte> accessCteList();
 
     boolean isWithRecursive();
 
-    /**
-     * @return a unmodified list
-     */
+    /// @return a unmodified list
     List<_Cte> endWithClause(boolean recursive, boolean required);
 
     _Cte refCte(String cteName);
@@ -80,14 +75,11 @@ interface CriteriaContext {
     CriteriaContext onAddSelectItem(SelectItem selectItem);
 
 
-    /**
-     * <p>
-     * This method flat {@link #selectItemList()} as list of {@link  Selection}.
-     * *
-     *
-     * @return a unmodified list
-     * @throws CriteriaException throw when context not end.
-     */
+    /// 
+/// This method flat {@link #selectItemList()} as list of {@link  Selection}.
+/// *
+/// @return a unmodified list
+/// @throws CriteriaException throw when context not end.
     List<? extends Selection> flatSelectItems();
 
     @Nullable
@@ -100,33 +92,23 @@ interface CriteriaContext {
     void registerDeferCommandClause(Runnable deferCommandClause);
 
 
-    /**
-     * <p>This method is invoked by {@link SQLs#field(String, FieldMeta)}
-     */
+    /// This method is invoked by {@link SQLs#field(String, FieldMeta)}
     <T> QualifiedField<T> field(String tableAlia, FieldMeta<T> field);
 
-    /**
-     * @see SQLs#refField(String, String)
-     */
+    /// @see SQLs#refField(String, String)
     DerivedField refField(String derivedAlias, String fieldName);
 
     Expression refSelection(String selectionLabel);
 
-    /**
-     * @param selectionOrdinal based 1 .
-     */
+    /// @param selectionOrdinal based 1 .
     Expression refSelection(int selectionOrdinal);
 
     void onSetInnerContext(CriteriaContext innerContext);
 
-    /**
-     * @throws CriteriaException when var exists.
-     */
+    /// @throws CriteriaException when var exists.
     void registerVar(VarExpression var) throws CriteriaException;
 
-    /**
-     * @throws CriteriaException when var not exists.
-     */
+    /// @throws CriteriaException when var not exists.
     VarExpression refVar(String name) throws CriteriaException;
 
     void bufferNestedDerived(_AliasDerivedBlock block);
@@ -140,10 +122,8 @@ interface CriteriaContext {
 
     void onAddWindow(String windowName);
 
-    /**
-     * @param windowName non-null and non-empty
-     * @throws CriteriaException throw when windowName is null or empty.
-     */
+    /// @param windowName non-null and non-empty
+/// @throws CriteriaException throw when windowName is null or empty.
     void onRefWindow(String windowName);
 
     @Nullable
@@ -154,51 +134,34 @@ interface CriteriaContext {
 
     _SelectionMap getNonNullDerived(String derivedAlias);
 
-    /**
-     * <p>
-     * should be invoked before {@link ContextStack#pop(CriteriaContext)}
-     */
+    /// 
+/// should be invoked before {@link ContextStack#pop(CriteriaContext)}
     List<_TabularBlock> endContext();
 
-    /**
-     * <p>Invoking when use parens clause before COMMAND (for example : SELECT , VALUES)
-     */
+    /// Invoking when use parens clause before COMMAND (for example : SELECT , VALUES)
     void endContextBeforeCommand();
 
-    /**
-     * @return a unmodified list
-     * @throws CriteriaException throw when context not end
-     */
+    /// @return a unmodified list
+/// @throws CriteriaException throw when context not end
     List<? extends _SelectItem> selectItemList();
 
-    /**
-     * <p>Invoking when the row( from 1) of VALUES statement start.
-     *
-     * @see #registerValuesSelectionList(List)
-     */
+    /// Invoking when the row( from 1) of VALUES statement start.
+/// @see #registerValuesSelectionList(List)
     void onValuesRowStart();
 
 
-    /**
-     * <p>Invoking when the row( from 2) of VALUES statement end.
-     *
-     * @see #registerValuesSelectionList(List)
-     */
+    /// Invoking when the row( from 2) of VALUES statement end.
+/// @see #registerValuesSelectionList(List)
     void onValuesRowEnd();
 
-    /**
-     * <p>Invoking when the first row of VALUES statement end.
-     * <p>The implementation of this method will invoke {@link #onValuesRowEnd()}
-     *
-     * @param selectionList a unmodified and non-empty list
-     * @see #onValuesRowEnd()
-     */
+    /// Invoking when the first row of VALUES statement end.
+/// The implementation of this method will invoke {@link #onValuesRowEnd()}
+/// @param selectionList a unmodified and non-empty list
+/// @see #onValuesRowEnd()
     void registerValuesSelectionList(List<? extends _Selection> selectionList);
 
 
-    /**
-     * @param tableAlias table alias not insert row alias.
-     */
+    /// @param tableAlias table alias not insert row alias.
     void singleDmlTable(TableMeta<?> table, String tableAlias);
 
 

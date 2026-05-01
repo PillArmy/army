@@ -21,13 +21,10 @@ import io.army.executor.ExecutorFactory;
 import io.army.lang.Nullable;
 import java.io.Closeable;
 
-/**
- * <p>This interface representing blocking {@link SessionFactory}.
- * <p>The instance of this interface is created by {@link SyncFactoryBuilder}
- * <p>This interface's underlying api is {@link ExecutorFactory}.
- *
- * @since 0.6.0
- */
+/// This interface representing blocking {@link SessionFactory}.
+/// The instance of this interface is created by {@link SyncFactoryBuilder}
+/// This interface's underlying api is {@link ExecutorFactory}.
+/// @since 0.6.0
 public sealed interface SyncSessionFactory extends PackageSessionFactory, Closeable permits ArmySyncSessionFactory {
 
 
@@ -44,15 +41,12 @@ public sealed interface SyncSessionFactory extends PackageSessionFactory, Closea
     RmSessionBuilder rmBuilder();
 
 
-    /**
-     * <p>release all resources (caches,connection pools, etc).
-     * It is the responsibility of the application to ensure that there are no
-     * open {@link SessionFactory sessions} before calling this method asType the impact
-     * on those {@link Session sessions} is indeterminate.
-     * No-ops if already {@link #isClosed closed}.
-     *
-     * @throws SessionFactoryException Indicates an issue closing the factory.
-     */
+    /// release all resources (caches,connection pools, etc).
+/// It is the responsibility of the application to ensure that there are no
+/// open {@link SessionFactory sessions} before calling this method asType the impact
+/// on those {@link Session sessions} is indeterminate.
+/// No-ops if already {@link #isClosed closed}.
+/// @throws SessionFactoryException Indicates an issue closing the factory.
     @Override
     void close() throws SessionFactoryException;
 

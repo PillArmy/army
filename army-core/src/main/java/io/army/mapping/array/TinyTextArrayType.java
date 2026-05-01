@@ -45,9 +45,7 @@ public class TinyTextArrayType extends ArmyTextArrayType {
 
     public static final TinyTextArrayType LINEAR = new TinyTextArrayType(String[].class);
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private TinyTextArrayType(Class<?> javaType) {
         super(javaType);
     }

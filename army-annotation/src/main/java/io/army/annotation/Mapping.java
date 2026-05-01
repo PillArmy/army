@@ -23,75 +23,60 @@ import java.lang.annotation.*;
 @Documented
 public @interface Mapping {
 
-    /**
-     * <p>(Optional) ,You must choose one of the two methods (this method and {@link #type()})
-     * <p> This method priority is lower than {@link #type()}.
-     *
-     * @return the qualified class name of the implementation of {@code io.army.mapping.MappingType}.
-     */
+    /// (Optional) ,You must choose one of the two methods (this method and {@link #type()})
+///  This method priority is lower than {@link #type()}.
+/// @return the qualified class name of the implementation of {@code io.army.mapping.MappingType}.
     String value() default "";
 
-    /**
-     * <p>(Optional) ,You must choose one of the two methods (this method and {@link #value()})
-     * <p> This method priority is higher than {@link #value()}.
-     */
+    /// (Optional) ,You must choose one of the two methods (this method and {@link #value()})
+///  This method priority is higher than {@link #value()}.
     Class<?> type() default void.class;
 
-    /**
-     * <ul>
-     *     <li>'enum' : enum name ,for example : postgre enum</li>
-     * </ul>
-     */
+/// 
+/// - 'enum' : enum name ,for example : postgre enum
+/// 
     String[] params() default {};
 
     String func() default "";
 
-    /**
-     * <p>
-     * If {@link #value()} is the class name
-     * of the implementation of {@code io.army.mapping.TextMappingType} and representing binary then required,
-     * else ignore.
-     * * <p>
-     * example:
-     * <pre>
-     *         <br/><code>
-     *              &#64;Mapping("io.army.mapping.mysql.MySQLLongTextType",charset="UTF-8")
-     *              &#64;Column(comment="user article")
-     *              private java.nio.file.Path article;
-     *
-     *              &#64;Mapping("io.army.mapping.mysql.MySQLLongTextType",charset="UTF-8")
-     *              &#64;Column(comment="user info")
-     *              private InputStream userInfo;
-     *         </code>
-     *     </pre>
-     * *
-     *
-     * @return the name of {@link java.nio.charset.Charset}.
-     */
+/// 
+/// If {@link #value()} is the class name
+/// of the implementation of {@code io.army.mapping.TextMappingType} and representing binary then required,
+/// else ignore.
+/// * 
+/// example:
+/// <pre>
+/// <code>
+/// &#64;Mapping("io.army.mapping.mysql.MySQLLongTextType",charset="UTF-8")
+/// &#64;Column(comment="user article")
+/// private java.nio.file.Path article;
+/// &#64;Mapping("io.army.mapping.mysql.MySQLLongTextType",charset="UTF-8")
+/// &#64;Column(comment="user info")
+/// private InputStream userInfo;
+/// </code>
+/// </pre>
+/// *
+/// @return the name of {@link java.nio.charset.Charset}.
     String charset() default "";
 
-    /**
-     * <p>
-     * If {@link #value()} is the class name
-     * of the implementation of {@code io.army.mapping.ElementMappingType} then required,
-     * else ignore.
-     * * <p>
-     * example:
-     * <pre>
-     *         <br/><code>
-     *              &#64;Mapping("io.army.mapping.mysql.MySQLSetType",elements=DayOfWeek.class)
-     *              &#64;Column(comment="update day of week")
-     *              private java.util.Set&lt;DayOfWeek> dayOfWeek;
-     *
-     *              &#64;Mapping("io.army.mapping.mysql.MySQLLongBlob",elements=byte[].class)
-     *              &#64;Column(comment="user image")
-     *              private reactor.core.publisher.Flux&lt;byte[]> image;
-     *         </code>
-     *     </pre>
-     * *
-     *
-     * @return the name of {@link java.nio.charset.Charset}.
-     */
+/// 
+/// If {@link #value()} is the class name
+/// of the implementation of {@code io.army.mapping.ElementMappingType} then required,
+/// else ignore.
+/// * 
+/// example:
+/// <pre>
+/// <code>
+/// &#64;Mapping("io.army.mapping.mysql.MySQLSetType",elements=DayOfWeek.class)
+/// &#64;Column(comment="update day of week")
+/// private java.util.Set<DayOfWeek> dayOfWeek;
+/// &#64;Mapping("io.army.mapping.mysql.MySQLLongBlob",elements=byte[].class)
+/// &#64;Column(comment="user image")
+/// private reactor.core.publisher.Flux<byte[]> image;
+/// </code>
+/// </pre>
+/// *
+/// @return the name of {@link java.nio.charset.Charset}.
     Class<?>[] elements() default {};
 
 

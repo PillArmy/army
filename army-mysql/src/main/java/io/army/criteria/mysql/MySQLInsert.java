@@ -28,15 +28,12 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * <p>This interface representing MySQL INSERT statement.
- * <p>More document see {@link MySQLs#singleInsert()}.
- *
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html">MySQL 8.0 Optimizer Hints</a>
- * @see <a href="https://dev.mysql.com/doc/refman/5.7/en/optimizer-hints.html">MySQL 5.7 Optimizer Hints</a>
- * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/insert.html">INSERT Statement</a>
- * @since 0.6.0
- */
+/// This interface representing MySQL INSERT statement.
+/// More document see {@link MySQLs#singleInsert()}.
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html">MySQL 8.0 Optimizer Hints</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/5.7/en/optimizer-hints.html">MySQL 5.7 Optimizer Hints</a>
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/insert.html">INSERT Statement</a>
+/// @since 0.6.0
 public interface MySQLInsert extends MySQLStatement {
 
 
@@ -86,9 +83,7 @@ public interface MySQLInsert extends MySQLStatement {
 
     }
 
-    /**
-     * @see MySQLs#values(FieldMeta)
-     */
+    /// @see MySQLs#values(FieldMeta)
     interface _StaticConflictUpdateClause<I extends Item, T> {
 
         _StaticConflictUpdateCommaClause<I, T> update(FieldMeta<T> field, Expression value);
@@ -128,9 +123,7 @@ public interface MySQLInsert extends MySQLStatement {
     }
 
 
-    /**
-     * @see MySQLs#values(FieldMeta)
-     */
+    /// @see MySQLs#values(FieldMeta)
     interface _OnDuplicateKeyUpdateSpec<I extends Item, T> extends _DmlInsertClause<I> {
         _StaticConflictUpdateClause<I, T> onDuplicateKey();
 
@@ -251,10 +244,8 @@ public interface MySQLInsert extends MySQLStatement {
     }
 
 
-    /**
-     * <p>
-     * This interface representing INTO clause that support only {@link SingleTableMeta}.
-     */
+    /// 
+/// This interface representing INTO clause that support only {@link SingleTableMeta}.
     interface _PrimarySingleIntoClause<I extends Item> {
 
         <T> _PartitionSpec<I, T> into(SingleTableMeta<T> table);
@@ -262,10 +253,8 @@ public interface MySQLInsert extends MySQLStatement {
     }
 
 
-    /**
-     * <p>
-     * This interface representing INSERT INTO spec that support only {@link SingleTableMeta}.
-     */
+    /// 
+/// This interface representing INSERT INTO spec that support only {@link SingleTableMeta}.
     interface _PrimarySingleInsertIntoSpec<I extends Item> extends _InsertClause<_PrimarySingleIntoClause<I>>, Item {
 
         <T> _PartitionSpec<I, T> insertInto(SingleTableMeta<T> table);
@@ -273,10 +262,8 @@ public interface MySQLInsert extends MySQLStatement {
     }
 
 
-    /**
-     * <p>
-     * This interface representing {@link LiteralMode} spec that support only {@link SingleTableMeta}.
-     */
+    /// 
+/// This interface representing {@link LiteralMode} spec that support only {@link SingleTableMeta}.
     interface _PrimarySinglePreferLiteralSpec<I extends Item>
             extends InsertStatement._PreferLiteralClause<_PrimarySingleInsertIntoSpec<I>>,
             _PrimarySingleInsertIntoSpec<I> {
@@ -284,20 +271,16 @@ public interface MySQLInsert extends MySQLStatement {
     }
 
 
-    /**
-     * <p>
-     * This interface representing {@link NullMode} spec that support only {@link SingleTableMeta}.
-     */
+    /// 
+/// This interface representing {@link NullMode} spec that support only {@link SingleTableMeta}.
     interface _PrimarySingleNullOptionSpec<I extends Item>
             extends InsertStatement._NullOptionClause<_PrimarySinglePreferLiteralSpec<I>>,
             _PrimarySinglePreferLiteralSpec<I> {
 
     }
 
-    /**
-     * <p>
-     * This interface representing migration spec that support only {@link SingleTableMeta}.
-     */
+    /// 
+/// This interface representing migration spec that support only {@link SingleTableMeta}.
     interface _PrimarySingleOptionSpec<I extends Item>
             extends InsertStatement._MigrationOptionClause<_PrimarySingleNullOptionSpec<I>>,
             InsertStatement._IgnoreReturnIdsOptionClause<_PrimarySingleNullOptionSpec<I>>,

@@ -21,12 +21,9 @@ import io.army.criteria.ValuesQuery;
 import java.util.List;
 
 
-/**
- * <p>
- * This interface is inner interface of {@link ValuesQuery}.
- *
- * @since 0.6.0
- */
+/// 
+/// This interface is inner interface of {@link ValuesQuery}.
+/// @since 0.6.0
 public interface _ValuesQuery extends ValuesQuery, _PartRowSet, _RowSet._SelectItemListSpec {
 
     @Override

@@ -27,28 +27,20 @@ import io.army.meta.ServerMeta;
 import java.time.ZoneOffset;
 
 
-/**
- * <p>The instance of this interface is created by the implementation of {@link io.army.dialect.DialectParser}.
- */
+/// The instance of this interface is created by the implementation of {@link io.army.dialect.DialectParser}.
 public interface MappingEnv {
 
     boolean isReactive();
 
-    /**
-     * @return always same instance
-     */
+    /// @return always same instance
     ServerMeta serverMeta();
 
     ZoneOffset zoneOffset();
 
-    /**
-     * @throws IllegalStateException throw when don't support  {@link JsonCodec}.
-     */
+    /// @throws IllegalStateException throw when don't support  {@link JsonCodec}.
     JsonCodec jsonCodec();
 
-    /**
-     * @throws IllegalStateException throw when don't support  {@link XmlCodec}.
-     */
+    /// @throws IllegalStateException throw when don't support  {@link XmlCodec}.
     XmlCodec xmlCodec();
 
     SafeLiteralFunc safeLiteralFunc();

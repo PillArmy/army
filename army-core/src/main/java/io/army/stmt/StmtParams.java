@@ -30,14 +30,10 @@ public interface StmtParams {
 
     StmtType stmtType();
 
-    /**
-     * @return a unmodified list
-     */
+    /// @return a unmodified list
     List<SQLParam> paramList();
 
-    /**
-     * @return a unmodified list
-     */
+    /// @return a unmodified list
     List<? extends Selection> selectionList();
 
 

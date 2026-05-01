@@ -47,9 +47,7 @@ public final class SQLiteDynamicType extends _ArmyBuildInType {
     public static final SQLiteDynamicType INSTANCE = new SQLiteDynamicType();
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private SQLiteDynamicType() {
     }
 

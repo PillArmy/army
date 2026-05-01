@@ -22,9 +22,7 @@ import io.army.meta.TableMeta;
 
 import java.util.List;
 
-/**
- * @see SchemaResult
- */
+/// @see SchemaResult
 public interface TableResult {
 
     TableMeta<?> table();

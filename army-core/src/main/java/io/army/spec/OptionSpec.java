@@ -22,9 +22,7 @@ import io.army.util._Exceptions;
 import io.army.lang.Nullable;
 
 
-/**
- * @see IterableOptionSpec
- */
+/// @see IterableOptionSpec
 public interface OptionSpec {
 
     @Nullable

@@ -21,10 +21,8 @@ import io.army.sqltype.DataType;
 
 import java.time.*;
 
-/**
- * <p>This class is mapping class of {@link ZoneId}.
- * @since 0.6.0
- */
+/// This class is mapping class of {@link ZoneId}.
+/// @since 0.6.0
 public final class ZoneIdType extends _ArmyBuildInType implements MappingType.SqlString {
 
     public static ZoneIdType from(final Class<?> javaType) {
@@ -36,9 +34,7 @@ public final class ZoneIdType extends _ArmyBuildInType implements MappingType.Sq
 
     public static final ZoneIdType INSTANCE = new ZoneIdType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ZoneIdType() {
     }
 

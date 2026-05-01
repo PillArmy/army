@@ -41,9 +41,7 @@ public interface ServerMeta {
 
     int subMinor();
 
-    /**
-     * from {@link io.army.env.ArmyKey#DIALECT}
-     */
+    /// from {@link io.army.env.ArmyKey#DIALECT}
     Dialect usedDialect();
 
 
@@ -51,9 +49,7 @@ public interface ServerMeta {
 
     boolean isSupportSavePoints();
 
-    /**
-     * @return spi name ,for example java.sql or io.jdbd
-     */
+    /// @return spi name ,for example java.sql or io.jdbd
     String driverSpi();
 
     static Builder builder() {

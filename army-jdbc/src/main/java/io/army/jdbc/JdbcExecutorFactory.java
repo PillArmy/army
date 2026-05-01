@@ -38,10 +38,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.function.Function;
 
-/**
- * @see JdbcExecutorFactoryProvider
- * @since 0.6.0
- */
+/// @see JdbcExecutorFactoryProvider
+/// @since 0.6.0
 final class JdbcExecutorFactory extends ExecutorFactorySupport implements SyncExecutorFactory {
 
     static JdbcExecutorFactory create(JdbcExecutorFactoryProvider provider, ExecutorEnv executorEnv) {
@@ -73,9 +71,7 @@ final class JdbcExecutorFactory extends ExecutorFactorySupport implements SyncEx
 
     final boolean useMultiStmt;
 
-    /**
-     * @see ArmyKey#TRUNCATED_TIME_TYPE
-     */
+    /// @see ArmyKey#TRUNCATED_TIME_TYPE
     final boolean truncatedTimeType;
 
     final boolean sessionIdentifierEnable;
@@ -95,9 +91,7 @@ final class JdbcExecutorFactory extends ExecutorFactorySupport implements SyncEx
 
     private boolean closed;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private JdbcExecutorFactory(JdbcExecutorFactoryProvider provider, ExecutorEnv executorEnv) {
         super(executorEnv.environment());
         this.executorEnv = executorEnv;

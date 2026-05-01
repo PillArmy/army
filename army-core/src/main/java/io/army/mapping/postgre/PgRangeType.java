@@ -28,16 +28,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.Function;
 
-/**
- * <p>
- * This class is base class of below:
- *     <ul>
- *         <li>{@link PgSingleRangeType}</li>
- *         <li>{@link PgMultiRangeType}</li>
- *     </ul>
-*
- * @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-BUILTIN">Built-in Range and Multirange Types</a>
- */
+/// 
+/// This class is base class of below:
+/// 
+/// - {@link PgSingleRangeType}
+/// - {@link PgMultiRangeType}
+/// 
+/// @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-BUILTIN">Built-in Range and Multirange Types</a>
 public abstract class PgRangeType extends _ArmyPgRangeType {
 
     public static final String INFINITY = "infinity";
@@ -88,14 +85,12 @@ public abstract class PgRangeType extends _ArmyPgRangeType {
         return new MockRangeFunction<>(javaType, elementType);
     }
 
-    /**
-     * @param function <ul>
-     *                 <li>argument of function possibly is notion 'infinity',see {@link #INFINITY}</li>
-     *                 <li>function must return null when argument is notion 'infinity' and support it,see {@link #INFINITY}</li>
-     *                 <li>function must throw {@link RuntimeException} when argument is notion 'infinity' and don't support it,see {@link #INFINITY}</li>
-     *                 </ul>
-     * @see <a href="https://www.postgresql.org/docs/current/rangetypes.html">Range Types</a>
-     */
+/// @param function 
+/// - argument of function possibly is notion 'infinity',see {@link #INFINITY}
+/// - function must return null when argument is notion 'infinity' and support it,see {@link #INFINITY}
+/// - function must throw {@link RuntimeException} when argument is notion 'infinity' and don't support it,see {@link #INFINITY}
+/// 
+/// @see <a href="https://www.postgresql.org/docs/current/rangetypes.html">Range Types</a>
     @SuppressWarnings("unchecked")
     public static <T, R> R parseNonEmptyRange(final String text, final int offset, final int end,
                                               final RangeFunction<T, R> rangeFunc, final Function<String, T> function)
@@ -220,10 +215,8 @@ public abstract class PgRangeType extends _ArmyPgRangeType {
         return rangeFunc.apply(includeLowerBound, (T) lowerBound, (T) upperBound, includeUpperBound);
     }
 
-    /**
-     * @param methodName public static factory method name,for example : com.my.Factory#create
-     * @throws io.army.meta.MetaException throw when factory method name error.
-     */
+    /// @param methodName public static factory method name,for example : com.my.Factory#create
+/// @throws io.army.meta.MetaException throw when factory method name error.
     @SuppressWarnings("unchecked")
     public static <T, R> RangeFunction<T, R> createRangeFunction(final Class<R> javaType, final Class<T> elementType,
                                                                  final String methodName) throws MetaException {
@@ -299,9 +292,7 @@ public abstract class PgRangeType extends _ArmyPgRangeType {
 
     public interface RangeType {
 
-        /**
-         * @return the {@link MappingType} of subtype of range.
-         */
+        /// @return the {@link MappingType} of subtype of range.
         MappingType subtype();
     }
 
@@ -320,10 +311,8 @@ public abstract class PgRangeType extends _ArmyPgRangeType {
 
     public interface UserDefinedRangeType<T> extends RangeType {
 
-        /**
-         * @throws UnsupportedOperationException when {@link MappingType#javaType()} is {@link PostgreRange} type.
-         * @see #createMockFunction(Class, Class)
-         */
+        /// @throws UnsupportedOperationException when {@link MappingType#javaType()} is {@link PostgreRange} type.
+/// @see #createMockFunction(Class, Class)
         MockRangeFunction<T> mockFunction();
 
 
@@ -342,9 +331,7 @@ public abstract class PgRangeType extends _ArmyPgRangeType {
 
         final Function<Object, Boolean> isIncludeUpperBound;
 
-        /**
-         * private constructor
-         */
+        /// private constructor
         private MockRangeFunction(Class<?> javaType, Class<T> elementType) {
             this.isEmpty = rangeBeanFunc(javaType, "isEmpty", Boolean.TYPE);
 

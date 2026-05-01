@@ -17,16 +17,13 @@
 package io.army.criteria;
 
 
-/**
- * <p>
- * This interface representing row value expression.
- * This interface is only base interface of following : <ul>
- * <li>{@link RowLiteralExpression}</li>
- * <li>{@link RowParamExpression}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// This interface representing row value expression.
+/// This interface is only base interface of following : 
+/// - {@link RowLiteralExpression}
+/// - {@link RowParamExpression}
+/// 
+/// @since 0.6.0
 public interface RowValueExpression extends RowExpression, SqlValueParam.MultiValue {
 
 

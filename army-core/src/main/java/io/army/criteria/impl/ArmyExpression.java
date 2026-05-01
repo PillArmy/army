@@ -19,10 +19,8 @@ package io.army.criteria.impl;
 
 import io.army.criteria.impl.inner._Expression;
 
-/**
- * <p>
- * Package interface
-*/
+/// 
+/// Package interface
 interface ArmyExpression extends _Expression, ArmySortItem, ArmyGroupByItem {
 
 

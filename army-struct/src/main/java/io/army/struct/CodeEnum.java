@@ -21,33 +21,24 @@ import io.army.lang.Nullable;
 
 import java.util.Map;
 
-/**
- * This interface is base interface of the enum that mapping to {@code io.army.mapping.CodeEnumType}.
- * <p>
- * Army will persist {@link #code()} to database table column not {@link Enum#ordinal()}.
- * If you want to persist {@link Enum#name()},then you should use {@code io.army.mapping.NameEnumType},
- * but never persist {@link Enum#ordinal()}.
- *
- * @see TextEnum
- * @since 0.6.0
- */
+/// This interface is base interface of the enum that mapping to {@code io.army.mapping.CodeEnumType}.
+/// 
+/// Army will persist {@link #code()} to database table column not {@link Enum#ordinal()}.
+/// If you want to persist {@link Enum#name()},then you should use {@code io.army.mapping.NameEnumType},
+/// but never persist {@link Enum#ordinal()}.
+/// @see TextEnum
+/// @since 0.6.0
 public interface CodeEnum {
 
 
-    /**
-     * @see Enum#name()
-     */
+    /// @see Enum#name()
     String name();
 
-    /**
-     * @return code that can representing this enum instance
-     */
+    /// @return code that can representing this enum instance
     int code();
 
 
-    /**
-     * @return enum alias
-     */
+    /// @return enum alias
     default String alias() {
         return name();
     }
@@ -67,13 +58,9 @@ public interface CodeEnum {
         return map.get(code);
     }
 
-    /**
-     * <p>
-     * see {@code io.army.mapping.CodeEnumType#getInstanceMap(java.lang.Class)}
-     *
-     *
-     * @return instance map ; unmodified map
-     */
+    /// 
+/// see {@code io.army.mapping.CodeEnumType#getInstanceMap(java.lang.Class)}
+/// @return instance map ; unmodified map
     static <T extends Enum<T> & CodeEnum> Map<Integer, T> getInstanceMap(Class<T> clazz) throws IllegalArgumentException {
         return EnumHelper.getCodeMap(clazz);
     }

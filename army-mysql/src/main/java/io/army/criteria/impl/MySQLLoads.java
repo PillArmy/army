@@ -37,9 +37,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 
-/**
- * @see MySQLs#loadDataStmt()
- */
+/// @see MySQLs#loadDataStmt()
 abstract class MySQLLoads {
 
     private MySQLLoads() {

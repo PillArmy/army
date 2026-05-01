@@ -59,9 +59,7 @@ public class MonthDayArrayType extends _ArmyNoInjectionType implements MappingTy
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private MonthDayArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

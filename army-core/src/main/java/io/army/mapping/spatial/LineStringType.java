@@ -35,9 +35,7 @@ public final class LineStringType extends _ArmyBuildInType implements MappingTyp
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private LineStringType(Class<?> javaType) {
         this.javaType = javaType;
     }

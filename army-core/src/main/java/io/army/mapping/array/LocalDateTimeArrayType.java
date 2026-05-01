@@ -60,9 +60,7 @@ public class LocalDateTimeArrayType extends _ArmyNoInjectionType implements Mapp
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private LocalDateTimeArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

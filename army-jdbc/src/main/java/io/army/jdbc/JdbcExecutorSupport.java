@@ -49,11 +49,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-/**
- * <p>This class is base class of {@link JdbcExecutor}.
- *
- * @since 0.6.0
- */
+/// This class is base class of {@link JdbcExecutor}.
+/// @since 0.6.0
 abstract class JdbcExecutorSupport extends ExecutorSupport {
 
     static final String START_TRANSACTION_SPACE = "START TRANSACTION ";
@@ -799,9 +796,7 @@ abstract class JdbcExecutorSupport extends ExecutorSupport {
 
         private final int vendor;
 
-        /**
-         * @see JdbcExecutor#mapToArmyWarning(SQLWarning)
-         */
+        /// @see JdbcExecutor#mapToArmyWarning(SQLWarning)
         ArmyWarning(SQLWarning w) {
             final String m;
             m = w.getMessage();

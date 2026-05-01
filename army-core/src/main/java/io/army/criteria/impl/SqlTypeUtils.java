@@ -34,9 +34,7 @@ public abstract class SqlTypeUtils {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * @return a unmodified list
-     */
+    /// @return a unmodified list
     public static List<Selection> mapSelectionList(final SQLType[] sqlTypeArray,
                                                    final IntFunction<String> function) {
         final List<Selection> selectionList = new ArrayList<>(sqlTypeArray.length);

@@ -35,9 +35,7 @@ public final class MultiPolygonType extends _ArmyBuildInType implements MappingT
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private MultiPolygonType(Class<?> javaType) {
         this.javaType = javaType;
     }

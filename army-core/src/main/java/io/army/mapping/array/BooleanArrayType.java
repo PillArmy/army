@@ -62,24 +62,16 @@ public class BooleanArrayType extends _ArmyNoInjectionType implements MappingTyp
         return instance;
     }
 
-    /**
-     * unlimited dimension array of {@code boolean}
-     */
+    /// unlimited dimension array of {@code boolean}
     public static final BooleanArrayType PRIMITIVE_UNLIMITED = new BooleanArrayType(Object.class, boolean.class);
 
-    /**
-     * one dimension array of {@code  boolean}
-     */
+    /// one dimension array of {@code  boolean}
     public static final BooleanArrayType PRIMITIVE_LINEAR = new BooleanArrayType(boolean[].class, boolean.class);
 
-    /**
-     * one dimension array of {@link Boolean}
-     */
+    /// one dimension array of {@link Boolean}
     public static final BooleanArrayType LINEAR = new BooleanArrayType(Boolean[].class, Boolean.class);
 
-    /**
-     * unlimited dimension array of {@link Boolean}
-     */
+    /// unlimited dimension array of {@link Boolean}
     public static final BooleanArrayType UNLIMITED = new BooleanArrayType(Object.class, Boolean.class);
 
 
@@ -87,9 +79,7 @@ public class BooleanArrayType extends _ArmyNoInjectionType implements MappingTyp
 
     private final Class<?> underlyingJavaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private BooleanArrayType(Class<?> javaType, Class<?> underlyingJavaType) {
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;

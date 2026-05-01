@@ -19,14 +19,11 @@ package io.army.function;
 import io.army.criteria.*;
 import io.army.criteria.impl.SQLs;
 
-/**
- * <ul>
- *     <li>{@link SQLs#namedRowParam(TypeInfer, String, int)}</li>
- *     <li>other custom method</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// - {@link SQLs#namedRowParam(TypeInfer, String, int)}
+/// - other custom method
+/// 
+/// @since 0.6.0
 @FunctionalInterface
 public interface TeNamedParamsFunc<E extends TypeInfer> {
 

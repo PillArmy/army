@@ -54,9 +54,7 @@ public class SqlCharArrayType extends _ArmyBuildInType implements MappingType.Sq
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private SqlCharArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

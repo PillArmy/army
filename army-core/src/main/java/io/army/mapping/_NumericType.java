@@ -17,76 +17,62 @@
 package io.army.mapping;
 
 
-/**
- * <p>This class is base class class of below:
- *     <ul>
- *         <li>{@link BigDecimalType}</li>
- *         <li>{@link BigIntegerType}</li>
- *         <li>{@link ByteType}</li>
- *         <li>{@link DoubleType}</li>
- *         <li>{@link FloatType}</li>
- *         <li>{@link IntegerType}</li>
- *         <li>{@link LongType}</li>
- *         <li>{@link ShortType}</li>
- *         <li>{@link _UnsignedNumericType}</li>
- *     </ul>
-*/
+/// This class is base class class of below:
+/// 
+/// - {@link BigDecimalType}
+/// - {@link BigIntegerType}
+/// - {@link ByteType}
+/// - {@link DoubleType}
+/// - {@link FloatType}
+/// - {@link IntegerType}
+/// - {@link LongType}
+/// - {@link ShortType}
+/// - {@link _UnsignedNumericType}
+/// 
 public abstract class _NumericType extends _ArmyNoInjectionType {
 
 
 
-    /**
-     * <p>This class is base class class of below:
-     *     <ul>
-     *         <li>{@link ByteType}</li>
-     *         <li>{@link ShortType}</li>
-     *         <li>{@link IntegerType}</li>
-     *         <li>{@link LongType}</li>
-     *         <li>{@link BigIntegerType}</li>
-     *     </ul>
-     *
-     */
+/// This class is base class class of below:
+/// 
+/// - {@link ByteType}
+/// - {@link ShortType}
+/// - {@link IntegerType}
+/// - {@link LongType}
+/// - {@link BigIntegerType}
+/// 
     public static abstract class _IntegerType extends _NumericType implements SqlInteger {
 
     }
 
-    /**
-     * <p>This class is base class class of below:
-     *     <ul>
-     *         <li>{@link FloatType}</li>
-     *         <li>{@link DoubleType}</li>
-     *     </ul>
-     *
-     */
+/// This class is base class class of below:
+/// 
+/// - {@link FloatType}
+/// - {@link DoubleType}
+/// 
     public static abstract class _FloatNumericType extends _NumericType implements SqlFloat {
 
     }
 
 
-    /**
-     * <p>This class is base class class of below:
-     *     <ul>
-     *         <li>{@link UnsignedBigDecimalType}</li>
-     *         <li>{@link _UnsignedIntegerType}</li>
-     *     </ul>
-     *
-     */
+/// This class is base class class of below:
+/// 
+/// - {@link UnsignedBigDecimalType}
+/// - {@link _UnsignedIntegerType}
+/// 
     public static abstract class _UnsignedNumericType extends _NumericType implements SqlUnsignedNumber {
 
     }
 
-    /**
-     * <p>This class is base class class of below:
-     * <ul>
-     *
-     *     <li>{@link UnsignedTinyIntType}</li>
-     *     <li>{@link UnsignedSmallIntType}</li>
-     *     <li>{@link UnsignedMediumIntType}</li>
-     *     <li>{@link UnsignedSqlIntType}</li>
-     *     <li>{@link UnsignedBigintType}</li>
-     *     <li>{@link UnsignedBigIntegerType}</li>
-     * </ul>
-     */
+/// This class is base class class of below:
+/// 
+/// - {@link UnsignedTinyIntType}
+/// - {@link UnsignedSmallIntType}
+/// - {@link UnsignedMediumIntType}
+/// - {@link UnsignedSqlIntType}
+/// - {@link UnsignedBigintType}
+/// - {@link UnsignedBigIntegerType}
+/// 
     public static abstract class _UnsignedIntegerType extends _UnsignedNumericType implements SqlInteger {
 
     }

@@ -50,9 +50,7 @@ public class FunctionTests extends SessionTestsSupport {
     private static final Logger LOG = LoggerFactory.getLogger(FunctionTests.class);
 
 
-    /**
-     * @see MySQLs#jsonTable(Object, Object, SQLs.WordColumns, Consumer)
-     */
+    /// @see MySQLs#jsonTable(Object, Object, SQLs.WordColumns, Consumer)
     @Test
     public void jsonTableStatic(final ReactiveLocalSession session) {
         final String jsonDocument;
@@ -115,9 +113,7 @@ public class FunctionTests extends SessionTestsSupport {
 
     }
 
-    /**
-     * @see MySQLs#exportSet(Object, Object, Object, Object, Object)
-     */
+    /// @see MySQLs#exportSet(Object, Object, Object, Object, Object)
     @Test//(invocationCount = 10)
     public void exportSetFunc(final ReactiveLocalSession session) {
         final Select stmt;
@@ -133,9 +129,7 @@ public class FunctionTests extends SessionTestsSupport {
 
     }
 
-    /**
-     * @see MySQLs#format(Object, Object, Object)
-     */
+    /// @see MySQLs#format(Object, Object, Object)
     @Test
     public void formatFunc(final ReactiveLocalSession session) {
         final Select stmt;
@@ -151,9 +145,7 @@ public class FunctionTests extends SessionTestsSupport {
 
     }
 
-    /**
-     * @see MySQLs#fromBase64(Object)
-     */
+    /// @see MySQLs#fromBase64(Object)
     @Test
     public void fromBase64Func(final ReactiveLocalSession session) {
         final String source = "QinArmy's army,I love army. 秦军的 army";
@@ -171,9 +163,7 @@ public class FunctionTests extends SessionTestsSupport {
     }
 
 
-    /**
-     * @see MySQLs#toBase64(Object)
-     */
+    /// @see MySQLs#toBase64(Object)
     @Test
     public void hexFunc(final ReactiveLocalSession session) {
         final String source = "QinArmy's army,I love army. 秦军的 army";
@@ -196,9 +186,7 @@ public class FunctionTests extends SessionTestsSupport {
 
     }
 
-    /**
-     * @see MySQLs#position(Object, SQLs.WordIn, Object)
-     */
+    /// @see MySQLs#position(Object, SQLs.WordIn, Object)
     @Test
     public void positionFunc(final ReactiveLocalSession session) {
         final String source = "QinArmy's army,I love army. 秦军的 army";
@@ -218,9 +206,7 @@ public class FunctionTests extends SessionTestsSupport {
 
     }
 
-    /**
-     * @see MySQLs#weightString(Object, WordAs, TypeDef, Object)
-     */
+    /// @see MySQLs#weightString(Object, WordAs, TypeDef, Object)
     @Test
     public void weightStringFunc(final ReactiveLocalSession session) {
         final String source = "QinArmy's army,I love army. 秦军的 army";
@@ -239,9 +225,7 @@ public class FunctionTests extends SessionTestsSupport {
     }
 
 
-    /**
-     * @see MySQLs#addDate(Object, WordInterval, Object, MySQLTimeUnit)
-     */
+    /// @see MySQLs#addDate(Object, WordInterval, Object, MySQLTimeUnit)
     @Test
     public void addDateFunc(final ReactiveLocalSession session) {
         final Select stmt;
@@ -256,9 +240,7 @@ public class FunctionTests extends SessionTestsSupport {
         Assert.assertEquals(row, LocalDate.of(2008, 2, 2));
     }
 
-    /**
-     * @see MySQLs#addTime(Object, Object)
-     */
+    /// @see MySQLs#addTime(Object, Object)
     @Test
     public void addTimeFunc(final ReactiveLocalSession session) {
 
@@ -297,10 +279,8 @@ public class FunctionTests extends SessionTestsSupport {
                 .blockLast();
     }
 
-    /**
-     * @see MySQLs#CURRENT_DATE
-     * @see MySQLs#currentDate()
-     */
+    /// @see MySQLs#CURRENT_DATE
+/// @see MySQLs#currentDate()
     @Test
     public void currentDateFunc(final ReactiveLocalSession session) {
 
@@ -322,10 +302,8 @@ public class FunctionTests extends SessionTestsSupport {
 
     }
 
-    /**
-     * @see MySQLs#dateAdd(Object, WordInterval, Object, MySQLTimeUnit)
-     * @see MySQLs#dateSub(Object, WordInterval, Object, MySQLTimeUnit)
-     */
+    /// @see MySQLs#dateAdd(Object, WordInterval, Object, MySQLTimeUnit)
+/// @see MySQLs#dateSub(Object, WordInterval, Object, MySQLTimeUnit)
     @Test
     public void dateAddFunc(final ReactiveLocalSession session) {
 
@@ -347,9 +325,7 @@ public class FunctionTests extends SessionTestsSupport {
 
     }
 
-    /**
-     * @see MySQLs#dayName(Object)
-     */
+    /// @see MySQLs#dayName(Object)
     @Test
     public void dayNameFunc(final ReactiveLocalSession session) {
         final LocalDate today = LocalDate.now();
@@ -368,9 +344,7 @@ public class FunctionTests extends SessionTestsSupport {
 
     }
 
-    /**
-     * @see MySQLs#dayOfWeek(Object)
-     */
+    /// @see MySQLs#dayOfWeek(Object)
     @Test
     public void dayOfWeekFunc(final ReactiveLocalSession session) {
         final LocalDate today = LocalDate.now();
@@ -389,9 +363,7 @@ public class FunctionTests extends SessionTestsSupport {
 
     }
 
-    /**
-     * @see MySQLs#timestampAdd(MySQLTimeUnit, Object, Object)
-     */
+    /// @see MySQLs#timestampAdd(MySQLTimeUnit, Object, Object)
     @Test
     public void timestampAddFunc(final ReactiveLocalSession session) {
 
@@ -413,9 +385,7 @@ public class FunctionTests extends SessionTestsSupport {
     }
 
 
-    /**
-     * @see MySQLs#dayName(Object)
-     */
+    /// @see MySQLs#dayName(Object)
     @Test
     public void monthNameFunc(final ReactiveLocalSession session) {
         final LocalDate today = LocalDate.now();
@@ -434,9 +404,7 @@ public class FunctionTests extends SessionTestsSupport {
 
     }
 
-    /**
-     * @see MySQLs#periodAdd(Object, Object)
-     */
+    /// @see MySQLs#periodAdd(Object, Object)
     @Test
     public void periodAddFunc(final ReactiveLocalSession session) {
 

@@ -47,17 +47,14 @@ import java.time.OffsetDateTime;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-/**
- * <p>
- * Package class This class is base class of below:
- * <ul>
- *     <li>{@link PgRangeType}</li>
- *     <li>{@link PostgreSingleRangeArrayType}</li>
- *     <li>{@link PostgreMultiRangeArrayType}</li>
- * </ul>
- *
- * @since 0.6.0
- */
+/// 
+/// Package class This class is base class of below:
+/// 
+/// - {@link PgRangeType}
+/// - {@link PostgreSingleRangeArrayType}
+/// - {@link PostgreMultiRangeArrayType}
+/// 
+/// @since 0.6.0
 public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
 
 
@@ -71,10 +68,8 @@ public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
 
     protected final PgSingleRangeType.MockRangeFunction<?> mockFunction;
 
-    /**
-     * <p>
-     * package constructor
-     */
+    /// 
+/// package constructor
     @SuppressWarnings("unchecked")
     protected _ArmyPgRangeType(final PgType dataType, final Class<?> javaType,
                                final @Nullable RangeFunction<?, ?> rangeFunc) {
@@ -230,16 +225,12 @@ public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
         return value;
     }
 
-    /**
-     * army inner method
-     */
+    /// army inner method
     public PgMultiRangeType _fromMultiArray(PostgreMultiRangeArrayType type) {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * army inner method
-     */
+    /// army inner method
     public PgSingleRangeType _fromSingleArray(PostgreSingleRangeArrayType type) {
         throw new UnsupportedOperationException();
     }
@@ -322,11 +313,9 @@ public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
     }
 
 
-    /**
-     * @throws IllegalArgumentException            when rangeFunc is null and {@link MappingType#javaType()} isn't {@link String#getClass()}
-     * @throws CriteriaException                   when text error and handler throw this type.
-     * @throws DataAccessException when text error and handler throw this type.
-     */
+    /// @throws IllegalArgumentException            when rangeFunc is null and {@link MappingType#javaType()} isn't {@link String#getClass()}
+/// @throws CriteriaException                   when text error and handler throw this type.
+/// @throws DataAccessException when text error and handler throw this type.
     @SuppressWarnings("unchecked")
     static <T, R> R parseRange(final String text, final @Nullable RangeFunction<T, R> rangeFunc,
                                final Function<String, T> parseFunc, final DataType dataType,
@@ -471,9 +460,7 @@ public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
         }
     }
 
-    /**
-     * @param colonIndex -2 or positive
-     */
+    /// @param colonIndex -2 or positive
     static Method loadFactoryMethod(final Class<?> javaType, final String methodName, final int colonIndex,
                                     final Class<?> elementType) {
         try {

@@ -21,11 +21,8 @@ import io.army.option.Option;
 
 import java.util.function.Function;
 
-/**
- * <p>This interface representing blocking {@link SyncExecutor} factory.
- *
- * @since 0.6.0
- */
+/// This interface representing blocking {@link SyncExecutor} factory.
+/// @since 0.6.0
 public interface SyncExecutorFactory extends ExecutorFactory, AutoCloseable {
 
 
@@ -38,10 +35,8 @@ public interface SyncExecutorFactory extends ExecutorFactory, AutoCloseable {
     @Override
     SyncRmExecutor rmExecutor(String sessionName, boolean readOnly, Function<Option<?>, ?> optionFunc) throws DataAccessException;
 
-    /**
-     * <p>
-     * close {@link SyncExecutorFactory},but don't close underlying data source(eg:{@code  javax.sql.DataSource}).
-     *     */
+    /// 
+/// close {@link SyncExecutorFactory},but don't close underlying data source(eg:{@code  javax.sql.DataSource}).
     void close() throws DataAccessException;
 
 }

@@ -24,25 +24,22 @@ import io.army.sqltype.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-/**
- * <p>
- * This class is mapping class of {@link BigDecimal}.
- * This mapping type can convert below java type:
- * <ul>
- *     <li>{@link Byte}</li>
- *     <li>{@link Short}</li>
- *     <li>{@link Integer}</li>
- *     <li>{@link Long}</li>
- *     <li>{@link java.math.BigInteger}</li>
- *     <li>{@link Double}</li>
- *     <li>{@link Float}</li>
- *     <li>{@link Boolean} true : {@link BigDecimal#ONE} , false: {@link BigDecimal#ZERO}</li>
- *     <li>{@link String} </li>
- * </ul>
- *  to {@link BigDecimal},if overflow,throw {@link io.army.ArmyException}
- *
- * @since 0.6.0
- */
+/// 
+/// This class is mapping class of {@link BigDecimal}.
+/// This mapping type can convert below java type:
+/// 
+/// - {@link Byte}
+/// - {@link Short}
+/// - {@link Integer}
+/// - {@link Long}
+/// - {@link java.math.BigInteger}
+/// - {@link Double}
+/// - {@link Float}
+/// - {@link Boolean} true : {@link BigDecimal#ONE} , false: {@link BigDecimal#ZERO}
+/// - {@link String} 
+/// 
+/// to {@link BigDecimal},if overflow,throw {@link io.army.ArmyException}
+/// @since 0.6.0
 public final class BigDecimalType extends _NumericType implements MappingType.SqlDecimal {
 
 
@@ -56,9 +53,7 @@ public final class BigDecimalType extends _NumericType implements MappingType.Sq
 
     public static final BigDecimalType INSTANCE = new BigDecimalType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private BigDecimalType() {
     }
 

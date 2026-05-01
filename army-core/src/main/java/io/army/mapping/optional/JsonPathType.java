@@ -39,9 +39,7 @@ public final class JsonPathType extends _ArmyBuildInType implements MappingType.
 
     public static final JsonPathType INSTANCE = new JsonPathType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private JsonPathType() {
     }
 

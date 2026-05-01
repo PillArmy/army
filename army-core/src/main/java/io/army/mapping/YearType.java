@@ -21,23 +21,20 @@ import io.army.sqltype.*;
 
 import java.time.*;
 
-/**
- * <p>
- * This class is mapping class of {@link Year}.
- * This mapping type can convert below java type:
- * <ul>
- *     <li>{@link LocalDate}</li>
- *     <li>{@link LocalDateTime}</li>
- *     <li>{@link java.time.LocalDate}</li>
- *     <li>{@link java.time.OffsetDateTime}</li>
- *     <li>{@link java.time.ZonedDateTime}</li>
- *     <li>{@link YearMonth}</li>
- *     <li>{@link String} ,{@link Year} string {@link YearMonth} string or {@link LocalDate} string</li>
- * </ul>
- *  to {@link Year},if error,throw {@link io.army.ArmyException}
- *
- * @since 0.6.0
- */
+/// 
+/// This class is mapping class of {@link Year}.
+/// This mapping type can convert below java type:
+/// 
+/// - {@link LocalDate}
+/// - {@link LocalDateTime}
+/// - {@link java.time.LocalDate}
+/// - {@link java.time.OffsetDateTime}
+/// - {@link java.time.ZonedDateTime}
+/// - {@link YearMonth}
+/// - {@link String} ,{@link Year} string {@link YearMonth} string or {@link LocalDate} string
+/// 
+/// to {@link Year},if error,throw {@link io.army.ArmyException}
+/// @since 0.6.0
 public final class YearType extends _ArmyNoInjectionType implements MappingType.SqlTemporal,
         MappingType.SqlTemporalField {
 
@@ -50,9 +47,7 @@ public final class YearType extends _ArmyNoInjectionType implements MappingType.
 
     public static final YearType INSTANCE = new YearType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private YearType() {
     }
 

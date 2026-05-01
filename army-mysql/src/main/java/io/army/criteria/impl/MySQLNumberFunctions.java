@@ -16,11 +16,8 @@
 
 package io.army.criteria.impl;
 
-/**
- * package class
- *
- * @since 0.6.0
- */
+/// package class
+/// @since 0.6.0
 abstract class MySQLNumberFunctions extends Functions {
 
     MySQLNumberFunctions() {

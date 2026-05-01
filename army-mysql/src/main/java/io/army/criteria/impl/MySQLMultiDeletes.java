@@ -37,11 +37,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * <p>This class is the implementation of MySQL 8.0 multi-table delete syntax.
- *
- * @since 0.6.0
- */
+/// This class is the implementation of MySQL 8.0 multi-table delete syntax.
+/// @since 0.6.0
 abstract class MySQLMultiDeletes<I extends Item> extends JoinableDelete<
         I,
         MySQLCtes,

@@ -29,18 +29,15 @@ import java.util.function.BiFunction;
 
 import static io.army.dialect.Database.*;
 
-/**
- * Interface representing the sql expression, eg: column,function.
- * <p> This interface is the base interface of below"
- * <ul>
- *     <li>{@link SimpleExpression}</li>
- *     <li>{@link CompoundExpression}</li>
- *     <li>{@link IPredicate}</li>
- * </ul>
- *
- * @see FieldMeta
- * @since 0.6.0
- */
+/// Interface representing the sql expression, eg: column,function.
+///  This interface is the base interface of below"
+/// 
+/// - {@link SimpleExpression}
+/// - {@link CompoundExpression}
+/// - {@link IPredicate}
+/// 
+/// @see FieldMeta
+/// @since 0.6.0
 @SuppressWarnings("unused")
 public interface Expression extends SortItem, RowElement, RightOperand,
         GroupByItem.ExpressionItem, AssignmentItem, SQLElement, SelectionSpec {
@@ -64,14 +61,11 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     @Support({MySQL, PostgreSQL, H2})
     IPredicate nullSafeEqual(Object operand);
 
-    /**
-     * <p>
-     * <strong>&lt;</strong> operator
-     *
-     * @param operand non-null
-     * @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
-     *                           {@link SQLs#rowParam(TypeInfer, Collection)}
-     */
+/// 
+/// **<** operator
+/// @param operand non-null
+/// @throws CriteriaException throw when Operand isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
+/// {@link SQLs#rowParam(TypeInfer, Collection)}
     IPredicate less(Object operand);
 
 
@@ -108,45 +102,37 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     @Support({PostgreSQL, H2})
     IPredicate notBetween(@Nullable SQLs.BetweenModifier modifier, Object first, SQLs.WordAnd and, Object second);
 
-    /**
-     * @param operand <ul>
-     *                <li>{@link SQLs#TRUE}</li>
-     *                <li>{@link SQLs#FALSE}</li>
-     *                <li>{@link SQLs#UNKNOWN}</li>
-     *                <li>{@link SQLs#NULL}</li>
-     *                <li>other</li>
-     *                </ul>
-     */
+/// @param operand 
+/// - {@link SQLs#TRUE}
+/// - {@link SQLs#FALSE}
+/// - {@link SQLs#UNKNOWN}
+/// - {@link SQLs#NULL}
+/// - other
+/// 
     IPredicate is(SQLs.BoolTestWord operand);
 
-    /**
-     * @param operand <ul>
-     *                <li>{@link SQLs#TRUE}</li>
-     *                <li>{@link SQLs#FALSE}</li>
-     *                <li>{@link SQLs#UNKNOWN}</li>
-     *                <li>{@link SQLs#NULL}</li>
-     *                <li>other</li>
-     *                </ul>
-     */
+/// @param operand 
+/// - {@link SQLs#TRUE}
+/// - {@link SQLs#FALSE}
+/// - {@link SQLs#UNKNOWN}
+/// - {@link SQLs#NULL}
+/// - other
+/// 
     IPredicate isNot(SQLs.BoolTestWord operand);
 
     IPredicate isNull();
 
     IPredicate isNotNull();
 
-    /**
-     * @param operator see <ul>
-     *                 <li>{@link SQLs#DISTINCT_FROM}</li>
-     *                 </ul>
-     */
+/// @param operator see 
+/// - {@link SQLs#DISTINCT_FROM}
+/// 
     @Support({PostgreSQL, H2})
     IPredicate is(SQLs.IsComparisonWord operator, Object operand);
 
-    /**
-     * @param operator see <ul>
-     *                 <li>{@link SQLs#DISTINCT_FROM}</li>
-     *                 </ul>
-     */
+/// @param operator see 
+/// - {@link SQLs#DISTINCT_FROM}
+/// 
     @Support({PostgreSQL, H2})
     IPredicate isNot(SQLs.IsComparisonWord operator, Object operand);
 
@@ -171,11 +157,8 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     IPredicate notSimilarTo(Object pattern, SQLs.WordEscape escape, Object escapeChar);
 
 
-    /**
-     * <p>
-     * <strong>= ANY</strong> operator
-     *
-     */
+/// 
+/// **= ANY** operator
     IPredicate equalAny(SubQuery subQuery);
 
     /// Operator {@code = SOME}
@@ -231,43 +214,28 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     Expression divide(Object divisor);
 
 
-    /**
-     * Bitwise AND
-     *
-     * @return {@link BigInteger} expression
-     */
+    /// Bitwise AND
+/// @return {@link BigInteger} expression
     Expression bitwiseAnd(Object operand);
 
-    /**
-     * Bitwise OR
-     *
-     * @return {@link BigInteger} expression
-     * @see #bitwiseAnd(Object)
-     * @see SQLs#bitwiseNot(Expression)
-     */
+    /// Bitwise OR
+/// @return {@link BigInteger} expression
+/// @see #bitwiseAnd(Object)
+/// @see SQLs#bitwiseNot(Expression)
     Expression bitwiseOr(Object operand);
 
-    /**
-     * Bitwise XOR
-     *
-     * @return {@link BigInteger} expression
-     */
+    /// Bitwise XOR
+/// @return {@link BigInteger} expression
     Expression bitwiseXor(Object operand);
 
 
-    /**
-     * Shifts a  number to the right.
-     *
-     * @return {@link BigInteger} expression
-     */
+    /// Shifts a  number to the right.
+/// @return {@link BigInteger} expression
     Expression rightShift(Object bitNumber);
 
 
-    /**
-     * Shifts a  number to the left.
-     *
-     * @return {@link BigInteger} expression
-     */
+    /// Shifts a  number to the left.
+/// @return {@link BigInteger} expression
     Expression leftShift(Object bitNumber);
 
     ///
@@ -505,18 +473,14 @@ public interface Expression extends SortItem, RowElement, RightOperand,
 
     Expression brackets(BiFunction<MappingType, Object, Expression> func, List<?> subscriptList);
 
-    /**
-     * <p>Map the expression to a known type expression,but don't support codec.
-     */
+    /// Map the expression to a known type expression,but don't support codec.
     TypedExpression mapTo(MappingType typeMeta);
 
 
     @Support({PostgreSQL})
     TypedExpression castTo(MappingType type);
 
-    /**
-     * @return always this
-     */
+    /// @return always this
     @Override
     SortItem asSortItem();
 

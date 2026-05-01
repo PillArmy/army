@@ -29,9 +29,7 @@ import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
-/**
- * @see BlobType
- */
+/// @see BlobType
 public class BlobArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
 
 
@@ -62,9 +60,7 @@ public class BlobArrayType extends _ArmyBuildInType implements MappingType.SqlAr
 
     private final Class<?> javaType;
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private BlobArrayType(Class<?> javaType) {
         this.javaType = javaType;
     }

@@ -37,12 +37,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * <p>
- * This class representing standard value insert statement.
- *
- * @since 0.6.0
- */
+/// 
+/// This class representing standard value insert statement.
+/// @since 0.6.0
 abstract class StandardInserts extends InsertSupports {
 
 
@@ -107,9 +104,7 @@ abstract class StandardInserts extends InsertSupports {
 
     } // PrimaryInsertIntoClause
 
-    /**
-     * @deprecated use {@link PrimaryInsertInto20Clause}
-     */
+    /// @deprecated use {@link PrimaryInsertInto20Clause}
     @Deprecated
     private static final class PrimaryInsertInto10Clause<I extends Item> extends PrimaryInsertIntoClause<
             I,
@@ -525,9 +520,7 @@ abstract class StandardInserts extends InsertSupports {
             extends PrimaryParentDomainInsertStatement<I, StandardInsert._ChildInsertIntoClause<I, P>>
             implements InsertStatement._ParentInsert20<I, StandardInsert._ChildInsertIntoClause<I, P>> {
 
-        /**
-         * @see PrimaryInsertInto10Clause#parentInsertEnd(StandardComplexValuesClause)
-         */
+        /// @see PrimaryInsertInto10Clause#parentInsertEnd(StandardComplexValuesClause)
         private PrimaryParentDomainInsert10Statement(StandardComplexValuesClause<?, ?> clause,
                                                      Function<? super Insert, I> function) {
             super(clause, function);
@@ -548,9 +541,7 @@ abstract class StandardInserts extends InsertSupports {
             extends PrimaryParentDomainInsertStatement<I, StandardInsert._ChildWithSpec<I, P>>
             implements InsertStatement._ParentInsert20<I, StandardInsert._ChildWithSpec<I, P>> {
 
-        /**
-         * @see PrimaryInsertInto20Clause#parentInsertEnd(StandardComplexValuesClause)
-         */
+        /// @see PrimaryInsertInto20Clause#parentInsertEnd(StandardComplexValuesClause)
         private PrimaryParentDomainInsert20Statement(StandardComplexValuesClause<?, ?> clause,
                                                      Function<? super Insert, I> function) {
             super(clause, function);
@@ -652,9 +643,7 @@ abstract class StandardInserts extends InsertSupports {
             extends PrimaryParentValueInsertStatement<I, StandardInsert._ChildInsertIntoClause<I, P>>
             implements InsertStatement._ParentInsert20<I, StandardInsert._ChildInsertIntoClause<I, P>> {
 
-        /**
-         * @see PrimaryInsertInto10Clause#parentInsertEnd(StandardComplexValuesClause)
-         */
+        /// @see PrimaryInsertInto10Clause#parentInsertEnd(StandardComplexValuesClause)
         private PrimaryParentValueInsert10Statement(StandardComplexValuesClause<?, ?> clause,
                                                     Function<? super Insert, I> function) {
             super(clause, function);
@@ -676,9 +665,7 @@ abstract class StandardInserts extends InsertSupports {
             extends PrimaryParentValueInsertStatement<I, StandardInsert._ChildWithSpec<I, P>>
             implements InsertStatement._ParentInsert20<I, StandardInsert._ChildWithSpec<I, P>> {
 
-        /**
-         * @see PrimaryInsertInto20Clause#parentInsertEnd(StandardComplexValuesClause)
-         */
+        /// @see PrimaryInsertInto20Clause#parentInsertEnd(StandardComplexValuesClause)
         private PrimaryParentValueInsert20Statement(StandardComplexValuesClause<?, ?> clause,
                                                     Function<? super Insert, I> function) {
             super(clause, function);
@@ -810,9 +797,7 @@ abstract class StandardInserts extends InsertSupports {
             extends PrimaryParentQueryInsertStatement<I, StandardInsert._ChildInsertIntoClause<I, P>>
             implements InsertStatement._ParentInsert20<I, StandardInsert._ChildInsertIntoClause<I, P>> {
 
-        /**
-         * @see PrimaryInsertInto10Clause#parentInsertEnd(StandardComplexValuesClause)
-         */
+        /// @see PrimaryInsertInto10Clause#parentInsertEnd(StandardComplexValuesClause)
         private PrimaryParentQueryInsert10Statement(StandardComplexValuesClause<?, ?> clause,
                                                     Function<? super Insert, I> function) {
             super(clause, function);
@@ -833,9 +818,7 @@ abstract class StandardInserts extends InsertSupports {
             extends PrimaryParentQueryInsertStatement<I, StandardInsert._ChildWithSpec<I, P>>
             implements InsertStatement._ParentInsert20<I, StandardInsert._ChildWithSpec<I, P>> {
 
-        /**
-         * @see PrimaryInsertInto20Clause#parentInsertEnd(StandardComplexValuesClause)
-         */
+        /// @see PrimaryInsertInto20Clause#parentInsertEnd(StandardComplexValuesClause)
         private PrimaryParentQueryInsert20Statement(StandardComplexValuesClause<?, ?> clause,
                                                     Function<? super Insert, I> function) {
             super(clause, function);

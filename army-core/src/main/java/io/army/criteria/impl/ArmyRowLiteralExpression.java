@@ -29,29 +29,24 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * <p>
- * This class representing multi-value literal expression.
- * <p>
- * Below is chines signature:<br/>
- * 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
- *
- * @see ArmyParamExpression
- * @see ArmyLiteralExpression
- * @see ArmyRowParamExpression
- * @since 0.6.0
- */
+/// 
+/// This class representing multi-value literal expression.
+/// 
+/// Below is chines signature:
+/// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+/// @see ArmyParamExpression
+/// @see ArmyLiteralExpression
+/// @see ArmyRowParamExpression
+/// @since 0.6.0
 
 abstract class ArmyRowLiteralExpression extends OperationRowExpression implements
         RowLiteralExpression, ArmySimpleExpression {
 
-    /**
-     * @throws CriteriaException throw when <ul>
-     *                           <li>values is empty</li>
-     *                           <li>infer return codec {@link TableField}</li>
-     *                           </ul>
-     * @see SQLs#rowLiteral(TypeInfer, Collection)
-     */
+/// @throws CriteriaException throw when 
+/// - values is empty
+/// - infer return codec {@link TableField}
+/// 
+/// @see SQLs#rowLiteral(TypeInfer, Collection)
     static ArmyRowLiteralExpression multi(final @Nullable TypeInfer infer, final @Nullable Collection<?> values,
                                           final boolean typeName) {
         final TypeMeta type;
@@ -68,14 +63,12 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
     }
 
 
-    /**
-     * @throws CriteriaException throw when <ul>
-     *                           <li>name have no text</li>
-     *                           <li>size less than 1</li>
-     *                           <li>infer return codec {@link TableField}</li>
-     *                           </ul>
-     * @see SQLs#namedRowLiteral(TypeInfer, String)
-     */
+/// @throws CriteriaException throw when 
+/// - name have no text
+/// - size less than 1
+/// - infer return codec {@link TableField}
+/// 
+/// @see SQLs#namedRowLiteral(TypeInfer, String)
 
     static ArmyRowLiteralExpression named(final @Nullable TypeInfer infer, final @Nullable String name,
                                           final boolean typeName) {
@@ -106,9 +99,7 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
     }
 
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private ArmyRowLiteralExpression() {
     }
 
@@ -121,9 +112,7 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
 
         private final boolean typeName;
 
-        /**
-         * @see #multi(TypeInfer, Collection, boolean)
-         */
+        /// @see #multi(TypeInfer, Collection, boolean)
         private AnonymousRowLiteral(TypeMeta type, Collection<?> values, final boolean typeName) {
             assert !values.isEmpty();
             if (type instanceof QualifiedField) {
@@ -231,9 +220,7 @@ abstract class ArmyRowLiteralExpression extends OperationRowExpression implement
 
         private final boolean typeName;
 
-        /**
-         * @see #named(TypeInfer, String, boolean)
-         */
+        /// @see #named(TypeInfer, String, boolean)
         private ArmyNamedRowLiteral(String name, TypeMeta type, boolean typeName) {
             this.name = name;
             if (type instanceof QualifiedField) {

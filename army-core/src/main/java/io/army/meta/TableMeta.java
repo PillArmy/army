@@ -22,22 +22,17 @@ import io.army.util.SQLStmts;
 
 import java.util.List;
 
-/**
- * @see SchemaMeta
- * @see FieldMeta
- * @see IndexMeta
- * @see IndexFieldMeta
- */
+/// @see SchemaMeta
+/// @see FieldMeta
+/// @see IndexMeta
+/// @see IndexFieldMeta
 public interface TableMeta<T> extends TabularItem, DatabaseObject.TypeObject {
 
 
     Class<T> javaType();
 
-    /**
-     * <p>
-     * Table name,Equivalence : {@link  FieldMeta#objectName()}
-     *
-     */
+    /// 
+/// Table name,Equivalence : {@link  FieldMeta#objectName()}
     String tableName();
 
     boolean immutable();
@@ -50,39 +45,27 @@ public interface TableMeta<T> extends TabularItem, DatabaseObject.TypeObject {
 
     FieldMeta<? super T> createTime();
 
-    /**
-     * @throws IllegalArgumentException throw when no this field
-     * @see #tryUpdateTime()
-     */
+    /// @throws IllegalArgumentException throw when no this field
+/// @see #tryUpdateTime()
     FieldMeta<? super T> updateTime();
 
-    /**
-     * @throws IllegalArgumentException throw when no this field
-     * @see #tryVersion()
-     */
+    /// @throws IllegalArgumentException throw when no this field
+/// @see #tryVersion()
     FieldMeta<? super T> version();
 
-    /**
-     * @throws IllegalArgumentException throw when no this field
-     * @see #tryVisible()
-     */
+    /// @throws IllegalArgumentException throw when no this field
+/// @see #tryVisible()
     FieldMeta<? super T> visible();
 
-    /**
-     * @see #updateTime()
-     */
+    /// @see #updateTime()
     @Nullable
     FieldMeta<? super T> tryUpdateTime();
 
-    /**
-     * @see #version() v
-     */
+    /// @see #version() v
     @Nullable
     FieldMeta<? super T> tryVersion();
 
-    /**
-     * @see #visible()
-     */
+    /// @see #visible()
     @Nullable
     FieldMeta<? super T> tryVisible();
 
@@ -97,15 +80,11 @@ public interface TableMeta<T> extends TabularItem, DatabaseObject.TypeObject {
     Enum<?> discriminatorValue();
 
 
-    /**
-     * contain primary key
-     */
+    /// contain primary key
     List<IndexMeta<T>> indexList();
 
-    /**
-     * @return unmodified list, always same instance.
-     * @see SQLStmts#castFieldList(TableMeta)
-     */
+    /// @return unmodified list, always same instance.
+/// @see SQLStmts#castFieldList(TableMeta)
     List<FieldMeta<T>> fieldList();
 
 
@@ -123,9 +102,7 @@ public interface TableMeta<T> extends TabularItem, DatabaseObject.TypeObject {
 
     boolean isComplexField(FieldMeta<?> field);
 
-    /**
-     * @throws IllegalArgumentException when not found matched {@link FieldMeta} for fieldName
-     */
+    /// @throws IllegalArgumentException when not found matched {@link FieldMeta} for fieldName
     FieldMeta<T> field(String fieldName);
 
     @Nullable
@@ -137,14 +114,10 @@ public interface TableMeta<T> extends TabularItem, DatabaseObject.TypeObject {
     @Nullable
     FieldMeta<? super T> tryComplexFiled(String filedName);
 
-    /**
-     * @throws IllegalArgumentException when not found matched {@link IndexFieldMeta} for fieldName
-     */
+    /// @throws IllegalArgumentException when not found matched {@link IndexFieldMeta} for fieldName
     IndexFieldMeta<T> indexField(String fieldName);
 
-    /**
-     * @throws IllegalArgumentException when not found matched {@link UniqueFieldMeta} for fieldName
-     */
+    /// @throws IllegalArgumentException when not found matched {@link UniqueFieldMeta} for fieldName
     UniqueFieldMeta<T> uniqueField(String fieldName);
 
     List<FieldMeta<?>> fieldChain();

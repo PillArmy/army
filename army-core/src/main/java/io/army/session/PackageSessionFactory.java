@@ -18,9 +18,7 @@
 package io.army.session;
 
 
-/**
- * package interface
- */
+/// package interface
 non-sealed interface PackageSessionFactory extends SessionFactory {
 
 

@@ -22,11 +22,9 @@ import io.army.sqltype.DataType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-/**
- * <p>
- * This class representing the mapping from {@link BigInteger} to (unsigned) decimal.
- * * @see BigInteger
- */
+/// 
+/// This class representing the mapping from {@link BigInteger} to (unsigned) decimal.
+/// * @see BigInteger
 public final class UnsignedBigIntegerType extends _NumericType._UnsignedIntegerType {
 
 
@@ -39,9 +37,7 @@ public final class UnsignedBigIntegerType extends _NumericType._UnsignedIntegerT
 
     public static final UnsignedBigIntegerType INSTANCE = new UnsignedBigIntegerType();
 
-    /**
-     * private constructor
-     */
+    /// private constructor
     private UnsignedBigIntegerType() {
     }
 
