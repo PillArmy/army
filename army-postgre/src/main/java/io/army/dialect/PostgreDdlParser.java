@@ -743,7 +743,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
             field = fieldList.get(i);
             this.parser.safeObjectName(field, sqlBuilder);
 
-            typeMeta = field.typeMeta;
+            typeMeta = field.mappingType();
             if (!(typeMeta instanceof MappingType)) {
                 typeMeta = typeMeta.mappingType();
             }
@@ -751,7 +751,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
 
             this.parser.typeName((MappingType) typeMeta, sqlBuilder);
 
-            collation = field.collation;
+            collation = field.collation();
             if (!_StringUtils.hasText(collation)) {
                 continue;
             }

@@ -35,19 +35,17 @@ import java.lang.reflect.Field;
 /// @see FieldMeta
 /// @see QualifiedField
 @SuppressWarnings("unused")
-public interface TableField extends TypedField, FieldSelection, TypeMeta, DatabaseObject.FieldObject {
+public interface TableField extends TypedField, FieldSelection, TypeMeta{
 
     TableMeta<?> tableMeta();
 
     /// @return domain mapping property java type.
     Class<?> javaType();
 
-    MappingType mappingType();
-
     /// @return mapping  field name,see {@link Field#getName()}.
     String fieldName();
 
-    /// 
+    ///
     /// Equivalence : {@link  FieldMeta#objectName()}
     /// @return column name(lower case).
     String columnName();

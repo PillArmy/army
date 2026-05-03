@@ -224,8 +224,7 @@ final class MultiTableContext implements _MultiTableContext,
                         .append(_Constant.DOT);
             }
             parser.safeObjectName(field, sqlBuilder);
-        } else if (dataField instanceof QualifiedField) {
-            final QualifiedField<?> field = (QualifiedField<?>) dataField;
+        } else if (dataField instanceof QualifiedField<?> field) {
             final String tableAlias = field.tableAlias();
             if (this.aliasToTable.get(tableAlias) != field.tableMeta()) {
                 throw _Exceptions.unknownColumn(field);
@@ -237,7 +236,7 @@ final class MultiTableContext implements _MultiTableContext,
                     .append(_Constant.SPACE)
                     .append(safeTableAlias)
                     .append(_Constant.DOT);
-            parser.safeObjectName(field, sqlBuilder);
+            parser.safeObjectName(field.fieldMeta(), sqlBuilder);
         } else {
             throw _Exceptions.immutableField(dataField);
         }

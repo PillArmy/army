@@ -154,7 +154,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
         final List<Selection> selectionList;
         selectionList = _Collections.arrayList(fieldSize);
         for (CompositeField field : fieldList) {
-            selectionList.add(ArmySelections.forName(field.columnName));
+            selectionList.add(ArmySelections.forName(field.columnName()));
         }
         return selectionList;
     }

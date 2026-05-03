@@ -23,6 +23,7 @@ import io.army.criteria.Visible;
 import io.army.criteria.impl.inner._Expression;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
@@ -65,10 +66,6 @@ final class QualifiedFieldImpl<T> extends OperationTypedField implements Qualifi
         return this.field.notNull;
     }
 
-    @Override
-    public String comment() {
-        return this.field.comment();
-    }
 
     @Override
     public TypeMeta typeMeta() {
@@ -168,10 +165,6 @@ final class QualifiedFieldImpl<T> extends OperationTypedField implements Qualifi
         return this.field.columnName;
     }
 
-    @Override
-    public String objectName() {
-        return this.field.columnName;
-    }
 
     @Override
     public MappingType mappingType() {
@@ -183,6 +176,7 @@ final class QualifiedFieldImpl<T> extends OperationTypedField implements Qualifi
         return this.field.insertable;
     }
 
+    @Nullable
     @Override
     public GeneratorType generatorType() {
         return this.field.generatorType;

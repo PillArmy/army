@@ -16,77 +16,12 @@
 
 package io.army.mapping.optional;
 
+import io.army.mapping.MappingType;
 import io.army.meta.DatabaseObject;
-import io.army.meta.FieldMeta;
-import io.army.meta.TypeMeta;
-import io.army.util._Assert;
-import io.army.util._StringUtils;
-
-import java.util.Objects;
 
 /// @see io.army.mapping.CompositeType
-public final class CompositeField implements DatabaseObject.FieldObject {
+public interface CompositeField extends DatabaseObject.FieldObject {
 
-
-    public static CompositeField from(String fieldName, String columnName, TypeMeta typeMeta, String collation) {
-        _Assert.hasText(fieldName, "");
-        _Assert.hasText(columnName, "");
-        Objects.requireNonNull(typeMeta);
-        _Assert.isFalse(typeMeta instanceof FieldMeta, "");
-        Objects.requireNonNull(collation);
-        return new CompositeField(fieldName, columnName, typeMeta, collation);
-    }
-
-    public final String fieldName;
-
-    public final String columnName;
-
-    public final TypeMeta typeMeta;
-
-    public final String collation;
-
-    private CompositeField(String fieldName, String columnName, TypeMeta typeMeta, String collation) {
-        this.fieldName = fieldName;
-        this.columnName = columnName;
-        this.typeMeta = typeMeta;
-        this.collation = collation;
-    }
-
-
-    @Override
-    public String objectName() {
-        return this.columnName;
-    }
-
-    @Override
-    public String comment() {
-        return "";
-    }
-
-
-    @Override
-    public String toString() {
-        return _StringUtils.builder()
-                .append(this.getClass().getSimpleName())
-                .append('[')
-                .append("fieldName")
-                .append(':')
-                .append(this.fieldName)
-                .append(',')
-                .append("columnName")
-                .append(':')
-                .append(this.columnName)
-                .append(',')
-                .append("collation")
-                .append(':')
-                .append(this.collation)
-                .append(',')
-                .append("type")
-                .append(':')
-                .append(this.typeMeta)
-                .append(']')
-                .toString();
-    }
-
+    MappingType.SqlComposite compositeType();
 
 }

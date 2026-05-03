@@ -285,12 +285,12 @@ abstract class ArmySchemaComparer implements SchemaComparer {
         topLoop:
         for (int javaIndex = 0, dbStart = 0; javaIndex < javaFieldCount; javaIndex++) {
             javaField = javaFieldList.get(javaIndex);
-            columnName = javaField.columnName.toLowerCase(Locale.ROOT);
+            columnName = javaField.columnName().toLowerCase(Locale.ROOT);
 
             for (int dbIndex = dbStart; dbIndex < dbFieldCount; dbIndex++) {
                 dbField = dbFieldList.get(dbIndex);
-                if (!columnName.equals(dbField.columnName)) {
-                    if (javaFieldMap.containsKey(dbField.columnName)) {
+                if (!columnName.equals(dbField.columnName())) {
+                    if (javaFieldMap.containsKey(dbField.columnName())) {
                         String m = String.format("%s composite field order error, composite type don't support field order change,you can only add or drop field.",
                                 compositeType.javaType().getName());
                         addErrorMessage(m);
@@ -304,17 +304,17 @@ abstract class ArmySchemaComparer implements SchemaComparer {
                     continue;
                 }
 
-                javaTypeMeta = javaField.typeMeta;
+                javaTypeMeta = javaField.mappingType();
                 if (!(javaTypeMeta instanceof MappingType)) {
                     javaTypeMeta = javaTypeMeta.mappingType();
                 }
 
-                modify = !javaTypeMeta.equals(dbField.typeMeta)
-                        && !((MappingType) javaTypeMeta).map(this.serverMeta).equals(((MappingType) dbField.typeMeta).map(this.serverMeta));
+                modify = !javaTypeMeta.equals(dbField.mappingType())
+                        && !((MappingType) javaTypeMeta).map(this.serverMeta).equals(((MappingType) dbField.mappingType()).map(this.serverMeta));
 
                 if (!modify) {
-                    modify = _StringUtils.hasText(javaField.collation)
-                            && !javaField.collation.toLowerCase(Locale.ROOT).equals(dbField.collation);
+                    modify = _StringUtils.hasText(javaField.collation())
+                            && !javaField.collation().toLowerCase(Locale.ROOT).equals(dbField.collation());
                 }
 
                 if (modify) {
@@ -619,7 +619,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
         TypeMeta typeMeta;
         int deep = 0, tempDeep;
         for (CompositeField field : fieldList) {
-            typeMeta = field.typeMeta;
+            typeMeta = field.mappingType();
             if (!(typeMeta instanceof MappingType)) {
                 typeMeta = typeMeta.mappingType();
             }
@@ -656,7 +656,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
         CompositeField field;
         for (int i = 0; i < size; i++) {
             field = fieldList.get(i);
-            fieldMap.put(field.columnName.toLowerCase(Locale.ROOT), field);
+            fieldMap.put(field.columnName().toLowerCase(Locale.ROOT), field);
         }
         return fieldMap;
     }

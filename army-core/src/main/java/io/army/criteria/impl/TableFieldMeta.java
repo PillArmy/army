@@ -33,6 +33,10 @@ import io.army.modelgen._MetaBridge;
 import io.army.util.ArrayUtils;
 import io.army.util._Exceptions;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
@@ -163,11 +167,14 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
     private final int scale;
 
+    private final String collation;
+
     private final GeneratorMeta generatorMeta;
 
     final GeneratorType generatorType;
 
     private final List<Class<?>> elementTypeList;
+
 
     private final boolean codec;
 
@@ -192,6 +199,7 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
             this.precision = column.precision();
             this.scale = column.scale();
+            this.collation = column.collation();
             this.columnName = FieldMetaUtils.columnName(column, field);
             final boolean isDiscriminator;
             isDiscriminator = FieldMetaUtils.isDiscriminator(this.table.javaType, this.fieldName);
@@ -340,6 +348,11 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
     }
 
     @Override
+    public final String collation() {
+        return this.collation;
+    }
+
+    @Override
     public final String objectName() {
         return this.columnName;
     }
@@ -452,6 +465,20 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
             throw _Exceptions.visibleField(context.visible(), this);
         }
         context.appendField(this);
+    }
+
+
+    /**
+     * prevent default deserialization
+     */
+    private void readObject(ObjectInputStream in) throws IOException,
+            ClassNotFoundException {
+        throw new InvalidObjectException("can't deserialize enum");
+    }
+
+
+    private void readObjectNoData() throws ObjectStreamException {
+        throw new InvalidObjectException("can't deserialize enum");
     }
 
 

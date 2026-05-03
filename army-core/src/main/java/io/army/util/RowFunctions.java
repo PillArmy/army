@@ -5,6 +5,7 @@ import io.army.executor.ExecutorSupport;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.mapping.optional.CompositeField;
+import io.army.mapping.optional.CompositeFieldFactory;
 import io.army.meta.MetaException;
 import io.army.pojo.ObjectAccessor;
 import io.army.pojo.ObjectAccessorFactory;
@@ -346,7 +347,7 @@ public abstract class RowFunctions {
                     collation = record.getOrDefault("comFieldCollation", String.class, "").toLowerCase(Locale.ROOT);
                     final MappingType type = record.getNonNull("comFieldType", MappingType.class);
 
-                    fieldList.add(CompositeField.from(labelName, labelName, type, collation));
+                    fieldList.add(CompositeFieldFactory.from( labelName, type, collation));
                     currentOrder = record.getNonNull("comFieldOrder", Integer.class);
                 }
                 break;
@@ -384,7 +385,7 @@ public abstract class RowFunctions {
                     final MappingType type = record.getNonNull("comFieldType", MappingType.class);
                     collation = record.getOrDefault("comFieldCollation", String.class, "");
 
-                    fieldList.add(CompositeField.from(labelName, labelName, type, collation));
+                    fieldList.add(CompositeFieldFactory.from( labelName, type, collation));
                     this.order = record.getNonNull("comFieldOrder", Integer.class);
                 }
                 break;

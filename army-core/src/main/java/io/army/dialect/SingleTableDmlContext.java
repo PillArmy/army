@@ -173,7 +173,7 @@ abstract class SingleTableDmlContext extends NarrowDmlStmtContext implements _Si
         }
 
         if (!(field instanceof QualifiedField)) {
-            this.parser.safeObjectName(field, sqlBuilder);
+            this.parser.safeObjectName((FieldMeta<?>)field, sqlBuilder);
         } else if (this.targetTableAlias.equals(((QualifiedField<?>) field).tableAlias())) {
             this.parser.safeObjectName(field.fieldMeta(), sqlBuilder);
         } else {
