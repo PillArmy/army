@@ -347,7 +347,7 @@ final class MySQLDdlParser extends ArmyDdlParser<MySQLParser> {
             }
             break;
             case SET:
-                setType(field, builder);
+                setType((FieldMeta<?>) field, builder);
                 break;
             case BIT: {
                 builder.append(dataType.typeName());
@@ -355,7 +355,7 @@ final class MySQLDdlParser extends ArmyDdlParser<MySQLParser> {
             }
             break;
             case ENUM:
-                enumType(field, builder);
+                enumType((FieldMeta<?>) field, builder);
                 break;
             case BLOB:
             case TEXT: {
@@ -467,7 +467,7 @@ final class MySQLDdlParser extends ArmyDdlParser<MySQLParser> {
     private void setType(final FieldMeta<?> field, final StringBuilder builder) {
         builder.append("SET(");
         int index = 0;
-        for (Object e : field.elementTypes().get(0).getEnumConstants()) {
+        for (Object e : field.elementTypes().getFirst().getEnumConstants()) {
             if (index > 0) {
                 builder.append(_Constant.SPACE_COMMA);
             }

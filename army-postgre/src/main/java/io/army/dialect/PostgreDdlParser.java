@@ -377,10 +377,25 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     }
 
 
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-alterdomain.html">ALTER DOMAIN</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-altertype.html">ALTER TYPE</a>
     @Override
-    public void modifyType(TypeResult typeResult, List<String> sqlList) {
-        super.modifyType(typeResult, sqlList);
+    public void modifyType(final TypeResult typeResult, final List<String> sqlList) {
+        final MappingType type = typeResult.type();
+        if (type instanceof MappingType.SqlComposite) {
+            sqlList.add(alterCompositeType((MappingType.SqlComposite) type, typeResult));
+        } else if (type instanceof MappingType.SqlEnum) {
+            alterEnumType((MappingType.SqlEnum) type, typeResult, sqlList);
+        } else if (type instanceof MappingType.SqlRange) {
+            this.errorMsgList.add("PostgreSQL don't support alter range type");
+        } else if (type instanceof MappingType.SqlDomain) {
+            alterDomainType((MappingType.SqlDomain) type, typeResult, sqlList);
+        } else {
+            this.errorMsgList.add(String.format("Unsupported type: %s", type.getClass().getName()));
+        }
+
     }
+
 
     @Override
     protected void checkEnclosing(String text) {
@@ -937,6 +952,324 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         }
         return sqlBuilder.append(_Constant.RIGHT_PAREN)
                 .toString();
+    }
+
+
+    /// @see #modifyType(TypeResult, List)
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-alterdomain.html">ALTER DOMAIN</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-altertype.html">ALTER TYPE</a>
+    private String alterCompositeType(MappingType.SqlComposite type, TypeResult typeResult) {
+        final StringBuilder sqlBuilder = this.sqlBuilder;
+        sqlBuilder.setLength(0); // clear
+
+        sqlBuilder.append("ALTER")
+                .append(_Constant.SPACE)
+                .append("TYPE")
+                .append(_Constant.SPACE);
+
+        this.parser.safeObjectName(type, sqlBuilder);
+
+        List<CompositeField> fieldList;
+        fieldList = typeResult.compositeDropFieldList();
+        int listSize, fieldCount = 0;
+        listSize = fieldList.size();
+
+        CompositeField field;
+        for (int i = 0; i < listSize; i++) {
+            if (i > 0) {
+                sqlBuilder.append(_Constant.COMMA);
+            }
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("DROP")
+                    .append(_Constant.SPACE)
+                    .append("ATTRIBUTE")
+                    .append(_Constant.SPACE)
+                    .append("IF")
+                    .append(_Constant.SPACE)
+                    .append("EXISTS")
+                    .append(_Constant.SPACE);
+
+            this.parser.safeObjectName(fieldList.get(i), sqlBuilder);
+        }
+
+        fieldCount += listSize; // Drop field count
+
+        fieldList = typeResult.compositeNewFieldList();
+        listSize = fieldList.size();
+
+        DataType dataType;
+        String collation;
+
+        for (int i = 0; i < listSize; i++) {
+            if (i > 0 || fieldCount > 0) {
+                sqlBuilder.append(_Constant.COMMA);
+            }
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("ADD")
+                    .append(_Constant.SPACE)
+                    .append("ATTRIBUTE")
+                    .append(_Constant.SPACE);
+
+            field = fieldList.get(i);
+
+            this.parser.safeObjectName(field, sqlBuilder);
+
+            dataType = field.mappingType().map(this.serverMeta);
+            dataType(field, dataType, sqlBuilder);
+            collation = field.collation();
+
+            if (!_StringUtils.hasText(collation)) {
+                continue;
+            }
+
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("COLLATE")
+                    .append(_Constant.SPACE);
+            this.parser.identifier(collation.toLowerCase(Locale.ROOT), sqlBuilder);
+        }
+
+        fieldCount += listSize; // Add field count
+
+
+        fieldList = typeResult.compositeModifyFieldList();
+        listSize = fieldList.size();
+
+        for (int i = 0; i < listSize; i++) {
+            if (i > 0 || fieldCount > 0) {
+                sqlBuilder.append(_Constant.COMMA);
+            }
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("ALTER")
+                    .append(_Constant.SPACE)
+                    .append("ATTRIBUTE")
+                    .append(_Constant.SPACE);
+
+            field = fieldList.get(i);
+
+            this.parser.safeObjectName(field, sqlBuilder);
+
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("SET")
+                    .append(_Constant.SPACE)
+                    .append("DATA")
+                    .append(_Constant.SPACE)
+                    .append("TYPE");
+
+            dataType = field.mappingType().map(this.serverMeta);
+            dataType(field, dataType, sqlBuilder);
+
+            collation = field.collation();
+            if (!_StringUtils.hasText(collation)) {
+                continue;
+            }
+
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("COLLATE")
+                    .append(_Constant.SPACE);
+            this.parser.identifier(collation.toLowerCase(Locale.ROOT), sqlBuilder);
+
+        }
+
+        fieldCount += listSize; // Modify field count
+
+        if (fieldCount == 0) {
+            this.errorMsgList.add(String.format("%s no field to modify", type.objectName()));
+        }
+        return sqlBuilder.toString();
+    }
+
+
+    /// @see #modifyType(TypeResult, List)
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-alterdomain.html">ALTER DOMAIN</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-altertype.html">ALTER TYPE</a>
+    private void alterEnumType(MappingType.SqlEnum type, TypeResult typeResult, List<String> sqlList) {
+        final StringBuilder sqlBuilder = this.sqlBuilder;
+
+        final List<String> labelList, newLabelList;
+        labelList = type.enumLabelList();
+        newLabelList = typeResult.enumNewLabelList();
+
+        final int labelCount = labelList.size();
+        String label, preLabel = null, safeTypeName = null;
+        int newLabelCount = 0;
+        for (int i = 0; i < labelCount; i++, preLabel = label) {
+            label = labelList.get(i);
+            if (!newLabelList.contains(label)) {
+                continue;
+            }
+
+            sqlBuilder.setLength(0); // clear
+
+            sqlBuilder.append("ALTER")
+                    .append(_Constant.SPACE)
+                    .append("TYPE")
+                    .append(_Constant.SPACE);
+
+            if (safeTypeName == null) {
+                final int length = sqlBuilder.length();
+                this.parser.safeObjectName(type, sqlBuilder);
+                safeTypeName = sqlBuilder.substring(length);
+            } else {
+                sqlBuilder.append(safeTypeName);
+            }
+
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("ADD")
+                    .append(_Constant.SPACE)
+                    .append("VALUE")
+                    .append(_Constant.SPACE);
+
+            this.parser.safeLiteral(StringType.INSTANCE, label, false, sqlBuilder);
+
+
+            sqlBuilder.append(_Constant.SPACE);
+            if (preLabel == null) {
+                String nextLabel = null;
+                for (int j = i + 1; j < labelCount; j++) {
+                    nextLabel = labelList.get(j);
+                    if (!newLabelList.contains(nextLabel)) {
+                        break;
+                    }
+                }
+                if (nextLabel != null) {
+                    sqlBuilder.append("BEFORE")
+                            .append(_Constant.SPACE);
+                    this.parser.safeLiteral(StringType.INSTANCE, nextLabel, false, sqlBuilder);
+                }
+            } else {
+                sqlBuilder.append("AFTER")
+                        .append(_Constant.SPACE);
+                this.parser.safeLiteral(StringType.INSTANCE, preLabel, false, sqlBuilder);
+            }
+
+            sqlList.add(sqlBuilder.toString());
+            newLabelCount++;
+
+        }
+
+        if (newLabelCount != newLabelList.size()) {
+            this.errorMsgList.add(String.format("%s enum new label list error", type.objectName()));
+        }
+
+        sqlBuilder.setLength(0); // clear
+
+    }
+
+
+    /// @see #modifyType(TypeResult, List)
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-alterdomain.html">ALTER DOMAIN</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-createdomain.html">CREATE DOMAIN</a>
+    private void alterDomainType(MappingType.SqlDomain type, TypeResult typeResult, final List<String> sqlList) {
+        final StringBuilder sqlBuilder = this.sqlBuilder;
+
+        final String dontSupportMsg = "PostgreSQL don't support alter domain[%s] %s";
+        if (typeResult.containBaseType()) {
+            this.errorMsgList.add(String.format(dontSupportMsg, type.objectName(), "base type"));
+        } else if (typeResult.containCollation()) {
+            this.errorMsgList.add(String.format(dontSupportMsg, type.objectName(), "collation"));
+        }
+
+        sqlBuilder.setLength(0); // clear
+
+        final int length = sqlBuilder.length();
+        this.parser.safeObjectName(type, sqlBuilder);
+
+        final String safeTypeName;
+        safeTypeName = sqlBuilder.substring(length);
+
+        if (typeResult.containNotNull()) {
+            sqlBuilder.setLength(0); // clear
+
+            sqlBuilder.append("ALTER")
+                    .append(_Constant.SPACE)
+                    .append("DOMAIN")
+                    .append(_Constant.SPACE)
+                    .append(safeTypeName)
+                    .append(_Constant.SPACE);
+
+            if (type.isNotNull()) {
+                sqlBuilder.append("SET");
+            } else {
+                sqlBuilder.append("DROP");
+            }
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("NOT")
+                    .append(_Constant.SPACE)
+                    .append("NULL");
+
+            sqlList.add(sqlBuilder.toString());
+        }
+
+
+        String value;
+        if (typeResult.containDefault()) {
+            sqlBuilder.setLength(0); // clear
+
+            sqlBuilder.append("ALTER")
+                    .append(_Constant.SPACE)
+                    .append("DOMAIN")
+                    .append(_Constant.SPACE)
+                    .append(safeTypeName)
+                    .append(_Constant.SPACE);
+
+            value = type.defaultValue();
+            if (_StringUtils.hasText(value)) {
+                sqlBuilder.append("SET")
+                        .append(_Constant.SPACE)
+                        .append("DEFAULT")
+                        .append(_Constant.SPACE);
+                checkEnclosing(value);
+                sqlBuilder.append(value);
+            } else {
+                sqlBuilder.append("DROP")
+                        .append(_Constant.SPACE)
+                        .append("DEFAULT");
+            }
+            sqlList.add(sqlBuilder.toString());
+        }
+
+        value = typeResult.constraintName();
+        if (_StringUtils.hasText(value)) {
+            sqlBuilder.setLength(0); // clear
+
+            sqlBuilder.append("ALTER")
+                    .append(_Constant.SPACE)
+                    .append("DOMAIN")
+                    .append(_Constant.SPACE)
+                    .append(safeTypeName)
+                    .append(_Constant.SPACE)
+                    .append("DROP")
+                    .append(_Constant.SPACE)
+                    .append("CONSTRAINT")
+                    .append(_Constant.SPACE)
+                    .append("IF")
+                    .append(_Constant.SPACE)
+                    .append("EXISTS")
+                    .append(_Constant.SPACE);
+
+            this.parser.identifier(value, sqlBuilder);
+
+        }
+
+        value = type.constraint();
+        if (_StringUtils.hasText(value)) {
+            sqlBuilder.setLength(0); // clear
+
+            sqlBuilder.append("ALTER")
+                    .append(_Constant.SPACE)
+                    .append("DOMAIN")
+                    .append(_Constant.SPACE)
+                    .append(safeTypeName)
+                    .append(_Constant.SPACE)
+                    .append("ADD")
+                    .append(_Constant.SPACE);
+
+            checkEnclosing(value);
+            sqlBuilder.append(value);
+            sqlList.add(sqlBuilder.toString());
+        }
+
+
     }
 
 

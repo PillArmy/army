@@ -36,8 +36,6 @@ final class DefaultTypeResult implements TypeResult {
 
     private final MappingType type;
 
-    private final TypeCategory typeCategory;
-
     private final List<String> enumNewLabelList;
 
     private final List<CompositeField> compositeDropFieldList;
@@ -71,9 +69,8 @@ final class DefaultTypeResult implements TypeResult {
 
     private DefaultTypeResult(final DefaultBuilder builder) {
         this.type = builder.type;
-        this.typeCategory = builder.typeCategory;
 
-        switch (this.typeCategory) {
+        switch (builder.typeCategory) {
             case ENUM:
                 _Assert.notEmpty(builder.enumNewLabelList, "empty");
                 this.enumNewLabelList = _Collections.safeCopyList(builder.enumNewLabelList);
@@ -157,7 +154,7 @@ final class DefaultTypeResult implements TypeResult {
                 this.containRangeSubDiff = false;
                 break;
             default:
-                throw _Exceptions.unexpectedEnum(this.typeCategory);
+                throw _Exceptions.unexpectedEnum(builder.typeCategory);
         }
 
     }
@@ -167,10 +164,6 @@ final class DefaultTypeResult implements TypeResult {
         return this.type;
     }
 
-    @Override
-    public TypeCategory category() {
-        return this.typeCategory;
-    }
 
     @Override
     public List<String> enumNewLabelList() {

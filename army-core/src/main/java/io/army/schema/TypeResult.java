@@ -29,7 +29,6 @@ public interface TypeResult {
 
     MappingType type();
 
-    TypeCategory category();
 
 
     /// @return an unmodified list

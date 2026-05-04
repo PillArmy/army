@@ -264,7 +264,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
-
+    /// SqlUserDefined does not inherit from {@link MappingType}, because {@link MappingType} is a sealed interface.
     /// User defined type must override {@link #hashCode()} and {@link #equals(Object)}.
     interface SqlUserDefined extends DatabaseObject.TypeObject {
 
