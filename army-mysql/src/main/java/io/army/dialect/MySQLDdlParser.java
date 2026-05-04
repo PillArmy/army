@@ -18,10 +18,7 @@ package io.army.dialect;
 
 import io.army.annotation.GeneratorType;
 import io.army.mapping.StringType;
-import io.army.meta.FieldMeta;
-import io.army.meta.IndexMeta;
-import io.army.meta.PrimaryFieldMeta;
-import io.army.meta.TableMeta;
+import io.army.meta.*;
 import io.army.schema.FieldResult;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -283,7 +280,7 @@ final class MySQLDdlParser extends ArmyDdlParser<MySQLParser> {
     }
 
     @Override
-    protected void dataType(final FieldMeta<?> field, final DataType dataType, final StringBuilder builder) {
+    protected void dataType(final DatabaseObject.FieldObject field, final DataType dataType, final StringBuilder builder) {
         builder.append(_Constant.SPACE);
 
         switch ((MySQLType) dataType) {

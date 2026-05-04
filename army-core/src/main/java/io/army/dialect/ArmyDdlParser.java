@@ -434,7 +434,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
     }
 
 
-    protected abstract void dataType(FieldMeta<?> field, DataType dataType, StringBuilder builder);
+    protected abstract void dataType(DatabaseObject.FieldObject field, DataType dataType, StringBuilder builder);
 
     protected abstract void postDataType(FieldMeta<?> field, DataType dataType, StringBuilder builder);
 
@@ -618,7 +618,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
 
     }
 
-    protected final void appendTimeTypeScale(final FieldMeta<?> field, final StringBuilder builder) {
+    protected final void appendTimeTypeScale(final DatabaseObject.FieldObject field, final StringBuilder builder) {
         final int fieldScale;
         switch ((fieldScale = field.scale())) {
             case -1:
@@ -647,7 +647,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
     }
 
 
-    protected final void precision(final FieldMeta<?> field, DataType dataType,
+    protected final void precision(final DatabaseObject.FieldObject field, DataType dataType,
                                    final long max, final long defaultValue, final StringBuilder builder) {
         final int precision = field.precision();
         if (precision > -1) {
@@ -673,7 +673,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
         this.errorMsgList.add(String.format("%s no precision.", field));
     }
 
-    protected final void timeTypeScale(final FieldMeta<?> field, DataType dataType, final StringBuilder builder) {
+    protected final void timeTypeScale(final DatabaseObject.FieldObject field, DataType dataType, final StringBuilder builder) {
         final int scale = field.scale();
         if (scale > -1) {
             if (scale > 6) {
@@ -921,7 +921,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
     }
 
 
-    private void timeScaleError(FieldMeta<?> field, DataType dataType) {
+    private void timeScaleError(DatabaseObject.FieldObject field, DataType dataType) {
         String m;
         m = String.format("%s scale[%s] error for %s.%s"
                 , field, field.scale(), dataType.getClass().getSimpleName(), dataType.name());
@@ -930,7 +930,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
     }
 
 
-    protected static void decimalType(final FieldMeta<?> field, final StringBuilder builder) {
+    protected static void decimalType(final DatabaseObject.FieldObject field, final StringBuilder builder) {
         final int precision = field.precision();
         if (precision > 0) {
             builder.append(_Constant.LEFT_PAREN)

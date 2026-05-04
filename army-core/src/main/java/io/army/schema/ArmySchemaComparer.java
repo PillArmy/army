@@ -440,7 +440,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
             builder.containRangeSubOpc(typeInfo.rangeSubOpc() != null);
         }
 
-        value = rangeType.fanonicalFunc().toLowerCase(Locale.ROOT);
+        value = rangeType.canonicalFunc().toLowerCase(Locale.ROOT);
         if (_StringUtils.hasText(value)) {
             builder.containRangeCanonical(!value.equals(typeInfo.rangeCanonical()));
         } else {

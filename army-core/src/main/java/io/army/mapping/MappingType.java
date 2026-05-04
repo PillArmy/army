@@ -348,7 +348,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
         /// The name of the canonicalization function for the range type.
         /// 
         /// @return empty or lower case canonicalization function name
-        String fanonicalFunc();
+        String canonicalFunc();
 
         /// The name of a difference function for the subtype.
         /// 

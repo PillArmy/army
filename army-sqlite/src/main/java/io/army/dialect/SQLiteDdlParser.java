@@ -46,7 +46,7 @@ final class SQLiteDdlParser extends ArmyDdlParser<SQLiteParser> {
 
     /// @see <a href="https://www.sqlite.org/lang_createtable.html">CREATE TABLE</a>
     @Override
-    protected void dataType(final FieldMeta<?> field, final DataType dataType, final StringBuilder builder) {
+    protected void dataType(final DatabaseObject.FieldObject field, final DataType dataType, final StringBuilder builder) {
 
         switch ((SQLiteType) dataType) {
             case BOOLEAN:

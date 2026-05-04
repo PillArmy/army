@@ -366,11 +366,11 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         if (type instanceof MappingType.SqlComposite) {
             sqlList.add(createCompositeType((MappingType.SqlComposite) type));
         } else if (type instanceof MappingType.SqlEnum) {
-
+            sqlList.add(createEnumType((MappingType.SqlEnum) type));
         } else if (type instanceof MappingType.SqlRange) {
-
+            sqlList.add(createRangeType((MappingType.SqlRange) type));
         } else if (type instanceof MappingType.SqlDomain) {
-
+            sqlList.add(createDomainType((MappingType.SqlDomain) type));
         } else {
             this.errorMsgList.add(String.format("Unsupported type: %s", type.getClass().getName()));
         }
@@ -447,7 +447,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
 
 
     @Override
-    protected void dataType(final FieldMeta<?> field, final DataType dataType, final StringBuilder builder) {
+    protected void dataType(final DatabaseObject.FieldObject field, final DataType dataType, final StringBuilder builder) {
         builder.append(_Constant.SPACE);
 
         if (!(dataType instanceof PgType)) {
@@ -551,7 +551,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
 
     @Override
     protected <T> void appendIndexOutTableDef(final IndexMeta<T> index, final StringBuilder builder) {
-        assert builder.length() == 0;
+        assert builder.isEmpty();
 
         if (index.isPrimaryKey()) {
             builder.append("ALTER")
@@ -592,8 +592,8 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     }
 
 
-    /// @see #dataType(FieldMeta, DataType, StringBuilder)
-    private void appendTimeDateType(final FieldMeta<?> field, final DataType dataType, final StringBuilder builder) {
+    /// @see #dataType(DatabaseObject.FieldObject, DataType, StringBuilder)
+    private void appendTimeDateType(final DatabaseObject.FieldObject field, final DataType dataType, final StringBuilder builder) {
         String safeTypeName;
         safeTypeName = dataType.name();
         final int index;
@@ -609,8 +609,8 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         }
     }
 
-    /// @see #dataType(FieldMeta, DataType, StringBuilder)
-    private void appendDecimalDateType(final FieldMeta<?> field, final DataType dataType, final StringBuilder builder) {
+    /// @see #dataType(DatabaseObject.FieldObject, DataType, StringBuilder)
+    private void appendDecimalDateType(final DatabaseObject.FieldObject field, final DataType dataType, final StringBuilder builder) {
         int precision, scale;
         precision = field.precision();
         scale = field.scale();
@@ -711,6 +711,182 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         }
     }
 
+    /// @see #createType(MappingType, List)
+    /// @see <a href="https://www.postgresql.org/docs/current/domains.html">Domain Types</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-createdomain.html">CREATE DOMAIN</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-alterdomain.html">ALTER DOMAIN</a>
+    private String createDomainType(final MappingType.SqlDomain type) {
+        final StringBuilder sqlBuilder = this.sqlBuilder;
+        sqlBuilder.setLength(0); // clear
+
+        sqlBuilder.append("CREATE")
+                .append(_Constant.SPACE)
+                .append("DOMAIN")
+                .append(_Constant.SPACE);
+
+        this.parser.safeObjectName(type, sqlBuilder);
+
+        sqlBuilder.append(_Constant.SPACE)
+                .append("AS")
+                .append(_Constant.SPACE);
+
+        this.parser.typeName(type.baseType(), sqlBuilder);
+
+        String value;
+        value = type.collation();
+        if (_StringUtils.hasText(value)) {
+            sqlBuilder.append(_Constant.COMMA)
+                    .append("COLLATE")
+                    .append(_Constant.SPACE);
+            this.parser.identifier(value.toLowerCase(Locale.ROOT), sqlBuilder);
+        }
+
+        value = type.defaultValue();
+        if (_StringUtils.hasText(value)) {
+            sqlBuilder.append(_Constant.COMMA)
+                    .append("DEFAULT")
+                    .append(_Constant.SPACE);
+            checkEnclosing(value);
+            sqlBuilder.append(value);
+        }
+
+        if (type.isNotNull()) {
+            sqlBuilder.append(_Constant.COMMA)
+                    .append("NOT")
+                    .append(_Constant.SPACE)
+                    .append("NULL");
+        }
+
+        value = type.constraint();
+        if (_StringUtils.hasText(value)) {
+            sqlBuilder.append(_Constant.COMMA);
+            checkEnclosing(value);
+            sqlBuilder.append(value);
+        }
+
+
+        return sqlBuilder.toString();
+    }
+
+    /// @see #createType(MappingType, List)
+    /// @see <a href="https://www.postgresql.org/docs/current/rangetypes.html">Range Types</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-createtype.html">CREATE TYPE</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-altertype.html">ALTER TYPE</a>
+    private String createRangeType(final MappingType.SqlRange type) {
+        final StringBuilder sqlBuilder = this.sqlBuilder;
+        sqlBuilder.setLength(0); // clear
+
+        sqlBuilder.append("CREATE")
+                .append(_Constant.SPACE)
+                .append("TYPE")
+                .append(_Constant.SPACE);
+
+        this.parser.safeObjectName(type, sqlBuilder);
+
+        sqlBuilder.append(_Constant.SPACE)
+                .append("AS")
+                .append(_Constant.SPACE)
+                .append("RANGE")
+                .append(_Constant.SPACE)
+                .append(_Constant.LEFT_PAREN)
+                .append(_Constant.SPACE)
+                .append("SUBTYPE")
+                .append(_Constant.EQUAL)
+                .append(_Constant.SPACE);
+
+        this.parser.typeName(type.rangeSubType(), sqlBuilder);
+
+        String value;
+        value = type.subtypeOperator();
+        if (_StringUtils.hasText(value)) {
+            sqlBuilder.append(_Constant.COMMA)
+                    .append("SUBTYPE_OPCLASS")
+                    .append(_Constant.SPACE)
+                    .append(_Constant.EQUAL)
+                    .append(_Constant.SPACE);
+            this.parser.identifier(value, sqlBuilder);
+        }
+
+        value = type.subTypeCollation();
+        if (_StringUtils.hasText(value)) {
+            sqlBuilder.append(_Constant.COMMA)
+                    .append("COLLATION")
+                    .append(_Constant.SPACE)
+                    .append(_Constant.EQUAL)
+                    .append(_Constant.SPACE);
+            this.parser.identifier(value, sqlBuilder);
+        }
+
+        value = type.canonicalFunc();
+        if (_StringUtils.hasText(value)) {
+            sqlBuilder.append(_Constant.COMMA)
+                    .append("CANONICAL")
+                    .append(_Constant.SPACE)
+                    .append(_Constant.EQUAL)
+                    .append(_Constant.SPACE);
+            this.parser.identifier(value, sqlBuilder);
+        }
+
+        value = type.subtypeDiffFunc();
+        if (_StringUtils.hasText(value)) {
+            sqlBuilder.append(_Constant.COMMA)
+                    .append("SUBTYPE_DIFF")
+                    .append(_Constant.SPACE)
+                    .append(_Constant.EQUAL)
+                    .append(_Constant.SPACE);
+            this.parser.identifier(value, sqlBuilder);
+        }
+
+
+        value = type.multiRangeTypeName();
+        if (_StringUtils.hasText(value)) {
+            sqlBuilder.append(_Constant.COMMA)
+                    .append("MULTIRANGE_TYPE_NAME")
+                    .append(_Constant.SPACE)
+                    .append(_Constant.EQUAL)
+                    .append(_Constant.SPACE);
+            this.parser.identifier(value, sqlBuilder);
+        }
+
+        return sqlBuilder.append(_Constant.SPACE)
+                .append(_Constant.RIGHT_PAREN)
+                .toString();
+    }
+
+
+    /// @see #createType(MappingType, List)
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-createtype.html">CREATE TYPE</a>
+    private String createEnumType(final MappingType.SqlEnum type) {
+        final StringBuilder sqlBuilder = this.sqlBuilder;
+        sqlBuilder.setLength(0); // clear
+
+        sqlBuilder.append("CREATE")
+                .append(_Constant.SPACE)
+                .append("TYPE")
+                .append(_Constant.SPACE);
+
+        this.parser.safeObjectName(type, sqlBuilder);
+
+        sqlBuilder.append(_Constant.SPACE)
+                .append("AS")
+                .append(_Constant.SPACE)
+                .append("ENUM")
+                .append(_Constant.SPACE)
+                .append(_Constant.LEFT_PAREN);
+
+        final List<String> labelList = type.enumLabelList();
+        final int listSize = labelList.size();
+        for (int i = 0; i < listSize; i++) {
+            if (i > 0) {
+                sqlBuilder.append(_Constant.COMMA);
+            }
+            this.parser.safeLiteral(StringType.INSTANCE, labelList.get(i), false, sqlBuilder);
+        }
+
+        return sqlBuilder.append(_Constant.RIGHT_PAREN)
+                .toString();
+    }
+
 
     /// @see #createType(MappingType, List)
     /// @see <a href="https://www.postgresql.org/docs/current/sql-createtype.html">CREATE TYPE</a>
@@ -735,7 +911,8 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         final int listSize = fieldList.size();
         CompositeField field;
         String collation;
-        TypeMeta typeMeta;
+        MappingType mappingType;
+        DataType dataType;
         for (int i = 0; i < listSize; i++) {
             if (i > 0) {
                 sqlBuilder.append(_Constant.COMMA);
@@ -743,13 +920,9 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
             field = fieldList.get(i);
             this.parser.safeObjectName(field, sqlBuilder);
 
-            typeMeta = field.mappingType();
-            if (!(typeMeta instanceof MappingType)) {
-                typeMeta = typeMeta.mappingType();
-            }
-            sqlBuilder.append(_Constant.SPACE);
-
-            this.parser.typeName((MappingType) typeMeta, sqlBuilder);
+            mappingType = field.mappingType();
+            dataType = mappingType.map(this.serverMeta);
+            dataType(field, dataType, sqlBuilder);
 
             collation = field.collation();
             if (!_StringUtils.hasText(collation)) {
@@ -762,8 +935,8 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
             this.parser.identifier(collation.toLowerCase(Locale.ROOT), sqlBuilder);
 
         }
-        sqlBuilder.append(_Constant.RIGHT_PAREN);
-        return sqlBuilder.toString();
+        return sqlBuilder.append(_Constant.RIGHT_PAREN)
+                .toString();
     }
 
 
