@@ -23,7 +23,7 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.ZonedDateTimeType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInArrayType; 
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
@@ -31,7 +31,7 @@ import io.army.util._TimeUtils;
 
 import java.time.ZonedDateTime;
 
-public class ZonedDateTimeArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
+public class ZonedDateTimeArrayType extends _ArmyBuildInArrayType {
 
 
     public static ZonedDateTimeArrayType from(final Class<?> arrayClass) {

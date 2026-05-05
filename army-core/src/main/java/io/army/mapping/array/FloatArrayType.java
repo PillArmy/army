@@ -22,13 +22,13 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.FloatType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 
-public class FloatArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
+public class FloatArrayType extends _ArmyBuildInArrayType {
 
 
     public static FloatArrayType from(final Class<?> arrayClass) {

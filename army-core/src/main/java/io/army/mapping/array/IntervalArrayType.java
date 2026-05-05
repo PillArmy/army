@@ -20,12 +20,13 @@ import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping.MappingType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
 @Deprecated
-public class IntervalArrayType extends _ArmyNoInjectionType {
+public class IntervalArrayType extends _ArmyBuildInArrayType {
 
     public static final IntervalArrayType LINEAR = new IntervalArrayType();
 
@@ -52,6 +53,16 @@ public class IntervalArrayType extends _ArmyNoInjectionType {
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return null;
+    }
+
+    @Override
+    public Class<?> underlyingJavaType() {
+        return null;
+    }
+
+    @Override
+    public MappingType elementType() {
         return null;
     }
 }

@@ -22,7 +22,7 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.CodeEnumType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInArrayType; 
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.struct.CodeEnum;
@@ -34,7 +34,7 @@ import java.util.Map;
 
 /// This class is mapping class of {@link CodeEnum}.
 /// @see CodeEnumType
-public class CodeEnumArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
+public class CodeEnumArrayType extends _ArmyBuildInArrayType {
 
 
     public static CodeEnumArrayType from(final Class<?> javaType) {

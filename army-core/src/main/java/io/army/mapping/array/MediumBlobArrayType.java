@@ -22,12 +22,12 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.MediumBlobType;
-import io.army.mapping._ArmyBuildInType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
 
-public class MediumBlobArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
+public class MediumBlobArrayType extends _ArmyBuildInArrayType {
 
     public static MediumBlobArrayType from(final Class<?> javaType) {
         final MediumBlobArrayType instance;

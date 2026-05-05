@@ -21,6 +21,8 @@ import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
+import io.army.mapping.MappingType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
@@ -30,7 +32,7 @@ import io.army.util.ArrayUtils;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class XmlArrayType extends _ArmyBuildInType {
+public class XmlArrayType extends _ArmyBuildInArrayType {
 
 
     public static XmlArrayType from(final Class<?> javaType) {
@@ -86,6 +88,16 @@ public class XmlArrayType extends _ArmyBuildInType {
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         // TODO
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Class<?> underlyingJavaType() {
+        return null;
+    }
+
+    @Override
+    public MappingType elementType() {
+        return null;
     }
 
 

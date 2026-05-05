@@ -22,14 +22,14 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.ShortType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
-public class ShortArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
+public class ShortArrayType extends _ArmyBuildInArrayType {
 
 
     public static ShortArrayType from(final Class<?> arrayClass) {

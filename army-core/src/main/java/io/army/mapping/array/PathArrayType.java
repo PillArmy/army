@@ -6,7 +6,7 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.PathType;
-import io.army.mapping._ArmyBuildInType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
@@ -14,7 +14,7 @@ import io.army.util.ArrayUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class PathArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
+public class PathArrayType extends _ArmyBuildInArrayType {
 
 
     public static PathArrayType from(final Class<?> arrayType) {

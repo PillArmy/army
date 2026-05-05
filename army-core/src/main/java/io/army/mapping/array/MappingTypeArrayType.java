@@ -24,7 +24,7 @@ import io.army.function.TextFunction;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.MappingTypeType;
-import io.army.mapping._ArmyBuildInType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 /// The array type of {@link io.army.mapping.MappingTypeType}
-public final class MappingTypeArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
+public final class MappingTypeArrayType extends _ArmyBuildInArrayType {
 
     public static MappingTypeArrayType from(Class<?> javaType) {
         if (!javaType.isArray()) {

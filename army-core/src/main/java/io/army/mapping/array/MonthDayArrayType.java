@@ -23,7 +23,7 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.MonthDayType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInArrayType; 
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
@@ -31,7 +31,7 @@ import io.army.util.ArrayUtils;
 import java.time.LocalDate;
 import java.time.MonthDay;
 
-public class MonthDayArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
+public class MonthDayArrayType extends _ArmyBuildInArrayType {
 
 
     public static MonthDayArrayType from(final Class<?> arrayClass) {

@@ -23,7 +23,7 @@ import io.army.function.TextFunction;
 import io.army.mapping.CompositeType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.struct.DefinedType;
@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 /// @see io.army.mapping.CompositeType
-public class CompositeArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
+public class CompositeArrayType extends _ArmyBuildInArrayType {
 
     public static CompositeArrayType from(final Class<?> arrayClass) {
         if (!arrayClass.isArray()) {

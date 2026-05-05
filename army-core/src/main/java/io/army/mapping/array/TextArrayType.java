@@ -24,7 +24,7 @@ import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
-public class TextArrayType extends ArmyTextArrayType implements MappingType.SqlArray {
+public class TextArrayType extends ArmyTextArrayType {
 
 
     public static TextArrayType from(final Class<?> arrayType) {

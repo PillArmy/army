@@ -22,14 +22,14 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.BigIntegerType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInArrayType; 
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
 
 import java.math.BigInteger;
 
-public class BigIntegerArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
+public class BigIntegerArrayType extends _ArmyBuildInArrayType {
 
     public static BigIntegerArrayType from(final Class<?> javaType) {
         final BigIntegerArrayType instance;

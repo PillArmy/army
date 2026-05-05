@@ -22,12 +22,12 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.ByteType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
 
-public class ByteArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
+public class ByteArrayType extends _ArmyBuildInArrayType {
 
 
     public static ByteArrayType from(final Class<?> javaType) {

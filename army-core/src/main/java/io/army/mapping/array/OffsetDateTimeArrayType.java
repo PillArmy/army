@@ -23,7 +23,7 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.OffsetDateTimeType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInArrayType; 
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
@@ -32,7 +32,7 @@ import io.army.util._TimeUtils;
 
 import java.time.OffsetDateTime;
 
-public class OffsetDateTimeArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
+public class OffsetDateTimeArrayType extends _ArmyBuildInArrayType {
 
 
     public static OffsetDateTimeArrayType from(final Class<?> arrayClass) {

@@ -23,7 +23,7 @@ import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.NameEnumType;
-import io.army.mapping._ArmyBuildInType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /// @see Enum
 /// @see NameEnumType
-public class NameEnumArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
+public class NameEnumArrayType extends _ArmyBuildInArrayType {
 
     public static NameEnumArrayType from(final Class<?> arrayClass) {
         if (!arrayClass.isArray()) {

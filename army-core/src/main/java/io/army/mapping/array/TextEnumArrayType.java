@@ -21,11 +21,11 @@ import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-public class TextEnumArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
+public class TextEnumArrayType extends _ArmyBuildInArrayType {
 
     public static TextEnumArrayType from(final Class<?> arrayType) {
         // TODO complete me

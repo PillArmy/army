@@ -22,7 +22,7 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.BlobType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
@@ -30,7 +30,7 @@ import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
 /// @see BlobType
-public class BlobArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
+public class BlobArrayType extends _ArmyBuildInArrayType {
 
 
     public static BlobArrayType from(final Class<?> javaType) {

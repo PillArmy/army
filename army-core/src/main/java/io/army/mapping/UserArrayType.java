@@ -16,7 +16,7 @@
 
 package io.army.mapping;
 
-public non-sealed abstract class UserArrayType extends AbstractMappingType implements ArrayMappingType {
+public non-sealed abstract class UserArrayType extends UserMappingType implements ArrayMappingType {
 
 
 }

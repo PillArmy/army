@@ -22,7 +22,7 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.BinaryType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
@@ -34,7 +34,7 @@ import io.army.util.ArrayUtils;
 /// @see BinaryType
 /// @see VarBinaryArrayType
 /// @since 0.6.0
-public class BinaryArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
+public class BinaryArrayType extends _ArmyBuildInArrayType {
 
 
     public static BinaryArrayType from(final Class<?> javaType) {

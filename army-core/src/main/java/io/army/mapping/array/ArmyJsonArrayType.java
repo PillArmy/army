@@ -23,7 +23,7 @@ import io.army.executor.DataAccessException;
 import io.army.function.TextFunction;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.sqltype.DataType;
 
 import java.util.function.BiConsumer;
@@ -36,7 +36,7 @@ import java.util.function.BiConsumer;
 /// - {@link JsonbArrayType}
 /// 
 /// @since 0.6.0
-abstract class ArmyJsonArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
+abstract class ArmyJsonArrayType extends _ArmyBuildInArrayType {
 
 
     final Class<?> javaType;

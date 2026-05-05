@@ -22,12 +22,12 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.MediumIntType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInArrayType; 
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
 
-public class MediumIntArrayType extends _ArmyNoInjectionType implements MappingType.SqlArray {
+public class MediumIntArrayType extends _ArmyBuildInArrayType {
 
 
     public static MediumIntArrayType from(final Class<?> arrayClass) {

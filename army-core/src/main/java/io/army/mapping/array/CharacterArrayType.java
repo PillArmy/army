@@ -22,7 +22,7 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.CharacterType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
@@ -30,7 +30,7 @@ import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
 /// @see CharacterType
-public class CharacterArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
+public class CharacterArrayType extends _ArmyBuildInArrayType {
 
     public static CharacterArrayType from(final Class<?> javaType) {
         final CharacterArrayType instance;

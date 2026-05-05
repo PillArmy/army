@@ -22,14 +22,14 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
-import io.army.mapping._ArmyBuildInType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
-public class StringArrayType extends _ArmyBuildInType implements MappingType.SqlArray {
+public class StringArrayType extends _ArmyBuildInArrayType {
 
 
     public static StringArrayType from(final Class<?> arrayType) {
