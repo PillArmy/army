@@ -22,10 +22,10 @@ import io.army.mapping.*;
 import io.army.mapping.array.IntegerArrayType;
 import io.army.mapping.array.ShortArrayType;
 import io.army.mapping.array.TextArrayType;
+import io.army.mapping.optional.VectorType;
 import io.army.mapping.postgre.PgAclItemType;
 import io.army.mapping.postgre.PgInetType;
 import io.army.mapping.postgre.PgRangeType;
-import io.army.mapping.postgre.PgVectorType;
 import io.army.mapping.postgre.array.PostgreAclItemArrayType;
 import io.army.util._Collections;
 
@@ -642,7 +642,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
         final _TabularWithOrdinalityFunction func;
         if (type instanceof MappingType.SqlArray) {
             func = DialectFunctionUtils.oneArgColumnFunction(name, exp, name); // postgre default function name as field name.
-        } else if (type instanceof PgVectorType) {
+        } else if (type instanceof VectorType) {
             final List<Selection> fieldList = List.of(
                     ArmySelections.forName("lexeme"),
                     ArmySelections.forName("positions"),

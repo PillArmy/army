@@ -24,7 +24,7 @@ import io.army.criteria.impl.SQLs;
 import io.army.example.bank.domain.user.ChinaRegion_;
 import io.army.mapping.array.IntegerArrayType;
 import io.army.mapping.array.LongArrayType;
-import io.army.mapping.postgre.PgVectorType;
+import io.army.mapping.optional.VectorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -45,7 +45,7 @@ public class TabularFunctionUnitTests extends PostgreUnitTests {
         final Select stmt;
         stmt = Postgres.query()
                 .select(s -> s.space("a", DOT, ASTERISK))
-                .from(unnest(SQLs.literal(PgVectorType.INSTANCE, "cat:3 fat:2,4 rat:5A"))
+                .from(unnest(SQLs.literal(VectorType.INSTANCE, "cat:3 fat:2,4 rat:5A"))
                         ::withOrdinality
                 )
                 .as("a")

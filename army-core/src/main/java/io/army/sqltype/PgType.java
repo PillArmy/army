@@ -119,6 +119,10 @@ public enum PgType implements SQLType {
 
     ACLITEM("ACLITEM", ArmyType.DIALECT_TYPE, String.class),
 
+    VECTOR("VECTOR", ArmyType.VECTOR, float[].class),
+
+    VECTOR_ARRAY(VECTOR),
+
     ACLITEM_ARRAY(ACLITEM),
     BOOLEAN_ARRAY(BOOLEAN),
 

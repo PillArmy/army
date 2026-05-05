@@ -17,6 +17,7 @@
 package io.army.dialect;
 
 import io.army.mapping.*;
+import io.army.mapping.optional.VectorType;
 import io.army.mapping.postgre.PgMultiRangeType;
 import io.army.mapping.postgre.PgSingleRangeType;
 import io.army.sqltype.DataType;
@@ -78,6 +79,10 @@ final class PgTypeMappingHandler extends TypeMappingHandlerSupport {
             case "REAL":
                 type = PgType.REAL;
                 typeArray[index] = FloatType.INSTANCE;
+                break;
+            case "VECTOR":
+                type = PgType.VECTOR;
+                typeArray[index] = VectorType.INSTANCE;
                 break;
             case "CHAR":
             case "CHARACTER":
@@ -329,7 +334,10 @@ final class PgTypeMappingHandler extends TypeMappingHandlerSupport {
                 type = PgType.REAL_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
-
+            case "VECTOR[]":
+                type = PgType.VECTOR_ARRAY;
+                typeArray[index] = StringType.INSTANCE;
+                break;
             case "CHAR[]":
             case "CHARACTER[]":
                 type = PgType.CHAR_ARRAY;

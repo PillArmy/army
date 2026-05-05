@@ -49,6 +49,7 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
     /// decode array element
+    ///
     /// @see #encodeElement(String, StringBuilder)
     /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
     public static String decodeElement(final String text, int offset, int end) {
@@ -103,6 +104,7 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
     /// escape array element
+    ///
     /// @see #decodeElement(String, int, int)
     /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
     public static void encodeElement(final String element, final StringBuilder builder) {
@@ -132,8 +134,15 @@ public abstract class PostgreArrays extends ArrayMappings {
 
     public static String arrayBeforeBind(final Object source, final BiConsumer<Object, StringBuilder> consumer,
                                          final DataType dataType, final MappingType type) {
-        return arrayBeforeBind(source, consumer, dataType, type, UserMappingType::paramError);
+
+        try {
+            final ArrayParser parser = ArrayParser.defaultParser();
+            return parser.parse(((MappingType.SqlArray) type).underlyingJavaType(), source, consumer);
+        } catch (IllegalArgumentException e) {
+            throw UserMappingType.paramError(type, dataType, source, e);
+        }
     }
+
 
     public static String arrayBeforeBind(final Object source, final BiConsumer<Object, StringBuilder> consumer,
                                          final DataType dataType, final MappingType type,
@@ -274,11 +283,11 @@ public abstract class PostgreArrays extends ArrayMappings {
 
 
     /// TODO handle UNLIMITED array
+    ///
     /// @param nonNull     true : element of one dimension array non-null
-    /// @param elementFunc
-    /// - offset is non-whitespace,non-whitespace before end
+    /// @param elementFunc - offset is non-whitespace,non-whitespace before end
     /// - no notation **null**,because have handled
-    /// 
+    ///
     public static Object parseArray(final String text, final boolean nonNull, final TextFunction<?> elementFunc,
                                     final char delimiter, final DataType dataType, final MappingType type,
                                     final ErrorHandler handler) throws IllegalArgumentException {
@@ -409,9 +418,10 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    /// 
+    ///
     /// parse postgre array text.
     /// *
+    ///
     /// @see <a href="https://www.postgresql.org/docs/15/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
     static Object parseArrayText(final Class<?> javaType, final String text, final boolean nonNull, final char delimiter,
                                  final TextFunction<?> function) throws IllegalArgumentException {
@@ -473,9 +483,10 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    /// 
+    ///
     /// parse postgre array text.
     /// *
+    ///
     /// @param function       before end index possibly with trailing whitespace.
     /// @param dimensionIndex based one
     /// @see <a href="https://www.postgresql.org/docs/15/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>

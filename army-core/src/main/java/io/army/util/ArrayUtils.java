@@ -189,6 +189,21 @@ public abstract class ArrayUtils {
 
     }
 
+    public static boolean underlyingComponentMatch(final Class<?> underlying, final Class<?> arrayType) {
+        if (!arrayType.isArray()) {
+            throw new IllegalArgumentException(String.format("%s isn't array type", arrayType.getName()));
+        }
+
+        boolean match = false;
+        for (Class<?> componentType = arrayType; componentType.isArray(); componentType = componentType.getComponentType()) {
+            if (componentType == underlying) {
+                match = true;
+                break;
+            }
+        }
+        return match;
+    }
+
     public static int dimensionOf(final Class<?> arrayType) {
         if (List.class.isAssignableFrom(arrayType)) {
             return 1;

@@ -198,6 +198,8 @@ public enum ArmyType {
     /// This enum instance is only returned by {@link RecordMeta#getArmyType(int)}
     COMPOSITE,
 
+    VECTOR,
+
 
     /// Indicates that the dialect data type  .
     /// This enum instance is only returned by {@link RecordMeta#getArmyType(int)}

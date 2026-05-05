@@ -24,8 +24,8 @@ import io.army.mapping.array.TextArrayType;
 import io.army.mapping.array.XmlArrayType;
 import io.army.mapping.optional.JsonPathType;
 import io.army.mapping.optional.NoCastTextType;
+import io.army.mapping.optional.VectorType;
 import io.army.mapping.postgre.PgTsQueryType;
-import io.army.mapping.postgre.PgVectorType;
 import io.army.meta.TableMeta;
 import io.army.util.ArrayUtils;
 import io.army.util._Collections;
@@ -54,8 +54,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     }
 
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
@@ -73,8 +73,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return arrayToTsVector(funcRef.apply(TextArrayType.from(String[].class), value));
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">array_to_tsvector ( text[] ) → tsvector</a>
     public static SimpleExpression arrayToTsVector(Expression exp) {
@@ -290,8 +290,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return LiteralFunctions.oneArgFunc("QUERYTREE", tsQuery);
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @param funcRefForVector the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
@@ -301,7 +301,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - {@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax
     /// - developer custom method
     /// .
-    /// The first argument of funcRefForVector always is {@link PgVectorType#INSTANCE}.
+    /// The first argument of funcRefForVector always is {@link VectorType#INSTANCE}.
     /// @param vector           non-null,it will be passed to funcRefForVector as the second argument of funcRefForVector
     /// @param funcRefForWeight the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
@@ -320,13 +320,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// </a>
     public static <T, U> Expression setWeight(BiFunction<MappingType, T, Expression> funcRefForVector, T vector,
                                                     BiFunction<MappingType, U, Expression> funcRefForWeight, U weight) {
-        return setWeight(funcRefForVector.apply(PgVectorType.INSTANCE, vector),
+        return setWeight(funcRefForVector.apply(VectorType.INSTANCE, vector),
                 funcRefForWeight.apply(CharacterType.INSTANCE, weight)
         );
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">setweight ( vector tsvector, weight "char" ) → tsvector
     /// Assigns the specified weight to each element of the vector.
@@ -336,8 +336,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return LiteralFunctions.twoArgFunc("SETWEIGHT", vector, weight);
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @param funcRefForVector  the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
@@ -347,7 +347,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - {@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax
     /// - developer custom method
     /// .
-    /// The first argument of funcRefForVector always is {@link PgVectorType#INSTANCE}.
+    /// The first argument of funcRefForVector always is {@link VectorType#INSTANCE}.
     /// @param vector            non-null,it will be passed to funcRefForVector as the second argument of funcRefForVector
     /// @param funcRefForWeight  the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
@@ -378,14 +378,14 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     public static <T, U, V> Expression setWeight(BiFunction<MappingType, T, Expression> funcRefForVector, T vector,
                                                        BiFunction<MappingType, U, Expression> funcRefForWeight, U weight,
                                                        BiFunction<MappingType, V, Expression> funcRefForLexemes, V lexemes) {
-        return setWeight(funcRefForVector.apply(PgVectorType.INSTANCE, vector),
+        return setWeight(funcRefForVector.apply(VectorType.INSTANCE, vector),
                 funcRefForWeight.apply(CharacterType.INSTANCE, weight),
                 funcRefForLexemes.apply(TextArrayType.from(String[].class), lexemes)
         );
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">setweight ( vector tsvector, weight "char", lexemes text[] ) → tsvector
     /// Assigns the specified weight to elements of the vector that are listed in lexemes. The strings in lexemes are taken as lexemes as-is, without further
@@ -396,8 +396,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return LiteralFunctions.threeArgFunc("SETWEIGHT", vector, weight, lexemes);
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
@@ -407,16 +407,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - {@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax
     /// - developer custom method
     /// .
-    /// The first argument of funcRef always is {@link PgVectorType} with one dimension array.
+    /// The first argument of funcRef always is {@link VectorType} with one dimension array.
     /// @param value   non-null,it will be passed to funcRef as the second argument of funcRef
     /// @see #strip(Expression)
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">array_to_tsvector ( text[] ) → tsvector</a>
     public static <T> Expression strip(BiFunction<MappingType, T, Expression> funcRef, T value) {
-        return strip(funcRef.apply(PgVectorType.INSTANCE, value));
+        return strip(funcRef.apply(VectorType.INSTANCE, value));
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">strip ( tsvector ) → tsvector
     /// Removes positions and weights from the tsvector.
@@ -493,8 +493,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return LiteralFunctions.twoArgFunc("TO_TSQUERY", config, query);
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @see #toTsVector(Expression, Expression)
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsvector ( [ config regconfig, ] document text ) → tsvector</a>
@@ -502,16 +502,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return LiteralFunctions.oneArgFunc("TO_TSVECTOR", document);
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsvector ( [ config regconfig, ] document text ) → tsvector</a>
     public static SimpleExpression toTsVector(Expression config, Expression document) {
         return LiteralFunctions.twoArgFunc("TO_TSVECTOR", config, document);
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @param funcRefForDocument the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
@@ -542,16 +542,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         );
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">json_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
     public static SimpleExpression jsonToTsVector(Expression document, Expression filter) {
         return LiteralFunctions.twoArgFunc("JSON_TO_TSVECTOR", document, filter);
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @param funcRefForConfig   the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
@@ -594,16 +594,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         );
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">json_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
     public static SimpleExpression jsonToTsVector(Expression config, Expression document, Expression filter) {
         return LiteralFunctions.threeArgFunc("JSON_TO_TSVECTOR", config, document, filter);
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @param funcRefForDocument the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
@@ -634,16 +634,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         );
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">jsonb_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
     public static SimpleExpression jsonbToTsVector(Expression document, Expression filter) {
         return LiteralFunctions.twoArgFunc("JSONB_TO_TSVECTOR", document, filter);
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @param funcRefForConfig   the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
@@ -686,16 +686,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         );
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">jsonb_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
     public static SimpleExpression jsonbToTsVector(Expression config, Expression document, Expression filter) {
         return LiteralFunctions.threeArgFunc("JSONB_TO_TSVECTOR", config, document, filter);
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">ts_delete ( vector tsvector, lexeme text ) → tsvector</a>
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">ts_delete ( vector tsvector, lexemes text[] ) → tsvector</a>
@@ -703,8 +703,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return LiteralFunctions.twoArgFunc("TS_DELETE", tsVector, lexeme);
     }
 
-    /// 
-    /// The {@link MappingType} of function return type: {@link  PgVectorType}
+    ///
+    /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">ts_filter ( vector tsvector, weights "char"[] ) → tsvector</a>
     public static SimpleExpression tsFilter(Expression tsVector, Expression lexeme) {

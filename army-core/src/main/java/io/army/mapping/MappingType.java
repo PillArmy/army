@@ -31,7 +31,7 @@ import io.army.sqltype.SQLType;
 
 import java.util.List;
 
-public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permits AbstractMappingType {
+public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permits AbstractMappingType, ArrayMappingType {
 
     /// document type mapping ,perhaps return null value ,for example : {@link JsonType#afterGet(DataType, MappingEnv, Object)}
     Object DOCUMENT_NULL_VALUE = new Object();
