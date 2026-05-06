@@ -18,6 +18,7 @@ package io.army.criteria;
 
 import io.army.criteria.impl.SQLs;
 import io.army.lang.Nullable;
+import io.army.mapping.ArrayMappingType;
 import io.army.mapping.IntegerType;
 import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
@@ -159,49 +160,51 @@ public interface Expression extends SortItem, RowElement, RightOperand,
 
     /// 
     /// **= ANY** operator
-    IPredicate equalAny(SubQuery subQuery);
+    IPredicate equalAny(SQLValueList operand);
 
     /// Operator {@code = SOME}
     /// 
     /// @see <a href="https://dev.mysql.com/doc/refman/9.6/en/any-in-some-subqueries.html">Subqueries with ANY, IN, or SOME</a>
-    IPredicate equalSome(SubQuery subQuery);
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-comparisons.html">Row and Array Comparisons</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-subquery.html">Subquery Expressions</a>
+    IPredicate equalSome(SQLValueList operand);
 
-    IPredicate equalAll(SubQuery subQuery);
+    IPredicate equalAll(SQLValueList operand);
 
-    IPredicate notEqualAny(SubQuery subQuery);
+    IPredicate notEqualAny(SQLValueList operand);
 
-    IPredicate notEqualSome(SubQuery subQuery);
+    IPredicate notEqualSome(SQLValueList operand);
 
-    IPredicate notEqualAll(SubQuery subQuery);
+    IPredicate notEqualAll(SQLValueList operand);
 
-    IPredicate lessAny(SubQuery subQuery);
+    IPredicate lessAny(SQLValueList operand);
 
-    IPredicate lessSome(SubQuery subQuery);
+    IPredicate lessSome(SQLValueList operand);
 
-    IPredicate lessAll(SubQuery subQuery);
+    IPredicate lessAll(SQLValueList operand);
 
-    IPredicate lessEqualAny(SubQuery subQuery);
+    IPredicate lessEqualAny(SQLValueList operand);
 
-    IPredicate lessEqualSome(SubQuery subQuery);
+    IPredicate lessEqualSome(SQLValueList operand);
 
-    IPredicate lessEqualAll(SubQuery subQuery);
+    IPredicate lessEqualAll(SQLValueList operand);
 
-    IPredicate greaterAny(SubQuery subQuery);
+    IPredicate greaterAny(SQLValueList operand);
 
-    IPredicate greaterSome(SubQuery subQuery);
+    IPredicate greaterSome(SQLValueList operand);
 
-    IPredicate greaterAll(SubQuery subQuery);
+    IPredicate greaterAll(SQLValueList operand);
 
-    IPredicate greaterEqualAny(SubQuery subQuery);
+    IPredicate greaterEqualAny(SQLValueList operand);
 
-    IPredicate greaterEqualSome(SubQuery subQuery);
+    IPredicate greaterEqualSome(SQLValueList operand);
 
-    IPredicate greaterEqualAll(SubQuery subQuery);
+    IPredicate greaterEqualAll(SQLValueList operand);
 
 
-    IPredicate in(SQLColumnList row);
+    IPredicate in(SQLValueList row);
 
-    IPredicate notIn(SQLColumnList row);
+    IPredicate notIn(SQLValueList row);
 
     Expression mod(Object operand);
 
@@ -476,9 +479,12 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     /// Map the expression to a known type expression,but don't support codec.
     TypedExpression mapTo(MappingType typeMeta);
 
+    ArrayExpression mapToArray(ArrayMappingType type);
 
     @Support({PostgreSQL})
     TypedExpression castTo(MappingType type);
+
+    ArrayExpression castToArray(ArrayMappingType type);
 
     /// @return always this
     @Override

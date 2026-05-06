@@ -120,6 +120,8 @@ public interface TableMeta<T> extends TabularItem, DatabaseObject.TypeObject {
     /// @throws IllegalArgumentException when not found matched {@link UniqueFieldMeta} for fieldName
     UniqueFieldMeta<T> uniqueField(String fieldName);
 
+    ArrayFieldMeta<T> arrayField(String fieldName);
+
     List<FieldMeta<?>> fieldChain();
 
     @Override

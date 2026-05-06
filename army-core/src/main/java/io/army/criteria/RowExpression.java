@@ -18,22 +18,23 @@ package io.army.criteria;
 
 import io.army.criteria.impl.SQLs;
 
-/// 
+///
 /// This interface representing one row in SQL.
+///
 /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/row-constructor-optimization.html">MySQL Row Constructor Expression Optimization</a>
 /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/range-optimization.html#row-constructor-range-optimization">Range Optimization of Row Constructor Expressions</a>
 /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/row-subqueries.html">MySQL Row Subqueries</a>
 /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ROW-CONSTRUCTORS">Row Constructors</a>
 /// @see <a href="https://www.postgresql.org/docs/current/functions-comparisons.html#ROW-WISE-COMPARISON">Row Constructor Comparison</a>
 /// @since 0.6.0
-public interface RowExpression extends Expression, SQLColumnList {
+public interface RowExpression extends Expression, SQLValueList {
 
 
     /// Get column size , if return negative then representing unknown,
     /// for example : named row literal expression, see
     /// 1. {@link SQLs#namedRowLiteral(TypeInfer, String)}
     /// 2. {@link SQLs#namedRowConst(TypeInfer, String)}
-    /// 
+    ///
     /// @return negative : unknown
     int columnSize();
 

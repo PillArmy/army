@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package io.army.criteria;
+package io.army.meta;
 
-/// 
-/// This interface representing array subscript expression.
-/// @since 0.6.0
-@Deprecated
-public interface ArraySubscript {
+import io.army.criteria.ArrayExpression;
+
+public interface ArrayFieldMeta<T> extends FieldMeta<T>, ArrayExpression {
 
 
 }

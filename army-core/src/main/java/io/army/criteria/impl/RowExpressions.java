@@ -43,7 +43,7 @@ abstract class RowExpressions {
     }
 
 
-    static void validateColumnSize(final SQLColumnList left, final SQLColumnList right) {
+    static void validateColumnSize(final SQLValueList left, final SQLValueList right) {
         if (right instanceof SubQuery) {
             Expressions.validateSubQueryContext((SubQuery) right);
         }
@@ -72,7 +72,7 @@ abstract class RowExpressions {
     }
 
 
-    private static void doValidateColumnSize(final SQLColumnList left, final SQLColumnList right) {
+    private static void doValidateColumnSize(final SQLValueList left, final SQLValueList right) {
         final int leftSize, rightSize;
 
         if (left instanceof RowExpression) {

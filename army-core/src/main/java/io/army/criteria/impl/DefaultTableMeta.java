@@ -470,6 +470,21 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         return (UniqueFieldMeta<T>) fieldMeta;
     }
 
+    @Override
+    public final ArrayFieldMeta<T> arrayField(String fieldName) {
+        final FieldMeta<T> fieldMeta;
+        fieldMeta = this.fieldNameToFields.get(fieldName);
+        if (fieldMeta == null) {
+            throw notFoundField(fieldName);
+        }
+
+        if (!(fieldMeta instanceof ArrayFieldMeta)) {
+            String m = String.format("%s's %s[%s] java type not match", this
+                    , ArrayFieldMeta.class.getName(), fieldName);
+            throw new IllegalArgumentException(m);
+        }
+        return (ArrayFieldMeta<T>) fieldMeta;
+    }
 
     @Override
     public final List<FieldMeta<?>> fieldChain() {

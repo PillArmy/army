@@ -21,6 +21,7 @@ import io.army.criteria.*;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
+import io.army.mapping.ArrayMappingType;
 import io.army.mapping.IntegerType;
 import io.army.mapping.MappingType;
 import io.army.mapping.NullType;
@@ -31,12 +32,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
-/// 
+///
 /// This class representing non-operation expression.
 /// This class is base class of following :
 /// - {@link SQLs#DEFAULT}
 /// - {@link SQLs#ASTERISK}
-/// 
+///
 abstract class NonOperationExpression implements ArmyExpression {
 
 
@@ -74,17 +75,17 @@ abstract class NonOperationExpression implements ArmyExpression {
     }
 
     @Override
-    public final IPredicate equalAny(SubQuery subQuery) {
+    public final IPredicate equalAny(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate equalSome(SubQuery subQuery) {
+    public final IPredicate equalSome(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate equalAll(SubQuery subQuery) {
+    public final IPredicate equalAll(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
@@ -95,17 +96,17 @@ abstract class NonOperationExpression implements ArmyExpression {
 
 
     @Override
-    public final IPredicate lessAny(SubQuery subQuery) {
+    public final IPredicate lessAny(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate lessSome(SubQuery subQuery) {
+    public final IPredicate lessSome(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate lessAll(SubQuery subQuery) {
+    public final IPredicate lessAll(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
@@ -116,17 +117,17 @@ abstract class NonOperationExpression implements ArmyExpression {
 
 
     @Override
-    public final IPredicate lessEqualAny(SubQuery subQuery) {
+    public final IPredicate lessEqualAny(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate lessEqualSome(SubQuery subQuery) {
+    public final IPredicate lessEqualSome(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate lessEqualAll(SubQuery subQuery) {
+    public final IPredicate lessEqualAll(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
@@ -137,17 +138,17 @@ abstract class NonOperationExpression implements ArmyExpression {
 
 
     @Override
-    public final IPredicate greaterAny(SubQuery subQuery) {
+    public final IPredicate greaterAny(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate greaterSome(SubQuery subQuery) {
+    public final IPredicate greaterSome(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate greaterAll(SubQuery subQuery) {
+    public final IPredicate greaterAll(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
@@ -158,32 +159,32 @@ abstract class NonOperationExpression implements ArmyExpression {
 
 
     @Override
-    public final IPredicate greaterEqualAny(SubQuery subQuery) {
+    public final IPredicate greaterEqualAny(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate greaterEqualSome(SubQuery subQuery) {
+    public final IPredicate greaterEqualSome(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate greaterEqualAll(SubQuery subQuery) {
+    public final IPredicate greaterEqualAll(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate notEqualAny(SubQuery subQuery) {
+    public final IPredicate notEqualAny(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate notEqualSome(SubQuery subQuery) {
+    public final IPredicate notEqualSome(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate notEqualAll(SubQuery subQuery) {
+    public final IPredicate notEqualAll(SQLValueList operand) {
         throw unsupportedOperation(this);
     }
 
@@ -242,12 +243,12 @@ abstract class NonOperationExpression implements ArmyExpression {
 
 
     @Override
-    public final IPredicate in(SQLColumnList row) {
+    public final IPredicate in(SQLValueList row) {
         throw unsupportedOperation(this);
     }
 
     @Override
-    public final IPredicate notIn(SQLColumnList row) {
+    public final IPredicate notIn(SQLValueList row) {
         throw unsupportedOperation(this);
     }
 
@@ -523,13 +524,20 @@ abstract class NonOperationExpression implements ArmyExpression {
         throw unsupportedOperation(this);
     }
 
+    @Override
+    public final ArrayExpression mapToArray(ArrayMappingType type) {
+        throw unsupportedOperation(this);
+    }
 
     @Override
     public final TypedExpression castTo(MappingType type) {
         throw unsupportedOperation(this);
     }
 
-
+    @Override
+    public final ArrayExpression castToArray(ArrayMappingType type) {
+        throw unsupportedOperation(this);
+    }
 
     @Override
     public final Selection as(String selectionLabel) {
@@ -659,8 +667,9 @@ abstract class NonOperationExpression implements ArmyExpression {
     } // SQLIdentifierImpl
 
 
-    /// 
+    ///
     /// This class representing sql {@code NULL} key word.
+    ///
     /// @see SQLs#NULL
     static final class NullWord extends NonOperationExpression
             implements SqlValueParam.SingleAnonymousValue,

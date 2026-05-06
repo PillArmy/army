@@ -24,10 +24,7 @@ import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.function.TeNamedParamsFunc;
 import io.army.lang.Nullable;
-import io.army.mapping.BooleanType;
-import io.army.mapping.IntegerType;
-import io.army.mapping.MappingType;
-import io.army.mapping.StringType;
+import io.army.mapping.*;
 import io.army.util._StringUtils;
 
 import java.util.Collection;
@@ -190,112 +187,112 @@ abstract class OperationExpression implements ArmyExpression {
 
 
     @Override
-    public final IPredicate equalAny(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.EQUAL, SQLs.ANY, subQuery);
+    public final IPredicate equalAny(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.EQUAL, SQLs.ANY, operand);
     }
 
     @Override
-    public final IPredicate equalSome(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.EQUAL, SQLs.SOME, subQuery);
+    public final IPredicate equalSome(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.EQUAL, SQLs.SOME, operand);
     }
 
     @Override
-    public final IPredicate equalAll(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.EQUAL, SQLs.ALL, subQuery);
+    public final IPredicate equalAll(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.EQUAL, SQLs.ALL, operand);
     }
 
     @Override
-    public final IPredicate notEqualAny(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.NOT_EQUAL, SQLs.ANY, subQuery);
-    }
-
-
-    @Override
-    public final IPredicate notEqualSome(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.NOT_EQUAL, SQLs.SOME, subQuery);
-    }
-
-    @Override
-    public final IPredicate notEqualAll(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.NOT_EQUAL, SQLs.ALL, subQuery);
+    public final IPredicate notEqualAny(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.NOT_EQUAL, SQLs.ANY, operand);
     }
 
 
     @Override
-    public final IPredicate lessAny(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS, SQLs.ANY, subQuery);
+    public final IPredicate notEqualSome(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.NOT_EQUAL, SQLs.SOME, operand);
+    }
+
+    @Override
+    public final IPredicate notEqualAll(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.NOT_EQUAL, SQLs.ALL, operand);
     }
 
 
     @Override
-    public final IPredicate lessSome(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS, SQLs.SOME, subQuery);
-    }
-
-    @Override
-    public final IPredicate lessAll(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS, SQLs.ALL, subQuery);
+    public final IPredicate lessAny(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS, SQLs.ANY, operand);
     }
 
 
     @Override
-    public final IPredicate lessEqualAny(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS_EQUAL, SQLs.ANY, subQuery);
+    public final IPredicate lessSome(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS, SQLs.SOME, operand);
+    }
+
+    @Override
+    public final IPredicate lessAll(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS, SQLs.ALL, operand);
     }
 
 
     @Override
-    public final IPredicate lessEqualSome(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS_EQUAL, SQLs.SOME, subQuery);
+    public final IPredicate lessEqualAny(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS_EQUAL, SQLs.ANY, operand);
     }
 
 
     @Override
-    public final IPredicate lessEqualAll(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS_EQUAL, SQLs.ALL, subQuery);
-    }
-
-    @Override
-    public final IPredicate greaterAny(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER, SQLs.ANY, subQuery);
+    public final IPredicate lessEqualSome(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS_EQUAL, SQLs.SOME, operand);
     }
 
 
     @Override
-    public final IPredicate greaterSome(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER, SQLs.SOME, subQuery);
+    public final IPredicate lessEqualAll(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.LESS_EQUAL, SQLs.ALL, operand);
+    }
+
+    @Override
+    public final IPredicate greaterAny(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER, SQLs.ANY, operand);
     }
 
 
     @Override
-    public final IPredicate greaterAll(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER, SQLs.ALL, subQuery);
-    }
-
-    @Override
-    public final IPredicate greaterEqualAny(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER_EQUAL, SQLs.ANY, subQuery);
-    }
-
-    @Override
-    public final IPredicate greaterEqualSome(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER_EQUAL, SQLs.SOME, subQuery);
+    public final IPredicate greaterSome(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER, SQLs.SOME, operand);
     }
 
 
     @Override
-    public final IPredicate greaterEqualAll(SubQuery subQuery) {
-        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER_EQUAL, SQLs.ALL, subQuery);
+    public final IPredicate greaterAll(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER, SQLs.ALL, operand);
+    }
+
+    @Override
+    public final IPredicate greaterEqualAny(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER_EQUAL, SQLs.ANY, operand);
+    }
+
+    @Override
+    public final IPredicate greaterEqualSome(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER_EQUAL, SQLs.SOME, operand);
     }
 
 
     @Override
-    public final IPredicate in(SQLColumnList row) {
+    public final IPredicate greaterEqualAll(SQLValueList operand) {
+        return Expressions.compareQueryPredicate(this, DualBooleanOperator.GREATER_EQUAL, SQLs.ALL, operand);
+    }
+
+
+    @Override
+    public final IPredicate in(SQLValueList row) {
         return Expressions.inPredicate(this, false, row);
     }
 
     @Override
-    public final IPredicate notIn(SQLColumnList row) {
+    public final IPredicate notIn(SQLValueList row) {
         return Expressions.inPredicate(this, true, row);
     }
 
@@ -566,11 +563,18 @@ abstract class OperationExpression implements ArmyExpression {
     }
 
     @Override
-    public final TypedExpression castTo(final @Nullable MappingType type) {
-        if (type == null) {
-            throw ContextStack.clearStackAndNullPointer();
-        }
+    public final ArrayExpression mapToArray(ArrayMappingType type) {
+        return Expressions.mapArrayExpType(this, type);
+    }
+
+    @Override
+    public final TypedExpression castTo(final MappingType type) {
         return Expressions.castExpToType(this, type);
+    }
+
+    @Override
+    public final ArrayExpression castToArray(ArrayMappingType type) {
+        return Expressions.castExpToArrayType(this, type);
     }
 
 

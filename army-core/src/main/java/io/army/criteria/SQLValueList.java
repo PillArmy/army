@@ -22,8 +22,9 @@ package io.army.criteria;
 /// 
 /// - {@link RowExpression}
 /// - {@link SubQuery}
-/// 
-/// * @since  1.0
-public interface SQLColumnList extends RightOperand {
+/// - {@link ArrayExpression}
+///
+/// @since 1.0
+public interface SQLValueList extends RightOperand {
 
 }

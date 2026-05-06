@@ -26,11 +26,14 @@ import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
+import io.army.mapping.ArrayMappingType;
 import io.army.mapping.MappingType;
 import io.army.mapping.MultiGenericsMappingType;
+import io.army.mapping._MappingFactory;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.util.ArrayUtils;
+import io.army.util._Assert;
 import io.army.util._Exceptions;
 
 import java.io.IOException;
@@ -62,13 +65,13 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
         if (_MetaBridge.ID.equals(fieldName)) {
             throw new IllegalArgumentException("id can't invoke this method.");
         }
+        final boolean arrayType = _MappingFactory.map(field) instanceof ArrayMappingType;
         final DefaultSimpleFieldMeta<T> fieldMeta;
-        if (_MetaBridge.VISIBLE.equals(fieldName)) {
-            fieldMeta = new VisibleFieldMeta<>(table, field);
+        if (arrayType) {
+            fieldMeta = new DefaultArrayFieldMeta<>(table, field);
         } else {
             fieldMeta = new DefaultSimpleFieldMeta<>(table, field);
         }
-
         final TableFieldMeta<?> cache;
         cache = INSTANCE_MAP.putIfAbsent(fieldMeta, fieldMeta);
 
@@ -79,12 +82,11 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
             String m = String.format("%s.%s can't mapping to simple %s.", table.javaType().getName()
                     , field.getName(), FieldMeta.class.getName());
             throw new IllegalArgumentException(m);
-        } else if (!_MetaBridge.VISIBLE.equals(fieldName)) {
-            // drop fieldMeta ,return cache.
-            simple = (DefaultSimpleFieldMeta<T>) cache;
+        } else if (arrayType) {
+            simple = (DefaultArrayFieldMeta<T>) cache;
         } else {
             // drop fieldMeta ,return cache.
-            simple = (VisibleFieldMeta<T>) cache;
+            simple = (DefaultSimpleFieldMeta<T>) cache;
         }
         return simple;
 
@@ -190,8 +192,6 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
         this.table = (DefaultTableMeta<T>) table;
         this.fieldName = field.getName();
         this.javaType = field.getType();
-
-        assert !_MetaBridge.VISIBLE.equals(this.fieldName) || this instanceof TableFieldMeta.VisibleFieldMeta<T>;
 
         try {
             final Column column;
@@ -490,16 +490,18 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
             super(table, field);
         }
 
-    }
+    } // DefaultSimpleFieldMeta
 
+    private static final class DefaultArrayFieldMeta<T> extends DefaultSimpleFieldMeta<T> implements ArrayFieldMeta<T> {
 
-    private static final class VisibleFieldMeta<T> extends DefaultSimpleFieldMeta<T> {
-
-        private VisibleFieldMeta(TableMeta<T> table, Field field) throws MetaException {
+        private DefaultArrayFieldMeta(TableMeta<T> table, Field field) throws MetaException {
             super(table, field);
-            assert _MetaBridge.VISIBLE.equals(field.getName());
+            _Assert.isTrue(this.mappingType instanceof ArrayMappingType, "");
         }
-    }
+
+
+    } // DefaultArrayFieldMeta
+
 
     private static class DefaultIndexFieldMeta<T> extends TableFieldMeta<T>
             implements IndexFieldMeta<T> {

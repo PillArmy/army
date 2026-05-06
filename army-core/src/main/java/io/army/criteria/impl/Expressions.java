@@ -41,11 +41,12 @@ import java.util.Properties;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-/// 
+///
 /// This class hold the methods that create {@link Expression} and {@link IPredicate}.
-/// 
+///
 /// Below is chines signature:
 /// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+///
 /// @since 0.6.0
 abstract class Expressions {
 
@@ -229,15 +230,44 @@ abstract class Expressions {
     }
 
 
-    static OperationExpression.OperationTypedExpression mapExpType(OperationExpression expression, @Nullable MappingType type) {
+    static TypedExpression mapExpType(OperationExpression expression, @Nullable MappingType type) {
         if (type == null) {
             throw ContextStack.clearStackAndNullPointer();
+        }
+        if (expression instanceof MappingExpression e && e.type.equals(type)) {
+            return e;
         }
         return new MappingExpression(expression, type);
     }
 
-    static TypedExpression castExpToType(OperationExpression expression, MappingType type) {
+    static ArrayExpression mapArrayExpType(OperationExpression expression, @Nullable ArrayMappingType type) {
+        if (type == null) {
+            throw ContextStack.clearStackAndNullPointer();
+        }
+        if (expression instanceof MappingArrayExpression e && e.type.equals(type)) {
+            return e;
+        }
+        return new MappingArrayExpression(expression, type);
+    }
+
+    static TypedExpression castExpToType(OperationExpression expression, @Nullable MappingType type) {
+        if (type == null) {
+            throw ContextStack.clearStackAndNullPointer();
+        }
+        if (expression instanceof CastTypeExpression e && e.type.equals(type)) {
+            return e;
+        }
         return new CastTypeExpression(expression, type);
+    }
+
+    static ArrayExpression castExpToArrayType(OperationExpression expression, @Nullable ArrayMappingType type) {
+        if (type == null) {
+            throw ContextStack.clearStackAndNullPointer();
+        }
+        if (expression instanceof CastArrayExpression e && e.type.equals(type)) {
+            return e;
+        }
+        return new CastArrayExpression(expression, type);
     }
 
 
@@ -255,7 +285,7 @@ abstract class Expressions {
     }
 
     static CompoundPredicate inPredicate(final OperationExpression left, final boolean not,
-                                         final @Nullable SQLColumnList right) {
+                                         final @Nullable SQLValueList right) {
         if (right == null) {
             throw ContextStack.clearStackAndNullPointer();
         } else if (left instanceof RowExpression) {
@@ -322,13 +352,13 @@ abstract class Expressions {
 
 
     static IPredicate betweenPredicate(OperationExpression left, boolean not,
-                                              @Nullable SQLs.BetweenModifier modifier,
-                                              Object center, Object right) {
+                                       @Nullable SQLs.BetweenModifier modifier,
+                                       Object center, Object right) {
         return new BetweenPredicate(left, not, modifier, wrapRight(left, center), wrapRight(left, right));
     }
 
     static IPredicate compareQueryPredicate(final OperationExpression left, final DualBooleanOperator operator,
-                                            final SQLs.QuantifiedWord queryOperator, final SQLColumnList right) {
+                                            final SQLs.QuantifiedWord queryOperator, final SQLValueList right) {
         switch (operator) {
             case LESS:
             case LESS_EQUAL:
@@ -551,7 +581,7 @@ abstract class Expressions {
     }
 
 
-    /// @see #compareQueryPredicate(OperationExpression, DualBooleanOperator, SQLs.QuantifiedWord, SQLColumnList)
+    /// @see #compareQueryPredicate(OperationExpression, DualBooleanOperator, SQLs.QuantifiedWord, SQLValueList)
     private static void assertColumnSubQuery(final DualBooleanOperator operator
             , final SQLs.QuantifiedWord queryOperator, final SubQuery subQuery) {
         validateSubQueryContext(subQuery);
@@ -568,14 +598,14 @@ abstract class Expressions {
     }
 
 
-    /// 
-    /// 
+    ///
+    ///
     /// @param absentAction when expression is {@link SQLs#ABSENT} ,
     /// 1. {@link Boolean#TRUE} : throw {@link CriteriaException}
     /// 2. {@link Boolean#FALSE} : no action
     /// 3. {@link String} : the error message when expression is null
-    /// 
-    /// 
+    ///
+    ///
     static void writeRight(@Nullable Object expression, StringBuilder sqlBuilder, _SqlContext context, Object absentAction) {
         if (expression == null) {
             throw new CriteriaException(RIGHT_REQUIRED);
@@ -602,8 +632,8 @@ abstract class Expressions {
     }
 
 
-    /// 
-    /// 
+    ///
+    ///
     /// @param absentAction 1. {@link Boolean#TRUE} : throw {@link CriteriaException}
     /// 2. {@link Boolean#FALSE} : no action
     /// 3. {@link String} : the error message when expression is null or {@link SQLs#ABSENT}
@@ -655,7 +685,7 @@ abstract class Expressions {
     }
 
 
-    /// @see #inPredicate(OperationExpression, boolean, SQLColumnList)
+    /// @see #inPredicate(OperationExpression, boolean, SQLValueList)
     private static CriteriaException inOpeRowAndSubQueryNotMatch(int leftSize, int rightSize) {
         String m = String.format("Left operand of IN  is row expression and column size is %s, but subquery selection count is %s",
                 leftSize, rightSize);
@@ -671,6 +701,7 @@ abstract class Expressions {
 
     /// This class is an implementation of {@link Expression}.
     /// The expression consist of a left {@link Expression} ,a {@link DualBooleanOperator} and right {@link Expression}.
+    ///
     /// @since 0.6.0
     private static class DualExpression extends OperationExpression.OperationCompoundExpression {
 
@@ -715,9 +746,9 @@ abstract class Expressions {
     }//DualExpression
 
 
-    /// 
+    ///
     /// This class representing unary expression,unary expression always out outer bracket.
-    /// 
+    ///
     /// This class is a implementation of {@link Expression}.
     /// The expression consist of a  {@link Expression} and a {@link UnaryExpOperator}.
     static class UnaryExpression extends OperationExpression.OperationSimpleExpression {
@@ -1037,7 +1068,8 @@ abstract class Expressions {
     }//BetweenPredicate
 
 
-    private static class MappingExpression extends OperationExpression.OperationTypedExpression {
+    private static final class MappingExpression extends OperationExpression.OperationTypedExpression
+            implements ArmySimpleExpression {
 
         private final ArmyExpression expression;
 
@@ -1055,20 +1087,53 @@ abstract class Expressions {
         }
 
         @Override
-        public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
-            this.expression.appendSql(sqlBuilder, context);
+        public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
+            writeConcatenationExpression(this.expression, sqlBuilder, context);
         }
 
         @Override
-        public final String toString() {
-            return this.expression.toString();
+        public String toString() {
+            final StringBuilder builder = new StringBuilder();
+            toStringConcatenationExpression(this.expression, builder);
+            return builder.toString();
         }
 
 
     } // MappingExpression
 
+    private static final class MappingArrayExpression extends OperationExpression.OperationTypedExpression
+            implements ArrayExpression, ArmySimpleExpression {
 
-    private static class CastTypeExpression extends OperationExpression.OperationTypedExpression
+        private final ArmyExpression expression;
+
+        private final ArrayMappingType type;
+
+        private MappingArrayExpression(ArmyExpression expression, ArrayMappingType type) {
+            this.expression = expression;
+            this.type = type;
+        }
+
+        @Override
+        public TypeMeta typeMeta() {
+            return this.type;
+        }
+
+        @Override
+        public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
+            writeConcatenationExpression(this.expression, sqlBuilder, context);
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder builder = new StringBuilder();
+            toStringConcatenationExpression(this.expression, builder);
+            return builder.toString();
+        }
+
+    } // MappingArrayExpression
+
+
+    private static final class CastTypeExpression extends OperationExpression.OperationTypedExpression
             implements ArmySimpleExpression {
 
         private final ArmyExpression expression;
@@ -1088,14 +1153,14 @@ abstract class Expressions {
         }
 
         @Override
-        public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
+        public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
             writeConcatenationExpression(this.expression, sqlBuilder, context);
             appendTypeCastSuffix(sqlBuilder, context, this.type);
         }
 
 
         @Override
-        public final String toString() {
+        public String toString() {
             final StringBuilder builder = new StringBuilder();
             toStringConcatenationExpression(this.expression, builder);
             return builder.append("::")
@@ -1106,6 +1171,42 @@ abstract class Expressions {
 
     } // CastTypeExpression
 
+    private static final class CastArrayExpression extends OperationExpression.OperationTypedExpression
+            implements ArrayExpression, ArmySimpleExpression {
+
+        private final ArmyExpression expression;
+
+        private final ArrayMappingType type;
+
+        private CastArrayExpression(ArmyExpression expression, ArrayMappingType type) {
+            this.expression = expression;
+            this.type = type;
+        }
+
+        @Override
+        public TypeMeta typeMeta() {
+            return this.type;
+        }
+
+        @Override
+        public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
+            writeConcatenationExpression(this.expression, sqlBuilder, context);
+            appendTypeCastSuffix(sqlBuilder, context, this.type);
+        }
+
+
+        @Override
+        public String toString() {
+            final StringBuilder builder = new StringBuilder();
+            toStringConcatenationExpression(this.expression, builder);
+            return builder.append("::")
+                    .append(this.type.getClass())
+                    .toString();
+        }
+
+
+    } // CastArrayExpression
+
 
     private static final class SubQueryPredicate extends OperationPredicate.OperationCompoundPredicate {
 
@@ -1115,11 +1216,11 @@ abstract class Expressions {
 
         private final SQLs.QuantifiedWord queryOperator;
 
-        private final SQLColumnList right;
+        private final SQLValueList right;
 
-        /// @see #compareQueryPredicate(OperationExpression, DualBooleanOperator, SQLs.QuantifiedWord, SQLColumnList)
+        /// @see #compareQueryPredicate(OperationExpression, DualBooleanOperator, SQLs.QuantifiedWord, SQLValueList)
         private SubQueryPredicate(OperationExpression left, DualBooleanOperator operator,
-                                  SQLs.QuantifiedWord queryOperator, SQLColumnList right) {
+                                  SQLs.QuantifiedWord queryOperator, SQLValueList right) {
             this.left = left;
             this.operator = operator;
             this.queryOperator = queryOperator;
@@ -1271,11 +1372,11 @@ abstract class Expressions {
 
         final boolean not;
 
-        final SQLColumnList right;
+        final SQLValueList right;
 
 
-        /// @see #inPredicate(OperationExpression, boolean, SQLColumnList)
-        private InOperationPredicate(OperationExpression left, boolean not, SQLColumnList right) {
+        /// @see #inPredicate(OperationExpression, boolean, SQLValueList)
+        private InOperationPredicate(OperationExpression left, boolean not, SQLValueList right) {
             this.left = left;
             this.not = not;
             this.right = right;
@@ -1291,7 +1392,7 @@ abstract class Expressions {
             }
             sqlBuilder.append(" IN");
 
-            final SQLColumnList right = this.right;
+            final SQLValueList right = this.right;
             if (right instanceof SubQuery) {
                 context.appendSubQuery((SubQuery) right);
             } else {
@@ -1321,7 +1422,7 @@ abstract class Expressions {
     }//InOperationPredicate
 
 
-    /// 
+    ///
     /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-ACCESSING">ARRAYS-ACCESSING</a>
     private static final class ArraySliceExpression extends OperationExpression.OperationSimpleExpression {
 

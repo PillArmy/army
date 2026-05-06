@@ -16,21 +16,13 @@
 
 package io.army.criteria;
 
-import io.army.criteria.impl.SQLs;
-import io.army.mapping.MappingType;
-
-import java.util.function.BiFunction;
-
-import static io.army.dialect.Database.H2;
-import static io.army.dialect.Database.PostgreSQL;
-
-/// 
+///
 /// This interface representing array {@link Expression}.
+///
 /// @see <a href="https://www.postgresql.org/docs/current/arrays.html">Arrays</a>
+/// @see <a href="https://www.postgresql.org/docs/current/functions-comparisons.html">Row and Array Comparisons</a>
 /// @since 0.6.0
-//@Deprecated
-public interface ArrayExpression extends SimpleExpression, TypedExpression {
-
+public interface ArrayExpression extends TypedExpression, SQLValueList {
 
 
 }

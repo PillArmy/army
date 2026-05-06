@@ -21,7 +21,7 @@ package io.army.criteria;
 /// This interface is base interface of blow interface:
 /// 
 /// - {@link Expression}
-/// - {@link SQLColumnList}
+/// - {@link SQLValueList}
 /// 
 /// * @since 0.6.0
 public interface RightOperand extends Item {

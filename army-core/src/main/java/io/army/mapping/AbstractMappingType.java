@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 abstract sealed class AbstractMappingType extends MappingSupport implements MappingType
-        permits _ArmyBuildInType, UserMappingType, UserArrayType {
+        permits _ArmyBuildInType, UserMappingType {
 
 
     @Deprecated
