@@ -646,6 +646,7 @@ public abstract class ExecutorSupport {
             return getOrSupplier(getRecordMeta().getColumnIndex(columnLabel), supplier);
         }
 
+        @Nullable
         @Override
         public final <T> T get(String columnLabel, Class<T> columnClass) {
             return get(getRecordMeta().getColumnIndex(columnLabel), columnClass);

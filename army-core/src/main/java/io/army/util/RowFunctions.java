@@ -419,7 +419,8 @@ public abstract class RowFunctions {
                             .collation(record.get("collation", String.class))
                             .notNull(record.getNonNull("notNull", Boolean.class))
                             .defaultValue(record.get("default", String.class))
-                            .constraintName(record.get("constraint", String.class))
+                            .constraintName(record.get("constraintName", String.class))
+                            .check(record.get("check", String.class))
 
                             .build();
 
