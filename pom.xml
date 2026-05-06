@@ -81,7 +81,7 @@
         <ali.druid.version>1.1.20</ali.druid.version>
         <r2dbc-postgresql.version>0.8.4.RELEASE</r2dbc-postgresql.version>
 
-        <reactor.netty.version>1.1.15</reactor.netty.version>
+        <reactor.netty.version>1.3.5</reactor.netty.version>
         <netty.version>4.1.106.Final</netty.version>
         <netty.native.classifier>osx-x86_64</netty.native.classifier>
 
@@ -92,6 +92,7 @@
         <jdbd.version>0.13.0-SNAPSHOT</jdbd.version>
         <jdbd.mysql.version>0.12.0-SNAPSHOT</jdbd.mysql.version>
         <hibernate.version>7.3.1.Final</hibernate.version>
+        <nacos.version>3.2.0</nacos.version>
     </properties>
 
     <dependencyManagement>
@@ -186,6 +187,23 @@
             </dependency>
 
             <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>${spring.boot.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>jakarta.activation</groupId>
+                <artifactId>jakarta.activation-api</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
                 <version>${jsr305.version}</version>
@@ -279,7 +297,13 @@
             <dependency>
                 <groupId>com.alibaba.nacos</groupId>
                 <artifactId>nacos-client</artifactId>
-                <version>3.2.0</version>
+                <version>${nacos.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.nacos</groupId>
+                <artifactId>nacos-spring-context</artifactId>
+                <version>2.1.1</version>
             </dependency>
 
             <dependency>

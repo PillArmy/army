@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: army-stock
+nacos:
+  username: nacos
+  password: NvoZD0jomivo
+
+#logging:
+#  level:
+#    com.alibaba.nacos: DEBUG
+#    org.springframework: INFO
