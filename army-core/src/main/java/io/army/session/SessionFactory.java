@@ -16,11 +16,13 @@
 
 package io.army.session;
 
+import io.army.codec.JsonCodec;
 import io.army.criteria.Visible;
 import io.army.dialect.Database;
 import io.army.env.AllowMode;
 import io.army.env.ArmyEnvironment;
 import io.army.executor.ExecutorFactory;
+import io.army.lang.Nullable;
 import io.army.meta.SchemaMeta;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
@@ -28,7 +30,6 @@ import io.army.option.Option;
 import io.army.spec.CloseableSpec;
 import io.army.spec.OptionSpec;
 
-import io.army.lang.Nullable;
 import java.time.ZoneOffset;
 import java.util.Map;
 
@@ -51,6 +52,8 @@ public sealed interface SessionFactory extends CloseableSpec, OptionSpec permits
     ServerMeta serverMeta();
 
     Database serverDatabase();
+
+    JsonCodec jsonCodec();
 
     Map<Class<?>, TableMeta<?>> tableMap();
 

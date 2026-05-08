@@ -1,0 +1,1 @@
+This module is a implementation of org.springframework.ai.chat.memory.ChatMemoryRepository

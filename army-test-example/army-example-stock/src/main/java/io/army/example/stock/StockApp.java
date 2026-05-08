@@ -10,21 +10,23 @@ import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.SpringApplicationRunListener;
-import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.bootstrap.ConfigurableBootstrapContext;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 @SpringBootApplication
-public class StockApp implements CommandLineRunner, EnvironmentAware {
+public class StockApp implements ApplicationRunner, EnvironmentAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(StockApp.class);
 
@@ -50,35 +52,68 @@ public class StockApp implements CommandLineRunner, EnvironmentAware {
     }
 
     @Override
-    public void run(String... args) {
+    public void run(ApplicationArguments args) throws IOException {
         final var scanner = new Scanner(System.in);
 
-        String input, response;
+        String input;
         Prompt prompt;
         SystemMessage sm;
         UserMessage um;
         AssistantMessage am;
         List<Message> messageList;
         final ChatClient chatClient = this.chatClient;
-        System.out.println("我是机器人,你可以和我聊天.");
-        while (true) {
-            input = scanner.nextLine();
-            if (input.trim().equals("exit")) {
-                System.out.println("再见");
-                break;
+
+        final Path path = Path.of(System.getProperty("user.dir"),
+                "army-test-example/army-example-stock/src/test/resources/my-local/console.md");
+
+        try (var writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
+
+            final Consumer<String> writerConsumer = str -> {
+                try {
+                    writer.write(str);
+                    writer.flush();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+
+            System.out.println("我是资深股票分析师,你可以和我聊天.");
+
+            while (true) {
+                input = scanner.nextLine();
+                if (input.trim().equals("exit")) {
+                    System.out.println("再见");
+                    break;
+                }
+                sm = new SystemMessage("你是资深股票分析师");
+                um = new UserMessage(input);
+                messageList = List.of(
+                        um
+                        , sm
+                );
+                prompt = new Prompt(messageList);
+
+                writer.write("我: ");
+                writer.write(input);
+                writer.newLine();
+                writer.newLine();
+
+                writer.write("机器人: ");
+                writer.flush();
+                chatClient.prompt(prompt).stream()
+                        .content()
+                        .doOnNext(System.out::print)
+                        .doOnNext(writerConsumer)
+                        .blockLast();
+
+                writer.newLine();
+                writer.newLine();
+                writer.flush();
+                System.out.println();
+
             }
-            sm = new SystemMessage("你是deepseek");
-            um = new UserMessage(input);
-            am = new AssistantMessage("你是语法大师");
-            messageList = List.of(
-                    um
-                    , sm
-                    //  , am
-            );
-            prompt = new Prompt(messageList);
-            response = chatClient.prompt(prompt).call().content();
-            System.out.println(response);
         }
+
 
     }
 

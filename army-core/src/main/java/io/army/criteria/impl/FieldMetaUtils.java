@@ -18,12 +18,15 @@ package io.army.criteria.impl;
 
 import io.army.annotation.*;
 import io.army.generator.FieldGenerator;
+import io.army.generator.GeneratorStrategy;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
+import io.army.util._Assert;
 import io.army.util._Exceptions;
+import io.army.util._ResourceUtils;
 import io.army.util._StringUtils;
 
 import java.lang.reflect.Field;
@@ -33,6 +36,7 @@ import java.lang.reflect.Modifier;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 /// @see FieldMeta
@@ -119,6 +123,8 @@ abstract class FieldMetaUtils extends TableMetaUtils {
             String m = String.format("%s is managed by army ,so must no %s", fieldMeta, Generator.class.getName());
             throw new MetaException(m);
         }
+
+
         final Class<?> generatorClass;
         generatorClass = loadPreGeneratorClass(fieldMeta, generator.value());
 
@@ -126,6 +132,94 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         paramMap = getOrcreateFieldParmMap(generator.params(), fieldMeta, field);
         finalMap = overrideParamMapIfNeed(generatorClass, fieldMeta, paramMap);
         return new PreGeneratorMetaImpl(fieldMeta, generatorClass, finalMap);
+    }
+
+    static GeneratorStrategy loadGeneratorStrategy(final FieldMeta<?> fieldMeta) {
+        final String key = GeneratorStrategy.class.getName() + '.' + "properties";
+        Properties properties;
+        properties = (Properties) TableMetaUtils.getCache(key);
+        if (properties == null) {
+            properties = _ResourceUtils.loadArmyProperties("generator_strategy");
+            TableMetaUtils.putCache(key, properties);
+        }
+
+        String value;
+        value = properties.getProperty(fieldMeta.tableMeta().javaType().getName() + '.' + fieldMeta.fieldName());
+        if (!_StringUtils.hasText(value)) {
+            String m = String.format("%s no %s", fieldMeta, GeneratorStrategy.class.getName());
+            throw new MetaException(m);
+        }
+        value = value.trim();
+        final int colonIndex = value.indexOf(':');
+        final String className, paramStr;
+        if (colonIndex < 0) {
+            className = value;
+            paramStr = null;
+        } else {
+            className = value.substring(0, colonIndex);
+            paramStr = value.substring(colonIndex + 1).trim();
+        }
+
+        final Class<?> strategyClass;
+        try {
+            strategyClass = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new MetaException(e.getMessage(), e);
+        }
+        final Method method;
+        try {
+            if (paramStr == null) {
+                method = strategyClass.getMethod("create");
+            } else {
+                method = strategyClass.getMethod("create", String.class);
+            }
+        } catch (NoSuchMethodException e) {
+            throw new MetaException(e.getMessage(), e);
+        }
+
+        final int modifiers = method.getModifiers();
+        if (!Modifier.isPublic(modifiers)
+                || !Modifier.isStatic(modifiers)
+                || !GeneratorStrategy.class.isAssignableFrom(method.getReturnType())) {
+            String m = String.format("%s method %s error", strategyClass, method);
+            throw new MetaException(m);
+        }
+
+        final GeneratorStrategy strategy;
+        try {
+            if (paramStr == null) {
+                strategy = (GeneratorStrategy) method.invoke(null);
+            } else {
+                strategy = (GeneratorStrategy) method.invoke(null, paramStr);
+            }
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new MetaException(e.getMessage(), e);
+        }
+        if (strategy == null) {
+            String m = String.format("%s method %s error", strategyClass, method);
+            throw new MetaException(m);
+        }
+        return strategy;
+    }
+
+    @Nullable
+    static GeneratorMeta createGeneratorMeta(GeneratorStrategy strategy, FieldMeta<?> fieldMeta, boolean isDiscriminator) {
+        final String fieldName = fieldMeta.fieldName();
+        if (isDiscriminator || (!_MetaBridge.ID.equals(fieldName) && _MetaBridge.RESERVED_FIELDS.contains(fieldName))) {
+            String m = String.format("%s is managed by army ,so must no %s", fieldMeta, Generator.class.getName());
+            throw new MetaException(m);
+        }
+
+        final GeneratorType type = strategy.type();
+        if (type == GeneratorType.POST) {
+            return null;
+        }
+        if (type == GeneratorType.RUNTIME) {
+            String m = String.format("%s type() return error", strategy.getClass().getName());
+            throw new MetaException(m);
+        }
+        _Assert.isTrue(type == GeneratorType.PRECEDE, "");
+        return new PreGeneratorMetaImpl(fieldMeta, strategy.generatorClass(), strategy.paramMap());
     }
 
 
@@ -321,7 +415,6 @@ abstract class FieldMetaUtils extends TableMetaUtils {
     }
 
 
-    /// @see #columnGeneratorMeta(Generator, FieldMeta, boolean)
     private static Class<?> loadPreGeneratorClass(FieldMeta<?> fieldMeta, final String className) {
         if (!_StringUtils.hasText(className)) {
             String m = String.format("%s generator no class name", fieldMeta);

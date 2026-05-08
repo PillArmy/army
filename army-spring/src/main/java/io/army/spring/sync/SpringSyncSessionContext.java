@@ -16,10 +16,13 @@
 
 package io.army.spring.sync;
 
+import io.army.lang.Nullable;
 import io.army.session.*;
+import io.army.transaction.TransactionOption;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import io.army.lang.Nullable;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 final class SpringSyncSessionContext implements SyncSessionContext {
 
@@ -79,6 +82,71 @@ final class SpringSyncSessionContext implements SyncSessionContext {
             return sessionClass.cast(session);
         }
         return null;
+    }
+
+
+    @Override
+    public <T> T execute(@Nullable String name, boolean readOnly, Function<SyncSession, T> function) {
+        final SyncSession existSession, session;
+        existSession = tryCurrentSession();
+        if (existSession == null) {
+            session = this.factory.localSession(name, readOnly);
+        } else {
+            session = existSession;
+        }
+        final T result;
+        try {
+            result = function.apply(session);
+        } catch (SessionException e) {
+            throw SpringUtils.wrapSessionError(e);
+        } finally {
+            if (session != existSession) {
+                session.close();
+            }
+        }
+        return result;
+    }
+
+
+    @Override
+    public <T> T executeInTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Function<SyncSession, T> function) {
+
+        final SyncSession existSession, session;
+        existSession = tryCurrentSession();
+        final TransactionOption option;
+        if (existSession == null) {
+            option = optionSupplier.get();
+            session = this.factory.localSession(name, option.isReadOnly());
+        } else {
+            option = null;
+            session = existSession;
+        }
+        final T result;
+        try {
+            if (session != existSession) {
+                ((SyncLocalSession) session).startTransaction(option);
+            }
+            result = function.apply(session);
+            if (session != existSession) {
+                ((SyncLocalSession) session).commit();
+            }
+        } catch (RuntimeException e) {
+            if (session == existSession) {
+                session.markRollbackOnly();
+            } else {
+                ((SyncLocalSession) session).rollback();
+            }
+            if (e instanceof SessionException se) {
+                throw SpringUtils.wrapSessionError(se);
+            }
+            throw e;
+        } finally {
+            if (session != existSession) {
+                session.close();
+            }
+        }
+
+        return result;
     }
 
 

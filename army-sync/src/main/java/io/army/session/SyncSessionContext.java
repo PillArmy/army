@@ -17,9 +17,14 @@
 package io.army.session;
 
 import io.army.lang.Nullable;
+import io.army.transaction.TransactionOption;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /// This interface representing current {@link SyncSession} context.
 /// This interface is designed for some framework,for example {@code  org.springframework.transaction.PlatformTransactionManager}
+///
 /// @since 0.6.0
 public interface SyncSessionContext extends SessionContext {
 
@@ -28,6 +33,7 @@ public interface SyncSessionContext extends SessionContext {
 
     /// Retrieve the current session according to the scoping defined
     /// by this implementation.
+    ///
     /// @return The current session.
     /// @throws NoCurrentSessionException Typically indicates an issue
     /// locating or creating the current session.
@@ -40,6 +46,10 @@ public interface SyncSessionContext extends SessionContext {
 
     @Nullable
     <T extends SyncSession> T tryCurrentSession(Class<T> sessionClass);
+
+    <T> T execute(@Nullable String name, boolean readOnly, Function<SyncSession, T> function);
+
+    <T> T executeInTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Function<SyncSession, T> function);
 
 
 }

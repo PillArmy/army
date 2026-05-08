@@ -14,21 +14,33 @@
  * limitations under the License.
  */
 
-package io.army.codec;
+package io.army.generator;
 
-import io.army.lang.Nullable;
-import java.util.List;
+import io.army.annotation.GeneratorType;
+
 import java.util.Map;
 
-public interface JsonCodec {
+public final class PostGeneratorStrategy implements GeneratorStrategy {
 
-    String encode(Object obj) throws CodecException;
 
-    @Nullable
-    <T> T decode(String json, Class<T> objectClass) throws CodecException;
+    public static PostGeneratorStrategy create() {
+        return new PostGeneratorStrategy();
+    }
 
-    <T> List<T> decodeList(String json, Class<T> elementClass) throws CodecException;
 
-    Map<String, Object> decodeMap(String json) throws CodecException;
+    @Override
+    public GeneratorType type() {
+        return GeneratorType.POST;
+    }
+
+    @Override
+    public Class<?> generatorClass() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<String, String> paramMap() {
+        throw new UnsupportedOperationException();
+    }
 
 }

@@ -17,6 +17,7 @@
 package io.army.session;
 
 import io.army.ArmyException;
+import io.army.codec.JsonCodec;
 import io.army.criteria.Visible;
 import io.army.dialect.Database;
 import io.army.dialect.DialectParser;
@@ -40,11 +41,12 @@ import java.util.function.Function;
 
 /// A abstract implementation of  {@link SessionFactory}.
 /// This class is base class of following :
-/// 
+///
 /// - {@code  io.army.reactive.ArmyReactiveSessionFactory}
 /// - {@code io.army.sync.ArmySyncSessionFactory}
-/// 
+///
 /// Package class
+///
 /// @since 0.6.0
 abstract class ArmySessionFactory implements PackageSessionFactory {
 
@@ -160,6 +162,11 @@ abstract class ArmySessionFactory implements PackageSessionFactory {
     @Override
     public final Database serverDatabase() {
         return this.serverDatabase;
+    }
+
+    @Override
+    public final JsonCodec jsonCodec() {
+        return this.dialectParser.mappingEnv().jsonCodec();
     }
 
     @Override

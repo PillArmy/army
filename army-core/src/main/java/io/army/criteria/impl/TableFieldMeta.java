@@ -25,6 +25,7 @@ import io.army.criteria.impl.inner._Selection;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.generator.FieldGenerator;
+import io.army.generator.GeneratorStrategy;
 import io.army.lang.Nullable;
 import io.army.mapping.ArrayMappingType;
 import io.army.mapping.MappingType;
@@ -241,6 +242,11 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
                 this.generatorType = generatorType;
                 this.generatorMeta = null;
                 FieldMetaUtils.validatePostGenerator(this, generator, isDiscriminator);
+            } else if (generatorType == GeneratorType.RUNTIME) {
+                final GeneratorStrategy strategy;
+                strategy = FieldMetaUtils.loadGeneratorStrategy(this);
+                this.generatorType = strategy.type();
+                this.generatorMeta = FieldMetaUtils.createGeneratorMeta(strategy, this, isDiscriminator);
             } else {
                 throw _Exceptions.unexpectedEnum(generatorType);
             }

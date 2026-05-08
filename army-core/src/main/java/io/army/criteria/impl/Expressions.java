@@ -24,18 +24,10 @@ import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.meta.TypeMeta;
-import io.army.util.ArrayUtils;
-import io.army.util._Collections;
-import io.army.util._Exceptions;
-import io.army.util._StringUtils;
+import io.army.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.BiFunction;
@@ -58,23 +50,11 @@ abstract class Expressions {
 
     static {
         try {
-            final String location;
-            location = String.format("META-INF/army/%s.properties", Expressions.class.getSimpleName());
-            final Enumeration<URL> enumeration;
-            enumeration = Thread.currentThread().getContextClassLoader().getResources(location);
-            URL url = null;
-            final Properties properties = new Properties();
-            while (enumeration.hasMoreElements()) {
-                url = enumeration.nextElement();
-                properties.load(new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8)));
-            } // while loop
-
+            final Properties properties;
+            properties = _ResourceUtils.loadArmyProperties(Expressions.class.getSimpleName());
             final String key = "expression.literal.mode";
             final String modeValue;
             modeValue = properties.getProperty(key, LiteralMode.DEFAULT.name());
-            if (url != null) {
-                LOG.debug("Army {} is {} , effective url {}", key, modeValue, url);
-            }
             LITERAL_MODE = LiteralMode.valueOf(modeValue);
         } catch (Exception e) {
             throw new RuntimeException("expression config load failure", e);

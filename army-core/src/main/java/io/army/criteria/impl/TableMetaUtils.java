@@ -46,7 +46,6 @@ public abstract class TableMetaUtils {
 
     private static final String DESC = "DESC";
 
-    private static Map<Class<?>, Map<Integer, Class<?>>> discriminatorCodeMap = _Collections.hashMap();
 
     private static Map<Class<?>, Pair<Set<String>, Field>> parentFieldPairCache = new ConcurrentHashMap<>();
 
@@ -56,11 +55,6 @@ public abstract class TableMetaUtils {
 
     static void clearCache() {
         synchronized (DefaultTableMeta.LOCK) {
-            final Map<Class<?>, Map<Integer, Class<?>>> discriminatorCodeMap = TableMetaUtils.discriminatorCodeMap;
-            if (discriminatorCodeMap != null) {
-                discriminatorCodeMap.clear();
-                TableMetaUtils.discriminatorCodeMap = null;
-            }
             final Map<Class<?>, Pair<Set<String>, Field>> parentFieldPairCache = TableMetaUtils.parentFieldPairCache;
             if (parentFieldPairCache != null) {
                 parentFieldPairCache.clear();
@@ -96,19 +90,7 @@ public abstract class TableMetaUtils {
     }
 
 
-    private static Map<Class<?>, Map<Integer, Class<?>>> createDiscriminatorCodeMap() {
-        synchronized (DefaultTableMeta.LOCK) {
-            Map<Class<?>, Map<Integer, Class<?>>> map = TableMetaUtils.discriminatorCodeMap;
-            if (map == null) {
-                map = new ConcurrentHashMap<>();
-                TableMetaUtils.discriminatorCodeMap = map;
-            }
-            return map;
-        } // synchronized
-
-    }
-
-    private static synchronized Map<Class<?>, Pair<Set<String>, Field>> createParentFieldPairCache() {
+    private static Map<Class<?>, Pair<Set<String>, Field>> createParentFieldPairCache() {
         synchronized (DefaultTableMeta.LOCK) {
             Map<Class<?>, Pair<Set<String>, Field>> map = TableMetaUtils.parentFieldPairCache;
             if (map == null) {
@@ -241,7 +223,7 @@ public abstract class TableMetaUtils {
         }
 
         if (list.size() == 1) {
-            list = Collections.singletonList(list.get(0));
+            list = Collections.singletonList(list.getFirst());
         } else {
             // reverse class list
             Collections.reverse(list);

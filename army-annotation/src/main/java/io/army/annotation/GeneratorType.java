@@ -18,7 +18,10 @@ package io.army.annotation;
 
 public enum GeneratorType {
     PRECEDE,
-    POST;
+    POST,
+
+    /// see {@code io.army.meta.GeneratorStrategy}
+    RUNTIME;
 
 
     @Override

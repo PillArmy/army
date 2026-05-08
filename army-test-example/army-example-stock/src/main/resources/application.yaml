@@ -1,6 +1,12 @@
 spring:
   application:
     name: army-stock
+  servlet:
+    encoding:
+      charset: UTF-8
+      force-request: true
+      force-response: true
+
 nacos:
   username: nacos
   password: NvoZD0jomivo

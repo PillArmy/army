@@ -16,19 +16,19 @@
 
 package io.army.codec;
 
-import io.army.lang.Nullable;
-import java.util.List;
-import java.util.Map;
+import io.army.ArmyException;
 
-public interface JsonCodec {
+public class CodecException extends ArmyException {
 
-    String encode(Object obj) throws CodecException;
+    public CodecException(String message) {
+        super(message);
+    }
 
-    @Nullable
-    <T> T decode(String json, Class<T> objectClass) throws CodecException;
+    public CodecException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    <T> List<T> decodeList(String json, Class<T> elementClass) throws CodecException;
-
-    Map<String, Object> decodeMap(String json) throws CodecException;
-
+    public CodecException(Throwable cause) {
+        super(cause);
+    }
 }
