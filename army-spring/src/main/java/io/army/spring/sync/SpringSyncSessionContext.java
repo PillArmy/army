@@ -113,7 +113,7 @@ final class SpringSyncSessionContext implements SyncSessionContext {
 
         final SyncSession existSession, session;
         existSession = tryCurrentSession();
-        final TransactionOption option;
+        TransactionOption option;
         if (existSession == null) {
             option = optionSupplier.get();
             session = this.factory.localSession(name, option.isReadOnly());
@@ -121,20 +121,24 @@ final class SpringSyncSessionContext implements SyncSessionContext {
             option = null;
             session = existSession;
         }
+        final boolean newTransaction = session != existSession || !session.inTransaction();
         final T result;
         try {
-            if (session != existSession) {
+            if (newTransaction) {
+                if (option == null) {
+                    option = optionSupplier.get();
+                }
                 ((SyncLocalSession) session).startTransaction(option);
             }
             result = function.apply(session);
-            if (session != existSession) {
+            if (newTransaction) {
                 ((SyncLocalSession) session).commit();
             }
         } catch (RuntimeException e) {
-            if (session == existSession) {
-                session.markRollbackOnly();
-            } else {
+            if (newTransaction) {
                 ((SyncLocalSession) session).rollback();
+            } else {
+                session.markRollbackOnly();
             }
             if (e instanceof SessionException se) {
                 throw SpringUtils.wrapSessionError(se);

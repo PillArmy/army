@@ -214,11 +214,9 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
             final Generator generator;
             if (table instanceof ChildTableMeta && _MetaBridge.ID.equals(this.fieldName)) {
-                this.insertable = true;
                 generator = null;
             } else {
                 generator = field.getAnnotation(Generator.class);
-                this.insertable = FieldMetaUtils.columnInsertable(this, generator, column, isDiscriminator);
             }
             this.updatable = FieldMetaUtils.columnUpdatable(this, column, isDiscriminator);
             this.comment = FieldMetaUtils.columnComment(column, this, isDiscriminator);
@@ -250,6 +248,7 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
             } else {
                 throw _Exceptions.unexpectedEnum(generatorType);
             }
+            this.insertable = FieldMetaUtils.columnInsertable(this, this.generatorType, column, isDiscriminator);
         } catch (ArmyException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -413,6 +412,11 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
     @Override
     public final List<Class<?>> elementTypes() {
         return this.elementTypeList;
+    }
+
+    @Override
+    public final boolean isSerial() {
+        return this.generatorType == GeneratorType.POST;
     }
 
     @Override

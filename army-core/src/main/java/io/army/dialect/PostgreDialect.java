@@ -31,7 +31,9 @@ public enum PostgreDialect implements Dialect {
 
     POSTGRE15(15),
 
-    POSTGRE16(16);
+    POSTGRE16(16),
+
+    POSTGRE18(18);
 
 
     private final byte version;
@@ -88,8 +90,10 @@ public enum PostgreDialect implements Dialect {
                 dialect = PostgreDialect.POSTGRE15;
                 break;
             case 16:
-            default:
                 dialect = PostgreDialect.POSTGRE16;
+                break;
+            default:
+                dialect = PostgreDialect.POSTGRE18;
         }
         return dialect;
 

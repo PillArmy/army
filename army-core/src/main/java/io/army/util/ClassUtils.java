@@ -41,6 +41,9 @@ public abstract class ClassUtils {
     public static boolean isPresent(String className, @Nullable ClassLoader classLoader) {
         boolean present;
         try {
+            if (classLoader == null) {
+                classLoader = Thread.currentThread().getContextClassLoader();
+            }
             Class.forName(className, false, classLoader);
             present = true;
         } catch (ClassNotFoundException e) {

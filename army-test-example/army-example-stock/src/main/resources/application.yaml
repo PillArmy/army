@@ -7,6 +7,8 @@ spring:
       force-request: true
       force-response: true
 
+
+
 nacos:
   username: nacos
   password: NvoZD0jomivo

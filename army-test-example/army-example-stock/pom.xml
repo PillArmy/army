@@ -13,6 +13,12 @@
 
 
     <dependencies>
+
+        <dependency>
+            <groupId>io.qinarmy</groupId>
+            <artifactId>army-model-chat-memory</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.qinarmy</groupId>
             <artifactId>army-example-stock-data</artifactId>
@@ -53,6 +59,12 @@
         <dependency>
             <groupId>com.alibaba.nacos</groupId>
             <artifactId>nacos-spring-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-chat-memory-repository-jdbc</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

@@ -17,10 +17,13 @@
 package io.army.example.util;
 
 import com.alibaba.fastjson2.JSON;
+import io.army.codec.CodecException;
 import io.army.codec.JsonCodec;
 
 import java.util.List;
+import java.util.Map;
 
+@Deprecated
 public final class FastJsonCodec implements JsonCodec {
 
     public static FastJsonCodec getInstance() {
@@ -45,5 +48,8 @@ public final class FastJsonCodec implements JsonCodec {
         return JSON.parseArray(json, elementClass);
     }
 
-
+    @Override
+    public Map<String, Object> decodeMap(String json) throws CodecException {
+        return JSON.parseObject(json);
+    }
 }

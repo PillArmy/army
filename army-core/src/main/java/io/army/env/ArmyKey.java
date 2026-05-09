@@ -38,7 +38,7 @@ public class ArmyKey<T> {
 
     public static final ArmyKey<Boolean> READ_ONLY = new ArmyKey<>("readonly", Boolean.class, Boolean.FALSE);
 
-    public static final ArmyKey<DdlMode> DDL_MODE = new ArmyKey<>("ddl.mode", DdlMode.class, DdlMode.VALIDATE);
+    public static final ArmyKey<DdlMode> DDL_MODE = new ArmyKey<>("ddl.mode", DdlMode.class, DdlMode.UPDATE);
 
     public static final ArmyKey<Database> DATABASE = new ArmyKey<>("database", Database.class, null);
 
@@ -93,9 +93,9 @@ public class ArmyKey<T> {
     /// Currently,jdbd support only this option
     public static final ArmyKey<Boolean> SQL_LOG_PRINT_META = new ArmyKey<>("sql.log.print_meta", Boolean.class, Boolean.FALSE);
 
-    public static final ArmyKey<Boolean> SQL_LOG_PARSING_COST_TIME = new ArmyKey<>("sql.log.sql_parsing_cost_time", Boolean.class, Boolean.FALSE);
+    public static final ArmyKey<Boolean> SQL_LOG_PARSING_TAKE_TIME = new ArmyKey<>("sql.log.sql_parsing_take_time", Boolean.class, Boolean.FALSE);
 
-    public static final ArmyKey<Boolean> SQL_LOG_EXECUTION_COST_TIME = new ArmyKey<>("sql.log.sql_execution_cost_time", Boolean.class, Boolean.FALSE);
+    public static final ArmyKey<Boolean> SQL_LOG_EXECUTION_TAKE_TIME = new ArmyKey<>("sql.log.sql_execution_take_time", Boolean.class, Boolean.FALSE);
 
     /// public static final ArmyKey<Boolean> SQL_LOG_PARSE_PLACEHOLDER = new ArmyKey<>("sql.log.parse_placeholder", Boolean.class, Boolean.FALSE);
 

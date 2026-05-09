@@ -26,16 +26,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class DefaultJacksonJsonCodec implements JsonCodec {
+public final class DefaultJacksonCodec implements JsonCodec {
 
-    public static DefaultJacksonJsonCodec crate(ObjectMapper objectMapper) {
-        return new DefaultJacksonJsonCodec(objectMapper);
+    public static DefaultJacksonCodec create(ObjectMapper objectMapper) {
+        return new DefaultJacksonCodec(objectMapper);
     }
 
     private final ObjectMapper objectMapper;
 
 
-    private DefaultJacksonJsonCodec(ObjectMapper objectMapper) {
+    private DefaultJacksonCodec(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 

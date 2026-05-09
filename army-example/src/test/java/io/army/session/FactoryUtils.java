@@ -109,9 +109,9 @@ public abstract class FactoryUtils {
         // map.put(ArmyKey.SQL_LOG_PRINT_META.name,Boolean.TRUE);
         map.put(ArmyKey.SQL_LOG_MODE.name, SqlLogMode.BEAUTIFY_DEBUG);
 
-        map.put(ArmyKey.SQL_LOG_PARSING_COST_TIME.name, Boolean.TRUE);
+        map.put(ArmyKey.SQL_LOG_PARSING_TAKE_TIME.name, Boolean.TRUE);
 
-        map.put(ArmyKey.SQL_LOG_EXECUTION_COST_TIME.name, Boolean.TRUE);
+        map.put(ArmyKey.SQL_LOG_EXECUTION_TAKE_TIME.name, Boolean.TRUE);
 
         map.put(ArmyKey.QUALIFIED_TABLE_NAME_ENABLE.name, Boolean.FALSE);
 

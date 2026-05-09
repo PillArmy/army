@@ -241,26 +241,23 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         return inheritance != null && fieldName.equals(inheritance.value());
     }
 
-    static boolean columnInsertable(FieldMeta<?> field, @Nullable Generator generator,
+    static boolean columnInsertable(FieldMeta<?> field, @Nullable GeneratorType generatorType,
                                     final Column column, final boolean isDiscriminator) {
         final boolean insertable;
-        if (generator == null) {
+        if (generatorType == null) {
             insertable = isDiscriminator
                     || _MetaBridge.RESERVED_FIELDS.contains(field.fieldName())
                     || column.insertable();
-        } else {
-            switch (generator.type()) {
-                case PRECEDE:
-                    insertable = true;
-                    break;
-                case POST:
-                    // child insertable
-                    insertable = field.tableMeta() instanceof ChildTableMeta;
-                    break;
-                default:
-                    throw _Exceptions.unexpectedEnum(generator.type());
-            }
-
+        } else switch (generatorType) {
+            case PRECEDE:
+                insertable = true;
+                break;
+            case POST:
+                // child insertable
+                insertable = field.tableMeta() instanceof ChildTableMeta;
+                break;
+            default:
+                throw _Exceptions.unexpectedEnum(generatorType);
         }
         return insertable;
     }

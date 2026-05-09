@@ -576,6 +576,31 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
     }
 
 
+    protected final void enumCheckClause(final DatabaseObject.FieldObject field, final StringBuilder builder) {
+        final Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) field.javaType();
+
+        builder.append(_Constant.SPACE)
+                .append("CHECK")
+                .append(_Constant.SPACE)
+                .append(_Constant.LEFT_PAREN);
+        this.parser.safeObjectName(field, builder);
+        builder.append(_Constant.SPACE)
+                .append("IN")
+                .append(_Constant.SPACE)
+                .append(_Constant.LEFT_PAREN);
+
+        final Enum<?>[] enumArray = enumClass.getEnumConstants();
+        for (int i = 0; i < enumArray.length; i++) {
+            if (i > 0) {
+                builder.append(_Constant.COMMA);
+            }
+            this.parser.safeLiteral(StringType.INSTANCE, enumArray[i].name(), false, builder);
+        }
+
+        builder.append(_Constant.RIGHT_PAREN)
+                .append(_Constant.RIGHT_PAREN);
+    }
+
     protected final <T> void appendIndexType(final IndexMeta<T> index, final StringBuilder builder) {
         final String type;
         type = index.type();

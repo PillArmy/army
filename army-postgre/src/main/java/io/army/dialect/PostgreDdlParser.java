@@ -490,6 +490,9 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
                 if (field.precision() > -1) { // https://www.postgresql.org/docs/current/datatype-character.html
                     precision(field, dataType, 10_485_760, 255, builder);
                 }
+                if (Enum.class.isAssignableFrom(field.javaType())) {
+                    enumCheckClause(field, builder);
+                }
             }
             break;
             case BIT:

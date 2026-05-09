@@ -57,5 +57,7 @@ public interface FieldMeta<T> extends TypedTableField<T>,DatabaseObject.FieldObj
     /// else return {@code void.class}.
     List<Class<?>> elementTypes();
 
+    boolean isSerial();
+
 
 }

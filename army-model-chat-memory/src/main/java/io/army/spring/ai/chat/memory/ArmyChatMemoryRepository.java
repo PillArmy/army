@@ -57,7 +57,12 @@ public final class ArmyChatMemoryRepository implements ChatMemoryRepository {
                 .select(List.of(SQLs.DISTINCT))
                 .space(SpringAiChatMemory_.conversationId)
                 .from(SpringAiChatMemory_.T, AS, "t")
-                .orderBy(SpringAiChatMemory_.createTime, SpringAiChatMemory_.id)
+                .orderBy(c -> {
+                    if (!SpringAiChatMemory_.id.isSerial()) {
+                        c.accept(SpringAiChatMemory_.createTime);
+                    }
+                    c.accept(SpringAiChatMemory_.id);
+                })
                 .asQuery();
 
         final Function<SyncSession, List<String>> function;
@@ -75,7 +80,12 @@ public final class ArmyChatMemoryRepository implements ChatMemoryRepository {
                 .select(SpringAiChatMemory_.content, SpringAiChatMemory_.type, SpringAiChatMemory_.specializedData)
                 .from(SpringAiChatMemory_.T, AS, "t")
                 .where(SpringAiChatMemory_.conversationId.equal(conversationId))
-                .orderBy(SpringAiChatMemory_.createTime, SpringAiChatMemory_.id)
+                .orderBy(c -> {
+                    if (!SpringAiChatMemory_.id.isSerial()) {
+                        c.accept(SpringAiChatMemory_.createTime);
+                    }
+                    c.accept(SpringAiChatMemory_.id);
+                })
                 .asQuery();
 
         final JsonCodec jsonCodec;

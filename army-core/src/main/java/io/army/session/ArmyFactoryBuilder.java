@@ -16,11 +16,12 @@
 
 package io.army.session;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import io.army.advice.FactoryAdvice;
 import io.army.annotation.Column;
-import io.army.codec.FieldCodec;
-import io.army.codec.JsonCodec;
-import io.army.codec.XmlCodec;
+import io.army.annotation.MappedSuperclass;
+import io.army.codec.*;
 import io.army.criteria.impl._SchemaMetaFactory;
 import io.army.criteria.impl._TableMetaFactory;
 import io.army.dialect.*;
@@ -39,10 +40,7 @@ import io.army.schema.FieldResult;
 import io.army.schema.SchemaResult;
 import io.army.schema.TableResult;
 import io.army.schema.TypeResult;
-import io.army.util.HexUtils;
-import io.army.util._Collections;
-import io.army.util._FunctionUtils;
-import io.army.util._StringUtils;
+import io.army.util.*;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
@@ -108,7 +106,9 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     /// Set is used instead of Map because one type can be mapped by multiple MappingTypes.
     /// definedTypeSet is used to synchronize custom types to the database during startup.
-    /// 
+    ///
+    /// key is upper case
+    ///
     /// @see DdlMode
     Map<String, MappingType> definedTypeMap = Map.of();
 
@@ -293,7 +293,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 .reactive(reactive)
                 .serverMeta(serverMeta)
                 .zoneOffset(env.get(ArmyKey.ZONE_OFFSET))
-                .jsonCodec(this.jsonCodec)
+                .jsonCodec(findJsonCodec())
                 .xmlCodec(this.xmlCodec)
                 .tableMap(Objects.requireNonNull(this.tableMap))
                 .definedTypeMapFunc(this.typeMapFunc)
@@ -415,11 +415,11 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             final String oldName, typeName;
             typeName = st.objectName();
 
-            final Class<?> fieldClass = field.javaType();
+            final Class<?> fieldTypeClass = field.javaType();
 
-            oldName = definedTypeToNameMap.putIfAbsent(fieldClass, typeName);
+            oldName = definedTypeToNameMap.putIfAbsent(fieldTypeClass, typeName);
             if (oldName != null && !oldName.equals(typeName)) {
-                String m = String.format("%s is mapped to multi type name", fieldClass.getName());
+                String m = String.format("%s is mapped to multi type name", fieldTypeClass.getName());
                 throw new MetaException(m);
             }
 
@@ -432,7 +432,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             }
 
             if (oldName == null && type instanceof MappingType.SqlComposite) {
-                scanCompositeField(fieldClass, definedTypeMap, definedTypeToNameMap);
+                scanCompositeField(fieldTypeClass, definedTypeMap, definedTypeToNameMap);
             }
 
         };
@@ -468,6 +468,23 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             }
         }
         return map;
+    }
+
+    @Nullable
+    private JsonCodec findJsonCodec() {
+        JsonCodec jsonCodec;
+        jsonCodec = this.jsonCodec;
+        if (jsonCodec != null) {
+            return jsonCodec;
+        }
+        if (ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", null)) {
+            jsonCodec = DefaultJacksonCodec.create(new ObjectMapper());
+        } else if (ClassUtils.isPresent("com.google.gson.Gson", null)) {
+            jsonCodec = DefaultGsonCodec.create(new Gson());
+        } else if (ClassUtils.isPresent("com.alibaba.fastjson2.JSON", null)) {
+            jsonCodec = DefaultFastJsonCodec.getInstance();
+        }
+        return jsonCodec;
     }
 
 
@@ -719,7 +736,10 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         MappingType oldType, type;
         String oldName, typeName;
         Class<?> fieldType;
-        for (Class<?> clazz = compositeClass; ; clazz = clazz.getSuperclass()) {
+        for (Class<?> clazz = compositeClass; clazz != Object.class; clazz = clazz.getSuperclass()) {
+            if (clazz != compositeClass && clazz.getAnnotation(MappedSuperclass.class) == null) {
+                break;
+            }
             for (Field field : clazz.getDeclaredFields()) {
 
                 if (Modifier.isStatic(field.getModifiers())) {
@@ -734,7 +754,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                     continue;
                 }
 
-                typeName = st.objectName();
+                typeName = st.objectName().toUpperCase(Locale.ROOT);
 
                 oldType = definedTypeMap.putIfAbsent(typeName, type);
                 if (oldType != null && !oldType.equals(type)

@@ -230,7 +230,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
         TypeResult typeResult;
         for (Map.Entry<String, MappingType> e : definedTypeMap.entrySet()) {
-            typeName = e.getKey();
+            typeName = e.getKey().toUpperCase(Locale.ROOT);
             type = e.getValue();
             typeInfo = typeInfoMap.get(typeName);
             if (typeInfo == null) {

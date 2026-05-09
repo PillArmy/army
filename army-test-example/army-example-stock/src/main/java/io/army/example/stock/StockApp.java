@@ -40,8 +40,8 @@ public class StockApp implements ApplicationRunner, EnvironmentAware {
 
     private final ChatClient chatClient;
 
-    public StockApp(@Autowired ChatClient.Builder builder) {
-        this.chatClient = builder.build();
+    public StockApp(@Autowired ChatClient chatClient) {
+        this.chatClient = chatClient;
     }
 
     private Environment environment;

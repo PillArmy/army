@@ -157,6 +157,13 @@
                 <artifactId>army-mysql</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>io.qinarmy</groupId>
+                <artifactId>army-model-chat-memory</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- 模块 end  -->
 
             <dependency>
@@ -661,6 +668,24 @@
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jdk8</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.14.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>2.0.61</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jsoniter</groupId>
+                <artifactId>jsoniter</artifactId>
+                <version>0.9.23</version>
             </dependency>
 
             <dependency>

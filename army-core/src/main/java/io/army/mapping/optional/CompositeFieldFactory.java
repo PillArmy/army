@@ -19,11 +19,9 @@ package io.army.mapping.optional;
 import io.army.annotation.Column;
 import io.army.annotation.MappedSuperclass;
 import io.army.criteria.impl.TableMetaUtils;
-import io.army.meta.FieldMeta;
-import io.army.meta.MetaException;
-import io.army.meta.TypeMeta;
-import io.army.mapping._MappingFactory;
 import io.army.mapping.MappingType;
+import io.army.mapping._MappingFactory;
+import io.army.meta.MetaException;
 import io.army.struct.DefinedType;
 import io.army.util.Pair;
 import io.army.util._Assert;
@@ -292,7 +290,7 @@ public abstract class CompositeFieldFactory {
 
         @Override
         public String columnName() {
-            throw new UnsupportedOperationException();
+            return this.columnName;
         }
 
         @Override
