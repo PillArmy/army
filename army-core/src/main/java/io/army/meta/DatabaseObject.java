@@ -35,9 +35,11 @@ public interface DatabaseObject extends SQLElement {
     /// @see FieldMeta#columnName()
     String objectName();
 
-    String comment();
-
     Class<?> javaType();
+
+    default String comment() {
+        return "";
+    }
 
     interface TypeObject extends DatabaseObject {
 

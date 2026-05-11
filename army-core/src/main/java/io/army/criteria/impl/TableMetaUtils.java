@@ -17,21 +17,20 @@
 package io.army.criteria.impl;
 
 import io.army.annotation.*;
-import io.army.dialect._Constant;
 import io.army.generator.FieldGenerator;
-import io.army.lang.NonNull;
 import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.mapping.NameEnumType;
+import io.army.mapping._MappingFactory;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.util.Pair;
-import io.army.util._Collections;
+import io.army.util._Assert;
 import io.army.util._StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 public abstract class TableMetaUtils {
@@ -40,94 +39,214 @@ public abstract class TableMetaUtils {
         throw new UnsupportedOperationException();
     }
 
-    private static final String PRIMARY_FIELD = _MetaBridge.ID;
 
-    private static final String ASC = "ASC";
+    private static final String DEFAULT_EXP = "${DEFAULT}";
 
-    private static final String DESC = "DESC";
+    private static final String RUNTIME_EXP = "${RUNTIME}";
 
-
-    private static Map<Class<?>, Pair<Set<String>, Field>> parentFieldPairCache = new ConcurrentHashMap<>();
+    private static final String OPTIONAL_EXP = "${OPTIONAL}";
 
 
-    private static Map<String, Object> metaCache = new ConcurrentHashMap<>();
-
-
-    static void clearCache() {
-        synchronized (DefaultTableMeta.LOCK) {
-            final Map<Class<?>, Pair<Set<String>, Field>> parentFieldPairCache = TableMetaUtils.parentFieldPairCache;
-            if (parentFieldPairCache != null) {
-                parentFieldPairCache.clear();
-                TableMetaUtils.parentFieldPairCache = null;
-            }
-
-            TableMetaUtils.metaCache = null;
-
-        } // synchronized
-
-
+    public static String columnName(final Column column, final Field field) throws MetaException {
+        final String customColumnName = column.name().trim(), fieldName = field.getName();
+        final String columnName;
+        if (customColumnName.isEmpty()) {
+            columnName = _MetaBridge.camelToLowerCase(fieldName, null);
+        } else if (_StringUtils.isCamelCase(customColumnName)) {
+            String m = String.format("%s.%s column name is camel.", field.getDeclaringClass().getName(), field.getName());
+            throw new MetaException(m);
+        } else {
+            columnName = customColumnName;
+        }
+        return columnName;
     }
 
-    @Nullable
-    static Object getCache(final String key) {
-        synchronized (DefaultTableMeta.LOCK) {
-            Map<String, Object> metaCache = TableMetaUtils.metaCache;
-            if (metaCache == null) {
-                TableMetaUtils.metaCache = metaCache = new ConcurrentHashMap<>();
+    public static String columnName(Class<?> domainClass, Column column, Field field, Properties tableProperties,
+                                    StringBuilder tempBuilder) {
+        final String columnName = column.name(), fieldName = field.getName();
+        if (columnName.isEmpty()) {
+            tempBuilder.setLength(0);
+            return _MetaBridge.camelToLowerCase(fieldName, tempBuilder);
+        }
+        final String finalColumnName;
+        switch (columnName) {
+            case DEFAULT_EXP:
+            case RUNTIME_EXP: {
+                final String key, configColumnName;
+                tempBuilder.setLength(0);
+                key = tempBuilder.append(domainClass.getName())
+                        .append('.')
+                        .append(fieldName)
+                        .append('.')
+                        .append("Column")
+                        .append('.')
+                        .append("name")
+                        .toString();
+
+                configColumnName = tableProperties.getProperty(key);
+                if (_StringUtils.hasText(configColumnName)) {
+                    finalColumnName = configColumnName.trim();
+                } else switch (columnName) {
+                    case DEFAULT_EXP: {
+                        tempBuilder.setLength(0);
+                        finalColumnName = _MetaBridge.camelToLowerCase(fieldName, tempBuilder);
+                    }
+                    break;
+                    case RUNTIME_EXP:
+                        throw new MetaException(String.format("%s no config", key));
+                    default:
+                        throw new IllegalStateException("bug");
+                }
             }
-            return metaCache.get(key);
+            break;
+            case OPTIONAL_EXP: {
+                String m = String.format("%s in %s.%s %s.%s is unsupported", columnName, domainClass.getName(),
+                        fieldName, "Column", "name");
+                throw new MetaException(m);
+            }
+            default: {
+                if (_StringUtils.isCamelCase(columnName)) {
+                    String m = String.format("%s.%s %s.%s is camel", field.getDeclaringClass().getName(),
+                            field.getName(), "Column", "name");
+                    throw new MetaException(m);
+                }
+                finalColumnName = columnName;
+            } // default
+
+        } // switch
+        return finalColumnName;
+    }
+
+    public static Class<?> fieldJavaType(Class<?> domainClass, Field field, Properties tableProperties, StringBuilder tempBuilder) {
+        final Class<?> javaType = field.getType();
+        if (javaType != Object.class) {
+            return javaType;
+        }
+        final String fieldName = field.getName();
+        if (!fieldName.equals(_MetaBridge.ID)) {
+            String m = String.format("%s.%s don't support config java class", domainClass.getName(), fieldName);
+            throw new MetaException(m);
+        }
+        tempBuilder.setLength(0);
+        final String key, configClassName;
+        key = tempBuilder.append(domainClass.getName())
+                .append('.')
+                .append(fieldName)
+                .append('.')
+                .append("class")
+                .toString();
+
+        configClassName = tableProperties.getProperty(key);
+        if (!_StringUtils.hasText(configClassName)) {
+            return Long.class;
+        }
+        try {
+            return Class.forName(configClassName.trim());
+        } catch (ClassNotFoundException e) {
+            String m = String.format("%s class not found", key);
+            throw new MetaException(m, e);
         }
     }
 
-    static void putCache(final String key, Object value) {
-        synchronized (DefaultTableMeta.LOCK) {
-            Map<String, Object> metaCache = TableMetaUtils.metaCache;
-            if (metaCache == null) {
-                TableMetaUtils.metaCache = metaCache = new ConcurrentHashMap<>();
-            }
-            metaCache.put(key, value);
-        } // synchronized
-    }
-
-
-    private static Map<Class<?>, Pair<Set<String>, Field>> createParentFieldPairCache() {
-        synchronized (DefaultTableMeta.LOCK) {
-            Map<Class<?>, Pair<Set<String>, Field>> map = TableMetaUtils.parentFieldPairCache;
-            if (map == null) {
-                map = new ConcurrentHashMap<>();
-                TableMetaUtils.parentFieldPairCache = map;
-            }
-            return map;
-        } // synchronized
-
-    }
-
-
-    @NonNull
-    static Table tableMeta(@NonNull Class<?> entityClass) {
-        final Table table = entityClass.getAnnotation(Table.class);
-        if (table == null) {
-            throw createNonAnnotationException(entityClass, Table.class);
+    static MappingType fieldMappingType(final Class<?> fieldType, final Field field, final boolean isDiscriminator) {
+        final Class<?> fieldJavaType = field.getType();
+        if (isDiscriminator && !Enum.class.isAssignableFrom(fieldJavaType)) {
+            String m = String.format("%s.%s is discriminator,but isn't enum.", field.getDeclaringClass().getName(), field.getName());
+            throw new MetaException(m);
         }
-        return table;
+        if (fieldJavaType == Object.class) {
+            if (!_MetaBridge.ID.equals(field.getName()) || field.getAnnotation(Mapping.class) != null) {
+                String m = String.format("%s.%s is %s,don't support %s", field.getDeclaringClass().getName(), field.getName(),
+                        Object.class.getName(), Mapping.class.getName());
+                throw new MetaException(m);
+            }
+            return _MappingFactory.getDefault(fieldType);
+
+        }
+
+        return _MappingFactory.map(field);
     }
 
-    static String tableName(Table table, Class<?> domainClass) {
-        final String name = table.name();
-        if (!_StringUtils.hasText(name)) {
+    static String tableName(Table table, Class<?> domainClass, MetaContext context) {
+        final String tableName = table.name();
+        if (!_StringUtils.hasText(tableName)) {
             String m = String.format("Domain[%s] table name required", domainClass.getName());
             throw new MetaException(m);
         }
-        return name;
+        final String finalName;
+        switch (tableName) {
+            case DEFAULT_EXP:
+            case RUNTIME_EXP: {
+                final String key, configValue;
+                key = context.tempBuilderAndClear()
+                        .append(domainClass.getName())
+                        .append('.')
+                        .append("Table")
+                        .append('.')
+                        .append("name")
+                        .toString();
+
+                configValue = context.tableMetaProperties().getProperty(key);
+                if (_StringUtils.hasText(configValue)) {
+                    if (_StringUtils.isCamelCase(configValue)) {
+                        throw tableNameIsCamel(domainClass);
+                    }
+                    finalName = configValue.trim();
+                } else finalName = switch (tableName) {
+                    case DEFAULT_EXP ->
+                            _MetaBridge.camelToLowerCase(domainClass.getSimpleName(), context.tempBuilderAndClear());
+                    case RUNTIME_EXP -> throw new MetaException(String.format("%s no config", key));
+                    default -> throw new IllegalStateException("bug");
+                };
+            }
+            break;
+            default: {
+                if (_StringUtils.isCamelCase(tableName)) {
+                    throw tableNameIsCamel(domainClass);
+                }
+                finalName = tableName;
+            }
+        }
+        return finalName;
     }
 
-    static String tableComment(Table table, Class<?> domainClass) {
+
+    static String tableComment(Table table, Class<?> domainClass, MetaContext context) {
         final String comment = table.comment();
-        if (!_StringUtils.hasText(comment)) {
-            String m = String.format("Domain[%s] no tableMeta comment", domainClass.getName());
-            throw new MetaException(m);
+
+        final String finalComment;
+        switch (comment) {
+            case DEFAULT_EXP:
+            case RUNTIME_EXP: {
+                final String key, configValue;
+                key = context.tempBuilderAndClear()
+                        .append(domainClass.getName())
+                        .append('.')
+                        .append("Table")
+                        .append('.')
+                        .append("comment")
+                        .toString();
+
+                configValue = context.tableMetaProperties().getProperty(key);
+                if (_StringUtils.hasText(configValue)) {
+                    finalComment = configValue.trim();
+                } else finalComment = switch (comment) {
+                    case DEFAULT_EXP ->
+                            _MetaBridge.camelToComment(domainClass.getSimpleName(), context.tempBuilderAndClear());
+                    case RUNTIME_EXP -> throw new MetaException(String.format("%s no config", key));
+                    default -> throw new IllegalStateException("bug");
+                };
+            }
+            break;
+            default: {
+                if (!_StringUtils.hasText(comment)) {
+                    String m = String.format("%s %s.%s no text", domainClass.getName(), "Table", "comment");
+                    throw new MetaException(m);
+                }
+                finalComment = comment;
+            }
         }
-        return comment;
+        return finalComment;
     }
 
     static boolean immutable(Table table, Class<?> domainClass) {
@@ -191,13 +310,6 @@ public abstract class TableMetaUtils {
     }
 
 
-    static MetaException notFoundDiscriminator(String fieldName, Class<?> domainClass) {
-        String m = String.format("Not found discriminator[%s] in domain[%s].", fieldName, domainClass.getName());
-        return new MetaException(m);
-    }
-
-
-    /// @see #createFieldMetaPair(TableMeta)
     static DomainPair mappedClassPair(final Class<?> domainClass) throws MetaException {
         List<Class<?>> list = new ArrayList<>(6);
         // add entity class firstly
@@ -233,284 +345,308 @@ public abstract class TableMetaUtils {
     }
 
 
-    static <T> FieldMetaPair<T> createFieldMetaPair(final TableMeta<T> tableMeta) {
+    static <T> Map<String, FieldMeta<T>> createFieldMetaMap(final TableMeta<T> tableMeta, final MetaContext context) {
+        final Class<?> domainClass = tableMeta.javaType();
 
-        final Class<T> domainClass = tableMeta.javaType();
-        // 1. create columnNameSet
-        final Table table = domainClass.getAnnotation(Table.class);
-        final Index[] indices = table.indexes();
-        final Set<String> indexFieldNameSet = new HashSet<>();
+        final Map<String, FieldMeta<T>> map = new HashMap<>();
+        final boolean inheritance = domainClass.getAnnotation(Inheritance.class) != null;
+        FieldMeta<?> fieldMeta;
+        for (Class<?> clazz = domainClass; clazz != null; clazz = clazz.getSuperclass()) {
 
-        for (Index index : indices) {
-            for (String fieldName : index.fieldList()) {
-                if (fieldName.isEmpty()) {
-                    String m = String.format("%s index[%s] must not empty.", table, index.name());
-                    throw new MetaException(m);
+            if (clazz != domainClass && clazz.getAnnotation(Inheritance.class) != null) {
+                if (inheritance) {
+                    throw inheritanceDuplication(domainClass);
                 }
-                if (Character.isWhitespace(fieldName.charAt(0))) {
-                    String m = String.format("%s index[%s] couldn't start with white space.", table, index.name());
-                    throw new MetaException(m);
-                }
-                if (fieldName.indexOf(_Constant.SPACE) < 0) {
-                    indexFieldNameSet.add(fieldName);
-                } else {
-                    final StringTokenizer tokenizer;
-                    tokenizer = new StringTokenizer(fieldName.trim(), " ", false);
-                    indexFieldNameSet.add(tokenizer.nextToken());
-                }
+                break;
             }
-        }
-        // 2. create mapped super class pair for domain class
-        final DomainPair pair;
-        pair = mappedClassPair(domainClass);
-        final List<Class<?>> mappedClassList = pair.mappedList;
-        final Class<?> parentClass = pair.parent;
 
-        // 3. get field name set and parent id field, if need
-        final Set<String> fieldNameSet = new HashSet<>(); // for check field override.
-        final Field parentIdField;
-        if (parentClass == null) {
-            parentIdField = null;
-        } else {
-            final Pair<Set<String>, Field> parentFieldPair;
-            parentFieldPair = parentFieldPair(parentClass);
-            fieldNameSet.addAll(parentFieldPair.getFirst());
-            parentIdField = parentFieldPair.getSecond();
-        }
-        // 4. create non-index filed meta and get index filed map
-        final Map<String, Field> indexFieldToFieldMap = _Collections.hashMap();
-        final Set<String> columnNameSet = new HashSet<>(); // for check column name duplication
-        final Map<String, FieldMeta<T>> fieldMetaMap = _Collections.hashMap();
-        for (Class<?> mappedClass : mappedClassList) {
-            for (Field field : mappedClass.getDeclaredFields()) {
-                if (Modifier.isStatic(field.getModifiers())) {
-                    continue;
-                }
-                final Column column = field.getAnnotation(Column.class);
-                if (column == null) {
-                    continue;
-                }
-                final String fieldName = field.getName();
-                if (fieldNameSet.contains(fieldName)) { //check field override.
-                    throw fieldOverride(mappedClass, field);
-                }
-                fieldNameSet.add(fieldName);
-
-                final String columnName = columnName(column, field);
-                if (_MetaBridge.ID.equals(fieldName) || indexFieldNameSet.contains(fieldName)) {
-                    if (indexFieldToFieldMap.putIfAbsent(fieldName, field) != null) {
-                        throw columnNameDuplication(mappedClass, columnName);
-                    }
-                } else if (columnNameSet.contains(columnName)) {// check column name duplication
-                    throw columnNameDuplication(mappedClass, columnName);
-                } else {
-                    columnNameSet.add(columnName);
-                    fieldMetaMap.put(fieldName, TableFieldMeta.createFieldMeta(tableMeta, field));
-                }
-
+            if (clazz != domainClass
+                    && clazz.getAnnotation(MappedSuperclass.class) == null
+                    && clazz.getAnnotation(Table.class) == null) {
+                break;
             }
-        }
-        if (parentIdField != null
-                && indexFieldToFieldMap.putIfAbsent(parentIdField.getName(), parentIdField) != null) {
-            throw fieldOverride(domainClass, parentIdField);
-        }
 
-        // 5. create index meta and  index filed meta(s)
-        final List<IndexMeta<T>> indexMetaList = new ArrayList<>(indices.length);
-        boolean createdPrimaryIndex = false;
-        for (Index index : indices) {
-            final IndexMeta<T> indexMeta;
-            indexMeta = new DefaultIndexMeta<>(tableMeta, index, indexFieldToFieldMap, columnNameSet);
-            indexMetaList.add(indexMeta);
-            if (indexMeta.isPrimaryKey()) {
-                createdPrimaryIndex = true;
-            }
-            for (IndexFieldMeta<T> fieldMeta : indexMeta.fieldList()) {
-                if (fieldMetaMap.putIfAbsent(fieldMeta.fieldName(), fieldMeta) != null) {
-                    throw fieldMetaDuplication(fieldMeta);
-                }
-            }
-        }
-        if (!createdPrimaryIndex) {
-            final IndexMeta<T> indexMeta;
-            indexMeta = new DefaultIndexMeta<>(tableMeta, null, indexFieldToFieldMap, columnNameSet);
-            final IndexFieldMeta<T> fieldMeta = indexMeta.fieldList().getFirst();
-            if (fieldMetaMap.putIfAbsent(fieldMeta.fieldName(), fieldMeta) != null) {
-                throw fieldMetaDuplication(fieldMeta);
-            }
-            indexMetaList.add(indexMeta);
-        }
-        return new FieldMetaPair<>(indexMetaList, fieldMetaMap);
-    }
-
-
-    public static String columnName(final Column column, final Field field) throws MetaException {
-        final String customColumnName = column.name().trim(), fieldName = field.getName();
-        final String columnName;
-        if (customColumnName.isEmpty()) {
-            columnName = _MetaBridge.camelToLowerCase(fieldName, null);
-        } else if (_StringUtils.isCamelCase(customColumnName)) {
-            String m = String.format("%s.%s column name is camel.", field.getDeclaringClass().getName(), field.getName());
-            throw new MetaException(m);
-        } else {
-            columnName = customColumnName;
-        }
-        return columnName;
-    }
-
-    /*################################ private method ####################################*/
-
-
-    /// @param parentDomainClass domain class annotated by {@link Inheritance}.
-    /// @return first: field name set; second: id field.
-    /// @see #createFieldMetaPair(TableMeta)
-    private static Pair<Set<String>, Field> parentFieldPair(final Class<?> parentDomainClass) throws MetaException {
-        Map<Class<?>, Pair<Set<String>, Field>> parentFieldPairCache = TableMetaUtils.parentFieldPairCache;
-
-        final Pair<Set<String>, Field> cache;
-        if (parentFieldPairCache == null) {
-            cache = null;
-            parentFieldPairCache = createParentFieldPairCache();
-        } else {
-            cache = parentFieldPairCache.get(parentDomainClass);
-        }
-        if (cache != null) {
-            return cache;
-        }
-        final DomainPair pair;
-        pair = mappedClassPair(parentDomainClass);
-        if (pair.parent != null) {
-            throw new IllegalStateException("mappedClassPair(Class) method error");
-        }
-
-        final Set<String> fieldNameSet = new HashSet<>();
-        Field idField = null;
-        for (Class<?> mappedClass : pair.mappedList) {
-            for (Field field : mappedClass.getDeclaredFields()) {
+            for (Field field : clazz.getDeclaredFields()) {
                 if (Modifier.isStatic(field.getModifiers())) {
                     continue;
                 }
                 if (field.getAnnotation(Column.class) == null) {
                     continue;
                 }
-                final String fieldName = field.getName();
-                if (_MetaBridge.ID.equals(fieldName)) {
-                    if (idField != null) {
-                        throw fieldOverride(mappedClass, field);
-                    }
-                    idField = field;
+
+                fieldMeta = map.putIfAbsent(field.getName(), TableFieldMeta.createFieldMeta(tableMeta, field, context));
+                if (fieldMeta != null) {
+                    throw fieldMetaDuplication(fieldMeta);
                 }
-                fieldNameSet.add(fieldName);
-            }
-        }
-        if (idField == null) {
-            throw missingProperties(parentDomainClass, Collections.singleton(_MetaBridge.ID));
-        }
-        final Pair<Set<String>, Field> fieldPair;
-        fieldPair = Pair.create(Collections.unmodifiableSet(fieldNameSet), idField);
-        parentFieldPairCache.putIfAbsent(parentDomainClass, fieldPair);
-        return fieldPair;
+            } // field loop
+        } // class loop
+        return Map.copyOf(map);
     }
 
 
-    private static Stack<Class<?>> superMappingClassStack(Class<?> topMappedClass) throws MetaException {
-        Stack<Class<?>> stack = new Stack<>();
+    static <T> List<IndexMeta<T>> createIndexList(TableMeta<T> tableMeta, MetaContext context,
+                                                  Map<String, FieldMeta<T>> fieldMetaMap) {
+        final Class<?> domainClass = tableMeta.javaType();
+        final Table table = domainClass.getAnnotation(Table.class);
+        final Index[] indexArray = table.indexes();
+        final List<IndexMeta<T>> indexList = new ArrayList<>(indexArray.length);
 
-        for (Class<?> superClass = topMappedClass; superClass != null;
-             superClass = superClass.getSuperclass()) {
-            if (superClass.getAnnotation(MappedSuperclass.class) != null) {
-                stack.push(superClass);
-            } else {
-                break;
-            }
-        }
-        return stack;
-    }
+        IndexField[] fieldArray;
+        List<IndexColumnMeta> metaList;
+        List<FieldMeta<T>> fieldList;
+        String indexName, indexType;
+        String[] fieldNameArray;
+        Index index;
 
-
-    /// @return map(unmodifiable) ,key: column name,value : {@link Field} ,
-    private static Map<String, Field> columnToFieldMap(TableMeta<?> tableMeta, List<Class<?>> mappedClassList) {
-        final Map<String, Field> map = _Collections.hashMap();
-        final Set<String> fieldNameSet = new HashSet<>();
-
-        for (Class<?> mappingClass : mappedClassList) {
-            for (Field field : mappingClass.getDeclaredFields()) {
-                if (Modifier.isStatic(field.getModifiers())) {
-                    continue;
-                }
-                final Column column = field.getAnnotation(Column.class);
-                if (column == null) {
-                    continue;
-                }
-                // make column name lower case
-                final String columnName = columnName(column, field);
-                if (map.containsKey(columnName)) {
-                    String m = String.format("Mapped class[%s] column[%s] definition duplication"
-                            , mappingClass.getName()
-                            , columnName);
-                    throw new MetaException(m);
-                }
-                final String fieldName = field.getName();
-                if (fieldNameSet.contains(fieldName)) {
-                    String m = String.format("Mapped[%s] mapping property[%s] duplication"
-                            , mappingClass.getName()
-                            , fieldName);
-                    throw new MetaException(m);
-                }
-                map.put(columnName, field);
-                fieldNameSet.add(fieldName);
-            }
-
-        }
-        if (!map.containsKey(PRIMARY_FIELD)) {
-            // child MappingMode
-            map.put(PRIMARY_FIELD, findIdFieldFromParent(tableMeta, mappedClassList.get(0)));
-        }
-        return Collections.unmodifiableMap(map);
-    }
-
-
-    private static Field findIdFieldFromParent(TableMeta<?> tableMeta, Class<?> topMappedClass) {
-        Stack<Class<?>> superMappingStack = superMappingClassStack(topMappedClass);
-        Field field;
-        for (Class<?> superMapping; !superMappingStack.empty(); ) {
-            superMapping = superMappingStack.pop();
-            try {
-                field = superMapping.getDeclaredField(PRIMARY_FIELD);
-            } catch (NoSuchFieldException e) {
+        for (int i = 0; i < indexArray.length; i++) {
+            index = indexArray[i];
+            indexType = parseIndexType(domainClass, index.type(), i, context);
+            if (indexType == null) {
                 continue;
             }
-            Column column = field.getAnnotation(Column.class);
-            if (column == null) {
-                String m = String.format("tableMeta[%s] not found primary column definition", tableMeta.tableName());
-                throw new MetaException(m);
+            indexName = parseIndexName(tableMeta, domainClass, index, i, context);
+
+            fieldArray = index.fields();
+            if (fieldArray.length == 0) {
+                fieldNameArray = index.fieldList();
+                fieldList = new ArrayList<>(fieldNameArray.length);
+                metaList = createIndexColumnList(index.fieldList(), tableMeta, indexName, fieldList, context, fieldMetaMap);
+            } else {
+                fieldList = new ArrayList<>(fieldArray.length);
+                metaList = createIndexColumnMetaList(i, fieldArray, tableMeta, fieldList, indexName, context, fieldMetaMap);
             }
-            return field;
+
+            _Assert.isTrue(metaList.size() == fieldList.size(), "");
+
+            indexList.add(new DefaultIndexMeta<>(tableMeta, indexName, index.unique(), fieldList, metaList, indexType));
         }
-        String m = String.format("domain[%s] not found primary key column definition", tableMeta.javaType());
-        throw new MetaException(m);
+        return List.copyOf(indexList);
     }
 
 
-    static MetaException createNonAnnotationException(Class<?> entityClass
-            , Class<?> annotationClass) {
-        String m = String.format("class[%s] isn't annotated by %s "
-                , entityClass.getName()
-                , annotationClass.getName());
-        return new MetaException(m);
+    @Nullable
+    private static String parseIndexType(Class<?> domainClass, final String indexType, int indexOfIndex, MetaContext context) {
+        if (indexType.isEmpty()) {
+            return "";
+        }
+        final String finalIndexType;
+        switch (indexType) {
+            case DEFAULT_EXP:
+            case RUNTIME_EXP:
+            case OPTIONAL_EXP: {
+                final String key, configIndexType;
+                key = context.tempBuilderAndClear()
+                        .append(domainClass.getName())
+                        .append('.')
+                        .append("IndexMeta")
+                        .append('[')
+                        .append(indexOfIndex)
+                        .append(']')
+                        .append('.')
+                        .append("type")
+                        .toString();
+
+                configIndexType = context.tableMetaProperties().getProperty(key);
+
+                if (_StringUtils.hasText(configIndexType)) {
+                    finalIndexType = configIndexType.trim();
+                } else finalIndexType = switch (indexType) {
+                    case DEFAULT_EXP -> "";
+                    case RUNTIME_EXP -> throw new MetaException(String.format("%s no config", key));
+                    case OPTIONAL_EXP -> null;
+                    default -> throw new IllegalStateException("bug");
+                };
+            }
+            break;
+            default:
+                finalIndexType = indexType;
+        }
+        return finalIndexType;
     }
+
+    private static String parseIndexName(TableMeta<?> tableMeta, Class<?> domainClass, final Index index,
+                                         int indexOfIndex, MetaContext context) {
+        final String indexName = index.name();
+        if (indexName.isEmpty()) {
+            return "";
+        }
+        final String finalIndexName;
+        switch (indexName) {
+            case DEFAULT_EXP:
+            case RUNTIME_EXP: {
+                final String key, configIndexName;
+                key = context.tempBuilderAndClear()
+                        .append(domainClass.getName())
+                        .append('.')
+                        .append("IndexMeta")
+                        .append('[')
+                        .append(indexOfIndex)
+                        .append(']')
+                        .append('.')
+                        .append("name")
+                        .toString();
+
+                configIndexName = context.tableMetaProperties().getProperty(key);
+
+                if (_StringUtils.hasText(configIndexName)) {
+                    finalIndexName = configIndexName.trim();
+                } else finalIndexName = switch (indexName) {
+                    case DEFAULT_EXP -> defaultIndexName(tableMeta, index, context);
+                    case RUNTIME_EXP -> throw new MetaException(String.format("%s no config", key));
+                    default -> throw new IllegalStateException("bug");
+                };
+            }
+            break;
+            case OPTIONAL_EXP:
+                throw new MetaException(String.format("%s in %s index name is unsupported", indexName, domainClass));
+            default:
+                finalIndexName = indexName;
+        }
+        return finalIndexName;
+    }
+
+
+    /// @param propName collation or opclass
+    private static String parseIndexColumnProperty(Class<?> domainClass, final String propValue, int indexOfIndex,
+                                                   String fieldName, MetaContext context, final String propName) {
+        if (propValue.isEmpty()) {
+            return "";
+        }
+        final String finalOpclass;
+        switch (propValue) {
+            case DEFAULT_EXP:
+            case RUNTIME_EXP: {
+                final String key, configOpclass;
+                key = context.tempBuilderAndClear()
+                        .append(domainClass.getName())
+                        .append('.')
+                        .append("IndexMeta")
+                        .append('[')
+                        .append(indexOfIndex)
+                        .append(']')
+                        .append('.')
+                        .append(fieldName)
+                        .append('.')
+                        .append(propName)
+                        .toString();
+
+                configOpclass = context.tableMetaProperties().getProperty(key);
+
+                if (_StringUtils.hasText(configOpclass)) {
+                    finalOpclass = configOpclass.trim();
+                } else finalOpclass = switch (propValue) {
+                    case DEFAULT_EXP -> "";
+                    case RUNTIME_EXP -> throw new MetaException(String.format("%s no config", key));
+                    default -> throw new IllegalStateException("bug");
+                };
+            }
+            break;
+            case OPTIONAL_EXP:
+                throw new MetaException(String.format("%s in %s index[%s] field[%s] property[%s] is unsupported", propValue,
+                        domainClass.getName(), indexOfIndex, fieldName, propName));
+            default:
+                finalOpclass = propValue;
+        }
+        return finalOpclass;
+    }
+
+
+    private static String defaultIndexName(final TableMeta<?> tableMeta, final Index index, final MetaContext context) {
+        final StringBuilder builder = context.tempBuilderAndClear();
+        if (index.unique()) {
+            builder.append("uni");
+        } else {
+            builder.append("idx");
+        }
+        builder.append('_')
+                .append(tableMeta.tableName().toLowerCase(Locale.ROOT));
+
+        FieldMeta<?> fieldMeta;
+        final IndexField[] fieldArray = index.fields();
+        if (fieldArray.length > 0) {
+            for (int i = 0; i < fieldArray.length; i++) {
+                fieldMeta = tableMeta.field(fieldArray[i].name()); // FieldMeta is created before IndexMeta
+                if (i > 0) {
+                    builder.append('_');
+                }
+                builder.append(fieldMeta.columnName().toLowerCase(Locale.ROOT));
+            }
+        } else {
+            final String[] fieldNameArray = index.fieldList();
+            for (int i = 0; i < fieldNameArray.length; i++) {
+                fieldMeta = tableMeta.field(fieldNameArray[i]); // FieldMeta is created before IndexMeta
+                if (i > 0) {
+                    builder.append('_');
+                }
+                builder.append(fieldMeta.columnName().toLowerCase(Locale.ROOT));
+            }
+        }
+
+        return builder.toString();
+    }
+
+
+    /// @see #createIndexList(TableMeta, MetaContext, Map)
+    private static <T> List<IndexColumnMeta> createIndexColumnMetaList(final int indexOfIndex, IndexField[] fieldArray,
+                                                                       TableMeta<T> tableMeta, List<FieldMeta<T>> fieldList,
+                                                                       String indexName, MetaContext context,
+                                                                       Map<String, FieldMeta<T>> fieldMetaMap) {
+        final Class<?> domainClass = tableMeta.javaType();
+        final List<IndexColumnMeta> list = new ArrayList<>(fieldArray.length);
+        String fieldName, collation, opclass;
+        FieldMeta<T> fieldMeta;
+        for (IndexField field : fieldArray) {
+            fieldName = field.name();
+
+            fieldMeta = fieldMetaMap.get(fieldName);
+            if (fieldMeta == null) {
+                throw notFoundIndexField(tableMeta, indexName, fieldName);
+            }
+            collation = parseIndexColumnProperty(domainClass, field.collation(), indexOfIndex, fieldName, context, "collation");
+
+            opclass = parseIndexColumnProperty(domainClass, field.opclass(), indexOfIndex, fieldName, context, "opclass");
+
+            list.add(new DefaultIndexColumnMeta(collation, opclass, field.order(), field.nulls()));
+            fieldList.add(fieldMeta);
+        }
+        return context.indexColumnMetaList(list);
+    }
+
+    /// @see #createIndexList(TableMeta, MetaContext, Map)
+    private static <T> List<IndexColumnMeta> createIndexColumnList(String[] fieldNameArray, TableMeta<T> tableMeta,
+                                                                   String indexName, List<FieldMeta<T>> fieldList,
+                                                                   MetaContext context,
+                                                                   Map<String, FieldMeta<T>> fieldMetaMap) {
+        if (fieldNameArray.length == 0) {
+            throw noIndexField(tableMeta, indexName);
+        }
+        final List<IndexColumnMeta> list = new ArrayList<>(fieldNameArray.length);
+
+        FieldMeta<T> fieldMeta;
+        for (String fieldName : fieldNameArray) {
+            fieldMeta = fieldMetaMap.get(fieldName);
+            if (fieldMeta == null) {
+                throw notFoundIndexField(tableMeta, indexName, fieldName);
+            }
+            list.add(MinIndexColumnMeta.INSTANCE);
+            fieldList.add(fieldMeta);
+        }
+        return context.minIndexColumnMetaList(list);
+    }
+
 
     static <T> List<FieldMeta<?>> createGeneratorChain(final Map<String, FieldMeta<T>> nameToField)
             throws MetaException {
 
         final List<Pair<FieldMeta<T>, Integer>> levelList = new ArrayList<>(4);
+        GeneratorMeta generatorMeta;
+        String dependName;
         for (FieldMeta<T> field : nameToField.values()) {
 
-            GeneratorMeta generatorMeta = field.generator();
+            generatorMeta = field.generator();
             if (generatorMeta == null) {
                 continue;
             }
-            String dependName;
             dependName = generatorMeta.params().get(FieldGenerator.DEPEND_FIELD_NAME);
             int level = 0;
             for (FieldMeta<?> dependField; dependName != null; ) {
@@ -533,10 +669,10 @@ public abstract class TableMetaUtils {
         final List<FieldMeta<?>> generatorChain;
         switch (levelList.size()) {
             case 0:
-                generatorChain = Collections.emptyList();
+                generatorChain = List.of();
                 break;
             case 1:
-                generatorChain = Collections.singletonList(levelList.get(0).getFirst());
+                generatorChain = List.of(levelList.getFirst().getFirst());
                 break;
             default: {
                 levelList.sort(Comparator.comparingInt(Pair::getSecond));
@@ -544,83 +680,25 @@ public abstract class TableMetaUtils {
                 for (Pair<FieldMeta<T>, Integer> f : levelList) {
                     list.add(f.getFirst());
                 }
-                generatorChain = Collections.unmodifiableList(list);
+                generatorChain = List.copyOf(list);
             }
         }
         return generatorChain;
     }
 
 
-
-
-    /*################################# indexMap meta part private method  start ###################################*/
-
-
-    /// debugSQL {@link Index}'s {@link IndexFieldMeta}
-    /// @param createdColumnSet created column set  in  other indexMap
-    /// @param <T>              entity java class
-    /// @return value indexMap's {@link IndexFieldMeta}
-    private static <T> List<IndexFieldMeta<T>> createIndexFieldMetaList(
-            final String[] indexColumns,
-            final IndexMeta<T> indexMeta,
-            final Map<String, Field> nameToFieldMap,
-            final Set<String> createdColumnSet) {
-
-        final TableMeta<T> tableMeta = indexMeta.tableMeta();
-        List<IndexFieldMeta<T>> list = new ArrayList<>(indexColumns.length);
-
-        StringTokenizer tokenizer;
-        IndexFieldMeta<T> indexFieldMeta;
-        Boolean columnAsc;
-        for (String indexColumnDefinition : indexColumns) {
-            tokenizer = new StringTokenizer(indexColumnDefinition.trim(), " ", false);
-            final int tokenCount = tokenizer.countTokens();
-            final String fieldName = tokenizer.nextToken();
-            if (createdColumnSet.contains(fieldName)) {
-                throw indexColumnCreatedError(tableMeta, fieldName);
-            }
-            if (tokenCount == 1) {
-                columnAsc = null;
-            } else if (tokenCount == 2) {
-                columnAsc = isAscIndexColumn(tokenizer.nextToken(), indexMeta, indexColumnDefinition);
-            } else {
-                throw indexColumnDefinitionError(indexMeta, indexColumnDefinition);
-            }
-
-            if (PRIMARY_FIELD.equals(fieldName) && (!indexMeta.isUnique() || indexColumns.length != 1)) {
-                throw indexColumnDefinitionError(indexMeta, indexColumnDefinition);
-            }
-            final Field field = nameToFieldMap.get(fieldName);
-            if (field == null) {
-                throw notFoundIndexColumn(indexMeta, fieldName);
-            }
-            indexFieldMeta = TableFieldMeta.createIndexFieldMeta(tableMeta, field, indexMeta, indexColumns.length
-                    , columnAsc);
-
-            list.add(indexFieldMeta);
-            createdColumnSet.add(fieldName);
-        }
-
-        if (list.size() == 1) {
-            list = Collections.singletonList(list.get(0));
-        } else {
-            list = Collections.unmodifiableList(list);
-        }
-        return list;
+    static MetaException notFoundDiscriminator(String fieldName, Class<?> domainClass) {
+        String m = String.format("Not found discriminator[%s] in domain[%s].", fieldName, domainClass.getName());
+        return new MetaException(m);
     }
 
 
-    /// @see #createIndexFieldMetaList(String[], IndexMeta, Map, Set)
-    private static boolean isAscIndexColumn(final String order, IndexMeta<?> indexMeta, String indexColumnDefinition) {
-        final boolean asc;
-        if (ASC.equalsIgnoreCase(order)) {
-            asc = true;
-        } else if (DESC.equalsIgnoreCase(order)) {
-            asc = false;
-        } else {
-            throw indexColumnDefinitionError(indexMeta, indexColumnDefinition);
-        }
-        return asc;
+    static MetaException createNonAnnotationException(Class<?> entityClass
+            , Class<?> annotationClass) {
+        String m = String.format("class[%s] isn't annotated by %s "
+                , entityClass.getName()
+                , annotationClass.getName());
+        return new MetaException(m);
     }
 
 
@@ -632,56 +710,32 @@ public abstract class TableMetaUtils {
         return new MetaException(m);
     }
 
-    /// @see #createFieldMetaPair(TableMeta)
-    private static MetaException columnNameDuplication(Class<?> mappedClass, String columnName) {
-        String m = String.format("Mapped class[%s] column name[%s] duplication.", mappedClass.getName(), columnName);
+
+    private static MetaException notFoundIndexField(TableMeta<?> tableMeta, String indexName, String fieldName) {
+        String m = String.format("Not found index field[%s] for domain[%s] index[%s]",
+                fieldName, tableMeta.javaType().getName(), indexName);
         return new MetaException(m);
     }
 
-    /// @see #parentFieldPair(Class)
-    private static MetaException fieldOverride(Class<?> mappedClass, Field field) {
-        String m = String.format("Mapped class[%s] property[%s] override.", mappedClass.getName(), field.getName());
+    private static MetaException noIndexField(TableMeta<?> tableMeta, String indexName) {
+        String m = String.format("Not found index field for domain[%s] index[%s]",
+                tableMeta.javaType().getName(), indexName);
         return new MetaException(m);
     }
 
-    /// @see #parentFieldPair(Class)
-    private static MetaException missingProperties(Class<?> domainClass, Set<String> missingProps) {
-        String m = String.format("Domain class[%s] missing properties %s.", domainClass.getName(), missingProps);
-        return new MetaException(m);
-    }
-
-    /// @see #createIndexFieldMetaList(String[], IndexMeta, Map, Set)
-    private static MetaException indexColumnCreatedError(TableMeta<?> tableMeta, String columnName) {
-        String m = String.format("Domain[%s] index column[%s] duplication in index."
-                , tableMeta.javaType().getName(), columnName);
-        return new MetaException(m);
-    }
-
-    /// @see #createIndexFieldMetaList(String[], IndexMeta, Map, Set)
-    /// @see #isAscIndexColumn(String, IndexMeta, String)
-    private static MetaException indexColumnDefinitionError(IndexMeta<?> indexMeta, String indexColumnDefinition) {
-        String m = String.format("Domain[%s] index[%s] column definition[%s] error",
-                indexMeta.tableMeta().javaType().getName(), indexMeta.name(), indexColumnDefinition);
-        throw new MetaException(m);
-    }
-
-    /// @see #createIndexFieldMetaList(String[], IndexMeta, Map, Set)
-    private static MetaException notFoundIndexColumn(IndexMeta<?> indexMeta, String columnName) {
-        String m = String.format("Not found index column[%s] in Domain[%s] for index[%s]"
-                , columnName, indexMeta.tableMeta().javaType().getName(), indexMeta.name());
-        throw new MetaException(m);
-    }
-
-    /// @see #createFieldMetaPair(TableMeta)
-    private static IllegalStateException fieldMetaDuplication(IndexFieldMeta<?> fieldMeta) {
-        String m = String.format("Domain[%s] filed meta[%s] duplication.",
+    /// @see #createFieldMetaMap(TableMeta, MetaContext)
+    private static MetaException fieldMetaDuplication(FieldMeta<?> fieldMeta) {
+        String m = String.format("%s.%s duplication.",
                 fieldMeta.tableMeta().javaType().getName(), fieldMeta.fieldName());
-        throw new MetaException(m);
+        return new MetaException(m);
+    }
+
+    private static MetaException tableNameIsCamel(Class<?> domainClass) {
+        String m = String.format("%s %s.%s is came", domainClass.getName(), "Table", "name");
+        return new MetaException(m);
     }
 
 
-    /// @param <T> domain java type
-    /// @see #createFieldMetaPair(TableMeta)
     private static final class DefaultIndexMeta<T> implements IndexMeta<T> {
 
         private final TableMeta<T> table;
@@ -690,58 +744,23 @@ public abstract class TableMetaUtils {
 
         private final boolean unique;
 
-        private final String type;
+        private final List<FieldMeta<T>> fieldList;
 
-        private final List<IndexFieldMeta<T>> fieldList;
+        private final List<IndexColumnMeta> columnList;
 
-        private final boolean primaryKey;
+        private final String indexType;
 
-        /// @param index            indexMap or null ( when debugSQL primary key for which user don'field definite {@link Index})
-        /// @param columnToFieldMap a unmodifiable map
-        private DefaultIndexMeta(final TableMeta<T> table, @Nullable Index index, Map<String, Field> columnToFieldMap,
-                                 Set<String> createdColumnSet) {
+        private DefaultIndexMeta(TableMeta<T> table, String name, boolean unique, List<FieldMeta<T>> fieldList,
+                                 List<IndexColumnMeta> columnList, String indexType) {
+            if (fieldList.size() != columnList.size()) {
+                throw new IllegalArgumentException();
+            }
             this.table = table;
-
-            if (index == null) {
-                this.name = "";
-                this.unique = true;
-                this.type = "";
-                primaryKey = true;
-                final Field field = Objects.requireNonNull(columnToFieldMap.get(_MetaBridge.ID));
-                final IndexFieldMeta<T> idFieldMeta;
-                idFieldMeta = TableFieldMeta.createIndexFieldMeta(table, field, this, 1, null);
-                this.fieldList = Collections.singletonList(idFieldMeta);
-            } else {
-                this.name = index.name();
-                final String[] columnArray = index.fieldList();
-                this.primaryKey = columnArray.length == 1 && _MetaBridge.ID.equals(columnArray[0].split(" ")[0]);
-                this.unique = this.primaryKey || index.unique();
-                this.type = index.type();
-                this.fieldList = createIndexFieldMetaList(columnArray, this, columnToFieldMap, createdColumnSet);
-            }
-
-        }
-
-
-        @Override
-        public String toString() {
-            final StringBuilder builder = new StringBuilder();
-            builder.append("Index[")
-                    .append(this.name)
-                    .append("] on Domain[")
-                    .append(this.table.javaType().getName())
-                    .append("](");
-            int index = 0;
-            for (IndexFieldMeta<T> fieldMeta : fieldList) {
-                if (index > 0) {
-                    builder.append(',');
-                }
-                builder.append(fieldMeta.fieldName());
-                index++;
-            }
-            return builder
-                    .append(')')
-                    .toString();
+            this.name = name;
+            this.unique = unique;
+            this.fieldList = List.copyOf(fieldList);
+            this.columnList = List.copyOf(columnList);
+            this.indexType = indexType;
         }
 
         @Override
@@ -755,13 +774,20 @@ public abstract class TableMetaUtils {
         }
 
         @Override
-        public List<IndexFieldMeta<T>> fieldList() {
+        public List<FieldMeta<T>> fieldList() {
             return this.fieldList;
         }
 
         @Override
+        public List<IndexColumnMeta> columnList() {
+            return this.columnList;
+        }
+
+        @Override
         public boolean isPrimaryKey() {
-            return primaryKey;
+            return this.unique
+                    && this.fieldList.size() == 1
+                    && this.fieldList.getFirst() instanceof PrimaryFieldMeta<T>;
         }
 
         @Override
@@ -771,9 +797,12 @@ public abstract class TableMetaUtils {
 
         @Override
         public String type() {
-            return this.type;
+            return this.indexType;
         }
-    }
+
+
+    } // DefaultIndexMeta
+
 
     static final class DomainPair {
 
@@ -789,22 +818,97 @@ public abstract class TableMetaUtils {
 
     }
 
-    static final class FieldMetaPair<T> {
 
-        final List<IndexMeta<T>> indexMetaList;
+    private static final class MinIndexColumnMeta implements IndexColumnMeta {
 
-        final Map<String, FieldMeta<T>> fieldMap;
+        private static final MinIndexColumnMeta INSTANCE = new MinIndexColumnMeta();
 
-        private FieldMetaPair(List<IndexMeta<T>> indexMetaList, Map<String, FieldMeta<T>> fieldMap) {
-            if (indexMetaList.size() == 1) {
-                this.indexMetaList = Collections.singletonList(indexMetaList.get(0));
-            } else {
-                this.indexMetaList = Collections.unmodifiableList(indexMetaList);
-            }
-            this.fieldMap = Collections.unmodifiableMap(fieldMap);
+        private MinIndexColumnMeta() {
         }
 
-    }
+        @Override
+        public String collation() {
+            return "";
+        }
+
+        @Override
+        public String opclass() {
+            return "";
+        }
+
+        @Override
+        public SortOrder order() {
+            return SortOrder.DEFAULT;
+        }
+
+        @Override
+        public NullsOrder nulls() {
+            return NullsOrder.DEFAULT;
+        }
+
+
+    } // MinIndexColumnMeta
+
+    private static final class DefaultIndexColumnMeta implements IndexColumnMeta {
+
+        private final String collation;
+
+        private final String opclass;
+
+        private final SortOrder order;
+
+        private final NullsOrder nulls;
+
+        private DefaultIndexColumnMeta(String collation, String opclass, SortOrder order, NullsOrder nulls) {
+            this.collation = collation;
+            this.opclass = opclass;
+            this.order = order;
+            this.nulls = nulls;
+        }
+
+        @Override
+        public String collation() {
+            return this.collation;
+        }
+
+        @Override
+        public String opclass() {
+            return this.opclass;
+        }
+
+        @Override
+        public SortOrder order() {
+            return this.order;
+        }
+
+        @Override
+        public NullsOrder nulls() {
+            return this.nulls;
+        }
+
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.collation, this.opclass, this.order, this.nulls);
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            final boolean match;
+            if (obj == this) {
+                match = true;
+            } else if (obj instanceof DefaultIndexColumnMeta o) {
+                match = Objects.equals(this.collation, o.collation)
+                        && Objects.equals(this.opclass, o.opclass)
+                        && this.order == o.order
+                        && this.nulls == o.nulls;
+            } else {
+                match = false;
+            }
+            return match;
+        }
+
+    } // DefaultIndexColumnMeta
 
 
 }

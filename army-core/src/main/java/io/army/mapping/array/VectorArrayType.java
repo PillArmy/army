@@ -22,7 +22,7 @@ import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInArrayType; 
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.mapping.optional.VectorType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
@@ -35,7 +35,7 @@ import java.util.function.BiConsumer;
 /// Vector array type
 ///
 /// @see VectorType
-public final class VectorArrayType extends _ArmyBuildInArrayType {
+public final class VectorArrayType extends _ArmyBuildInArrayType implements MappingType.SqlExtension {
 
 
     public static VectorArrayType from(final Class<?> javaClass) {
@@ -133,6 +133,10 @@ public final class VectorArrayType extends _ArmyBuildInArrayType {
         return type;
     }
 
+    @Override
+    public String extensionName() {
+        return VectorType.INSTANCE.extensionName();
+    }
 
     @Override
     public int hashCode() {

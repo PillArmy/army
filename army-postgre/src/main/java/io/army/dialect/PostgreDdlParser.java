@@ -396,6 +396,15 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
 
     }
 
+    @Override
+    protected boolean indexColumnSupportCollate() {
+        return true;
+    }
+
+    @Override
+    protected boolean indexColumnSupportOpclass() {
+        return true;
+    }
 
     @Override
     protected void checkEnclosing(String text) {

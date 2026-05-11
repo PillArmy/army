@@ -202,10 +202,6 @@ public class TextEnumType extends _ArmyBuildInType {
             return List.copyOf(enumLabelList);
         }
 
-        @Override
-        public String comment() {
-            return "";
-        }
     } // TextEnumNamedType
 
 }

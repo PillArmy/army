@@ -82,7 +82,6 @@ public abstract class MySQLs extends MySQLSyntax {
     /// **Limitations** of MySQL INSERT ON DUPLICATE KEY UPDATE clause :
     /// 
     /// - If target table contain 'visible' field,then ON DUPLICATE KEY UPDATE clause can only be used in {@link Visible#BOTH} mode,see {@link Session#visible()} and {@link io.army.env.ArmyKey#VISIBLE_MODE}
-    /// - If target table contain the field whose {@link io.army.annotation.UpdateMode} is {@link io.army.annotation.UpdateMode#ONLY_NULL} or {@link io.army.annotation.UpdateMode#ONLY_DEFAULT},then you couldn't use ON DUPLICATE KEY UPDATE clause .
     /// - If target table primary key is auto increment and you insert multi-row {@link io.army.meta.ChildTableMeta} ,then you couldn't use ON DUPLICATE KEY UPDATE clause ,because database server will couldn't return correct multi-row primary key value if conflict occur.
     /// - If target table primary key is auto increment and you insert multi-row with "domain" syntax (see Example 3),then database will couldn't return correct multi-row primary key value , because of conflict. So you have to use ignoreReturnIds() option clause before insert into clause.
     /// 
@@ -96,7 +95,6 @@ public abstract class MySQLs extends MySQLSyntax {
     /// **Limitations** of MySQL REPLACE statement :
     /// 
     /// - If target table contain 'visible' field,then MySQL REPLACE can only be used in {@link Visible#BOTH} mode,see {@link Session#visible()} and {@link io.army.env.ArmyKey#VISIBLE_MODE}
-    /// - If target table contain the field whose {@link io.army.annotation.UpdateMode} is {@link io.army.annotation.UpdateMode#ONLY_NULL} or {@link io.army.annotation.UpdateMode#ONLY_DEFAULT},then you couldn't use MySQL REPLACE .
     /// - If target table primary key is auto increment and you replace multi-row with "domain" syntax (see Example 3),then database will couldn't return correct multi-row primary key value , because of conflict. So you have to use ignoreReturnIds() option clause before replace into clause.
     /// 
     /// <pre>

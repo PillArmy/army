@@ -26,10 +26,7 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements DdlParser {
 
@@ -444,6 +441,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
 
     protected void appendColumnComment(final DatabaseObject object, final StringBuilder builder) {
 
+
         builder.append(SPACE_COMMENT)
                 .append(_Constant.SPACE);
         this.parser.safeLiteral(TextType.INSTANCE, object.comment(), false, builder);
@@ -610,15 +608,30 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
         }
     }
 
+    protected boolean indexColumnSupportCollate() {
+        return false;
+    }
+
+    protected boolean indexColumnSupportOpclass() {
+        return false;
+    }
+
 
     protected final <T> void appendIndexFieldList(final IndexMeta<T> index, StringBuilder builder) {
 
-        final List<IndexFieldMeta<T>> indexFieldList = index.fieldList();
+        final List<FieldMeta<T>> indexFieldList = index.fieldList();
+        final List<IndexColumnMeta> columnMetaList = index.columnList();
+
         final int fieldSize = indexFieldList.size();
-        IndexFieldMeta<T> field;
-        Boolean asc;
+        FieldMeta<T> field;
+        IndexColumnMeta column;
         builder.append(_Constant.LEFT_PAREN);// index left bracket
 
+        final boolean supportCollate, supportOpclass;
+        supportCollate = indexColumnSupportCollate();
+        supportOpclass = indexColumnSupportOpclass();
+
+        String value;
         for (int i = 0; i < fieldSize; i++) {
             if (i > 0) {
                 builder.append(_Constant.COMMA);
@@ -627,17 +640,54 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
             }
             field = indexFieldList.get(i);
             this.parser.safeObjectName(field, builder);
+            column = columnMetaList.get(i);
 
-            asc = field.fieldAsc();
-            if (asc == null) {
-                continue;
+            if (supportCollate && _StringUtils.hasText(value = column.collation())) {
+                builder.append(_Constant.SPACE)
+                        .append("COLLATE")
+                        .append(_Constant.SPACE);
+
+                this.parser.identifier(value.toLowerCase(Locale.ROOT), builder);
             }
-            if (asc) {
-                builder.append(_Constant.SPACE_ASC);
-            } else {
-                builder.append(_Constant.SPACE_DESC);
+
+            if (supportOpclass && _StringUtils.hasText(value = column.opclass())) {
+                builder.append(_Constant.SPACE)
+                        .append("opclass")
+                        .append(_Constant.SPACE);
+                this.parser.identifier(value.toLowerCase(Locale.ROOT), builder);
             }
-        }
+
+            switch (column.order()) {
+                case DEFAULT:
+                    break;
+                case ASC:
+                    builder.append(_Constant.SPACE)
+                            .append("ASC");
+                    break;
+                case DESC:
+                    builder.append(_Constant.SPACE)
+                            .append("DESC");
+                    break;
+                default:
+                    throw _Exceptions.unexpectedEnum(column.order());
+            }
+
+            switch (column.nulls()) {
+                case DEFAULT:
+                    break;
+                case NULLS_LAST:
+                    builder.append(_Constant.SPACE)
+                            .append("NULLS LAST");
+                    break;
+                case NULLS_FIRST:
+                    builder.append(_Constant.SPACE)
+                            .append("NULLS FIRST");
+                    break;
+                default:
+                    throw _Exceptions.unexpectedEnum(column.nulls());
+            }
+
+        } // field loop
 
         builder.append(_Constant.SPACE_RIGHT_PAREN); // index right bracket
 
@@ -990,7 +1040,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
 
 
     private <T> void justIndexFiledNameList(final IndexMeta<T> index, final StringBuilder builder) {
-        final List<IndexFieldMeta<T>> fieldList = index.fieldList();
+        final List<FieldMeta<T>> fieldList = index.fieldList();
         final int fieldSize = fieldList.size();
 
         builder.append(_Constant.LEFT_PAREN);
@@ -1022,8 +1072,8 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
                     if (!index.isPrimaryKey()) {
                         continue;
                     }
-                    final List<IndexFieldMeta<T>> fieldList = index.fieldList();
-                    if (fieldList.size() == 1 && fieldList.get(0).generatorType() == GeneratorType.POST) {
+                    final List<FieldMeta<T>> fieldList = index.fieldList();
+                    if (fieldList.size() == 1 && fieldList.getFirst().generatorType() == GeneratorType.POST) {
                         continue;
                     }
                 }

@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
@@ -57,16 +58,37 @@ public abstract class _TableMetaFactory {
     }
 
     public static <T> SimpleTableMeta<T> getSimpleTableMeta(final Class<T> domainClass) {
-        return DefaultTableMeta.getSimpleTableMeta(domainClass);
+        final TableMeta<T> tableMeta;
+        tableMeta = DefaultTableMeta.getTableMeta(domainClass, null);
+        if (!(tableMeta instanceof SimpleTableMeta<T>)) {
+            String m = String.format("%s isn't %s", domainClass.getName(), SimpleTableMeta.class.getName());
+            throw new MetaException(m);
+        }
+        return (SimpleTableMeta<T>) tableMeta;
     }
 
     public static <T> ParentTableMeta<T> getParentTableMeta(final Class<T> domainClass) {
-        return DefaultTableMeta.getParentTableMeta(domainClass);
+        final TableMeta<T> tableMeta;
+        tableMeta = DefaultTableMeta.getTableMeta(domainClass, null);
+        if (!(tableMeta instanceof ParentTableMeta<T>)) {
+            String m = String.format("%s isn't %s", domainClass.getName(), ParentTableMeta.class.getName());
+            throw new MetaException(m);
+        }
+        return (ParentTableMeta<T>) tableMeta;
     }
 
-    public static <P, T> ComplexTableMeta<P, T> getChildTableMeta(
-            ParentTableMeta<P> parent, Class<T> domainClass) {
-        return DefaultTableMeta.getChildTableMeta(parent, domainClass);
+    public static <P, T> ComplexTableMeta<P, T> getChildTableMeta(ParentTableMeta<P> parent, Class<T> domainClass) {
+        final TableMeta<T> tableMeta;
+        tableMeta = DefaultTableMeta.getTableMeta(domainClass, null);
+        if (!(tableMeta instanceof ComplexTableMeta)) {
+            String m = String.format("%s isn't %s", domainClass.getName(), ComplexTableMeta.class.getName());
+            throw new MetaException(m);
+        }
+        if (((ComplexTableMeta<?, ?>) tableMeta).parentMeta() != parent) {
+            String m = String.format("%s parent not match", domainClass.getName());
+            throw new MetaException(m);
+        }
+        return (ComplexTableMeta<P, T>) tableMeta;
     }
 
 
@@ -81,6 +103,10 @@ public abstract class _TableMetaFactory {
         if (classLoader == null) {
             classLoader = Thread.currentThread().getContextClassLoader();
         }
+        final MetaContext metaContext = new DefaultMetaContext();
+
+        final Function<String, TableMeta<?>> metaFunc;
+        metaFunc = className -> getOrCreateTableMeta(className, metaContext);
 
         synchronized (DefaultTableMeta.LOCK) {
             URL url = null;
@@ -108,7 +134,7 @@ public abstract class _TableMetaFactory {
                         try (Stream<ByteBuffer> stream = createJavaClassByteStream(protocol, url)) {
                             stream.map(buffer -> readJavaClassFile(classFile, buffer, schemaMeta)) // read java class file and get class name if match.
                                     .filter(_StringUtils::hasText) // if empty string ,not domain class
-                                    .map(_TableMetaFactory::getOrCreateTableMeta)// get or create table meta
+                                    .map(metaFunc)// get or create table meta
                                     .forEach(tableMeta -> {
                                         final Class<?> domainClass = tableMeta.javaType();
                                         tableMetaMap.put(domainClass, tableMeta);
@@ -142,9 +168,8 @@ public abstract class _TableMetaFactory {
                 }
                 throw new TableMetaLoadException(m, e);
             } finally {
-                TableMetaUtils.clearCache();
+                metaContext.clear();
             }
-
         } // synchronized
 
     }
@@ -294,13 +319,13 @@ public abstract class _TableMetaFactory {
     }
 
     /// @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
-    private static <T> TableMeta<T> getOrCreateTableMeta(final String className) {
+    private static <T> TableMeta<T> getOrCreateTableMeta(final String className, final MetaContext context) {
         try {
             final Class<?> clazz;
             clazz = Class.forName(className);
             @SuppressWarnings("unchecked")
             Class<T> domainClass = (Class<T>) clazz;
-            return DefaultTableMeta.getTableMeta(domainClass);
+            return DefaultTableMeta.getTableMeta(domainClass, context);
         } catch (ClassNotFoundException e) {
             // no bug,never here.
             String m = String.format("Domain class[%s] not found.", className);

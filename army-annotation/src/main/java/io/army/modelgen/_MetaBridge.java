@@ -48,34 +48,16 @@ public abstract class _MetaBridge {
 
 
     public static String camelToUpperCase(String camel, @Nullable StringBuilder tempBuilder) {
-        return camelToUnderline(camel, tempBuilder).toUpperCase(Locale.ROOT);
+        return splitCamel(camel, '_', tempBuilder).toUpperCase(Locale.ROOT);
     }
 
     public static String camelToLowerCase(String camel, @Nullable StringBuilder tempBuilder) {
-        return camelToUnderline(camel, tempBuilder).toLowerCase(Locale.ROOT);
+        return splitCamel(camel, '_', tempBuilder).toLowerCase(Locale.ROOT);
     }
 
-    private static String camelToUnderline(final String camel, @Nullable StringBuilder tempBuilder) {
-        final int len = camel.length();
-        if (tempBuilder == null) {
-            tempBuilder = new StringBuilder(camel.length() + 5);
-        } else {
-            tempBuilder.setLength(0); // clear
-        }
-        char ch;
-        int preIndex = 0;
-        for (int i = 0; i < len; i++) {
-            ch = camel.charAt(i);
-            if (Character.isUpperCase(ch)) {
-                tempBuilder.append(camel, preIndex, i);
-                tempBuilder.append('_');
-                preIndex = i;
-            }
-        }
-        tempBuilder.append(camel, preIndex, len);
-        return tempBuilder.toString();
+    public static String camelToComment(String camel, @Nullable StringBuilder tempBuilder) {
+        return splitCamel(camel, ' ', tempBuilder);
     }
-
 
     public static boolean isReserved(final String fieldName) {
         final boolean match;
@@ -109,10 +91,71 @@ public abstract class _MetaBridge {
     }
 
     public static boolean isCamelCase(final @Nullable String text) {
-        return text != null
-                && !text.toLowerCase(Locale.ROOT).equals(text)
-                && !text.toUpperCase(Locale.ROOT).equals(text);
+        if (text == null) {
+            return false;
+        }
+        final int len = text.length();
 
+        char ch;
+        boolean camel = false;
+        for (int i = 0, firstCase = 0; i < len; i++) {
+            ch = text.charAt(i);
+
+            if (firstCase == 0) {
+                if (Character.isUpperCase(ch)) {
+                    firstCase = 1;
+                } else if (Character.isLowerCase(ch)) {
+                    firstCase = -1;
+                }
+                continue;
+            }
+
+            if (Character.isUpperCase(ch)) {
+                if (firstCase == -1) {
+                    camel = true;
+                    break;
+                }
+            } else if (Character.isLowerCase(ch)) {
+                if (firstCase == 1) {
+                    camel = true;
+                    break;
+                }
+            }
+
+
+        } // loop
+
+        return camel;
+    }
+
+    private static String splitCamel(final String camel, final char replacement, @Nullable StringBuilder tempBuilder) {
+        final int len = camel.length();
+        if (tempBuilder == null) {
+            tempBuilder = new StringBuilder(len + 5);
+        } else {
+            tempBuilder.setLength(0); // clear
+        }
+
+        int lastWritten = 0;
+        boolean preIsUpper = len > 0 && Character.isUpperCase(camel.charAt(0)), curIsUpper;
+        for (int i = 1; i < len; i++) {
+
+            curIsUpper = Character.isUpperCase(camel.charAt(i));
+
+            if (curIsUpper && !preIsUpper && i > lastWritten) {
+                tempBuilder.append(camel, lastWritten, i);
+                tempBuilder.append(replacement);
+                lastWritten = i;
+            }
+
+            preIsUpper = curIsUpper;
+
+        } // loop
+
+        if (lastWritten < len) {
+            tempBuilder.append(camel, lastWritten, len);
+        }
+        return tempBuilder.toString();
     }
 
 

@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package io.army.mapping;
+package io.army.mapping.postgre;
 
 import io.army.criteria.CriteriaException;
+import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
+import io.army.mapping.MappingEnv;
+import io.army.mapping.MappingType;
+import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-/// @see <a href="https://www.postgresql.org/docs/current/domains.html">Domain Types</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-createdomain.html">CREATE DOMAIN</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-alterdomain.html">ALTER DOMAIN</a>
-public final class DomainType extends _ArmyBuildInType implements MappingType.SqlDomain {
+/// @see <a href="https://www.postgresql.org/docs/current/hstore.html">hstore key/value datatype</a>
+public final class PgHstoreType extends _ArmyBuildInType implements MappingType.SqlExtension {
 
 
     @Override
@@ -33,55 +35,29 @@ public final class DomainType extends _ArmyBuildInType implements MappingType.Sq
         return null;
     }
 
-
     @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        return null;
+        if (meta.serverDatabase() != Database.PostgreSQL) {
+            throw mapError(this, meta);
+        }
+        return DataType.from("HSTORE");
     }
 
     @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        //TODO
         return null;
     }
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        //TODO
         return null;
     }
 
     @Override
-    public String objectName() {
-        return "";
-    }
-
-    @Override
-    public MappingType baseType() {
-        return null;
-    }
-
-    @Override
-    public String baseTypeName() {
-        return "";
-    }
-
-    @Override
-    public String defaultValue() {
-        return "";
-    }
-
-    @Override
-    public boolean isNotNull() {
-        return false;
-    }
-
-    @Override
-    public String constraint() {
-        return "";
-    }
-
-    @Override
-    public String collation() {
-        return "";
+    public String extensionName() {
+        return "HSTORE";
     }
 
 

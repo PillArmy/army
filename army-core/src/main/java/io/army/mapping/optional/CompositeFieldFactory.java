@@ -205,10 +205,6 @@ public abstract class CompositeFieldFactory {
             return this.columnName;
         }
 
-        @Override
-        public String comment() {
-            return "";
-        }
 
         @Override
         public int hashCode() {
@@ -318,10 +314,6 @@ public abstract class CompositeFieldFactory {
             return this.columnName;
         }
 
-        @Override
-        public String comment() {
-            return "";
-        }
 
 
     } // CompositeFieldInfo

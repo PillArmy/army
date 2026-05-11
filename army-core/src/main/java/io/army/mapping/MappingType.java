@@ -122,11 +122,11 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
-    /// 
+    ///
     /// This interface is base interface of below:
-    /// 
+    ///
     /// - {@link SqlJsonb}
-    /// 
+    ///
     interface SqlJson extends SqlDocument {
 
     }
@@ -264,6 +264,19 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
+    /// This interface representing the type that need to create extension.
+    ///
+    /// For example: "CREATE EXTENSION IF NOT EXISTS vector" , "CREATE EXTENSION IF NOT EXISTS hstore"
+    ///
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-createextension.html">CREATE EXTENSION</a>
+    /// @see io.army.mapping.optional.VectorType
+    /// @see io.army.mapping.postgre.PgHstoreType
+    interface SqlExtension {
+
+        String extensionName();
+
+    }
+
     /// SqlUserDefined does not inherit from {@link MappingType}, because {@link MappingType} is a sealed interface.
     /// User defined type must override {@link #hashCode()} and {@link #equals(Object)}.
     interface SqlUserDefined extends DatabaseObject.TypeObject {
@@ -331,27 +344,27 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
         /// If the subtype is collatable, and you want to use a non-default collation in the range's ordering,
         /// specify the desired collation with the collation option.
-        /// 
+        ///
         /// @return empty or lower case collation name
         String subTypeCollation();
 
         /// The name of the corresponding multirange type.
-        /// 
+        ///
         /// @return empty or upper case multi
         String multiRangeTypeName();
 
         /// The name of a b-tree operator class for the subtype.
-        /// 
+        ///
         /// @return empty or  lower case subtype operator name
         String subtypeOperator();
 
         /// The name of the canonicalization function for the range type.
-        /// 
+        ///
         /// @return empty or lower case canonicalization function name
         String canonicalFunc();
 
         /// The name of a difference function for the subtype.
-        /// 
+        ///
         /// @return empty or lower case difference function name
         String subtypeDiffFunc();
 

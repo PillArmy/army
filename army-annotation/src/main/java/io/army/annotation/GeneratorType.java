@@ -21,7 +21,8 @@ public enum GeneratorType {
     POST,
 
     /// see {@code io.army.meta.GeneratorStrategy}
-    RUNTIME;
+    RUNTIME,
+    DEFAULT;
 
 
     @Override

@@ -27,21 +27,26 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface Index {
 
     /// (Optional) The name of the indexMap; defaults to a provider-generated name.
+    ///
+    /// see {@code io.army.criteria.impl.TableMetaUtils#parseIndexName(io.army.meta.TableMeta, java.lang.Class, io.army.annotation.Index, int, io.army.criteria.impl.MetaContext)}
     String name();
 
-    /// (Optional) The names of the columnMap to be included in the indexMap,
+    /// (Optional) The names of index field .
     /// in asSort.
     String[] fieldList() default {};
 
-    /// (Optional) The names of the columnMap to be included in the indexMap,
-    /// in asSort.
+    /// (Optional) The fields of index.
+    ///
+    /// Field takes precedence over {@link #fieldList()}.
     IndexField[] fields() default {};
 
     /// (Optional) Whether the indexMap is unique.
     boolean unique() default false;
 
-    /*-------------------TODO add FULLTEXT index and SPATIAL index -------------------*/
-
+    /// - MySQL: BTREE,HASH,FULLTEXT,SPATIAL
+    /// - PostgreSQL: btree, hash, gist, spgist, gin, brin
+    ///
+    /// see {@code io.army.criteria.impl.TableMetaUtils#parseIndexType(java.lang.Class, java.lang.String, int, io.army.criteria.impl.MetaContext)}
     String type() default "";
 
 }

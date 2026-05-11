@@ -17,7 +17,7 @@
 package io.army.meta;
 
 
-public interface PrimaryFieldMeta<T> extends UniqueFieldMeta<T> {
+public interface PrimaryFieldMeta<T> extends FieldMeta<T> {
 
 
 }

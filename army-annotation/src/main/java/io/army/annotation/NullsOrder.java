@@ -16,11 +16,11 @@
 
 package io.army.annotation;
 
-public enum SortOrder {
+public enum NullsOrder {
 
-    ASC,
+    NULLS_FIRST,
 
-    DESC,
+    NULLS_LAST,
 
     DEFAULT
 }

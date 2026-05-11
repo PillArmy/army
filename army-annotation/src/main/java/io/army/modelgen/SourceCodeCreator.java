@@ -17,7 +17,6 @@
 package io.army.modelgen;
 
 import io.army.annotation.Column;
-import io.army.annotation.Index;
 import io.army.annotation.Inheritance;
 import io.army.annotation.Table;
 import io.army.lang.Nullable;
@@ -159,28 +158,25 @@ final class SourceCodeCreator {
                     .append(commentLine)
                     .append(FIELD_PREFIX);
             switch (indexModeMap.getOrDefault(fieldName, IndexMode.NONE)) {
-                case NONE:
-                    methodName = "field";
-                    metaTypeName = "FieldMeta";
-                    break;
-                case GENERIC:
-                    metaTypeName = "FieldMeta";
-                    methodName = "field";
-
-                    break;
-                case UNIQUE:
-                    methodName = "uniqueField";
-                    metaTypeName = "UniqueFieldMeta";
-                    break;
+// 取消 索引类字段的静态创建 ,因为要支持运行时指定可选索引
+//                case GENERIC:
+//                    metaTypeName = "FieldMeta";
+//                    methodName = "field";
+//
+//                    break;
+//                case UNIQUE:
+//                    methodName = "uniqueField";
+//                    metaTypeName = "UniqueFieldMeta";
+//                    break;
                 case PRIMARY:
                     methodName = "id";
                     metaTypeName = "PrimaryFieldMeta";
                     primary = true;
                     break;
-                default: {
-                    IndexMode indexMode = indexModeMap.getOrDefault(fieldName, IndexMode.NONE);
-                    throw new IllegalArgumentException(String.format("IndexMode[%s] unknown", indexMode));
-                }
+                case NONE:
+                default:
+                    methodName = "field";
+                    metaTypeName = "FieldMeta";
 
             }
             fieldBuilder
@@ -319,26 +315,26 @@ final class SourceCodeCreator {
         } else {
             builder.append("import javax.annotation.Generated;\n");
         }
-
-        boolean hasIndex = false, hasUnique = false;
-
-        for (Index index : element.getAnnotation(Table.class).indexes()) {
-            if (!hasIndex) {
-                hasIndex = true;
-            }
-            if (index.unique() && index.fieldList().length == 1) {
-                hasUnique = true;
-                break;
-            }
-
-        }
-        if (hasIndex) {
-            builder.append("import io.army.meta.IndexFieldMeta;\n");
-        }
-
-        if (hasUnique) {
-            builder.append("import io.army.meta.UniqueFieldMeta;\n");
-        }
+// 取消 索引类字段的静态创建 ,因为要支持运行时指定可选索引
+//        boolean hasIndex = false, hasUnique = false;
+//
+//        for (Index index : element.getAnnotation(Table.class).indexes()) {
+//            if (!hasIndex) {
+//                hasIndex = true;
+//            }
+//            if (index.unique() && index.fieldList().length == 1) {
+//                hasUnique = true;
+//                break;
+//            }
+//
+//        }
+//        if (hasIndex) {
+//            builder.append("import io.army.meta.IndexFieldMeta;\n");
+//        }
+//
+//        if (hasUnique) {
+//            builder.append("import io.army.meta.UniqueFieldMeta;\n");
+//        }
 
         switch (mode) {
             case SIMPLE:

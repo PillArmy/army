@@ -17,17 +17,18 @@
 package io.army.meta;
 
 
-
 import java.util.List;
 
-public interface IndexMeta<T> extends Meta {
+public interface IndexMeta<T> {
 
     TableMeta<T> tableMeta();
 
     /// @return index name(lower case)
     String name();
 
-    List<IndexFieldMeta<T>> fieldList();
+    List<FieldMeta<T>> fieldList();
+
+    List<IndexColumnMeta> columnList();
 
     boolean isPrimaryKey();
 

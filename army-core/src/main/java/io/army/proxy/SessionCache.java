@@ -249,7 +249,7 @@ final class SessionCache implements _SessionCache {
         TableMeta<?> current = table;
         while (true) {
             for (IndexMeta<?> index : current.indexList()) {
-                for (IndexFieldMeta<?> indexField : index.fieldList()) {
+                for (FieldMeta<?> indexField : index.fieldList()) {
                     if (indexField instanceof PrimaryFieldMeta
                             || !(indexField instanceof UniqueFieldMeta)) {
                         continue;

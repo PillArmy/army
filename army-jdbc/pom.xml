@@ -30,7 +30,12 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.huaweicloud.gaussdb</groupId>
+            <artifactId>gaussdbjdbc</artifactId>
             <optional>true</optional>
         </dependency>
 

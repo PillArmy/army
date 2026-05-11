@@ -42,10 +42,7 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -58,20 +55,23 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
     private static final ConcurrentMap<FieldMeta<?>, Boolean> CODEC_MAP = new ConcurrentHashMap<>();
 
-    /// @see DefaultTableMeta#getTableMeta(Class)
+    /// @see DefaultTableMeta#getTableMeta(Class, MetaContext)
     @SuppressWarnings("unchecked")
-    static <T> FieldMeta<T> createFieldMeta(final TableMeta<T> table, final Field field) {
+    static <T> FieldMeta<T> createFieldMeta(final TableMeta<T> table, final Field field, final MetaContext context) {
         final String fieldName = field.getName();
 
-        if (_MetaBridge.ID.equals(fieldName)) {
-            throw new IllegalArgumentException("id can't invoke this method.");
-        }
-        final boolean arrayType = _MappingFactory.map(field) instanceof ArrayMappingType;
+        final boolean idField = fieldName.equals(_MetaBridge.ID);
+
+        final boolean arrayType;
+        arrayType = !idField && _MappingFactory.map(field) instanceof ArrayMappingType;
+
         final DefaultSimpleFieldMeta<T> fieldMeta;
-        if (arrayType) {
-            fieldMeta = new DefaultArrayFieldMeta<>(table, field);
+        if (idField) {
+            fieldMeta = new DefaultPrimaryFieldMeta<>(table, field, context);
+        } else if (arrayType) {
+            fieldMeta = new DefaultArrayFieldMeta<>(table, field, context);
         } else {
-            fieldMeta = new DefaultSimpleFieldMeta<>(table, field);
+            fieldMeta = new DefaultSimpleFieldMeta<>(table, field, context);
         }
         final TableFieldMeta<?> cache;
         cache = INSTANCE_MAP.putIfAbsent(fieldMeta, fieldMeta);
@@ -93,53 +93,6 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
     }
 
-    /// @see DefaultTableMeta#getTableMeta(Class)
-    @SuppressWarnings("unchecked")
-    static <T> IndexFieldMeta<T> createIndexFieldMeta(final TableMeta<T> table, final Field field
-            , final IndexMeta<T> indexMeta, final int columnCount, final @Nullable Boolean fieldAsc) {
-        final DefaultIndexFieldMeta<T> newFieldMeta;
-        // create new IndexFieldMeta
-        if (indexMeta.isUnique() && columnCount == 1) {
-            if (ID.equals(field.getName())) {
-                newFieldMeta = new DefaultPrimaryFieldMeta<>(table, field, indexMeta, fieldAsc);
-            } else {
-                newFieldMeta = new DefaultUniqueFieldMeta<>(table, field, indexMeta, fieldAsc);
-            }
-        } else {
-            newFieldMeta = new DefaultIndexFieldMeta<>(table, field, indexMeta, fieldAsc);
-        }
-
-        final TableFieldMeta<?> cache;
-        cache = INSTANCE_MAP.putIfAbsent(newFieldMeta, newFieldMeta);
-
-        final DefaultIndexFieldMeta<T> indexField;
-        if (cache == null) {
-            indexField = newFieldMeta;
-        } else if (!(cache instanceof DefaultIndexFieldMeta)) {
-            String m = String.format("%s.%s can't mapping to  %s.", table.javaType().getName()
-                    , field.getName(), IndexFieldMeta.class.getName());
-            throw new IllegalArgumentException(m);
-        } else if (indexMeta.isUnique() && columnCount == 1) {
-            if (!(cache instanceof DefaultUniqueFieldMeta)) {
-                String m = String.format("%s.%s can't mapping to  %s.", table.javaType().getName()
-                        , field.getName(), UniqueFieldMeta.class.getName());
-                throw new IllegalArgumentException(m);
-            }
-            if (!_MetaBridge.ID.equals(field.getName())) {
-                // drop newFieldMeta ,return cache
-                indexField = (DefaultUniqueFieldMeta<T>) cache;
-            } else if (cache instanceof DefaultPrimaryFieldMeta) {
-                // drop newFieldMeta ,return cache
-                indexField = (DefaultPrimaryFieldMeta<T>) cache;
-            } else {
-                throw new IllegalStateException("INSTANCE_MAP error");
-            }
-        } else {
-            // drop newFieldMeta ,return cache
-            indexField = (DefaultIndexFieldMeta<T>) cache;
-        }
-        return indexField;
-    }
 
     static Set<FieldMeta<?>> codecFieldMetaSet() {
         return CODEC_MAP.keySet();
@@ -181,31 +134,26 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
     private final boolean codec;
 
-    private TableFieldMeta(final TableMeta<T> table, final Field field) throws MetaException {
-        Objects.requireNonNull(table);
-        Objects.requireNonNull(field);
-
-        if (!field.getDeclaringClass().isAssignableFrom(table.javaType())) {
-            String m = String.format("%s isn't belong to %s.", field, table.javaType());
-            throw new MetaException(m);
-        }
-
+    private TableFieldMeta(final TableMeta<T> table, final Field field, final MetaContext context) throws MetaException {
         this.table = (DefaultTableMeta<T>) table;
-        this.fieldName = field.getName();
-        this.javaType = field.getType();
+        final Class<?> domainClass = this.table.javaType;
 
         try {
             final Column column;
-            column = FieldMetaUtils.columnMeta(table.javaType(), field);
+            column = field.getAnnotation(Column.class);
+            final Properties tableMetaProperties = context.tableMetaProperties();
+
+            this.fieldName = field.getName();
+            this.javaType = TableMetaUtils.fieldJavaType(domainClass, field, tableMetaProperties, context.tempBuilderAndClear());
 
             this.precision = column.precision();
             this.scale = column.scale();
             this.collation = column.collation();
-            this.columnName = FieldMetaUtils.columnName(column, field);
+            this.columnName = TableMetaUtils.columnName(domainClass, column, field, tableMetaProperties, context.tempBuilderAndClear());
             final boolean isDiscriminator;
             isDiscriminator = FieldMetaUtils.isDiscriminator(this.table.javaType, this.fieldName);
 
-            this.mappingType = FieldMetaUtils.fieldMappingType(field, isDiscriminator);
+            this.mappingType = TableMetaUtils.fieldMappingType(this.javaType, field, isDiscriminator);
             if (this.mappingType instanceof MultiGenericsMappingType) {
                 this.elementTypeList = ArrayUtils.unmodifiableListFrom(field.getAnnotation(Mapping.class).elements());
             } else {
@@ -235,16 +183,16 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
                 this.generatorMeta = null;
             } else if ((generatorType = generator.type()) == GeneratorType.PRECEDE) {
                 this.generatorType = generatorType;
-                this.generatorMeta = FieldMetaUtils.columnGeneratorMeta(generator, field, this, isDiscriminator);
+                this.generatorMeta = FieldMetaUtils.columnGeneratorMeta(generator, field, this, isDiscriminator, context);
             } else if (generatorType == GeneratorType.POST) {
                 this.generatorType = generatorType;
                 this.generatorMeta = null;
                 FieldMetaUtils.validatePostGenerator(this, generator, isDiscriminator);
-            } else if (generatorType == GeneratorType.RUNTIME) {
+            } else if (generatorType == GeneratorType.RUNTIME || generatorType == GeneratorType.DEFAULT) {
                 final GeneratorStrategy strategy;
-                strategy = FieldMetaUtils.loadGeneratorStrategy(this);
+                strategy = FieldMetaUtils.loadGeneratorStrategy(this, context);
                 this.generatorType = strategy.type();
-                this.generatorMeta = FieldMetaUtils.createGeneratorMeta(strategy, this, isDiscriminator);
+                this.generatorMeta = FieldMetaUtils.createGeneratorMeta(strategy, this, isDiscriminator, context);
             } else {
                 throw _Exceptions.unexpectedEnum(generatorType);
             }
@@ -496,16 +444,16 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
     private static class DefaultSimpleFieldMeta<T> extends TableFieldMeta<T> {
 
-        private DefaultSimpleFieldMeta(TableMeta<T> table, Field field) throws MetaException {
-            super(table, field);
+        private DefaultSimpleFieldMeta(TableMeta<T> table, Field field, MetaContext context) throws MetaException {
+            super(table, field, context);
         }
 
     } // DefaultSimpleFieldMeta
 
     private static final class DefaultArrayFieldMeta<T> extends DefaultSimpleFieldMeta<T> implements ArrayFieldMeta<T> {
 
-        private DefaultArrayFieldMeta(TableMeta<T> table, Field field) throws MetaException {
-            super(table, field);
+        private DefaultArrayFieldMeta(TableMeta<T> table, Field field, MetaContext context) throws MetaException {
+            super(table, field, context);
             _Assert.isTrue(this.mappingType instanceof ArrayMappingType, "");
         }
 
@@ -513,55 +461,13 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
     } // DefaultArrayFieldMeta
 
 
-    private static class DefaultIndexFieldMeta<T> extends TableFieldMeta<T>
-            implements IndexFieldMeta<T> {
-
-        private final IndexMeta<T> indexMeta;
-
-        private final Boolean fieldAsc;
-
-        private DefaultIndexFieldMeta(TableMeta<T> table, Field field, IndexMeta<T> indexMeta
-                , @Nullable Boolean fieldAsc) throws MetaException {
-            super(table, field);
-            Objects.requireNonNull(indexMeta);
-
-            this.indexMeta = indexMeta;
-            this.fieldAsc = fieldAsc;
-        }
-
-        @Override
-        public IndexMeta<T> indexMeta() {
-            return this.indexMeta;
-        }
-
-        @Nullable
-        @Override
-        public Boolean fieldAsc() {
-            return this.fieldAsc;
-        }
-    }
-
-    private static class DefaultUniqueFieldMeta<T> extends DefaultIndexFieldMeta<T>
-            implements UniqueFieldMeta<T> {
-
-        private DefaultUniqueFieldMeta(TableMeta<T> table, Field field, IndexMeta<T> indexMeta
-                , @Nullable Boolean fieldAsc) throws MetaException {
-            super(table, field, indexMeta, fieldAsc);
-            if (!indexMeta.isUnique()) {
-                String m = String.format("indexMeta[%s] non-unique.", indexMeta);
-                throw new MetaException(m);
-            }
-        }
-    }
-
-    private static final class DefaultPrimaryFieldMeta<T> extends DefaultUniqueFieldMeta<T>
+    private static final class DefaultPrimaryFieldMeta<T> extends DefaultSimpleFieldMeta<T>
             implements PrimaryFieldMeta<T> {
 
-        private DefaultPrimaryFieldMeta(TableMeta<T> table, Field field, IndexMeta<T> indexMeta,
-                                        @Nullable Boolean fieldAsc) throws MetaException {
-            super(table, field, indexMeta, fieldAsc);
+        private DefaultPrimaryFieldMeta(TableMeta<T> table, Field field, MetaContext context) throws MetaException {
+            super(table, field, context);
             if (!_MetaBridge.ID.equals(field.getName())) {
-                String m = String.format("indexMeta[%s] not primary.", indexMeta);
+                String m = String.format("[%s] not primary.", field.getName());
                 throw new MetaException(m);
             }
         }

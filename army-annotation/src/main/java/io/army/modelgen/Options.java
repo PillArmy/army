@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package io.army.annotation;
+package io.army.modelgen;
 
-public enum SortOrder {
+final class Options {
 
-    ASC,
+    final boolean snowflakeStartTimeWarning;
 
-    DESC,
+    Options(boolean snowflakeStartTimeWarning) {
+        this.snowflakeStartTimeWarning = snowflakeStartTimeWarning;
+    }
 
-    DEFAULT
 }

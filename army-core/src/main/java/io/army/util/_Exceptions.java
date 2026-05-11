@@ -19,7 +19,6 @@ package io.army.util;
 import io.army.ArmyException;
 import io.army.annotation.Generator;
 import io.army.annotation.GeneratorType;
-import io.army.annotation.UpdateMode;
 import io.army.criteria.*;
 import io.army.criteria.impl.SQLs;
 import io.army.criteria.impl._JoinType;
@@ -482,18 +481,9 @@ public abstract class _Exceptions {
         return new CriteriaException(m);
     }
 
-    public static CriteriaException nonUpdatableField(SqlField field) {
-        String m;
-        m = String.format("%s %s isn't %s.", field, UpdateMode.class.getSimpleName(), UpdateMode.UPDATABLE);
-        return new CriteriaException(m);
-    }
 
     public static DataAccessException batchUpdateReturnResultSet() {
         return new DataAccessException("error,multi-statement batch update return ResultSet");
-    }
-
-    public static MetaException dontSupportOnlyDefault(Dialect dialect) {
-        return new MetaException(String.format("%s isn't support UpdateMode[%s].", dialect, UpdateMode.ONLY_DEFAULT));
     }
 
 

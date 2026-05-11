@@ -19,14 +19,12 @@ package io.army.criteria.impl;
 import io.army.annotation.*;
 import io.army.generator.FieldGenerator;
 import io.army.generator.GeneratorStrategy;
+import io.army.generator.PostGeneratorStrategy;
 import io.army.lang.Nullable;
-import io.army.mapping.MappingType;
-import io.army.mapping._MappingFactory;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.util._Assert;
 import io.army.util._Exceptions;
-import io.army.util._ResourceUtils;
 import io.army.util._StringUtils;
 
 import java.lang.reflect.Field;
@@ -36,7 +34,6 @@ import java.lang.reflect.Modifier;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 /// @see FieldMeta
@@ -79,15 +76,6 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         }
     }
 
-    static Column columnMeta(final Class<?> domainClass, final Field field) throws MetaException {
-        final Column column = field.getAnnotation(Column.class);
-        if (column == null) {
-            String m = String.format("Field[%s.%s] isn't annotated by %s."
-                    , domainClass.getName(), field.getName(), Column.class.getName());
-            throw new MetaException(m);
-        }
-        return column;
-    }
 
     static void validatePostGenerator(FieldMeta<?> field, Generator generator, boolean isDiscriminator) {
         if (!generator.value().isEmpty() || generator.params().length != 0) {
@@ -117,37 +105,42 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         }
     }
 
-    static GeneratorMeta columnGeneratorMeta(Generator generator, Field field, FieldMeta<?> fieldMeta, boolean isDiscriminator) {
+    static GeneratorMeta columnGeneratorMeta(Generator generator, Field field, FieldMeta<?> fieldMeta,
+                                             boolean isDiscriminator, MetaContext context) {
         final String fieldName = fieldMeta.fieldName();
         if (isDiscriminator || (!_MetaBridge.ID.equals(fieldName) && _MetaBridge.RESERVED_FIELDS.contains(fieldName))) {
             String m = String.format("%s is managed by army ,so must no %s", fieldMeta, Generator.class.getName());
             throw new MetaException(m);
         }
 
-
         final Class<?> generatorClass;
         generatorClass = loadPreGeneratorClass(fieldMeta, generator.value());
 
         final Map<String, String> paramMap, finalMap;
-        paramMap = getOrcreateFieldParmMap(generator.params(), fieldMeta, field);
+        paramMap = getOrcreateFieldParmMap(generator.params(), fieldMeta, field, context);
         finalMap = overrideParamMapIfNeed(generatorClass, fieldMeta, paramMap);
         return new PreGeneratorMetaImpl(fieldMeta, generatorClass, finalMap);
     }
 
-    static GeneratorStrategy loadGeneratorStrategy(final FieldMeta<?> fieldMeta) {
-        final String key = GeneratorStrategy.class.getName() + '.' + "properties";
-        Properties properties;
-        properties = (Properties) TableMetaUtils.getCache(key);
-        if (properties == null) {
-            properties = _ResourceUtils.loadArmyProperties("generator_strategy");
-            TableMetaUtils.putCache(key, properties);
-        }
+    static GeneratorStrategy loadGeneratorStrategy(final FieldMeta<?> fieldMeta, final MetaContext context) {
+        final String key, fieldName;
+        fieldName = fieldMeta.fieldName();
+        key = context.tempBuilderAndClear()
+                .append(fieldMeta.tableMeta().javaType().getName())
+                .append('.')
+                .append(fieldMeta.fieldName())
+                .append('.')
+                .append(GeneratorStrategy.class.getSimpleName())
+                .toString();
 
         String value;
-        value = properties.getProperty(fieldMeta.tableMeta().javaType().getName() + '.' + fieldMeta.fieldName());
+        value = context.tableMetaProperties().getProperty(key);
         if (!_StringUtils.hasText(value)) {
-            String m = String.format("%s no %s", fieldMeta, GeneratorStrategy.class.getName());
-            throw new MetaException(m);
+            if (!fieldName.equals(_MetaBridge.ID)) {
+                String m = String.format("%s no %s", fieldMeta, GeneratorStrategy.class.getName());
+                throw new MetaException(m);
+            }
+            return PostGeneratorStrategy.create();
         }
         value = value.trim();
         final int colonIndex = value.indexOf(':');
@@ -203,7 +196,8 @@ abstract class FieldMetaUtils extends TableMetaUtils {
     }
 
     @Nullable
-    static GeneratorMeta createGeneratorMeta(GeneratorStrategy strategy, FieldMeta<?> fieldMeta, boolean isDiscriminator) {
+    static GeneratorMeta createGeneratorMeta(GeneratorStrategy strategy, FieldMeta<?> fieldMeta,
+                                             boolean isDiscriminator, MetaContext context) {
         final String fieldName = fieldMeta.fieldName();
         if (isDiscriminator || (!_MetaBridge.ID.equals(fieldName) && _MetaBridge.RESERVED_FIELDS.contains(fieldName))) {
             String m = String.format("%s is managed by army ,so must no %s", fieldMeta, Generator.class.getName());
@@ -220,19 +214,6 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         }
         _Assert.isTrue(type == GeneratorType.PRECEDE, "");
         return new PreGeneratorMetaImpl(fieldMeta, strategy.generatorClass(), strategy.paramMap());
-    }
-
-
-    static MappingType fieldMappingType(final Field field, final boolean isDiscriminator) {
-
-        final Class<?> fieldJavaType = field.getType();
-
-        if (isDiscriminator && !Enum.class.isAssignableFrom(fieldJavaType)) {
-            String m = String.format("%s.%s is discriminator,but isn't enum.", field.getDeclaringClass().getName(), field.getName());
-            throw new MetaException(m);
-        }
-        return _MappingFactory.map(field);
-
     }
 
 
@@ -302,25 +283,30 @@ abstract class FieldMetaUtils extends TableMetaUtils {
 
 
     /// @return an unmodified map
-    @SuppressWarnings("unchecked")
-    private static Map<String, String> getOrcreateFieldParmMap(final Param[] params, final FieldMeta<?> fieldMeta, final Field field) {
+    private static Map<String, String> getOrcreateFieldParmMap(final Param[] params, final FieldMeta<?> fieldMeta,
+                                                               final Field field, final MetaContext context) {
         if (params.length == 0) {
             return Map.of();
         }
 
-        synchronized (DefaultTableMeta.LOCK) {
+        final String key;
+        key = context.tempBuilderAndClear()
+                .append(field.getDeclaringClass().getName())
+                .append('.')
+                .append(field.getName())
+                .append('.')
+                .append("generator")
+                .append('.')
+                .append("paramMap")
+                .toString();
 
-            final String key = field.getDeclaringClass().getName() + '.' + field.getName() + '.' + "generator.paramMap";
-            final Object value = TableMetaUtils.getCache(key);
-            Map<String, String> paramMap;
-            if (value instanceof Map) {
-                paramMap = (Map<String, String>) value;
-            } else {
-                paramMap = createFieldParmMap(params, fieldMeta);
-                TableMetaUtils.putCache(key, paramMap);
-            }
-            return paramMap;
-        } // synchronized
+        Map<String, String> paramMap;
+        paramMap = context.getGeneratorParamMap(key);
+        if (paramMap == null) {
+            paramMap = createFieldParmMap(params, fieldMeta);
+            context.putGeneratorParamMap(key, paramMap);
+        }
+        return paramMap;
     }
 
     /// @return an unmodified map

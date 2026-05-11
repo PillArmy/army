@@ -26,6 +26,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
@@ -38,7 +39,9 @@ final class AnnotationHandler {
 
     private final ProcessingEnvironment env;
 
-    private final boolean snowflakeStartTimeWarning;
+    private final Elements elements;
+
+    private final Options options;
 
     final List<String> errorMsgList = new ArrayList<>();
 
@@ -56,10 +59,16 @@ final class AnnotationHandler {
 
     private final StringBuilder tempBuilder = new StringBuilder();
 
+    private TypeElement currentElement;
 
-    AnnotationHandler(ProcessingEnvironment env, boolean snowflakeStartTimeWarning) {
+    private String currentDomainName;
+
+    private MappingMode currentMappingMode;
+
+    AnnotationHandler(ProcessingEnvironment env, Options options) {
         this.env = env;
-        this.snowflakeStartTimeWarning = snowflakeStartTimeWarning;
+        this.elements = env.getElementUtils();
+        this.options = options;
     }
 
 
@@ -77,12 +86,12 @@ final class AnnotationHandler {
         Table table;
         Inheritance inheritance;
         for (Element element : domainElementSet) {
-            domain = (TypeElement) element;
+            this.currentElement = domain = (TypeElement) element;
             if (domain.getNestingKind() != NestingKind.TOP_LEVEL) {
                 continue;
             }
 
-            domainName = MetaUtils.getClassName(domain);
+            this.currentDomainName = domainName = MetaUtils.getClassName(domain);
 
             if ((inheritance = domain.getAnnotation(Inheritance.class)) != null) {
                 parentDomain = null;
@@ -93,7 +102,7 @@ final class AnnotationHandler {
                 parentDomain = outParent[0];
             }
 
-            mode = validateMode(domain, parentDomain);
+            this.currentMappingMode = mode = validateMode(domain, parentDomain);
 
             if (mode == null) {
                 continue;  // occur error
@@ -172,7 +181,7 @@ final class AnnotationHandler {
 
 
     private void printSnowflakeStartTimeWarning() {
-        if (!this.snowflakeStartTimeWarning) {
+        if (!this.options.snowflakeStartTimeWarning) {
             return;
         }
         StringBuilder builder = null;
@@ -263,6 +272,7 @@ final class AnnotationHandler {
 
     }
 
+
     @Nullable
     private MappingMode validateMode(final TypeElement domain, final @Nullable TypeElement parent) {
 
@@ -301,8 +311,14 @@ final class AnnotationHandler {
     }
 
     private void storeDiscriminatorValue(final TypeElement parent, final String value, final TypeElement domain) {
+        final String parentClassName;
+        if (parent == this.currentElement) {
+            parentClassName = this.currentDomainName;
+        } else {
+            parentClassName = MetaUtils.getClassName(parent);
+        }
         final TypeElement oldDomain;
-        oldDomain = this.discriminatorValueCache.computeIfAbsent(MetaUtils.getClassName(parent), _ -> new HashMap<>())
+        oldDomain = this.discriminatorValueCache.computeIfAbsent(parentClassName, _ -> new HashMap<>())
                 .putIfAbsent(value, domain);
         if (oldDomain != null && oldDomain != domain) {
             String m = String.format("Domain %s discriminator value[%s] duplication."

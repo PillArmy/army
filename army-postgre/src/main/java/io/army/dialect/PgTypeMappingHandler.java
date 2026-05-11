@@ -292,7 +292,9 @@ final class PgTypeMappingHandler extends TypeMappingHandlerSupport {
                 type = PgType.PG_SNAPSHOT;
                 typeArray[index] = StringType.INSTANCE;
                 break;
-
+            case "HSTORE":
+                type = DataType.from("HSTORE");
+                break;
             case "BOOLEAN[]":
             case "BOOL[]":
                 type = PgType.BOOLEAN_ARRAY;

@@ -14,13 +14,33 @@
  * limitations under the License.
  */
 
-package io.army.annotation;
+package io.army.criteria.impl;
 
-public enum SortOrder {
+import io.army.lang.Nullable;
+import io.army.meta.IndexColumnMeta;
 
-    ASC,
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
-    DESC,
+interface MetaContext {
 
-    DEFAULT
+
+    List<IndexColumnMeta> minIndexColumnMetaList(List<IndexColumnMeta> list);
+
+    List<IndexColumnMeta> indexColumnMetaList(List<IndexColumnMeta> list);
+
+    Properties tableMetaProperties();
+
+    StringBuilder tempBuilderAndClear();
+
+    @Nullable
+    Map<String, String> getGeneratorParamMap(String key);
+
+    void putGeneratorParamMap(String key, Map<String, String> value);
+
+
+    void clear();
+
+
 }

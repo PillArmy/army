@@ -26,14 +26,17 @@ import io.army.function.SafeLiteralFunc;
 import io.army.mapping.optional.CompositeField;
 import io.army.mapping.optional.CompositeFieldFactory;
 import io.army.meta.ServerMeta;
-import io.army.meta.TypeMeta;
 import io.army.pojo.ObjectAccessor;
 import io.army.pojo.ObjectAccessorFactory;
 import io.army.sqltype.DataType;
 import io.army.struct.DefinedType;
-import io.army.util.*;
+import io.army.util.AnnotationUtils;
+import io.army.util.ClassUtils;
+import io.army.util.ItemsParser;
+import io.army.util._StringUtils;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /// Mapping the pojo annotated by {@link DefinedType} to sql composite type
@@ -129,12 +132,6 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
     public String objectName() {
         return this.typeName;
     }
-
-    @Override
-    public String comment() {
-        return "";
-    }
-
 
     @Override
     public int hashCode() {

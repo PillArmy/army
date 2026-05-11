@@ -112,6 +112,7 @@ public abstract class _MappingFactory {
         return type;
     }
 
+
     private static MappingType map(final Mapping mapping, final Field field) {
         final Class<?> mappingClass;
         mappingClass = getMappingClass(mapping, field);

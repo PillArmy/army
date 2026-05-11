@@ -4,6 +4,7 @@ package io.army.example.stock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
@@ -100,7 +101,9 @@ public class StockApp implements ApplicationRunner, EnvironmentAware {
 
                 writer.write("机器人: ");
                 writer.flush();
-                chatClient.prompt(prompt).stream()
+                chatClient.prompt(prompt)
+                        .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, "8233"))
+                        .stream()
                         .content()
                         .doOnNext(System.out::print)
                         .doOnNext(writerConsumer)

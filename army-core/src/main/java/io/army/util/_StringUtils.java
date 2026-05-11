@@ -37,7 +37,7 @@ public abstract class _StringUtils {
     }
 
     public static boolean hasLength(@Nullable CharSequence str) {
-        return str != null && str.length() > 0;
+        return str != null && !str.isEmpty();
     }
 
     public static boolean hasText(@Nullable CharSequence str) {

@@ -32,10 +32,10 @@ import io.army.util.ArrayUtils;
 
 ///
 /// This class representing Postgre vector type {@link MappingType}
-///
-/// @see <a href="https://github.com/pgvector/pgvector">pgvector-java</a>
+///@see VectorArrayType
+/// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
 /// @see <a href="https://github.com/pgvector/pgvector-java">pgvector-java</a>
-public final class VectorType extends _ArmyNoInjectionType {
+public final class VectorType extends _ArmyNoInjectionType implements MappingType.SqlExtension {
 
     public static VectorType from(final Class<?> javaType) {
         if (javaType != float[].class) {
@@ -95,6 +95,11 @@ public final class VectorType extends _ArmyNoInjectionType {
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return VectorArrayType.from(ArrayUtils.arrayClassOf(float[].class));
+    }
+
+    @Override
+    public String extensionName() {
+        return "VECTOR";
     }
 
     @Override

@@ -60,12 +60,11 @@ abstract class ArmyJsonType extends _ArmyBuildInType {
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, final Object source) {
+        if (this.javaType.isInstance(source)) {
+            return source;
+        }
         if (!(source instanceof String)) {
             throw ACCESS_ERROR_HANDLER.apply(this, dataType, source, null);
-        }
-        final Class<?> javaType = this.javaType;
-        if (javaType == String.class) {
-            return source;
         }
         Object documentValue;
 

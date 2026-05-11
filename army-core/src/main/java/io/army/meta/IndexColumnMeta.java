@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package io.army.annotation;
+package io.army.meta;
 
+import io.army.annotation.NullsOrder;
+import io.army.annotation.SortOrder;
 
-public enum UpdateMode {
+/// @see io.army.annotation.IndexField
+public interface IndexColumnMeta {
 
-    UPDATABLE,
-    IMMUTABLE,
+    String collation();
 
-    @Deprecated
-    ONLY_NULL,
+    String opclass();
 
-    @Deprecated
-    ONLY_DEFAULT
+    SortOrder order();
 
+    NullsOrder nulls();
 
 }

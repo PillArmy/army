@@ -170,9 +170,8 @@ abstract class ArmySchemaComparer implements SchemaComparer {
         final Map<String, IndexInfo> indexMap = tableInfo.indexMap();
         IndexInfo indexInfo;
         String indexName;
-        List<IndexFieldMeta<T>> indexFieldList;
+        List<FieldMeta<T>> indexFieldList;
         List<String> columnList;
-        List<Boolean> ascList;
         for (IndexMeta<T> index : table.indexList()) {
             if (index.isPrimaryKey()) { // TODO add primary key code
                 continue;
@@ -196,19 +195,10 @@ abstract class ArmySchemaComparer implements SchemaComparer {
                 tableBuilder.appendChangeIndex(indexName);
                 continue;
             }
-            ascList = indexInfo.ascList();
+
             for (int i = 0; i < fieldSize; i++) {
-                IndexFieldMeta<T> field = indexFieldList.get(i);
+                FieldMeta<T> field = indexFieldList.get(i);
                 if (!columnList.contains(field.columnName())) {
-                    tableBuilder.appendChangeIndex(indexName);
-                    break;
-                }
-                Boolean fieldAsc = field.fieldAsc();
-                Boolean columnAsc = ascList.get(i);
-                if (fieldAsc == null || columnAsc == null) {
-                    continue;
-                }
-                if (!fieldAsc.equals(columnAsc)) {
                     tableBuilder.appendChangeIndex(indexName);
                     break;
                 }
@@ -519,7 +509,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
             columnMetaSet.clear();
         }
 
-        for (IndexFieldMeta<?> field : indexMeta.fieldList()) {
+        for (FieldMeta<?> field : indexMeta.fieldList()) {
             columnMetaSet.add(field.columnName().toLowerCase(Locale.ROOT));
         }
 

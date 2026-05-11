@@ -38,18 +38,18 @@ public class ArmyMetaModelDomainProcessor extends AbstractProcessor {
 
     // private Messager messager;
 
-    private boolean snowflakeStartTimeWarning = true;
+    private Options options;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.processingEnv = processingEnv;
-        // this.messager = processingEnv.getMessager();
         final Map<String, String> map;
         map = processingEnv.getOptions();
         if (map != null && "false".equals(map.get("army.snowflakeStartTimeWarning"))) {
-            this.snowflakeStartTimeWarning = false;
-            // System.out.println("[INFO] army.snowflakeStartTimeWarning is false");
+            this.options = new Options(false);
+        } else {
+            this.options = new Options(true);
         }
     }
 
@@ -65,7 +65,7 @@ public class ArmyMetaModelDomainProcessor extends AbstractProcessor {
 
         final long startTime = System.currentTimeMillis();
         try {
-            final AnnotationHandler handler = new AnnotationHandler(this.processingEnv, this.snowflakeStartTimeWarning);
+            final AnnotationHandler handler = new AnnotationHandler(this.processingEnv, this.options);
             handler.createSourceFiles(elementSet);
             if (!handler.errorMsgList.isEmpty()) {
                 final String m, title;

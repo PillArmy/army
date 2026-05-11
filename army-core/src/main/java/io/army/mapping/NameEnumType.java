@@ -357,10 +357,6 @@ public class NameEnumType extends _ArmyNoInjectionType {
             return List.copyOf(enumLabelList);
         }
 
-        @Override
-        public String comment() {
-            return "";
-        }
     } // NameEnumNamedType
 
 

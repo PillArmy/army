@@ -124,6 +124,7 @@ public interface TableMeta<T> extends TabularItem, DatabaseObject.TypeObject {
 
     List<FieldMeta<?>> fieldChain();
 
+
     @Override
     boolean equals(Object o);
 
