@@ -20,6 +20,8 @@ import io.army.function.TeNamedParamsFunc;
 
 import java.util.function.BiFunction;
 
+import static io.army.dialect.Database.PostgreSQL;
+
 
 /// This interface is the base interface of below:
 /// 1. {@link TableField} field of table
@@ -237,6 +239,42 @@ public interface TypedField extends SqlField, TypedExpression, SimpleExpression 
     Expression spaceRightShift(BiFunction<TypedField, String, Expression> namedOperator);
 
     Expression spaceLeftShift(BiFunction<TypedField, String, Expression> namedOperator);
+
+    /// <+> - L1 distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    @Support({PostgreSQL})
+    Expression spaceL1Distance(BiFunction<TypedField, String, Expression> namedOperator);
+
+    /// <-> - L2 distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    @Support({PostgreSQL})
+    Expression spaceL2Distance(BiFunction<TypedField, String, Expression> namedOperator);
+
+    /// <=> - cosine distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    @Support({PostgreSQL})
+    Expression spaceCosineDistance(BiFunction<TypedField, String, Expression> namedOperator);
+
+    /// <~> - Hamming distance (binary vectors)
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    @Support({PostgreSQL})
+    Expression spaceHammingDistance(BiFunction<TypedField, String, Expression> namedOperator);
+
+    /// <%> - Jaccard distance (binary vectors)
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    @Support({PostgreSQL})
+    Expression spaceJaccardDistance(BiFunction<TypedField, String, Expression> namedOperator);
+
+    /// <#> - (negative) inner product
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    @Support({PostgreSQL})
+    Expression spaceNegDot(BiFunction<TypedField, String, Expression> namedOperator);
 
     /// 
     /// @param operator dialect operator

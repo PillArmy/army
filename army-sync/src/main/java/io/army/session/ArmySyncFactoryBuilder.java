@@ -188,7 +188,7 @@ final class ArmySyncFactoryBuilder
                     schemaComparer = SchemaComparer.create(sessionFactory.serverMeta());
                     final Collection<TableMeta<?>> tableCollection;
                     tableCollection = sessionFactory.tableMap().values();
-                    schemaResult = schemaComparer.compare(schemaInfo, sessionFactory.schemaMeta(), tableCollection, definedTypeMap);
+                    schemaResult = schemaComparer.compare(schemaInfo, sessionFactory.configSchemaMeta(), tableCollection, definedTypeMap);
                 }
                 break;
                 case DROP_CREATE: {

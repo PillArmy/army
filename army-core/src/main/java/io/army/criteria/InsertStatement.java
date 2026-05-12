@@ -280,52 +280,25 @@ public interface InsertStatement extends DmlStatement {
 
     interface _StaticColumnValueClause<T> {
 
-        _StaticColumnValueClause<T> comma(FieldMeta<T> field, Expression value);
-
-        _StaticColumnValueClause<T> comma(FieldMeta<T> field, Supplier<Expression> supplier);
-
-        _StaticColumnValueClause<T> comma(FieldMeta<T> field, Function<FieldMeta<T>, Expression> function);
+        _StaticColumnValueClause<T> comma(FieldMeta<T> field, @Nullable Object operand);
 
         <E> _StaticColumnValueClause<T> comma(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, @Nullable E value);
 
-        <E> _StaticColumnValueClause<T> comma(FieldMeta<T> field, SQLs.SymbolSpace space, BiFunction<FieldMeta<T>, E, Expression> funcRef, Supplier<E> supplier);
+        _StaticColumnValueClause<T> ifComma(FieldMeta<T> field, @Nullable Object operand);
 
-        <K, V> _StaticColumnValueClause<T> comma(FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> funcRef, Function<K, V> function, K key);
-
-        _StaticColumnValueClause<T> ifComma(FieldMeta<T> field, Supplier<Expression> supplier);
-
-        _StaticColumnValueClause<T> ifComma(FieldMeta<T> field, Function<FieldMeta<T>, Expression> function);
-
-        <E> _StaticColumnValueClause<T> ifComma(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, Supplier<E> supplier);
-
-
-        <K, V> _StaticColumnValueClause<T> ifComma(FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> funcRef, Function<K, V> function, K key);
+        <E> _StaticColumnValueClause<T> ifComma(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, @Nullable E value);
 
     }
 
     interface _StaticValueSpaceClause<T> {
 
-        _StaticColumnValueClause<T> space(FieldMeta<T> field, Expression value);
-
-        _StaticColumnValueClause<T> space(FieldMeta<T> field, Supplier<Expression> supplier);
-
-        _StaticColumnValueClause<T> space(FieldMeta<T> field, Function<FieldMeta<T>, Expression> function);
+        _StaticColumnValueClause<T> space(FieldMeta<T> field, @Nullable Object operand);
 
         <E> _StaticColumnValueClause<T> space(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, @Nullable E value);
 
-        <E> _StaticColumnValueClause<T> space(FieldMeta<T> field, SQLs.SymbolSpace space, BiFunction<FieldMeta<T>, E, Expression> funcRef, Supplier<E> supplier);
+        _StaticColumnValueClause<T> spaceIf(FieldMeta<T> field, @Nullable Object operand);
 
-
-        <K, V> _StaticColumnValueClause<T> space(FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> funcRef, Function<K, V> function, K key);
-
-        _StaticColumnValueClause<T> spaceIf(FieldMeta<T> field, Supplier<Expression> supplier);
-
-        _StaticColumnValueClause<T> spaceIf(FieldMeta<T> field, Function<FieldMeta<T>, Expression> function);
-
-        <E> _StaticColumnValueClause<T> spaceIf(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, Supplier<E> supplier);
-
-
-        <K, V> _StaticColumnValueClause<T> spaceIf(FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> funcRef, Function<K, V> function, K key);
+        <E> _StaticColumnValueClause<T> spaceIf(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, @Nullable E value);
 
 
     }

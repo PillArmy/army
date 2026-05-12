@@ -21,7 +21,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static io.army.criteria.impl.SQLs.AS;
-import static io.army.criteria.impl.SQLs.DOT;
+import static io.army.criteria.impl.SQLs.PERIOD;
 
 @Test(dataProvider = "localSessionProvider")
 public class InsertTests extends SessionTestSupport {
@@ -457,7 +457,7 @@ public class InsertTests extends SessionTestSupport {
                 .migration()
                 .insertInto(HistoryChinaRegion_.T)
                 .space()
-                .select("c", DOT, ChinaRegion_.T)
+                .select("c", PERIOD, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(parentList)))
                 .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.NONE))
@@ -486,7 +486,7 @@ public class InsertTests extends SessionTestSupport {
                 .migration()
                 .insertInto(HistoryChinaRegion_.T)
                 .space()
-                .select("c", DOT, ChinaRegion_.T)
+                .select("c", PERIOD, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id.in(SQLs::rowParam, regionIdList))
                 .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.PROVINCE))
@@ -497,7 +497,7 @@ public class InsertTests extends SessionTestSupport {
 
                 .insertInto(HistoryChinaProvince_.T)
                 .space()
-                .select("p", DOT, ChinaProvince_.T)
+                .select("p", PERIOD, ChinaProvince_.T)
                 .from(ChinaProvince_.T, AS, "p")
                 .join(ChinaRegion_.T, AS, "c").on(ChinaRegion_.id::equal, ChinaProvince_.id)
                 .where(ChinaProvince_.id.in(SQLs::rowParam, regionIdList))

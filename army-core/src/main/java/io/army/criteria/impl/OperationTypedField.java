@@ -19,7 +19,6 @@ package io.army.criteria.impl;
 import io.army.criteria.*;
 import io.army.criteria.impl.inner._Selection;
 import io.army.function.TeNamedParamsFunc;
-import io.army.mapping.StringType;
 
 import java.util.function.BiFunction;
 
@@ -186,6 +185,36 @@ abstract class OperationTypedField extends OperationExpression.OperationTypedExp
     @Override
     public final Expression spaceLeftShift(BiFunction<TypedField, String, Expression> namedOperator) {
         return Expressions.dualExp(this, DualExpOperator.LEFT_SHIFT, namedOperator.apply(this, this.fieldName()));
+    }
+
+    @Override
+    public final Expression spaceL1Distance(BiFunction<TypedField, String, Expression> namedOperator) {
+        return Expressions.dualExp(this, DualExpOperator.L1_DISTANCE, namedOperator.apply(this, this.fieldName()));
+    }
+
+    @Override
+    public final Expression spaceL2Distance(BiFunction<TypedField, String, Expression> namedOperator) {
+        return Expressions.dualExp(this, DualExpOperator.L2_DISTANCE, namedOperator.apply(this, this.fieldName()));
+    }
+
+    @Override
+    public final Expression spaceCosineDistance(BiFunction<TypedField, String, Expression> namedOperator) {
+        return Expressions.dualExp(this, DualExpOperator.COSINE_DISTANCE, namedOperator.apply(this, this.fieldName()));
+    }
+
+    @Override
+    public final Expression spaceHammingDistance(BiFunction<TypedField, String, Expression> namedOperator) {
+        return Expressions.dualExp(this, DualExpOperator.HAMMING_DISTANCE, namedOperator.apply(this, this.fieldName()));
+    }
+
+    @Override
+    public final Expression spaceJaccardDistance(BiFunction<TypedField, String, Expression> namedOperator) {
+        return Expressions.dualExp(this, DualExpOperator.JACCARD_DISTANCE, namedOperator.apply(this, this.fieldName()));
+    }
+
+    @Override
+    public final Expression spaceNegDot(BiFunction<TypedField, String, Expression> namedOperator) {
+        return Expressions.dualExp(this, DualExpOperator.NEG_DOT, namedOperator.apply(this, this.fieldName()));
     }
 
     @Override

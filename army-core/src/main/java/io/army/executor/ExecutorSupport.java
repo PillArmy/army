@@ -196,10 +196,10 @@ public abstract class ExecutorSupport {
     }
 
     /// This method is designed for second query,so :
-    /// 
+    ///
     /// - resultList should be {@link java.util.ArrayList}
     /// - If accessor is {@link ExecutorSupport#SINGLE_COLUMN_PSEUDO_ACCESSOR} ,then resultList representing single column row
-    /// 
+    ///
     protected static <R> Map<Object, R> createIdToRowMap(final List<R> resultList, final String idFieldName,
                                                          final ObjectAccessor accessor) {
         final int rowSize = resultList.size();
@@ -624,8 +624,86 @@ public abstract class ExecutorSupport {
             return value;
         }
 
+        @Override
+        public final <T> T getNonNull(int indexBasedZero, Class<T> columnClass, MappingType type) {
+            final T value;
+            value = get(indexBasedZero, columnClass, type);
+            if (value == null) {
+                throw currentRecordColumnIsNull(indexBasedZero, getColumnLabel(indexBasedZero));
+            }
+            return value;
+        }
+
+        @Override
+        public final <T> T getOrDefault(int indexBasedZero, Class<T> columnClass, MappingType type, @Nullable T defaultValue) {
+            if (defaultValue == null) {
+                throw currentRecordDefaultValueNonNull();
+            }
+            T value;
+            value = get(indexBasedZero, columnClass, type);
+            if (value == null) {
+                value = defaultValue;
+            }
+            return value;
+        }
+
+        @Override
+        public final <T> T getOrSupplier(int indexBasedZero, Class<T> columnClass, MappingType type, Supplier<T> supplier) {
+            T value;
+            value = get(indexBasedZero, columnClass, type);
+            if (value == null) {
+                value = supplier.get();
+                if (value == null) {
+                    throw currentRecordSupplierReturnNull(supplier);
+                }
+            }
+            return value;
+        }
+
+        @Override
+        public final <T> List<T> getNonNullList(int indexBasedZero, Class<T> elementClass) {
+            final List<T> list;
+            list = getList(indexBasedZero, elementClass);
+            if (list == null) {
+                throw currentRecordColumnIsNull(indexBasedZero, getColumnLabel(indexBasedZero));
+            }
+            return list;
+        }
+
+        @Override
+        public final <K, V> Map<K, V> getNonNullMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass) {
+            final Map<K, V>
+                    map = getMap(indexBasedZero, keyClass, valueClass);
+            if (map == null) {
+                throw currentRecordColumnIsNull(indexBasedZero, getColumnLabel(indexBasedZero));
+            }
+            return map;
+        }
+
+        @Override
+        public final <T> List<T> getNonNullList(int indexBasedZero, Class<T> elementClass, MappingType type) {
+            final List<T> list;
+            list = getList(indexBasedZero, elementClass, type);
+            if (list == null) {
+                throw currentRecordColumnIsNull(indexBasedZero, getColumnLabel(indexBasedZero));
+            }
+            return list;
+        }
+
+        @Override
+        public final <K, V> Map<K, V> getNonNullMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass, MappingType type) {
+            final Map<K, V> map;
+            map = getMap(indexBasedZero, keyClass, valueClass, type);
+            if (map == null) {
+                throw currentRecordColumnIsNull(indexBasedZero, getColumnLabel(indexBasedZero));
+            }
+            return map;
+        }
+
+
         /*-------------------below label methods -------------------*/
 
+        @Nullable
         @Override
         public final Object get(String columnLabel) {
             return get(getRecordMeta().getColumnIndex(columnLabel));
@@ -667,6 +745,78 @@ public abstract class ExecutorSupport {
             return getOrSupplier(getRecordMeta().getColumnIndex(columnLabel), columnClass, supplier);
         }
 
+        @Nullable
+        @Override
+        public final Object get(String columnLabel, MappingType type) {
+            return get(getRecordMeta().getColumnIndex(columnLabel), type);
+        }
+
+        @Nullable
+        @Override
+        public final <T> T get(String columnLabel, Class<T> columnClass, MappingType type) {
+            return get(getRecordMeta().getColumnIndex(columnLabel), columnClass, type);
+        }
+
+        @Override
+        public final <T> T getNonNull(String columnLabel, Class<T> columnClass, MappingType type) {
+            return getNonNull(getRecordMeta().getColumnIndex(columnLabel), columnClass, type);
+        }
+
+        @Override
+        public final <T> T getOrDefault(String columnLabel, Class<T> columnClass, MappingType type, T defaultValue) {
+            return getOrDefault(getRecordMeta().getColumnIndex(columnLabel), columnClass, defaultValue);
+        }
+
+        @Override
+        public final <T> T getOrSupplier(String columnLabel, Class<T> columnClass, MappingType type, Supplier<T> supplier) {
+            return getOrSupplier(getRecordMeta().getColumnIndex(columnLabel), columnClass, type, supplier);
+        }
+
+
+        @Nullable
+        @Override
+        public final <T> List<T> getList(String columnLabel, Class<T> elementClass) {
+            return getList(getRecordMeta().getColumnIndex(columnLabel), elementClass);
+        }
+
+        @Override
+        public final <T> List<T> getNonNullList(String columnLabel, Class<T> elementClass) {
+            return getNonNullList(getRecordMeta().getColumnIndex(columnLabel), elementClass);
+        }
+
+        @Nullable
+        @Override
+        public final <K, V> Map<K, V> getMap(String columnLabel, Class<K> keyClass, Class<V> valueClass) {
+            return getMap(getRecordMeta().getColumnIndex(columnLabel), keyClass, valueClass);
+        }
+
+        @Override
+        public final <K, V> Map<K, V> getNonNullMap(String columnLabel, Class<K> keyClass, Class<V> valueClass) {
+            return getNonNullMap(getRecordMeta().getColumnIndex(columnLabel), keyClass, valueClass);
+        }
+
+        @Nullable
+        @Override
+        public final <T> List<T> getList(String columnLabel, Class<T> elementClass, MappingType type) {
+            return getList(getRecordMeta().getColumnIndex(columnLabel), elementClass, type);
+        }
+
+        @Override
+        public final <T> List<T> getNonNullList(String columnLabel, Class<T> elementClass, MappingType type) {
+            return getNonNullList(getRecordMeta().getColumnIndex(columnLabel), elementClass, type);
+        }
+
+        @Nullable
+        @Override
+        public final <K, V> Map<K, V> getMap(String columnLabel, Class<K> keyClass, Class<V> valueClass, MappingType type) {
+            return getMap(getRecordMeta().getColumnIndex(columnLabel), keyClass, valueClass, type);
+        }
+
+        @Override
+        public final <K, V> Map<K, V> getNonNullMap(String columnLabel, Class<K> keyClass, Class<V> valueClass, MappingType type) {
+            return getNonNullMap(getRecordMeta().getColumnIndex(columnLabel), keyClass, valueClass, type);
+        }
+
 
     } // ArmyDataRecord
 
@@ -706,6 +856,17 @@ public abstract class ExecutorSupport {
             }
             return (T) value;
         }
+
+        @Override
+        public <T> List<T> getList(int indexBasedZero, Class<T> elementClass) {
+            return List.of();
+        }
+
+        @Override
+        public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass) {
+            return Map.of();
+        }
+
 
     } // ArmyStmtDataRecord
 
@@ -752,42 +913,7 @@ public abstract class ExecutorSupport {
             return (T) value;
         }
 
-        @Override
-        public final <T> T getNonNull(int indexBasedZero, Class<T> columnClass, MappingType type) {
-            final T value;
-            value = get(indexBasedZero, columnClass, type);
-            if (value == null) {
-                throw currentRecordColumnIsNull(indexBasedZero, getColumnLabel(indexBasedZero));
-            }
-            return value;
-        }
 
-        @Override
-        public final <T> T getOrDefault(int indexBasedZero, Class<T> columnClass, MappingType type,
-                                        final @Nullable T defaultValue) {
-            if (defaultValue == null) {
-                throw currentRecordDefaultValueNonNull();
-            }
-            T value;
-            value = get(indexBasedZero, columnClass, type);
-            if (value == null) {
-                value = defaultValue;
-            }
-            return value;
-        }
-
-        @Override
-        public final <T> T getOrSupplier(int indexBasedZero, Class<T> columnClass, MappingType type, Supplier<T> supplier) {
-            T value;
-            value = get(indexBasedZero, columnClass, type);
-            if (value == null) {
-                value = supplier.get();
-                if (value == null) {
-                    throw currentRecordSupplierReturnNull(supplier);
-                }
-            }
-            return value;
-        }
 
         protected abstract Object[] copyValueArray();
 
@@ -823,6 +949,28 @@ public abstract class ExecutorSupport {
         public Object get(int indexBasedZero) {
             return this.valueArray[this.meta.checkIndex(indexBasedZero)];
         }
+
+        @Override
+        public Object get(int indexBasedZero, MappingType type) {
+
+            return null;
+        }
+
+        @Override
+        public <T> T get(int indexBasedZero, Class<T> columnClass, MappingType type) {
+            return null;
+        }
+
+        @Override
+        public <T> List<T> getList(int indexBasedZero, Class<T> elementClass, MappingType type) {
+            return List.of();
+        }
+
+        @Override
+        public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass, MappingType type) {
+            return Map.of();
+        }
+
 
     }// ArmyResultRecord
 

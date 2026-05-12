@@ -19,12 +19,12 @@ package io.army.session;
 
 import io.army.dialect.Database;
 import io.army.executor.StmtExecutor;
+import io.army.lang.Nullable;
 import io.army.meta.TableMeta;
 import io.army.result.ChildUpdateException;
 import io.army.spec.CloseableSpec;
 import io.army.transaction.TransactionInfo;
 
-import io.army.lang.Nullable;
 import java.util.Map;
 import java.util.Set;
 
@@ -149,6 +149,8 @@ public sealed interface Session extends CloseableSpec, SessionSpec permits Local
     boolean isQueryInsertAllowed();
 
     Database serverDatabase();
+
+    Database dialectDatabase();
 
 
     /// **NOTE** : This method don't check whether session closed or not.

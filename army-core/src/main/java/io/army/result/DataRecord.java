@@ -17,7 +17,10 @@
 package io.army.result;
 
 import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public interface DataRecord extends ResultItem, ResultItem.ResultAccessSpec {
@@ -36,10 +39,10 @@ public interface DataRecord extends ResultItem, ResultItem.ResultAccessSpec {
 
 
     /// Javadoc see
-    /// 
+    ///
     /// - {@link ResultRecord#get(int, Class)}
     /// - {@link CurrentRecord#get(int, Class)}
-    /// 
+    ///
     @Nullable
     <T> T get(int indexBasedZero, Class<T> columnClass);
 
@@ -48,6 +51,40 @@ public interface DataRecord extends ResultItem, ResultItem.ResultAccessSpec {
     <T> T getOrDefault(int indexBasedZero, Class<T> columnClass, T defaultValue);
 
     <T> T getOrSupplier(int indexBasedZero, Class<T> columnClass, Supplier<T> supplier);
+
+    @Nullable
+    Object get(int indexBasedZero, MappingType type);
+
+    @Nullable
+    <T> T get(int indexBasedZero, Class<T> columnClass, MappingType type);
+
+    <T> T getNonNull(int indexBasedZero, Class<T> columnClass, MappingType type);
+
+    <T> T getOrDefault(int indexBasedZero, Class<T> columnClass, MappingType type, T defaultValue);
+
+    <T> T getOrSupplier(int indexBasedZero, Class<T> columnClass, MappingType type, Supplier<T> supplier);
+
+
+    @Nullable
+    <T> List<T> getList(int indexBasedZero, Class<T> elementClass);
+
+    <T> List<T> getNonNullList(int indexBasedZero, Class<T> elementClass);
+
+    @Nullable
+    <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass);
+
+    <K, V> Map<K, V> getNonNullMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass);
+
+    @Nullable
+    <T> List<T> getList(int indexBasedZero, Class<T> elementClass, MappingType type);
+
+    <T> List<T> getNonNullList(int indexBasedZero, Class<T> elementClass, MappingType type);
+
+    @Nullable
+    <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass, MappingType type);
+
+    <K, V> Map<K, V> getNonNullMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass, MappingType type);
+
 
     /*-------------------below label methods -------------------*/
 
@@ -71,6 +108,42 @@ public interface DataRecord extends ResultItem, ResultItem.ResultAccessSpec {
     <T> T getOrDefault(String columnLabel, Class<T> columnClass, T defaultValue);
 
     <T> T getOrSupplier(String columnLabel, Class<T> columnClass, Supplier<T> supplier);
+
+    @Nullable
+    Object get(String columnLabel, MappingType type);
+
+    @Nullable
+    <T> T get(String columnLabel, Class<T> columnClass, MappingType type);
+
+    <T> T getNonNull(String columnLabel, Class<T> columnClass, MappingType type);
+
+    <T> T getOrDefault(String columnLabel, Class<T> columnClass, MappingType type, T defaultValue);
+
+    <T> T getOrSupplier(String columnLabel, Class<T> columnClass, MappingType type, Supplier<T> supplier);
+
+
+    @Nullable
+    <T> List<T> getList(String columnLabel, Class<T> elementClass);
+
+    <T> List<T> getNonNullList(String columnLabel, Class<T> elementClass);
+
+    @Nullable
+    <K, V> Map<K, V> getMap(String columnLabel, Class<K> keyClass, Class<V> valueClass);
+
+    <K, V> Map<K, V> getNonNullMap(String columnLabel, Class<K> keyClass, Class<V> valueClass);
+
+
+    @Nullable
+    <T> List<T> getList(String columnLabel, Class<T> elementClass, MappingType type);
+
+    <T> List<T> getNonNullList(String columnLabel, Class<T> elementClass, MappingType type);
+
+    @Nullable
+    <K, V> Map<K, V> getMap(String columnLabel, Class<K> keyClass, Class<V> valueClass, MappingType type);
+
+    <K, V> Map<K, V> getNonNullMap(String columnLabel, Class<K> keyClass, Class<V> valueClass, MappingType type);
+
+
 
 
 }

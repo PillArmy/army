@@ -40,8 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static io.army.criteria.impl.MySQLs.format;
 import static io.army.criteria.impl.MySQLs.*;
+import static io.army.criteria.impl.MySQLs.format;
 import static io.army.criteria.impl.SQLs.*;
 
 @Test(dataProvider = "localSessionProvider")
@@ -58,7 +58,7 @@ public class FunctionTests extends SessionTestsSupport {
 
         final Select stmt;
         stmt = MySQLs.query()
-                .select(s -> s.space("t", DOT, ASTERISK))
+                .select(s -> s.space("t", PERIOD, ASTERISK))
                 .from(jsonTable(jsonDocument, "$[*]", COLUMNS, s -> s.space("rowId", FOR_ORDINALITY)
                                 .comma("ac", MySQLType.VARCHAR.parens(100), PATH, "$.a", o -> o.spaceDefault("111").onEmpty().spaceDefault("999").onError())
                                 .comma("aj", MySQLType.JSON, PATH, "$.a", o -> o.spaceDefault("{\"x\":333}").onEmpty())

@@ -162,6 +162,11 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
     }
 
     @Override
+    public final Database dialectDatabase() {
+        return this.factory.dialectDatabase;
+    }
+
+    @Override
     public final <T> TableMeta<T> tableMeta(Class<T> domainClass) {
         final TableMeta<T> table;
         table = this.factory.getTable(domainClass);

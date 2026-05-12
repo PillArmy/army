@@ -778,7 +778,7 @@ abstract class SqlWords {
 
     enum SQLSymbolDot implements SQLs.SymbolDot {
 
-        DOT;
+        PERIOD;
 
         @Override
         public final String toString() {

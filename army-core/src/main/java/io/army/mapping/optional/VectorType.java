@@ -65,10 +65,6 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
 
     @Override
     public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        if (source instanceof String) {
-            validateVector(this, dataType, (String) source);
-            return (String) source;
-        }
         if (!(source instanceof float[] vector)) {
             throw paramError(this, dataType, source, null);
         }

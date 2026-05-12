@@ -151,14 +151,14 @@ public abstract class SQLStmts {
             }
 
             stmt = SQLs.query()
-                    .select("p", SQLs.DOT, parent, "c", SQLs.DOT, child)
+                    .select("p", SQLs.PERIOD, parent, "c", SQLs.PERIOD, child)
                     .from(child, SQLs.AS, "c")
                     .join(parent, SQLs.AS, "p").on(childId.equal(parent.id()))
                     .where(uniqueFiled.equal(SQLs::param, fieldValue))
                     .asQuery();
         } else {
             stmt = SQLs.query()
-                    .select("t", SQLs.DOT, domainTable)
+                    .select("t", SQLs.PERIOD, domainTable)
                     .from(domainTable, SQLs.AS, "t")
                     .where(uniqueFiled.equal(SQLs::param, fieldValue))
                     .asQuery();

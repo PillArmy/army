@@ -347,6 +347,7 @@ abstract class CriteriaUtils {
 
 
     /// invoke after {@code asSelect()}
+    ///
     /// @return a unmodifiable map
     static Map<String, Selection> createSelectionMap(final List<? extends SelectItem> selectItemList) {
 
@@ -508,18 +509,10 @@ abstract class CriteriaUtils {
         if (paramList == null) {
             throw ContextStack.clearStackAndNullPointer();
         }
-        final int size;
-        if ((size = paramList.size()) == 0) {
+        if (paramList.isEmpty()) {
             throw ContextStack.clearStackAndCriteriaError("Batch dml parameter list must not empty.");
         }
-        final List<Object> wrapperList = _Collections.arrayList(size);
-        for (Object param : paramList) {
-            if (param == null) {
-                throw ContextStack.clearStackAndNullPointer();
-            }
-            wrapperList.add(param);
-        }
-        return _Collections.unmodifiableList(wrapperList);
+        return List.copyOf(paramList);
     }
 
 

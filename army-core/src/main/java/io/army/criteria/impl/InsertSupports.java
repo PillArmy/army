@@ -37,6 +37,7 @@ import java.util.function.*;
 /// This class hold the base class(interface) of the implementation of all insert syntax interfaces.
 /// Below is chines signature:
 /// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+///
 /// @since 0.6.0
 abstract class InsertSupports {
 
@@ -1046,7 +1047,7 @@ abstract class InsertSupports {
             }
             this.insertMode = InsertMode.DOMAIN;
             this.endColumnDefaultClause(InsertMode.DOMAIN);
-            this.originalDomainList = domainList;//just store
+            this.originalDomainList = List.copyOf(domainList);
             assert this.insertMode == InsertMode.DOMAIN;
             return (VR) this;
         }
@@ -1606,157 +1607,71 @@ abstract class InsertSupports {
             return this.endParensClause();
         }
 
+
         @Override
-        public final InsertStatement._StaticColumnValueClause<T> space(FieldMeta<T> field, Expression value) {
-            return this.comma(field, value);
+        public final InsertStatement._StaticColumnValueClause<T> space(FieldMeta<T> field, @Nullable Object operand) {
+            return this.comma(field, operand);
         }
 
         @Override
-        public final InsertStatement._StaticColumnValueClause<T> space(FieldMeta<T> field,
-                                                                       Supplier<Expression> supplier) {
-            return this.comma(field, supplier.get());
-        }
-
-        @Override
-        public final InsertStatement._StaticColumnValueClause<T> space(FieldMeta<T> field, Function<FieldMeta<T>,
-                Expression> function) {
-            return this.comma(field, function.apply(field));
-        }
-
-        @Override
-        public final <E> InsertStatement._StaticColumnValueClause<T> space(
-                FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, @Nullable E value) {
+        public final <E> InsertStatement._StaticColumnValueClause<T> space(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, @Nullable E value) {
             return this.comma(field, funcRef.apply(field, value));
         }
 
         @Override
-        public final <E> InsertStatement._StaticColumnValueClause<T> space(FieldMeta<T> field, SQLs.SymbolSpace space,
-                                                                           BiFunction<FieldMeta<T>, E, Expression> funcRef,
-                                                                           Supplier<E> supplier) {
-            return this.comma(field, funcRef.apply(field, supplier.get()));
+        public final InsertStatement._StaticColumnValueClause<T> spaceIf(FieldMeta<T> field, @Nullable Object operand) {
+            if (operand != null) {
+                this.comma(field, operand);
+            }
+            return this;
         }
 
         @Override
-        public final <K, V> InsertStatement._StaticColumnValueClause<T> space(
-                FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> funcRef, Function<K, V> function, K key) {
-            return this.comma(field, funcRef.apply(field, function.apply(key)));
-        }
-
-
-        @Override
-        public final InsertStatement._StaticColumnValueClause<T> spaceIf(
-                FieldMeta<T> field, Supplier<Expression> supplier) {
-            return this.ifComma(field, supplier);
+        public final <E> InsertStatement._StaticColumnValueClause<T> spaceIf(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, @Nullable E value) {
+            if (value != null) {
+                this.comma(field, funcRef.apply(field, value));
+            }
+            return this;
         }
 
         @Override
-        public final InsertStatement._StaticColumnValueClause<T> spaceIf(
-                FieldMeta<T> field, Function<FieldMeta<T>, Expression> function) {
-            return this.ifComma(field, function);
-        }
-
-        @Override
-        public final <E> InsertStatement._StaticColumnValueClause<T> spaceIf(
-                FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, Supplier<E> supplier) {
-            return this.ifComma(field, funcRef, supplier);
-        }
-
-        @Override
-        public final <K, V> InsertStatement._StaticColumnValueClause<T> spaceIf(
-                FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> funcRef, Function<K, V> function, K key) {
-            return this.ifComma(field, funcRef, function, key);
-        }
-
-
-        @Override
-        public final InsertStatement._StaticColumnValueClause<T> comma(final FieldMeta<T> field,
-                                                                       final @Nullable Expression value) {
+        public final InsertStatement._StaticColumnValueClause<T> comma(final FieldMeta<T> field, final @Nullable Object value) {
             if (value instanceof SqlField && !(this instanceof _Insert._JoinableInsert)) {
                 throw ContextStack.criteriaError(this.context, "column value must be non-field.");
-            } else if (!(value instanceof ArmyExpression)) {
-                throw ContextStack.nonArmyExp(this.context);
             }
-            this.validator.accept(field, (ArmyExpression) value);
+            final Expression right = Expressions.wrapRight(field, value);
+
+            this.validator.accept(field, (ArmyExpression) right);
             Map<FieldMeta<?>, _Expression> currentRow = this.rowValuesMap;
             if (currentRow == null) {
-                currentRow = this.newMap();
-                this.rowValuesMap = currentRow;
+                this.rowValuesMap = currentRow = this.newMap();
             }
-            if (currentRow.putIfAbsent(field, (ArmyExpression) value) != null) {
+            if (currentRow.putIfAbsent(field, (ArmyExpression) right) != null) {
                 throw duplicationValuePair(this.context, field);
             }
             return this;
         }
 
         @Override
-        public final InsertStatement._StaticColumnValueClause<T> comma(FieldMeta<T> field, Supplier<Expression> supplier) {
-            return this.comma(field, supplier.get());
-        }
-
-        @Override
-        public final InsertStatement._StaticColumnValueClause<T> comma(FieldMeta<T> field, Function<FieldMeta<T>, Expression> function) {
-            return this.comma(field, function.apply(field));
-        }
-
-        @Override
-        public final <E> InsertStatement._StaticColumnValueClause<T> comma(
-                FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, @Nullable E value) {
+        public final <E> InsertStatement._StaticColumnValueClause<T> comma(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, @Nullable E value) {
             return this.comma(field, funcRef.apply(field, value));
         }
 
         @Override
-        public final <E> InsertStatement._StaticColumnValueClause<T> comma(FieldMeta<T> field, SQLs.SymbolSpace space,
-                                                                           BiFunction<FieldMeta<T>, E, Expression> funcRef,
-                                                                           Supplier<E> supplier) {
-            return this.comma(field, funcRef.apply(field, supplier.get()));
-        }
-
-        @Override
-        public final <K, V> InsertStatement._StaticColumnValueClause<T> comma(
-                FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> funcRef, Function<K, V> function, K key) {
-            return this.comma(field, funcRef.apply(field, function.apply(key)));
-        }
-
-        @Override
-        public final InsertStatement._StaticColumnValueClause<T> ifComma(
-                FieldMeta<T> field, Supplier<Expression> supplier) {
-            final Expression expression;
-            if ((expression = supplier.get()) != null) {
-                this.comma(field, expression);
+        public final InsertStatement._StaticColumnValueClause<T> ifComma(FieldMeta<T> field, @Nullable Object operand) {
+            if (operand != null) {
+                this.comma(field, operand);
             }
             return this;
         }
 
         @Override
-        public final InsertStatement._StaticColumnValueClause<T> ifComma(
-                FieldMeta<T> field, Function<FieldMeta<T>, Expression> function) {
-            final Expression expression;
-            if ((expression = function.apply(field)) != null) {
-                this.comma(field, expression);
-            }
-            return this;
-        }
-
-        @Override
-        public final <E> InsertStatement._StaticColumnValueClause<T> ifComma(
-                FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, Supplier<E> supplier) {
-            final E value;
-            if ((value = supplier.get()) != null) {
+        public final <E> InsertStatement._StaticColumnValueClause<T> ifComma(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> funcRef, @Nullable E value) {
+            if (value != null) {
                 this.comma(field, funcRef.apply(field, value));
             }
             return this;
         }
-
-        @Override
-        public final <K, V> InsertStatement._StaticColumnValueClause<T> ifComma(
-                FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> funcRef, Function<K, V> function, K key) {
-            final V value;
-            if ((value = function.apply(key)) != null) {
-                this.comma(field, funcRef.apply(field, value));
-            }
-            return this;
-        }
-
 
         final List<Map<FieldMeta<?>, _Expression>> endValuesClause() {
             if (this.rowValuesMap != null) {
@@ -1778,7 +1693,7 @@ abstract class InsertSupports {
             if (rowList == null) {
                 map = _Collections.hashMap();
             } else {
-                map = _Collections.hashMap((int) (rowList.get(0).size() / 0.75F));
+                map = _Collections.hashMapForSize(rowList.getFirst().size());
             }
             return map;
         }
@@ -2322,6 +2237,7 @@ abstract class InsertSupports {
 
     /// Try find parent insert sub-statement for childStmt in cteList.
     /// This method is designed for child sub-insert.
+    ///
     /// @param childStmt must be {@link SubStatement}
     static ParentSubInsert parentSubInsertOfChildSubInsert(final ArmyInsert childStmt, final int rowCount,
                                                            final List<_Cte> cteListOfChild) {
@@ -2345,6 +2261,7 @@ abstract class InsertSupports {
 
 
     /// Find parent insert sub-statement for childStmt in cteList.
+    ///
     /// @param childStmt {@link PrimaryStatement} or {@link SubStatement}
     static ParentSubInsert parentSubInsert(final ArmyInsert childStmt, final int rowCount, final List<_Cte> cteList) {
         final ParentSubInsert parentSubInsert;
@@ -2576,8 +2493,9 @@ abstract class InsertSupports {
     }
 
 
-    /// 
+    ///
     /// Check insert statement for safety.
+    ///
     /// @see ArmyInsertStatement#asInsertStatement()
     private static void insertStatementGuard(final _Insert statement) {
         if (!(statement instanceof _Insert._ChildInsert)) {

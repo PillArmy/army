@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import static io.army.criteria.impl.SQLs.AS;
-import static io.army.criteria.impl.SQLs.DOT;
+import static io.army.criteria.impl.SQLs.PERIOD;
 
 @Repository("bankSyncStandardUserDao")
 @Profile({BaseService.SYNC, BeanUtils.STANDARD})
@@ -60,7 +60,7 @@ public class StandardUserDao extends BankSyncBaseDao implements BankUserDao {
         final Select stmt;
         if (Certificate.class.equals(domainType)) {
             stmt = SQLs.query()
-                    .select("t", DOT, Certificate_.T)
+                    .select("t", PERIOD, Certificate_.T)
                     .from(Certificate_.T, AS, "t")
                     .where(Certificate_.certificateNo.equal(SQLs::param, certificateNo))
                     .and(Certificate_.certificateType.equal(SQLs::literal, certificateType))
@@ -68,7 +68,7 @@ public class StandardUserDao extends BankSyncBaseDao implements BankUserDao {
         } else {
             final ComplexTableMeta<P, T> child = (ComplexTableMeta<P, T>) session.tableMeta(domainType);
             stmt = SQLs.query()
-                    .select("p", DOT, child.parentMeta(), "c", DOT, child)
+                    .select("p", PERIOD, child.parentMeta(), "c", PERIOD, child)
                     .from(child, AS, "c")
                     .join(Certificate_.T, AS, "p").on(child.id()::equal, Certificate_.id)
                     .where(Certificate_.certificateNo.equal(SQLs::param, certificateNo))

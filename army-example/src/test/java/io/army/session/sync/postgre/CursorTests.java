@@ -17,7 +17,8 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 
-import static io.army.criteria.impl.SQLs.*;
+import static io.army.criteria.impl.SQLs.AS;
+import static io.army.criteria.impl.SQLs.PERIOD;
 
 @Test(dataProvider = "localSessionProvider")
 public class CursorTests extends SessionTestSupport {
@@ -33,7 +34,7 @@ public class CursorTests extends SessionTestSupport {
         stmt = Postgres.declareStmt()
                 .declare("my_china_region_cursor").cursor()
                 .forSpace()
-                .select("c", DOT, ChinaRegion_.T)
+                .select("c", PERIOD, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id.in(SQLs::rowLiteral, extractRegionIdList(regionList)))
                 .orderBy(ChinaRegion_.id)
@@ -76,7 +77,7 @@ public class CursorTests extends SessionTestSupport {
         stmt = Postgres.declareStmt()
                 .declare("my_china_region_result_item_cursor").cursor()
                 .forSpace()
-                .select("c", DOT, ChinaRegion_.T)
+                .select("c", PERIOD, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
                 .orderBy(ChinaRegion_.id)
@@ -137,7 +138,7 @@ public class CursorTests extends SessionTestSupport {
         stmt = Postgres.declareStmt()
                 .declare(cursorName).cursor()
                 .forSpace()
-                .select("c", DOT, ChinaRegion_.T)
+                .select("c", PERIOD, ChinaRegion_.T)
                 .from(ChinaRegion_.T, AS, "c")
                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
                 .orderBy(ChinaRegion_.id)

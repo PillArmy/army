@@ -129,7 +129,7 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final SymbolAsterisk ASTERISK = new LiteralSymbolAsterisk();
 
-    public static final SymbolDot DOT = SqlWords.SQLSymbolDot.DOT;
+    public static final SymbolDot PERIOD = SqlWords.SQLSymbolDot.PERIOD;
 
     public static final SymbolSpace SPACE = SqlWords.SymbolSpaceEnum.SPACE;
 
@@ -190,6 +190,34 @@ public abstract class SQLs extends SQLSyntax {
     public static final SQLs.DualOperator ARROW = DualExpOperator.ARROW;
 
     public static final SQLs.DualOperator CARET = DualExpOperator.CARET;
+
+    /// <+> - L1 distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    public static final SQLs.DualOperator L1_DISTANCE = DualExpOperator.L1_DISTANCE;
+
+    /// <-> - L2 distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    public static final SQLs.DualOperator L2_DISTANCE = DualExpOperator.L2_DISTANCE;
+
+    public static final SQLs.DualOperator COSINE_DISTANCE = DualExpOperator.COSINE_DISTANCE;
+
+    ///  <=> - Cosine distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    public static final SQLs.DualOperator HAMMING_DISTANCE = DualExpOperator.HAMMING_DISTANCE;
+
+    ///  <%> - Jaccard distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    public static final SQLs.DualOperator JACCARD_DISTANCE = DualExpOperator.JACCARD_DISTANCE;
+
+    ///  <#> - Jaccard distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    public static final SQLs.DualOperator NEG_DOT = DualExpOperator.NEG_DOT;
+
 
     public static final WordUsing USING = SqlWords.KeyWordUsing.USING;
 

@@ -47,11 +47,13 @@ public sealed interface SessionFactory extends CloseableSpec, OptionSpec permits
 
     ZoneOffset zoneOffset();
 
-    SchemaMeta schemaMeta();
+    SchemaMeta configSchemaMeta();
 
     ServerMeta serverMeta();
 
     Database serverDatabase();
+
+    Database dialectDatabase();
 
     JsonCodec jsonCodec();
 

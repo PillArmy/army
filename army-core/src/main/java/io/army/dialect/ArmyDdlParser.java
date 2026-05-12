@@ -604,7 +604,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
         type = index.type();
         if (_StringUtils.hasText(type)) {
             builder.append(" USING ");
-            this.parser.identifier(index.type(), builder);
+            this.parser.identifier(type.toLowerCase(Locale.ROOT), builder);
         }
     }
 

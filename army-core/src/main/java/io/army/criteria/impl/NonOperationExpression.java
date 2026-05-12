@@ -502,6 +502,35 @@ abstract class NonOperationExpression implements ArmyExpression {
         throw unsupportedOperation(this);
     }
 
+    @Override
+    public final Expression l1Distance(Object operand) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression l2Distance(Object operand) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression cosineDistance(Object operand) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression hammingDistance(Object operand) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression jaccardDistance(Object operand) {
+        throw unsupportedOperation(this);
+    }
+
+    @Override
+    public final Expression negDot(Object operand) {
+        throw unsupportedOperation(this);
+    }
 
     @Override
     public final Expression space(SQLs.DualOperator operator, Object right) {

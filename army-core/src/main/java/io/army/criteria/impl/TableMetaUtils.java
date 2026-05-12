@@ -40,11 +40,11 @@ public abstract class TableMetaUtils {
     }
 
 
-    private static final String DEFAULT_EXP = "${DEFAULT}";
+    static final String DEFAULT_EXP = "${DEFAULT}";
 
-    private static final String RUNTIME_EXP = "${RUNTIME}";
+    static final String RUNTIME_EXP = "${RUNTIME}";
 
-    private static final String OPTIONAL_EXP = "${OPTIONAL}";
+    static final String OPTIONAL_EXP = "${OPTIONAL}";
 
 
     public static String columnName(final Column column, final Field field) throws MetaException {
@@ -115,6 +115,63 @@ public abstract class TableMetaUtils {
 
         } // switch
         return finalColumnName;
+    }
+
+
+    static int columnPrecision(Column column, FieldMeta<?> fieldMeta, MetaContext context) {
+        final int value = column.precision();
+        if (value != Integer.MIN_VALUE) {
+            return value;
+        }
+        final String key, configValue;
+        key = context.tempBuilderAndClear()
+                .append(fieldMeta.tableMeta().javaType().getName())
+                .append('.')
+                .append(fieldMeta.fieldName())
+                .append('.')
+                .append("Column")
+                .append('.')
+                .append("precision")
+                .toString();
+
+        configValue = context.tableMetaProperties().getProperty(key);
+        if (!_StringUtils.hasText(configValue)) {
+            throw new MetaException(String.format("%s no config", key));
+        }
+        try {
+            return Integer.parseInt(configValue.trim());
+        } catch (NumberFormatException e) {
+            String m = String.format("%s config error", key);
+            throw new MetaException(m, e);
+        }
+    }
+
+    static int columnScale(Column column, FieldMeta<?> fieldMeta, MetaContext context) {
+        final int value = column.scale();
+        if (value != Integer.MIN_VALUE) {
+            return value;
+        }
+        final String key, configValue;
+        key = context.tempBuilderAndClear()
+                .append(fieldMeta.tableMeta().javaType().getName())
+                .append('.')
+                .append(fieldMeta.fieldName())
+                .append('.')
+                .append("Column")
+                .append('.')
+                .append("scale")
+                .toString();
+
+        configValue = context.tableMetaProperties().getProperty(key);
+        if (!_StringUtils.hasText(configValue)) {
+            throw new MetaException(String.format("%s no config", key));
+        }
+        try {
+            return Integer.parseInt(configValue.trim());
+        } catch (NumberFormatException e) {
+            String m = String.format("%s config error", key);
+            throw new MetaException(m, e);
+        }
     }
 
     public static Class<?> fieldJavaType(Class<?> domainClass, Field field, Properties tableProperties, StringBuilder tempBuilder) {

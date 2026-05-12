@@ -102,8 +102,37 @@ enum DualExpOperator implements Operator.SqlDualExpressionOperator, SQLs.DualOpe
     /// @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type <-> geometric_type → double precision
     /// Computes the distance between the objects. Available for all seven geometric types, for all combinations of point with another geometric type, and for these additional pairs of types: (box, lseg), (lseg, line), (polygon, circle) (and the commutator cases).
     /// </a>
-    BI_ARROW(" <->", 20);// postgre only
+    BI_ARROW(" <->", 20),// postgre only
 
+    /// <+> - L1 distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    L1_DISTANCE(" <+>", 0),
+
+    /// <-> - L2 distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    L2_DISTANCE(" <->", 0),
+
+    ///  <=> - Cosine distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    COSINE_DISTANCE(" <=>", 0),
+
+    ///  <~> - Hamming distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    HAMMING_DISTANCE(" <~>", 0),
+
+    ///  <%> - Jaccard distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    JACCARD_DISTANCE(" <%>", 0),
+
+    ///  <#> - Jaccard distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    NEG_DOT(" <#>", 0);
 
 
     final String spaceOperator;

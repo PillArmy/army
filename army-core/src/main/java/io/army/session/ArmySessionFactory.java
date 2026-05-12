@@ -68,6 +68,8 @@ abstract class ArmySessionFactory implements PackageSessionFactory {
 
     public final Database serverDatabase;
 
+    public final Database dialectDatabase;
+
     private final AllowMode queryInsertMode;
 
     private final Map<String, Boolean> queryInsertWhiteMap;
@@ -111,6 +113,7 @@ abstract class ArmySessionFactory implements PackageSessionFactory {
         assert this.dialectParser != null;
         this.mappingEnv = this.dialectParser.mappingEnv();
         this.serverDatabase = this.mappingEnv.serverMeta().serverDatabase();
+        this.dialectDatabase = this.dialectParser.dialect().database();
 
         this.queryInsertMode = env.getOrDefault(ArmyKey.QUERY_INSERT_MODE);
         this.queryInsertWhiteMap = createWhitMap(this.queryInsertMode, env, ArmyKey.QUERY_INSERT_SESSION_WHITE_LIST);
@@ -145,7 +148,7 @@ abstract class ArmySessionFactory implements PackageSessionFactory {
 
 
     @Override
-    public final SchemaMeta schemaMeta() {
+    public final SchemaMeta configSchemaMeta() {
         return this.schemaMeta;
     }
 
@@ -162,6 +165,11 @@ abstract class ArmySessionFactory implements PackageSessionFactory {
     @Override
     public final Database serverDatabase() {
         return this.serverDatabase;
+    }
+
+    @Override
+    public final Database dialectDatabase() {
+        return this.dialectDatabase;
     }
 
     @Override

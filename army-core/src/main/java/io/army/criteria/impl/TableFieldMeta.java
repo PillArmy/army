@@ -49,7 +49,6 @@ import java.util.concurrent.ConcurrentMap;
 /// @since 0.6.0
 abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMeta<T>, _Selection {
 
-    private static final String ID = _MetaBridge.ID;
 
     private static final ConcurrentMap<TableFieldMeta<?>, TableFieldMeta<?>> INSTANCE_MAP = new ConcurrentHashMap<>();
 
@@ -146,8 +145,8 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
             this.fieldName = field.getName();
             this.javaType = TableMetaUtils.fieldJavaType(domainClass, field, tableMetaProperties, context.tempBuilderAndClear());
 
-            this.precision = column.precision();
-            this.scale = column.scale();
+            this.precision = TableMetaUtils.columnPrecision(column, this, context);
+            this.scale = TableMetaUtils.columnScale(column, this, context);
             this.collation = column.collation();
             this.columnName = TableMetaUtils.columnName(domainClass, column, field, tableMetaProperties, context.tempBuilderAndClear());
             final boolean isDiscriminator;
@@ -167,7 +166,7 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
                 generator = field.getAnnotation(Generator.class);
             }
             this.updatable = FieldMetaUtils.columnUpdatable(this, column, isDiscriminator);
-            this.comment = FieldMetaUtils.columnComment(column, this, isDiscriminator);
+            this.comment = FieldMetaUtils.columnComment(column, this, isDiscriminator, context);
             this.notNull = table.allColumnNotNull()
                     || _MetaBridge.RESERVED_FIELDS.contains(this.fieldName)
                     || isDiscriminator

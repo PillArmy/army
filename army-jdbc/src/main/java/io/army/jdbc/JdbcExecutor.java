@@ -1909,7 +1909,25 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             return (T) readOneColumn(indexBasedZero, type, dataType);
         }
 
+        @Override
+        public <T> List<T> getList(int indexBasedZero, Class<T> elementClass) {
+            return List.of();
+        }
 
+        @Override
+        public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass) {
+            return Map.of();
+        }
+
+        @Override
+        public <T> List<T> getList(int indexBasedZero, Class<T> elementClass, MappingType type) {
+            return List.of();
+        }
+
+        @Override
+        public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass, MappingType type) {
+            return Map.of();
+        }
 
         /*-------------------below protected -------------------*/
 
@@ -1936,7 +1954,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             try {
                 final R row;
                 row = this.function.apply(this);
-                if (row instanceof CurrentRecord) {
+                if (row == this) {
                     throw _Exceptions.recordFuncError(this.function, this);
                 }
                 this.rowNumber++;
@@ -3002,18 +3020,23 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
         }
 
         @Override
-        public <T> T getNonNull(int indexBasedZero, Class<T> columnClass, MappingType type) {
-            throw new UnsupportedOperationException();
+        public <T> List<T> getList(int indexBasedZero, Class<T> elementClass) {
+            return List.of();
         }
 
         @Override
-        public <T> T getOrDefault(int indexBasedZero, Class<T> columnClass, MappingType type, T defaultValue) {
-            throw new UnsupportedOperationException();
+        public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass) {
+            return Map.of();
         }
 
         @Override
-        public <T> T getOrSupplier(int indexBasedZero, Class<T> columnClass, MappingType type, Supplier<T> supplier) {
-            throw new UnsupportedOperationException();
+        public <T> List<T> getList(int indexBasedZero, Class<T> elementClass, MappingType type) {
+            return List.of();
+        }
+
+        @Override
+        public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass, MappingType type) {
+            return Map.of();
         }
 
         @Override

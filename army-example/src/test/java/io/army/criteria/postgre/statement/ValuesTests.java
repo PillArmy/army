@@ -110,7 +110,7 @@ public class ValuesTests extends PostgreUnitTests {
     public void simpleSubValues() {
         Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space("s", DOT, ASTERISK))
+                .select(s -> s.space("s", PERIOD, ASTERISK))
                 .from(createSimpleValues(Postgres::subValues)
                         ::asValues
                 ).as("s")

@@ -77,14 +77,14 @@ abstract class Expressions {
 
     static Expression wrapRight(final Expression left, final @Nullable Object right) {
         final Expression rightExp;
-        if (right == null) {
-            throw ContextStack.clearStackAndNullPointer("right operand must non-null");
-        } else if (right == SQLs.ABSENT) {
+        if (right == SQLs.ABSENT) {
             throw ContextStack.clearStackAndNullPointer("right operand couldn't be absent.");
         } else if (right instanceof Expression) {
             rightExp = (Expression) right;
         } else if (left instanceof TypedExpression) {
             rightExp = wrapValue((TypedExpression) left, right);
+        } else if (right == null) {
+            throw ContextStack.clearStackAndNullPointer("right operand must non-null");
         } else {
             rightExp = wrapNonNull(right);
         }
@@ -106,6 +106,30 @@ abstract class Expressions {
         }
         return (ArmyExpression) rightExp;
     }
+
+    static ArmyExpression wrapExp(final @Nullable Object expOrValue) {
+        if (expOrValue == null) {
+            throw ContextStack.clearStackAndNullPointer("expression must non-null");
+        }
+        final Expression exp;
+        if (expOrValue instanceof Expression) {
+            exp = (Expression) expOrValue;
+        } else {
+            exp = wrapNonNull(expOrValue);
+        }
+        return (ArmyExpression) exp;
+    }
+
+    static ArmyExpression wrapExp(final MappingType type, final Object expOrValue) {
+        final Expression exp;
+        if (expOrValue instanceof Expression) {
+            exp = (Expression) expOrValue;
+        } else {
+            exp = wrapValue(type, expOrValue);
+        }
+        return (ArmyExpression) exp;
+    }
+
 
 
     static ArmyExpression wrapNonNull(final Object value) {

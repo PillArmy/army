@@ -942,19 +942,13 @@ public interface Statement extends Item {
     /// @since 0.6.0
     interface _RowCountLimitClause<R> extends Item {
 
-        R limit(Expression rowCount);
+        R limit(Object rowCount);
 
         R limit(BiFunction<MappingType, Number, Expression> operator, long rowCount);
 
-        <N extends Number> R limit(BiFunction<MappingType, Number, Expression> operator, Supplier<N> supplier);
+        R ifLimit(@Nullable Object rowCount);
 
-        R limit(BiFunction<MappingType, Number, Expression> operator, Function<String, ?> function, String keyName);
-
-        <N extends Number> R ifLimit(BiFunction<MappingType, Number, Expression> operator, Supplier<N> supplier);
-
-        R ifLimit(BiFunction<MappingType, Number, Expression> operator, Function<String, ?> function, String keyName);
-
-        R ifLimit(Supplier<Expression> supplier);
+        R ifLimit(BiFunction<MappingType, Number, Expression> operator, @Nullable Number rowCount);
 
     }
 

@@ -162,6 +162,42 @@ public interface TypedExpression extends Expression, TypeInfer {
     @Support({PostgreSQL})
     <T> IPredicate notSimilarTo(BiFunction<TypedExpression, T, Expression> funcRef, T value, SQLs.WordEscape escape, T escapeChar);
 
+    /// <+> - L1 distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    @Support({PostgreSQL})
+    <T> Expression l1Distance(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+
+    /// <-> - L2 distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    @Support({PostgreSQL})
+    <T> Expression l2Distance(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+
+    /// <=> - cosine distance
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    @Support({PostgreSQL})
+    <T> Expression cosineDistance(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+
+    /// <~> - Hamming distance (binary vectors)
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    @Support({PostgreSQL})
+    <T> Expression hammingDistance(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+
+    /// <%> - Jaccard distance (binary vectors)
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    @Support({PostgreSQL})
+    <T> Expression jaccardDistance(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+
+    /// <#> - (negative) inner product
+    ///
+    /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+    @Support({PostgreSQL})
+    <T> Expression negDot(BiFunction<TypedExpression, T, Expression> funcRef, T value);
+
 
     /*-------------------below dialect operator method-------------------*/
 

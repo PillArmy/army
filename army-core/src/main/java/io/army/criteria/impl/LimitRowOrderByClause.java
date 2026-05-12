@@ -16,7 +16,10 @@
 
 package io.army.criteria.impl;
 
-import io.army.criteria.*;
+import io.army.criteria.CriteriaException;
+import io.army.criteria.Expression;
+import io.army.criteria.SQLToken;
+import io.army.criteria.Statement;
 import io.army.criteria.impl.inner._Expression;
 import io.army.criteria.impl.inner._Statement;
 import io.army.dialect._SqlContext;
@@ -56,15 +59,11 @@ abstract class LimitRowOrderByClause<OR, OD, LR, LO, LF> extends OrderByClause<O
 
 
     @Override
-    public final LR limit(final Expression rowCount) {
-        if (!(rowCount instanceof ArmyExpression)) {
-            throw ContextStack.nonArmyExp(this.context);
-        } else if (rowCount instanceof SqlValueParam.MultiParamValue) {
-            throw CriteriaUtils.dontSupportMultiParam(this.context);
-        } else if (this.rowCountOrPercent != null) {
+    public final LR limit(final Object rowCount) {
+        if (this.rowCountOrPercent != null) {
             throw ContextStack.clearStackAndCastCriteriaApi();
         }
-        this.rowCountOrPercent = (ArmyExpression) rowCount;
+        this.rowCountOrPercent = Expressions.wrapExp(LongType.INSTANCE, rowCount);
         return (LR) this;
     }
 
@@ -82,46 +81,17 @@ abstract class LimitRowOrderByClause<OR, OD, LR, LO, LF> extends OrderByClause<O
     }
 
     @Override
-    public final <N extends Number> LR limit(BiFunction<MappingType, Number, Expression> operator,
-                                             Supplier<N> supplier) {
-        return this.limit(operator.apply(LongType.INSTANCE, CriteriaUtils.asLimitParam(this.context, supplier.get())));
-    }
-
-    @Override
-    public final LR limit(BiFunction<MappingType, Number, Expression> operator, Function<String, ?> function,
-                          String keyName) {
-        final long number;
-        number = CriteriaUtils.asLimitParam(this.context, function.apply(keyName));
-        return this.limit(operator.apply(LongType.INSTANCE, number));
-    }
-
-    @Override
-    public final <N extends Number> LR ifLimit(BiFunction<MappingType, Number, Expression> operator,
-                                               Supplier<N> supplier) {
-        final long number;
-        number = CriteriaUtils.asIfLimitParam(this.context, supplier.get());
-        if (number >= 0) {
-            this.limit(operator.apply(LongType.INSTANCE, number));
+    public final LR ifLimit(@Nullable Object rowCount) {
+        if (rowCount != null) {
+            this.limit(rowCount);
         }
         return (LR) this;
     }
 
     @Override
-    public final LR ifLimit(BiFunction<MappingType, Number, Expression> operator, Function<String, ?> function, String keyName) {
-        final long number;
-        number = CriteriaUtils.asIfLimitParam(this.context, function.apply(keyName));
-        if (number >= 0) {
-            this.limit(operator.apply(LongType.INSTANCE, number));
-        }
-        return (LR) this;
-    }
-
-    @Override
-    public final LR ifLimit(Supplier<Expression> supplier) {
-        final Expression expression;
-        expression = supplier.get();
-        if (expression != null) {
-            this.limit(expression);
+    public final LR ifLimit(BiFunction<MappingType, Number, Expression> operator, @Nullable Number rowCount) {
+        if (rowCount != null) {
+            this.limit(operator.apply(LongType.INSTANCE, rowCount));
         }
         return (LR) this;
     }

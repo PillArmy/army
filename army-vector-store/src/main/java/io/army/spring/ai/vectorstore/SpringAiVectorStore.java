@@ -17,6 +17,7 @@
 package io.army.spring.ai.vectorstore;
 
 import io.army.annotation.*;
+import io.army.lang.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -34,7 +35,7 @@ import java.util.Map;
 /// classpath:META-INF/army/TableMeta.properties:
 /// entity_class_name.IndexMeta[0].name=index_name
 /// entity_class_name.IndexMeta[0].type=index_type
-/// entity_class_name.IndexMeta[0].fields[0].opclass=opclass
+/// entity_class_name.IndexMeta[0].field_name.opclass=opclass
 ///
 /// ${OPTIONAL} means that If you do not specify it, index will not be created.
 @Table(name = "${DEFAULT}",
@@ -45,29 +46,36 @@ public class SpringAiVectorStore {
     /// In Army, id are of type Object, allowing users to supply configurations at runtime via the property file:
     /// classpath:META-INF/army/TableMeta.properties:
     /// entity_class_name.field_name.class=classname
+    /// entity_class_name.field_name.Column.name=column_name
     ///
     /// If you do not specify it, {@link Long} will be used as the id java type.
-    @Column
+    @Column(name = "${DEFAULT}")
     private Object id;
 
-    @Column
+    @Column(name = "${DEFAULT}")
     private LocalDateTime createTime;
 
-    @Column
+    @Column(name = "${DEFAULT}")
     private LocalDateTime updateTime;
 
-    @Column
+    @Column(name = "${DEFAULT}")
     private Integer version;
 
-    @Column(comment = "content")
+    @Column(name = "${DEFAULT}", comment = "${DEFAULT}")
+    @Mapping("io.army.mapping.TextType")
     private String content;
 
-    @Column(comment = "metadata")
+    @Column(name = "${DEFAULT}", notNull = true, comment = "${DEFAULT}")
     @Mapping("io.army.mapping.PreferredJsonbType")
     private Map<String, Object> metadata;
 
 
-    @Column(comment = "embeddings")
+    /// In Army, precision is {@link Integer#MIN_VALUE}, allowing users to supply configurations at runtime via the property file:
+    /// classpath:META-INF/army/TableMeta.properties:
+    /// entity_class_name.field_name.Column.precision=precision
+    /// If you do not specify it, will throw {@link io.army.meta.MetaException}
+    ///
+    @Column(name = "${DEFAULT}", notNull = true, precision = Integer.MIN_VALUE, comment = "${DEFAULT}")
     @Mapping("io.army.mapping.optional.VectorType")
     private float[] embedding;
 
@@ -108,11 +116,12 @@ public class SpringAiVectorStore {
         return this;
     }
 
+    @Nullable
     public String getContent() {
         return content;
     }
 
-    public SpringAiVectorStore setContent(String content) {
+    public SpringAiVectorStore setContent(@Nullable String content) {
         this.content = content;
         return this;
     }

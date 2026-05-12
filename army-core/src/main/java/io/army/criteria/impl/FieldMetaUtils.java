@@ -262,19 +262,56 @@ abstract class FieldMetaUtils extends TableMetaUtils {
     }
 
 
-    static String columnComment(final Column column, FieldMeta<?> fieldMeta, final boolean isDiscriminator) {
-        String comment = column.comment();
-        if (_MetaBridge.RESERVED_FIELDS.contains(fieldMeta.fieldName()) || isDiscriminator) {
-            if (!_StringUtils.hasText(comment)) {
-                comment = commentManagedByArmy(fieldMeta);
+    static String columnComment(final Column column, FieldMeta<?> fieldMeta, final boolean isDiscriminator,
+                                MetaContext context) {
+        final String value = column.comment(), finalValue;
+        switch (value) {
+            case DEFAULT_EXP:
+            case RUNTIME_EXP: {
+                final String key, configValue;
+                key = context.tempBuilderAndClear()
+                        .append(fieldMeta.tableMeta().javaType().getName())
+                        .append('.')
+                        .append(fieldMeta.fieldName())
+                        .append('.')
+                        .append("Column")
+                        .append('.')
+                        .append("comment")
+                        .toString();
+
+                configValue = context.tableMetaProperties().getProperty(key);
+                if (_StringUtils.hasText(configValue)) {
+                    finalValue = configValue.trim();
+                } else switch (value) {
+                    case DEFAULT_EXP:
+                        finalValue = fieldMeta.fieldName();
+                        break;
+                    case RUNTIME_EXP:
+                        throw new MetaException(String.format("%s no config", key));
+                    default:
+                        throw new IllegalStateException("bug");
+                }
             }
-        } else if (!_StringUtils.hasText(comment)) {
-            String m = String.format("Domain[%s] column[%s] isn't reserved properties or discriminator, so must have common"
-                    , fieldMeta.tableMeta().javaType().getName()
-                    , fieldMeta.columnName());
-            throw new MetaException(m);
+            break;
+            case OPTIONAL_EXP: {
+                String m = String.format("%s in %s.%s %s.%s is unsupported", value, fieldMeta.tableMeta().javaType().getName(),
+                        fieldMeta.fieldName(), "Column", "comment");
+                throw new MetaException(m);
+            }
+            default: {
+                if (_StringUtils.hasText(value)) {
+                    finalValue = value;
+                } else if (_MetaBridge.RESERVED_FIELDS.contains(fieldMeta.fieldName()) || isDiscriminator) {
+                    finalValue = commentManagedByArmy(fieldMeta);
+                } else {
+                    String m = String.format("Domain[%s] column[%s] isn't reserved properties or discriminator, so must have common"
+                            , fieldMeta.tableMeta().javaType().getName()
+                            , fieldMeta.columnName());
+                    throw new MetaException(m);
+                }
+            } // default
         }
-        return comment;
+        return finalValue;
     }
 
 

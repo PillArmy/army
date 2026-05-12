@@ -17,9 +17,22 @@
             <groupId>io.qinarmy</groupId>
             <artifactId>army-annotation</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.qinarmy</groupId>
             <artifactId>army-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.qinarmy</groupId>
+            <artifactId>army-postgre</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>io.qinarmy</groupId>
+            <artifactId>army-mysql</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <dependency>

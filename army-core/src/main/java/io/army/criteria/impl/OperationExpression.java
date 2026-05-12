@@ -540,6 +540,35 @@ abstract class OperationExpression implements ArmyExpression {
         return Expressions.objectBracketExp(this, Expressions.createSubscriptExpList(func, (List<Object>) subscriptList));
     }
 
+    @Override
+    public final Expression l1Distance(Object operand) {
+        return Expressions.dualExp(this, DualExpOperator.L1_DISTANCE, operand);
+    }
+
+    @Override
+    public final Expression l2Distance(Object operand) {
+        return Expressions.dualExp(this, DualExpOperator.L2_DISTANCE, operand);
+    }
+
+    @Override
+    public final Expression cosineDistance(Object operand) {
+        return Expressions.dualExp(this, DualExpOperator.COSINE_DISTANCE, operand);
+    }
+
+    @Override
+    public final Expression hammingDistance(Object operand) {
+        return Expressions.dualExp(this, DualExpOperator.HAMMING_DISTANCE, operand);
+    }
+
+    @Override
+    public final Expression jaccardDistance(Object operand) {
+        return Expressions.dualExp(this, DualExpOperator.JACCARD_DISTANCE, operand);
+    }
+
+    @Override
+    public final Expression negDot(Object operand) {
+        return Expressions.dualExp(this, DualExpOperator.NEG_DOT, operand);
+    }
 
     @Override
     public final Expression space(SQLs.DualOperator operator, Object right) {
@@ -918,6 +947,36 @@ abstract class OperationExpression implements ArmyExpression {
         @Override
         public final <T> Expression leftShift(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
             return Expressions.dualExp(this, DualExpOperator.LEFT_SHIFT, funcRef.apply(this, value));
+        }
+
+        @Override
+        public final <T> Expression l1Distance(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.dualExp(this, DualExpOperator.L1_DISTANCE, funcRef.apply(this, value));
+        }
+
+        @Override
+        public final <T> Expression l2Distance(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.dualExp(this, DualExpOperator.L2_DISTANCE, funcRef.apply(this, value));
+        }
+
+        @Override
+        public final <T> Expression cosineDistance(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.dualExp(this, DualExpOperator.COSINE_DISTANCE, funcRef.apply(this, value));
+        }
+
+        @Override
+        public final <T> Expression hammingDistance(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.dualExp(this, DualExpOperator.HAMMING_DISTANCE, funcRef.apply(this, value));
+        }
+
+        @Override
+        public final <T> Expression jaccardDistance(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.dualExp(this, DualExpOperator.JACCARD_DISTANCE, funcRef.apply(this, value));
+        }
+
+        @Override
+        public final <T> Expression negDot(BiFunction<TypedExpression, T, Expression> funcRef, T value) {
+            return Expressions.dualExp(this, DualExpOperator.NEG_DOT, funcRef.apply(this, value));
         }
 
         @Override
