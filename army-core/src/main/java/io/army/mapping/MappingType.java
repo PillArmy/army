@@ -44,6 +44,11 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     <Z> MappingType compatibleFor(final DataType dataType, final Class<Z> targetType)
             throws NoMatchMappingException;
 
+    default MappingType compatibleFor(final DataType dataType, List<Class<?>> genericsTypeList)
+            throws NoMatchMappingException {
+        throw new UnsupportedOperationException();
+    }
+
     DataType map(ServerMeta meta) throws UnsupportedDialectException;
 
     /// @param dataType from {@link #map(ServerMeta)}

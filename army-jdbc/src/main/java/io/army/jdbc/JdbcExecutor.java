@@ -27,9 +27,7 @@ import io.army.executor.DriverException;
 import io.army.executor.StmtExecutor;
 import io.army.executor.SyncExecutor;
 import io.army.lang.Nullable;
-import io.army.mapping.MappingEnv;
-import io.army.mapping.MappingType;
-import io.army.mapping.UnsignedBigintType;
+import io.army.mapping.*;
 import io.army.meta.FieldMeta;
 import io.army.meta.PrimaryFieldMeta;
 import io.army.meta.ServerMeta;
@@ -69,12 +67,13 @@ import java.util.stream.StreamSupport;
 
 /// This class is a abstract implementation of {@link SyncExecutor} with JDBC spi.
 /// This class is base class of following jdbd executor:
-/// 
+///
 /// - {@link MySQLExecutor}
 /// - {@link PostgreExecutor}
-/// 
+///
 /// Following is chinese signature:
 /// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+///
 /// @see JdbcExecutorFactory
 /// @see <a href="https://docs.oracle.com/javase/tutorial/jdbc/basics/index.html">JDBC</a>
 abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor {
@@ -1507,6 +1506,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
 
     /// invoker must handle all error.
+    ///
     /// @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
     private <R> Stream<R> executeSimpleQuery(final SimpleStmt stmt, final SyncStmtOption option,
                                              final Function<? super CurrentRecord, R> function,
@@ -1547,6 +1547,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
 
     /// invoker must handle all error.
+    ///
     /// @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
     private <R> Stream<R> executeBatchQuery(BatchStmt stmt, SyncStmtOption option,
                                             Function<? super CurrentRecord, R> function,
@@ -1591,6 +1592,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     }
 
     /// invoker must handle all error.
+    ///
     /// @see #query(SingleSqlStmt, Function, SyncStmtOption, Function)
     private <R> Stream<R> executeMultiStmtBatchQuery(final BatchStmt stmt, SyncStmtOption option,
                                                      final Function<? super CurrentRecord, R> function,
@@ -1798,7 +1800,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     /*-------------------below static class -------------------*/
 
 
-    private static class JdbcCurrentRecord<R> extends ArmyStmtCurrentRecord {
+    private static class JdbcCurrentRecord<R> extends ArmyCurrentRecord {
 
         private final JdbcExecutor executor;
 
@@ -1909,24 +1911,75 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             return (T) readOneColumn(indexBasedZero, type, dataType);
         }
 
+        @SuppressWarnings("unchecked")
+        @Nullable
+        @Override
+        public <T> T get(int indexBasedZero, Class<T> columnClass, final @Nullable MappingType type) {
+            if (type == null) {
+                throw new NullPointerException("type is null");
+            }
+            this.recordMeta.checkIndex(indexBasedZero);
+            return (T) readOneColumn(indexBasedZero, type, null);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Nullable
         @Override
         public <T> List<T> getList(int indexBasedZero, Class<T> elementClass) {
-            return List.of();
+            this.recordMeta.checkIndex(indexBasedZero);
+
+            MappingType type;
+            type = this.compatibleTypeArray[indexBasedZero];
+            if (type == null) {
+                type = this.rawTypeArray[indexBasedZero];
+            }
+            if (!(type instanceof UnaryGenericsMapping t && t.genericsType() == elementClass)) {
+                type = type.compatibleFor(this.dataTypeArray[indexBasedZero], List.of(elementClass));
+                this.compatibleTypeArray[indexBasedZero] = type;
+            }
+            return (List<T>) readOneColumn(indexBasedZero, type, null);
         }
 
+        @SuppressWarnings("unchecked")
+        @Nullable
         @Override
         public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass) {
-            return Map.of();
+            this.recordMeta.checkIndex(indexBasedZero);
+
+            MappingType type;
+            type = this.compatibleTypeArray[indexBasedZero];
+            if (type == null) {
+                type = this.rawTypeArray[indexBasedZero];
+            }
+            if (!(type instanceof DualGenericsMapping t && t.firstGenericsType() == keyClass && t.secondGenericsType() == valueClass)) {
+                type = type.compatibleFor(this.dataTypeArray[indexBasedZero], List.of(keyClass, valueClass));
+                this.compatibleTypeArray[indexBasedZero] = type;
+            }
+            return (Map<K, V>) readOneColumn(indexBasedZero, type, null);
         }
 
+        @SuppressWarnings("unchecked")
+        @Nullable
         @Override
-        public <T> List<T> getList(int indexBasedZero, Class<T> elementClass, MappingType type) {
-            return List.of();
+        public <T> List<T> getList(int indexBasedZero, Class<T> elementClass, final @Nullable MappingType type) {
+            if (type == null) {
+                throw new NullPointerException("type is null");
+            }
+            this.recordMeta.checkIndex(indexBasedZero);
+
+            return (List<T>) readOneColumn(indexBasedZero, type, null);
         }
 
+        @SuppressWarnings("unchecked")
+        @Nullable
         @Override
-        public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass, MappingType type) {
-            return Map.of();
+        public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass, final @Nullable MappingType type) {
+            if (type == null) {
+                throw new NullPointerException("type is null");
+            }
+            this.recordMeta.checkIndex(indexBasedZero);
+
+            return (Map<K, V>) readOneColumn(indexBasedZero, type, null);
         }
 
         /*-------------------below protected -------------------*/
@@ -1944,6 +1997,20 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             return valueArray;
         }
 
+        @Override
+        protected MappingEnv getMappingEnv() {
+            return this.executor.factory.mappingEnv;
+        }
+
+        @Override
+        protected DataType[] getDataTypeArray() {
+            return this.dataTypeArray;
+        }
+
+        @Override
+        protected MappingType[] getRawTypeArray() {
+            return this.rawTypeArray;
+        }
 
         /*-------------------below package methods -------------------*/
 
@@ -2195,10 +2262,10 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
     /// This class is responsible for spite rows from {@link ResultSet} to {@link Stream} with {@link #readRowStream(int, Consumer)} method.
     /// This class is base class of following
-    /// 
+    ///
     /// - {@link JdbcSimpleSpliterator}
     /// - {@link JdbcBatchSpliterator}
-    /// 
+    ///
     /// @param <R> row java type
     private static abstract class JdbcStmtRowSpliterator<R> extends JdbcRowSpliterator<R> {
 
@@ -2229,6 +2296,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
 
         /// Read one fetch,if fetchSize is 0 ,read all row.
+        ///
         /// @param readSize 0 or positive
         @SuppressWarnings("unchecked")
         final long readRowSet(final ResultSet resultSet, final long totalCount,
@@ -2577,10 +2645,10 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
     /// This class is responsible for spite rows from multi {@link ResultSet} to {@link Stream} with {@link #readRowStream(int, Consumer)} method.
     /// This class is base class of following
-    /// 
+    ///
     /// - {@link BatchRowSpliterator}
     /// - {@link MultiSmtBatchRowSpliterator}
-    /// 
+    ///
     /// @param <R> row java type
     private static abstract class JdbcBatchSpliterator<R> extends JdbcStmtRowSpliterator<R> {
 
@@ -2918,11 +2986,11 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
     } // MultiSmtBatchRowSpliterator
 
 
-    private static final class XidRowSpliterator extends ArmyDriverCurrentRecord implements Spliterator<Xid> {
+    private static final class XidRowSpliterator extends ArmyCurrentRecord implements Spliterator<Xid> {
 
         private final JdbcExecutor executor;
 
-        private final TransactionInfo info;
+        // private final TransactionInfo info;
 
         private final StreamOption option;
 
@@ -2947,7 +3015,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                                   Function<DataRecord, Xid> function,
                                   Function<Option<?>, ?> sessionFunc) throws SQLException {
             this.executor = executor;
-            this.info = executor.obtainTransaction();
+            // this.info = executor.obtainTransaction();
             this.option = option;
             this.statement = statement;
             this.resultSet = resultSet;
@@ -2970,6 +3038,21 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
         @Override
         protected Object[] copyValueArray() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected MappingType[] getRawTypeArray() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected DataType[] getDataTypeArray() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected MappingEnv getMappingEnv() {
             throw new UnsupportedOperationException();
         }
 
@@ -3007,36 +3090,36 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             }
         }
 
+        @Override
+        public <T> T get(int indexBasedZero, Class<T> columnClass, MappingType type) {
+            throw new UnsupportedOperationException();
+        }
+
         @Nullable
         @Override
         public Object get(int indexBasedZero, MappingType type) {
             throw new UnsupportedOperationException();
         }
 
-        @Nullable
+
         @Override
-        public <T> T get(int indexBasedZero, Class<T> columnClass, MappingType type) {
+        public <T> List<T> getList(int indexBasedZero, Class<T> elementClass) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public <T> List<T> getList(int indexBasedZero, Class<T> elementClass) {
-            return List.of();
-        }
-
-        @Override
         public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass) {
-            return Map.of();
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public <T> List<T> getList(int indexBasedZero, Class<T> elementClass, MappingType type) {
-            return List.of();
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass, MappingType type) {
-            return Map.of();
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -3093,7 +3176,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             }
 
             final Spliterator<Xid> spliterator;
-            if (itemList.size() == 0) {
+            if (itemList.isEmpty()) {
                 spliterator = null;
             } else {
                 spliterator = itemList.spliterator();

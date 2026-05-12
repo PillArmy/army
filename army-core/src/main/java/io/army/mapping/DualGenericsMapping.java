@@ -16,11 +16,11 @@
 
 package io.army.mapping;
 
-public interface DualGenericsMapping<T, U> extends MappingType.GenericsMapping {
+public interface DualGenericsMapping extends MappingType.GenericsMapping {
 
-    Class<T> firstGenericsType();
+    Class<?> firstGenericsType();
 
-    Class<U> secondGenericsType();
+    Class<?> secondGenericsType();
 
 
 

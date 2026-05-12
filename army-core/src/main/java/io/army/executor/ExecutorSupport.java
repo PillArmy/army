@@ -23,9 +23,7 @@ import io.army.criteria.TypeInfer;
 import io.army.env.ArmyKey;
 import io.army.env.SqlLogMode;
 import io.army.lang.Nullable;
-import io.army.mapping.MappingType;
-import io.army.mapping.NoMatchMappingException;
-import io.army.mapping.NullType;
+import io.army.mapping.*;
 import io.army.meta.MetaException;
 import io.army.meta.TypeMeta;
 import io.army.option.Option;
@@ -821,73 +819,7 @@ public abstract class ExecutorSupport {
     } // ArmyDataRecord
 
 
-    private static abstract class ArmyStmtDataRecord extends ArmyDataRecord {
-
-        @SuppressWarnings("unchecked")
-        @Nullable
-        @Override
-        public final <T> T get(int indexBasedZero, Class<T> columnClass) {
-            Object value;
-            value = get(indexBasedZero);
-            if (value == null || columnClass.isInstance(value)) {
-                return (T) value;
-            }
-            final Function<Class<?>, Function<Object, ?>> converterFunc;
-            converterFunc = this.getRecordMeta().converterFunc;
-            final Function<Object, ?> convertor;
-            if (converterFunc == null) {
-                convertor = null;
-            } else {
-                convertor = converterFunc.apply(columnClass);
-            }
-
-            if (convertor == null) {
-                value = convertToTarget(value, columnClass);
-            } else {
-                try {
-                    value = convertor.apply(value);
-                } catch (Exception e) {
-                    throw new DataAccessException("user custom convertor occur error.", e);
-                }
-                if (value != null && !columnClass.isInstance(value)) {
-                    String m = String.format("user custom convertor don't return %s type.", columnClass.getName());
-                    throw new DataAccessException(m);
-                }
-            }
-            return (T) value;
-        }
-
-        @Override
-        public <T> List<T> getList(int indexBasedZero, Class<T> elementClass) {
-            return List.of();
-        }
-
-        @Override
-        public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass) {
-            return Map.of();
-        }
-
-
-    } // ArmyStmtDataRecord
-
-
-    protected static abstract class ArmyDriverCurrentRecord extends ArmyDataRecord implements CurrentRecord {
-
-        @Override
-        public abstract ArmyResultRecordMeta getRecordMeta();
-
-        @Override
-        public final ResultRecord asResultRecord() {
-            return new ArmyResultRecord(this);
-        }
-
-        protected abstract Object[] copyValueArray();
-
-
-    } // ArmyDriverCurrentRecord
-
-
-    protected static abstract class ArmyStmtCurrentRecord extends ArmyDataRecord implements CurrentRecord {
+    protected static abstract class ArmyCurrentRecord extends ArmyDataRecord implements CurrentRecord {
 
 
         @Override
@@ -899,76 +831,211 @@ public abstract class ExecutorSupport {
         }
 
 
-        @SuppressWarnings("unchecked")
-        @Nullable
-        @Override
-        public final <T> T get(int indexBasedZero, Class<T> columnClass, MappingType type) {
-            final Object value;
-            value = get(indexBasedZero, type);
-
-            if (value != null && !columnClass.isInstance(value)) {
-                String m = String.format("%s and %s not match", columnClass.getName(), type.getClass().getName());
-                throw new IllegalArgumentException(m);
-            }
-            return (T) value;
-        }
-
-
-
         protected abstract Object[] copyValueArray();
 
+        protected abstract MappingType[] getRawTypeArray();
+
+        protected abstract DataType[] getDataTypeArray();
+
+        protected abstract MappingEnv getMappingEnv();
 
     }// ArmyStmtCurrentRecord
 
 
-    private static final class ArmyResultRecord extends ArmyStmtDataRecord implements ResultRecord {
+    private static final class ArmyResultRecord extends ArmyDataRecord implements ResultRecord {
 
 
         private final ArmyResultRecordMeta meta;
 
         private final Object[] valueArray;
 
-        private ArmyResultRecord(ArmyStmtCurrentRecord currentRecord) {
+        private final DataType[] dataTypeArray;
+
+        private final MappingType[] rawTypeArray;
+
+        private final MappingEnv env;
+
+        private MappingType[] compatibleTypeArray;
+
+        private ArmyResultRecord(ArmyCurrentRecord currentRecord) {
             this.meta = currentRecord.getRecordMeta();
             this.valueArray = currentRecord.copyValueArray();
             assert this.valueArray.length == this.meta.getColumnCount();
+            this.rawTypeArray = currentRecord.getRawTypeArray();
+            this.dataTypeArray = currentRecord.getDataTypeArray();
+            this.env = currentRecord.getMappingEnv();
         }
 
-        private ArmyResultRecord(ArmyDriverCurrentRecord currentRecord) {
-            this.meta = currentRecord.getRecordMeta();
-            this.valueArray = currentRecord.copyValueArray();
-            assert this.valueArray.length == this.meta.getColumnCount();
-        }
 
         @Override
         public ArmyResultRecordMeta getRecordMeta() {
             return this.meta;
         }
 
+        @Nullable
         @Override
         public Object get(int indexBasedZero) {
             return this.valueArray[this.meta.checkIndex(indexBasedZero)];
         }
 
+        @SuppressWarnings("unchecked")
+        @Nullable
+        @Override
+        public <T> T get(final int indexBasedZero, Class<T> columnClass) {
+            Object value;
+            value = get(indexBasedZero);
+            if (value == null || columnClass.isInstance(value)) {
+                return (T) value;
+            }
+            final DataType dataType;
+            dataType = this.dataTypeArray[indexBasedZero];
+
+            MappingType type;
+            type = getCompatibleType(indexBasedZero);
+            if (type == null || !columnClass.isAssignableFrom(type.javaType())) {
+                type = this.rawTypeArray[indexBasedZero].compatibleFor(dataType, columnClass);
+                putCompatibleType(indexBasedZero, type);
+            }
+            return (T) type.afterGet(dataType, this.env, value);
+        }
+
+
+        @Nullable
         @Override
         public Object get(int indexBasedZero, MappingType type) {
-
-            return null;
+            Object value;
+            value = get(indexBasedZero);
+            if (value == null) {
+                return null;
+            }
+            return type.afterGet(this.dataTypeArray[indexBasedZero], this.env, value);
         }
 
+        @SuppressWarnings("unchecked")
+        @Nullable
+        @Override
+        public <T> List<T> getList(final int indexBasedZero, final Class<T> elementClass) {
+            Object value;
+            value = get(indexBasedZero);
+            if (value == null) {
+                return null;
+            }
+            MappingType type;
+            type = this.rawTypeArray[indexBasedZero];
+            if (value instanceof List<?>
+                    && type instanceof UnaryGenericsMapping t
+                    && t.genericsType() == elementClass) {
+                return (List<T>) value;
+            }
+
+            final DataType dataType;
+            dataType = this.dataTypeArray[indexBasedZero];
+
+            type = type.compatibleFor(dataType, List.of(elementClass));
+            return (List<T>) type.afterGet(dataType, this.env, value);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Nullable
         @Override
         public <T> T get(int indexBasedZero, Class<T> columnClass, MappingType type) {
-            return null;
+            final Object value;
+            value = get(indexBasedZero, type);
+            if (value == null || columnClass.isInstance(value)) {
+                return (T) value;
+            }
+            final DataType dataType;
+            dataType = this.dataTypeArray[indexBasedZero];
+            return (T) type.afterGet(dataType, this.env, value);
         }
 
+        @SuppressWarnings("unchecked")
+        @Nullable
         @Override
-        public <T> List<T> getList(int indexBasedZero, Class<T> elementClass, MappingType type) {
-            return List.of();
+        public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass) {
+            Object value;
+            value = get(indexBasedZero);
+            if (value == null) {
+                return null;
+            }
+            MappingType type;
+            type = this.rawTypeArray[indexBasedZero];
+            if (value instanceof Map<?, ?>
+                    && type instanceof DualGenericsMapping t
+                    && t.firstGenericsType() == keyClass
+                    && t.secondGenericsType() == valueClass) {
+                return (Map<K, V>) value;
+            }
+
+            final DataType dataType;
+            dataType = this.dataTypeArray[indexBasedZero];
+
+            type = type.compatibleFor(dataType, List.of(keyClass, valueClass));
+            return (Map<K, V>) type.afterGet(dataType, this.env, value);
         }
 
+        @SuppressWarnings("unchecked")
+        @Nullable
         @Override
-        public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass, MappingType type) {
-            return Map.of();
+        public <T> List<T> getList(int indexBasedZero, Class<T> elementClass, final MappingType type) {
+            Object value;
+            value = get(indexBasedZero);
+            if (value == null) {
+                return null;
+            }
+
+            final MappingType rawType;
+            rawType = this.rawTypeArray[indexBasedZero];
+            if (value instanceof List<?>
+                    && rawType instanceof UnaryGenericsMapping t
+                    && t.genericsType() == elementClass) {
+                return (List<T>) value;
+            }
+
+            final DataType dataType;
+            dataType = this.dataTypeArray[indexBasedZero];
+            return (List<T>) type.afterGet(dataType, this.env, value);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Nullable
+        @Override
+        public <K, V> Map<K, V> getMap(int indexBasedZero, Class<K> keyClass, Class<V> valueClass, final MappingType type) {
+            Object value;
+            value = get(indexBasedZero);
+            if (value == null) {
+                return null;
+            }
+            final MappingType rawType;
+            rawType = this.rawTypeArray[indexBasedZero];
+            if (value instanceof Map<?, ?>
+                    && rawType instanceof DualGenericsMapping t
+                    && t.firstGenericsType() == keyClass
+                    && t.secondGenericsType() == valueClass) {
+                return (Map<K, V>) value;
+            }
+
+            final DataType dataType;
+            dataType = this.dataTypeArray[indexBasedZero];
+            return (Map<K, V>) type.afterGet(dataType, this.env, value);
+        }
+
+
+        @Nullable
+        private MappingType getCompatibleType(final int indexBasedZero) {
+            MappingType[] typeArray = this.compatibleTypeArray;
+            if (typeArray == null) {
+                this.compatibleTypeArray = typeArray = new MappingType[this.valueArray.length];
+            }
+            return typeArray[indexBasedZero];
+        }
+
+        private void putCompatibleType(final int indexBasedZero, MappingType type) {
+            MappingType[] typeArray = this.compatibleTypeArray;
+            if (typeArray == null) {
+                this.compatibleTypeArray = typeArray = new MappingType[this.valueArray.length];
+            }
+            typeArray[indexBasedZero] = type;
         }
 
 
