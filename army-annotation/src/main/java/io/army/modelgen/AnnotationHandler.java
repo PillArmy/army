@@ -369,7 +369,7 @@ final class AnnotationHandler {
                 }
                 // get column name
                 columnName = getColumnName(className, fieldName, column);
-                if (columnNameMap.putIfAbsent(columnName, Boolean.TRUE) != null) {
+                if (!columnName.startsWith("${") && columnNameMap.putIfAbsent(columnName, Boolean.TRUE) != null) {
                     String m = String.format("Field %s.%s column[%s] duplication.", className, fieldName, columnName);
                     this.errorMsgList.add(m);
                 }

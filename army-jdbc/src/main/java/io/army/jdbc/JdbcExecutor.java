@@ -1934,7 +1934,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                 type = this.rawTypeArray[indexBasedZero];
             }
             if (!(type instanceof UnaryGenericsMapping t && t.genericsType() == elementClass)) {
-                type = type.compatibleFor(this.dataTypeArray[indexBasedZero], List.of(elementClass));
+                type = type.compatibleFor(this.dataTypeArray[indexBasedZero], List.class, List.of(elementClass));
                 this.compatibleTypeArray[indexBasedZero] = type;
             }
             return (List<T>) readOneColumn(indexBasedZero, type, null);
@@ -1952,7 +1952,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                 type = this.rawTypeArray[indexBasedZero];
             }
             if (!(type instanceof DualGenericsMapping t && t.firstGenericsType() == keyClass && t.secondGenericsType() == valueClass)) {
-                type = type.compatibleFor(this.dataTypeArray[indexBasedZero], List.of(keyClass, valueClass));
+                type = type.compatibleFor(this.dataTypeArray[indexBasedZero], Map.class, List.of(keyClass, valueClass));
                 this.compatibleTypeArray[indexBasedZero] = type;
             }
             return (Map<K, V>) readOneColumn(indexBasedZero, type, null);
@@ -2057,9 +2057,6 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
                 value = type.afterGet(dataType, this.executor.factory.mappingEnv, value);
                 if (value == MappingType.DOCUMENT_NULL_VALUE) {
-                    if (!(type instanceof MappingType.SqlDocument)) {
-                        throw afterGetMethodError(type, dataType, value);
-                    }
                     value = null;
                 }
                 return value;

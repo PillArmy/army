@@ -25,6 +25,7 @@ import java.util.Properties;
 
 interface MetaContext {
 
+    void validateColumnName(Class<?> domainClass, String columnName);
 
     List<IndexColumnMeta> minIndexColumnMetaList(List<IndexColumnMeta> list);
 

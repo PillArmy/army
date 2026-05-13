@@ -23,29 +23,49 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
-import io.army.util._Collections;
 
-import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
-public final class JsonType extends ArmyJsonType implements MappingType.SqlJson {
+public class JsonType extends ArmyJsonType implements MappingType.SqlJson {
 
     public static JsonType from(final Class<?> javaType) {
-        final JsonType instance;
         if (javaType == String.class) {
-            instance = TEXT;
-        } else {
-            instance = INSTANCE_MAP.computeIfAbsent(javaType, CONSTRUCTOR);
+            return TEXT;
         }
-        return instance;
+        if (Map.class.isAssignableFrom(javaType) || Collection.class.isAssignableFrom(javaType)) {
+            throw errorJavaType(JsonType.class, javaType);
+        }
+        return CLASS_VALUE.get(javaType);
     }
 
     public static final JsonType TEXT = new JsonType(String.class);
 
-    private static final ConcurrentMap<Class<?>, JsonType> INSTANCE_MAP = _Collections.concurrentHashMap();
+    public static JsonType fromMap(Class<?> keyClass, Class<?> valueClass) {
+        if (keyClass == String.class && valueClass == Object.class) {
+            return MapJsonType.INSTANCE;
+        }
+        return new MapJsonType(keyClass, valueClass);
+    }
 
-    private static final Function<Class<?>, JsonType> CONSTRUCTOR = JsonType::new;
+    public static JsonType fromList(Class<?> elementClass) {
+        return new ListJsonType(elementClass);
+    }
+
+    public static JsonType fromSet(Class<?> elementClass) {
+        return new SetJsonType(elementClass);
+    }
+
+
+    private static final ClassValue<JsonType> CLASS_VALUE = new ClassValue<>() {
+        @Override
+        protected JsonType computeValue(Class<?> type) {
+            return new JsonType(type);
+        }
+    };
 
 
     /// private constructor
@@ -53,13 +73,9 @@ public final class JsonType extends ArmyJsonType implements MappingType.SqlJson 
         super(javaType);
     }
 
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return JsonArrayType.from(this.javaType);
-    }
 
     @Override
-    public DataType map(final ServerMeta meta) {
+    public final DataType map(final ServerMeta meta) {
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case MySQL:
@@ -79,6 +95,88 @@ public final class JsonType extends ArmyJsonType implements MappingType.SqlJson 
         }
         return dataType;
     }
+
+    @Override
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
+        return JsonArrayType.from(this.javaType);
+    }
+
+
+    @Override
+    final MappingType creatMapType(Class<?> keyClass, Class<?> valueClass) {
+        return fromMap(keyClass, valueClass);
+    }
+
+    @Override
+    final MappingType createListType(Class<?> elementClass) {
+        return fromList(elementClass);
+    }
+
+    @Override
+    final MappingType createSetType(Class<?> elementClass) {
+        return fromSet(elementClass);
+    }
+
+    private static final class SetJsonType extends JsonType implements UnaryGenericsMapping {
+
+        private final Class<?> elementClass;
+
+        private SetJsonType(Class<?> elementClass) {
+            this.elementClass = elementClass;
+            super(Set.class);
+        }
+
+        @Override
+        public Class<?> genericsType() {
+            return this.elementClass;
+        }
+
+
+    } // SetJsonType
+
+    private static final class ListJsonType extends JsonType implements UnaryGenericsMapping {
+
+        private final Class<?> elementClass;
+
+        private ListJsonType(Class<?> elementClass) {
+            this.elementClass = elementClass;
+            super(List.class);
+        }
+
+        @Override
+        public Class<?> genericsType() {
+            return this.elementClass;
+        }
+
+
+    } // ListJsonType
+
+    private static final class MapJsonType extends JsonType implements DualGenericsMapping {
+
+        private static final MapJsonType INSTANCE = new MapJsonType(String.class, Object.class);
+
+        private final Class<?> keyClass;
+
+        private final Class<?> valueClass;
+
+        private MapJsonType(Class<?> keyClass, Class<?> valueClass) {
+            this.keyClass = keyClass;
+            this.valueClass = valueClass;
+            super(Map.class);
+        }
+
+        @Override
+        public Class<?> firstGenericsType() {
+            return this.keyClass;
+        }
+
+        @Override
+        public Class<?> secondGenericsType() {
+            return this.valueClass;
+        }
+
+
+    } // MapJsonType
 
 
 }

@@ -34,8 +34,7 @@ public final class DefaultFastJsonCodec implements JsonCodec {
     }
 
     @Override
-    public Map<String, Object> decodeMap(String json) throws CodecException {
-        return JSON.parseObject(json);
+    public <K, V> Map<K, V> decodeMap(String json, Class<K> keyClass, Class<V> valueClass) throws CodecException {
+        return JSON.parseObject(json, keyClass, valueClass);
     }
-
 }

@@ -38,17 +38,6 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     Class<?> javaType();
 
-
-    MappingType arrayTypeOfThis() throws CriteriaException;
-
-    <Z> MappingType compatibleFor(final DataType dataType, final Class<Z> targetType)
-            throws NoMatchMappingException;
-
-    default MappingType compatibleFor(final DataType dataType, List<Class<?>> genericsTypeList)
-            throws NoMatchMappingException {
-        throw new UnsupportedOperationException();
-    }
-
     DataType map(ServerMeta meta) throws UnsupportedDialectException;
 
     /// @param dataType from {@link #map(ServerMeta)}
@@ -61,6 +50,17 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     /// @return non-null, the instance of {@link #javaType()}.
 
     Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException;
+
+
+    MappingType arrayTypeOfThis() throws CriteriaException;
+
+    <Z> MappingType compatibleFor(final DataType dataType, final Class<Z> targetType)
+            throws NoMatchMappingException;
+
+    default MappingType compatibleFor(final DataType dataType, Class<?> javaType, List<Class<?>> genericsTypeList)
+            throws NoMatchMappingException {
+        throw new UnsupportedOperationException();
+    }
 
 
     interface GenericsMapping {

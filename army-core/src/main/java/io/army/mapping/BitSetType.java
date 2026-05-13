@@ -100,7 +100,7 @@ public final class BitSetType extends _ArmyNoInjectionType implements MappingTyp
                 value = bitwiseToString(this, dataType, source, PARAM_ERROR_HANDLER);
                 break;
             default:
-                throw outRangeOfSqlType(dataType, source);
+                throw paramError(this, dataType, source, null);
         }
         return value;
     }

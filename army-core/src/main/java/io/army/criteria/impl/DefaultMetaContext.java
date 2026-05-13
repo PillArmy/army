@@ -18,6 +18,7 @@ package io.army.criteria.impl;
 
 import io.army.lang.Nullable;
 import io.army.meta.IndexColumnMeta;
+import io.army.meta.MetaException;
 import io.army.meta.TableMeta;
 import io.army.util._ResourceUtils;
 
@@ -28,6 +29,7 @@ import java.util.Properties;
 
 final class DefaultMetaContext implements MetaContext {
 
+    private Map<Class<?>, Map<String, Boolean>> columnNameValidMap;
 
     private StringBuilder tempBuilder;
 
@@ -38,6 +40,22 @@ final class DefaultMetaContext implements MetaContext {
     private Map<List<IndexColumnMeta>, List<IndexColumnMeta>> minColumnMetaMap;
 
     private Map<List<IndexColumnMeta>, List<IndexColumnMeta>> columnMetaMap;
+
+    @Override
+    public void validateColumnName(Class<?> domainClass, String columnName) {
+        Map<Class<?>, Map<String, Boolean>> map = this.columnNameValidMap;
+        if (map == null) {
+            this.columnNameValidMap = map = new HashMap<>();
+        }
+
+        final Boolean oldValue;
+        oldValue = map.computeIfAbsent(domainClass, _ -> new HashMap<>())
+                .putIfAbsent(columnName, Boolean.TRUE);
+        if (oldValue != null) {
+            String m = String.format("%s %s.%s duplication", domainClass.getName(), "Column", "name");
+            throw new MetaException(m);
+        }
+    }
 
     @Override
     public List<IndexColumnMeta> minIndexColumnMetaList(final List<IndexColumnMeta> list) {

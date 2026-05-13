@@ -17,6 +17,7 @@
 package io.army.codec;
 
 import io.army.lang.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +28,10 @@ public interface JsonCodec {
     @Nullable
     <T> T decode(String json, Class<T> objectClass) throws CodecException;
 
+    @Nullable
     <T> List<T> decodeList(String json, Class<T> elementClass) throws CodecException;
 
-    Map<String, Object> decodeMap(String json) throws CodecException;
+    @Nullable
+    <K, V> Map<K, V> decodeMap(String json, Class<K> keyClass, Class<V> valueClass) throws CodecException;
 
 }

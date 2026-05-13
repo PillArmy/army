@@ -896,7 +896,12 @@ public abstract class ExecutorSupport {
                 type = this.rawTypeArray[indexBasedZero].compatibleFor(dataType, columnClass);
                 putCompatibleType(indexBasedZero, type);
             }
-            return (T) type.afterGet(dataType, this.env, value);
+
+            value = type.afterGet(dataType, this.env, value);
+            if (value == MappingType.DOCUMENT_NULL_VALUE) {
+                value = null;
+            }
+            return (T) value;
         }
 
 
@@ -908,7 +913,11 @@ public abstract class ExecutorSupport {
             if (value == null) {
                 return null;
             }
-            return type.afterGet(this.dataTypeArray[indexBasedZero], this.env, value);
+            value = type.afterGet(this.dataTypeArray[indexBasedZero], this.env, value);
+            if (value == MappingType.DOCUMENT_NULL_VALUE) {
+                value = null;
+            }
+            return value;
         }
 
         @SuppressWarnings("unchecked")
@@ -931,22 +940,31 @@ public abstract class ExecutorSupport {
             final DataType dataType;
             dataType = this.dataTypeArray[indexBasedZero];
 
-            type = type.compatibleFor(dataType, List.of(elementClass));
-            return (List<T>) type.afterGet(dataType, this.env, value);
+            type = type.compatibleFor(dataType, List.class, List.of(elementClass));
+            value = type.afterGet(dataType, this.env, value);
+            if (value == MappingType.DOCUMENT_NULL_VALUE) {
+                value = null;
+            }
+            return (List<T>) value;
         }
 
         @SuppressWarnings("unchecked")
         @Nullable
         @Override
         public <T> T get(int indexBasedZero, Class<T> columnClass, MappingType type) {
-            final Object value;
+            Object value;
             value = get(indexBasedZero, type);
             if (value == null || columnClass.isInstance(value)) {
                 return (T) value;
             }
             final DataType dataType;
             dataType = this.dataTypeArray[indexBasedZero];
-            return (T) type.afterGet(dataType, this.env, value);
+
+            value = type.afterGet(dataType, this.env, value);
+            if (value == MappingType.DOCUMENT_NULL_VALUE) {
+                value = null;
+            }
+            return (T) value;
         }
 
         @SuppressWarnings("unchecked")
@@ -970,8 +988,12 @@ public abstract class ExecutorSupport {
             final DataType dataType;
             dataType = this.dataTypeArray[indexBasedZero];
 
-            type = type.compatibleFor(dataType, List.of(keyClass, valueClass));
-            return (Map<K, V>) type.afterGet(dataType, this.env, value);
+            type = type.compatibleFor(dataType, Map.class, List.of(keyClass, valueClass));
+            value = type.afterGet(dataType, this.env, value);
+            if (value == MappingType.DOCUMENT_NULL_VALUE) {
+                value = null;
+            }
+            return (Map<K, V>) value;
         }
 
         @SuppressWarnings("unchecked")
@@ -994,7 +1016,12 @@ public abstract class ExecutorSupport {
 
             final DataType dataType;
             dataType = this.dataTypeArray[indexBasedZero];
-            return (List<T>) type.afterGet(dataType, this.env, value);
+
+            value = type.afterGet(dataType, this.env, value);
+            if (value == MappingType.DOCUMENT_NULL_VALUE) {
+                value = null;
+            }
+            return (List<T>) value;
         }
 
         @SuppressWarnings("unchecked")
@@ -1017,7 +1044,12 @@ public abstract class ExecutorSupport {
 
             final DataType dataType;
             dataType = this.dataTypeArray[indexBasedZero];
-            return (Map<K, V>) type.afterGet(dataType, this.env, value);
+
+            value = type.afterGet(dataType, this.env, value);
+            if (value == MappingType.DOCUMENT_NULL_VALUE) {
+                value = null;
+            }
+            return (Map<K, V>) value;
         }
 
 

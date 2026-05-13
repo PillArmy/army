@@ -24,7 +24,6 @@ import io.army.executor.StmtExecutor;
 import io.army.lang.Nullable;
 import io.army.meta.ServerMeta;
 import io.army.meta.TypeMeta;
-import io.army.session.ParamException;
 import io.army.sqltype.ArmyType;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -32,7 +31,6 @@ import io.army.sqltype.SQLType;
 import io.army.struct.CodeEnum;
 import io.army.struct.TextEnum;
 import io.army.util.ClassUtils;
-import io.army.util._Exceptions;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -45,7 +43,6 @@ import java.time.*;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAmount;
 import java.util.BitSet;
-import java.util.List;
 import java.util.function.BiFunction;
 
 abstract sealed class AbstractMappingType extends MappingSupport implements MappingType
@@ -499,40 +496,6 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         throw new CloneNotSupportedException();
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(this.getClass().getName())
-                .append("[javaType:")
-                .append(this.javaType().getName())
-                .append(",hash:")
-                .append(System.identityHashCode(this));
-
-        if (this instanceof GenericsMapping) {
-            if (this instanceof UnaryGenericsMapping) {
-                builder.append(",unary generic type:")
-                        .append(((UnaryGenericsMapping) this).genericsType().getName());
-            } else if (this instanceof DualGenericsMapping) {
-                final DualGenericsMapping<?, ?> dual = (DualGenericsMapping<?, ?>) this;
-                builder.append(",dual generics first type:")
-                        .append(dual.firstGenericsType().getName())
-                        .append(",dual generic second type:")
-                        .append(dual.secondGenericsType().getName());
-            } else if (this instanceof MultiGenericsMappingType) {
-                final List<Class<?>> list = ((MultiGenericsMappingType) this).genericsTypeList();
-                final int listSize = list.size();
-                for (int i = 0; i < listSize; i++) {
-                    builder.append(",multi generics[")
-                            .append(i)
-                            .append("]:")
-                            .append(list.get(i).getName());
-                }
-            }
-        }
-        return builder.append(']')
-                .toString();
-    }
-
 
     /// prevent default deserialization
     private void readObject(ObjectInputStream in) throws IOException,
@@ -548,55 +511,6 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
 
     /*-------------------below private methods -------------------*/
 
-    @Deprecated
-    protected final ParamException notSupportConvertAfterGet(final Object nonNull) {
-        String m = String.format("Not support convert from %s to %s.", nonNull, javaType().getName());
-        return new ParamException(m);
-    }
-
-
-    @Deprecated
-    protected final ParamException outRangeOfType(final Object nonNull, @Nullable final Throwable cause) {
-        String m = String.format("Parameter[%s] value[%s] out of range %s"
-                , nonNull.getClass().getName(), nonNull, this);
-        return cause == null ? new ParamException(m) : new ParamException(m, cause);
-    }
-
-    @Deprecated
-    protected static DataAccessException errorJavaTypeForSqlType(DataType sqlType, final Object nonNull) {
-        String m = String.format("Statement executor passing error java type[%s] for %s.%s ."
-                , nonNull.getClass().getName(), sqlType.getClass().getSimpleName(), sqlType.name());
-        return new DataAccessException(m);
-    }
-
-
-    protected static DataAccessException errorValueForSqlType(DataType sqlType, final Object nonNull
-            , @Nullable Throwable cause) {
-        final String m = String.format("Statement executor passing error java type[%s] value for %s.%s ."
-                , nonNull.getClass().getName(), sqlType.getClass().getSimpleName(), sqlType.name());
-        final DataAccessException exception;
-        if (cause == null) {
-            exception = new DataAccessException(m);
-        } else {
-            exception = new DataAccessException(m, cause);
-        }
-        return exception;
-    }
-
-
-    protected static CriteriaException valueOutRange(DataType sqlType, final Object nonNull,
-                                                     @Nullable Throwable cause) {
-        return _Exceptions.valueOutRange(sqlType, nonNull, cause);
-    }
-
-    protected static CriteriaException outRangeOfSqlType(DataType sqlType, final Object nonNull) {
-        return _Exceptions.outRangeOfSqlType(sqlType, nonNull);
-    }
-
-    protected static CriteriaException outRangeOfSqlType(DataType sqlType, final Object nonNull
-            , @Nullable Throwable cause) {
-        return _Exceptions.outRangeOfSqlType(sqlType, nonNull, cause);
-    }
 
     protected static NoMatchMappingException noMatchCompatibleMapping(AbstractMappingType type, Class<?> targetJavaType) {
         String m = String.format("%s not found match %s for %s", type, AbstractMappingType.class.getName(),

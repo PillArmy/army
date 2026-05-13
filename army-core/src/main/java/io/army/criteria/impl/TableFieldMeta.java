@@ -148,7 +148,11 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
             this.precision = TableMetaUtils.columnPrecision(column, this, context);
             this.scale = TableMetaUtils.columnScale(column, this, context);
             this.collation = column.collation();
-            this.columnName = TableMetaUtils.columnName(domainClass, column, field, tableMetaProperties, context.tempBuilderAndClear());
+
+            final String columnName;
+            columnName = TableMetaUtils.columnName(domainClass, column, field, tableMetaProperties, context.tempBuilderAndClear());
+            context.validateColumnName(domainClass, columnName);
+            this.columnName = columnName;
             final boolean isDiscriminator;
             isDiscriminator = FieldMetaUtils.isDiscriminator(this.table.javaType, this.fieldName);
 

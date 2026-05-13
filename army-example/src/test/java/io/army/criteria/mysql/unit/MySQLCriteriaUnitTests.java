@@ -53,7 +53,7 @@ public class MySQLCriteriaUnitTests extends MySQLUnitTests {
                 .where(ChinaRegion_.name.equal(SQLs::param, "索隆"))
                 .and(ChinaRegion_.regionType.equal(SQLs::literal, RegionType.CITY).or(ChinaRegion_.regionGdp.greaterEqual(SQLs::literal, "3333")))
                 .orderBy(ChinaRegion_.id)
-                .limit(SQLs::param, criteria::getRowCount)
+                .limit(criteria.getRowCount())
                 .asUpdate();
 
         print80Stmt(LOG, stmt);
@@ -90,7 +90,7 @@ public class MySQLCriteriaUnitTests extends MySQLUnitTests {
                 )
                 .and(ChinaRegion_.regionGdp.plus(SQLs::literal, 100).greaterEqual(0))
                 .orderBy(ChinaRegion_.name::desc)
-                .limit(SQLs::param, map::get, "rowCount")
+                .limit(map.get("rowCount"))
                 .asUpdate();
 
         print80Stmt(LOG, stmt);
@@ -154,7 +154,7 @@ public class MySQLCriteriaUnitTests extends MySQLUnitTests {
                 .and(ChinaRegion_.updateTime.between(SQLs::param, map.get("startTime"), AND, map.get("endTIme")))
                 .ifAnd(ChinaRegion_.version::equal, SQLs::literal, map.get("version"))
                 .orderBy(ChinaRegion_.name::desc, ChinaRegion_.id)
-                .ifLimit(SQLs::param, map::get, "rowCount")
+                .ifLimit(map.get("rowCount"))
                 .asDelete();
 
         print80Stmt(LOG, stmt);
@@ -203,7 +203,7 @@ public class MySQLCriteriaUnitTests extends MySQLUnitTests {
                 .and(ChinaRegion_.updateTime.between(SQLs::literal, map.get("startTime"), AND, map.get("endTIme")))
                 .ifAnd(ChinaRegion_.version::equal, SQLs::literal, map.get("version"))// common parameter
                 .orderBy(ChinaRegion_.name::desc)
-                .ifLimit(SQLs::param, map::get, "rowCount")
+                .ifLimit(map.get("rowCount"))
                 .asDelete()
                 .namedParamList(paramList);
 

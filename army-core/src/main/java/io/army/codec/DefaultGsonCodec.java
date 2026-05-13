@@ -20,6 +20,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +57,7 @@ public final class DefaultGsonCodec implements JsonCodec {
 
     @Override
     public <T> List<T> decodeList(String json, Class<T> elementClass) throws CodecException {
-        final var listType = TypeToken.getParameterized(List.class, elementClass).getType();
+        final var listType = TypeToken.getParameterized(ArrayList.class, elementClass).getType();
         try {
             return this.gson.fromJson(json, listType);
         } catch (JsonSyntaxException e) {
@@ -64,12 +66,13 @@ public final class DefaultGsonCodec implements JsonCodec {
     }
 
     @Override
-    public Map<String, Object> decodeMap(String json) throws CodecException {
-        final var listType = TypeToken.getParameterized(Map.class, String.class, Object.class).getType();
+    public <K, V> Map<K, V> decodeMap(String json, Class<K> keyClass, Class<V> valueClass) throws CodecException {
+        final var listType = TypeToken.getParameterized(HashMap.class, keyClass, valueClass).getType();
         try {
             return this.gson.fromJson(json, listType);
         } catch (JsonSyntaxException e) {
             throw new CodecException(e);
         }
     }
+
 }

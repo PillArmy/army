@@ -68,14 +68,16 @@ public final class DefaultJacksonCodec implements JsonCodec {
         }
     }
 
+
     @Override
-    public Map<String, Object> decodeMap(String json) throws CodecException {
+    public <K, V> Map<K, V> decodeMap(String json, Class<K> keyClass, Class<V> valueClass) throws CodecException {
         try {
             final MapType javaType;
-            javaType = this.objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class);
+            javaType = this.objectMapper.getTypeFactory().constructMapType(HashMap.class, keyClass, valueClass);
             return this.objectMapper.readValue(json, javaType);
         } catch (JsonProcessingException e) {
             throw new CodecException(e);
         }
     }
+
 }
