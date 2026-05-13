@@ -17,6 +17,7 @@
 package io.army.criteria.impl;
 
 import io.army.annotation.*;
+import io.army.dialect._Constant;
 import io.army.generator.FieldGenerator;
 import io.army.generator.GeneratorStrategy;
 import io.army.generator.PostGeneratorStrategy;
@@ -187,10 +188,6 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         if (type == GeneratorType.POST) {
             return null;
         }
-        if (type == GeneratorType.RUNTIME) {
-            String m = String.format("%s type() return error", strategy.getClass().getName());
-            throw new MetaException(m);
-        }
         _Assert.isTrue(type == GeneratorType.PRECEDE, "");
         return new PreGeneratorMetaImpl(fieldMeta, strategy.generatorClass(), strategy.paramMap());
     }
@@ -262,9 +259,21 @@ abstract class FieldMetaUtils extends TableMetaUtils {
                 if (_StringUtils.hasText(configValue)) {
                     finalValue = configValue.trim();
                 } else switch (value) {
-                    case DEFAULT_EXP:
-                        finalValue = fieldMeta.fieldName();
-                        break;
+                    case DEFAULT_EXP: {
+                        final Class<?> javaType = fieldMeta.javaType();
+                        if (Enum.class.isAssignableFrom(javaType)) {
+                            finalValue = context.tempBuilderAndClear()
+                                    .append("enum")
+                                    .append(_Constant.COMMA)
+                                    .append("@see")
+                                    .append(_Constant.SPACE)
+                                    .append(javaType.getName())
+                                    .toString();
+                        } else {
+                            finalValue = _MetaBridge.camelToComment(fieldMeta.fieldName(), context.tempBuilderAndClear());
+                        }
+                    }
+                    break;
                     case RUNTIME_EXP:
                         throw new MetaException(String.format("%s no config", key));
                     default:

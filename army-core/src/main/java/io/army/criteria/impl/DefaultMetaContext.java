@@ -80,17 +80,10 @@ public final class DefaultMetaContext implements MetaContext {
     @Override
     public List<IndexColumnMeta> minIndexColumnMetaList(final List<IndexColumnMeta> list) {
         Map<List<IndexColumnMeta>, List<IndexColumnMeta>> map = this.minColumnMetaMap;
-
         if (map == null) {
             this.minColumnMetaMap = map = new HashMap<>();
         }
-        List<IndexColumnMeta> result;
-        result = map.get(list);
-        if (result == null) {
-            result = List.copyOf(list);
-            map.put(result, result);
-        }
-        return result;
+        return map.computeIfAbsent(list, List::copyOf);
     }
 
     @Override
@@ -99,17 +92,11 @@ public final class DefaultMetaContext implements MetaContext {
         if (map == null) {
             this.columnMetaMap = map = new HashMap<>();
         }
-        List<IndexColumnMeta> result;
-        result = map.get(list);
-        if (result == null) {
-            result = List.copyOf(list);
-            map.put(result, result);
-        }
-        return result;
+        return map.computeIfAbsent(list, List::copyOf);
     }
 
     @Override
-    public List<Class<?>> classList(List<Class<?>> list) {
+    public List<Class<?>> classList(final List<Class<?>> list) {
         if (list.isEmpty()) {
             return List.of();
         }
@@ -117,13 +104,7 @@ public final class DefaultMetaContext implements MetaContext {
         if (map == null) {
             this.classListMap = map = new HashMap<>();
         }
-        list = List.copyOf(list);
-        final List<Class<?>> oldValue;
-        oldValue = map.putIfAbsent(list, list);
-        if (oldValue != null && oldValue != list) {
-            list = oldValue;
-        }
-        return list;
+        return map.computeIfAbsent(list, List::copyOf);
     }
 
     @Override

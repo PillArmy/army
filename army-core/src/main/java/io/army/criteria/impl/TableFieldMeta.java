@@ -130,8 +130,6 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
     private final List<Class<?>> elementTypeList;
 
-    private final List<Class<?>> typeArgumentList;
-
     private final boolean codec;
 
     private TableFieldMeta(final TableMeta<T> table, final Field field, final MetaContext context) throws MetaException {
@@ -201,8 +199,6 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
                 throw _Exceptions.unexpectedEnum(generatorType);
             }
             this.insertable = FieldMetaUtils.columnInsertable(this, this.generatorType, column, isDiscriminator);
-
-            this.typeArgumentList = List.copyOf(TableMetaUtils.fieldTypeArgumentList(field, context));
         } catch (ArmyException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -361,11 +357,6 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
             throw new MetaException(m);
         }
         return field;
-    }
-
-    @Override
-    public final List<Class<?>> typeArgumentList() {
-        return this.typeArgumentList;
     }
 
     @Override

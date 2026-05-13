@@ -405,7 +405,7 @@ final class PostgreComparer extends ArmySchemaComparer {
     @Override
     boolean compareDefault(ColumnInfo columnInfo, FieldMeta<?> field, DataType sqlType) {
         //TODO  complete me
-        return !(field instanceof IndexFieldMeta)  // 如果是索引,其默认值可能是自增的. 如 primary key
+        return !(field instanceof PrimaryFieldMeta<?>)  // 如果是索引,其默认值可能是自增的. 如 primary key
                 && (_StringUtils.hasText(field.defaultValue()) ^ _StringUtils.hasText(columnInfo.defaultExp()));
     }
 

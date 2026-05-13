@@ -30,7 +30,6 @@ import io.army.util._StringUtils;
 
 import java.time.*;
 import java.time.temporal.TemporalAccessor;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -347,14 +346,7 @@ public class NameEnumType extends _ArmyNoInjectionType {
 
         @Override
         public List<String> enumLabelList() {
-            @SuppressWarnings("unchecked")
-            Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) ((NameEnumType) this).enumClass;
-            final Enum<?>[] enumArray = enumClass.getEnumConstants();
-            final List<String> enumLabelList = new ArrayList<>(enumArray.length);
-            for (Enum<?> enumConstant : enumArray) {
-                enumLabelList.add(enumConstant.name());
-            }
-            return List.copyOf(enumLabelList);
+            return ClassUtils.getEnumNames(((NameEnumType) this).enumClass);
         }
 
     } // NameEnumNamedType

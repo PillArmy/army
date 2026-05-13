@@ -27,7 +27,6 @@ import io.army.modelgen._MetaBridge;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -200,13 +199,12 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
     private final List<FieldMeta<?>> generatorChain;
 
     private DefaultTableMeta(final Class<T> domainClass, final MetaContext context) {
-        Objects.requireNonNull(domainClass, "javaType required");
         this.javaType = domainClass;
         try {
 
             final Table table = domainClass.getAnnotation(Table.class);
 
-            this.schemaMeta = _SchemaMetaFactory.getSchema(table.catalog(), table.schema());
+            this.schemaMeta = TableMetaUtils.schemaMeta(table, domainClass, context);
 
             this.tableName = TableMetaUtils.tableName(table, this.schemaMeta, domainClass, context);
             this.comment = TableMetaUtils.tableComment(table, domainClass, context);

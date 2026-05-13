@@ -20,8 +20,6 @@ import io.army.criteria.SQLElement;
 import io.army.criteria.TableField;
 import io.army.mapping.MappingType;
 
-import java.util.List;
-
 ///
 /// This interface representing database object ,this interface is base interface of below:
 ///
@@ -72,8 +70,6 @@ public interface DatabaseObject extends SQLElement {
         /// (Applies only if a decimal column is used.)
         int scale();
 
-        /// field's type argument list
-        List<Class<?>> typeArgumentList();
 
     }
 

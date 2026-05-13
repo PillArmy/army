@@ -139,7 +139,7 @@ public class StockApp implements ApplicationRunner, EnvironmentAware {
 
         @Override
         public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
-            LOG.info("api: {}", environment.getProperty("spring.ai.deepseek.api-key"));
+            // LOG.info("api: {}", environment.getProperty("spring.ai.deepseek.api-key"));
         }
     }
 

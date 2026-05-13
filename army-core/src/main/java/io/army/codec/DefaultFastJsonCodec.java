@@ -2,6 +2,7 @@ package io.army.codec;
 
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
 
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ public final class DefaultFastJsonCodec implements JsonCodec {
 
     @Override
     public <K, V> Map<K, V> decodeMap(String json, Class<K> keyClass, Class<V> valueClass) throws CodecException {
-        return JSON.parseObject(json, keyClass, valueClass);
+        return JSON.parseObject(json, new TypeReference<>() {
+        });
     }
 }

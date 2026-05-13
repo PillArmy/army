@@ -18,6 +18,9 @@ package io.army.util;
 
 import io.army.lang.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /// @since 0.6.0
 public abstract class ClassUtils {
 
@@ -67,15 +70,23 @@ public abstract class ClassUtils {
     }
 
     public static Class<?> enumClass(Class<?> clazz) {
-        if (!Enum.class.isAssignableFrom(clazz)) {
-            String m = String.format("%s isn't enum", clazz.getName());
-            throw new IllegalArgumentException(m);
-        }
-        if (clazz.isAnonymousClass()) {
-            clazz = clazz.getSuperclass();
-        }
-        return clazz;
+        return checkEnumClass(clazz);
     }
+
+    public static Enum<?>[] getEnumConstants(Class<?> clazz) {
+        return checkEnumClass(clazz).getEnumConstants();
+    }
+
+    /// @return unmodifiable list
+    public static List<String> getEnumNames(Class<?> clazz) {
+        final Enum<?>[] enumArray = checkEnumClass(clazz).getEnumConstants();
+        final List<String> list = new ArrayList<>(enumArray.length);
+        for (Enum<?> e : enumArray) {
+            list.add(e.name());
+        }
+        return List.copyOf(list);
+    }
+
 
     @Nullable
     public static Class<?> tryLoadClass(final String className, @Nullable ClassLoader classLoader) {
@@ -147,6 +158,19 @@ public abstract class ClassUtils {
             throw new IllegalArgumentException(String.format("%s isn't primitive", primitive.getName()));
         }
         return wrapper;
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private static Class<? extends Enum<?>> checkEnumClass(Class<?> clazz) {
+        if (!Enum.class.isAssignableFrom(clazz)) {
+            String m = String.format("%s isn't enum", clazz.getName());
+            throw new IllegalArgumentException(m);
+        }
+        if (clazz.isAnonymousClass()) {
+            clazz = clazz.getSuperclass();
+        }
+        return (Class<? extends Enum<?>>) clazz;
     }
 
 

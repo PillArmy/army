@@ -24,7 +24,10 @@ import io.army.mapping.NameEnumType;
 import io.army.mapping._MappingFactory;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
-import io.army.util.*;
+import io.army.util.Pair;
+import io.army.util._Assert;
+import io.army.util._Collections;
+import io.army.util._StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -44,27 +47,6 @@ public abstract class TableMetaUtils {
 
     static final String OPTIONAL_EXP = "${OPTIONAL}";
 
-    public static List<Class<?>> fieldTypeArgumentList(final Field field, final @Nullable MetaContext context) {
-        final Class<?> typeClass = field.getType();
-        final List<Class<?>> list;
-        if (typeClass == Map.class || typeClass == List.class || typeClass == Set.class) {
-            List<Class<?>> temp;
-            try {
-                temp = ReflectionUtils.getTypeArgumentList(field);
-            } catch (IllegalArgumentException e) {
-                // no actual argument
-                temp = List.of();
-            }
-            list = temp;
-        } else {
-            list = List.of();
-        }
-
-        if (context != null) {
-            return context.classList(list);
-        }
-        return list;
-    }
 
     public static String columnName(final Column column, final Field field) throws MetaException {
         final String customColumnName = column.name().trim(), fieldName = field.getName();
@@ -203,7 +185,6 @@ public abstract class TableMetaUtils {
         for (int i = 0; i < methods.length; i++) {
             value = values[i];
             switch (value) {
-                case "":
                 case DEFAULT_EXP:
                 case RUNTIME_EXP: {
                     key = context.tempBuilderAndClear()

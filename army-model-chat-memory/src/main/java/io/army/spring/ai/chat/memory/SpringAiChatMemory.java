@@ -23,43 +23,45 @@ import org.springframework.ai.chat.messages.MessageType;
 import java.time.LocalDateTime;
 
 
-@Table(name = "spring_ai_chat_memory",
+@Table(name = "${DEFAULT}",
         indexes = {
-                @Index(name = "spring_ai_chat_memory_conversation_id_timestamp_idx", fieldList = {"conversationId", "createTime"})
+                @Index(name = "${DEFAULT}", fieldList = {"conversationId", "createTime"})
         },
         immutable = true,
-        comment = "Spring AI Chat Memory")
+        comment = "${DEFAULT}")
 public class SpringAiChatMemory {
 
 
     /// Since the framework cannot decide the ID generation strategy on behalf of users, it is designed as a runtime type.
-    /// Users need to configure it via classpath:META-INF/army/generator_strategy.properties, following the format:
+    /// Users need to configure it via classpath:META-INF/army/TableMeta.properties, following the format:
     /// entity_class_name.field_name = generator_strategy_class[:paramStr]
+    ///
+    /// If you do not specify it, {@link io.army.generator.PostGeneratorStrategy} will be used.
     ///
     /// example : io.army.spring.ai.chat.memory.SpringAiChatMemory.id=io.army.generator.SnowflakeGeneratorStrategy:{"startTime":1776386333818}
     ///
     /// @see GeneratorStrategy
     /// @see io.army.generator.PostGeneratorStrategy
     /// @see io.army.generator.SnowflakeGeneratorStrategy
-    @Generator(type = GeneratorType.RUNTIME)
+    @Generator(type = GeneratorType.DEFAULT)
     @Column
     private Long id;
 
-    @Column(name = "timestamp")
+    @Column(name = "${DEFAULT}", defaultValue = "'1979-01-01 00:00:00'")
     private LocalDateTime createTime;
 
-    @Column(notNull = true, precision = 36, comment = "Conversation ID")
+    @Column(name = "${DEFAULT}", notNull = true, precision = 36, comment = "${DEFAULT}")
     private String conversationId;
 
-    @Column(notNull = true, comment = "Content")
+    @Column(name = "${DEFAULT}", notNull = true, comment = "${DEFAULT}")
     @Mapping("io.army.mapping.TextType")
     private String content;
 
-    @Column(comment = "ToolResponse list or ToolCall list")
+    @Column(name = "${DEFAULT}", comment = "${DEFAULT}")
     @Mapping("io.army.mapping.JsonType")
     private String specializedData;
 
-    @Column(notNull = true, precision = 10, comment = "@see org.springframework.ai.chat.messages.MessageType")
+    @Column(name = "${DEFAULT}", notNull = true, precision = 10, comment = "${DEFAULT}")
     private MessageType type;
 
     public Long getId() {
