@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-final class DefaultMetaContext implements MetaContext {
+public final class DefaultMetaContext implements MetaContext {
 
     private Map<SchemaMeta, Map<String, Class<?>>> tableNameValidMap;
 
@@ -43,6 +43,8 @@ final class DefaultMetaContext implements MetaContext {
     private Map<List<IndexColumnMeta>, List<IndexColumnMeta>> minColumnMetaMap;
 
     private Map<List<IndexColumnMeta>, List<IndexColumnMeta>> columnMetaMap;
+
+    private Map<List<Class<?>>, List<Class<?>>> classListMap;
 
     @Override
     public void validateTableName(SchemaMeta meta, Class<?> domainClass, String tableName) {
@@ -104,6 +106,24 @@ final class DefaultMetaContext implements MetaContext {
             map.put(result, result);
         }
         return result;
+    }
+
+    @Override
+    public List<Class<?>> classList(List<Class<?>> list) {
+        if (list.isEmpty()) {
+            return List.of();
+        }
+        Map<List<Class<?>>, List<Class<?>>> map = this.classListMap;
+        if (map == null) {
+            this.classListMap = map = new HashMap<>();
+        }
+        list = List.copyOf(list);
+        final List<Class<?>> oldValue;
+        oldValue = map.putIfAbsent(list, list);
+        if (oldValue != null && oldValue != list) {
+            list = oldValue;
+        }
+        return list;
     }
 
     @Override

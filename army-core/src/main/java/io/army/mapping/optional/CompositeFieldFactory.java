@@ -148,6 +148,8 @@ public abstract class CompositeFieldFactory {
 
         private final String collation;
 
+        private final List<Class<?>> typeArgumentList;
+
 
         private DefaultCompositeField(final MappingType.SqlComposite compositeType, Field field, Column column) {
             this.compositeType = compositeType;
@@ -158,6 +160,8 @@ public abstract class CompositeFieldFactory {
             this.precision = column.precision();
             this.scale = column.scale();
             this.collation = column.collation();
+
+            this.typeArgumentList = List.copyOf(TableMetaUtils.fieldTypeArgumentList(field, null));
         }
 
         @Override
@@ -205,6 +209,10 @@ public abstract class CompositeFieldFactory {
             return this.columnName;
         }
 
+        @Override
+        public List<Class<?>> typeArgumentList() {
+            return this.typeArgumentList;
+        }
 
         @Override
         public int hashCode() {
@@ -310,10 +318,14 @@ public abstract class CompositeFieldFactory {
         }
 
         @Override
+        public List<Class<?>> typeArgumentList() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public String objectName() {
             return this.columnName;
         }
-
 
 
     } // CompositeFieldInfo

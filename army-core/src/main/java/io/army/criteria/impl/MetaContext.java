@@ -24,15 +24,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-interface MetaContext {
+public interface MetaContext {
 
     void validateTableName(SchemaMeta meta, Class<?> domainClass, String tableName);
 
     void validateColumnName(Class<?> domainClass, String columnName);
 
+    /// @return unmodifiable list
     List<IndexColumnMeta> minIndexColumnMetaList(List<IndexColumnMeta> list);
 
+    ///@return unmodifiable list
     List<IndexColumnMeta> indexColumnMetaList(List<IndexColumnMeta> list);
+
+    /// @return unmodifiable list
+    List<Class<?>> classList(List<Class<?>> list);
 
     Properties tableMetaProperties();
 
