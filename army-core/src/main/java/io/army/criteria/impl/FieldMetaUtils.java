@@ -23,6 +23,7 @@ import io.army.generator.PostGeneratorStrategy;
 import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
+import io.army.util.ReflectionUtils;
 import io.army.util._Assert;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
@@ -153,44 +154,22 @@ abstract class FieldMetaUtils extends TableMetaUtils {
             paramStr = value.substring(colonIndex + 1).trim();
         }
 
-        final Class<?> strategyClass;
-        try {
-            strategyClass = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            throw new MetaException(e.getMessage(), e);
-        }
-        final Method method;
-        try {
-            if (paramStr == null) {
-                method = strategyClass.getMethod("create");
-            } else {
-                method = strategyClass.getMethod("create", String.class);
-            }
-        } catch (NoSuchMethodException e) {
-            throw new MetaException(e.getMessage(), e);
-        }
-
-        final int modifiers = method.getModifiers();
-        if (!Modifier.isPublic(modifiers)
-                || !Modifier.isStatic(modifiers)
-                || !GeneratorStrategy.class.isAssignableFrom(method.getReturnType())) {
-            String m = String.format("%s method %s error", strategyClass, method);
-            throw new MetaException(m);
-        }
 
         final GeneratorStrategy strategy;
         try {
+            final Method method;
             if (paramStr == null) {
-                strategy = (GeneratorStrategy) method.invoke(null);
+                method = ReflectionUtils.getStaticFactoryMethod(className, GeneratorStrategy.class, "create");
             } else {
-                strategy = (GeneratorStrategy) method.invoke(null, paramStr);
+                method = ReflectionUtils.getStaticFactoryMethod(className, GeneratorStrategy.class, "create", String.class);
             }
-        } catch (IllegalAccessException | InvocationTargetException e) {
+            if (paramStr == null) {
+                strategy = (GeneratorStrategy) ReflectionUtils.invokeStaticFactoryMethod(method);
+            } else {
+                strategy = (GeneratorStrategy) ReflectionUtils.invokeStaticFactoryMethod(method, paramStr);
+            }
+        } catch (Exception e) {
             throw new MetaException(e.getMessage(), e);
-        }
-        if (strategy == null) {
-            String m = String.format("%s method %s error", strategyClass, method);
-            throw new MetaException(m);
         }
         return strategy;
     }

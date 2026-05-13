@@ -25,7 +25,6 @@ import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -172,45 +171,6 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         return new IllegalArgumentException(m);
     }
 
-    private static <T> List<FieldMeta<T>> createFieldList(final Class<T> domainClass,
-                                                          final Map<String, FieldMeta<T>> fieldNameToField) {
-
-        final List<FieldMeta<T>> fieldList = new ArrayList<>(fieldNameToField.size());
-
-        FieldMeta<T> reservedField;
-        for (String fieldName : _MetaBridge.RESERVED_FIELDS) {
-            reservedField = fieldNameToField.get(fieldName);
-            if (reservedField != null) {
-                fieldList.add(reservedField);
-            }
-        }
-
-        final Inheritance inheritance;
-        inheritance = domainClass.getAnnotation(Inheritance.class);
-        final FieldMeta<T> discriminatorField;
-        if (inheritance != null) {
-            discriminatorField = fieldNameToField.get(inheritance.value());
-            if (discriminatorField == null) {
-                throw TableMetaUtils.notFoundDiscriminator(inheritance.value(), domainClass);
-            }
-            fieldList.add(discriminatorField);
-        } else {
-            discriminatorField = null;
-        }
-
-        for (FieldMeta<T> field : fieldNameToField.values()) {
-            if (field == discriminatorField
-                    || _MetaBridge.RESERVED_FIELDS.contains(field.fieldName())) {
-                continue;
-            }
-            fieldList.add(field);
-        }
-        if (fieldList.size() != fieldNameToField.size()) {
-            throw new IllegalStateException("field count not match.");
-        }
-        return fieldList;
-    }
-
 
     final Class<T> javaType;
 
@@ -246,20 +206,20 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
             final Table table = domainClass.getAnnotation(Table.class);
 
-            this.tableName = TableMetaUtils.tableName(table, domainClass, context);
+            this.schemaMeta = _SchemaMetaFactory.getSchema(table.catalog(), table.schema());
+
+            this.tableName = TableMetaUtils.tableName(table, this.schemaMeta, domainClass, context);
             this.comment = TableMetaUtils.tableComment(table, domainClass, context);
             this.immutable = TableMetaUtils.immutable(table, domainClass);
             this.allColumnNotNull = table.allColumnNotNull();
 
-            this.schemaMeta = _SchemaMetaFactory.getSchema(table.catalog(), table.schema());
-
             this.tableOption = table.tableOptions();
             this.partitionOption = table.partitionOptions();
 
-            this.fieldNameToFields = Map.copyOf(TableMetaUtils.createFieldMetaMap(this, context));
-            this.fieldList = List.copyOf(createFieldList(domainClass, this.fieldNameToFields));
+            this.fieldList = List.copyOf(TableMetaUtils.createFieldMetaList(this, context));
+            this.fieldNameToFields = Map.copyOf(TableMetaUtils.createFieldMap(this.fieldList));
             this.indexMetaList = List.copyOf(TableMetaUtils.createIndexList(this, context, this.fieldNameToFields));
-            this.generatorChain = TableMetaUtils.createGeneratorChain(this.fieldNameToFields);
+            this.generatorChain = List.copyOf(TableMetaUtils.createGeneratorChain(this.fieldNameToFields));
 
             this.primaryField = (PrimaryFieldMeta<T>) this.fieldNameToFields.get(_MetaBridge.ID);
             if (this.primaryField == null) {

@@ -47,11 +47,11 @@ public class PreferredJsonbType extends ArmyJsonType implements MappingType.SqlJ
     }
 
     public static PreferredJsonbType fromList(Class<?> elementClass) {
-        return new ListJsonType(elementClass);
+        return ListJsonType.INSTANCE_CACHE.get(elementClass);
     }
 
     public static PreferredJsonbType fromSet(Class<?> elementClass) {
-        return new SetJsonType(elementClass);
+        return SetJsonType.INSTANCE_CACHE.get(elementClass);
     }
 
 
@@ -109,6 +109,13 @@ public class PreferredJsonbType extends ArmyJsonType implements MappingType.SqlJ
 
     private static final class SetJsonType extends PreferredJsonbType implements UnaryGenericsMapping {
 
+        private static final ClassValue<SetJsonType> INSTANCE_CACHE = new ClassValue<>() {
+            @Override
+            protected SetJsonType computeValue(Class<?> type) {
+                return new SetJsonType(type);
+            }
+        };
+
         private final Class<?> elementClass;
 
         private SetJsonType(Class<?> elementClass) {
@@ -125,6 +132,14 @@ public class PreferredJsonbType extends ArmyJsonType implements MappingType.SqlJ
     } // SetJsonType
 
     private static final class ListJsonType extends PreferredJsonbType implements UnaryGenericsMapping {
+
+        private static final ClassValue<ListJsonType> INSTANCE_CACHE = new ClassValue<>() {
+            @Override
+            protected ListJsonType computeValue(Class<?> type) {
+                return new ListJsonType(type);
+            }
+        };
+
 
         private final Class<?> elementClass;
 

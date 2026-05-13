@@ -19,6 +19,7 @@ package io.army.criteria.impl;
 import io.army.lang.Nullable;
 import io.army.meta.IndexColumnMeta;
 import io.army.meta.MetaException;
+import io.army.meta.SchemaMeta;
 import io.army.meta.TableMeta;
 import io.army.util._ResourceUtils;
 
@@ -28,6 +29,8 @@ import java.util.Map;
 import java.util.Properties;
 
 final class DefaultMetaContext implements MetaContext {
+
+    private Map<SchemaMeta, Map<String, Class<?>>> tableNameValidMap;
 
     private Map<Class<?>, Map<String, Boolean>> columnNameValidMap;
 
@@ -40,6 +43,21 @@ final class DefaultMetaContext implements MetaContext {
     private Map<List<IndexColumnMeta>, List<IndexColumnMeta>> minColumnMetaMap;
 
     private Map<List<IndexColumnMeta>, List<IndexColumnMeta>> columnMetaMap;
+
+    @Override
+    public void validateTableName(SchemaMeta meta, Class<?> domainClass, String tableName) {
+        Map<SchemaMeta, Map<String, Class<?>>> map = this.tableNameValidMap;
+        if (map == null) {
+            this.tableNameValidMap = map = new HashMap<>();
+        }
+        final Class<?> oldValue;
+        oldValue = map.computeIfAbsent(meta, _ -> new HashMap<>())
+                .putIfAbsent(tableName, domainClass);
+
+        if (oldValue != null && oldValue != domainClass) {
+            throw new MetaException(String.format("%s %s.%s duplication", domainClass.getName(), "Table", "name"));
+        }
+    }
 
     @Override
     public void validateColumnName(Class<?> domainClass, String columnName) {
@@ -133,6 +151,19 @@ final class DefaultMetaContext implements MetaContext {
         this.tempBuilder = null;
 
         Map<?, ?> map;
+
+        map = this.tableNameValidMap;
+        this.tableNameValidMap = null;
+        if (map != null) {
+            map.clear();
+        }
+
+        map = this.columnNameValidMap;
+        this.columnNameValidMap = null;
+        if (map != null) {
+            map.clear();
+        }
+
         map = this.tableMetaProperties;
         this.tableMetaProperties = null;
         if (map != null) {

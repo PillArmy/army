@@ -75,7 +75,7 @@ public class SpringAiVectorStore {
     /// entity_class_name.field_name.Column.precision=precision
     /// If you do not specify it, will throw {@link io.army.meta.MetaException}
     ///
-    @Column(name = "${DEFAULT}", notNull = true, precision = Integer.MIN_VALUE, comment = "${DEFAULT}")
+    @Column(name = "${DEFAULT}", notNull = true, precision = Column.RUNTIME_EXP, comment = "${DEFAULT}")
     @Mapping("io.army.mapping.optional.VectorType")
     private float[] embedding;
 

@@ -32,28 +32,32 @@ import static java.lang.annotation.ElementType.FIELD;
 @Documented
 public @interface Column {
 
+    int RUNTIME_EXP = -2182;
+
+    int DEFAULT_EXP = -8150;
+
     /// (Optional) field name of table
-    /// 
+    ///
     /// see {@code io.army.util.StringUtils#camelToLowerCase(String)}
     String name() default "";
 
-    /// 
+    ///
     /// blow,don't specify comment of column.
-    /// 
+    ///
     /// - {@code TableMeta#RESERVED_PROPS}
     /// - {@code TableMeta#discriminator()}
-    /// 
+    ///
     String comment() default "";
 
     /// Following fields always ignore this method,because they always not-null:
-    /// 
+    ///
     /// - id
     /// - createTime
     /// - updateTime
     /// - version
     /// - visible
     /// - discriminator field of parent table
-    /// 
+    ///
     /// @see Table#allColumnNotNull()
     boolean notNull() default false;
 
@@ -74,9 +78,9 @@ public @interface Column {
     /// (Applies only if a decimal column is used.)
     int scale() default -1;
 
-    /// 
+    ///
     /// blow,allow to don't specify default value of column.
-    /// 
+    ///
     /// - {@code TableMeta#RESERVED_PROPS}
     /// - {@code TableMeta#discriminator()}
     /// - mapping field java type is {@link String},because army specify default {@code ''}
@@ -92,14 +96,12 @@ public @interface Column {
     /// - mapping field java type is {@link Double},because army specify default 0
     /// - mapping field java type is {@link Float},because army specify default 0
     /// - mapping field java type is {@link LocalTime},because army specify default {@link LocalTime#MIDNIGHT}
-    /// 
+    ///
     String defaultValue() default "";
 
 
     String collation() default "";
 
-    /// @return index based-zero
-    int order() default -1;
 
 
 }

@@ -2,9 +2,9 @@ package io.army.util;
 
 import io.army.dialect.DialectEnv;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class ReflectionUtils {
 
@@ -61,6 +61,29 @@ public abstract class ReflectionUtils {
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    /// @return unmodifiable list
+    public static List<Class<?>> getTypeArgumentList(final Field field) {
+        final Type genericType = field.getGenericType();
+        if (!(genericType instanceof ParameterizedType paramType)) {
+            String m = String.format("%s.%s not a parameterized type", field.getDeclaringClass().getName(), field.getName());
+            throw new IllegalArgumentException(m);
+        }
+
+        final Type[] actualTypeArguments = paramType.getActualTypeArguments();
+        Type t;
+        List<Class<?>> list = new ArrayList<>(actualTypeArguments.length);
+        for (int i = 0; i < actualTypeArguments.length; i++) {
+            t = actualTypeArguments[i];
+            if (!(t instanceof Class<?>)) {
+                String m = String.format("%s.%s[%s] not actual type", field.getDeclaringClass().getName(), field.getName(), i);
+                throw new IllegalArgumentException(m);
+            }
+            list.add((Class<?>) t);
+        }
+        return List.copyOf(list);
     }
 
     /*-------------------below private methods -------------------*/

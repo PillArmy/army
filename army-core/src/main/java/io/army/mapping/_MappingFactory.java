@@ -22,6 +22,7 @@ import io.army.mapping.array.*;
 import io.army.meta.MetaException;
 import io.army.struct.CodeEnum;
 import io.army.util.ArrayUtils;
+import io.army.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -33,10 +34,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.time.*;
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 public abstract class _MappingFactory {
@@ -124,23 +122,35 @@ public abstract class _MappingFactory {
         try {
             final Method method;
             final Object mappingType;
+            final Class<?> fieldType = field.getType();
+
             if (textMapping && elementMapping) {
                 method = mappingClass.getDeclaredMethod("forMixture", Class.class, Class[].class, Charset.class);
                 assertFactoryMethod(method);
                 final Charset charset = Charset.forName(mapping.charset());
-                mappingType = method.invoke(null, field.getType(), mapping.elements(), charset);
+                mappingType = method.invoke(null, fieldType, mapping.elements(), charset);
             } else if (textMapping) {
                 method = mappingClass.getDeclaredMethod("forText", Class.class, Charset.class);
                 assertFactoryMethod(method);
-                mappingType = method.invoke(null, field.getType(), Charset.forName(mapping.charset()));
+                mappingType = method.invoke(null, fieldType, Charset.forName(mapping.charset()));
             } else if (elementMapping) {
                 method = mappingClass.getDeclaredMethod("forElements", Class.class, Class[].class);
                 assertFactoryMethod(method);
-                mappingType = method.invoke(null, field.getType(), mapping.elements());
+                mappingType = method.invoke(null, fieldType, mapping.elements());
+            } else if (fieldType == Map.class) {
+                method = mappingClass.getDeclaredMethod("fromMap", Class.class, Class.class);
+                final List<Class<?>> genericsTypeList = ReflectionUtils.getTypeArgumentList(field);
+                mappingType = method.invoke(null, genericsTypeList.getFirst(), genericsTypeList.get(1));
+            } else if (fieldType == List.class) {
+                method = mappingClass.getDeclaredMethod("fromList", Class.class);
+                mappingType = method.invoke(null, ReflectionUtils.getTypeArgumentList(field).getFirst());
+            } else if (fieldType == Set.class) {
+                method = mappingClass.getDeclaredMethod("fromSet", Class.class);
+                mappingType = method.invoke(null, ReflectionUtils.getTypeArgumentList(field).getFirst());
             } else {
                 method = mappingClass.getDeclaredMethod("from", Class.class);
                 assertFactoryMethod(method);
-                mappingType = method.invoke(null, field.getType());
+                mappingType = method.invoke(null, fieldType);
             }
             if (mappingType == null) {
                 String m = String.format("%s %s factory method return null.", mappingClass.getName(), method.getName());
@@ -163,6 +173,10 @@ public abstract class _MappingFactory {
 
     }
 
+    private static boolean isCollectionType(Field field) {
+        final Class<?> fieldType = field.getType();
+        return fieldType == Map.class || fieldType == List.class || fieldType == Set.class;
+    }
 
     private static Class<?> getMappingClass(final Mapping mapping, final Field field) {
         Class<?> mappingClass;

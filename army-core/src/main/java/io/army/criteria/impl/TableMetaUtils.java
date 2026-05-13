@@ -26,6 +26,7 @@ import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.util.Pair;
 import io.army.util._Assert;
+import io.army.util._Collections;
 import io.army.util._StringUtils;
 
 import java.lang.reflect.Field;
@@ -119,59 +120,11 @@ public abstract class TableMetaUtils {
 
 
     static int columnPrecision(Column column, FieldMeta<?> fieldMeta, MetaContext context) {
-        final int value = column.precision();
-        if (value != Integer.MIN_VALUE) {
-            return value;
-        }
-        final String key, configValue;
-        key = context.tempBuilderAndClear()
-                .append(fieldMeta.tableMeta().javaType().getName())
-                .append('.')
-                .append(fieldMeta.fieldName())
-                .append('.')
-                .append("Column")
-                .append('.')
-                .append("precision")
-                .toString();
-
-        configValue = context.tableMetaProperties().getProperty(key);
-        if (!_StringUtils.hasText(configValue)) {
-            throw new MetaException(String.format("%s no config", key));
-        }
-        try {
-            return Integer.parseInt(configValue.trim());
-        } catch (NumberFormatException e) {
-            String m = String.format("%s config error", key);
-            throw new MetaException(m, e);
-        }
+        return columnIntValue(column.precision(), "precision", fieldMeta, context);
     }
 
     static int columnScale(Column column, FieldMeta<?> fieldMeta, MetaContext context) {
-        final int value = column.scale();
-        if (value != Integer.MIN_VALUE) {
-            return value;
-        }
-        final String key, configValue;
-        key = context.tempBuilderAndClear()
-                .append(fieldMeta.tableMeta().javaType().getName())
-                .append('.')
-                .append(fieldMeta.fieldName())
-                .append('.')
-                .append("Column")
-                .append('.')
-                .append("scale")
-                .toString();
-
-        configValue = context.tableMetaProperties().getProperty(key);
-        if (!_StringUtils.hasText(configValue)) {
-            throw new MetaException(String.format("%s no config", key));
-        }
-        try {
-            return Integer.parseInt(configValue.trim());
-        } catch (NumberFormatException e) {
-            String m = String.format("%s config error", key);
-            throw new MetaException(m, e);
-        }
+        return columnIntValue(column.scale(), "scale", fieldMeta, context);
     }
 
     public static Class<?> fieldJavaType(Class<?> domainClass, Field field, Properties tableProperties, StringBuilder tempBuilder) {
@@ -224,7 +177,53 @@ public abstract class TableMetaUtils {
         return _MappingFactory.map(field);
     }
 
-    static String tableName(Table table, Class<?> domainClass, MetaContext context) {
+    static SchemaMeta schemaMeta(Table table, Class<?> domainClass, MetaContext context) {
+        final String[] methods = {"catalog", "schema"};
+        final String[] values = {table.catalog(), table.schema()};
+
+        String key, value, configValue;
+        for (int i = 0; i < methods.length; i++) {
+            value = values[i];
+            switch (value) {
+                case "":
+                case DEFAULT_EXP:
+                case RUNTIME_EXP: {
+                    key = context.tempBuilderAndClear()
+                            .append(domainClass.getName())
+                            .append('.')
+                            .append("Table")
+                            .append('.')
+                            .append(methods[i])
+                            .toString();
+                    configValue = context.tableMetaProperties().getProperty(key);
+                    if (_StringUtils.hasText(configValue)) {
+                        values[i] = configValue.trim();
+                    } else switch (value) {
+                        case DEFAULT_EXP:
+                            values[i] = "";
+                            break;
+                        case RUNTIME_EXP:
+                            throw new MetaException(String.format("%s no config", key));
+                        default:
+                            throw new IllegalStateException("bug");
+                    }
+                }
+                break;
+                case OPTIONAL_EXP: {
+                    String m = String.format("%s in %s %s.%s is unsupported", value, domainClass.getName(),
+                            "Table", methods[i]);
+                    throw new MetaException(m);
+                }
+                default:
+                    // no-op
+
+            } // switch
+
+        } // loop
+        return _SchemaMetaFactory.getSchema(values[0], values[1]);
+    }
+
+    static String tableName(Table table, SchemaMeta schemaMeta, Class<?> domainClass, MetaContext context) {
         final String tableName = table.name();
         if (!_StringUtils.hasText(tableName)) {
             String m = String.format("Domain[%s] table name required", domainClass.getName());
@@ -257,6 +256,11 @@ public abstract class TableMetaUtils {
                 };
             }
             break;
+            case OPTIONAL_EXP: {
+                String m = String.format("%s in %s %s.%s is unsupported", tableName, domainClass.getName(),
+                        "Table", "name");
+                throw new MetaException(m);
+            }
             default: {
                 if (_StringUtils.isCamelCase(tableName)) {
                     throw tableNameIsCamel(domainClass);
@@ -264,6 +268,7 @@ public abstract class TableMetaUtils {
                 finalName = tableName;
             }
         }
+        context.validateTableName(schemaMeta, domainClass, finalName);
         return finalName;
     }
 
@@ -295,6 +300,11 @@ public abstract class TableMetaUtils {
                 };
             }
             break;
+            case OPTIONAL_EXP: {
+                String m = String.format("%s in %s %s.%s is unsupported", comment, domainClass.getName(),
+                        "Table", "comment");
+                throw new MetaException(m);
+            }
             default: {
                 if (!_StringUtils.hasText(comment)) {
                     String m = String.format("%s %s.%s no text", domainClass.getName(), "Table", "comment");
@@ -401,13 +411,13 @@ public abstract class TableMetaUtils {
         return new DomainPair(list, parentDomainClass);
     }
 
-
-    static <T> Map<String, FieldMeta<T>> createFieldMetaMap(final TableMeta<T> tableMeta, final MetaContext context) {
+    static <T> List<FieldMeta<T>> createFieldMetaList(final TableMeta<T> tableMeta, final MetaContext context) {
         final Class<?> domainClass = tableMeta.javaType();
 
-        final Map<String, FieldMeta<T>> map = new HashMap<>();
+        final List<FieldMeta<T>> list = new ArrayList<>(20);
         final boolean inheritance = domainClass.getAnnotation(Inheritance.class) != null;
-        FieldMeta<?> fieldMeta;
+        Field[] fieldArray;
+        Field field;
         for (Class<?> clazz = domainClass; clazz != null; clazz = clazz.getSuperclass()) {
 
             if (clazz != domainClass && clazz.getAnnotation(Inheritance.class) != null) {
@@ -423,20 +433,32 @@ public abstract class TableMetaUtils {
                 break;
             }
 
-            for (Field field : clazz.getDeclaredFields()) {
+            fieldArray = clazz.getDeclaredFields();
+            for (int i = fieldArray.length - 1; i > -1; i--) {
+                field = fieldArray[i];
                 if (Modifier.isStatic(field.getModifiers())) {
                     continue;
                 }
                 if (field.getAnnotation(Column.class) == null) {
                     continue;
                 }
-
-                fieldMeta = map.putIfAbsent(field.getName(), TableFieldMeta.createFieldMeta(tableMeta, field, context));
-                if (fieldMeta != null) {
-                    throw fieldMetaDuplication(fieldMeta);
-                }
+                list.add(TableFieldMeta.createFieldMeta(tableMeta, field, context));
             } // field loop
+
         } // class loop
+
+        Collections.reverse(list);
+        return List.copyOf(list);
+    }
+
+
+    static <T> Map<String, FieldMeta<T>> createFieldMap(final List<FieldMeta<T>> list) {
+        final Map<String, FieldMeta<T>> map = _Collections.hashMapForSize(list.size());
+        for (FieldMeta<T> field : list) {
+            if (map.putIfAbsent(field.fieldName(), field) != null) {
+                throw fieldMetaDuplication(field);
+            }
+        }
         return Map.copyOf(map);
     }
 
@@ -744,6 +766,50 @@ public abstract class TableMetaUtils {
     }
 
 
+    /// @see #columnPrecision(Column, FieldMeta, MetaContext)
+    /// @see #columnScale(Column, FieldMeta, MetaContext)
+    private static int columnIntValue(final int value, String method, FieldMeta<?> fieldMeta, MetaContext context) {
+        final int finalValue;
+        switch (value) {
+            case Column.DEFAULT_EXP:
+            case Column.RUNTIME_EXP: {
+                final String key, configValue;
+                key = context.tempBuilderAndClear()
+                        .append(fieldMeta.tableMeta().javaType().getName())
+                        .append('.')
+                        .append(fieldMeta.fieldName())
+                        .append('.')
+                        .append("Column")
+                        .append('.')
+                        .append(method)
+                        .toString();
+
+                configValue = context.tableMetaProperties().getProperty(key);
+                if (_StringUtils.hasText(configValue)) {
+                    try {
+                        finalValue = Integer.parseInt(configValue.trim());
+                    } catch (NumberFormatException e) {
+                        throw new MetaException(String.format("%s config error", key), e);
+                    }
+                } else switch (value) {
+                    case Column.DEFAULT_EXP:
+                        finalValue = -1;
+                        break;
+                    case Column.RUNTIME_EXP:
+                        throw new MetaException(String.format("%s no config", key));
+                    default:
+                        throw new IllegalStateException("bug");
+                }
+            }
+            break;
+            default:
+                finalValue = value;
+
+        } // switch
+        return finalValue;
+    }
+
+
     static MetaException notFoundDiscriminator(String fieldName, Class<?> domainClass) {
         String m = String.format("Not found discriminator[%s] in domain[%s].", fieldName, domainClass.getName());
         return new MetaException(m);
@@ -780,7 +846,7 @@ public abstract class TableMetaUtils {
         return new MetaException(m);
     }
 
-    /// @see #createFieldMetaMap(TableMeta, MetaContext)
+    /// @see #createFieldMap(List)
     private static MetaException fieldMetaDuplication(FieldMeta<?> fieldMeta) {
         String m = String.format("%s.%s duplication.",
                 fieldMeta.tableMeta().javaType().getName(), fieldMeta.fieldName());

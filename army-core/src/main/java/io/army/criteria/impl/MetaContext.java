@@ -18,12 +18,15 @@ package io.army.criteria.impl;
 
 import io.army.lang.Nullable;
 import io.army.meta.IndexColumnMeta;
+import io.army.meta.SchemaMeta;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 interface MetaContext {
+
+    void validateTableName(SchemaMeta meta, Class<?> domainClass, String tableName);
 
     void validateColumnName(Class<?> domainClass, String columnName);
 
