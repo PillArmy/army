@@ -16,6 +16,8 @@
 
 package io.army.generator.snowflake;
 
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,23 +27,60 @@ final class SystemClock {
 
 
     public static long now() {
-        return Holder.INSTANCE.getNow();
+        return Holder.INSTANCE.nowMills;
     }
 
     private volatile long nowMills;
 
+    private volatile DatePair datePair;
+
     private SystemClock() {
         this.nowMills = System.currentTimeMillis();
-
-    }
-
-
-    private long getNow() {
-        return this.nowMills;
     }
 
     private synchronized void updateNow() {
         this.nowMills = System.currentTimeMillis();
+    }
+
+    public static LocalDate nowDate() {
+        DatePair pair;
+        pair = Holder.INSTANCE.datePair;
+        if (pair == null || now() > pair.boundaryTime) {
+            pair = updateDatePair();
+        }
+        return pair.date;
+    }
+
+    private static DatePair updateDatePair() {
+
+        final LocalDate now;
+        now = LocalDate.now();
+
+        final long boundaryTime;
+        boundaryTime = now.plusDays(1)
+                .atStartOfDay(ZoneOffset.systemDefault())
+                .toInstant()
+                .toEpochMilli();
+
+        final DatePair pair;
+        pair = new DatePair(boundaryTime, now);
+
+        synchronized (SystemClock.class) {
+            Holder.INSTANCE.datePair = pair;
+        }
+        return pair;
+    }
+
+    private static final class DatePair {
+
+        private final long boundaryTime;
+
+        private final LocalDate date;
+
+        private DatePair(long boundaryTime, LocalDate date) {
+            this.boundaryTime = boundaryTime;
+            this.date = date;
+        }
     }
 
 

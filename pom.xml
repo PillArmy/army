@@ -23,8 +23,8 @@
         <module>army-postgre</module>
         <module>army-sqlite</module>
         <module>army-test-example</module>
-        <module>army-model-chat-memory</module>
-        <module>army-vector-store</module>
+        <module>army-spring-ai-model-chat-memory</module>
+        <module>army-spring-ai-vector-store</module>
     </modules>
 
     <name>army</name>
@@ -108,51 +108,61 @@
                 <artifactId>army-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-struct</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-annotation</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-jdbc</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-jdbd</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-example</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-postgre</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-sync</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-reactive</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-spring</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-mysql</artifactId>
@@ -161,13 +171,13 @@
 
             <dependency>
                 <groupId>io.qinarmy</groupId>
-                <artifactId>army-model-chat-memory</artifactId>
+                <artifactId>army-spring-ai-model-chat-memory</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.qinarmy</groupId>
-                <artifactId>army-vector-store</artifactId>
+                <artifactId>army-spring-ai-vector-store</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -656,6 +666,12 @@
                 <groupId>io.jdbd.mysql</groupId>
                 <artifactId>jdbd-mysql</artifactId>
                 <version>${jdbd.mysql.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.milvus</groupId>
+                <artifactId>milvus-sdk-java</artifactId>
+                <version>2.6.18</version>
             </dependency>
 
 

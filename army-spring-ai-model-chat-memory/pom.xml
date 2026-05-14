@@ -9,7 +9,7 @@
         <version>0.6.8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>army-model-chat-memory</artifactId>
+    <artifactId>army-spring-ai-model-chat-memory</artifactId>
 
 
     <dependencies>

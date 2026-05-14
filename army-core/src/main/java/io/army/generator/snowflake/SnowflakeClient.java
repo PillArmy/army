@@ -28,6 +28,5 @@ public interface SnowflakeClient {
     boolean registerGenerator(long startTime, Consumer<Worker> workerConsumer)
             throws SnowflakeWorkerException;
 
-    Worker currentWorker();
 
 }

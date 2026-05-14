@@ -45,6 +45,11 @@ import static java.time.temporal.ChronoField.*;
 public final class SnowflakeGenerator implements FieldGenerator {
 
     public static SnowflakeGenerator create(final FieldMeta<?> field, final SnowflakeClient client) {
+        if (!(client instanceof SingleJvmSnowflakeClient)) {
+            client.registerGenerator(Snowflakes.START_TIME, Snowflakes::updateWorker);
+        }
+
+
         final GeneratorMeta meta;
         meta = field.generator();
         if (meta == null) {
@@ -87,7 +92,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
         }
         return INSTANCE_MAP.computeIfAbsent(startTime, time -> {
             final Snowflake snowflake;
-            snowflake = Snowflake.create(time);
+            snowflake = Snowflake.getInstance(time);
             final SnowflakeGenerator generator = new SnowflakeGenerator(snowflake);
             client.registerGenerator(generator.snowflake.startTime, generator::updateWorker);
             if (generator.worker == null) {
@@ -108,6 +113,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
 
 
     /// mills
+    ///
     /// @see Param
     public static final String START_TIME = "startTime";
 
@@ -116,7 +122,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
     public static final String SUFFIX_LENGTH = "suffixLength";
 
 
-    private static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
+    public static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
             .appendValue(YEAR, 4, 10, SignStyle.NEVER)
             .appendValue(MONTH_OF_YEAR, 2)
             .appendValue(DAY_OF_MONTH, 2)
@@ -139,7 +145,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
         final Object nextSequence;
         if (javaType == Long.class || javaType == long.class) {
             final Worker worker = this.worker;
-            nextSequence = this.snowflake.next(worker.dataCenterId, worker.workerId);
+            nextSequence = this.snowflake.next(worker, 1, null);
         } else if (javaType == BigInteger.class) {
             nextSequence = new BigInteger(this.nextAsString(field, domain));
         } else if (javaType == String.class) {
@@ -168,7 +174,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
 
         final Worker worker = this.worker;
         final String snowSequence;
-        snowSequence = Long.toString(this.snowflake.next(worker.dataCenterId, worker.workerId));
+        snowSequence = Long.toString(this.snowflake.next(worker, 1, null));
         final boolean hasDate;
         hasDate = "true".equals(meta.params().get(DATE));
         final String sequence;

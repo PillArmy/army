@@ -16,9 +16,14 @@
 
 package io.army.generator.snowflake;
 
+import io.army.lang.Nullable;
+import io.army.util._ResourceUtils;
+
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.LongConsumer;
 
 public final class Snowflake {
 
@@ -27,11 +32,10 @@ public final class Snowflake {
 
     // private static final Logger LOG = LoggerFactory.getLogger(Snowflake.class);
 
-    public static synchronized Snowflake create(final long startTime) {
+    public static Snowflake getInstance(final long startTime) {
         if (startTime < 0) {
             throw new IllegalArgumentException("startTime must great than or equals 0");
         }
-
         return INSTANCE_MAP.computeIfAbsent(startTime, Snowflake::new);
     }
 
@@ -54,6 +58,32 @@ public final class Snowflake {
 
     public static final byte MAX_DATA_CENTER_ID = MAX_WORKER_ID;
 
+    public static final long MAX_ACCEPT_BACKWARD_MS;
+
+
+    static {
+        final Properties properties;
+        properties = _ResourceUtils.loadArmyProperties(Snowflake.class.getSimpleName());
+        final String key, value;
+        key = Snowflake.class.getName() + '.' + "max_accept_backward_ms";
+        value = properties.getProperty(key, "20");
+
+        final long mills;
+        try {
+            mills = Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            String m = String.format("%s config error", key);
+            throw new RuntimeException(m, e);
+        }
+        if (mills < 0 || mills > 1000) {
+            String m = String.format("%s config error", key);
+            throw new RuntimeException(m);
+        }
+        MAX_ACCEPT_BACKWARD_MS = mills;
+
+    }
+
+
     public final long startTime;
 
     /// (0~4095)
@@ -64,56 +94,67 @@ public final class Snowflake {
 
     private Snowflake(final long startTime) {
         this.startTime = startTime;
-        this.lastTimestamp = System.currentTimeMillis();  // don't use  SystemClock.now();
+        this.lastTimestamp = System.currentTimeMillis(); // don't use  SystemClock.now();
     }
 
-    public long next(final long dataCenterId, final long workerId) {
-        if (dataCenterId > MAX_DATA_CENTER_ID || dataCenterId < 0) {
-            String m = String.format("Data center id[%s] couldn't be greater than %s or less than 0",
-                    dataCenterId, MAX_DATA_CENTER_ID);
-            throw new IllegalArgumentException(m);
+    public long next(final Worker worker, final int count, final @Nullable LongConsumer consumer) {
+        validateArgs(worker, count, consumer);
+
+        final long dataCenterId = worker.dataCenterId, workerId = worker.workerId;
+
+        final long[] array;
+        if (consumer == null) {
+            array = null;
+        } else {
+            array = new long[count];
         }
-        if (workerId > MAX_WORKER_ID || workerId < 0) {
-            String m = String.format("Worker id[%s] couldn't be greater than %s or less than 0",
-                    workerId, MAX_WORKER_ID);
-            throw new IllegalArgumentException(m);
-        }
+
+        long lastId = 0;
 
         synchronized (this) {
-            long timestamp;
-            timestamp = SystemClock.now();
-            final long lastTimestamp = this.lastTimestamp;
-
-            if (timestamp < lastTimestamp && (timestamp = System.currentTimeMillis()) < lastTimestamp) {
-                timestamp = waitClock(lastTimestamp, timestamp);
-            }
-            long sequence = this.sequence;
+            long lastTimestamp, timestamp, sequence;
+            lastTimestamp = this.lastTimestamp;
+            sequence = this.sequence;
+            timestamp = nowTimestamp(lastTimestamp);
 
             if (timestamp != lastTimestamp) {
-                // reset sequence
-                sequence = 0L;
-            } else if ((sequence = (++sequence) & SEQUENCE_MASK) == 0) {
-                // block util then millis
-                timestamp = System.currentTimeMillis(); // don't use  SystemClock.now();
-                if (timestamp <= lastTimestamp) {
-                    try {
-                        this.wait(1L);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    timestamp = System.currentTimeMillis(); // don't use  SystemClock.now();
-
-                }
-                sequence = (++sequence) & SEQUENCE_MASK;
+                sequence = -1L;
             }
-            this.lastTimestamp = timestamp;
-            this.sequence = sequence;
-            return ((timestamp - this.startTime) << TIMESTAMP_LEFT_SHIFT)
-                    | (dataCenterId << DATA_CENTER_SHIFT)
-                    | (workerId << SEQUENCE_BITS)
-                    | sequence;
-        }
 
+            for (int i = 0; i < count; i++) {
+
+                if ((++sequence & SEQUENCE_MASK) == 0L && sequence != 0L) {
+                    sequence = 0;
+                    timestamp = nowTimestamp(timestamp); // use timestamp
+                    if (timestamp == lastTimestamp) {
+                        timestamp = waitClock(lastTimestamp, timestamp);
+                    }
+                    lastTimestamp = timestamp;
+                }
+
+                lastId = ((timestamp - this.startTime) << TIMESTAMP_LEFT_SHIFT)
+                        | (dataCenterId << DATA_CENTER_SHIFT)
+                        | (workerId << SEQUENCE_BITS)
+                        | sequence;
+
+                if (array != null) {
+                    array[i] = lastId;
+                }
+
+            } // loop
+
+            this.lastTimestamp = lastTimestamp;
+            this.sequence = sequence;
+
+        } // synchronized
+
+
+        if (consumer != null) {
+            for (int i = 0; i < count; i++) {
+                consumer.accept(array[i]);
+            }
+        }
+        return lastId;
     }
 
 
@@ -142,33 +183,62 @@ public final class Snowflake {
     }
 
 
-    /*################################## blow protected method ##################################*/
+    private long nowTimestamp(final long lastTimestamp) {
+        long timestamp;
+        timestamp = SystemClock.now();
+        if (timestamp >= lastTimestamp) {
+            return timestamp;
+        }
+        return waitClock(lastTimestamp, timestamp);
+    }
 
     private long waitClock(final long lastTimestamp, long timestamp) {
-        final long offset = lastTimestamp - timestamp;
-        if (offset <= 5L) {
-            try {
-                this.wait(offset << 1L);
-                timestamp = System.currentTimeMillis(); // don't use  SystemClock.now();
-                if (timestamp < lastTimestamp) {
-                    throw clockMovedBackwards(offset);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            throw clockMovedBackwards(offset);
+        long diff = lastTimestamp - timestamp;
+        if (diff > MAX_ACCEPT_BACKWARD_MS) {
+            throw clockRollback(diff);
         }
+
+        while (true) {
+            timestamp = System.currentTimeMillis();
+            if (timestamp > lastTimestamp) {
+                break;
+            }
+            if (timestamp < lastTimestamp) {
+                diff = lastTimestamp - timestamp;
+                if (diff > MAX_ACCEPT_BACKWARD_MS) {
+                    throw clockRollback(diff);
+                }
+            }
+
+            Thread.onSpinWait();
+        } // loop
         return timestamp;
     }
 
 
-    private static IllegalStateException clockMovedBackwards(long offset) {
-        String m = String.format("Clock moved backwards. Refusing to generate id for %d milliseconds", offset);
-        return new IllegalStateException(m);
+    private static void validateArgs(final Worker worker, final int count, final @Nullable LongConsumer consumer) {
+        if (worker.dataCenterId > MAX_DATA_CENTER_ID || worker.dataCenterId < 0) {
+            String m = String.format("Data center id[%s] couldn't be greater than %s or less than 0",
+                    worker.dataCenterId, MAX_DATA_CENTER_ID);
+            throw new IllegalArgumentException(m);
+        }
+        if (worker.workerId > MAX_WORKER_ID || worker.workerId < 0) {
+            String m = String.format("Worker id[%s] couldn't be greater than %s or less than 0",
+                    worker.workerId, MAX_WORKER_ID);
+            throw new IllegalArgumentException(m);
+        }
+        if (count < 1) {
+            throw new IllegalArgumentException(String.format("%s[%s] error", "count", count));
+        } else if (count > 1 && consumer == null) {
+            throw new IllegalArgumentException(String.format("%s[%s] and %s not match", "count", count, "consumer"));
+        }
     }
 
 
+    private static IllegalStateException clockRollback(long diff) {
+        String m = "Clock rollback too severe, ID generation rejected! Rollback milliseconds: " + diff;
+        return new IllegalStateException(m);
+    }
 
 
 }

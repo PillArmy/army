@@ -32,10 +32,4 @@ public final class SingleJvmSnowflakeClient implements SnowflakeClient {
         return false;
     }
 
-    @Override
-    public Worker currentWorker() {
-        return Worker.ZERO;
-    }
-
-
 }

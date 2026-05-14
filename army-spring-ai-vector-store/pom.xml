@@ -9,7 +9,7 @@
         <version>0.6.8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>army-vector-store</artifactId>
+    <artifactId>army-spring-ai-vector-store</artifactId>
 
 
     <dependencies>

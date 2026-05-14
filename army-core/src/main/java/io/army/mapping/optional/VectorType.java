@@ -58,7 +58,7 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
     @Override
     public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
         if (meta.serverDatabase() != Database.PostgreSQL) {
-            throw MAP_ERROR_HANDLER.apply(this, meta);
+            throw mapError(this, meta);
         }
         return PgType.VECTOR;
     }
@@ -132,6 +132,7 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
         }
         return vector;
     }
+
 
     public static void validateVector(MappingType type, DataType dataType, final String source) {
         if (source.charAt(0) != '[' || source.charAt(source.length() - 1) != ']') {
