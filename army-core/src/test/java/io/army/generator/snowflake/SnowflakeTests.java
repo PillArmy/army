@@ -14,7 +14,7 @@ public class SnowflakeTests {
 
     @Test(invocationCount = 30000, threadPoolSize = 6)
     public void defaultNextBatch() {
-        final int count = 4096;
+        final int count = Snowflake.SEQUENCE_MASK;
         final long startNanoSecond = System.nanoTime();
 
         Snowflakes.defaultNext(count, _ -> {
@@ -25,7 +25,7 @@ public class SnowflakeTests {
 
     @Test(invocationCount = 30000, threadPoolSize = 6)
     public void defaultNext() {
-        final int count = 4096;
+        final int count = Snowflake.SEQUENCE_MASK;
         final long startNanoSecond = System.nanoTime();
 
         for (int i = 0; i < count; i++) {
@@ -130,18 +130,17 @@ public class SnowflakeTests {
     }
 
 
-    @Test(invocationCount = 30000, threadPoolSize = 6)
+    @Test(invocationCount = 40000, threadPoolSize = 10)
     public void defaultNextWithDate() {
-        Assert.assertTrue(Snowflake.SUPPORT_BUILDER);
 
         final int count = 8192;
         final Set<String> set = _Collections.hashSetForSize(count);
         final long startNanoSecond = System.nanoTime();
 
         //  Snowflakes.defaultNextWithDate(count,"8888","999",set::add);
-        Snowflakes.defaultNextWithDate(count, "xx", "bb", value -> {
+        Snowflakes.defaultNextWithDate(count, "xx", "bb", null, value -> {
             Assert.assertTrue(value.startsWith("20260515"));
-            System.out.println(value);
+            //  System.out.println(value);
             set.add(value);
         });
 

@@ -75,15 +75,15 @@ public abstract class Snowflakes {
     /// @param consumer non-null
     public static void nextWithDate(final long startTime, int count, Consumer<String> consumer) {
         Snowflake.getInstance(startTime)
-                .nextWithDate(worker, count, null, null, consumer);
+                .next(worker, count, createLongConsumer(null, null, null, consumer));
     }
 
     /// @param count    {@code >} 0, Efficient for count ≤ 4096; split into 4096 chunks if larger.
     /// @param consumer non-null
     public static void nextWithDate(final long startTime, int count, @Nullable String prefix,
-                                    @Nullable String suffix, Consumer<String> consumer) {
+                                    @Nullable String suffix, @Nullable StringBuilder builder, Consumer<String> consumer) {
         Snowflake.getInstance(startTime)
-                .nextWithDate(worker, count, prefix, suffix, consumer);
+                .next(worker, count, createLongConsumer(prefix, suffix, builder, consumer));
     }
 
 
@@ -106,11 +106,13 @@ public abstract class Snowflakes {
     /// @param count    {@code >} 0, Efficient for count ≤ 4096; split into 4096 chunks if larger.
     /// @param consumer non-null
     public static void defaultNextWithDate(int count, Consumer<String> consumer) {
-        DEFAULT_SNOWFLAKE.nextWithDate(worker, count, null, null, consumer);
+        DEFAULT_SNOWFLAKE.next(worker, count, createLongConsumer(null, null, null, consumer));
     }
 
-    public static void defaultNextWithDate(int count, @Nullable String prefix, @Nullable String suffix, Consumer<String> consumer) {
-        DEFAULT_SNOWFLAKE.nextWithDate(worker, count, prefix, suffix, consumer);
+    public static void defaultNextWithDate(int count, @Nullable String prefix, @Nullable String suffix,
+                                           @Nullable StringBuilder builder, Consumer<String> consumer) {
+
+        DEFAULT_SNOWFLAKE.next(worker, count, createLongConsumer(prefix, suffix, builder, consumer));
     }
 
 
@@ -118,6 +120,40 @@ public abstract class Snowflakes {
         Snowflakes.worker = worker;
     }
 
+    @Nullable
+    private static LongConsumer createLongConsumer(@Nullable String prefix, @Nullable String suffix,
+                                                   @Nullable StringBuilder builder, @Nullable Consumer<String> consumer) {
+        if (consumer == null) {
+            return null;
+        }
+        final StringBuilder sb;
+        if (builder == null) {
+            int length = 8 + 19;
+            if (prefix != null) {
+                length += prefix.length();
+            }
+            if (suffix != null) {
+                length += suffix.length();
+            }
+            sb = new StringBuilder(length);
+        } else {
+            sb = builder;
+        }
+        return value -> {
+            sb.setLength(0); // clear
+
+            sb.append(SnowflakeGenerator.FORMATTER.format(SystemClock.nowDate()));
+
+            if (prefix != null) {
+                sb.append(prefix);
+            }
+            sb.append(value);
+            if (suffix != null) {
+                sb.append(suffix);
+            }
+            consumer.accept(sb.toString());
+        };
+    }
 
 
 }

@@ -23,7 +23,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 
 public final class Snowflake {
@@ -62,17 +61,10 @@ public final class Snowflake {
 
     public static final int MAX_ACCEPT_BACKWARD_MS;
 
-    public static final boolean SUPPORT_BUILDER;
-
-    public static final int PREFIX_MAX_LENGTH;
-
-    public static final int SUFFIX_MAX_LENGTH;
-
-
     static {
         final Properties properties;
         properties = _ResourceUtils.loadArmyProperties(Snowflake.class.getSimpleName());
-        String key, value;
+        final String key, value;
         key = Snowflake.class.getName() + '.' + "max_accept_backward_ms";
         value = properties.getProperty(key, "20");
 
@@ -83,18 +75,6 @@ public final class Snowflake {
                 String m = String.format("%s config error", key);
                 throw new RuntimeException(m);
             }
-
-            key = Snowflake.class.getName() + '.' + "support" + '.' + "builder";
-            value = properties.getProperty(key, "false");
-            SUPPORT_BUILDER = Boolean.parseBoolean(value);
-
-            key = Snowflake.class.getName() + '.' + "prefix_max_length";
-            value = properties.getProperty(key, "5");
-            PREFIX_MAX_LENGTH = Integer.parseInt(value);
-
-            key = Snowflake.class.getName() + '.' + "suffix_max_length";
-            value = properties.getProperty(key, "5");
-            SUFFIX_MAX_LENGTH = Integer.parseInt(value);
         } catch (NumberFormatException e) {
             String m = String.format("%s config error", key);
             throw new RuntimeException(m, e);
@@ -103,8 +83,6 @@ public final class Snowflake {
 
 
     public final long startTime;
-
-    private final StringBuilder builder;
 
     /// (0~4095)
     private long sequence = -1L;
@@ -115,11 +93,6 @@ public final class Snowflake {
     private Snowflake(final long startTime) {
         this.startTime = startTime;
         this.lastTimestamp = System.currentTimeMillis(); // don't use  SystemClock.now();
-        if (SUPPORT_BUILDER) {
-            this.builder = new StringBuilder(8 + PREFIX_MAX_LENGTH + 19 + SUFFIX_MAX_LENGTH);
-        } else {
-            this.builder = null;
-        }
     }
 
     /// @param count    {@code >} 0, Efficient for count ≤ 4096; split into 4096 chunks if larger.
@@ -179,37 +152,14 @@ public final class Snowflake {
 
 
         if (consumer != null) {
-            if (this.builder != null && consumer instanceof BuilderConsumer) {
-                synchronized (this.builder) {
-                    for (int i = 0; i < count; i++) {
-                        consumer.accept(array[i]);
-                    }
-                } // synchronized (this.builder)
-            } else {
-                for (int i = 0; i < count; i++) {
-                    consumer.accept(array[i]);
-                }
+            for (int i = 0; i < count; i++) {
+                consumer.accept(array[i]);
             }
-
         }
         return lastId;
     }
 
 
-    public void nextWithDate(final Worker worker, final int count, final @Nullable String prefix, final @Nullable String suffix,
-                             final Consumer<String> consumer) {
-        Objects.requireNonNull(consumer);
-        if (prefix != null && prefix.length() > PREFIX_MAX_LENGTH) {
-            String m = String.format("%s[%s] %s %s", "prefix", prefix, "greater", PREFIX_MAX_LENGTH);
-            throw new IllegalArgumentException(m);
-        } else if (suffix != null && suffix.length() > SUFFIX_MAX_LENGTH) {
-            String m = String.format("%s[%s] %s %s", "suffix", prefix, "greater", SUFFIX_MAX_LENGTH);
-            throw new IllegalArgumentException(m);
-        }
-
-        next(worker, count, new BuilderConsumer(prefix, suffix, consumer, this.builder));
-
-    }
 
 
     @Override
@@ -299,47 +249,6 @@ public final class Snowflake {
         String m = "Clock rollback too severe, ID generation rejected! Rollback milliseconds: " + diff;
         return new IllegalStateException(m);
     }
-
-    private static final class BuilderConsumer implements LongConsumer {
-
-        private final String prefix;
-
-        private final String suffix;
-
-        private final Consumer<String> consumer;
-
-        private final StringBuilder builder;
-
-        private BuilderConsumer(@Nullable String prefix, @Nullable String suffix,
-                                Consumer<String> consumer, @Nullable StringBuilder builder) {
-            this.prefix = prefix;
-            this.suffix = suffix;
-            this.consumer = consumer;
-            if (builder == null) {
-                this.builder = new StringBuilder(40);
-            } else {
-                this.builder = builder;
-            }
-
-        }
-
-        @Override
-        public void accept(final long value) {
-            final StringBuilder builder = this.builder;
-            builder.setLength(0);
-
-            builder.append(SnowflakeGenerator.FORMATTER.format(SystemClock.nowDate()));
-            if (this.prefix != null) {
-                builder.append(this.prefix);
-            }
-            builder.append(value);
-            if (this.suffix != null) {
-                builder.append(this.suffix);
-            }
-            this.consumer.accept(builder.toString());
-        }
-
-    } // BuilderConsumer
 
 
 }
