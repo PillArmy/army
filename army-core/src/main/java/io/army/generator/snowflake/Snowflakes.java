@@ -66,14 +66,24 @@ public abstract class Snowflakes {
 
     public static String nextWithDate(final long startTime) {
         final long suffix;
-        suffix = next(startTime);
+        suffix = Snowflake.getInstance(startTime)
+                .next(worker, 1, null);
         return SnowflakeGenerator.FORMATTER.format(SystemClock.nowDate()) + suffix;
     }
 
     /// @param count    {@code >} 0, Efficient for count ≤ 4096; split into 4096 chunks if larger.
-    /// @param consumer when count {@code >} 0, consumer can't be null
-    public static void nextWithDate(final long startTime, int count, @Nullable Consumer<String> consumer) {
-        next(startTime, count, createLongConsumer(consumer));
+    /// @param consumer non-null
+    public static void nextWithDate(final long startTime, int count, Consumer<String> consumer) {
+        Snowflake.getInstance(startTime)
+                .nextWithDate(worker, count, null, null, consumer);
+    }
+
+    /// @param count    {@code >} 0, Efficient for count ≤ 4096; split into 4096 chunks if larger.
+    /// @param consumer non-null
+    public static void nextWithDate(final long startTime, int count, @Nullable String prefix,
+                                    @Nullable String suffix, Consumer<String> consumer) {
+        Snowflake.getInstance(startTime)
+                .nextWithDate(worker, count, prefix, suffix, consumer);
     }
 
 
@@ -83,8 +93,8 @@ public abstract class Snowflakes {
 
     /// @param count    {@code >} 0, Efficient for count ≤ 4096; split into 4096 chunks if larger.
     /// @param consumer when count {@code >} 0, consumer can't be null
-    public static void defaultNext(int count, @Nullable LongConsumer consumer) {
-        DEFAULT_SNOWFLAKE.next(worker, count, consumer);
+    public static long defaultNext(int count, @Nullable LongConsumer consumer) {
+        return DEFAULT_SNOWFLAKE.next(worker, count, consumer);
     }
 
     public static String defaultNextWithDate() {
@@ -94,9 +104,13 @@ public abstract class Snowflakes {
     }
 
     /// @param count    {@code >} 0, Efficient for count ≤ 4096; split into 4096 chunks if larger.
-    /// @param consumer when count {@code >} 0, consumer can't be null
-    public static void defaultNextWithDate(int count, @Nullable Consumer<String> consumer) {
-        DEFAULT_SNOWFLAKE.next(worker, count, createLongConsumer(consumer));
+    /// @param consumer non-null
+    public static void defaultNextWithDate(int count, Consumer<String> consumer) {
+        DEFAULT_SNOWFLAKE.nextWithDate(worker, count, null, null, consumer);
+    }
+
+    public static void defaultNextWithDate(int count, @Nullable String prefix, @Nullable String suffix, Consumer<String> consumer) {
+        DEFAULT_SNOWFLAKE.nextWithDate(worker, count, prefix, suffix, consumer);
     }
 
 
@@ -105,15 +119,5 @@ public abstract class Snowflakes {
     }
 
 
-    @Nullable
-    private static LongConsumer createLongConsumer(@Nullable Consumer<String> consumer) {
-        final LongConsumer longConsumer;
-        if (consumer == null) {
-            longConsumer = null;
-        } else {
-            longConsumer = value -> consumer.accept(SnowflakeGenerator.FORMATTER.format(SystemClock.nowDate()) + value);
-        }
-        return longConsumer;
-    }
 
 }

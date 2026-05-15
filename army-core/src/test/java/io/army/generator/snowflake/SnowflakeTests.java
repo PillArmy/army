@@ -109,7 +109,7 @@ public class SnowflakeTests {
         printTimeCost(startNanoSecond);
     }
 
-    @Test(invocationCount = 30000, threadPoolSize = 6)
+    @Test//(invocationCount = 30000, threadPoolSize = 6)
     public void defaultNext8192Set() {
         final int count = 8192;
         final Set<Long> set = _Collections.hashSetForSize(count);
@@ -119,9 +119,31 @@ public class SnowflakeTests {
         for (int i = 0; i < count; i++) {
 
             value = Snowflakes.defaultNext();
+            //  System.out.println(value);
             set.add(value);
 
         }
+
+        Assert.assertEquals(set.size(), count);
+
+        printTimeCost(startNanoSecond);
+    }
+
+
+    @Test(invocationCount = 30000, threadPoolSize = 6)
+    public void defaultNextWithDate() {
+        Assert.assertTrue(Snowflake.SUPPORT_BUILDER);
+
+        final int count = 8192;
+        final Set<String> set = _Collections.hashSetForSize(count);
+        final long startNanoSecond = System.nanoTime();
+
+        //  Snowflakes.defaultNextWithDate(count,"8888","999",set::add);
+        Snowflakes.defaultNextWithDate(count, "xx", "bb", value -> {
+            Assert.assertTrue(value.startsWith("20260515"));
+            System.out.println(value);
+            set.add(value);
+        });
 
         Assert.assertEquals(set.size(), count);
 
