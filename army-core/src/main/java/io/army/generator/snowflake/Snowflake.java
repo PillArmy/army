@@ -30,8 +30,6 @@ public final class Snowflake {
     private static final ConcurrentMap<Long, Snowflake> INSTANCE_MAP = new ConcurrentHashMap<>();
 
 
-    // private static final Logger LOG = LoggerFactory.getLogger(Snowflake.class);
-
     public static Snowflake getInstance(final long startTime) {
         if (startTime < 0) {
             throw new IllegalArgumentException("startTime must great than or equals 0");
@@ -145,7 +143,7 @@ public final class Snowflake {
 
             } // loop
 
-            this.lastTimestamp = lastTimestamp;
+            this.lastTimestamp = timestamp;
             this.sequence = sequence;
 
         } // synchronized
