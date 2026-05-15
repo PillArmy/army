@@ -87,7 +87,7 @@ public final class Snowflake {
     public final long startTime;
 
     /// (0~4095)
-    private long sequence = 0L;
+    private long sequence = -1L;
 
     private long lastTimestamp;
 
@@ -97,6 +97,8 @@ public final class Snowflake {
         this.lastTimestamp = System.currentTimeMillis(); // don't use  SystemClock.now();
     }
 
+    /// @param count    {@code >} 0, Efficient for count ≤ 4096; split into 4096 chunks if larger.
+    /// @param consumer when count {@code >} 0, consumer can't be null
     public long next(final Worker worker, final int count, final @Nullable LongConsumer consumer) {
         validateArgs(worker, count, consumer);
 
@@ -122,9 +124,9 @@ public final class Snowflake {
             }
 
             for (int i = 0; i < count; i++) {
-
-                if ((++sequence & SEQUENCE_MASK) == 0L && sequence != 0L) {
-                    sequence = 0;
+                sequence++;
+                if ((sequence & SEQUENCE_MASK) == 0) {
+                    sequence = 0L;
                     timestamp = nowTimestamp(timestamp); // use timestamp
                     if (timestamp == lastTimestamp) {
                         timestamp = waitClock(lastTimestamp, timestamp);
@@ -186,6 +188,12 @@ public final class Snowflake {
     private long nowTimestamp(final long lastTimestamp) {
         long timestamp;
         timestamp = SystemClock.now();
+        if (timestamp >= lastTimestamp) {
+            return timestamp;
+        }
+        // Avoid misjudging clock rollback
+        // SystemClock.now() reduces, rather than eliminates, calls to System.currentTimeMillis().
+        timestamp = System.currentTimeMillis();
         if (timestamp >= lastTimestamp) {
             return timestamp;
         }
