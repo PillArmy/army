@@ -81,7 +81,7 @@ public class SnowflakeTests {
         printTimeCost(startNanoSecond);
     }
 
-    @Test(invocationCount = 30000, threadPoolSize = 6)
+    @Test(invocationCount = 50000, threadPoolSize = 10)
     public void defaultNextBatch8192Set() {
         final int count = 8192;
         final Set<Long> set = _Collections.hashSetForSize(count);
