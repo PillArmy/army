@@ -102,6 +102,7 @@ abstract class FieldMetaUtils extends TableMetaUtils {
                 && javaType != int.class
                 && javaType != Long.class
                 && javaType != long.class
+                && javaType != String.class
                 && javaType != BigInteger.class) {
             throw _Exceptions.autoIdErrorJavaType((PrimaryFieldMeta<?>) field);
         }

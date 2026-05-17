@@ -17,7 +17,6 @@
 package io.army.spring.ai.vectorstore;
 
 import io.army.annotation.*;
-import io.army.lang.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -35,7 +34,7 @@ import java.util.Map;
 /// classpath:META-INF/army/TableMeta.properties:
 /// entity_class_name.IndexMeta[0].name=index_name
 /// entity_class_name.IndexMeta[0].type=index_type
-/// entity_class_name.IndexMeta[0].field_name.opclass=opclass
+/// entity_class_name.IndexMeta[0].field.field_name.opclass=opclass
 ///
 /// ${OPTIONAL} means that If you do not specify it, index will not be created.
 @Table(name = "${DEFAULT}",
@@ -49,8 +48,10 @@ public class SpringAiVectorStore {
     /// entity_class_name.field_name.Column.name=column_name
     ///
     /// If you do not specify it, {@link Long} will be used as the id java type.
+
     @Column(name = "${DEFAULT}")
-    private Object id;
+    @Mapping("${DEFAULT}")
+    private String id;
 
     @Column(name = "${DEFAULT}")
     private LocalDateTime createTime;
@@ -79,12 +80,11 @@ public class SpringAiVectorStore {
     @Mapping("io.army.mapping.optional.VectorType")
     private float[] embedding;
 
-
-    public Object getId() {
+    public String getId() {
         return id;
     }
 
-    public SpringAiVectorStore setId(Object id) {
+    public SpringAiVectorStore setId(String id) {
         this.id = id;
         return this;
     }
@@ -116,12 +116,11 @@ public class SpringAiVectorStore {
         return this;
     }
 
-    @Nullable
     public String getContent() {
         return content;
     }
 
-    public SpringAiVectorStore setContent(@Nullable String content) {
+    public SpringAiVectorStore setContent(String content) {
         this.content = content;
         return this;
     }
@@ -143,5 +142,4 @@ public class SpringAiVectorStore {
         this.embedding = embedding;
         return this;
     }
-
 }

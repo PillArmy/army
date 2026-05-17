@@ -179,6 +179,8 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
     private final boolean allColumnNotNull;
 
+    private final boolean createDdl;
+
     private final String comment;
 
     private final String tableOption;
@@ -206,9 +208,10 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
             this.schemaMeta = TableMetaUtils.schemaMeta(table, domainClass, context);
 
-            this.tableName = TableMetaUtils.tableName(table, this.schemaMeta, domainClass, context);
+            this.tableName = TableMetaUtils.tableName(table, domainClass, context);
             this.comment = TableMetaUtils.tableComment(table, domainClass, context);
             this.immutable = TableMetaUtils.immutable(table, domainClass);
+            this.createDdl = TableMetaUtils.tableCreateDdl(table, domainClass, context);
             this.allColumnNotNull = table.allColumnNotNull();
 
             this.tableOption = table.tableOptions();
@@ -260,6 +263,12 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
     @Override
     public final String comment() {
         return this.comment;
+    }
+
+
+    @Override
+    public final boolean isCreateDdl() {
+        return this.createDdl;
     }
 
     @Override

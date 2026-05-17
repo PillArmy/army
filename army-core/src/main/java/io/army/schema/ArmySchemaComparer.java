@@ -68,6 +68,9 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
         TableInfo tableInfo;
         for (TableMeta<?> table : tableMetas) {
+            if (!table.isCreateDdl()) {
+                continue;
+            }
             tableInfo = tableInfoMap.get(table.tableName());
             if (tableInfo == null) {
                 newTableList.add(table);

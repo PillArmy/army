@@ -85,16 +85,13 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
-    interface SqlIntegerOrDecimalType extends SqlNumber {
 
-    }
-
-    interface SqlInteger {
+    interface SqlInteger extends SqlNumber {
 
 
     }
 
-    interface SqlDecimal {
+    interface SqlDecimal extends SqlNumber {
 
     }
 
@@ -298,7 +295,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
         boolean equals(Object obj);
     }
 
-    interface SqlEnum extends SqlUserDefined, SqlString {
+    interface SqlEnum extends SqlUserDefined {
 
         List<String> enumLabelList();
 

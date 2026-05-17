@@ -18,12 +18,13 @@ package io.army.mapping.optional;
 
 import io.army.annotation.Column;
 import io.army.annotation.MappedSuperclass;
+import io.army.criteria.impl.MetaContext;
 import io.army.criteria.impl.TableMetaUtils;
+import io.army.criteria.impl._TableMetaFactory;
 import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
 import io.army.meta.MetaException;
 import io.army.struct.DefinedType;
-import io.army.util.Pair;
 import io.army.util._Assert;
 import io.army.util._StringUtils;
 
@@ -55,15 +56,19 @@ public abstract class CompositeFieldFactory {
         if (!(compositeType instanceof MappingType)) {
             throw new IllegalArgumentException();
         }
+
+        return createFieldList(compositeType);
+    }
+
+
+    private static List<CompositeField> createFieldList(final MappingType.SqlComposite compositeType) {
+
+        final MetaContext context = _TableMetaFactory.getContext();
         final Class<?> javaType = compositeType.javaType();
-
         final String[] fieldOrder = javaType.getAnnotation(DefinedType.class).fieldOrder();
-        final Map<String, Integer> fieldToOrder = _StringUtils.createOrderMap(fieldOrder);
 
+        final List<CompositeField> fieldList = new ArrayList<>(fieldOrder.length);
         Column column;
-
-        final List<Pair<Field, Column>> columnList = new ArrayList<>();
-
         for (Class<?> clazz = javaType; clazz != Object.class; clazz = clazz.getSuperclass()) {
             if (clazz != javaType && clazz.getAnnotation(MappedSuperclass.class) == null) {
                 break;
@@ -75,52 +80,29 @@ public abstract class CompositeFieldFactory {
                     continue;
                 }
                 // compile-time verification io.army.annotation.Column
-                columnList.add(Pair.create(field, column));
+                fieldList.add(new DefaultCompositeField(compositeType, field, column, context));
 
             } // field loop
 
         } // class loop
 
-        final int columnCount = columnList.size();
+        final int columnCount = fieldList.size();
         if (columnCount == 0) {
             throw definedTypeError(javaType, "no field");
         } else if (columnCount != fieldOrder.length) {
             throw definedTypeError(javaType, "fieldOrder length error");
         }
 
-
-        columnList.sort(Comparator.comparingInt(pair -> {
+        final Map<String, Integer> fieldToOrder = _StringUtils.createOrderMap(fieldOrder);
+        fieldList.sort(Comparator.comparingInt(field -> {
             final Integer order;
-            order = fieldToOrder.get(pair.first.getName());
+            order = fieldToOrder.get(field.fieldName());
             if (order == null) {
-                String m = String.format("%s not in fieldOrder", pair.first.getName());
+                String m = String.format("%s not in fieldOrder", field.fieldName());
                 throw definedTypeError(javaType, m);
             }
             return order;
         }));
-
-
-        Pair<Field, Column> pair;
-        Field field;
-
-
-        final List<CompositeField> fieldList = new ArrayList<>(columnCount);
-        final Map<String, Boolean> columnMap = new HashMap<>();
-        DefaultCompositeField compositeField;
-        for (int i = 0; i < columnCount; i++) {
-
-            pair = columnList.get(i);
-            field = pair.first;
-            column = pair.second;
-
-            compositeField = new DefaultCompositeField(compositeType, field, column);
-            if (columnMap.putIfAbsent(compositeField.columnName, Boolean.TRUE) != null) {
-                String m = String.format("column[%s] duplicate", compositeField.columnName);
-                throw definedTypeError(javaType, m);
-            }
-            fieldList.add(compositeField);
-
-        } // column lop
         return List.copyOf(fieldList);
     }
 
@@ -149,15 +131,18 @@ public abstract class CompositeFieldFactory {
         private final String collation;
 
 
-        private DefaultCompositeField(final MappingType.SqlComposite compositeType, Field field, Column column) {
+        private DefaultCompositeField(final MappingType.SqlComposite compositeType, Field field, Column column, MetaContext context) {
+            final Class<?> typeClass = compositeType.javaType();
+
             this.compositeType = compositeType;
             this.fieldName = field.getName();
             this.javaType = field.getType();
-            this.columnName = TableMetaUtils.columnName(column, field);
-            this.mappingType = _MappingFactory.map(field);
-            this.precision = column.precision();
-            this.scale = column.scale();
-            this.collation = column.collation();
+            this.mappingType = _MappingFactory.map(typeClass, field, context);
+
+            this.columnName = TableMetaUtils.columnName(typeClass, column, field, context);
+            this.precision = TableMetaUtils.columnPrecision(column, this, context);
+            this.scale = TableMetaUtils.columnScale(column, this, context);
+            this.collation = TableMetaUtils.columnCollation(column, this, context);
         }
 
         @Override

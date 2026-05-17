@@ -16,7 +16,6 @@
 
 package io.army.generator;
 
-import io.army.generator.snowflake.SingleJvmSnowflakeClient;
 import io.army.generator.snowflake.SnowflakeGenerator;
 import io.army.meta.FieldMeta;
 import io.army.meta.GeneratorMeta;
@@ -41,7 +40,7 @@ public final class StandaloneFieldGeneratorFactory implements FieldGeneratorFact
         final Class<?> javaType = meta.javaType();
         final FieldGenerator fieldGenerator;
         if (javaType == SnowflakeGenerator.class) {
-            fieldGenerator = SnowflakeGenerator.create(field, SingleJvmSnowflakeClient.INSTANCE);
+            fieldGenerator = SnowflakeGenerator.create(field);
         } else if (javaType == UUIDGenerator.class) {
             fieldGenerator = UUIDGenerator.create(field);
         } else {

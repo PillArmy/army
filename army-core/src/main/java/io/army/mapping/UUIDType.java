@@ -22,28 +22,37 @@ import io.army.executor.DataAccessException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public final class UUIDType extends _ArmyNoInjectionType {
 
 
     public static UUIDType from(final Class<?> javaType) {
-        if (javaType != UUID.class) {
+        final UUIDType type;
+        if (javaType == UUID.class) {
+            type = UUIDType.INSTANCE;
+        } else if (javaType == String.class) {
+            type = UUIDType.TEXT;
+        } else {
             throw errorJavaType(UUIDType.class, javaType);
         }
-        return INSTANCE;
+        return type;
     }
 
-    public static final UUIDType INSTANCE = new UUIDType();
+    public static final UUIDType INSTANCE = new UUIDType(UUID.class);
 
-    /// private constructor
-    private UUIDType() {
+    public static final UUIDType TEXT = new UUIDType(String.class);
 
+    private final Class<?> javaType;
+
+    private UUIDType(Class<?> javaType) {
+        this.javaType = javaType;
     }
 
     @Override
     public Class<?> javaType() {
-        return UUID.class;
+        return this.javaType;
     }
 
     @Override
@@ -98,7 +107,30 @@ public final class UUIDType extends _ArmyNoInjectionType {
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return toUUID(dataType, source, ACCESS_ERROR_HANDLER);
+        final UUID uuid;
+        uuid = toUUID(dataType, source, ACCESS_ERROR_HANDLER);
+        if (this.javaType == UUID.class) {
+            return uuid;
+        }
+        return uuid.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(UUIDType.class, this.javaType);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof UUIDType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
     }
 
 

@@ -805,7 +805,7 @@ final class AnnotationHandler {
                 this.errorMsgList.add(m);
             }
             indexName = indexName.toLowerCase(Locale.ROOT);
-            if (indexNameMap.putIfAbsent(indexName, Boolean.TRUE) != null) {
+            if (!indexName.startsWith("${") && indexNameMap.putIfAbsent(indexName, Boolean.TRUE) != null) {
                 String m = String.format("Domain %s index name[%s] duplication",
                         domain.getQualifiedName(), indexName);
                 this.errorMsgList.add(m);

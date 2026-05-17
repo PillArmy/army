@@ -583,14 +583,6 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         final StringBuilder builder = new StringBuilder();
         builder.append(ClassUtils.safeClassName(nonNull));
 
-        if (type instanceof _ArmyNoInjectionType
-                || nonNull instanceof Number
-                || nonNull instanceof Enum
-                || nonNull instanceof Temporal) {
-            builder.append('[')
-                    .append(nonNull)
-                    .append(']');
-        }
         return builder.append(" couldn't be converted by ")
                 .append(type)
                 .toString();

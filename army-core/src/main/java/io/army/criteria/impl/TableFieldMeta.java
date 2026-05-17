@@ -26,6 +26,7 @@ import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.generator.FieldGenerator;
 import io.army.generator.GeneratorStrategy;
+import io.army.generator.snowflake.SnowflakeGenerator;
 import io.army.lang.Nullable;
 import io.army.mapping.ArrayMappingType;
 import io.army.mapping.MappingType;
@@ -33,7 +34,6 @@ import io.army.mapping.MultiGenericsMappingType;
 import io.army.mapping._MappingFactory;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
-import io.army.util.ArrayUtils;
 import io.army.util._Assert;
 import io.army.util._Exceptions;
 
@@ -42,7 +42,9 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -59,18 +61,21 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
     static <T> FieldMeta<T> createFieldMeta(final TableMeta<T> table, final Field field, final MetaContext context) {
         final String fieldName = field.getName();
 
+        final MappingType type;
+        type = _MappingFactory.map(table.javaType(), field, context);
+
         final boolean idField = fieldName.equals(_MetaBridge.ID);
 
         final boolean arrayType;
-        arrayType = !idField && _MappingFactory.map(field) instanceof ArrayMappingType;
+        arrayType = !idField && type instanceof ArrayMappingType;
 
         final DefaultSimpleFieldMeta<T> fieldMeta;
         if (idField) {
-            fieldMeta = new DefaultPrimaryFieldMeta<>(table, field, context);
+            fieldMeta = new DefaultPrimaryFieldMeta<>(table, field, type, context);
         } else if (arrayType) {
-            fieldMeta = new DefaultArrayFieldMeta<>(table, field, context);
+            fieldMeta = new DefaultArrayFieldMeta<>(table, field, type, context);
         } else {
-            fieldMeta = new DefaultSimpleFieldMeta<>(table, field, context);
+            fieldMeta = new DefaultSimpleFieldMeta<>(table, field, type, context);
         }
         final TableFieldMeta<?> cache;
         cache = INSTANCE_MAP.putIfAbsent(fieldMeta, fieldMeta);
@@ -132,35 +137,38 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
     private final boolean codec;
 
-    private TableFieldMeta(final TableMeta<T> table, final Field field, final MetaContext context) throws MetaException {
+    private TableFieldMeta(final TableMeta<T> table, final Field field, MappingType type, final MetaContext context)
+            throws MetaException {
+
         this.table = (DefaultTableMeta<T>) table;
         final Class<?> domainClass = this.table.javaType;
+        this.fieldName = field.getName();
+        this.javaType = field.getType();
+        this.mappingType = type;
 
         try {
             final Column column;
             column = field.getAnnotation(Column.class);
-            final Properties tableMetaProperties = context.tableMetaProperties();
+            final boolean isDiscriminator;
+            isDiscriminator = FieldMetaUtils.isDiscriminator(domainClass, this.fieldName);
 
-            this.fieldName = field.getName();
-            this.javaType = TableMetaUtils.fieldJavaType(domainClass, field, tableMetaProperties, context.tempBuilderAndClear());
+            if (isDiscriminator && !Enum.class.isAssignableFrom(this.javaType)) {
+                String m = String.format("%s.%s is discriminator,but isn't enum.", domainClass.getName(), field.getName());
+                throw new MetaException(m);
+            }
+
+            if (this.mappingType instanceof MultiGenericsMappingType) {
+                this.elementTypeList = List.of(field.getAnnotation(Mapping.class).elements());
+            } else {
+                this.elementTypeList = List.of();
+            }
 
             this.precision = TableMetaUtils.columnPrecision(column, this, context);
             this.scale = TableMetaUtils.columnScale(column, this, context);
-            this.collation = column.collation();
+            this.collation = TableMetaUtils.columnCollation(column, this, context);
+            this.columnName = TableMetaUtils.columnName(domainClass, column, field, context);
+            this.defaultValue = TableMetaUtils.columnDefault(column, this, context);
 
-            final String columnName;
-            columnName = TableMetaUtils.columnName(domainClass, column, field, tableMetaProperties, context.tempBuilderAndClear());
-            context.validateColumnName(domainClass, columnName);
-            this.columnName = columnName;
-            final boolean isDiscriminator;
-            isDiscriminator = FieldMetaUtils.isDiscriminator(this.table.javaType, this.fieldName);
-
-            this.mappingType = TableMetaUtils.fieldMappingType(this.javaType, field, isDiscriminator);
-            if (this.mappingType instanceof MultiGenericsMappingType) {
-                this.elementTypeList = ArrayUtils.unmodifiableListFrom(field.getAnnotation(Mapping.class).elements());
-            } else {
-                this.elementTypeList = Collections.emptyList();
-            }
 
             final Generator generator;
             if (table instanceof ChildTableMeta && _MetaBridge.ID.equals(this.fieldName)) {
@@ -175,7 +183,7 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
                     || isDiscriminator
                     || field.getType().isPrimitive()
                     || column.notNull();
-            this.defaultValue = column.defaultValue();
+
 
             this.codec = field.getAnnotation(Codec.class) != null;
 
@@ -189,7 +197,6 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
             } else if (generatorType == GeneratorType.POST) {
                 this.generatorType = generatorType;
                 this.generatorMeta = null;
-                FieldMetaUtils.validatePostGenerator(this, generator, isDiscriminator);
             } else if (generatorType == GeneratorType.RUNTIME || generatorType == GeneratorType.DEFAULT) {
                 final GeneratorStrategy strategy;
                 strategy = FieldMetaUtils.loadGeneratorStrategy(this, context);
@@ -197,6 +204,10 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
                 this.generatorMeta = FieldMetaUtils.createGeneratorMeta(strategy, this, isDiscriminator, context);
             } else {
                 throw _Exceptions.unexpectedEnum(generatorType);
+            }
+
+            if (this.generatorType == GeneratorType.POST) {
+                FieldMetaUtils.validatePostGenerator(this, generator, isDiscriminator);
             }
             this.insertable = FieldMetaUtils.columnInsertable(this, this.generatorType, column, isDiscriminator);
         } catch (ArmyException e) {
@@ -366,7 +377,9 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
     @Override
     public final boolean isSerial() {
-        return this.generatorType == GeneratorType.POST;
+        final GeneratorMeta meta = this.generatorMeta;
+        return this.generatorType == GeneratorType.POST
+                || (meta != null && meta.javaType() == SnowflakeGenerator.class);
     }
 
     @Override
@@ -446,16 +459,16 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
 
     private static class DefaultSimpleFieldMeta<T> extends TableFieldMeta<T> {
 
-        private DefaultSimpleFieldMeta(TableMeta<T> table, Field field, MetaContext context) throws MetaException {
-            super(table, field, context);
+        private DefaultSimpleFieldMeta(TableMeta<T> table, Field field, MappingType type, MetaContext context) throws MetaException {
+            super(table, field, type, context);
         }
 
     } // DefaultSimpleFieldMeta
 
     private static final class DefaultArrayFieldMeta<T> extends DefaultSimpleFieldMeta<T> implements ArrayFieldMeta<T> {
 
-        private DefaultArrayFieldMeta(TableMeta<T> table, Field field, MetaContext context) throws MetaException {
-            super(table, field, context);
+        private DefaultArrayFieldMeta(TableMeta<T> table, Field field, MappingType type, MetaContext context) throws MetaException {
+            super(table, field, type, context);
             _Assert.isTrue(this.mappingType instanceof ArrayMappingType, "");
         }
 
@@ -466,8 +479,9 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
     private static final class DefaultPrimaryFieldMeta<T> extends DefaultSimpleFieldMeta<T>
             implements PrimaryFieldMeta<T> {
 
-        private DefaultPrimaryFieldMeta(TableMeta<T> table, Field field, MetaContext context) throws MetaException {
-            super(table, field, context);
+        private DefaultPrimaryFieldMeta(TableMeta<T> table, Field field, MappingType type, MetaContext context)
+                throws MetaException {
+            super(table, field, type, context);
             if (!_MetaBridge.ID.equals(field.getName())) {
                 String m = String.format("[%s] not primary.", field.getName());
                 throw new MetaException(m);

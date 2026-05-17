@@ -19,8 +19,6 @@ package io.army.session;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import io.army.advice.FactoryAdvice;
-import io.army.annotation.Column;
-import io.army.annotation.MappedSuperclass;
 import io.army.codec.*;
 import io.army.criteria.impl._SchemaMetaFactory;
 import io.army.criteria.impl._TableMetaFactory;
@@ -33,7 +31,11 @@ import io.army.function.DefinedTypeMapFunc;
 import io.army.generator.FieldGenerator;
 import io.army.generator.FieldGeneratorFactory;
 import io.army.lang.Nullable;
-import io.army.mapping.*;
+import io.army.mapping.MappingEnv;
+import io.army.mapping.MappingType;
+import io.army.mapping.UserMappingType;
+import io.army.mapping._ArmyBuildInType;
+import io.army.mapping.optional.CompositeField;
 import io.army.meta.*;
 import io.army.option.Option;
 import io.army.schema.FieldResult;
@@ -43,7 +45,6 @@ import io.army.schema.TypeResult;
 import io.army.util.*;
 import org.slf4j.Logger;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -431,8 +432,8 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 definedTypeMap.put(typeName, type);
             }
 
-            if (oldName == null && type instanceof MappingType.SqlComposite) {
-                scanCompositeField(fieldTypeClass, definedTypeMap, definedTypeToNameMap);
+            if (oldName == null && type instanceof MappingType.SqlComposite t) {
+                scanCompositeField(t, definedTypeMap, definedTypeToNameMap);
             }
 
         };
@@ -730,53 +731,41 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     }
 
     /// @see #consumerForDefinedType
-    private static void scanCompositeField(final Class<?> compositeClass,
+    private static void scanCompositeField(final MappingType.SqlComposite compositeType,
                                            final Map<String, MappingType> definedTypeMap,
                                            final Map<Class<?>, String> definedTypeToNameMap) {
-        MappingType oldType, type;
-        String oldName, typeName;
+
+        MappingType type, oldType;
+        String typeName, oldName;
         Class<?> fieldType;
-        for (Class<?> clazz = compositeClass; clazz != Object.class; clazz = clazz.getSuperclass()) {
-            if (clazz != compositeClass && clazz.getAnnotation(MappedSuperclass.class) == null) {
-                break;
+        for (CompositeField field : compositeType.fieldList()) {
+            type = field.mappingType();
+
+            if (!(type instanceof MappingType.SqlUserDefined st)) {
+                continue;
             }
-            for (Field field : clazz.getDeclaredFields()) {
 
-                if (Modifier.isStatic(field.getModifiers())) {
-                    continue;
-                }
-                if (field.getAnnotation(Column.class) == null) {
-                    continue;
-                }
+            typeName = st.objectName().toUpperCase(Locale.ROOT);
 
-                type = _MappingFactory.map(field);
-                if (!(type instanceof MappingType.SqlUserDefined st)) {
-                    continue;
-                }
+            oldType = definedTypeMap.putIfAbsent(typeName, type);
+            if (oldType != null && !oldType.equals(type)
+                    && oldType instanceof UserMappingType
+                    && type instanceof _ArmyBuildInType) {
+                definedTypeMap.put(typeName, type);
+            }
 
-                typeName = st.objectName().toUpperCase(Locale.ROOT);
+            fieldType = field.javaType();
 
-                oldType = definedTypeMap.putIfAbsent(typeName, type);
-                if (oldType != null && !oldType.equals(type)
-                        && oldType instanceof UserMappingType
-                        && type instanceof _ArmyBuildInType) {
-                    definedTypeMap.put(typeName, type);
-                }
+            oldName = definedTypeToNameMap.putIfAbsent(fieldType, typeName);
+            if (oldName != null && !oldName.equals(typeName)) {
+                String m = String.format("%s is mapped to multi type name", fieldType.getName());
+                throw new MetaException(m);
+            }
 
-                fieldType = field.getType();
-
-                oldName = definedTypeToNameMap.putIfAbsent(fieldType, typeName);
-                if (oldName != null && !oldName.equals(typeName)) {
-                    String m = String.format("%s is mapped to multi type name", fieldType.getName());
-                    throw new MetaException(m);
-                }
-
-                if (oldName == null && type instanceof MappingType.SqlComposite) {
-                    scanCompositeField(fieldType, definedTypeMap, definedTypeToNameMap);
-                }
-
-            } // field loop
-        } // pojo class loop
+            if (oldName == null && type instanceof MappingType.SqlComposite ct) {
+                scanCompositeField(ct, definedTypeMap, definedTypeToNameMap);
+            }
+        }
     }
 
 

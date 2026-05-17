@@ -57,6 +57,19 @@ public abstract class _TableMetaFactory {
         throw new UnsupportedOperationException();
     }
 
+    /// only for {@link #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)}
+    private static final ThreadLocal<MetaContext> CONTEXT_HOLDER = new ThreadLocal<>();
+
+    public static MetaContext getContext() {
+        MetaContext metaContext = CONTEXT_HOLDER.get();
+        if (metaContext == null) {
+            // don't store to CONTEXT_HOLDER
+            metaContext = new DefaultMetaContext();
+        }
+        return metaContext;
+    }
+
+
     public static <T> SimpleTableMeta<T> getSimpleTableMeta(final Class<T> domainClass) {
         final TableMeta<T> tableMeta;
         tableMeta = DefaultTableMeta.getTableMeta(domainClass, null);
@@ -104,6 +117,7 @@ public abstract class _TableMetaFactory {
             classLoader = Thread.currentThread().getContextClassLoader();
         }
         final MetaContext metaContext = new DefaultMetaContext();
+        CONTEXT_HOLDER.set(metaContext);
 
         final Function<String, TableMeta<?>> metaFunc;
         metaFunc = className -> getOrCreateTableMeta(className, metaContext);
@@ -168,6 +182,7 @@ public abstract class _TableMetaFactory {
                 }
                 throw new TableMetaLoadException(m, e);
             } finally {
+                CONTEXT_HOLDER.remove();
                 metaContext.clear();
             }
         } // synchronized

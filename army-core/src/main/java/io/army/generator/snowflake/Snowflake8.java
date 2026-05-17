@@ -25,22 +25,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.LongConsumer;
 
-public final class Snowflake {
+
+/// Snowflake algorithm with 8-bit machine ID
+public final class Snowflake8 {
 
 
-    public static Snowflake getInstance(final long startTime) {
+    public static Snowflake8 getInstance(final long startTime) {
         if (startTime < 0) {
             throw new IllegalArgumentException("startTime must great than or equals 0");
         }
-        return INSTANCE_MAP.computeIfAbsent(startTime, Snowflake::new);
+        return INSTANCE_MAP.computeIfAbsent(startTime, Snowflake8::new);
     }
 
 
-    private static final ConcurrentMap<Long, Snowflake> INSTANCE_MAP = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Long, Snowflake8> INSTANCE_MAP = new ConcurrentHashMap<>();
 
 
-    /// bit number of worker(dataCenterId + workerId)
-    public static final byte WORKER_BIT_SIZE = 10;
+    /// 8-bit machine ID
+    public static final byte WORKER_BIT_SIZE = 8;
 
     /// bit number of sequence id
     public static final byte SEQUENCE_BITS = 12;
@@ -53,19 +55,13 @@ public final class Snowflake {
     /// max value of sequence
     public static final short SEQUENCE_MASK = ~(-1 << SEQUENCE_BITS);
 
-    public static final byte DATA_CENTER_SHIFT = SEQUENCE_BITS + 5;
-
-    public static final byte MAX_WORKER_ID = ~(-1 << 5);
-
-    public static final byte MAX_DATA_CENTER_ID = MAX_WORKER_ID;
-
     public static final int MAX_ACCEPT_BACKWARD_MS;
 
     static {
         final Properties properties;
-        properties = _ResourceUtils.loadArmyProperties(Snowflake.class.getSimpleName());
+        properties = _ResourceUtils.loadArmyProperties(Snowflake8.class.getSimpleName());
         final String key, value;
-        key = Snowflake.class.getName() + '.' + "max_accept_backward_ms";
+        key = Snowflake8.class.getName() + '.' + "max_accept_backward_ms";
         value = properties.getProperty(key, "20");
 
         try {
@@ -90,17 +86,15 @@ public final class Snowflake {
     private long lastTimestamp;
 
 
-    private Snowflake(final long startTime) {
+    private Snowflake8(final long startTime) {
         this.startTime = startTime;
         this.lastTimestamp = System.currentTimeMillis(); // don't use  SystemClock.now();
     }
 
     /// @param count    {@code >} 0, Efficient for count ≤ 4096; split into 4096 chunks if larger.
     /// @param consumer when count {@code >} 0, consumer can't be null
-    public long next(final Worker worker, final int count, final @Nullable LongConsumer consumer) {
-        validateArgs(worker, count, consumer);
-
-        final long dataCenterId = worker.dataCenterId, workerId = worker.workerId;
+    public long next(final long workerId, final int count, final @Nullable LongConsumer consumer) {
+        validateArgs(workerId, count, consumer);
 
         final long[] array;
         if (consumer == null) {
@@ -135,7 +129,6 @@ public final class Snowflake {
                 timeBits = ((timestamp - this.startTime) & TIMESTAMP_MASK) << TIMESTAMP_LEFT_SHIFT;
 
                 lastId = timeBits
-                        | (dataCenterId << DATA_CENTER_SHIFT)
                         | (workerId << SEQUENCE_BITS)
                         | sequence;
 
@@ -160,8 +153,6 @@ public final class Snowflake {
     }
 
 
-
-
     @Override
     public int hashCode() {
         return Objects.hash(this.startTime);
@@ -172,7 +163,7 @@ public final class Snowflake {
         final boolean match;
         if (obj == this) {
             match = true;
-        } else if (obj instanceof Snowflake s) {
+        } else if (obj instanceof Snowflake8 s) {
             match = s.startTime == this.startTime;
         } else {
             match = false;
@@ -183,7 +174,7 @@ public final class Snowflake {
 
     @Override
     public String toString() {
-        return String.format("[%s startTime:%s]", Snowflake.class.getName(), this.startTime);
+        return String.format("[%s startTime:%s]", Snowflake8.class.getName(), this.startTime);
     }
 
 
@@ -226,15 +217,10 @@ public final class Snowflake {
     }
 
 
-    private static void validateArgs(final Worker worker, final int count, final @Nullable LongConsumer consumer) {
-        if (worker.dataCenterId > MAX_DATA_CENTER_ID || worker.dataCenterId < 0) {
-            String m = String.format("Data center id[%s] couldn't be greater than %s or less than 0",
-                    worker.dataCenterId, MAX_DATA_CENTER_ID);
-            throw new IllegalArgumentException(m);
-        }
-        if (worker.workerId > MAX_WORKER_ID || worker.workerId < 0) {
-            String m = String.format("Worker id[%s] couldn't be greater than %s or less than 0",
-                    worker.workerId, MAX_WORKER_ID);
+    private static void validateArgs(final long workerId, final int count, final @Nullable LongConsumer consumer) {
+
+        if (workerId < 0 || workerId > 0xFF) {
+            String m = String.format("Worker id[%s] couldn't be greater than %s or less than 0", workerId, 0xFF);
             throw new IllegalArgumentException(m);
         }
         if (count < 1) {

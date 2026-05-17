@@ -12,9 +12,9 @@ public class SnowflakeTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(SnowflakeTests.class);
 
-    @Test(invocationCount = 30000, threadPoolSize = 6)
+    @Test(invocationCount = 30000, threadPoolSize = 10)
     public void defaultNextBatch() {
-        final int count = Snowflake.SEQUENCE_MASK;
+        final int count = Snowflake8.SEQUENCE_MASK;
         final long startNanoSecond = System.nanoTime();
 
         Snowflakes.defaultNext(count, _ -> {
@@ -25,7 +25,7 @@ public class SnowflakeTests {
 
     @Test(invocationCount = 30000, threadPoolSize = 6)
     public void defaultNext() {
-        final int count = Snowflake.SEQUENCE_MASK;
+        final int count = Snowflake8.SEQUENCE_MASK;
         final long startNanoSecond = System.nanoTime();
 
         for (int i = 0; i < count; i++) {
@@ -109,7 +109,7 @@ public class SnowflakeTests {
         printTimeCost(startNanoSecond);
     }
 
-    @Test//(invocationCount = 30000, threadPoolSize = 6)
+    @Test(invocationCount = 30000, threadPoolSize = 6)
     public void defaultNext8192Set() {
         final int count = 8192;
         final Set<Long> set = _Collections.hashSetForSize(count);

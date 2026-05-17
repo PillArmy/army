@@ -14,25 +14,11 @@
  * limitations under the License.
  */
 
-package io.army.generator.snowflake;
+package io.army.annotation;
 
-import io.army.ArmyException;
+public enum DdlMode {
 
-import io.army.lang.Nullable;
-
-
-public final class SnowflakeWorkerException extends ArmyException {
-
-    public SnowflakeWorkerException(String message) {
-        super(message);
-    }
-
-    public SnowflakeWorkerException(String message, @Nullable Throwable cause) {
-        super(message, cause);
-    }
-
-    public SnowflakeWorkerException(Throwable cause) {
-        super(cause);
-    }
-
+    NONE,
+    CREATE,
+    DEFAULT
 }

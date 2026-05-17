@@ -6,7 +6,9 @@ spring:
       charset: UTF-8
       force-request: true
       force-response: true
-
+#  devtools:
+#    restart:
+#      open-in-browser: true
 
 
 nacos:

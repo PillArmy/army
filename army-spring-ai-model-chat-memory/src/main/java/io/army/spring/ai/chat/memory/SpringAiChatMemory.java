@@ -17,52 +17,65 @@
 package io.army.spring.ai.chat.memory;
 
 import io.army.annotation.*;
-import io.army.generator.GeneratorStrategy;
+import io.army.generator.snowflake.Snowflakes;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.MessageType;
+import org.springframework.ai.chat.messages.ToolResponseMessage;
 
 import java.time.LocalDateTime;
 
 
 @Table(name = "${DEFAULT}",
         indexes = {
-                @Index(name = "${DEFAULT}", fieldList = {"conversationId", "createTime"})
+                @Index(name = "${DEFAULT}", fieldList = {"conversationId", "createTime"}),
+                @Index(name = "${DEFAULT}", type = "${OPTIONAL}", fieldList = {"userId"}),
+                @Index(name = "${OPTIONAL}", fieldList = {"batchNo"})
         },
         immutable = true,
+        ddlMode = DdlMode.DEFAULT,
         comment = "${DEFAULT}")
 public class SpringAiChatMemory {
 
-
-    /// Since the framework cannot decide the ID generation strategy on behalf of users, it is designed as a runtime type.
-    /// Users need to configure it via classpath:META-INF/army/TableMeta.properties, following the format:
-    /// entity_class_name.field_name = generator_strategy_class[:paramStr]
-    ///
-    /// If you do not specify it, {@link io.army.generator.PostGeneratorStrategy} will be used.
-    ///
-    /// example : io.army.spring.ai.chat.memory.SpringAiChatMemory.id=io.army.generator.SnowflakeGeneratorStrategy:{"startTime":1776386333818}
-    ///
-    /// @see GeneratorStrategy
-    /// @see io.army.generator.PostGeneratorStrategy
-    /// @see io.army.generator.SnowflakeGeneratorStrategy
     @Generator(type = GeneratorType.DEFAULT)
-    @Column
+    @Column(name = "${DEFAULT}", precision = Column.DEFAULT_EXP, scale = Column.DEFAULT_EXP)
     private Long id;
 
     @Column(name = "${DEFAULT}", defaultValue = "'1979-01-01 00:00:00'")
     private LocalDateTime createTime;
 
-    @Column(name = "${DEFAULT}", notNull = true, precision = 36, comment = "${DEFAULT}")
+    /// {@link Mapping#value()} should be one of below:
+    /// - {@link io.army.mapping.SqlBigIntType}
+    /// - {@link io.army.mapping.StringType}
+    /// - {@link io.army.mapping.UUIDType}
+    @Column(name = "${DEFAULT}", notNull = true, precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
+    @Mapping("${DEFAULT}")
     private String conversationId;
+
+    /// {@link Mapping#value()} should be one of below:
+    /// - {@link io.army.mapping.SqlBigIntType}
+    /// - {@link io.army.mapping.StringType}
+    /// - {@link io.army.mapping.UUIDType}
+    @Column(name = "${DEFAULT}", notNull = true, precision = Column.DEFAULT_EXP, defaultValue = "${DEFAULT}", comment = "${DEFAULT}")
+    @Mapping("${DEFAULT}")
+    private String userId;
 
     @Column(name = "${DEFAULT}", notNull = true, comment = "${DEFAULT}")
     @Mapping("io.army.mapping.TextType")
     private String content;
 
-    @Column(name = "${DEFAULT}", comment = "${DEFAULT}")
-    @Mapping("io.army.mapping.JsonType")
+    /// store one of below :
+    /// 1. {@link AssistantMessage#getToolCalls()}
+    /// 2. {@link ToolResponseMessage#getResponses()}
+    @Column(name = "${DEFAULT}", defaultValue = "'[]'", comment = "${DEFAULT}")
+    @Mapping("io.army.mapping.PreferredJsonbType")
     private String specializedData;
 
     @Column(name = "${DEFAULT}", notNull = true, precision = 10, comment = "${DEFAULT}")
     private MessageType type;
+
+    /// {@link org.springframework.ai.chat.messages.Message} batch no, use {@link Snowflakes}
+    @Column(name = "${OPTIONAL}", notNull = true, defaultValue = "${DEFAULT}", precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
+    private Long batchNo;
 
     public Long getId() {
         return id;
@@ -91,6 +104,15 @@ public class SpringAiChatMemory {
         return this;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public SpringAiChatMemory setUserId(String userId) {
+        this.userId = userId;
+        return this;
+    }
+
     public String getContent() {
         return content;
     }
@@ -115,6 +137,15 @@ public class SpringAiChatMemory {
 
     public SpringAiChatMemory setType(MessageType type) {
         this.type = type;
+        return this;
+    }
+
+    public Long getBatchNo() {
+        return batchNo;
+    }
+
+    public SpringAiChatMemory setBatchNo(Long batchNo) {
+        this.batchNo = batchNo;
         return this;
     }
 }

@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package io.army.generator.snowflake;
+package io.army.util;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
 
-public final class SingleJvmSnowflakeClient implements SnowflakeClient {
+public final class FuncClassValue<T> extends ClassValue<T> {
 
-    public static final SingleJvmSnowflakeClient INSTANCE = new SingleJvmSnowflakeClient();
+    public static <T> ClassValue<T> create(Function<Class<?>, T> function) {
+        return new FuncClassValue<>(function);
+    }
 
-    private SingleJvmSnowflakeClient() {
+    private final Function<Class<?>, T> function;
+
+    private FuncClassValue(Function<Class<?>, T> function) {
+        this.function = function;
     }
 
     @Override
-    public boolean registerGenerator(long startTime, Consumer<Worker> workerConsumer)
-            throws SnowflakeWorkerException {
-        workerConsumer.accept(Worker.ZERO);
-        return false;
+    protected T computeValue(Class<?> type) {
+        return this.function.apply(type);
     }
 
 }

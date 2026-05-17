@@ -20,7 +20,6 @@ import io.army.annotation.Param;
 import io.army.generator.FieldGenerator;
 import io.army.generator.FieldGeneratorUtils;
 import io.army.generator.GeneratorException;
-import io.army.lang.Nullable;
 import io.army.meta.FieldMeta;
 import io.army.meta.GeneratorMeta;
 import io.army.meta.MetaException;
@@ -41,14 +40,9 @@ import java.util.concurrent.ConcurrentMap;
 import static java.time.temporal.ChronoField.*;
 
 
-/// @see SnowflakeClient
 public final class SnowflakeGenerator implements FieldGenerator {
 
-    public static SnowflakeGenerator create(final FieldMeta<?> field, final SnowflakeClient client) {
-        if (!(client instanceof SingleJvmSnowflakeClient)) {
-            client.registerGenerator(Snowflakes.START_TIME, Snowflakes::updateWorker);
-        }
-
+    public static SnowflakeGenerator create(final FieldMeta<?> field) {
 
         final GeneratorMeta meta;
         meta = field.generator();
@@ -90,18 +84,11 @@ public final class SnowflakeGenerator implements FieldGenerator {
                 throw new MetaException(m);
             }
         }
-        return INSTANCE_MAP.computeIfAbsent(startTime, time -> {
-            final Snowflake snowflake;
-            snowflake = Snowflake.getInstance(time);
-            final SnowflakeGenerator generator = new SnowflakeGenerator(snowflake);
-            client.registerGenerator(generator.snowflake.startTime, generator::updateWorker);
-            if (generator.worker == null) {
-                throw new IllegalStateException("client error");
-            }
-            return generator;
-        });
+        return INSTANCE_MAP.computeIfAbsent(startTime, SnowflakeGenerator::new);
 
     }
+
+
 
     @SuppressWarnings("unused")
     public static Set<String> paramNameSet() {
@@ -129,13 +116,10 @@ public final class SnowflakeGenerator implements FieldGenerator {
             .toFormatter(Locale.ENGLISH);
 
 
-    private final Snowflake snowflake;
+    private final Snowflake8 snowflake;
 
-    private volatile Worker worker;
-
-    private SnowflakeGenerator(Snowflake snowflake) {
-        this.snowflake = snowflake;
-        this.worker = null;
+    private SnowflakeGenerator(long startTime) {
+        this.snowflake = Snowflake8.getInstance(startTime);
     }
 
 
@@ -144,8 +128,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
         final Class<?> javaType = field.javaType();
         final Object nextSequence;
         if (javaType == Long.class || javaType == long.class) {
-            final Worker worker = this.worker;
-            nextSequence = this.snowflake.next(worker, 1, null);
+            nextSequence = this.snowflake.next(Workers.currentWorkerId(), 1, null);
         } else if (javaType == BigInteger.class) {
             nextSequence = new BigInteger(this.nextAsString(field, domain));
         } else if (javaType == String.class) {
@@ -172,9 +155,8 @@ public final class SnowflakeGenerator implements FieldGenerator {
             suffix = getSuffix(field, dependField, paramMap, domain);
         }
 
-        final Worker worker = this.worker;
         final String snowSequence;
-        snowSequence = Long.toString(this.snowflake.next(worker, 1, null));
+        snowSequence = Long.toString(this.snowflake.next(Workers.currentWorkerId(), 1, null));
         final boolean hasDate;
         hasDate = "true".equals(meta.params().get(DATE));
         final String sequence;
@@ -201,14 +183,6 @@ public final class SnowflakeGenerator implements FieldGenerator {
         return sequence;
     }
 
-    private void updateWorker(final @Nullable Worker worker) {
-        if (worker == null) {
-            throw new IllegalArgumentException();
-        }
-        synchronized (this) {
-            this.worker = worker;
-        }
-    }
 
 
     private static String suffixWithZero(final int expectedLength, final String dependValue) {

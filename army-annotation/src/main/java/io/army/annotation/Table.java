@@ -17,16 +17,16 @@
 package io.army.annotation;
 
 
-
 import java.lang.annotation.*;
 
 /// Specifies the tableMeta for the annotated domain.
-/// 
+///
 /// <pre>
 /// Example:
 /// &#064;Table(name="u_user", schema="army",comment="storage user info")
 /// public class User { ... }
 /// </pre>
+///
 /// @since Army 1.0
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -35,7 +35,7 @@ import java.lang.annotation.*;
 public @interface Table {
 
     /// (Required) The name of the table.
-    /// 
+    ///
     /// see io.army.meta.TableMeta#tableName()
     String name();
 
@@ -62,6 +62,8 @@ public @interface Table {
     boolean immutable() default false;
 
     boolean allColumnNotNull() default false;
+
+    DdlMode ddlMode() default DdlMode.CREATE;
 
 
     /// (Optional) The option clause of create table

@@ -844,17 +844,6 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
         return returnType;
     }
 
-    /// @see #caret(Expression, Expression)
-    private static MappingType caretResultType(final MappingType left, final MappingType right) {
-        final MappingType returnType;
-        if (left instanceof MappingType.SqlIntegerOrDecimalType
-                && right instanceof MappingType.SqlIntegerOrDecimalType) {
-            returnType = BigDecimalType.INSTANCE;
-        } else {
-            returnType = DoubleType.INSTANCE;
-        }
-        return returnType;
-    }
 
 
 }

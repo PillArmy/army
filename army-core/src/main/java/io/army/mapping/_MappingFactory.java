@@ -17,12 +17,15 @@
 package io.army.mapping;
 
 import io.army.annotation.Mapping;
+import io.army.criteria.impl.MetaContext;
+import io.army.criteria.impl.TableMetaUtils;
 import io.army.lang.Nullable;
 import io.army.mapping.array.*;
 import io.army.meta.MetaException;
 import io.army.struct.CodeEnum;
 import io.army.util.ArrayUtils;
 import io.army.util.ReflectionUtils;
+import io.army.util._StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -99,21 +102,27 @@ public abstract class _MappingFactory {
         return type;
     }
 
-    public static MappingType map(final Field field) {
+
+    public static MappingType map(Class<?> domainClass, Field field, MetaContext context) {
         final Mapping mapping = field.getAnnotation(Mapping.class);
+        final Class<?> mappingClass;
         final MappingType type;
         if (mapping == null) {
             type = _MappingFactory.getDefault(field.getType());
+        } else if ((mappingClass = mapping.type()) == void.class) {
+            type = getMappingTypeFromValue(domainClass, field, mapping, context);
         } else {
-            type = _MappingFactory.map(mapping, field);
+            type = doMap(mappingClass, field, mapping);
         }
         return type;
     }
 
-
-    private static MappingType map(final Mapping mapping, final Field field) {
-        final Class<?> mappingClass;
-        mappingClass = getMappingClass(mapping, field);
+    private static MappingType doMap(final Class<?> mappingClass, Field field, Mapping mapping) {
+        if (!MappingType.class.isAssignableFrom(mappingClass)) {
+            String m = String.format("Mapping type[%s] of %s.%s isn't sub class of %s .", mappingClass.getName(),
+                    field.getDeclaringClass().getName(), field.getName(), MappingType.class.getName());
+            throw new MetaException(m);
+        }
 
         final boolean textMapping, elementMapping;
         textMapping = TextMappingType.class.isAssignableFrom(mappingClass);
@@ -173,30 +182,66 @@ public abstract class _MappingFactory {
 
     }
 
-    private static boolean isCollectionType(Field field) {
-        final Class<?> fieldType = field.getType();
-        return fieldType == Map.class || fieldType == List.class || fieldType == Set.class;
-    }
 
-    private static Class<?> getMappingClass(final Mapping mapping, final Field field) {
-        Class<?> mappingClass;
-        mappingClass = mapping.type();
-        if (mappingClass == void.class) {
-            try {
-                mappingClass = Class.forName(mapping.value());
-            } catch (ClassNotFoundException e) {
-                String m = String.format("Not found %s.%s mapping type %s .",
-                        field.getDeclaringClass().getName(), field.getName(), mapping.value());
+    private static MappingType getMappingTypeFromValue(Class<?> domainClass, Field field, Mapping mapping, MetaContext context) {
+        final String value = mapping.value();
+        final String finalValue;
+        switch (value) {
+            case TableMetaUtils.DEFAULT_EXP:
+            case TableMetaUtils.RUNTIME_EXP: {
+                final String key, configValue;
+                key = context.tempBuilderAndClear()
+                        .append(domainClass.getName())
+                        .append('.')
+                        .append(field.getName())
+                        .append('.')
+                        .append("Mapping")
+                        .append('.')
+                        .append("value")
+                        .toString();
+
+                configValue = context.tableMetaProperties().getProperty(key);
+                if (_StringUtils.hasText(configValue)) {
+                    finalValue = configValue.trim();
+                } else switch (value) {
+                    case TableMetaUtils.DEFAULT_EXP:
+                        finalValue = null;
+                        break;
+                    case TableMetaUtils.RUNTIME_EXP:
+                        throw new MetaException(String.format("%s no config", key));
+                    default:
+                        throw new IllegalStateException("bug");
+                }
+            }
+            break;
+            case TableMetaUtils.OPTIONAL_EXP: {
+                String m = String.format("%s in %s.%s %s.%s is unsupported", value, domainClass.getName(),
+                        field.getName(), Mapping.class.getSimpleName(), "value");
                 throw new MetaException(m);
             }
+            default:
+                finalValue = value;
         }
 
-        if (!MappingType.class.isAssignableFrom(mappingClass)) {
-            String m = String.format("Mapping type[%s] of %s.%s isn't sub class of %s .", mappingClass.getName(),
-                    field.getDeclaringClass().getName(), field.getName(), MappingType.class.getName());
+        if (finalValue == null) {
+            final MappingType type;
+            type = getDefaultIfMatch(field.getType());
+            if (type == null) {
+                throw new MetaException(String.format("Not found default mapping type for %s.%s"
+                        , domainClass.getName(), field.getName()));
+            }
+            return type;
+        }
+
+        final Class<?> mappingClass;
+        try {
+            mappingClass = Class.forName(finalValue);
+        } catch (ClassNotFoundException e) {
+            String m = String.format("Not found %s.%s mapping type %s .",
+                    field.getDeclaringClass().getName(), field.getName(), mapping.value());
             throw new MetaException(m);
         }
-        return mappingClass;
+        return doMap(mappingClass, field, mapping);
     }
 
 

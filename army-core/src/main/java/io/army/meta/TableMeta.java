@@ -39,6 +39,8 @@ public interface TableMeta<T> extends TabularItem, DatabaseObject.TypeObject {
 
     boolean allColumnNotNull();
 
+    boolean isCreateDdl();
+
     String comment();
 
     PrimaryFieldMeta<T> id();

@@ -34,7 +34,7 @@ public class StockApp implements ApplicationRunner, EnvironmentAware {
 
     static void main(String[] args) {
         final SpringApplication app = new SpringApplication(StockApp.class);
-        app.setWebApplicationType(WebApplicationType.NONE);
+        app.setWebApplicationType(WebApplicationType.SERVLET);
         app.run(args);
     }
 
@@ -54,6 +54,9 @@ public class StockApp implements ApplicationRunner, EnvironmentAware {
 
     @Override
     public void run(ApplicationArguments args) throws IOException {
+
+        LOG.info("http://localhost:{}/", this.environment.getProperty("local.server.port"));
+
         final var scanner = new Scanner(System.in);
 
         String input;

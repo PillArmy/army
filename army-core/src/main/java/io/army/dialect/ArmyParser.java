@@ -65,6 +65,7 @@ import java.util.function.Predicate;
 /// This class is base class of all implementation of {@link DialectParser}.
 /// Below is chines signature:
 /// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
+///
 /// @since 0.6.0
 abstract class ArmyParser implements DialectParser {
 
@@ -385,7 +386,9 @@ abstract class ArmyParser implements DialectParser {
             ddlParser.dropTable(dropTableList, ddlList);
         }
         for (TableMeta<?> table : schemaResult.newTableList()) {
-            ddlParser.createTable(table, ddlList);
+            if (table.isCreateDdl()) {
+                ddlParser.createTable(table, ddlList);
+            }
         }
 
         List<FieldMeta<?>> newFieldList;
@@ -2476,9 +2479,8 @@ abstract class ArmyParser implements DialectParser {
 
 
     /// @param insert possibly be below :
-    /// 
+    ///
     /// - {@link InsertStatement}
-    /// 
     /// @see #insert(InsertStatement, SessionSpec)
     /// @see #handleDialectSubInsertStmt(_SqlContext, _Insert)
     private _InsertContext handleInsert(final @Nullable _SqlContext outerContext, final InsertStatement insert,

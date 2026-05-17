@@ -21,13 +21,11 @@ import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.mapping.NameEnumType;
-import io.army.mapping._MappingFactory;
+import io.army.mapping.UUIDType;
+import io.army.mapping.optional.CompositeField;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
-import io.army.util.Pair;
-import io.army.util._Assert;
-import io.army.util._Collections;
-import io.army.util._StringUtils;
+import io.army.util.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -41,41 +39,22 @@ public abstract class TableMetaUtils {
     }
 
 
-    static final String DEFAULT_EXP = "${DEFAULT}";
+    public static final String DEFAULT_EXP = "${DEFAULT}";
 
-    static final String RUNTIME_EXP = "${RUNTIME}";
+    public static final String RUNTIME_EXP = "${RUNTIME}";
 
-    static final String OPTIONAL_EXP = "${OPTIONAL}";
+    public static final String OPTIONAL_EXP = "${OPTIONAL}";
 
 
-    public static String columnName(final Column column, final Field field) throws MetaException {
-        final String customColumnName = column.name().trim(), fieldName = field.getName();
-        final String columnName;
-        if (customColumnName.isEmpty()) {
-            columnName = _MetaBridge.camelToLowerCase(fieldName, null);
-        } else if (_StringUtils.isCamelCase(customColumnName)) {
-            String m = String.format("%s.%s column name is camel.", field.getDeclaringClass().getName(), field.getName());
-            throw new MetaException(m);
-        } else {
-            columnName = customColumnName;
-        }
-        return columnName;
-    }
-
-    public static String columnName(Class<?> domainClass, Column column, Field field, Properties tableProperties,
-                                    StringBuilder tempBuilder) {
+    public static String columnName(Class<?> domainClass, Column column, Field field, MetaContext context) {
         final String columnName = column.name(), fieldName = field.getName();
-        if (columnName.isEmpty()) {
-            tempBuilder.setLength(0);
-            return _MetaBridge.camelToLowerCase(fieldName, tempBuilder);
-        }
         final String finalColumnName;
         switch (columnName) {
             case DEFAULT_EXP:
-            case RUNTIME_EXP: {
+            case RUNTIME_EXP:
+            case OPTIONAL_EXP: {
                 final String key, configColumnName;
-                tempBuilder.setLength(0);
-                key = tempBuilder.append(domainClass.getName())
+                key = context.tempBuilderAndClear().append(domainClass.getName())
                         .append('.')
                         .append(fieldName)
                         .append('.')
@@ -84,98 +63,53 @@ public abstract class TableMetaUtils {
                         .append("name")
                         .toString();
 
-                configColumnName = tableProperties.getProperty(key);
+                configColumnName = context.tableMetaProperties().getProperty(key);
                 if (_StringUtils.hasText(configColumnName)) {
                     finalColumnName = configColumnName.trim();
                 } else switch (columnName) {
                     case DEFAULT_EXP: {
-                        tempBuilder.setLength(0);
-                        finalColumnName = _MetaBridge.camelToLowerCase(fieldName, tempBuilder);
+                        finalColumnName = _MetaBridge.camelToLowerCase(fieldName, context.tempBuilderAndClear());
                     }
                     break;
                     case RUNTIME_EXP:
                         throw new MetaException(String.format("%s no config", key));
+                    case OPTIONAL_EXP: // see io.army.criteria.impl.TableMetaUtils.createFieldMetaList
                     default:
                         throw new IllegalStateException("bug");
                 }
             }
             break;
-            case OPTIONAL_EXP: {
-                String m = String.format("%s in %s.%s %s.%s is unsupported", columnName, domainClass.getName(),
-                        fieldName, "Column", "name");
-                throw new MetaException(m);
-            }
             default: {
-                if (_StringUtils.isCamelCase(columnName)) {
-                    String m = String.format("%s.%s %s.%s is camel", field.getDeclaringClass().getName(),
-                            field.getName(), "Column", "name");
-                    throw new MetaException(m);
+                if (_StringUtils.hasText(columnName)) {
+                    finalColumnName = columnName;
+                } else {
+                    finalColumnName = _MetaBridge.camelToLowerCase(fieldName, context.tempBuilderAndClear());
                 }
-                finalColumnName = columnName;
             } // default
 
         } // switch
+        context.validateColumnName(domainClass, finalColumnName);
         return finalColumnName;
     }
 
 
-    static int columnPrecision(Column column, FieldMeta<?> fieldMeta, MetaContext context) {
-        return columnIntValue(column.precision(), "precision", fieldMeta, context);
+    public static int columnPrecision(Column column, DatabaseObject.FieldObject field, MetaContext context) {
+        return columnIntValue(column.precision(), "precision", field, context);
     }
 
-    static int columnScale(Column column, FieldMeta<?> fieldMeta, MetaContext context) {
-        return columnIntValue(column.scale(), "scale", fieldMeta, context);
+    public static int columnScale(Column column, DatabaseObject.FieldObject field, MetaContext context) {
+        return columnIntValue(column.scale(), "scale", field, context);
     }
 
-    public static Class<?> fieldJavaType(Class<?> domainClass, Field field, Properties tableProperties, StringBuilder tempBuilder) {
-        final Class<?> javaType = field.getType();
-        if (javaType != Object.class) {
-            return javaType;
-        }
-        final String fieldName = field.getName();
-        if (!fieldName.equals(_MetaBridge.ID)) {
-            String m = String.format("%s.%s don't support config java class", domainClass.getName(), fieldName);
-            throw new MetaException(m);
-        }
-        tempBuilder.setLength(0);
-        final String key, configClassName;
-        key = tempBuilder.append(domainClass.getName())
-                .append('.')
-                .append(fieldName)
-                .append('.')
-                .append("class")
-                .toString();
-
-        configClassName = tableProperties.getProperty(key);
-        if (!_StringUtils.hasText(configClassName)) {
-            return Long.class;
-        }
-        try {
-            return Class.forName(configClassName.trim());
-        } catch (ClassNotFoundException e) {
-            String m = String.format("%s class not found", key);
-            throw new MetaException(m, e);
-        }
+    public static String columnCollation(Column column, DatabaseObject.FieldObject field, MetaContext context) {
+        return columnStringValue(column.collation(), "collation", field, context);
     }
 
-    static MappingType fieldMappingType(final Class<?> fieldType, final Field field, final boolean isDiscriminator) {
-        final Class<?> fieldJavaType = field.getType();
-        if (isDiscriminator && !Enum.class.isAssignableFrom(fieldJavaType)) {
-            String m = String.format("%s.%s is discriminator,but isn't enum.", field.getDeclaringClass().getName(), field.getName());
-            throw new MetaException(m);
-        }
-        if (fieldJavaType == Object.class) {
-            if (!_MetaBridge.ID.equals(field.getName()) || field.getAnnotation(Mapping.class) != null) {
-                String m = String.format("%s.%s is %s,don't support %s", field.getDeclaringClass().getName(), field.getName(),
-                        Object.class.getName(), Mapping.class.getName());
-                throw new MetaException(m);
-            }
-            return _MappingFactory.getDefault(fieldType);
 
-        }
-
-        return _MappingFactory.map(field);
+    static String columnDefault(Column column, DatabaseObject.FieldObject field, MetaContext context) {
+        return columnStringValue(column.defaultValue(), "defaultValue", field, context);
     }
+
 
     static SchemaMeta schemaMeta(Table table, Class<?> domainClass, MetaContext context) {
         final String[] methods = {"catalog", "schema"};
@@ -222,7 +156,7 @@ public abstract class TableMetaUtils {
         return _SchemaMetaFactory.getSchema(values[0], values[1]);
     }
 
-    static String tableName(Table table, SchemaMeta schemaMeta, Class<?> domainClass, MetaContext context) {
+    static String tableName(Table table, Class<?> domainClass, MetaContext context) {
         final String tableName = table.name();
         if (!_StringUtils.hasText(tableName)) {
             String m = String.format("Domain[%s] table name required", domainClass.getName());
@@ -261,13 +195,12 @@ public abstract class TableMetaUtils {
                 throw new MetaException(m);
             }
             default: {
-                if (_StringUtils.isCamelCase(tableName)) {
-                    throw tableNameIsCamel(domainClass);
-                }
                 finalName = tableName;
             }
         }
-        context.validateTableName(schemaMeta, domainClass, finalName);
+        if (_StringUtils.isCamelCase(finalName)) {
+            throw tableNameIsCamel(domainClass);
+        }
         return finalName;
     }
 
@@ -322,6 +255,41 @@ public abstract class TableMetaUtils {
             throw new MetaException(m);
         }
         return immutable;
+    }
+
+    static boolean tableCreateDdl(Table table, Class<?> domainClass, MetaContext context) {
+        final DdlMode mode = table.ddlMode();
+        boolean createDdl;
+        switch (mode) {
+            case CREATE:
+                createDdl = true;
+                break;
+            case NONE:
+                createDdl = false;
+                break;
+            case DEFAULT: {
+                final String key, configValue;
+                key = context.tempBuilderAndClear()
+                        .append(domainClass.getName())
+                        .append('.')
+                        .append("Table")
+                        .append('.')
+                        .append("ddlMode")
+                        .toString();
+
+                configValue = context.tableMetaProperties().getProperty(key);
+
+                if (_StringUtils.hasText(configValue)) {
+                    createDdl = Boolean.parseBoolean(configValue);
+                } else {
+                    createDdl = true;
+                }
+            }
+            break;
+            default:
+                throw _Exceptions.unexpectedEnum(mode);
+        }
+        return createDdl;
     }
 
     static <T> void assertParentTableMeta(ParentTableMeta<? super T> parentTableMeta
@@ -417,6 +385,8 @@ public abstract class TableMetaUtils {
         final boolean inheritance = domainClass.getAnnotation(Inheritance.class) != null;
         Field[] fieldArray;
         Field field;
+        Column column;
+        String columnName, key, configValue;
         for (Class<?> clazz = domainClass; clazz != null; clazz = clazz.getSuperclass()) {
 
             if (clazz != domainClass && clazz.getAnnotation(Inheritance.class) != null) {
@@ -438,9 +408,27 @@ public abstract class TableMetaUtils {
                 if (Modifier.isStatic(field.getModifiers())) {
                     continue;
                 }
-                if (field.getAnnotation(Column.class) == null) {
+                column = field.getAnnotation(Column.class);
+                if (column == null) {
                     continue;
                 }
+                columnName = column.name();
+                if (OPTIONAL_EXP.equals(columnName)) {
+                    key = context.tempBuilderAndClear()
+                            .append(domainClass.getName())
+                            .append('.')
+                            .append(field.getName())
+                            .append('.')
+                            .append("Column")
+                            .append('.')
+                            .append("name")
+                            .toString();
+                    configValue = context.tableMetaProperties().getProperty(key);
+                    if (!_StringUtils.hasText(configValue)) {
+                        continue;
+                    }
+                }
+
                 list.add(TableFieldMeta.createFieldMeta(tableMeta, field, context));
             } // field loop
 
@@ -483,6 +471,9 @@ public abstract class TableMetaUtils {
                 continue;
             }
             indexName = parseIndexName(tableMeta, domainClass, index, i, context);
+            if (indexName == null) {
+                continue;
+            }
 
             fieldArray = index.fields();
             if (fieldArray.length == 0) {
@@ -542,16 +533,15 @@ public abstract class TableMetaUtils {
         return finalIndexType;
     }
 
+    @Nullable
     private static String parseIndexName(TableMeta<?> tableMeta, Class<?> domainClass, final Index index,
                                          int indexOfIndex, MetaContext context) {
         final String indexName = index.name();
-        if (indexName.isEmpty()) {
-            return "";
-        }
         final String finalIndexName;
         switch (indexName) {
             case DEFAULT_EXP:
-            case RUNTIME_EXP: {
+            case RUNTIME_EXP:
+            case OPTIONAL_EXP: {
                 final String key, configIndexName;
                 key = context.tempBuilderAndClear()
                         .append(domainClass.getName())
@@ -571,15 +561,19 @@ public abstract class TableMetaUtils {
                 } else finalIndexName = switch (indexName) {
                     case DEFAULT_EXP -> defaultIndexName(tableMeta, index, context);
                     case RUNTIME_EXP -> throw new MetaException(String.format("%s no config", key));
+                    case OPTIONAL_EXP -> null;
                     default -> throw new IllegalStateException("bug");
                 };
             }
             break;
-            case OPTIONAL_EXP:
-                throw new MetaException(String.format("%s in %s index name is unsupported", indexName, domainClass));
-            default:
+            default: {
+                if (!_StringUtils.hasText(indexName)) {
+                    String m = String.format("%s %s[%s].%s error", domainClass.getName(), "Index", indexOfIndex, "name");
+                    throw new MetaException(m);
+                }
                 finalIndexName = indexName;
-        }
+            } // default
+        } // switch
         return finalIndexName;
     }
 
@@ -602,6 +596,8 @@ public abstract class TableMetaUtils {
                         .append('[')
                         .append(indexOfIndex)
                         .append(']')
+                        .append('.')
+                        .append("field")
                         .append('.')
                         .append(fieldName)
                         .append('.')
@@ -765,18 +761,163 @@ public abstract class TableMetaUtils {
     }
 
 
-    /// @see #columnPrecision(Column, FieldMeta, MetaContext)
-    /// @see #columnScale(Column, FieldMeta, MetaContext)
-    private static int columnIntValue(final int value, String method, FieldMeta<?> fieldMeta, MetaContext context) {
+    private static Class<?> getTypeObjetClass(DatabaseObject.FieldObject field) {
+        final Class<?> clazz;
+        if (field instanceof FieldMeta<?>) {
+            clazz = ((FieldMeta<?>) field).tableMeta().javaType();
+        } else if (field instanceof CompositeField) {
+            clazz = ((CompositeField) field).compositeType().javaType();
+        } else {
+            throw new IllegalArgumentException("bug");
+        }
+        return clazz;
+
+    }
+
+    /// @see #columnCollation(Column, DatabaseObject.FieldObject, MetaContext)
+    private static String columnStringValue(final String value, String method, DatabaseObject.FieldObject field,
+                                            MetaContext context) {
+        final String finalValue;
+        switch (value) {
+            case DEFAULT_EXP:
+            case RUNTIME_EXP: {
+                final String key, configValue;
+                key = context.tempBuilderAndClear()
+                        .append(getTypeObjetClass(field).getName())
+                        .append('.')
+                        .append(field.fieldName())
+                        .append('.')
+                        .append("Column")
+                        .append('.')
+                        .append(method)
+                        .toString();
+
+                configValue = context.tableMetaProperties().getProperty(key);
+                if (_StringUtils.hasText(configValue)) {
+                    finalValue = configValue.trim();
+                } else switch (value) {
+                    case DEFAULT_EXP: {
+                        if (method.equals("defaultValue")) {
+                            finalValue = zeroValue(field);
+                        } else {
+                            finalValue = "";
+                        }
+                    }
+                    break;
+                    case RUNTIME_EXP:
+                        throw new MetaException(String.format("%s no config", key));
+                    default:
+                        throw new IllegalStateException("bug");
+                }
+            }
+            break;
+            default:
+                finalValue = value;
+
+        } // switch
+        return finalValue;
+    }
+
+
+    /// @see #columnStringValue(String, String, DatabaseObject.FieldObject, MetaContext)
+    private static String zeroValue(DatabaseObject.FieldObject field) {
+        final MappingType type;
+        final String value;
+        if (field instanceof PrimaryFieldMeta<?>
+                || (type = field.mappingType()) instanceof MappingType.SqlEnum
+                || Enum.class.isAssignableFrom(field.javaType())) {
+            value = "";
+        } else if (type instanceof MappingType.SqlString) {
+            value = "''";
+        } else if (type instanceof MappingType.SqlNumber) {
+            value = "0";
+        } else if (type instanceof MappingType.SqlBoolean) {
+            value = "false";
+        } else if (type instanceof MappingType.SqlLocalTime) {
+            value = "'00:00:00'";
+        } else if (type instanceof MappingType.SqlLocalDate) {
+            value = "'1970-01-01'";
+        } else if (type instanceof MappingType.SqlLocalDateTime) {
+            value = "'1970-01-01 00:00:00'";
+        } else if (type instanceof MappingType.SqlOffsetDateTime) {
+            value = "'1970-01-01 00:00:00+00:00'";
+        } else if (type instanceof MappingType.SqlOffsetTime) {
+            value = "'00:00:00+00:00'";
+        } else {
+            value = "";
+        }
+        return value;
+    }
+
+    /// @see #columnIntValue(int, String, DatabaseObject.FieldObject, MetaContext)
+    private static int precisionDefault(DatabaseObject.FieldObject field) {
+        final MappingType type;
+        final Class<?> javaType;
+        final int value;
+        if (field instanceof PrimaryFieldMeta<?>) {
+            value = -1;
+        } else if ((type = field.mappingType()) instanceof MappingType.SqlDecimal) {
+            value = 16;
+        } else if (type instanceof MappingType.SqlEnum t) {
+            int maxLength = -1, length;
+            for (String label : t.enumLabelList()) {
+                length = label.length();
+                if (length > maxLength) {
+                    maxLength = length;
+                }
+            }
+            value = maxLength + 5;
+        } else if (type instanceof MappingType.SqlString) {
+            value = 255;
+        } else if (Enum.class.isAssignableFrom(javaType = field.javaType())) {
+            int maxLength = -1, length;
+            for (Enum<?> e : ClassUtils.getEnumConstants(javaType)) {
+                length = e.name().length();
+                if (length > maxLength) {
+                    maxLength = length;
+                }
+            }
+            value = maxLength + 5;
+        } else if (type instanceof UUIDType || javaType == UUID.class) {
+            value = 36;
+        } else {
+            value = -1;
+        }
+        return value;
+    }
+
+    /// @see #columnIntValue(int, String, DatabaseObject.FieldObject, MetaContext)
+    private static int scaleDefault(DatabaseObject.FieldObject field) {
+        final MappingType type;
+        final int value;
+        if (field instanceof PrimaryFieldMeta<?>) {
+            value = -1;
+        } else if ((type = field.mappingType()) instanceof MappingType.SqlDecimal) {
+            value = 3;
+        } else if (type instanceof MappingType.SqlLocalDateTime
+                || type instanceof MappingType.SqlOffsetDateTime
+                || type instanceof MappingType.SqlLocalTime
+                || type instanceof MappingType.SqlOffsetTime) {
+            value = 6;
+        } else {
+            value = -1;
+        }
+        return value;
+    }
+
+
+    /// @see #columnPrecision(Column, DatabaseObject.FieldObject, MetaContext)
+    /// @see #columnScale(Column, DatabaseObject.FieldObject, MetaContext)
+    private static int columnIntValue(final int value, String method, DatabaseObject.FieldObject field, MetaContext context) {
         final int finalValue;
         switch (value) {
             case Column.DEFAULT_EXP:
             case Column.RUNTIME_EXP: {
                 final String key, configValue;
                 key = context.tempBuilderAndClear()
-                        .append(fieldMeta.tableMeta().javaType().getName())
+                        .append(getTypeObjetClass(field).getName())
                         .append('.')
-                        .append(fieldMeta.fieldName())
+                        .append(field.fieldName())
                         .append('.')
                         .append("Column")
                         .append('.')
@@ -791,9 +932,16 @@ public abstract class TableMetaUtils {
                         throw new MetaException(String.format("%s config error", key), e);
                     }
                 } else switch (value) {
-                    case Column.DEFAULT_EXP:
-                        finalValue = -1;
-                        break;
+                    case Column.DEFAULT_EXP: {
+                        if (method.equals("precision")) {
+                            finalValue = precisionDefault(field);
+                        } else if (method.equals("scale")) {
+                            finalValue = scaleDefault(field);
+                        } else {
+                            finalValue = -1;
+                        }
+                    }
+                    break;
                     case Column.RUNTIME_EXP:
                         throw new MetaException(String.format("%s no config", key));
                     default:
@@ -811,15 +959,6 @@ public abstract class TableMetaUtils {
 
     static MetaException notFoundDiscriminator(String fieldName, Class<?> domainClass) {
         String m = String.format("Not found discriminator[%s] in domain[%s].", fieldName, domainClass.getName());
-        return new MetaException(m);
-    }
-
-
-    static MetaException createNonAnnotationException(Class<?> entityClass
-            , Class<?> annotationClass) {
-        String m = String.format("class[%s] isn't annotated by %s "
-                , entityClass.getName()
-                , annotationClass.getName());
         return new MetaException(m);
     }
 

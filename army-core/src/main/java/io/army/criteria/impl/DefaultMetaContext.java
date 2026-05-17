@@ -21,6 +21,7 @@ import io.army.meta.IndexColumnMeta;
 import io.army.meta.MetaException;
 import io.army.meta.SchemaMeta;
 import io.army.meta.TableMeta;
+import io.army.modelgen._MetaBridge;
 import io.army.util._ResourceUtils;
 
 import java.util.HashMap;
@@ -46,23 +47,12 @@ public final class DefaultMetaContext implements MetaContext {
 
     private Map<List<Class<?>>, List<Class<?>>> classListMap;
 
-    @Override
-    public void validateTableName(SchemaMeta meta, Class<?> domainClass, String tableName) {
-        Map<SchemaMeta, Map<String, Class<?>>> map = this.tableNameValidMap;
-        if (map == null) {
-            this.tableNameValidMap = map = new HashMap<>();
-        }
-        final Class<?> oldValue;
-        oldValue = map.computeIfAbsent(meta, _ -> new HashMap<>())
-                .putIfAbsent(tableName, domainClass);
-
-        if (oldValue != null && oldValue != domainClass) {
-            throw new MetaException(String.format("%s %s.%s duplication", domainClass.getName(), "Table", "name"));
-        }
-    }
 
     @Override
     public void validateColumnName(Class<?> domainClass, String columnName) {
+        if (_MetaBridge.isCamelCase(columnName)) {
+            throw new MetaException(String.format("%s %s.%s %s", domainClass.getName(), "Column", "name", "camel"));
+        }
         Map<Class<?>, Map<String, Boolean>> map = this.columnNameValidMap;
         if (map == null) {
             this.columnNameValidMap = map = new HashMap<>();

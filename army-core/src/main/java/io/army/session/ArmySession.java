@@ -17,6 +17,7 @@
 package io.army.session;
 
 import io.army.ArmyException;
+import io.army.codec.JsonCodec;
 import io.army.criteria.*;
 import io.army.criteria.impl.inner._Insert;
 import io.army.criteria.impl.inner._MultiDml;
@@ -231,6 +232,10 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
         return Collections.unmodifiableSet(map.entrySet());
     }
 
+    @Override
+    public final JsonCodec jsonCodec() {
+        return this.factory.jsonCodec();
+    }
 
     @Override
     public final <T> T nonNullOf(Option<T> option) {

@@ -5,12 +5,14 @@
 :revdate: {docdate}
 :revremark: Snapshot
 :toc: left
-:toclevels: 4
+# :toclevels: 4
 :sectnums:
 :icons: font
 :source-highlighter: prettify
 :experimental:
 :toc-title: 目录
+:collapse: true
+:docinfo: shared
 
 ifdef::backend-pdf[]
 :pagenums:

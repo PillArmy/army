@@ -448,7 +448,7 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
                 if (!SpringAiVectorStore_.embedding.equals(fieldList.getFirst())) {
                     continue;
                 }
-                opclass = index.type();
+                opclass = index.columnList().getFirst().opclass();
                 if (!_StringUtils.hasText(opclass)) {
                     break;
                 }
@@ -459,7 +459,7 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
                         break topLoop;
                     }
                 }
-            }
+            } // top loop
 
             if (distanceType == null) {
                 String m = String.format("%s no opclass and don't config %s", SpringAiVectorStore_.embedding,
