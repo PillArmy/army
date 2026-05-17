@@ -8,9 +8,19 @@ import org.testng.annotations.Test;
 
 import java.util.Set;
 
-public class SnowflakeTests {
+public class Snowflake8Tests {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SnowflakeTests.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Snowflake8Tests.class);
+
+
+    @Test
+    public void next() {
+        for (int i = 0; i < 10; i++) {
+            System.out.println(Snowflakes.next(1779014276675L));
+        }
+
+
+    }
 
     @Test(invocationCount = 30000, threadPoolSize = 10)
     public void defaultNextBatch() {

@@ -463,7 +463,7 @@ public abstract class TableMetaUtils {
         String indexName, indexType;
         String[] fieldNameArray;
         Index index;
-
+        boolean containIdIndex = false;
         for (int i = 0; i < indexArray.length; i++) {
             index = indexArray[i];
             indexType = parseIndexType(domainClass, index.type(), i, context);
@@ -487,7 +487,29 @@ public abstract class TableMetaUtils {
 
             _Assert.isTrue(metaList.size() == fieldList.size(), "");
 
+            if (fieldList.size() == 1 && fieldList.getFirst() instanceof PrimaryFieldMeta<T>) {
+                if (!index.unique()) {
+                    String m = String.format("%s %s[%s].%s error", domainClass.getName(), "Index", i, "unique");
+                    throw new MetaException(m);
+                }
+                containIdIndex = true;
+            }
+
             indexList.add(new DefaultIndexMeta<>(tableMeta, indexName, index.unique(), fieldList, metaList, indexType));
+        }
+
+        if (!containIdIndex) {
+            indexName = context.tempBuilderAndClear()
+                    .append("uni")
+                    .append('_')
+                    .append(tableMeta.tableName().toLowerCase(Locale.ROOT))
+                    .append('_')
+                    .append(tableMeta.id().columnName().toLowerCase(Locale.ROOT))
+                    .toString();
+
+            metaList = context.minIndexColumnMetaList(List.of(MinIndexColumnMeta.INSTANCE));
+            fieldList = List.of(tableMeta.id());
+            indexList.add(new DefaultIndexMeta<>(tableMeta, indexName, true, fieldList, metaList, ""));
         }
         return List.copyOf(indexList);
     }

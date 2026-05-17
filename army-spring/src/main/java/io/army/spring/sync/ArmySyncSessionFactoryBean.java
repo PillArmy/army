@@ -51,7 +51,6 @@ public class ArmySyncSessionFactoryBean extends ArmySessionFactoryBeanSupport
                 .nameToDatabaseFunc(getNameToDatabaseFunc())
 
                 .executorFactoryProviderValidator(getExecutorFactoryProviderValidator())
-                .columnConverterFunc(getColumnConverterFunc())
 
                 .build();
 

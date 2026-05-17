@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package io.army.dao;
+package io.army.spring.sync;
 
 
-import io.army.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
-/// This interface is designed for dao layer.
-/// @since 0.6.0
-public interface SyncDaoSupport {
+public interface SyncBaseService {
+
 
     <T> void save(T domain);
 
@@ -44,6 +44,4 @@ public interface SyncDaoSupport {
     <T> long rowCount(Class<T> domainClass);
 
     <T> int rowCountAsInt(Class<T> domainClass);
-
-
 }

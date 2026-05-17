@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package io.army.type;
+package io.army.spring;
 
-@Deprecated
-public interface ImmutableSpec {
+import org.springframework.transaction.TransactionUsageException;
+
+public final class IsolationNotMatchException extends TransactionUsageException {
+
+    public IsolationNotMatchException(String msg) {
+        super(msg);
+    }
+
 
 }

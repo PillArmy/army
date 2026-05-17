@@ -17,17 +17,15 @@
 package io.army.spring.sync;
 
 import io.army.option.Option;
-import io.army.session.SessionException;
-import io.army.session.SyncLocalSession;
-import io.army.session.SyncSessionContext;
-import io.army.session.SyncSessionFactory;
+import io.army.session.*;
 import io.army.transaction.HandleMode;
 import io.army.transaction.Isolation;
 import io.army.transaction.TransactionInfo;
 import io.army.transaction.TransactionOption;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.lang.Nullable;
 import org.springframework.transaction.*;
+import org.springframework.transaction.IllegalTransactionStateException;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.SmartTransactionObject;
@@ -35,8 +33,10 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.util.Assert;
 
 /// This class is Army sync local transaction manager
+///
 /// @since 0.6.0
-public final class ArmySyncLocalTransactionManager extends AbstractPlatformTransactionManager implements InitializingBean {
+public final class ArmySyncLocalTransactionManager extends AbstractPlatformTransactionManager
+        implements InitializingBean {
 
     public static ArmySyncLocalTransactionManager create(SyncSessionFactory sessionFactory) {
         Assert.notNull(sessionFactory, "sessionFactory required");
@@ -69,6 +69,12 @@ public final class ArmySyncLocalTransactionManager extends AbstractPlatformTrans
     public void afterPropertiesSet() {
         // register transaction manager for read-write splitting
         //TransactionDefinitionHolder.registerTransactionManager(this.beanName, this.useSavepointForNestedTransaction());
+    }
+
+
+    @Nullable
+    public SyncSession tryCurrentSession() {
+        return this.sessionContext.tryCurrentSession();
     }
 
 

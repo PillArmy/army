@@ -189,13 +189,13 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
     private final SchemaMeta schemaMeta;
 
-    final Map<String, FieldMeta<T>> fieldNameToFields;
-
     private final List<FieldMeta<T>> fieldList;
 
-    private final List<IndexMeta<T>> indexMetaList;
+    final Map<String, FieldMeta<T>> fieldNameToFields;
 
     final PrimaryFieldMeta<T> primaryField;
+
+    private final List<IndexMeta<T>> indexMetaList;
 
 
     private final List<FieldMeta<?>> generatorChain;
@@ -219,14 +219,17 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
             this.fieldList = List.copyOf(TableMetaUtils.createFieldMetaList(this, context));
             this.fieldNameToFields = Map.copyOf(TableMetaUtils.createFieldMap(this.fieldList));
-            this.indexMetaList = List.copyOf(TableMetaUtils.createIndexList(this, context, this.fieldNameToFields));
-            this.generatorChain = List.copyOf(TableMetaUtils.createGeneratorChain(this.fieldNameToFields));
 
             this.primaryField = (PrimaryFieldMeta<T>) this.fieldNameToFields.get(_MetaBridge.ID);
             if (this.primaryField == null) {
                 String m = String.format("Not found primary field meta in domain[%s]", domainClass.getName());
                 throw new NullPointerException(m);
             }
+
+
+            this.indexMetaList = List.copyOf(TableMetaUtils.createIndexList(this, context, this.fieldNameToFields));
+            this.generatorChain = List.copyOf(TableMetaUtils.createGeneratorChain(this.fieldNameToFields));
+
         } catch (ArmyException e) {
             throw e;
         } catch (RuntimeException e) {

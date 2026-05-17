@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 智能助手 - 新对话</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!-- 通知区域 -->
+<div id="notification-container"></div>
+
+<!-- 主容器 -->
+<div class="app-container">
+    <!-- 左侧聊天历史 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <button id="new-chat-btn" class="btn btn-primary" title="新建会话">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 2a1 1 0 0 1 1 1v4h4a1 1 0 1 1 0 2H9v4a1 1 0 1 1-2 0V9H3a1 1 0 0 1 0-2h4V3a1 1 0 0 1 1-1z"/>
+                </svg>
+                新建会话
+            </button>
+        </div>
+        <div id="chat-history" class="chat-history">
+            <!-- 聊天历史列表将动态生成 -->
+        </div>
+    </aside>
+
+    <!-- 主内容区 - 无消息状态 -->
+    <main class="main-content empty-state">
+        <!-- 居中欢迎区域 -->
+        <div class="welcome-container">
+            <div class="welcome-message">
+                <h2>👋 欢迎使用 AI 智能助手</h2>
+                <p>我可以帮您解答问题、编写代码、分析数据等。请随时向我提问！</p>
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="input-area centered-input">
+            <div class="input-container">
+                <textarea
+                        id="message-input"
+                        class="message-input"
+                        placeholder="输入消息... (Enter 发送，Shift + Enter 换行)"
+                        rows="1"
+                ></textarea>
+                <div class="input-actions">
+                    <button id="upload-file-btn" class="btn btn-icon" title="上传文件">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 2a1 1 0 0 1 1 1v7.586l2.293-2.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L9 10.586V3a1 1 0 0 1 1-1z"/>
+                            <path d="M3 13a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z"/>
+                        </svg>
+                    </button>
+                    <button id="send-btn" class="btn btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10.894 2.553a1 1 0 0 0-1.788 0l-7 14a1 1 0 0 0 1.169 1.409l5-1.429A1 1 0 0 0 9 15.571V11a1 1 0 1 1 2 0v4.571a1 1 0 0 0 .725.962l5 1.428a1 1 0 0 0 1.17-1.408l-7-14z"/>
+                        </svg>
+                        发送
+                    </button>
+                </div>
+            </div>
+            <input type="file" id="file-input" class="file-input" multiple style="display: none;">
+        </div>
+    </main>
+</div>
+
+<!-- 文件预览区域 -->
+<div id="file-preview" class="file-preview" style="display: none;">
+    <div class="file-preview-header">
+        <span>已选择的文件：</span>
+        <button id="clear-files-btn" class="btn btn-small">清除全部</button>
+    </div>
+    <div id="file-list" class="file-list"></div>
+</div>
+
+<!-- 拖拽上传遮罩 -->
+<div id="drop-overlay" class="drop-overlay" style="display: none;">
+    <div class="drop-content">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="currentColor">
+            <path d="M32 8a1 1 0 0 1 1 1v28.586l8.293-8.293a1 1 0 0 1 1.414 1.414l-10 10a1 1 0 0 1-1.414 0l-10-10a1 1 0 0 1 1.414-1.414L31 37.586V9a1 1 0 0 1 1-1z"/>
+            <path d="M12 44a1 1 0 0 1 1-1h38a1 1 0 1 1 0 2H13a1 1 0 0 1-1-1z"/>
+        </svg>
+        <p>拖拽文件到此处上传</p>
+    </div>
+</div>
+
+<!-- 引入 Markdown-it -->
+<script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+<!-- empty-chat 专属逻辑 -->
+<script>
+    // 全局变量保存会话信息
+    window.currentConversationId = null;
+    window.initialContent = null;
+    window.initialUserMessage = null;
+
+    // 页面加载后绑定发送事件
+    document.addEventListener('DOMContentLoaded', () => {
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        // 发送消息函数
+        async function sendMessage() {
+            const content = messageInput.value.trim();
+            if (!content) {
+                return;
+            }
+
+            try {
+                // 禁用按钮防止重复提交
+                sendBtn.disabled = true;
+
+                // 请求创建会话
+                const response = await fetch('/api/chat/conversation/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `content=${encodeURIComponent(content)}`
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.code === 0 && result.data) {
+                    const {conversationId, content: responseContent} = result.data;
+
+                    // 保存会话信息到全局变量
+                    window.currentConversationId = conversationId;
+                    window.initialUserMessage = content;
+                    // 注意：不保存 responseContent，因为需要流式显示
+
+                    // 无刷新切换到 chat.html 视图
+                    await loadChatView();
+
+                    // 切换完成后，发送消息并流式显示
+                    await sendAndStreamResponse(conversationId, content, responseContent);
+                } else {
+                    console.error('创建会话失败:', result.msg);
+                    sendBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('创建会话异常:', error);
+                sendBtn.disabled = false;
+            }
+        }
+
+        // 加载 chat.html 视图（无刷新）
+        async function loadChatView() {
+            try {
+                // 加载 chat.html 的内容
+                const chatResponse = await fetch('/chat.html');
+                if (!chatResponse.ok) {
+                    throw new Error('加载 chat.html 失败');
+                }
+
+                const chatHtml = await chatResponse.text();
+
+                // 解析 HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(chatHtml, 'text/html');
+
+                // 替换 body 内容
+                document.body.innerHTML = doc.body.innerHTML;
+
+                // 重新加载必要的脚本
+                const mdScript = document.createElement('script');
+                mdScript.src = 'https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js';
+                mdScript.onload = () => {
+                    const appScript = document.createElement('script');
+                    appScript.src = 'js/app.js';
+                    appScript.onload = () => {
+                        // 初始化 chat 视图
+                        initializeChatView();
+                    };
+                    document.body.appendChild(appScript);
+                };
+                document.body.appendChild(mdScript);
+
+            } catch (error) {
+                console.error('加载 chat 视图失败:', error);
+                alert('加载聊天视图失败，请刷新页面重试');
+            }
+        }
+
+        // 初始化 chat 视图
+        function initializeChatView() {
+            // 等待 DOM 渲染完成
+            setTimeout(() => {
+                const chatMessages = document.getElementById('chat-messages');
+                const messageInput = document.getElementById('message-input');
+                const sendBtn = document.getElementById('send-btn');
+
+                if (!chatMessages || !messageInput || !sendBtn) {
+                    console.error('必要的 DOM 元素未找到');
+                    return;
+                }
+
+                // 存储 conversationId 到 data 属性
+                document.body.dataset.conversationId = window.currentConversationId;
+
+                // 初始化 markdown-it
+                const md = window.markdownit({
+                    html: true,
+                    linkify: true,
+                    typographer: true,
+                    breaks: true
+                });
+
+                // 显示初始消息并请求 talk 接口
+                if (window.initialContent) {
+                    // 显示用户消息
+                    appendMessage('user', window.initialUserMessage, md, chatMessages);
+                    // 显示 AI 响应
+                    appendMessage('assistant', window.initialContent, md, chatMessages);
+
+                    // 异步刷新左侧会话列表
+                    refreshChatHistory();
+                }
+
+                // 绑定发送按钮
+                sendBtn.addEventListener('click', () => sendNewMessage(messageInput, sendBtn, md, chatMessages));
+
+                messageInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendNewMessage(messageInput, sendBtn, md, chatMessages);
+                    }
+                });
+
+                messageInput.addEventListener('input', () => {
+                    messageInput.style.height = 'auto';
+                    messageInput.style.height = Math.min(messageInput.scrollHeight, 200) + 'px';
+                });
+            }, 100);
+        }
+
+        // 添加消息
+        function appendMessage(role, content, md, container) {
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${role}`;
+
+            const time = new Date().toLocaleString('zh-CN');
+            const avatar = role === 'user' ? '👤' : '🤖';
+            const label = role === 'user' ? '我: ' : '';
+            const renderedContent = role === 'user'
+                ? escapeHtml(content)
+                : md.render(content);
+
+            messageEl.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    ${label ? `<div class="message-label">${label}</div>` : ''}
+                    <div class="message-bubble">${renderedContent}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+
+            container.appendChild(messageEl);
+
+            // 使用 requestAnimationFrame 确保滚动生效
+            requestAnimationFrame(() => {
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        // 转义 HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 流式显示 AI 响应
+        async function streamResponse(conversationId, content, md, chatMessages) {
+            try {
+                const response = await fetch(`/api/chat/conversation/talk/${conversationId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `content=${encodeURIComponent(content)}`
+                });
+
+                // 只要 HTTP 状态是 200 就是成功
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // 创建 AI 消息元素
+                const messageEl = document.createElement('div');
+                messageEl.className = 'message assistant streaming';
+
+                const time = new Date().toLocaleString('zh-CN');
+                messageEl.innerHTML = `
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <div class="message-bubble"></div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+                chatMessages.appendChild(messageEl);
+
+                const bubble = messageEl.querySelector('.message-bubble');
+                let aiContent = '';
+
+                // 读取流式响应
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder('utf-8');
+
+                while (true) {
+                    const {done, value} = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, {stream: true});
+                    aiContent += chunk;
+
+                    // 响应式更新内容
+                    bubble.innerHTML = md.render(aiContent);
+
+                    // 使用 requestAnimationFrame 确保滚动生效
+                    requestAnimationFrame(() => {
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    });
+                }
+
+                // 移除 streaming 标记
+                messageEl.classList.remove('streaming');
+
+            } catch (error) {
+                console.error('流式响应异常:', error);
+                appendMessage('assistant', '抱歉，处理您的请求时出现错误。请稍后重试。', md, chatMessages);
+            }
+        }
+
+        // 发送消息并流式显示（用于首次创建会话后）
+        async function sendAndStreamResponse(conversationId, userContent, initialResponse) {
+            // 等待 DOM 准备好
+            setTimeout(async () => {
+                const chatMessages = document.getElementById('chat-messages');
+                const messageInput = document.getElementById('message-input');
+
+                if (!chatMessages) return;
+
+                // 初始化 markdown-it
+                const md = window.markdownit({
+                    html: true,
+                    linkify: true,
+                    typographer: true,
+                    breaks: true
+                });
+
+                // 显示用户消息
+                appendMessage('user', userContent, md, chatMessages);
+
+                // 如果有初始响应，流式显示
+                if (initialResponse) {
+                    await streamResponse(conversationId, userContent, md, chatMessages);
+                }
+
+                // 清空输入框
+                if (messageInput) {
+                    messageInput.value = '';
+                    messageInput.style.height = 'auto';
+                }
+
+                // 异步刷新左侧会话列表
+                refreshChatHistory();
+
+                // 强制滚动到底部
+                requestAnimationFrame(() => {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                });
+            }, 200);
+        }
+
+        // 发送新消息
+        async function sendNewMessage(messageInput, sendBtn, md, chatMessages) {
+            const content = messageInput.value.trim();
+            if (!content) return;
+
+            try {
+                sendBtn.disabled = true;
+
+                appendMessage('user', content, md, chatMessages);
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+
+                const conversationId = document.body.dataset.conversationId;
+
+                // 流式显示 AI 响应
+                await streamResponse(conversationId, content, md, chatMessages);
+            } catch (error) {
+                console.error('发送消息异常:', error);
+                appendMessage('assistant', '抱歉，处理您的请求时出现错误。请稍后重试。', md, chatMessages);
+            } finally {
+                sendBtn.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        // 刷新会话列表
+        async function refreshChatHistory() {
+            try {
+                const response = await fetch('/api/chat/conversation/list', {
+                    method: 'GET'
+                });
+
+                if (!response.ok) return;
+
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    const chatHistory = document.getElementById('chat-history');
+                    if (!chatHistory) return;
+
+                    const conversationList = result.data?.list || [];
+                    chatHistory.innerHTML = '';
+
+                    conversationList.forEach(item => {
+                        const chatItem = document.createElement('div');
+                        chatItem.className = 'chat-item';
+                        chatItem.innerHTML = `
+                            <div class="chat-item-content">
+                                <span class="chat-item-title">${escapeHtml(item.title || '未命名会话')}</span>
+                            </div>
+                        `;
+                        chatHistory.appendChild(chatItem);
+                    });
+                }
+            } catch (error) {
+                console.error('刷新会话列表失败:', error);
+            }
+        }
+
+        // 绑定发送按钮点击事件
+        sendBtn.addEventListener('click', sendMessage);
+
+        // 绑定输入框键盘事件
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    });
+</script>
+</body>
+</html>

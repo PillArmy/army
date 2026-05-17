@@ -186,11 +186,6 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         return (B) this;
     }
 
-    @Override
-    public final B columnConverterFunc(@Nullable Function<Class<?>, Function<Object, ?>> converterFunc) {
-        this.converterFunc = converterFunc;
-        return (B) this;
-    }
 
     @Override
     public final <T> B dataSourceOption(final Option<T> option, final @Nullable T value) {

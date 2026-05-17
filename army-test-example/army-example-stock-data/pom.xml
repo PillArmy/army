@@ -28,6 +28,16 @@
         </dependency>
 
         <dependency>
+            <groupId>io.qinarmy</groupId>
+            <artifactId>army-spring-ai-model-chat-memory</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.qinarmy</groupId>
+            <artifactId>army-spring-ai-vector-store</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>

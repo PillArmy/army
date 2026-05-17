@@ -14,10 +14,21 @@ class ChatApp {
         this.init();
     }
 
-    init() {
+    async init() {
         this.bindEvents();
-        this.loadChatsFromStorage();
-        this.showNotification('欢迎使用 AI 智能助手！', 'info');
+        // 先加载当前会话（包含消息）
+        await this.loadCurrentConversation();
+        // 再加载会话列表（不覆盖已有消息）
+        await this.loadChatsFromStorage();
+
+        // 确保消息被渲染
+        if (this.currentChatId && this.chats.has(this.currentChatId)) {
+            const chat = this.chats.get(this.currentChatId);
+            console.log('init - 当前会话消息数:', chat.messages.length);
+            if (chat.messages.length > 0) {
+                this.renderMessages();
+            }
+        }
     }
 
     bindEvents() {
@@ -43,18 +54,85 @@ class ChatApp {
         this.setupDragAndDrop();
     }
 
+    // 加载当前会话
+    async loadCurrentConversation() {
+        try {
+            const response = await fetch('/api/chat/conversation/current', {
+                method: 'GET'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('loadCurrentConversation - 响应:', result);
+
+            // 检查响应 code，0 表示成功
+            if (result.code === 0) {
+                const data = result.data;
+                const conversationId = data?.conversationId;
+                const messageList = data?.messageList || [];
+
+                console.log('loadCurrentConversation - conversationId:', conversationId);
+                console.log('loadCurrentConversation - messageList:', messageList);
+                console.log('loadCurrentConversation - messageList.length:', messageList.length);
+
+                // 如果有会话 ID，设置当前会话
+                if (conversationId) {
+                    this.currentChatId = conversationId;
+
+                    // 转换消息格式
+                    const messages = messageList.map(msg => ({
+                        role: msg.messageType === 'USER' ? 'user' : 'assistant',
+                        content: msg.text,
+                        timestamp: new Date().toISOString()
+                    }));
+
+                    console.log('loadCurrentConversation - 转换后的 messages:', messages);
+
+                    // 创建会话对象
+                    this.chats.set(conversationId, {
+                        id: conversationId,
+                        title: '当前会话',
+                        messages: messages,
+                        timestamp: new Date().toISOString(),
+                        createdAt: new Date().toISOString()
+                    });
+
+                    console.log('loadCurrentConversation - chats.size:', this.chats.size);
+                    console.log('loadCurrentConversation - 设置的会话消息数:', messages.length);
+
+                    // 渲染聊天历史列表
+                    this.renderChatHistory();
+
+                    // 渲染消息
+                    this.renderMessages();
+
+                    // 不跳转，保持当前页面
+                    // 如果在 index.html 页面且有会话，也不跳转
+                }
+            }
+            // 成功时保持静默，不显示任何提示
+        } catch (error) {
+            console.error('加载当前会话失败:', error);
+        }
+    }
+
     // 创建新会话
     async createNewChat() {
         try {
+            // 获取聊天框的文本内容
+            const input = document.getElementById('message-input');
+            const content = input ? input.value.trim() : '';
+
             // 请求后端创建新会话
-            const response = await fetch('/api/chat/session/create', {
+            const response = await fetch('/api/chat/conversation/create', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: JSON.stringify({
-                    title: '新会话 ' + (this.chats.size + 1)
-                })
+                body: `content=${encodeURIComponent(content)}`
             });
 
             if (!response.ok) {
@@ -65,12 +143,22 @@ class ChatApp {
 
             // 检查响应 code，0 表示成功
             if (result.code === 0) {
-                const chat = result.data;
-                // 保存到本地
-                this.chats.set(chat.id, chat);
-                this.switchChat(chat.id);
-                this.renderChatHistory();
-                this.showNotification('已创建新会话', 'success');
+                const data = result.data;
+                const conversationId = data?.conversationId;
+
+                if (conversationId) {
+                    // 保存 conversationId 到全局变量
+                    window.currentConversationId = conversationId;
+
+                    // 如果有初始内容，也保存
+                    if (data.content) {
+                        window.initialContent = data.content;
+                        window.initialUserMessage = content;
+                    }
+
+                    // 不跳转，保持在当前页面
+                    // 视图切换由调用方处理
+                }
             } else {
                 this.showNotification(result.msg || '创建会话失败', 'error');
             }
@@ -85,6 +173,18 @@ class ChatApp {
         this.currentChatId = chatId;
         this.renderChatHistory();
         this.renderMessages();
+    }
+
+    // 切换到无消息页面（不刷新，不更新URL）
+    navigateToEmptyChat() {
+        // 不做任何操作，保持当前页面
+        console.log('导航到 empty-chat (无刷新)');
+    }
+
+    // 切换到有消息页面（不刷新，不更新URL）
+    navigateToChat() {
+        // 不做任何操作，保持当前页面
+        console.log('导航到 chat (无刷新)');
     }
 
     // 删除会话
@@ -122,7 +222,6 @@ class ChatApp {
                 }
 
                 this.renderChatHistory();
-                this.showNotification('会话已删除', 'success');
             } else {
                 this.showNotification(result.msg || '删除会话失败', 'error');
             }
@@ -139,7 +238,9 @@ class ChatApp {
 
         this.chats.forEach(chat => {
             const chatItem = document.createElement('div');
-            chatItem.className = `chat-item ${chat.id === this.currentChatId ? 'active' : ''}`;
+            // 当前会话且消息不为空时添加 highlighted 类
+            const isHighlighted = chat.id === this.currentChatId && chat.messages.length > 0;
+            chatItem.className = `chat-item ${chat.id === this.currentChatId ? 'active' : ''} ${isHighlighted ? 'highlighted' : ''}`;
 
             // 单击切换会话
             chatItem.onclick = () => this.switchChat(chat.id);
@@ -175,20 +276,22 @@ class ChatApp {
     // 渲染消息列表
     renderMessages() {
         const container = document.getElementById('chat-messages');
-        container.innerHTML = '';
-
-        if (!this.currentChatId || !this.chats.has(this.currentChatId)) {
-            container.innerHTML = `
-                <div class="welcome-message">
-                    <h2>👋 欢迎使用 AI 智能助手</h2>
-                    <p>我可以帮您解答问题、编写代码、分析数据等。请随时向我提问！</p>
-                </div>
-            `;
+        if (!container) {
+            console.warn('chat-messages 容器不存在');
+            // 如果在 empty-chat.html 页面，不需要渲染消息
             return;
         }
+        
+        container.innerHTML = '';
 
         const chat = this.chats.get(this.currentChatId);
-        if (chat.messages.length === 0) {
+        console.log('renderMessages - currentChatId:', this.currentChatId);
+        console.log('renderMessages - chat:', chat);
+        console.log('renderMessages - messages:', chat?.messages);
+
+        if (!chat || chat.messages.length === 0) {
+            // 无消息时显示欢迎信息
+            console.log('renderMessages - 显示欢迎信息');
             container.innerHTML = `
                 <div class="welcome-message">
                     <h2>💬 开始新的对话</h2>
@@ -198,6 +301,8 @@ class ChatApp {
             return;
         }
 
+        console.log('renderMessages - 渲染', chat.messages.length, '条消息');
+        // 有消息时按顺序显示
         chat.messages.forEach(msg => {
             this.appendMessage(msg, false);
         });
@@ -216,6 +321,7 @@ class ChatApp {
 
         const time = new Date(message.timestamp).toLocaleString('zh-CN');
         const avatar = message.role === 'user' ? '👤' : '🤖';
+        const label = message.role === 'user' ? '我: ' : '';
         const content = message.role === 'user'
             ? this.escapeHtml(message.content)
             : this.md.render(message.content);
@@ -223,6 +329,7 @@ class ChatApp {
         messageEl.innerHTML = `
             <div class="message-avatar">${avatar}</div>
             <div class="message-content">
+                ${label ? `<div class="message-label">${label}</div>` : ''}
                 <div class="message-bubble">${content}</div>
                 <div class="message-time">${time}</div>
             </div>
@@ -271,6 +378,7 @@ class ChatApp {
 
         if (!this.currentChatId) {
             this.createNewChat();
+            return;
         }
 
         // 构建消息内容
@@ -295,6 +403,9 @@ class ChatApp {
         if (chat.messages.length === 1) {
             chat.title = content.substring(0, 30) + (content.length > 30 ? '...' : '');
             this.renderChatHistory();
+            // 第一条消息发送后，切换到有消息页面
+            this.navigateToChat();
+            return;
         }
 
         this.appendMessage(userMessage);
@@ -308,55 +419,54 @@ class ChatApp {
         await this.sendToServer(userMessage);
     }
 
-    // 发送到服务器
+    // 发送到服务器（流式响应）
     async sendToServer(message) {
         const sendBtn = document.getElementById('send-btn');
         sendBtn.disabled = true;
 
         try {
-            // 构建请求数据
-            const requestData = {
-                chatId: this.currentChatId,
-                message: message.content,
-                files: this.selectedFiles.map(f => ({
-                    name: f.name,
-                    type: f.type,
-                    size: f.size
-                }))
-            };
+            // 获取 conversationId
+            const conversationId = this.currentChatId || document.body.dataset.conversationId;
 
-            // 如果有文件，使用 FormData
-            let response;
-            if (this.selectedFiles.length > 0) {
-                const formData = new FormData();
-                formData.append('chatId', this.currentChatId);
-                formData.append('message', message.content);
-                this.selectedFiles.forEach(file => {
-                    formData.append('files', file);
-                });
-
-                response = await fetch('/api/chat/message/send', {
-                    method: 'POST',
-                    body: formData
-                });
-            } else {
-                response = await fetch('/api/chat/message/send', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestData)
-                });
+            if (!conversationId) {
+                throw new Error('没有有效的 conversationId');
             }
 
+            // 发送请求到新的 API 路径
+            const response = await fetch(`/api/chat/conversation/talk/${conversationId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `content=${encodeURIComponent(message.content)}`
+            });
+
+            // 只要 HTTP 状态是 200 就是成功
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            // 处理流式响应
+            // 创建 AI 消息元素
+            const container = document.getElementById('chat-messages');
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message assistant streaming';
+
+            const time = new Date().toLocaleString('zh-CN');
+            messageEl.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="message-bubble"></div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            container.appendChild(messageEl);
+
+            const bubble = messageEl.querySelector('.message-bubble');
+            let aiContent = '';
+
+            // 读取流式响应
             const reader = response.body.getReader();
             const decoder = new TextDecoder('utf-8');
-            let aiContent = '';
 
             while (true) {
                 const {done, value} = await reader.read();
@@ -364,21 +474,23 @@ class ChatApp {
 
                 const chunk = decoder.decode(value, {stream: true});
                 aiContent += chunk;
-                this.appendStreamingMessage(aiContent);
+
+                // 响应式更新内容
+                bubble.innerHTML = this.md.render(aiContent);
+                this.scrollToBottom();
             }
 
+            // 移除 streaming 标记
+            messageEl.classList.remove('streaming');
+            
             // 保存AI响应
             const chat = this.chats.get(this.currentChatId);
-            chat.messages.push({
-                role: 'assistant',
-                content: aiContent,
-                timestamp: new Date().toISOString()
-            });
-
-            // 移除streaming标记
-            const streamingMsg = document.querySelector('.message.assistant.streaming');
-            if (streamingMsg) {
-                streamingMsg.classList.remove('streaming');
+            if (chat) {
+                chat.messages.push({
+                    role: 'assistant',
+                    content: aiContent,
+                    timestamp: new Date().toISOString()
+                });
             }
 
         } catch (error) {
@@ -387,12 +499,18 @@ class ChatApp {
 
             // 添加错误消息
             const chat = this.chats.get(this.currentChatId);
-            chat.messages.push({
+            if (chat) {
+                chat.messages.push({
+                    role: 'assistant',
+                    content: '抱歉，处理您的请求时出现错误。请稍后重试。',
+                    timestamp: new Date().toISOString()
+                });
+            }
+            this.appendMessage({
                 role: 'assistant',
                 content: '抱歉，处理您的请求时出现错误。请稍后重试。',
                 timestamp: new Date().toISOString()
             });
-            this.appendMessage(chat.messages[chat.messages.length - 1]);
         } finally {
             sendBtn.disabled = false;
         }
@@ -428,7 +546,6 @@ class ChatApp {
             }
         });
         this.renderFilePreview();
-        this.showNotification(`已添加 ${files.length} 个文件`, 'success');
     }
 
     // 渲染文件预览
@@ -538,7 +655,10 @@ class ChatApp {
     // 滚动到底部
     scrollToBottom() {
         const container = document.getElementById('chat-messages');
-        container.scrollTop = container.scrollHeight;
+        // 使用 requestAnimationFrame 确保滚动生效
+        requestAnimationFrame(() => {
+            container.scrollTop = container.scrollHeight;
+        });
     }
 
     // 保存到本地存储（已禁用，仅保留方法避免报错）
@@ -550,7 +670,7 @@ class ChatApp {
     async loadChatsFromStorage() {
         try {
             // 从后端加载会话列表
-            const response = await fetch('/api/chat/session/list', {
+            const response = await fetch('/api/chat/conversation/list', {
                 method: 'GET'
             });
 
@@ -559,26 +679,43 @@ class ChatApp {
             }
 
             const result = await response.json();
+            console.log('loadChatsFromStorage - 响应:', result);
 
-            // 检查响应 code，0 表示成功
+
             if (result.code === 0) {
-                const historyList = result.data?.history || [];
+                const conversationList = result.data?.list || [];
+                console.log('loadChatsFromStorage - 会话列表:', conversationList);
 
-                // 转换历史数据格式
-                this.chats = new Map();
-                historyList.forEach(item => {
-                    this.chats.set(item.id, {
-                        id: item.id,
-                        title: item.title || '未命名会话',
-                        messages: [],
-                        timestamp: item.timestamp,
-                        createdAt: item.timestamp
-                    });
+                // 只更新或添加会话，不覆盖已有消息
+                conversationList.forEach(item => {
+                    // 如果会话已存在，保留其消息
+                    if (!this.chats.has(item.id)) {
+                        this.chats.set(item.id, {
+                            id: item.id,
+                            title: item.title || '未命名会话',
+                            messages: [],
+                            timestamp: item.createTime,
+                            createdAt: item.createTime
+                        });
+                    } else {
+                        // 已存在，只更新标题和时间
+                        const existingChat = this.chats.get(item.id);
+                        existingChat.title = item.title || existingChat.title;
+                        existingChat.timestamp = item.createTime;
+                        existingChat.createdAt = item.createTime;
+                    }
                 });
 
-                if (this.chats.size > 0) {
-                    this.switchChat(Array.from(this.chats.keys())[0]);
+                console.log('loadChatsFromStorage - chats.size:', this.chats.size);
+                console.log('loadChatsFromStorage - currentChatId:', this.currentChatId);
+
+                // 如果没有当前选中的会话，选择第一个
+                if (!this.currentChatId && this.chats.size > 0) {
+                    const firstChatId = Array.from(this.chats.keys())[0];
+                    console.log('loadChatsFromStorage - 选择第一个会话:', firstChatId);
+                    this.currentChatId = firstChatId;
                 }
+
                 this.renderChatHistory();
             } else {
                 console.warn('服务端返回错误:', result.msg);
@@ -613,7 +750,6 @@ class ChatApp {
                     const chat = this.chats.get(chatId);
                     chat.messages = chatData.messages || [];
                     this.switchChat(chatId);
-                    this.showNotification('会话内容已加载', 'success');
                 }
             } else {
                 this.showNotification(result.msg || '加载会话内容失败', 'error');

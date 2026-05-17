@@ -21,14 +21,12 @@ import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
 import io.army.dialect.Database;
 import io.army.env.ArmyEnvironment;
-import io.army.executor.ExecutorEnv;
 import io.army.executor.ExecutorFactoryProvider;
 import io.army.function.DefinedTypeMapFunc;
 import io.army.generator.FieldGeneratorFactory;
 import io.army.lang.Nullable;
 import io.army.meta.SchemaMeta;
 import io.army.option.Option;
-import io.army.result.ResultRecord;
 
 import java.util.Collection;
 import java.util.List;
@@ -110,10 +108,6 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
     /// @return **this**
     B executorFactoryProviderValidator(@Nullable Consumer<ExecutorFactoryProvider> consumer);
 
-    /// Optional.
-    /// See {@link ResultRecord#get(int, Class)} and {@link ExecutorEnv#converterFunc()}
-    /// @return **this**
-    B columnConverterFunc(@Nullable Function<Class<?>, Function<Object, ?>> converterFunc);
 
     <T> B dataSourceOption(Option<T> option, @Nullable T value);
 

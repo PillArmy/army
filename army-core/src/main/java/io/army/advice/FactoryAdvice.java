@@ -24,9 +24,15 @@ public interface FactoryAdvice {
 
     int order();
 
-    void beforeInstance(ServerMeta serverMeta, ArmyEnvironment environment);
+   default void beforeInstance(ServerMeta serverMeta, ArmyEnvironment environment) {
 
-    void beforeInitialize(SessionFactory sessionFactory);
+   }
 
-    void afterInitialize(SessionFactory sessionFactory);
+   default void beforeInitialize(SessionFactory sessionFactory) {
+
+   }
+
+   default void afterInitialize(SessionFactory sessionFactory) {
+
+   }
 }

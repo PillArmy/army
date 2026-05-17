@@ -46,7 +46,6 @@ public class ArmyReactiveSessionFactoryBean extends ArmySessionFactoryBeanSuppor
                 .nameToDatabaseFunc(getNameToDatabaseFunc())
 
                 .executorFactoryProviderValidator(getExecutorFactoryProviderValidator())
-                .columnConverterFunc(getColumnConverterFunc())
 
                 .build()
                 .block();

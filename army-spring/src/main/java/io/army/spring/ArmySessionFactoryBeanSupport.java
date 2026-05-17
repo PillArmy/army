@@ -153,10 +153,6 @@ public abstract class ArmySessionFactoryBeanSupport implements InitializingBean,
         return this;
     }
 
-    public final ArmySessionFactoryBeanSupport setColumnConverterFunc(Function<Class<?>, Function<Object, ?>> columnConverterFunc) {
-        this.columnConverterFunc = columnConverterFunc;
-        return this;
-    }
 
     /*################################## blow private method ##################################*/
 
@@ -233,10 +229,6 @@ public abstract class ArmySessionFactoryBeanSupport implements InitializingBean,
         return this.executorFactoryProviderValidator;
     }
 
-    @Nullable
-    protected final Function<Class<?>, Function<Object, ?>> getColumnConverterFunc() {
-        return this.columnConverterFunc;
-    }
 
     /*################################## blow package static method ##################################*/
 

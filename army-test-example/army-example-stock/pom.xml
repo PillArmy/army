@@ -16,16 +16,6 @@
 
         <dependency>
             <groupId>io.qinarmy</groupId>
-            <artifactId>army-spring-ai-model-chat-memory</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.qinarmy</groupId>
-            <artifactId>army-spring-ai-vector-store</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.qinarmy</groupId>
             <artifactId>army-example-stock-data</artifactId>
         </dependency>
 
@@ -34,10 +24,10 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework.boot</groupId>-->
-        <!--            <artifactId>spring-boot-devtools</artifactId>-->
-        <!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

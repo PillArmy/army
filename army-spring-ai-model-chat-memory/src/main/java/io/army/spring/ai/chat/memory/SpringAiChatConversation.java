@@ -16,15 +16,18 @@
 
 package io.army.spring.ai.chat.memory;
 
-import io.army.annotation.*;
+import io.army.annotation.Column;
+import io.army.annotation.DdlMode;
+import io.army.annotation.Mapping;
+import io.army.annotation.Table;
 
 import java.time.LocalDateTime;
 
 @Table(name = "${DEFAULT}", ddlMode = DdlMode.NONE, immutable = true, comment = "${DEFAULT}")
 public class SpringAiChatConversation {
 
-    @Generator(type = GeneratorType.DEFAULT)
     @Column(name = "${DEFAULT}", precision = Column.DEFAULT_EXP, scale = Column.DEFAULT_EXP, comment = "${DEFAULT}")
+    @Mapping("${DEFAULT}")
     private String id;
 
     @Column(name = "${DEFAULT}", notNull = true, defaultValue = "'1979-01-01 00:00:00'", comment = "${DEFAULT}")

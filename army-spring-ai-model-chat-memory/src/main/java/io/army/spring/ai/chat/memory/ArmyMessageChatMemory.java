@@ -196,7 +196,7 @@ public final class ArmyMessageChatMemory implements ChatMemory {
     /// 2. type
     /// 3. specializedData
     ///
-    private static Function<CurrentRecord, Message> messageReadFunc(final JsonCodec codec) {
+    public static Function<CurrentRecord, Message> messageReadFunc(final JsonCodec codec) {
         return record -> {
             final String content, userId;
             userId = record.get(0, String.class);

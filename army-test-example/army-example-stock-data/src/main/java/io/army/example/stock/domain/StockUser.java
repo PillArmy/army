@@ -1,35 +1,31 @@
 package io.army.example.stock.domain;
 
 import io.army.annotation.Column;
+import io.army.annotation.Generator;
+import io.army.annotation.Param;
 import io.army.annotation.Table;
+import io.army.generator.snowflake.Snowflake8Generator;
 
 import java.time.LocalDateTime;
 
-@Table(name = "stock_user", comment = "股票用户")
-public class StockUser {
 
+@Table(name = "stock_user", comment = "股票用户")
+public class StockUser extends BaseDomain<StockUser> {
+
+    @Generator(value = SNOWFLAKE8, params = @Param(name = Snowflake8Generator.START_TIME, value = "1779014276675"))
     @Column
     private long id;
 
-    @Column
-    private LocalDateTime createTime;
 
-    @Column
-    private LocalDateTime updateTime;
-
-    @Column
-    private int version;
-
-    @Column(precision = 30, comment = "用户名称")
+    @Column(notNull = true, precision = 30, comment = "用户名称")
     private String userName;
 
 
-    @Column(precision = Column.DEFAULT_EXP, comment = "用户性别")
+    @Column(notNull = true, defaultValue = "'UNKNOWN'", precision = Column.DEFAULT_EXP, comment = "用户性别")
     private Gender gender;
 
-    @Column(comment = "最后登录时间")
+    @Column(notNull = true, defaultValue = "'1970-01-01 00:00:00'", comment = "最后登录时间")
     private LocalDateTime lastLoginTime;
-
 
     public long getId() {
         return id;
@@ -37,33 +33,6 @@ public class StockUser {
 
     public StockUser setId(long id) {
         this.id = id;
-        return this;
-    }
-
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public StockUser setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-        return this;
-    }
-
-    public LocalDateTime getUpdateTime() {
-        return updateTime;
-    }
-
-    public StockUser setUpdateTime(LocalDateTime updateTime) {
-        this.updateTime = updateTime;
-        return this;
-    }
-
-    public int getVersion() {
-        return version;
-    }
-
-    public StockUser setVersion(int version) {
-        this.version = version;
         return this;
     }
 

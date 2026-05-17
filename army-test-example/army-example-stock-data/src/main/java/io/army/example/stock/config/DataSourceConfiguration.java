@@ -4,6 +4,8 @@ import io.army.generator.FieldGeneratorFactory;
 import io.army.generator.StandaloneFieldGeneratorFactory;
 import io.army.session.SyncSessionContext;
 import io.army.session.SyncSessionFactory;
+import io.army.spring.ArmyTransactionTemplate;
+import io.army.spring.DefaultArmyTransactionTemplate;
 import io.army.spring.sync.ArmySyncLocalTransactionManager;
 import io.army.spring.sync.ArmySyncSessionFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +23,7 @@ public class DataSourceConfiguration {
         return StandaloneFieldGeneratorFactory.getInstance();
     }
 
+
     @Bean
     public ArmySyncSessionFactoryBean stockSyncSessionFactory(DataSource dataSource) {
 
@@ -30,7 +33,9 @@ public class DataSourceConfiguration {
                 .setFactoryName("army-stock")
                 .setDataSource(dataSource)
                 .setPackagesToScan(List.of("io.army.example.stock.domain", "io.army.spring.ai.chat.memory"))
-                .setFieldGeneratorFactory(stockFieldGeneratorFactory());
+                .setFieldGeneratorFactory(stockFieldGeneratorFactory())
+                .setFactoryAdviceCollection(List.of(new StockSessionFactoryAdvisor()))
+        ;
 
         return factoryBean;
     }
@@ -51,6 +56,11 @@ public class DataSourceConfiguration {
     @Bean
     public SyncSessionContext stockSyncSessionContext(ArmySyncLocalTransactionManager manager) {
         return manager.getSessionContext();
+    }
+
+    @Bean
+    public ArmyTransactionTemplate stockTransactionTemplate(ArmySyncLocalTransactionManager manager) {
+        return new DefaultArmyTransactionTemplate(manager);
     }
 
 
