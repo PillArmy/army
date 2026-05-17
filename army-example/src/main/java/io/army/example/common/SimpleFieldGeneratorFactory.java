@@ -20,7 +20,7 @@ import io.army.generator.FieldGenerator;
 import io.army.generator.FieldGeneratorFactory;
 import io.army.generator.FieldGeneratorUtils;
 import io.army.generator.UUIDGenerator;
-import io.army.generator.snowflake.SnowflakeGenerator;
+import io.army.generator.snowflake.Snowflake8Generator;
 import io.army.meta.FieldMeta;
 import io.army.meta.GeneratorMeta;
 
@@ -36,8 +36,8 @@ public final class SimpleFieldGeneratorFactory implements FieldGeneratorFactory 
         }
         final Class<?> javaType = meta.javaType();
         final FieldGenerator fieldGenerator;
-        if (javaType == SnowflakeGenerator.class) {
-            fieldGenerator = SnowflakeGenerator.create(field);
+        if (javaType == Snowflake8Generator.class) {
+            fieldGenerator = Snowflake8Generator.create(field);
         } else if (javaType == UUIDGenerator.class) {
             fieldGenerator = UUIDGenerator.create(field);
         } else {

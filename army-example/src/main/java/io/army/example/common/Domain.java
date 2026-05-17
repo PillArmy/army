@@ -18,7 +18,7 @@ package io.army.example.common;
 
 
 import io.army.generator.FieldGenerator;
-import io.army.generator.snowflake.SnowflakeGenerator;
+import io.army.generator.snowflake.Snowflake8Generator;
 import org.springframework.lang.Nullable;
 
 import java.util.Objects;
@@ -28,7 +28,7 @@ public abstract class Domain extends Criteria {
 
     protected static final String SNOWFLAKE = "io.army.generator.snowflake.SnowflakeGenerator";
 
-    protected static final String START_TIME = SnowflakeGenerator.START_TIME;
+    protected static final String START_TIME = Snowflake8Generator.START_TIME;
 
     protected static final String startTime = "1647957568404";
 

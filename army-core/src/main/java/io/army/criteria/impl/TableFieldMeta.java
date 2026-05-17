@@ -26,7 +26,7 @@ import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.generator.FieldGenerator;
 import io.army.generator.GeneratorStrategy;
-import io.army.generator.snowflake.SnowflakeGenerator;
+import io.army.generator.snowflake.Snowflake8Generator;
 import io.army.lang.Nullable;
 import io.army.mapping.ArrayMappingType;
 import io.army.mapping.MappingType;
@@ -379,7 +379,7 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
     public final boolean isSerial() {
         final GeneratorMeta meta = this.generatorMeta;
         return this.generatorType == GeneratorType.POST
-                || (meta != null && meta.javaType() == SnowflakeGenerator.class);
+                || (meta != null && meta.javaType() == Snowflake8Generator.class);
     }
 
     @Override

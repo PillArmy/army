@@ -431,7 +431,7 @@ public class ChinaRegion<T extends ChinaRegion<T>> {
 [source,java]
 ----
 @Generator(type = GeneratorType.PRECEDE, 
-           value = "io.army.generator.snowflake.SnowflakeGenerator",
+           value = "io.army.generator.snowflake.Snowflake8Generator",
            params = {@Param(name = "startTime", value = "1580224449498")})
 @Column
 private Long id;
@@ -1002,7 +1002,7 @@ public class MyCustomType implements MappingType {
 [source,java]
 ----
 @Generator(type = GeneratorType.PRECEDE,
-           value = "io.army.generator.snowflake.SnowflakeGenerator",
+           value = "io.army.generator.snowflake.Snowflake8Generator",
            params = {
                @Param(name = "startTime", value = "1580224449498")
            })

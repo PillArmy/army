@@ -40,9 +40,9 @@ import java.util.concurrent.ConcurrentMap;
 import static java.time.temporal.ChronoField.*;
 
 
-public final class SnowflakeGenerator implements FieldGenerator {
+public final class Snowflake8Generator implements FieldGenerator {
 
-    public static SnowflakeGenerator create(final FieldMeta<?> field) {
+    public static Snowflake8Generator create(final FieldMeta<?> field) {
 
         final GeneratorMeta meta;
         meta = field.generator();
@@ -68,7 +68,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
                 && javaType != long.class
                 && javaType != BigInteger.class
                 && javaType != String.class) {
-            throw FieldGeneratorUtils.dontSupportJavaType(SnowflakeGenerator.class, field);
+            throw FieldGeneratorUtils.dontSupportJavaType(Snowflake8Generator.class, field);
         }
         final FieldMeta<?> dependField;
         dependField = field.dependField();
@@ -84,7 +84,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
                 throw new MetaException(m);
             }
         }
-        return INSTANCE_MAP.computeIfAbsent(startTime, SnowflakeGenerator::new);
+        return INSTANCE_MAP.computeIfAbsent(startTime, Snowflake8Generator::new);
 
     }
 
@@ -96,7 +96,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
     }
 
 
-    private static final ConcurrentMap<Long, SnowflakeGenerator> INSTANCE_MAP = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Long, Snowflake8Generator> INSTANCE_MAP = new ConcurrentHashMap<>();
 
 
     /// mills
@@ -118,7 +118,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
 
     private final Snowflake8 snowflake;
 
-    private SnowflakeGenerator(long startTime) {
+    private Snowflake8Generator(long startTime) {
         this.snowflake = Snowflake8.getInstance(startTime);
     }
 
@@ -134,7 +134,7 @@ public final class SnowflakeGenerator implements FieldGenerator {
         } else if (javaType == String.class) {
             nextSequence = this.nextAsString(field, domain);
         } else {
-            throw FieldGeneratorUtils.dontSupportJavaType(SnowflakeGenerator.class, field);
+            throw FieldGeneratorUtils.dontSupportJavaType(Snowflake8Generator.class, field);
         }
         return nextSequence;
     }

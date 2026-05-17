@@ -5,9 +5,10 @@ import io.army.annotation.Generator;
 import io.army.annotation.MappedSuperclass;
 
 @MappedSuperclass
-public abstract class SnowFieldDomain extends BaseFieldDomain {
+public abstract class SnowFieldDomain<T extends SnowFieldDomain<T>> extends BaseDomain<T> {
 
-    @Generator(SNOWFLAKE)
+
+    @Generator(SNOWFLAKE8)
     @Column
     public long id;
 

@@ -37,7 +37,7 @@ public abstract class Snowflakes {
         final Properties properties;
         properties = _ResourceUtils.loadArmyProperties(Snowflake8.class.getSimpleName());
         final String key, startTime;
-        key = Snowflakes.class.getName() + '.' + SnowflakeGenerator.START_TIME;
+        key = Snowflakes.class.getName() + '.' + Snowflake8Generator.START_TIME;
         startTime = properties.getProperty(key, "1776386333818");
         try {
             START_TIME = Long.parseLong(startTime);
@@ -67,7 +67,7 @@ public abstract class Snowflakes {
         final long suffix;
         suffix = Snowflake8.getInstance(startTime)
                 .next(Workers.currentWorkerId(), 1, null);
-        return SnowflakeGenerator.FORMATTER.format(SystemClock.nowDate()) + suffix;
+        return Snowflake8Generator.FORMATTER.format(SystemClock.nowDate()) + suffix;
     }
 
     /// @param count    {@code >} 0, Efficient for count ≤ 4096; split into 4096 chunks if larger.
@@ -99,7 +99,7 @@ public abstract class Snowflakes {
     public static String defaultNextWithDate() {
         final long suffix;
         suffix = DEFAULT_SNOWFLAKE.next(Workers.currentWorkerId(), 1, null);
-        return SnowflakeGenerator.FORMATTER.format(SystemClock.nowDate()) + suffix;
+        return Snowflake8Generator.FORMATTER.format(SystemClock.nowDate()) + suffix;
     }
 
     /// @param count    {@code >} 0, Efficient for count ≤ 4096; split into 4096 chunks if larger.
@@ -138,7 +138,7 @@ public abstract class Snowflakes {
         return value -> {
             sb.setLength(0); // clear
 
-            sb.append(SnowflakeGenerator.FORMATTER.format(SystemClock.nowDate()));
+            sb.append(Snowflake8Generator.FORMATTER.format(SystemClock.nowDate()));
 
             if (prefix != null) {
                 sb.append(prefix);

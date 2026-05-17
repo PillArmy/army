@@ -18,7 +18,7 @@ package io.army.generator;
 
 import io.army.annotation.GeneratorType;
 import io.army.dialect._Constant;
-import io.army.generator.snowflake.SnowflakeGenerator;
+import io.army.generator.snowflake.Snowflake8Generator;
 import io.army.util._Assert;
 import io.army.util._Collections;
 
@@ -31,7 +31,7 @@ public final class SnowflakeGeneratorStrategy implements GeneratorStrategy {
     public static SnowflakeGeneratorStrategy create(final String argStr) {
         final Map<String, String> map;
         map = parseJsonMap(argStr);
-        _Assert.isTrue(SnowflakeGenerator.paramNameSet().containsAll(map.keySet()), "argStr illegal");
+        _Assert.isTrue(Snowflake8Generator.paramNameSet().containsAll(map.keySet()), "argStr illegal");
         return new SnowflakeGeneratorStrategy(map);
     }
 
@@ -86,7 +86,7 @@ public final class SnowflakeGeneratorStrategy implements GeneratorStrategy {
 
     @Override
     public Class<?> generatorClass() {
-        return SnowflakeGenerator.class;
+        return Snowflake8Generator.class;
     }
 
     @Override

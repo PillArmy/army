@@ -41,19 +41,21 @@ public abstract class Workers {
         throw new UnsupportedOperationException();
     }
 
-    static {
-        updateWorkerId();
-    }
 
     private static volatile int workerId = -1;
 
 
     public static int currentWorkerId() {
+        int workerId = Workers.workerId;
+        if (workerId == -1) {
+            updateWorkerId();
+            workerId = Workers.workerId;
+        }
         return workerId;
     }
 
 
-    static void updateWorkerId() {
+    private static void updateWorkerId() {
         int address;
         address = localAddress();
         if (address != -1) {
@@ -62,6 +64,8 @@ public abstract class Workers {
             doUpdateWorkerId(address);
         } else if ((address = localNetAddress()) != -1) {
             doUpdateWorkerId(address);
+        } else {
+            throw new IllegalStateException("can not get local address");
         }
     }
 
