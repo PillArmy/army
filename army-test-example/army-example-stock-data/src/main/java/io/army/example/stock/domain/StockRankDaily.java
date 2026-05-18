@@ -5,17 +5,14 @@ import io.army.generator.snowflake.Snowflake8Generator;
 
 import java.math.BigDecimal;
 
-@Table(name = "stock_rank_daily", indexes = {
-        @Index(name = "stock_rank_daily_idx_stock_id", fieldList = "stockId")},
+@Table(name = "stock_rank_daily",
+        indexes = @Index(name = "${DEFAULT}", unique = true, fieldList = {"stockId", "date"}),
         comment = "每日排名")
-public abstract class StockRankDaily extends BaseDomain<StockRankDaily> {
+public class StockRankDaily extends StockBaseDomain<StockRankDaily> {
 
-    @Generator(value = SNOWFLAKE8, params = @Param(name = Snowflake8Generator.START_TIME, value = "1776386333819"))
+    @Generator(value = SNOWFLAKE8, params = @Param(name = Snowflake8Generator.START_TIME, value = "1779111172669"))
     @Column
     public long id;
-
-    @Column(notNull = true, updatable = false, comment = "股票id")
-    public Long stockId; // 不能是 primitive , 因为要使用 insert statement default value clause
 
     @Column(updatable = false, comment = "当日排名")
     public int rankNumber;

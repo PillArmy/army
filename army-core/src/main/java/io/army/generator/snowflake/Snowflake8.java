@@ -64,7 +64,7 @@ public final class Snowflake8 {
         properties = _ResourceUtils.loadArmyProperties(Snowflake8.class.getSimpleName());
         final String key, value;
         key = Snowflake8.class.getName() + '.' + "max_accept_backward_ms";
-        value = properties.getProperty(key, "20");
+        value = properties.getProperty(key, "10");
 
         try {
             MAX_ACCEPT_BACKWARD_MS = Integer.parseInt(value);

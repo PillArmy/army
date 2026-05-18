@@ -19,6 +19,7 @@ package io.army.util;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 
 public abstract class RowMaps {
 
@@ -29,6 +30,10 @@ public abstract class RowMaps {
 
     public static Map<String, Object> hashMap() {
         return _Collections.hashMap();
+    }
+
+    public static Supplier<Map<String, Object>> hashMapConstructor(int columnCount) {
+        return () -> _Collections.hashMapForSize(columnCount);
     }
 
     public static Map<String, Object> treeMap() {

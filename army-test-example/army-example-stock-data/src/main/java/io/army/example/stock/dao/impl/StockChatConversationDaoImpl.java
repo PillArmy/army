@@ -8,17 +8,15 @@ import io.army.criteria.impl.SQLs;
 import io.army.example.stock.dao.StockChatConversationDao;
 import io.army.example.stock.domain.StockChatConversation;
 import io.army.example.stock.domain.StockChatConversation_;
-import io.army.result.CurrentRecord;
 import io.army.session.SyncSessionContext;
 import io.army.spring.ai.chat.memory.SpringAiChatMemory_;
+import io.army.util.RowMaps;
 import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import static io.army.criteria.impl.SQLs.*;
 
@@ -54,32 +52,24 @@ public class StockChatConversationDaoImpl extends ArmyStockBaseDao implements St
                 .orderBy(SpringAiChatMemory_.id.desc())
                 .limit(1)
                 .asQuery();
-        return this.sessionContext.currentSession().queryOne(stmt, Long.class);
+        return this.sessionContext.currentSession()
+                .queryOne(stmt, Long.class);
     }
 
     @Override
     public List<Map<String, Object>> conversationMessageList(long userId, long conversationId) {
         final Select stmt;
         stmt = SQLs.query()
-                .select(SpringAiChatMemory_.content, SpringAiChatMemory_.type, SpringAiChatMemory_.createTime)
+                .select(SpringAiChatMemory_.content.as("text"), SpringAiChatMemory_.type.as("messageType"))
+                .comma(SpringAiChatMemory_.createTime)
                 .from(SpringAiChatMemory_.T, AS, "t")
                 .where(SpringAiChatMemory_.conversationId.equal(conversationId))
                 .and(SpringAiChatMemory_.userId.equal(userId))
                 .and(SpringAiChatMemory_.type.in(SQLs::rowLiteral, List.of(MessageType.USER, MessageType.ASSISTANT)))
                 .orderBy(SpringAiChatMemory_.id)
                 .asQuery();
-
-        final Function<CurrentRecord, Map<String, Object>> function;
-        function = row -> {
-            final String content;
-            content = row.getNonNull(0, String.class);
-            final MessageType type;
-            type = row.getNonNull(1, MessageType.class);
-            final LocalDateTime createTime;
-            createTime = row.getNonNull(2, LocalDateTime.class);
-            return Map.of("text", content, "messageType", type, "createTime", createTime);
-        };
-        return this.sessionContext.currentSession().queryRecordList(stmt, function);
+        return this.sessionContext.currentSession()
+                .queryObjectList(stmt, RowMaps.hashMapConstructor(3));
     }
 
     @Nullable

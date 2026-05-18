@@ -250,7 +250,9 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         } else {
 
             try {
+                final long startTime = System.currentTimeMillis();
                 this.scanTableMeta();   // scan table meta
+                getLogger().info("factory[{}] scan table meta cost: {} ms", name, System.currentTimeMillis() - startTime);
                 error = null;
             } catch (SessionFactoryException e) {
                 error = e;
