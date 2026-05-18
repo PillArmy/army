@@ -25,14 +25,14 @@ import io.army.util._Collections;
 import java.util.Map;
 
 /// example : io.army.spring.ai.chat.memory.SpringAiChatMemory.id=io.army.generator.SnowflakeGeneratorStrategy:{"startTime":1776386333818}
-public final class SnowflakeGeneratorStrategy implements GeneratorStrategy {
+public final class Snowflake8GeneratorStrategy implements GeneratorStrategy {
 
 
-    public static SnowflakeGeneratorStrategy create(final String argStr) {
+    public static Snowflake8GeneratorStrategy create(final String argStr) {
         final Map<String, String> map;
         map = parseJsonMap(argStr);
         _Assert.isTrue(Snowflake8Generator.paramNameSet().containsAll(map.keySet()), "argStr illegal");
-        return new SnowflakeGeneratorStrategy(map);
+        return new Snowflake8GeneratorStrategy(map);
     }
 
     private static Map<String, String> parseJsonMap(final String argStr) {
@@ -43,7 +43,7 @@ public final class SnowflakeGeneratorStrategy implements GeneratorStrategy {
             throw new IllegalArgumentException();
         }
         final String[] itemArray;
-        itemArray = argStr.split(",");
+        itemArray = argStr.substring(1, length - 1).split(",");
         String[] pairArray;
         final Map<String, String> map = _Collections.hashMapForSize(itemArray.length);
         String key, value;
@@ -54,7 +54,7 @@ public final class SnowflakeGeneratorStrategy implements GeneratorStrategy {
             len = key.length();
             if (key.charAt(0) != _Constant.DOUBLE_QUOTE
                     || key.charAt(len - 1) != _Constant.DOUBLE_QUOTE) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("param error");
             }
             key = key.substring(1, len - 1);
 
@@ -62,7 +62,7 @@ public final class SnowflakeGeneratorStrategy implements GeneratorStrategy {
             len = value.length();
             quoteStart = value.charAt(0) == _Constant.DOUBLE_QUOTE;
             if (quoteStart ^ value.charAt(len - 1) == _Constant.DOUBLE_QUOTE) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("param error");
             }
             if (quoteStart) {
                 value = value.substring(1, len - 1);
@@ -75,7 +75,7 @@ public final class SnowflakeGeneratorStrategy implements GeneratorStrategy {
 
     private final Map<String, String> map;
 
-    private SnowflakeGeneratorStrategy(Map<String, String> map) {
+    private Snowflake8GeneratorStrategy(Map<String, String> map) {
         this.map = Map.copyOf(map);
     }
 

@@ -125,7 +125,8 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         return new PreGeneratorMetaImpl(fieldMeta, generatorClass, finalMap);
     }
 
-    static GeneratorStrategy loadGeneratorStrategy(final FieldMeta<?> fieldMeta, final MetaContext context) {
+    static GeneratorStrategy loadGeneratorStrategy(final FieldMeta<?> fieldMeta, final GeneratorType generatorType,
+                                                   final MetaContext context) {
         final String key, fieldName;
         fieldName = fieldMeta.fieldName();
         key = context.tempBuilderAndClear()
@@ -139,7 +140,7 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         String value;
         value = context.tableMetaProperties().getProperty(key);
         if (!_StringUtils.hasText(value)) {
-            if (!fieldName.equals(_MetaBridge.ID)) {
+            if (generatorType == GeneratorType.RUNTIME || !fieldName.equals(_MetaBridge.ID)) {
                 String m = String.format("%s no %s", fieldMeta, GeneratorStrategy.class.getName());
                 throw new MetaException(m);
             }

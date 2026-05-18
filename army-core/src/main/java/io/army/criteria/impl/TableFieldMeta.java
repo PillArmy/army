@@ -199,7 +199,7 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
                 this.generatorMeta = null;
             } else if (generatorType == GeneratorType.RUNTIME || generatorType == GeneratorType.DEFAULT) {
                 final GeneratorStrategy strategy;
-                strategy = FieldMetaUtils.loadGeneratorStrategy(this, context);
+                strategy = FieldMetaUtils.loadGeneratorStrategy(this, generatorType, context);
                 this.generatorType = strategy.type();
                 this.generatorMeta = FieldMetaUtils.createGeneratorMeta(strategy, this, isDiscriminator, context);
             } else {

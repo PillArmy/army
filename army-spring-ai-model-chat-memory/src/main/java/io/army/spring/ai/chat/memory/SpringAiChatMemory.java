@@ -66,7 +66,7 @@ public class SpringAiChatMemory {
     /// store one of below :
     /// 1. {@link AssistantMessage#getToolCalls()}
     /// 2. {@link ToolResponseMessage#getResponses()}
-    @Column(name = "${DEFAULT}", defaultValue = "'[]'", comment = "${DEFAULT}")
+    @Column(name = "${DEFAULT}", notNull = true, defaultValue = "'[]'", comment = "${DEFAULT}")
     @Mapping("io.army.mapping.PreferredJsonbType")
     private String specializedData;
 

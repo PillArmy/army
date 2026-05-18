@@ -27,6 +27,8 @@ import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.*;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -39,7 +41,7 @@ import static io.army.criteria.impl.SQLs.AS;
 
 
 /// Unlike org.springframework.ai.chat.memory.MessageWindowChatMemory, this class does not delete previous messages. in {@link #add(String, List)}.
-public final class ArmyMessageChatMemory implements ChatMemory {
+public final class ArmyMessageChatMemory implements ChatMemory, EnvironmentAware {
 
     public static final String USER_ID = "chat_memory_user_id";
 
@@ -55,6 +57,10 @@ public final class ArmyMessageChatMemory implements ChatMemory {
 
     private final Function<CurrentRecord, Message> rowFunc;
 
+    private final String crossSessionKey;
+
+    private Environment environment;
+
     private ArmyMessageChatMemory(Builder builder) {
         this.sessionContext = builder.sessionContext;
         this.maxMessages = builder.maxMessages;
@@ -63,6 +69,9 @@ public final class ArmyMessageChatMemory implements ChatMemory {
         this.literalMode = builder.literalMode;
 
         this.rowFunc = messageReadFunc(this.sessionContext.sessionFactory().jsonCodec());
+        final String factoryName;
+        factoryName = this.sessionContext.sessionFactory().name();
+        this.crossSessionKey = String.format("army.%s.spring.ai.chat.memory.cross-session", factoryName);
     }
 
 
@@ -108,12 +117,35 @@ public final class ArmyMessageChatMemory implements ChatMemory {
     public List<Message> get(final String conversationId) {
         assertConversationId(conversationId);
 
+
+        final boolean crossSession;
+        crossSession = this.environment.getProperty(this.crossSessionKey, Boolean.class, Boolean.FALSE);
+
         final Select stmt;
         stmt = SQLs.query()
                 .select(SpringAiChatMemory_.userId, SpringAiChatMemory_.content)
                 .comma(SpringAiChatMemory_.type, SpringAiChatMemory_.specializedData)
                 .from(SpringAiChatMemory_.T, AS, "t")
-                .where(SpringAiChatMemory_.conversationId.equal(conversationId))
+                .ifCrossJoin(c -> {
+                    if (!crossSession) {
+                        return;
+                    }
+                    c.space(SQLs.subQuery()
+                            .select(SpringAiChatMemory_.userId)
+                            .from(SpringAiChatMemory_.T, AS, "t")
+                            .where(SpringAiChatMemory_.conversationId.equal(conversationId))
+                            .limit(1)
+                            .asQuery()
+                    ).as("u");
+
+                })
+                .where(wb -> {
+                    if (crossSession) {
+                        wb.accept(SpringAiChatMemory_.userId.equal(SQLs.refField("u", SpringAiChatMemory_.USER_ID)));
+                    } else {
+                        wb.accept(SpringAiChatMemory_.conversationId.equal(conversationId));
+                    }
+                })
                 .orderBy(SpringAiChatMemory_.id.desc())
                 .limit(this.maxMessages)
                 .asQuery();
@@ -149,6 +181,11 @@ public final class ArmyMessageChatMemory implements ChatMemory {
 
     }
 
+
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
 
     private void copyMessageInfo(String conversationId, List<Message> messages, List<SpringAiChatMemory> list) {
         final JsonCodec codec = sessionContext.sessionFactory().jsonCodec();
