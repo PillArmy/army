@@ -16,19 +16,21 @@ class ChatApp {
 
     async init() {
         this.bindEvents();
-        // 先加载当前会话（包含消息）
-        await this.loadCurrentConversation();
-        // 再加载会话列表（不覆盖已有消息）
-        await this.loadChatsFromStorage();
 
-        // 确保消息被渲染
-        if (this.currentChatId && this.chats.has(this.currentChatId)) {
-            const chat = this.chats.get(this.currentChatId);
-            console.log('init - 当前会话消息数:', chat.messages.length);
-            if (chat.messages.length > 0) {
-                this.renderMessages();
+        // 1. 先请求会话列表
+        await this.loadChatList();
+
+        // 2. 若会话列表不为空，请求当前会话 ID
+        if (this.chats.size > 0) {
+            const currentConversationId = await this.getCurrentConversationId();
+
+            // 3. 若 conversationId 不为 null，切换到相应会话并加载消息
+            if (currentConversationId) {
+                await this.loadConversationMessages(currentConversationId);
             }
+            // 若为 null，保持 empty-chat 状态（默认状态）
         }
+        // 若会话列表为空，保持 empty-chat 状态（默认状态）
     }
 
     bindEvents() {
@@ -54,10 +56,10 @@ class ChatApp {
         this.setupDragAndDrop();
     }
 
-    // 加载当前会话
-    async loadCurrentConversation() {
+    // 加载会话列表
+    async loadChatList() {
         try {
-            const response = await fetch('/api/chat/conversation/current', {
+            const response = await fetch('/api/chat/conversation/list', {
                 method: 'GET'
             });
 
@@ -66,68 +68,147 @@ class ChatApp {
             }
 
             const result = await response.json();
-            console.log('loadCurrentConversation - 响应:', result);
+            console.log('loadChatList - 响应:', result);
 
-            // 检查响应 code，0 表示成功
             if (result.code === 0) {
-                const data = result.data;
-                const conversationId = data?.conversationId;
-                const messageList = data?.messageList || [];
+                const conversationList = result.data?.list || [];
+                console.log('loadChatList - 会话列表:', conversationList);
 
-                console.log('loadCurrentConversation - conversationId:', conversationId);
-                console.log('loadCurrentConversation - messageList:', messageList);
-                console.log('loadCurrentConversation - messageList.length:', messageList.length);
+                // 清空现有会话
+                this.chats.clear();
 
-                // 如果有会话 ID，设置当前会话
-                if (conversationId) {
-                    this.currentChatId = conversationId;
+                // 按时间倒序添加到 Map（最新的在前）
+                conversationList.sort((a, b) => {
+                    const timeA = new Date(a.createTime || 0).getTime();
+                    const timeB = new Date(b.createTime || 0).getTime();
+                    return timeB - timeA;
+                });
 
-                    // 转换消息格式
-                    const messages = messageList.map(msg => ({
-                        role: msg.messageType === 'USER' ? 'user' : 'assistant',
-                        content: msg.text,
-                        timestamp: msg.createTime || new Date().toISOString(),
-                        createTime: msg.createTime
-                    }));
+                conversationList.forEach(item => {
+                    // 确保 id 是数字类型，与后端返回的 conversationId 类型一致
+                    const chatId = Number(item.id);
+                    this.chats.set(chatId, {
+                        id: chatId,
+                        title: item.title || '未命名会话',
+                        messages: [],
+                        timestamp: item.createTime,
+                        createdAt: item.createTime
+                    });
+                });
 
-                    console.log('loadCurrentConversation - 转换后的 messages:', messages);
+                console.log('loadChatList - chats.size:', this.chats.size);
+                this.renderChatHistory();
+            } else {
+                console.warn('服务端返回错误:', result.msg);
+            }
+        } catch (error) {
+            console.error('加载会话列表失败:', error);
+        }
+    }
 
-                    // 创建会话对象
-                    this.chats.set(conversationId, {
-                        id: conversationId,
-                        title: '当前会话',
+    // 获取当前会话 ID
+    async getCurrentConversationId() {
+        try {
+            const response = await fetch('/api/chat/conversation/currentId', {
+                method: 'GET'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('getCurrentConversationId - 响应:', result);
+
+            if (result.code === 0) {
+                const conversationId = result.data?.conversationId;
+                console.log('getCurrentConversationId - conversationId:', conversationId);
+                // 返回数字类型，确保与 chats Map 中的 key 类型一致
+                return conversationId ? Number(conversationId) : null;
+            }
+            return null;
+        } catch (error) {
+            console.error('获取当前会话 ID 失败:', error);
+            return null;
+        }
+    }
+
+    // 加载会话消息
+    async loadConversationMessages(conversationId) {
+        try {
+            const response = await fetch(`/api/chat/conversation/${conversationId}/messages`, {
+                method: 'GET'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('loadConversationMessages - 响应:', result);
+
+            if (result.code === 0) {
+                const messageList = result.data?.list || [];
+                console.log('loadConversationMessages - messageList:', messageList);
+
+                // 转换消息格式
+                const messages = messageList.map(msg => ({
+                    role: msg.messageType === 'USER' ? 'user' : 'assistant',
+                    content: msg.text,
+                    timestamp: msg.createTime || new Date().toISOString(),
+                    createTime: msg.createTime
+                }));
+
+                console.log('loadConversationMessages - 转换后的 messages:', messages);
+
+                // 确保 conversationId 是数字类型（与后端返回的 id 类型一致）
+                const numericId = Number(conversationId);
+
+                // 更新本地会话数据
+                if (this.chats.has(numericId)) {
+                    const chat = this.chats.get(numericId);
+                    chat.messages = messages;
+                    // 更新标题（如果后端返回了标题）
+                    if (result.data?.title) {
+                        chat.title = result.data.title;
+                    }
+                } else {
+                    // 如果会话不存在，创建一个
+                    this.chats.set(numericId, {
+                        id: numericId,
+                        title: result.data?.title || '当前会话',
                         messages: messages,
                         timestamp: new Date().toISOString(),
                         createdAt: new Date().toISOString()
                     });
-
-                    console.log('loadCurrentConversation - chats.size:', this.chats.size);
-                    console.log('loadCurrentConversation - 设置的会话消息数:', messages.length);
-
-                    // 渲染聊天历史列表
-                    this.renderChatHistory();
-
-                    // 渲染消息
-                    this.renderMessages();
-
-                    // 重要：更新 main 元素的 CSS 类，确保输入框显示在底部
-                    const mainElement = document.querySelector('main.main-content');
-                    if (mainElement) {
-                        // 如果有消息，添加 has-messages 和 has-conversation 类
-                        if (messages.length > 0) {
-                            mainElement.classList.remove('empty-state');
-                            mainElement.classList.add('has-messages', 'has-conversation');
-                            console.log('loadCurrentConversation - 已添加 has-messages has-conversation 类');
-                        }
-                    }
-
-                    // 不跳转，保持当前页面
-                    // 如果在 index.html 页面且有会话，也不跳转
                 }
+
+                // 设置当前会话（使用数字类型）
+                this.currentChatId = numericId;
+                console.log('loadConversationMessages - 设置 currentChatId:', numericId);
+
+                // 更新 main 元素的 CSS 类
+                const mainElement = document.querySelector('main.main-content');
+                if (mainElement) {
+                    if (messages.length > 0) {
+                        mainElement.classList.remove('empty-state');
+                        mainElement.classList.add('has-messages', 'has-conversation');
+                        console.log('loadConversationMessages - 已添加 has-messages has-conversation 类');
+                    }
+                }
+
+                // 渲染聊天历史列表（包含高亮）
+                this.renderChatHistory();
+
+                // 渲染消息
+                this.renderMessages();
+
+                console.log('loadConversationMessages - 完成，当前会话:', this.currentChatId);
+            } else {
+                console.warn('加载会话消息失败:', result.msg);
             }
-            // 成功时保持静默，不显示任何提示
         } catch (error) {
-            console.error('加载当前会话失败:', error);
+            console.error('加载会话消息失败:', error);
         }
     }
 
@@ -279,10 +360,34 @@ class ChatApp {
     }
 
     // 切换会话
-    switchChat(chatId) {
+    async switchChat(chatId) {
         this.currentChatId = chatId;
-        this.renderChatHistory();
-        this.renderMessages();
+
+        // 确保 chatId 是数字类型
+        const numericId = Number(chatId);
+
+        // 检查本地是否已有该会话的消息
+        const chat = this.chats.get(numericId);
+
+        // 如果是 empty-chat 状态（没有当前会话或会话没有消息），从服务器加载消息
+        const mainElement = document.querySelector('main.main-content');
+        const isEmptyState = mainElement && mainElement.classList.contains('empty-state');
+        const hasNoMessages = !chat || chat.messages.length === 0;
+
+        if (isEmptyState || hasNoMessages) {
+            // 从服务器加载消息
+            await this.loadConversationMessages(numericId);
+        } else {
+            // 本地已有消息，直接渲染
+            this.renderChatHistory();
+            this.renderMessages();
+
+            // 更新 main 元素的 CSS 类
+            if (mainElement && chat.messages.length > 0) {
+                mainElement.classList.remove('empty-state');
+                mainElement.classList.add('has-messages', 'has-conversation');
+            }
+        }
     }
 
     // 切换到无消息页面（不刷新，不更新URL）
@@ -332,7 +437,7 @@ class ChatApp {
                 }
 
                 // 异步刷新会话列表（从服务器重新加载）
-                await this.loadChatsFromStorage();
+                await this.loadChatList();
             } else {
                 this.showNotification(result.msg || '删除会话失败', 'error');
             }
@@ -524,7 +629,7 @@ class ChatApp {
                     }
 
                     // 异步刷新会话列表
-                    await this.loadChatsFromStorage();
+                    await this.loadChatList();
 
                     this.showNotification('重命名成功', 'success');
                 } else {
@@ -1004,65 +1109,9 @@ class ChatApp {
         // 不再使用 localStorage，所有数据从服务端获取
     }
 
-    // 从服务端加载会话列表
+    // 从服务端加载会话列表（向后兼容，调用 loadChatList）
     async loadChatsFromStorage() {
-        try {
-            // 从后端加载会话列表
-            const response = await fetch('/api/chat/conversation/list', {
-                method: 'GET'
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            console.log('loadChatsFromStorage - 响应:', result);
-
-
-            if (result.code === 0) {
-                const conversationList = result.data?.list || [];
-                console.log('loadChatsFromStorage - 会话列表:', conversationList);
-
-                // 只更新或添加会话，不覆盖已有消息
-                conversationList.forEach(item => {
-                    // 如果会话已存在，保留其消息
-                    if (!this.chats.has(item.id)) {
-                        this.chats.set(item.id, {
-                            id: item.id,
-                            title: item.title || '未命名会话',
-                            messages: [],
-                            timestamp: item.createTime,
-                            createdAt: item.createTime
-                        });
-                    } else {
-                        // 已存在，只更新标题和时间
-                        const existingChat = this.chats.get(item.id);
-                        existingChat.title = item.title || existingChat.title;
-                        existingChat.timestamp = item.createTime;
-                        existingChat.createdAt = item.createTime;
-                    }
-                });
-
-                console.log('loadChatsFromStorage - chats.size:', this.chats.size);
-                console.log('loadChatsFromStorage - currentChatId:', this.currentChatId);
-
-                // 如果没有当前选中的会话，选择第一个
-                if (!this.currentChatId && this.chats.size > 0) {
-                    const firstChatId = Array.from(this.chats.keys())[0];
-                    console.log('loadChatsFromStorage - 选择第一个会话:', firstChatId);
-                    this.currentChatId = firstChatId;
-                }
-
-                this.renderChatHistory();
-            } else {
-                console.warn('服务端返回错误:', result.msg);
-                this.showNotification(result.msg || '加载会话失败', 'error');
-            }
-        } catch (error) {
-            console.error('从服务端加载会话失败:', error);
-            this.showNotification('加载会话失败，请检查网络连接', 'error');
-        }
+        return this.loadChatList();
     }
 
     // 加载会话内容（双击时调用）

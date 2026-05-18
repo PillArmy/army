@@ -51,9 +51,9 @@ public class ChatConversationController {
     }
 
 
-    @GetMapping("content/{conversationId}")
+    @GetMapping("{conversationId}/messages")
     public Map<String, Object> getConversation(@CookieValue(value = "AuthToken") long userId,
-                                               @RequestParam("conversationId") long conversationId) {
+                                               @PathVariable("conversationId") long conversationId) {
         final List<Map<String, Object>> list;
         list = this.stockChatConversationService.conversationMessageList(userId, conversationId);
         return DataUtils.ok("list", list);
