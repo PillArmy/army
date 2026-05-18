@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>AI 智能助手 - 对话</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=20260518">
 </head>
 <body>
 <!-- 通知区域 -->
@@ -92,6 +95,14 @@
 <script>
     // 页面加载后处理初始消息和后续发送
     document.addEventListener('DOMContentLoaded', () => {
+        // 调试：检查 main 元素的类
+        const mainElement = document.querySelector('main');
+        if (mainElement) {
+            console.log('chat.html - main 元素的类:', mainElement.className);
+            console.log('chat.html - has-messages:', mainElement.classList.contains('has-messages'));
+            console.log('chat.html - has-conversation:', mainElement.classList.contains('has-conversation'));
+        }
+        
         const messageInput = document.getElementById('message-input');
         const sendBtn = document.getElementById('send-btn');
         const chatMessages = document.getElementById('chat-messages');

@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>AI 智能助手</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=20260518">
 </head>
 <body>
 <!-- 通知区域 -->
@@ -30,49 +33,52 @@
 
     <!-- 主内容区 -->
     <main class="main-content">
-        <!-- 聊天消息区域 -->
-        <div id="chat-messages" class="chat-messages">
-            <!-- 聊天消息将动态生成 -->
-            <div class="welcome-message">
-                <h2>👋 欢迎使用 AI 智能助手</h2>
-                <p>我可以帮您解答问题、编写代码、分析数据等。请随时向我提问！</p>
+        <!-- 整体居中容器 -->
+        <div class="empty-state-content">
+            <!-- 聊天消息区域 -->
+            <div id="chat-messages" class="chat-messages">
+                <!-- 聊天消息将动态生成 -->
+                <div class="welcome-message">
+                    <h2>👋 欢迎使用 AI 智能助手</h2>
+                    <p>我可以帮您解答问题、编写代码、分析数据等。请随时向我提问！</p>
+                </div>
             </div>
-        </div>
 
-        <!-- 文件预览区域 -->
-        <div id="file-preview" class="file-preview" style="display: none;">
-            <div class="file-preview-header">
-                <span>已选择的文件：</span>
-                <button id="clear-files-btn" class="btn btn-small">清除全部</button>
+            <!-- 文件预览区域 -->
+            <div id="file-preview" class="file-preview" style="display: none;">
+                <div class="file-preview-header">
+                    <span>已选择的文件：</span>
+                    <button id="clear-files-btn" class="btn btn-small">清除全部</button>
+                </div>
+                <div id="file-list" class="file-list"></div>
             </div>
-            <div id="file-list" class="file-list"></div>
-        </div>
 
-        <!-- 输入区域 -->
-        <div class="input-area">
-            <div class="input-container">
+            <!-- 输入区域 -->
+            <div class="input-area">
+                <div class="input-container">
                     <textarea
                             id="message-input"
                             class="message-input"
                             placeholder="输入消息... (Enter 发送，Shift + Enter 换行)"
                             rows="1"
                     ></textarea>
-                <div class="input-actions">
-                    <button id="upload-file-btn" class="btn btn-icon" title="上传文件">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M10 2a1 1 0 0 1 1 1v7.586l2.293-2.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L9 10.586V3a1 1 0 0 1 1-1z"/>
-                            <path d="M3 13a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z"/>
-                        </svg>
-                    </button>
-                    <button id="send-btn" class="btn btn-primary">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M10.894 2.553a1 1 0 0 0-1.788 0l-7 14a1 1 0 0 0 1.169 1.409l5-1.429A1 1 0 0 0 9 15.571V11a1 1 0 1 1 2 0v4.571a1 1 0 0 0 .725.962l5 1.428a1 1 0 0 0 1.17-1.408l-7-14z"/>
-                        </svg>
-                        发送
-                    </button>
+                    <div class="input-actions">
+                        <button id="upload-file-btn" class="btn btn-icon" title="上传文件">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 2a1 1 0 0 1 1 1v7.586l2.293-2.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L9 10.586V3a1 1 0 0 1 1-1z"/>
+                                <path d="M3 13a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z"/>
+                            </svg>
+                        </button>
+                        <button id="send-btn" class="btn btn-primary">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10.894 2.553a1 1 0 0 0-1.788 0l-7 14a1 1 0 0 0 1.169 1.409l5-1.429A1 1 0 0 0 9 15.571V11a1 1 0 1 1 2 0v4.571a1 1 0 0 0 .725.962l5 1.428a1 1 0 0 0 1.17-1.408l-7-14z"/>
+                            </svg>
+                            发送
+                        </button>
+                    </div>
                 </div>
+                <input type="file" id="file-input" class="file-input" multiple style="display: none;">
             </div>
-            <input type="file" id="file-input" class="file-input" multiple style="display: none;">
         </div>
     </main>
 </div>

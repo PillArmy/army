@@ -17,4 +17,6 @@ public interface StockChatConversationService extends StockBaseService {
     @Nullable
     Long getUserId(long conversationId);
 
+    void deleteConversation(long userId, long conversationId);
+
 }

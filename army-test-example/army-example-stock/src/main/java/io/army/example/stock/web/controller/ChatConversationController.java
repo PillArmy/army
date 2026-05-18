@@ -89,5 +89,11 @@ public class ChatConversationController {
 
     }
 
+    @PostMapping("delete/{conversationId}")
+    public Map<String, Object> deleteConversation(@CookieValue(value = "AuthToken") long userId,
+                                                  @PathVariable("conversationId") long conversationId) {
+        this.stockChatConversationService.deleteConversation(userId, conversationId);
+        return DataUtils.ok();
+    }
 
 }

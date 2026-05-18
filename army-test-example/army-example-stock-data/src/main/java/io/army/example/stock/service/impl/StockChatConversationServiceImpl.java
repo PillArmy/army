@@ -32,7 +32,6 @@ public class StockChatConversationServiceImpl extends AbstractStockBaseService i
                 _ -> this.stockChatConversationDao.queryUserConversation(userId)
         );
 
-        assert list != null; // Just to suppress the warning for @org.jspecify.annotations.NullMarked,here never null
         return list;
     }
 
@@ -42,7 +41,6 @@ public class StockChatConversationServiceImpl extends AbstractStockBaseService i
         map = this.transactionTemplate.execute(Isolation.DEFAULT, true,
                 _ -> this.stockChatConversationDao.currentConversation(userId)
         );
-        assert map != null; // Just to suppress the warning for @org.jspecify.annotations.NullMarked,here never null
         return map;
     }
 
@@ -51,6 +49,13 @@ public class StockChatConversationServiceImpl extends AbstractStockBaseService i
     public Long getUserId(long conversationId) {
         return this.transactionTemplate.execute(Isolation.DEFAULT, true,
                 _ -> this.stockChatConversationDao.getUserId(conversationId)
+        );
+    }
+
+    @Override
+    public void deleteConversation(long userId, long conversationId) {
+        this.transactionTemplate.executeWithoutResult(Isolation.READ_COMMITTED, false,
+                _ -> this.stockChatConversationDao.deleteConversation(userId, conversationId)
         );
     }
 

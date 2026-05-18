@@ -86,7 +86,8 @@ class ChatApp {
                     const messages = messageList.map(msg => ({
                         role: msg.messageType === 'USER' ? 'user' : 'assistant',
                         content: msg.text,
-                        timestamp: new Date().toISOString()
+                        timestamp: msg.createTime || new Date().toISOString(),
+                        createTime: msg.createTime
                     }));
 
                     console.log('loadCurrentConversation - 转换后的 messages:', messages);
@@ -109,6 +110,17 @@ class ChatApp {
                     // 渲染消息
                     this.renderMessages();
 
+                    // 重要：更新 main 元素的 CSS 类，确保输入框显示在底部
+                    const mainElement = document.querySelector('main.main-content');
+                    if (mainElement) {
+                        // 如果有消息，添加 has-messages 和 has-conversation 类
+                        if (messages.length > 0) {
+                            mainElement.classList.remove('empty-state');
+                            mainElement.classList.add('has-messages', 'has-conversation');
+                            console.log('loadCurrentConversation - 已添加 has-messages has-conversation 类');
+                        }
+                    }
+
                     // 不跳转，保持当前页面
                     // 如果在 index.html 页面且有会话，也不跳转
                 }
@@ -120,13 +132,64 @@ class ChatApp {
     }
 
     // 创建新会话
+    // 创建新会话（不请求服务器，仅切换页面）
     async createNewChat() {
-        try {
-            // 获取聊天框的文本内容
-            const input = document.getElementById('message-input');
-            const content = input ? input.value.trim() : '';
+        // 检查当前是否已经在 empty-chat 状态
+        const mainElement = document.querySelector('main.main-content');
+        if (mainElement && mainElement.classList.contains('empty-state')) {
+            // 已经是 empty-chat 状态，无动作
+            console.log('createNewChat - 已经是 empty-chat 状态，无需切换');
+            return;
+        }
 
-            // 请求后端创建新会话
+        // 清除当前会话 ID
+        this.currentChatId = null;
+
+        // 清除 body 上的 conversationId
+        if (document.body.dataset.conversationId) {
+            delete document.body.dataset.conversationId;
+        }
+
+        // 切换 main 元素到 empty-state 状态
+        if (mainElement) {
+            mainElement.classList.remove('has-messages', 'has-conversation');
+            mainElement.classList.add('empty-state');
+            console.log('createNewChat - 已切换 main 元素到 empty-state 状态');
+        }
+
+        // 清空消息区域
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+            chatMessages.innerHTML = `
+                <div class="welcome-message">
+                    <h2>👋 欢迎使用 AI 智能助手</h2>
+                    <p>我可以帮您解答问题、编写代码、分析数据等。请随时向我提问！</p>
+                </div>
+            `;
+        }
+
+        // 清空输入框
+        const messageInput = document.getElementById('message-input');
+        if (messageInput) {
+            messageInput.value = '';
+            this.autoResizeInput();
+        }
+
+        // 清空文件选择
+        this.clearFiles();
+
+        // 重新渲染聊天历史列表（移除高亮）
+        this.renderChatHistory();
+
+        console.log('createNewChat - 已切换到 empty-chat 状态');
+    }
+
+    // 创建会话并发送消息（用于 empty-chat 页面，异步请求）
+    async createChatAndSendMessage(content) {
+        try {
+            console.log('createChatAndSendMessage - 开始创建会话');
+
+            // 异步请求后端创建新会话
             const response = await fetch('/api/chat/conversation/create', {
                 method: 'POST',
                 headers: {
@@ -135,35 +198,82 @@ class ChatApp {
                 body: `content=${encodeURIComponent(content)}`
             });
 
+            console.log('createChatAndSendMessage - 服务器响应状态:', response.status);
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const result = await response.json();
+            console.log('createChatAndSendMessage - 服务器响应结果:', result);
 
             // 检查响应 code，0 表示成功
-            if (result.code === 0) {
+            if (result.code === 0 && result.data) {
                 const data = result.data;
                 const conversationId = data?.conversationId;
 
                 if (conversationId) {
-                    // 保存 conversationId 到全局变量
-                    window.currentConversationId = conversationId;
+                    console.log('createChatAndSendMessage - 会话创建成功, conversationId:', conversationId);
 
-                    // 如果有初始内容，也保存
-                    if (data.content) {
-                        window.initialContent = data.content;
-                        window.initialUserMessage = content;
+                    // 设置当前会话 ID
+                    this.currentChatId = conversationId;
+
+                    // 保存到 body 的 data 属性
+                    document.body.dataset.conversationId = conversationId;
+
+                    // 创建会话对象
+                    this.chats.set(conversationId, {
+                        id: conversationId,
+                        title: content.substring(0, 30) + (content.length > 30 ? '...' : ''),
+                        messages: [],
+                        timestamp: new Date().toISOString(),
+                        createdAt: new Date().toISOString()
+                    });
+
+                    // 切换 main 元素到 has-messages 状态
+                    const mainElement = document.querySelector('main.main-content');
+                    if (mainElement) {
+                        mainElement.classList.remove('empty-state');
+                        mainElement.classList.add('has-messages', 'has-conversation');
+                        console.log('createChatAndSendMessage - 已切换页面状态');
                     }
 
-                    // 不跳转，保持在当前页面
-                    // 视图切换由调用方处理
+                    // 渲染聊天历史列表
+                    this.renderChatHistory();
+
+                    // 创建用户消息
+                    const userMessage = {
+                        role: 'user',
+                        content: content,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    // 添加到会话
+                    const chat = this.chats.get(conversationId);
+                    chat.messages.push(userMessage);
+
+                    // 显示用户消息
+                    this.appendMessage(userMessage);
+
+                    // 清空输入框
+                    const input = document.getElementById('message-input');
+                    if (input) {
+                        input.value = '';
+                        this.autoResizeInput();
+                    }
+
+                    console.log('createChatAndSendMessage - 开始发送消息到服务器');
+
+                    // 异步发送到服务器获取 AI 响应
+                    await this.sendToServer(userMessage);
+
+                    console.log('createChatAndSendMessage - 完成');
                 }
             } else {
                 this.showNotification(result.msg || '创建会话失败', 'error');
             }
         } catch (error) {
-            console.error('创建会话失败:', error);
+            console.error('创建会话并发送消息失败:', error);
             this.showNotification('创建会话失败，请稍后重试', 'error');
         }
     }
@@ -196,9 +306,9 @@ class ChatApp {
         }
 
         try {
-            // 使用 RESTful 风格删除会话
-            const response = await fetch(`/api/chat/session/${chatId}`, {
-                method: 'DELETE'
+            // 使用新的 API 路径删除会话
+            const response = await fetch(`/api/chat/conversation/delete/${chatId}`, {
+                method: 'POST'
             });
 
             if (!response.ok) {
@@ -221,7 +331,8 @@ class ChatApp {
                     }
                 }
 
-                this.renderChatHistory();
+                // 异步刷新会话列表（从服务器重新加载）
+                await this.loadChatsFromStorage();
             } else {
                 this.showNotification(result.msg || '删除会话失败', 'error');
             }
@@ -310,6 +421,56 @@ class ChatApp {
         this.scrollToBottom();
     }
 
+    // 格式化消息时间（人类友好）
+    formatMessageTime(timestamp) {
+        if (!timestamp) return '';
+
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffSec = Math.floor(diffMs / 1000);
+        const diffMin = Math.floor(diffSec / 60);
+        const diffHour = Math.floor(diffMin / 60);
+        const diffDay = Math.floor(diffHour / 24);
+
+        // 刚刚
+        if (diffSec < 60) {
+            return '刚刚';
+        }
+
+        // 几分钟前
+        if (diffMin < 60) {
+            return `${diffMin}分钟前`;
+        }
+
+        // 几小时前
+        if (diffHour < 24) {
+            return `${diffHour}小时前`;
+        }
+
+        // 几天前
+        if (diffDay < 7) {
+            return `${diffDay}天前`;
+        }
+
+        // 今年内
+        if (date.getFullYear() === now.getFullYear()) {
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const hour = date.getHours().toString().padStart(2, '0');
+            const minute = date.getMinutes().toString().padStart(2, '0');
+            return `${month}月${day}日 ${hour}:${minute}`;
+        }
+
+        // 更早
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const hour = date.getHours().toString().padStart(2, '0');
+        const minute = date.getMinutes().toString().padStart(2, '0');
+        return `${year}年${month}月${day}日 ${hour}:${minute}`;
+    }
+
     // 添加消息到界面
     appendMessage(message, animate = true) {
         const container = document.getElementById('chat-messages');
@@ -319,7 +480,8 @@ class ChatApp {
             messageEl.style.animation = 'none';
         }
 
-        const time = new Date(message.timestamp).toLocaleString('zh-CN');
+        // 使用人类友好的时间格式
+        const time = this.formatMessageTime(message.createTime || message.timestamp);
         const avatar = message.role === 'user' ? '👤' : '🤖';
         const label = message.role === 'user' ? '我: ' : '';
         const content = message.role === 'user'
@@ -377,7 +539,9 @@ class ChatApp {
         }
 
         if (!this.currentChatId) {
-            this.createNewChat();
+            // 没有会话 ID，说明在 empty-chat 页面
+            // 需要请求服务器创建会话，然后发送消息
+            await this.createChatAndSendMessage(content);
             return;
         }
 

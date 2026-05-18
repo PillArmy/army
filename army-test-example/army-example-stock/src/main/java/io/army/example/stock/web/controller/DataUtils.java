@@ -9,6 +9,11 @@ public abstract class DataUtils {
     private DataUtils() {
     }
 
+    public static Map<String, Object> ok() {
+        Map<String, Object> map = createOkResultMap();
+        map.put("data", Map.of());
+        return map;
+    }
 
     public static Map<String, Object> ok(Object value) {
         Map<String, Object> map = createOkResultMap();

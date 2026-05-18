@@ -187,34 +187,71 @@ body {
     overflow: hidden; /* 防止内容溢出 */
 }
 
+/* 重要：有消息时，.input-area 必须在底部 */
+.main-content.has-messages .input-area,
+.main-content.has-conversation .input-area {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 66% !important;
+    max-width: 900px !important;
+    padding: 16px 20px !important;
+    margin: 0 auto !important;
+    background: #ffffff !important;
+    border-top: 1px solid #e8e8e8 !important;
+    flex-shrink: 0 !important;
+}
+
+/* 整体居中容器 - 用于 empty-chat 和 index 页面 */
+.main-content .empty-state-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
 /* 无消息状态 - 豆包风格 */
 .main-content.empty-state {
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
+/* 无消息状态下的整体居中容器 */
+.main-content.empty-state .empty-state-content {
+    width: 60%;
+    max-width: 700px;
+}
+
+/* 欢迎消息容器 */
 .main-content.empty-state .welcome-container {
-    flex: 1;
+    flex: 0 0 auto;
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
+    padding-bottom: 40px;
 }
 
-.main-content.empty-state .input-area.centered-input {
-    position: fixed;
-    bottom: 50%;
-    left: 50%;
-    transform: translate(-50%, 50%);
-    width: 60%;
-    max-width: 700px;
-    padding: 20px;
+/* 重要：empty-state 的输入框也要居中 */
+.main-content.empty-state .input-area {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    max-width: none;
+    padding: 0;
     background: transparent;
     border: none;
-    z-index: 100;
+    z-index: 10;
+    margin-top: 20px;
 }
 
-.main-content.empty-state .input-area.centered-input .input-container {
+.main-content.empty-state .input-container {
     background: white;
     border: 2px solid #e8e8e8;
     border-radius: 16px;
@@ -222,9 +259,11 @@ body {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     min-height: 120px;
     align-items: center;
+    width: 100%;
+    margin: 0 auto;
 }
 
-.main-content.empty-state .input-area.centered-input .message-input {
+.main-content.empty-state .message-input {
     min-height: 80px;
     font-size: 16px;
     line-height: 1.8;
@@ -242,19 +281,24 @@ body {
     min-height: 0; /* 重要：允许 flex 子元素缩小 */
 }
 
-/* 重要：确保有消息/会话时输入框在底部 */
-.main-content.has-messages .input-area,
-.main-content.has-conversation .input-area {
+/* 重要：确保有消息/会话时输入框在底部居中 - 使用最强优先级 */
+.main-content.has-messages.has-conversation .input-area,
+main.main-content.has-messages .input-area,
+main.main-content.has-conversation .input-area {
     position: relative !important;
     bottom: auto !important;
     left: auto !important;
     transform: none !important;
-    width: auto !important;
-    max-width: none !important;
+    width: 66% !important;
+    max-width: 900px !important;
     padding: 16px 20px !important;
+    margin: 0 auto !important;
     background: #ffffff !important;
     border-top: 1px solid #e8e8e8 !important;
-    z-index: auto !important;
+    border: none !important;
+    box-shadow: none !important;
+    z-index: 1 !important;
+    flex-shrink: 0 !important;
 }
 
 .main-content.has-messages .input-container,
@@ -265,6 +309,9 @@ body {
     padding: 12px !important;
     box-shadow: none !important;
     min-height: auto !important;
+    display: flex !important;
+    gap: 12px !important;
+    align-items: flex-end !important;
 }
 
 .main-content.has-messages .message-input,
@@ -272,14 +319,15 @@ body {
     min-height: 24px !important;
     font-size: 14px !important;
     line-height: 1.6 !important;
+    flex: 1 !important;
 }
 
 .welcome-message {
     text-align: center;
     padding: 60px 20px;
     color: #666;
-    max-width: 600px;
-    margin: 0 auto;
+    width: 100%;
+    margin: 0;
 }
 
 .welcome-message h2 {
@@ -558,20 +606,23 @@ body {
 }
 
 /* 无会话时输入框居中显示（豆包风格） */
-.main-content:not(.has-conversation) .input-area {
-    position: fixed;
-    bottom: 50%;
-    left: 50%;
-    transform: translate(-50%, 50%);
-    width: 60%;
-    max-width: 700px;
-    padding: 20px;
-    background: transparent;
-    border: none;
-    z-index: 100;
+.main-content:not(.has-conversation):not(.has-messages) .input-area {
+    position: fixed !important;
+    bottom: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, 50%) !important;
+    width: 60% !important;
+    max-width: 700px !important;
+    padding: 20px !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    z-index: 100 !important;
+    flex-shrink: 0 !important;
 }
 
-.main-content:not(.has-conversation) .input-container {
+.main-content:not(.has-conversation):not(.has-messages) .input-container {
     background: white;
     border: 2px solid #e8e8e8;
     border-radius: 16px;
@@ -581,7 +632,7 @@ body {
     align-items: center;
 }
 
-.main-content:not(.has-conversation) .message-input {
+.main-content:not(.has-conversation):not(.has-messages) .message-input {
     min-height: 80px;
     font-size: 16px;
     line-height: 1.8;
