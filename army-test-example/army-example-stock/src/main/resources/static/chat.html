@@ -323,6 +323,13 @@
                     const conversationList = result.data?.list || [];
                     chatHistory.innerHTML = '';
 
+                    // 按创建时间倒序排序（最新的在顶部）
+                    conversationList.sort((a, b) => {
+                        const timeA = new Date(a.createTime || 0).getTime();
+                        const timeB = new Date(b.createTime || 0).getTime();
+                        return timeB - timeA;
+                    });
+
                     conversationList.forEach(item => {
                         const chatItem = document.createElement('div');
                         chatItem.className = 'chat-item';

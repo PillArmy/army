@@ -76,6 +76,8 @@ body {
 .app-container {
     display: flex;
     height: 100vh;
+    width: 100vw; /* 确保占满整个视口宽度 */
+    overflow: hidden; /* 防止水平滚动 */
 }
 
 /* 左侧边栏 */
@@ -364,6 +366,8 @@ body {
     background: #ffffff;
     position: relative;
     overflow: hidden; /* 防止内容溢出 */
+    width: 100%; /* 确保占满剩余空间 */
+    min-width: 0; /* 防止 flex 子元素溢出 */
 }
 
 /* 重要：有消息时，.input-area 必须在底部 */
@@ -453,11 +457,12 @@ body {
 .chat-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 20px;
+    padding: 20px 0; /* 只保留上下 padding，移除左右 padding 让滚动条贴近右侧 */
     display: flex;
     flex-direction: column;
     gap: 16px;
     min-height: 0; /* 重要：允许 flex 子元素缩小 */
+    width: 100%; /* 确保占满整个宽度 */
 }
 
 /* 重要：确保有消息/会话时输入框在底部居中 - 使用最强优先级 */
@@ -503,10 +508,10 @@ main.main-content.has-conversation .input-area {
 
 .welcome-message {
     text-align: center;
-    padding: 60px 20px;
     color: #666;
     width: 100%;
     margin: 0;
+    padding: 60px 40px; /* 增加左右 padding 以补偿 .message 的间距 */
 }
 
 .welcome-message h2 {
@@ -546,6 +551,7 @@ main.main-content.has-conversation .input-area {
     gap: 12px;
     max-width: 80%;
     animation: fadeIn 0.3s ease-out;
+    padding: 0 20px; /* 添加左右 padding 保持消息间距 */
 }
 
 @keyframes fadeIn {
@@ -935,7 +941,7 @@ main.main-content.has-conversation .input-area {
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: transparent; /* 改为透明，让滚动条看起来更贴近边缘 */
 }
 
 ::-webkit-scrollbar-thumb {
@@ -945,6 +951,12 @@ main.main-content.has-conversation .input-area {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
+}
+
+/* 专门为 chat-messages 设置滚动条样式 */
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+    margin-right: 0;
 }
 
 /* 响应式设计 */

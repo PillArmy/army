@@ -4,8 +4,8 @@ import io.army.generator.FieldGeneratorFactory;
 import io.army.generator.StandaloneFieldGeneratorFactory;
 import io.army.session.SyncSessionContext;
 import io.army.session.SyncSessionFactory;
-import io.army.spring.ArmyTransactionTemplate;
 import io.army.spring.DefaultArmyTransactionTemplate;
+import io.army.spring.TransactionTemplate;
 import io.army.spring.sync.ArmySyncLocalTransactionManager;
 import io.army.spring.sync.ArmySyncSessionFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -59,7 +59,7 @@ public class DataSourceConfiguration {
     }
 
     @Bean
-    public ArmyTransactionTemplate stockTransactionTemplate(ArmySyncLocalTransactionManager manager) {
+    public TransactionTemplate stockTransactionTemplate(ArmySyncLocalTransactionManager manager) {
         return new DefaultArmyTransactionTemplate(manager);
     }
 

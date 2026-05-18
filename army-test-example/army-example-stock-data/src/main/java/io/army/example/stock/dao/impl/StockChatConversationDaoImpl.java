@@ -8,7 +8,6 @@ import io.army.criteria.impl.SQLs;
 import io.army.example.stock.dao.StockChatConversationDao;
 import io.army.example.stock.domain.StockChatConversation;
 import io.army.example.stock.domain.StockChatConversation_;
-import io.army.mapping.StringType;
 import io.army.result.CurrentRecord;
 import io.army.session.SyncSessionContext;
 import io.army.spring.ai.chat.memory.SpringAiChatMemory_;
@@ -43,46 +42,44 @@ public class StockChatConversationDaoImpl extends ArmyStockBaseDao implements St
                 .queryObjectList(stmt, StockChatConversation::new);
     }
 
+
+    @Nullable
     @Override
-    public Map<String, Object> currentConversation(long userId) {
-        final String w1 = "w1";
+    public Long currentConversationId(long userId) {
         final Select stmt;
         stmt = SQLs.query()
-                .with(w1).as(ws -> ws.select(SpringAiChatMemory_.conversationId)
-                        .from(SpringAiChatMemory_.T, AS, "t")
-                        .where(SpringAiChatMemory_.userId.equal(userId))
-                        .orderBy(SpringAiChatMemory_.id.desc())
-                        .limit(1)
-                        .asQuery()
-                ).space()
-                .select(SpringAiChatMemory_.conversationId, SpringAiChatMemory_.content)
-                .comma(SpringAiChatMemory_.type, SpringAiChatMemory_.createTime)
+                .select(SpringAiChatMemory_.conversationId)
                 .from(SpringAiChatMemory_.T, AS, "t")
-                .crossJoin(w1)
-                .where(SpringAiChatMemory_.conversationId.equal(refField(w1, SpringAiChatMemory_.CONVERSATION_ID)))
-                .and(SpringAiChatMemory_.type.in(SQLs.rowLiteral(StringType.INSTANCE, List.of(MessageType.USER, MessageType.ASSISTANT))))
+                .where(SpringAiChatMemory_.userId.equal(userId))
+                .orderBy(SpringAiChatMemory_.id.desc())
+                .limit(1)
+                .asQuery();
+        return this.sessionContext.currentSession().queryOne(stmt, Long.class);
+    }
+
+    @Override
+    public List<Map<String, Object>> conversationMessageList(long userId, long conversationId) {
+        final Select stmt;
+        stmt = SQLs.query()
+                .select(SpringAiChatMemory_.content, SpringAiChatMemory_.type, SpringAiChatMemory_.createTime)
+                .from(SpringAiChatMemory_.T, AS, "t")
+                .where(SpringAiChatMemory_.conversationId.equal(conversationId))
+                .and(SpringAiChatMemory_.userId.equal(userId))
+                .and(SpringAiChatMemory_.type.in(SQLs::rowLiteral, List.of(MessageType.USER, MessageType.ASSISTANT)))
                 .orderBy(SpringAiChatMemory_.id)
                 .asQuery();
 
-        final long[] conversationIdHolder = new long[1];
         final Function<CurrentRecord, Map<String, Object>> function;
         function = row -> {
             final String content;
-            conversationIdHolder[0] = row.getNonNull(0, Long.class);
-            content = row.getNonNull(1, String.class);
+            content = row.getNonNull(0, String.class);
             final MessageType type;
-            type = row.getNonNull(2, MessageType.class);
+            type = row.getNonNull(1, MessageType.class);
             final LocalDateTime createTime;
-            createTime = row.getNonNull(3, LocalDateTime.class);
+            createTime = row.getNonNull(2, LocalDateTime.class);
             return Map.of("text", content, "messageType", type, "createTime", createTime);
         };
-
-        final List<Map<String, Object>> messageList;
-        messageList = this.sessionContext.currentSession().queryRecordList(stmt, function);
-        if (messageList.isEmpty()) {
-            return Map.of();
-        }
-        return Map.of(SpringAiChatMemory_.CONVERSATION_ID, conversationIdHolder[0], "messageList", messageList);
+        return this.sessionContext.currentSession().queryRecordList(stmt, function);
     }
 
     @Nullable

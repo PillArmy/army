@@ -44,11 +44,19 @@ public class ChatConversationController {
         return DataUtils.ok("list", rowList);
     }
 
-    @GetMapping("current")
-    public Map<String, Object> currentConversation(@CookieValue(value = "AuthToken") long userId) {
-        final Map<String, Object> map;
-        map = this.stockChatConversationService.currentConversation(userId);
-        return DataUtils.ok(map);
+    @GetMapping("currentId")
+    public Map<String, Object> currentConversationId(@CookieValue(value = "AuthToken") long userId) {
+        final Long conversationId = this.stockChatConversationService.currentConversationId(userId);
+        return DataUtils.ok("conversationId", conversationId);
+    }
+
+
+    @GetMapping("content/{conversationId}")
+    public Map<String, Object> getConversation(@CookieValue(value = "AuthToken") long userId,
+                                               @RequestParam("conversationId") long conversationId) {
+        final List<Map<String, Object>> list;
+        list = this.stockChatConversationService.conversationMessageList(userId, conversationId);
+        return DataUtils.ok("list", list);
     }
 
     @PostMapping("create")
@@ -78,8 +86,7 @@ public class ChatConversationController {
         final Long memoryUserId;
         memoryUserId = this.stockChatConversationService.getUserId(conversationId);
         if (memoryUserId == null || userId != memoryUserId) {
-            //return Flux.just(DataUtils.serverError(403, "userId not match"));
-            return Flux.just();
+            return Flux.error(new RuntimeException("userId not match"));
         }
 
         return this.chatClient.prompt(content)

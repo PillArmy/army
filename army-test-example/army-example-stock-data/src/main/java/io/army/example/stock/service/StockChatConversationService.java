@@ -11,8 +11,11 @@ public interface StockChatConversationService extends StockBaseService {
 
     List<StockChatConversation> queryUserConversation(long userId);
 
+    @Nullable
+    Long currentConversationId(long userId);
 
-    Map<String, Object> currentConversation(long userId);
+    List<Map<String, Object>> conversationMessageList(long userId, long conversationId);
+
 
     @Nullable
     Long getUserId(long conversationId);

@@ -27,9 +27,9 @@ import java.time.LocalDateTime;
 
 @Table(name = "${DEFAULT}",
         indexes = {
-                @Index(name = "${DEFAULT}", fieldList = {"conversationId", "createTime"}),
-                @Index(name = "${DEFAULT}", type = "${OPTIONAL}", fieldList = {"userId"}),
-                @Index(name = "${OPTIONAL}", fieldList = {"batchNo"})
+                @Index(name = "${DEFAULT}", fieldList = {"conversationId"}),
+                @Index(name = "${DEFAULT}", fieldList = {"userId"}),
+                @Index(name = "${OPTIONAL}", type = "${OPTIONAL}", fieldList = {"batchNo"})
         },
         immutable = true,
         ddlMode = DdlMode.DEFAULT,

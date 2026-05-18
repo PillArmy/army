@@ -13,7 +13,11 @@ public interface StockChatConversationDao extends StockBaseDao {
     List<StockChatConversation> queryUserConversation(long userId);
 
 
-    Map<String, Object> currentConversation(long userId);
+    @Nullable
+    Long currentConversationId(long userId);
+
+    List<Map<String, Object>> conversationMessageList(long userId, long conversationId);
+
 
     @Nullable
     Long getUserId(long conversationId);

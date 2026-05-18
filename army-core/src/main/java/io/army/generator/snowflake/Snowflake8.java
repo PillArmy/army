@@ -50,10 +50,12 @@ public final class Snowflake8 {
     /// bit number that timestamp left shift
     public static final byte TIMESTAMP_LEFT_SHIFT = WORKER_BIT_SIZE + SEQUENCE_BITS;
 
-    public static final int TIMESTAMP_MASK = ~(-1 << TIMESTAMP_LEFT_SHIFT);
+    public static final long TIMESTAMP_MASK = ~(-1L << (63 - TIMESTAMP_LEFT_SHIFT));
 
     /// max value of sequence
-    public static final short SEQUENCE_MASK = ~(-1 << SEQUENCE_BITS);
+    public static final int SEQUENCE_MASK = ~(-1 << SEQUENCE_BITS);
+
+    public static final int WORKER_ID_MASK = ~(-1 << WORKER_BIT_SIZE);
 
     public static final int MAX_ACCEPT_BACKWARD_MS;
 
@@ -219,8 +221,8 @@ public final class Snowflake8 {
 
     private static void validateArgs(final long workerId, final int count, final @Nullable LongConsumer consumer) {
 
-        if (workerId < 0 || workerId > 0xFF) {
-            String m = String.format("Worker id[%s] couldn't be greater than %s or less than 0", workerId, 0xFF);
+        if (workerId < 0 || workerId > WORKER_ID_MASK) {
+            String m = String.format("Worker id[%s] couldn't be greater than %s or less than 0", workerId, WORKER_ID_MASK);
             throw new IllegalArgumentException(m);
         }
         if (count < 1) {

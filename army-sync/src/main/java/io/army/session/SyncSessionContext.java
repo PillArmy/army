@@ -47,8 +47,10 @@ public interface SyncSessionContext extends SessionContext {
     @Nullable
     <T extends SyncSession> T tryCurrentSession(Class<T> sessionClass);
 
+    @Nullable
     <T> T execute(@Nullable String name, boolean readOnly, Function<SyncSession, T> function);
 
+    @Nullable
     <T> T executeInTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Function<SyncSession, T> function);
 
 

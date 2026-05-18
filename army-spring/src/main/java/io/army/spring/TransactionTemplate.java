@@ -6,12 +6,13 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionOperations;
 
 import java.util.function.Consumer;
 
-public interface ArmyTransactionTemplate extends TransactionOperations {
+public interface TransactionTemplate extends TransactionOperations {
 
 
     <T extends @Nullable Object> T execute(Isolation isolation, boolean readOnly, TransactionCallback<T> action)
@@ -30,8 +31,32 @@ public interface ArmyTransactionTemplate extends TransactionOperations {
             throws TransactionException;
 
 
-    TransactionDefinition of(Propagation propagation, Isolation isolation, boolean readOnly);
+    // below static method
+    //
+    //
 
-    TransactionDefinition of(Propagation propagation, Isolation isolation, boolean readOnly, int timeout);
+
+    static TransactionDefinition of(Isolation isolation, boolean readOnly) {
+        final DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+        definition.setIsolationLevel(isolation.value());
+        definition.setReadOnly(readOnly);
+        return definition;
+    }
+
+    static TransactionDefinition of(Propagation propagation, Isolation isolation, boolean readOnly) {
+        return of(propagation, isolation, readOnly, TransactionDefinition.TIMEOUT_DEFAULT);
+    }
+
+    static TransactionDefinition of(Propagation propagation, Isolation isolation, boolean readOnly, int timeout) {
+        final DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+
+        definition.setPropagationBehavior(propagation.value());
+        definition.setIsolationLevel(isolation.value());
+        definition.setReadOnly(readOnly);
+        definition.setTimeout(timeout);
+
+        return definition;
+    }
+
 
 }

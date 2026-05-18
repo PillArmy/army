@@ -347,7 +347,15 @@ class ChatApp {
         const container = document.getElementById('chat-history');
         container.innerHTML = '';
 
-        this.chats.forEach(chat => {
+        // 将 Map 转换为数组，并按时间戳倒序排序（最新的在顶部）
+        const sortedChats = Array.from(this.chats.values())
+            .sort((a, b) => {
+                const timeA = new Date(a.timestamp || a.createdAt || 0).getTime();
+                const timeB = new Date(b.timestamp || b.createdAt || 0).getTime();
+                return timeB - timeA; // 倒序：最新的在前
+            });
+
+        sortedChats.forEach(chat => {
             const chatItem = document.createElement('div');
             // 当前会话且消息不为空时添加 highlighted 类
             const isHighlighted = chat.id === this.currentChatId && chat.messages.length > 0;

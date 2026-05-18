@@ -121,7 +121,11 @@ public final class ArmyMessageChatMemory implements ChatMemory {
         final Function<SyncSession, List<Message>> callBack;
         callBack = session -> session.queryRecordList(stmt, this.rowFunc);
         final String sessionName = getClass().getName() + '.' + "get";
-        return this.sessionContext.execute(sessionName, true, callBack);
+
+        final List<Message> list;
+        list = this.sessionContext.execute(sessionName, true, callBack);
+        assert list != null;    // here never null, Just suppress non‑null warnings
+        return list;
     }
 
     @Override

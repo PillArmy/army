@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.*;
 import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.support.CallbackPreferringPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionCallback;
@@ -34,7 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public class DefaultArmyTransactionTemplate implements ArmyTransactionTemplate {
+public class DefaultArmyTransactionTemplate implements TransactionTemplate {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultArmyTransactionTemplate.class);
 
@@ -117,22 +116,6 @@ public class DefaultArmyTransactionTemplate implements ArmyTransactionTemplate {
         execute(DEFAULT_DEFINITION, createCallback(action));
     }
 
-    @Override
-    public TransactionDefinition of(Propagation propagation, Isolation isolation, boolean readOnly) {
-        return of(propagation, isolation, readOnly, TransactionDefinition.TIMEOUT_DEFAULT);
-    }
-
-    @Override
-    public TransactionDefinition of(Propagation propagation, Isolation isolation, boolean readOnly, int timeout) {
-        final DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
-
-        definition.setPropagationBehavior(propagation.value());
-        definition.setIsolationLevel(isolation.value());
-        definition.setReadOnly(readOnly);
-        definition.setTimeout(timeout);
-
-        return definition;
-    }
 
     private void rollbackOnException(TransactionStatus status, Throwable ex) throws TransactionException {
 
@@ -215,15 +198,8 @@ public class DefaultArmyTransactionTemplate implements ArmyTransactionTemplate {
         TransactionDefinition definition;
         definition = DEFINITION_MAP.get(value);
         if (definition == null) {
-            definition = of(isolation, readOnly);
+            definition = TransactionTemplate.of(isolation, readOnly);
         }
-        return definition;
-    }
-
-    private static TransactionDefinition of(Isolation isolation, boolean readOnly) {
-        final DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
-        definition.setIsolationLevel(isolation.value());
-        definition.setReadOnly(readOnly);
         return definition;
     }
 
@@ -249,12 +225,12 @@ public class DefaultArmyTransactionTemplate implements ArmyTransactionTemplate {
                 value = 0;
             }
 
-            oldValue = map.putIfAbsent(value, of(o, false));
+            oldValue = map.putIfAbsent(value, TransactionTemplate.of(o, false));
             if (oldValue != null) {
                 String m = String.format("Isolation value %d duplicate", value);
                 throw new IllegalStateException(m);
             }
-            oldValue = map.put(value | READ_ONLY_MASK, of(o, true));
+            oldValue = map.put(value | READ_ONLY_MASK, TransactionTemplate.of(o, true));
             if (oldValue != null) {
                 String m = String.format("Isolation value %d duplicate", value);
                 throw new IllegalStateException(m);
