@@ -369,18 +369,184 @@ class ChatApp {
                     <span class="chat-item-title">${this.escapeHtml(chat.title)}</span>
                     <span class="chat-item-time">${timeText}</span>
                 </div>
-                <button class="chat-item-delete" title="删除会话">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                    </svg>
-                </button>
+                <div class="chat-item-actions">
+                    <button class="chat-item-menu-btn" title="更多操作">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <circle cx="4" cy="8" r="1.5"/>
+                            <circle cx="8" cy="8" r="1.5"/>
+                            <circle cx="12" cy="8" r="1.5"/>
+                        </svg>
+                    </button>
+                    <button class="chat-item-delete" title="删除会话">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="chat-item-menu" style="display: none;">
+                    <div class="menu-item" data-action="rename">重命名</div>
+                </div>
+                <div class="chat-item-rename-input" style="display: none;">
+                    <input type="text" class="rename-input" placeholder="输入新名称" maxlength="30" />
+                </div>
             `;
 
+            // 绑定删除按钮事件
             chatItem.querySelector('.chat-item-delete').addEventListener('click', (e) => {
                 this.deleteChat(chat.id, e);
             });
 
+            // 绑定菜单按钮事件
+            const menuBtn = chatItem.querySelector('.chat-item-menu-btn');
+            const menu = chatItem.querySelector('.chat-item-menu');
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+
+                // 关闭其他菜单
+                document.querySelectorAll('.chat-item-menu').forEach(m => {
+                    if (m !== menu) m.style.display = 'none';
+                });
+
+                // 获取按钮位置
+                const rect = menuBtn.getBoundingClientRect();
+
+                // 设置菜单位置（显示在按钮下方）
+                menu.style.position = 'fixed';
+                menu.style.left = rect.left + 'px';
+                menu.style.top = (rect.bottom + 5) + 'px';
+                menu.style.right = 'auto';
+                menu.style.transform = 'none';
+                menu.style.display = 'block';
+            });
+
+            // 绑定菜单项事件
+            const renameItem = menu.querySelector('[data-action="rename"]');
+            renameItem.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu.style.display = 'none';
+                this.showRenameInput(chatItem, chat.id, chat.title);
+            });
+
             container.appendChild(chatItem);
+        });
+
+        // 点击其他地方关闭菜单
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.chat-item-menu').forEach(m => {
+                m.style.display = 'none';
+            });
+        });
+    }
+
+    // 显示重命名对话框
+    showRenameInput(chatItem, chatId, currentTitle) {
+        // 创建对话框
+        const dialog = document.createElement('div');
+        dialog.className = 'rename-dialog-overlay';
+        dialog.innerHTML = `
+            <div class="rename-dialog">
+                <h3>重命名会话</h3>
+                <input type="text" class="rename-dialog-input" placeholder="输入新名称" maxlength="30" value="${this.escapeHtml(currentTitle)}" />
+                <div class="rename-dialog-buttons">
+                    <button class="rename-dialog-cancel">取消</button>
+                    <button class="rename-dialog-confirm">确定</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(dialog);
+
+        const input = dialog.querySelector('.rename-dialog-input');
+        const cancelBtn = dialog.querySelector('.rename-dialog-cancel');
+        const confirmBtn = dialog.querySelector('.rename-dialog-confirm');
+
+        // 自动聚焦并选中文字
+        setTimeout(() => {
+            input.focus();
+            input.select();
+        }, 100);
+
+        // 关闭对话框
+        const closeDialog = () => {
+            dialog.remove();
+        };
+
+        // 处理重命名
+        const handleRename = async () => {
+            const newTitle = input.value.trim();
+
+            // 校验
+            if (!newTitle) {
+                this.showNotification('会话名称不能为空', 'warning');
+                input.focus();
+                return;
+            }
+
+            if (newTitle.length > 30) {
+                this.showNotification('会话名称不能超过30个字符', 'warning');
+                input.focus();
+                return;
+            }
+
+            // 立即关闭对话框
+            closeDialog();
+
+            try {
+                // 请求服务器更新标题
+                const response = await fetch(`/api/chat/conversation/updateTitle/${chatId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `title=${encodeURIComponent(newTitle)}`
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    // 更新本地数据
+                    const chat = this.chats.get(chatId);
+                    if (chat) {
+                        chat.title = newTitle;
+                    }
+
+                    // 异步刷新会话列表
+                    await this.loadChatsFromStorage();
+
+                    this.showNotification('重命名成功', 'success');
+                } else {
+                    this.showNotification(result.msg || '重命名失败', 'error');
+                }
+            } catch (error) {
+                console.error('重命名失败:', error);
+                this.showNotification('重命名失败，请稍后重试', 'error');
+            }
+        };
+
+        // 绑定事件
+        confirmBtn.addEventListener('click', handleRename);
+        cancelBtn.addEventListener('click', closeDialog);
+
+        // 回车键确认
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleRename();
+            } else if (e.key === 'Escape') {
+                closeDialog();
+            }
+        });
+
+        // 点击遮罩层关闭
+        dialog.addEventListener('click', (e) => {
+            if (e.target === dialog) {
+                closeDialog();
+            }
         });
     }
 

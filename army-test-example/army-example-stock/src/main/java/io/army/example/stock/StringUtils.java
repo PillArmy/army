@@ -1,5 +1,7 @@
 package io.army.example.stock;
 
+import org.jspecify.annotations.Nullable;
+import org.springframework.lang.Contract;
 import org.springframework.util.Assert;
 
 public abstract class StringUtils {
@@ -17,5 +19,23 @@ public abstract class StringUtils {
         return charSequence.toString();
     }
 
+    @Contract("null -> false")
+    public static boolean hasText(@Nullable CharSequence str) {
+        if (str == null) {
+            return false;
+        }
+
+        int strLen = str.length();
+        if (strLen == 0) {
+            return false;
+        }
+
+        for (int i = 0; i < strLen; i++) {
+            if (!Character.isWhitespace(str.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

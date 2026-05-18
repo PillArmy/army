@@ -108,6 +108,7 @@ body {
     justify-content: space-between;
     align-items: center;
     transition: background-color 0.2s;
+    position: relative;
 }
 
 .chat-item:hover {
@@ -175,6 +176,184 @@ body {
 
 .chat-item-delete:hover {
     background-color: #fff1f0;
+}
+
+/* 会话操作按钮容器 */
+.chat-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.chat-item:hover .chat-item-actions {
+    opacity: 1;
+}
+
+/* 菜单按钮（...） */
+.chat-item-menu-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.chat-item-menu-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* 下拉菜单 */
+.chat-item-menu {
+    position: fixed;
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 100px;
+    overflow: hidden;
+    display: none;
+}
+
+.menu-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition: background-color 0.2s;
+}
+
+.menu-item:hover {
+    background-color: #f0f0f0;
+}
+
+/* 重命名输入框 */
+.chat-item-rename-input {
+    width: 100%;
+    padding: 4px 0;
+}
+
+.rename-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #1890ff;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+/* 重命名对话框 */
+.rename-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.rename-dialog {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    min-width: 400px;
+    max-width: 500px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.3s ease-out;
+}
+
+.rename-dialog h3 {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.rename-dialog-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.rename-dialog-input:focus {
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.rename-dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.rename-dialog-cancel,
+.rename-dialog-confirm {
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1px solid #d9d9d9;
+    transition: all 0.2s;
+}
+
+.rename-dialog-cancel {
+    background: white;
+    color: #666;
+}
+
+.rename-dialog-cancel:hover {
+    border-color: #1890ff;
+    color: #1890ff;
+}
+
+.rename-dialog-confirm {
+    background: #1890ff;
+    color: white;
+    border-color: #1890ff;
+}
+
+.rename-dialog-confirm:hover {
+    background: #40a9ff;
+    border-color: #40a9ff;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* 主内容区 */

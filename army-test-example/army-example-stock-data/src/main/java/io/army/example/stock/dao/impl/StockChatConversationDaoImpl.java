@@ -2,6 +2,7 @@ package io.army.example.stock.dao.impl;
 
 import io.army.criteria.Delete;
 import io.army.criteria.Select;
+import io.army.criteria.Update;
 import io.army.criteria.impl.Postgres;
 import io.army.criteria.impl.SQLs;
 import io.army.example.stock.dao.StockChatConversationDao;
@@ -98,7 +99,7 @@ public class StockChatConversationDaoImpl extends ArmyStockBaseDao implements St
     }
 
     @Override
-    public void deleteConversation(long userId, long conversationId) {
+    public long deleteConversation(long userId, long conversationId) {
         final String w1 = "w1";
         final Delete stmt;
         stmt = Postgres.singleDelete()
@@ -112,8 +113,18 @@ public class StockChatConversationDaoImpl extends ArmyStockBaseDao implements St
                 .using(w1)
                 .where(SpringAiChatMemory_.conversationId.equal(refField(w1, StockChatConversation_.ID)))
                 .asDelete();
-        this.sessionContext.currentSession().update(stmt);
+        return this.sessionContext.currentSession().update(stmt);
     }
 
-
+    @Override
+    public long updateTitle(long userId, long conversationId, String title) {
+        final Update stmt;
+        stmt = SQLs.singleUpdate()
+                .update(StockChatConversation_.T, AS, "t")
+                .set(StockChatConversation_.title, title)
+                .where(StockChatConversation_.userId.equal(userId))
+                .and(StockChatConversation_.id.equal(conversationId))
+                .asUpdate();
+        return this.sessionContext.currentSession().update(stmt);
+    }
 }

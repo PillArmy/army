@@ -92,8 +92,29 @@ public class ChatConversationController {
     @PostMapping("delete/{conversationId}")
     public Map<String, Object> deleteConversation(@CookieValue(value = "AuthToken") long userId,
                                                   @PathVariable("conversationId") long conversationId) {
-        this.stockChatConversationService.deleteConversation(userId, conversationId);
-        return DataUtils.ok();
+        final long rowCount;
+        rowCount = this.stockChatConversationService.deleteConversation(userId, conversationId);
+        if (rowCount > 0) {
+            return DataUtils.ok();
+        }
+        return DataUtils.serverError(400, "无此会话");
+    }
+
+    @PostMapping("updateTitle/{conversationId}")
+    public Map<String, Object> updateTitle(@CookieValue(value = "AuthToken") long userId,
+                                           @PathVariable("conversationId") long conversationId,
+                                           @RequestParam("title") String title) {
+
+        final Map<String, Object> map;
+        if (!StringUtils.hasText(title) || title.length() > 30) {
+            map = DataUtils.serverError(400, "Invalid title");
+        } else if (this.stockChatConversationService.updateTitle(userId, conversationId, title) > 0) {
+            map = DataUtils.ok();
+        } else {
+            map = DataUtils.serverError(400, "无此会话");
+        }
+        return map;
+
     }
 
 }

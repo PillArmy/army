@@ -18,7 +18,9 @@ public interface StockChatConversationDao extends StockBaseDao {
     @Nullable
     Long getUserId(long conversationId);
 
-    void deleteConversation(long userId, long conversationId);
+    long deleteConversation(long userId, long conversationId);
+
+    long updateTitle(long userId, long conversationId, String title);
 
 
 }
