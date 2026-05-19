@@ -44,4 +44,10 @@ public interface SyncBaseService {
     <T> long rowCount(Class<T> domainClass);
 
     <T> int rowCountAsInt(Class<T> domainClass);
+
+    <T> long updateField(Class<T> domainClass, Object id, String fieldName, Object fieldValue);
+
+    <T, F> long updateFieldWhenMatch(Class<T> domainClass, Object id, String fieldName, F fieldValue, @Nullable F defaultValue);
+
+
 }

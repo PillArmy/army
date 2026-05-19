@@ -99,6 +99,20 @@ public abstract class ArmySyncBaseService<D extends SyncBaseDao> implements Sync
         return rowCont;
     }
 
+    @Override
+    public <T> long updateField(Class<T> domainClass, Object id, String fieldName, Object fieldValue) {
+        return this.transactionTemplate.execute(Isolation.READ_COMMITTED, false,
+                _ -> getDao().updateField(domainClass, id, fieldName, fieldValue)
+        );
+    }
+
+    @Override
+    public <T, F> long updateFieldWhenMatch(Class<T> domainClass, Object id, String fieldName, F fieldValue, @Nullable F defaultValue) {
+        return this.transactionTemplate.execute(Isolation.READ_COMMITTED, false,
+                _ -> getDao().updateFieldWhenMatch(domainClass, id, fieldName, fieldValue, defaultValue)
+        );
+    }
+
     protected abstract D getDao();
 
 

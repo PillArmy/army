@@ -18,9 +18,11 @@ package io.army.dao;
 
 
 import io.army.lang.Nullable;
+
 import java.util.List;
 
 /// This interface is designed for dao layer.
+///
 /// @since 0.6.0
 public interface SyncBaseDao {
 
@@ -44,6 +46,10 @@ public interface SyncBaseDao {
     <T> long rowCount(Class<T> domainClass);
 
     <T> int rowCountAsInt(Class<T> domainClass);
+
+    <T> long updateField(Class<T> domainClass, Object id, String fieldName, Object fieldValue);
+
+    <T, F> long updateFieldWhenMatch(Class<T> domainClass, Object id, String fieldName, F fieldValue, @Nullable F defaultValue);
 
 
 }

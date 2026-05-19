@@ -24,4 +24,5 @@ public interface StockChatConversationService extends StockBaseService {
 
     long updateTitle(long userId, long conversationId, String title);
 
+
 }

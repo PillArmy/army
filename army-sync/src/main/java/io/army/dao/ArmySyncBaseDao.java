@@ -17,6 +17,7 @@
 package io.army.dao;
 
 import io.army.criteria.Select;
+import io.army.criteria.Update;
 import io.army.lang.Nullable;
 import io.army.meta.TableMeta;
 import io.army.modelgen._MetaBridge;
@@ -28,6 +29,7 @@ import io.army.util.SyncCriteria;
 import java.util.List;
 
 /// This class is an abstract implementation of {@link SyncBaseDao}
+///
 /// @since 0.6.0
 public abstract class ArmySyncBaseDao implements SyncBaseDao {
 
@@ -83,6 +85,21 @@ public abstract class ArmySyncBaseDao implements SyncBaseDao {
         return SyncCriteria.rowCountAsInt(domainClass, this.sessionContext.currentSession());
     }
 
+    @Override
+    public <T> long updateField(Class<T> domainClass, Object id, String fieldName, Object fieldValue) {
+        final SyncSession session = this.sessionContext.currentSession();
+        final Update stmt;
+        stmt = SQLStmts.updateFieldStmt(session.tableMeta(domainClass), id, fieldName, fieldValue);
+        return session.update(stmt);
+    }
+
+    @Override
+    public <T, F> long updateFieldWhenMatch(Class<T> domainClass, Object id, String fieldName, F fieldValue, @Nullable F defaultValue) {
+        final SyncSession session = this.sessionContext.currentSession();
+        final Update stmt;
+        stmt = SQLStmts.updateFieldWhenMatchStmt(session.tableMeta(domainClass), id, fieldName, fieldValue, defaultValue);
+        return session.update(stmt);
+    }
 
     @Nullable
     protected static <T, R> R findByUniqueFor(final TableMeta<T> domainTable, final Class<R> returnClass,

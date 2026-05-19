@@ -28,7 +28,7 @@ public class ChatModelConfiguration {
     }
 
 
-    // @Bean
+    @Bean
     public VectorStore stockVectorStore(EmbeddingModel embeddingModel, SyncSessionContext context) {
         return ArmyVectorStore.builder(embeddingModel, context)
                 .build();

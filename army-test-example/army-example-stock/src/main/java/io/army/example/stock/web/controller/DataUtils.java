@@ -6,13 +6,14 @@ import java.util.Map;
 
 public abstract class DataUtils {
 
+
+    private static final Map<String, Object> SIMPLE_OK = Map.of("code", 0, "msg", "ok", "data", Map.of());
+
     private DataUtils() {
     }
 
     public static Map<String, Object> ok() {
-        Map<String, Object> map = createOkResultMap();
-        map.put("data", Map.of());
-        return map;
+        return SIMPLE_OK;
     }
 
     public static Map<String, Object> ok(Object value) {

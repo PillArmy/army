@@ -16,11 +16,9 @@
 
 package io.army.util;
 
-import io.army.criteria.CriteriaException;
-import io.army.criteria.Insert;
-import io.army.criteria.LiteralMode;
-import io.army.criteria.Select;
+import io.army.criteria.*;
 import io.army.criteria.impl.SQLs;
+import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.session.Session;
@@ -30,6 +28,7 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static io.army.criteria.impl.SQLs.ASTERISK;
 
@@ -192,7 +191,61 @@ public abstract class SQLStmts {
     }
 
 
+    public static <T> Update updateFieldStmt(TableMeta<T> domainTable, Object id, String filedName,
+                                             Object fieldValue) {
+        final Update stmt;
+        if (domainTable instanceof SingleTableMeta) {
+            final SingleTableMeta<T> singleMeta = (SingleTableMeta<T>) domainTable;
+            stmt = SQLs.singleUpdate()
+                    .update(singleMeta, SQLs.AS, "t")
+                    .set(domainTable.field(filedName), fieldValue)
+                    .where(domainTable.id().equal(id))
+                    .asUpdate();
+        } else {
+            final ChildTableMeta<T> childMeta = (ChildTableMeta<T>) domainTable;
+            stmt = SQLs.domainUpdate()
+                    .update(childMeta, SQLs.AS, "t")
+                    .set(domainTable.field(filedName), fieldValue)
+                    .where(domainTable.id().equal(id))
+                    .asUpdate();
+        }
+        return stmt;
+    }
 
+    public static <T, F> Update updateFieldWhenMatchStmt(TableMeta<T> domainTable, Object id, String filedName,
+                                                         F fieldValue, @Nullable F defaultValue) {
+
+        final FieldMeta<T> field = domainTable.field(filedName);
+
+        final Consumer<Consumer<IPredicate>> consumer;
+        consumer = wb -> {
+            wb.accept(domainTable.id().equal(id));
+            if (defaultValue == null) {
+                wb.accept(field.isNull());
+            } else {
+                wb.accept(field.equal(defaultValue));
+            }
+        };
+
+
+        final Update stmt;
+        if (domainTable instanceof SingleTableMeta) {
+            final SingleTableMeta<T> singleMeta = (SingleTableMeta<T>) domainTable;
+            stmt = SQLs.singleUpdate()
+                    .update(singleMeta, SQLs.AS, "t")
+                    .set(field, fieldValue)
+                    .where(consumer)
+                    .asUpdate();
+        } else {
+            final ChildTableMeta<T> childMeta = (ChildTableMeta<T>) domainTable;
+            stmt = SQLs.domainUpdate()
+                    .update(childMeta, SQLs.AS, "t")
+                    .set(field, fieldValue)
+                    .where(consumer)
+                    .asUpdate();
+        }
+        return stmt;
+    }
 
 
     private static <P, T extends P> Insert childBatchInsertStatement(final ChildTableMeta<T> table,

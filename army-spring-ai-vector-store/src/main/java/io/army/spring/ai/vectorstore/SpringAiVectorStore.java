@@ -17,6 +17,7 @@
 package io.army.spring.ai.vectorstore;
 
 import io.army.annotation.*;
+import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -120,7 +121,7 @@ public class SpringAiVectorStore {
         return content;
     }
 
-    public SpringAiVectorStore setContent(String content) {
+    public SpringAiVectorStore setContent(@Nullable String content) {
         this.content = content;
         return this;
     }

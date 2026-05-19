@@ -18,6 +18,7 @@ package io.army.example.common;
 
 
 import io.army.lang.Nullable;
+
 import java.util.Map;
 
 public interface SyncBaseService {
@@ -32,5 +33,6 @@ public interface SyncBaseService {
 
     @Nullable
     Map<String, Object> findByIdAsMap(Class<?> domainClass, Object id);
+
 
 }

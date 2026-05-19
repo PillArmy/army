@@ -77,7 +77,6 @@ public class StockChatConversationServiceImpl extends AbstractStockBaseService i
         );
         assert rowCount != null; // here never null, Just suppress non‑null warnings
         return rowCount;
-
     }
 
     @Override
