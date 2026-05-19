@@ -877,6 +877,13 @@ main.main-content.has-conversation .input-area {
     cursor: not-allowed;
 }
 
+.btn-primary:disabled {
+    background: #d9d9d9;
+    color: #999;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
 .btn-primary {
     background: #1890ff;
     color: white;

@@ -202,14 +202,13 @@
 
         // 发送消息函数
         async function sendMessage() {
-            const content = messageInput.value.trim();
-
-            // 检查是否有待上传的文件
+            // 优先检查是否有待上传的文件（最高优先级，不依赖 content）
             if (window.uploadState.selectedFiles && window.uploadState.selectedFiles.length > 0) {
-                // 如果有文件，执行上传流程
                 await uploadFiles();
                 return;
             }
+
+            const content = messageInput.value.trim();
 
             // 如果没有文件但有文本，发送消息
             if (!content) {
@@ -303,18 +302,28 @@
             }
         }
 
-        // 绑定发送按钮点击事件
-        sendBtn.addEventListener('click', sendMessage);
+        // ===== 以下使用捕获阶段（capture phase）绑定，防止 app.js 的双重绑定冲突 =====
 
-        // 绑定输入框键盘事件
+        // 绑定发送按钮点击事件（捕获阶段：先于 app.js 执行并阻止其重复调用）
+        sendBtn.addEventListener('click', (e) => {
+            e.stopImmediatePropagation();
+            sendMessage();
+        }, true);
+
+        // 绑定输入框键盘事件（捕获阶段：先于 app.js 执行）
         messageInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
+                e.stopImmediatePropagation();
                 e.preventDefault();
+                // 如果有待上传的文件，回车无动作（只有点击发送按钮才上传）
+                if (window.uploadState.selectedFiles && window.uploadState.selectedFiles.length > 0) {
+                    return;
+                }
                 sendMessage();
             }
-        });
+        }, true);
 
-        // 自动调整输入框高度
+        // 自动调整输入框高度（冒泡阶段即可，与 app.js 不冲突）
         messageInput.addEventListener('input', () => {
             messageInput.style.height = 'auto';
             messageInput.style.height = Math.min(messageInput.scrollHeight, 200) + 'px';
@@ -336,10 +345,10 @@
             fileInput.click();
         });
 
-        // 文件选择事件
+        // 文件选择事件（捕获阶段：先于 app.js 执行，防止 app.js 清空 files 后无法获取）
         fileInput.addEventListener('change', (e) => {
             handleFileSelect(e);
-        });
+        }, true);
 
         // 刷新会话列表
         async function refreshChatHistory() {
@@ -392,6 +401,7 @@
             if (inputContent) {
                 showNotification('输入框有文本的情况下不能上传文件，请先发送或清空文本', 'warning');
                 event.target.value = '';
+                event.stopImmediatePropagation(); // 阻止 app.js 处理（避免文件预览弹出）
                 return;
             }
 
@@ -401,8 +411,7 @@
             // 显示文件已选择提示
             showNotification(`已选择 ${files.length} 个文件，点击发送按钮上传`, 'info');
 
-            // 重置 input
-            event.target.value = '';
+            // 不重置 input，让 app.js 的 handler 继续处理文件预览
         }
 
         // 上传文件函数

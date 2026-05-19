@@ -148,14 +148,13 @@
 
         // 发送消息函数
         async function sendMessage() {
-            const content = messageInput.value.trim();
-
-            // 检查是否有待上传的文件
+            // 优先检查是否有待上传的文件（最高优先级，不依赖 content）
             if (window.uploadState.selectedFiles && window.uploadState.selectedFiles.length > 0) {
-                // 如果有文件，执行上传流程
                 await uploadFiles();
                 return;
             }
+
+            const content = messageInput.value.trim();
 
             console.log('sendMessage - 原始值:', messageInput.value);
             console.log('sendMessage - trim后:', content);
@@ -316,13 +315,42 @@
                     refreshChatHistory();
                 }
 
-                // 绑定发送按钮
-                sendBtn.addEventListener('click', () => sendNewMessage(messageInput, sendBtn, md, chatMessages));
+                // 替换 sendBtn 节点以清除 ChatApp 绑定的旧事件
+                const newSendBtn = sendBtn.cloneNode(true);
+                sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
+
+                // 获取文件上传相关元素
+                const uploadFileBtn = document.getElementById('upload-file-btn');
+                const fileInput = document.getElementById('file-input');
+
+                // 绑定发送按钮（新节点，无 ChatApp 干扰）
+                newSendBtn.addEventListener('click', () => sendNewMessage(messageInput, newSendBtn, md, chatMessages));
+
+                // 绑定文件上传按钮
+                if (uploadFileBtn) {
+                    uploadFileBtn.addEventListener('click', () => {
+                        const inputContent = messageInput.value.trim();
+                        if (inputContent) {
+                            showNotification('输入框有文本的情况下不能上传文件', 'warning');
+                            return;
+                        }
+                        fileInput.click();
+                    });
+                }
+
+                // 绑定文件选择事件
+                if (fileInput) {
+                    fileInput.addEventListener('change', (e) => handleFileSelect(e));
+                }
 
                 messageInput.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
-                        sendNewMessage(messageInput, sendBtn, md, chatMessages);
+                        // 如果有待上传的文件，回车无动作（只有点击发送按钮才上传）
+                        if (window.uploadState.selectedFiles && window.uploadState.selectedFiles.length > 0) {
+                            return;
+                        }
+                        sendNewMessage(messageInput, newSendBtn, md, chatMessages);
                     }
                 });
 
@@ -480,8 +508,14 @@
             }, 200);
         }
 
-        // 发送新消息
+        // 发送新消息（支持文本消息和文件上传）
         async function sendNewMessage(messageInput, sendBtn, md, chatMessages) {
+            // 检查是否有待上传的文件
+            if (window.uploadState.selectedFiles && window.uploadState.selectedFiles.length > 0) {
+                await chatViewUploadFiles(sendBtn, md, chatMessages);
+                return;
+            }
+
             const content = messageInput.value.trim();
             if (!content) return;
 
@@ -502,6 +536,48 @@
             } finally {
                 sendBtn.disabled = false;
                 messageInput.focus();
+            }
+        }
+
+        // chat 视图中的文件上传（不创建会话，直接使用已有 conversationId）
+        async function chatViewUploadFiles(sendBtn, md, chatMessages) {
+            const files = window.uploadState.selectedFiles;
+            if (!files || files.length === 0) return;
+
+            // 防止重复上传
+            if (window.uploadState.isUploading) {
+                showNotification('文件正在上传中，请稍候', 'warning');
+                return;
+            }
+
+            try {
+                window.uploadState.isUploading = true;
+
+                // 禁用发送按钮，变灰
+                sendBtn.disabled = true;
+                sendBtn.textContent = '上传中...';
+
+                // 显示进度条
+                showUploadProgress(0, files);
+
+                // 获取当前会话 ID
+                const conversationId = document.body.dataset.conversationId;
+                if (!conversationId) {
+                    throw new Error('没有找到会话 ID');
+                }
+
+                // 上传文件
+                await uploadFilesToServer(conversationId, files);
+
+            } catch (error) {
+                console.error('上传文件失败:', error);
+                showNotification('上传文件失败: ' + error.message, 'error');
+                hideUploadProgress();
+            } finally {
+                window.uploadState.isUploading = false;
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 0 0-1.788 0l-7 14a1 1 0 0 0 1.169 1.409l5-1.429A1 1 0 0 0 9 15.571V11a1 1 0 1 1 2 0v4.571a1 1 0 0 0 .725.962l5 1.428a1 1 0 0 0 1.17-1.408l-7-14z"/></svg>发送';
+                window.uploadState.selectedFiles = [];
             }
         }
 
@@ -749,8 +825,28 @@
 
             console.log('上传完成，文件列表:', fileListMarkdown);
 
-            // 加载 chat 视图并显示上传完成消息
-            loadChatViewWithUploadResult(messageContent);
+            // 检查是否已经在 chat 视图中（聊天消息区域存在）
+            const chatMessages = document.getElementById('chat-messages');
+            if (chatMessages) {
+                // 已经在 chat 视图中，直接添加消息到聊天区域
+                const md = window.markdownit({
+                    html: true,
+                    linkify: true,
+                    typographer: true,
+                    breaks: true
+                });
+                appendMessage('assistant', messageContent, md, chatMessages);
+                // 确保 main 元素有正确的类
+                const mainEl = document.querySelector('main');
+                if (mainEl) {
+                    mainEl.classList.remove('empty-state');
+                    mainEl.classList.add('has-messages', 'has-conversation');
+                }
+                refreshChatHistory();
+            } else {
+                // 还在 empty-chat 视图，需要加载 chat 视图并显示上传完成消息
+                loadChatViewWithUploadResult(messageContent);
+            }
         }
 
         // 加载 chat 视图并显示上传结果
@@ -760,6 +856,8 @@
                 window.uploadCompleteMessage = messageContent;
                 window.initialUserMessage = null;
                 window.initialContent = null;
+                // 将上传创建的会话ID传递给chat视图
+                window.currentConversationId = window.uploadState.currentConversationId;
 
                 // 加载 chat 视图
                 await loadChatView();
