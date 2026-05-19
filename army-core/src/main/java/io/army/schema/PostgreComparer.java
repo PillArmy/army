@@ -215,6 +215,14 @@ final class PostgreComparer extends ArmySchemaComparer {
                         notMatch = true;
                 }
                 break;
+            case VECTOR:
+                if (typeName.equals("VECTOR")) {
+                    precision = field.precision();
+                    notMatch = precision > -1 && precision != columnInfo.precision();
+                } else {
+                    notMatch = true;
+                }
+                break;
             case TEXT:
                 switch (typeName) {
                     case "TEXT":
@@ -440,13 +448,13 @@ final class PostgreComparer extends ArmySchemaComparer {
     /// Get the canonical (standard) name for the given PostgreSQL type name.
     /// This follows the alias resolution logic in `compareSqlType` method,
     /// mapping type aliases to their canonical PostgreSQL type names.
-    /// 
+    ///
     /// **Examples:**
     /// - `"int"` → `"INTEGER"`
     /// - `"bool"` → `"BOOLEAN"`
     /// - `"varchar"` → `"VARCHAR"`
     /// - `"time without time zone"` → `"TIME"`
-    /// 
+    ///
     /// @param typeName the type name to get canonical name for
     /// @return the canonical type name, or the original name if no mapping exists
     private String getFanonicalName(String typeName) {

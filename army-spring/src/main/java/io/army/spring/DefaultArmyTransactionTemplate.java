@@ -19,6 +19,8 @@ package io.army.spring;
 
 import io.army.session.SyncSession;
 import io.army.spring.sync.ArmySyncLocalTransactionManager;
+import io.army.util._ResourceUtils;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.*;
@@ -26,39 +28,61 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.support.CallbackPreferringPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
+import java.util.stream.Stream;
 
 public class DefaultArmyTransactionTemplate implements TransactionTemplate {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultArmyTransactionTemplate.class);
 
+    private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
     private static final TransactionDefinition DEFAULT_DEFINITION = new DefaultTransactionDefinition();
 
-    private static final Map<Integer, TransactionDefinition> DEFINITION_MAP = Map.copyOf(createDefinitionMap());
+    private static final Map<Integer, TransactionDefinition> DEFINITION_MAP;
 
     private static final int READ_ONLY_MASK = 0B1_0000;
 
 
+    static {
+        final Properties properties;
+        properties = _ResourceUtils.loadArmyProperties(TransactionTemplate.class.getSimpleName());
+        final String key;
+        key = TransactionTemplate.class.getName() + '.' + "cache" + '.' + TransactionDefinition.class.getSimpleName();
+        if (Boolean.parseBoolean(properties.getProperty(key, "true"))) {
+            DEFINITION_MAP = Map.of();
+        } else {
+            DEFINITION_MAP = Map.copyOf(createDefinitionMap());
+        }
+    }
+
+
     private final PlatformTransactionManager transactionManager;
 
+    private final String basePackagePrefix;
 
-    public DefaultArmyTransactionTemplate(PlatformTransactionManager transactionManager) {
+
+    public DefaultArmyTransactionTemplate(PlatformTransactionManager transactionManager, @Nullable String basePackage) {
         Objects.requireNonNull(transactionManager);
         this.transactionManager = transactionManager;
+        if (StringUtils.hasText(basePackage)) {
+            this.basePackagePrefix = basePackage + '.';
+        } else {
+            this.basePackagePrefix = null;
+        }
+
     }
 
 
     @Override
     public <T> T execute(TransactionCallback<T> action) throws TransactionException {
-        return execute(DEFAULT_DEFINITION, action);
+        return execute(defaultDefinition(), action);
     }
 
     @Override
@@ -86,6 +110,7 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
         return execute(definition, action::applyAsLong);
     }
 
+
     @Override
     public <T> T execute(TransactionDefinition definition, TransactionCallback<T> action) throws TransactionException {
         Objects.requireNonNull(definition, "Transaction definition must not be null");
@@ -93,6 +118,20 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
         if (this.transactionManager instanceof CallbackPreferringPlatformTransactionManager cpptm) {
             return cpptm.execute(definition, action);
         }
+
+        if (this.basePackagePrefix != null && definition instanceof DefaultTransactionDefinition td) {
+            final String caller;
+            caller = STACK_WALKER
+                    .walk(this::filterFrame)
+                    .map(this::parseCaller)
+                    .orElse(null);
+
+            if (caller != null) {
+                td.setName(caller);
+            }
+            LOG.debug("Executing transaction for [{}]", caller);
+        }
+
 
         final TransactionStatus status = this.transactionManager.getTransaction(definition);
 
@@ -160,9 +199,51 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
 
     @Override
     public void executeWithoutResult(Consumer<TransactionStatus> action) throws TransactionException {
-        execute(DEFAULT_DEFINITION, createCallback(action));
+        execute(defaultDefinition(), createCallback(action));
     }
 
+
+    private TransactionDefinition defaultDefinition() {
+        if (this.basePackagePrefix == null) {
+            return DEFAULT_DEFINITION;
+        }
+        return new DefaultTransactionDefinition();
+    }
+
+
+    private String parseCaller(StackWalker.StackFrame frame) {
+        return frame.getClassName() + '.' + frame.getMethodName() + ':' + frame.getLineNumber();
+    }
+
+    private Optional<StackWalker.StackFrame> filterFrame(Stream<StackWalker.StackFrame> frameStream) {
+        return frameStream.skip(2)
+                .filter(this::filterClassName)
+                .findFirst();
+    }
+
+    private boolean filterClassName(StackWalker.StackFrame frame) {
+        return frame.getClassName().startsWith(this.basePackagePrefix);
+    }
+
+
+    private TransactionDefinition from(Isolation isolation, boolean readOnly) {
+        if (this.basePackagePrefix != null) {
+            return TransactionTemplate.of(isolation, readOnly);
+        }
+        int value = isolation.value();
+        if (isolation == Isolation.DEFAULT) {
+            value = 0;
+        }
+        if (readOnly) {
+            value |= READ_ONLY_MASK;
+        }
+        TransactionDefinition definition;
+        definition = DEFINITION_MAP.get(value);
+        if (definition == null) {
+            definition = TransactionTemplate.of(isolation, readOnly);
+        }
+        return definition;
+    }
 
     private void rollbackOnException(TransactionStatus status, Throwable ex) throws TransactionException {
 
@@ -231,23 +312,6 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
                 status.getTransactionName(), session.transactionInfo().isolation().name(), isolationName,
                 "reject this transaction propagation");
         return new IsolationNotMatchException(m);
-    }
-
-
-    private static TransactionDefinition from(Isolation isolation, boolean readOnly) {
-        int value = isolation.value();
-        if (isolation == Isolation.DEFAULT) {
-            value = 0;
-        }
-        if (readOnly) {
-            value |= READ_ONLY_MASK;
-        }
-        TransactionDefinition definition;
-        definition = DEFINITION_MAP.get(value);
-        if (definition == null) {
-            definition = TransactionTemplate.of(isolation, readOnly);
-        }
-        return definition;
     }
 
 

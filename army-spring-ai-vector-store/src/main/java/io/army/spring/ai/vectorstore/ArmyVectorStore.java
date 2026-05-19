@@ -65,6 +65,8 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
 
     private final DistanceType distanceType;
 
+    private final String model;
+
     private final FilterExpressionConverter converter;
 
 
@@ -78,7 +80,7 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
 
         this.sessionContext = builder.sessionContext;
         this.distanceType = builder.distanceType;
-
+        this.model = builder.model;
 
         switch (builder.sessionContext.sessionFactory().dialectDatabase()) {
             case PostgreSQL:
@@ -95,8 +97,10 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
 
     @Override
     public void doAdd(final List<Document> documents) {
+
+
         final List<float[]> embeddingList;
-        embeddingList = this.embeddingModel.embed(documents, EmbeddingOptions.builder().build(), this.batchingStrategy);
+        embeddingList = this.embeddingModel.embed(documents, embeddingOptions(), this.batchingStrategy);
 
         final Function<SyncSession, Void> function;
         function = session -> {
@@ -318,6 +322,16 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
     }
 
 
+    private EmbeddingOptions embeddingOptions() {
+        final EmbeddingOptions.Builder builder = EmbeddingOptions.builder();
+        if (this.model != null) {
+            builder.model(this.model);
+        }
+        builder.dimensions(SpringAiVectorStore_.embedding.precision());
+        return builder.build();
+    }
+
+
     private Insert postgreInsertOrUpdateStmt(final List<SpringAiVectorStore> rowList) {
         return Postgres.singleInsert()
                 .nullMode(this.nullMode)
@@ -389,6 +403,8 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
 
         private int batchDeleteThreshold = 20;
 
+        private String model;
+
 
         private DistanceType distanceType;
 
@@ -420,6 +436,11 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
 
         public Builder distanceType(DistanceType distanceType) {
             this.distanceType = distanceType;
+            return this;
+        }
+
+        public Builder mode(String mode) {
+            this.model = mode;
             return this;
         }
 
