@@ -374,6 +374,10 @@ class ChatApp {
         const isEmptyState = mainElement && mainElement.classList.contains('empty-state');
         const hasNoMessages = !chat || chat.messages.length === 0;
 
+        // 保存当前进度条状态（如果有）
+        const progressContainer = document.getElementById('upload-progress');
+        const isUploading = window.uploadState && window.uploadState.isUploading;
+        
         if (isEmptyState || hasNoMessages) {
             // 从服务器加载消息
             await this.loadConversationMessages(numericId);
@@ -387,6 +391,12 @@ class ChatApp {
                 mainElement.classList.remove('empty-state');
                 mainElement.classList.add('has-messages', 'has-conversation');
             }
+        }
+
+        // 如果正在上传，恢复进度条显示
+        if (isUploading && progressContainer) {
+            // 进度条应该继续显示
+            console.log('会话切换，但上传仍在进行中，保持进度条显示');
         }
     }
 

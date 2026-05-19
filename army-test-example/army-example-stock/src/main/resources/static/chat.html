@@ -107,6 +107,12 @@
         const sendBtn = document.getElementById('send-btn');
         const chatMessages = document.getElementById('chat-messages');
 
+        // 文件上传相关变量
+        window.uploadState = {
+            isUploading: false,
+            selectedFiles: []
+        };
+
         // 从 URL 参数获取 conversationId（如果是直接访问 chat.html）
         const urlParams = new URLSearchParams(window.location.search);
         const urlConversationId = urlParams.get('conversationId');
@@ -197,6 +203,15 @@
         // 发送消息函数
         async function sendMessage() {
             const content = messageInput.value.trim();
+
+            // 检查是否有待上传的文件
+            if (window.uploadState.selectedFiles && window.uploadState.selectedFiles.length > 0) {
+                // 如果有文件，执行上传流程
+                await uploadFiles();
+                return;
+            }
+
+            // 如果没有文件但有文本，发送消息
             if (!content) {
                 return;
             }
@@ -305,6 +320,27 @@
             messageInput.style.height = Math.min(messageInput.scrollHeight, 200) + 'px';
         });
 
+        // 文件上传按钮点击事件
+        const uploadFileBtn = document.getElementById('upload-file-btn');
+        const fileInput = document.getElementById('file-input');
+
+        uploadFileBtn.addEventListener('click', () => {
+            // 检查输入框是否有文本
+            const inputContent = messageInput.value.trim();
+            if (inputContent) {
+                showNotification('输入框有文本的情况下不能上传文件', 'warning');
+                return;
+            }
+
+            // 触发文件选择
+            fileInput.click();
+        });
+
+        // 文件选择事件
+        fileInput.addEventListener('change', (e) => {
+            handleFileSelect(e);
+        });
+
         // 刷新会话列表
         async function refreshChatHistory() {
             try {
@@ -344,6 +380,193 @@
             } catch (error) {
                 console.error('刷新会话列表失败:', error);
             }
+        }
+
+        // 文件选择处理函数
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            if (files.length === 0) return;
+
+            // 检查输入框是否有文本
+            const inputContent = messageInput.value.trim();
+            if (inputContent) {
+                showNotification('输入框有文本的情况下不能上传文件，请先发送或清空文本', 'warning');
+                event.target.value = '';
+                return;
+            }
+
+            // 保存选择的文件
+            window.uploadState.selectedFiles = files;
+
+            // 显示文件已选择提示
+            showNotification(`已选择 ${files.length} 个文件，点击发送按钮上传`, 'info');
+
+            // 重置 input
+            event.target.value = '';
+        }
+
+        // 上传文件函数
+        async function uploadFiles() {
+            const files = window.uploadState.selectedFiles;
+            if (files.length === 0) return;
+
+            // 防止重复上传
+            if (window.uploadState.isUploading) {
+                showNotification('文件正在上传中，请稍候', 'warning');
+                return;
+            }
+
+            try {
+                window.uploadState.isUploading = true;
+
+                // 禁用发送按钮
+                sendBtn.disabled = true;
+                sendBtn.textContent = '上传中...';
+
+                // 显示进度条
+                showUploadProgress(0, files);
+
+                // 获取当前会话 ID
+                const conversationId = document.body.dataset.conversationId;
+                if (!conversationId) {
+                    throw new Error('没有找到会话 ID');
+                }
+
+                // 上传文件
+                await uploadFilesToServer(conversationId, files);
+
+            } catch (error) {
+                console.error('上传文件失败:', error);
+                showNotification('上传文件失败: ' + error.message, 'error');
+                hideUploadProgress();
+            } finally {
+                window.uploadState.isUploading = false;
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 0 0-1.788 0l-7 14a1 1 0 0 0 1.169 1.409l5-1.429A1 1 0 0 0 9 15.571V11a1 1 0 1 1 2 0v4.571a1 1 0 0 0 .725.962l5 1.428a1 1 0 0 0 1.17-1.408l-7-14z"/></svg>发送';
+                window.uploadState.selectedFiles = [];
+            }
+        }
+
+        // 上传文件到服务器
+        async function uploadFilesToServer(conversationId, files) {
+            const formData = new FormData();
+
+            // 添加多个文件
+            files.forEach(file => {
+                formData.append('files', file);
+            });
+
+            // 更新进度条
+            updateUploadProgress(30, files);
+
+            const response = await fetch(`/api/chat/conversation/${conversationId}/upload/documents`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`上传文件失败: HTTP ${response.status}`);
+            }
+
+            updateUploadProgress(100, files);
+
+            const result = await response.json();
+
+            if (result.code !== 0) {
+                throw new Error(result.msg || '上传文件失败');
+            }
+
+            // 隐藏进度条
+            setTimeout(() => {
+                hideUploadProgress();
+
+                // 显示上传完成消息
+                showUploadCompleteMessage(files);
+
+                showNotification('文件上传成功', 'success');
+            }, 500);
+        }
+
+        // 显示上传进度
+        function showUploadProgress(percent, files) {
+            // 移除已存在的进度条
+            hideUploadProgress();
+
+            const inputArea = document.querySelector('.input-area');
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'upload-progress-container';
+            progressContainer.id = 'upload-progress';
+
+            const fileNames = files.map(f => f.name).join(', ');
+
+            progressContainer.innerHTML = `
+                <div class="upload-progress-bar">
+                    <div class="upload-progress-fill" style="width: ${percent}%"></div>
+                </div>
+                <div class="upload-progress-text">上传中... ${percent}%</div>
+                <div class="upload-progress-files">${fileNames}</div>
+            `;
+
+            inputArea.appendChild(progressContainer);
+        }
+
+        // 更新上传进度
+        function updateUploadProgress(percent, files) {
+            const progressContainer = document.getElementById('upload-progress');
+            if (!progressContainer) return;
+
+            const fill = progressContainer.querySelector('.upload-progress-fill');
+            const text = progressContainer.querySelector('.upload-progress-text');
+
+            if (fill) fill.style.width = `${percent}%`;
+            if (text) text.textContent = `上传中... ${percent}%`;
+        }
+
+        // 隐藏上传进度
+        function hideUploadProgress() {
+            const progressContainer = document.getElementById('upload-progress');
+            if (progressContainer) {
+                progressContainer.remove();
+            }
+        }
+
+        // 显示上传完成消息
+        function showUploadCompleteMessage(files) {
+            // 创建会话消息
+            const fileListMarkdown = files.map((file, index) =>
+                `${index + 1}. ${file.name}`
+            ).join('\n');
+
+            const messageContent = `文件已上传完成：\n\n${fileListMarkdown}`;
+
+            // 添加到聊天消息
+            if (chatMessages) {
+                appendMessage('assistant', messageContent, md);
+            }
+
+            console.log('上传完成，文件列表:', fileListMarkdown);
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            if (!container) return;
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+
+            container.appendChild(notification);
+
+            // 3秒后自动消失
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
         }
     });
 </script>

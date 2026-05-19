@@ -5,6 +5,7 @@ import io.army.example.stock.domain.StockChatConversation;
 import io.army.example.stock.domain.UploadRecord;
 import io.army.example.stock.service.DocumentService;
 import io.army.example.stock.service.StockChatConversationService;
+import jakarta.validation.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -99,7 +100,7 @@ public class ChatConversationController {
     @PostMapping("talk/{conversationId}")
     public Flux<String> talk(@CookieValue(value = "AuthToken") long userId,
                              @PathVariable("conversationId") long conversationId,
-                             @RequestParam("content") String content) {
+                             @RequestParam("content") @NotEmpty String content) {
 
         final Long memoryUserId;
         memoryUserId = this.stockChatConversationService.getUserId(conversationId);
