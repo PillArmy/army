@@ -38,10 +38,12 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /// This class is a implementation of {@link SyncFactoryBuilder}.
 /// This class is the builder of {@link ArmySyncSessionFactory}.
+///
 /// @see ArmySyncSessionFactory
 /// @since 0.6.0
 final class ArmySyncFactoryBuilder
@@ -178,6 +180,14 @@ final class ArmySyncFactoryBuilder
             //1.extract schema info.
             final SchemaInfo schemaInfo;
             schemaInfo = executor.extractInfo(sessionFactory.dialectParser.queryDefinedTypeStmts(definedTypeMap));
+
+            final Set<String> extensionNameSet = this.extensionNameSet;
+            if (!extensionNameSet.isEmpty()) {
+                final List<String> extensionSqlList;
+                extensionSqlList = sessionFactory.dialectParser.createExtensionSql(schemaInfo.catalog(), schemaInfo.schema(), extensionNameSet);
+                LOG.debug("{}:\n\n{}", sessionFactory, ddlToSqlLog(extensionSqlList));
+                executor.executeDdl(extensionSqlList);
+            }
 
             //2.compare schema meta and schema info.
             final SchemaResult schemaResult;

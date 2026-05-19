@@ -16,7 +16,7 @@ public class Snowflake8Tests {
     @Test
     public void next() {
         for (int i = 0; i < 10; i++) {
-            System.out.println(Snowflakes.next(1779014276675L));
+            System.out.println(Snowflake8s.next(1779014276675L));
         }
 
 
@@ -27,7 +27,7 @@ public class Snowflake8Tests {
         final int count = Snowflake8.SEQUENCE_MASK;
         final long startNanoSecond = System.nanoTime();
 
-        Snowflakes.defaultNext(count, _ -> {
+        Snowflake8s.defaultNext(count, _ -> {
         });
 
         printTimeCost(startNanoSecond);
@@ -39,7 +39,7 @@ public class Snowflake8Tests {
         final long startNanoSecond = System.nanoTime();
 
         for (int i = 0; i < count; i++) {
-            Snowflakes.defaultNext();
+            Snowflake8s.defaultNext();
         }
 
         printTimeCost(startNanoSecond);
@@ -53,7 +53,7 @@ public class Snowflake8Tests {
 
         final long startNanoSecond = System.nanoTime();
 
-        Snowflakes.defaultNext(count, set::add);
+        Snowflake8s.defaultNext(count, set::add);
 
         Assert.assertEquals(set.size(), count);
 
@@ -68,7 +68,7 @@ public class Snowflake8Tests {
 
         long value;
         for (int i = 0; i < count; i++) {
-            value = Snowflakes.defaultNext();
+            value = Snowflake8s.defaultNext();
             set.add(value);
         }
 
@@ -85,7 +85,7 @@ public class Snowflake8Tests {
         final long startNanoSecond = System.nanoTime();
 
         // Snowflakes.defaultNext(count,System.out::println);
-        Snowflakes.defaultNext(count, _ -> {
+        Snowflake8s.defaultNext(count, _ -> {
         });
 
         printTimeCost(startNanoSecond);
@@ -97,7 +97,7 @@ public class Snowflake8Tests {
         final Set<Long> set = _Collections.hashSetForSize(count);
         final long startNanoSecond = System.nanoTime();
 
-        Snowflakes.defaultNext(count, set::add);
+        Snowflake8s.defaultNext(count, set::add);
 
         Assert.assertEquals(set.size(), count);
 
@@ -111,7 +111,7 @@ public class Snowflake8Tests {
         final long startNanoSecond = System.nanoTime();
 
         for (int i = 0; i < count; i++) {
-            Snowflakes.defaultNext();
+            Snowflake8s.defaultNext();
         }
 
         // Snowflakes.defaultNext(count,list::add);
@@ -128,7 +128,7 @@ public class Snowflake8Tests {
         long value;
         for (int i = 0; i < count; i++) {
 
-            value = Snowflakes.defaultNext();
+            value = Snowflake8s.defaultNext();
             //  System.out.println(value);
             set.add(value);
 
@@ -148,7 +148,7 @@ public class Snowflake8Tests {
         final long startNanoSecond = System.nanoTime();
 
         //  Snowflakes.defaultNextWithDate(count,"8888","999",set::add);
-        Snowflakes.defaultNextWithDate(count, "xx", "bb", null, value -> {
+        Snowflake8s.defaultNextWithDate(count, "xx", "bb", null, value -> {
             Assert.assertTrue(value.startsWith("20260515"));
             //  System.out.println(value);
             set.add(value);

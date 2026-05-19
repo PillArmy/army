@@ -39,7 +39,10 @@ import java.util.Map;
 ///
 /// ${OPTIONAL} means that If you do not specify it, index will not be created.
 @Table(name = "${DEFAULT}",
-        indexes = @Index(name = "${DEFAULT}", type = "${OPTIONAL}", fields = @IndexField(name = "embedding", opclass = "${DEFAULT}")),
+        indexes = {
+                @Index(name = "${DEFAULT}", type = "${OPTIONAL}", fields = @IndexField(name = "embedding", opclass = "${DEFAULT}"))
+        },
+        ddlMode = DdlMode.DEFAULT,
         comment = "${DEFAULT}")
 public class SpringAiVectorStore {
 

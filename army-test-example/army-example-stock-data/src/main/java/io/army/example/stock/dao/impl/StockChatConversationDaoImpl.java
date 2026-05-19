@@ -20,7 +20,7 @@ import java.util.Map;
 
 import static io.army.criteria.impl.SQLs.*;
 
-@Repository
+@Repository("stockChatConversationDao")
 public class StockChatConversationDaoImpl extends ArmyStockBaseDao implements StockChatConversationDao {
 
     public StockChatConversationDaoImpl(SyncSessionContext sessionContext) {

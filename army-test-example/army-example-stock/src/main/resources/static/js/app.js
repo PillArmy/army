@@ -822,8 +822,14 @@ class ChatApp {
         const input = document.getElementById('message-input');
         const content = input.value.trim();
 
-        if (!content && this.selectedFiles.length === 0) {
-            this.showNotification('请输入消息内容或上传文件', 'warning');
+        // 优先处理文件上传
+        if (this.selectedFiles.length > 0) {
+            await this.uploadFiles();
+            return;
+        }
+
+        if (!content) {
+            this.showNotification('请输入消息内容', 'warning');
             return;
         }
 
@@ -834,18 +840,11 @@ class ChatApp {
             return;
         }
 
-        // 构建消息内容
-        let messageContent = content;
-        if (this.selectedFiles.length > 0) {
-            messageContent += '\n\n[文件附件]';
-        }
-
         // 创建用户消息
         const userMessage = {
             role: 'user',
-            content: messageContent,
-            timestamp: new Date().toISOString(),
-            files: this.selectedFiles.map(f => f.name)
+            content: content,
+            timestamp: new Date().toISOString()
         };
 
         // 添加到会话
@@ -858,7 +857,6 @@ class ChatApp {
             this.renderChatHistory();
             // 第一条消息发送后，切换到有消息页面
             this.navigateToChat();
-            return;
         }
 
         this.appendMessage(userMessage);
@@ -866,10 +864,153 @@ class ChatApp {
         // 清空输入
         input.value = '';
         this.autoResizeInput();
-        this.clearFiles();
 
         // 发送到服务器
         await this.sendToServer(userMessage);
+    }
+
+    // 上传文件到服务器
+    async uploadFiles() {
+        const files = this.selectedFiles;
+        if (files.length === 0) {
+            this.showNotification('请先选择文件', 'warning');
+            return;
+        }
+
+        const sendBtn = document.getElementById('send-btn');
+
+        try {
+            // 禁用发送按钮
+            sendBtn.disabled = true;
+            sendBtn.textContent = '上传中...';
+
+            // 显示进度条
+            this.showUploadProgress(0, files);
+
+            // 获取 conversationId
+            const conversationId = this.currentChatId || document.body.dataset.conversationId;
+            if (!conversationId) {
+                throw new Error('没有有效的 conversationId');
+            }
+
+            // 构建 FormData
+            const formData = new FormData();
+            files.forEach(file => {
+                formData.append('files', file);
+            });
+
+            // 更新进度
+            this.updateUploadProgress(30, files);
+
+            // 上传文件
+            const response = await fetch(`/api/chat/conversation/${conversationId}/upload/documents`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`上传文件失败: HTTP ${response.status}`);
+            }
+
+            this.updateUploadProgress(100, files);
+
+            const result = await response.json();
+            if (result.code !== 0) {
+                throw new Error(result.msg || '上传文件失败');
+            }
+
+            // 隐藏进度条
+            setTimeout(() => {
+                this.hideUploadProgress();
+                this.showUploadCompleteMessage(files);
+                this.showNotification('文件上传成功', 'success');
+            }, 500);
+
+            // 清空文件选择
+            this.clearFiles();
+
+        } catch (error) {
+            console.error('上传文件失败:', error);
+            this.showNotification('上传文件失败: ' + error.message, 'error');
+            this.hideUploadProgress();
+        } finally {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 0 0-1.788 0l-7 14a1 1 0 0 0 1.169 1.409l5-1.429A1 1 0 0 0 9 15.571V11a1 1 0 1 1 2 0v4.571a1 1 0 0 0 .725.962l5 1.428a1 1 0 0 0 1.17-1.408l-7-14z"/></svg>发送';
+        }
+    }
+
+    // 显示上传进度
+    showUploadProgress(percent, files) {
+        this.hideUploadProgress();
+
+        const inputArea = document.querySelector('.input-area');
+        if (!inputArea) return;
+
+        const progressContainer = document.createElement('div');
+        progressContainer.className = 'upload-progress-container';
+        progressContainer.id = 'upload-progress';
+
+        const fileNames = files.map(f => f.name).join(', ');
+
+        progressContainer.innerHTML = `
+            <div class="upload-progress-bar">
+                <div class="upload-progress-fill" style="width: ${percent}%"></div>
+            </div>
+            <div class="upload-progress-text">上传中... ${percent}%</div>
+            <div class="upload-progress-files">${fileNames}</div>
+        `;
+
+        inputArea.appendChild(progressContainer);
+    }
+
+    // 更新上传进度
+    updateUploadProgress(percent, files) {
+        const progressContainer = document.getElementById('upload-progress');
+        if (!progressContainer) return;
+
+        const fill = progressContainer.querySelector('.upload-progress-fill');
+        const text = progressContainer.querySelector('.upload-progress-text');
+
+        if (fill) fill.style.width = `${percent}%`;
+        if (text) text.textContent = `上传中... ${percent}%`;
+    }
+
+    // 隐藏上传进度
+    hideUploadProgress() {
+        const progressContainer = document.getElementById('upload-progress');
+        if (progressContainer) {
+            progressContainer.remove();
+        }
+    }
+
+    // 显示上传完成消息
+    showUploadCompleteMessage(files) {
+        const fileListMarkdown = files.map((file, index) =>
+            `${index + 1}. ${file.name}`
+        ).join('\n');
+
+        const messageContent = `文件已上传完成：\n\n${fileListMarkdown}`;
+
+        // 添加到聊天消息
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message assistant';
+
+            const time = new Date().toLocaleString('zh-CN');
+            messageEl.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="message-bubble">${this.md.render(messageContent)}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+
+            chatMessages.appendChild(messageEl);
+            this.scrollToBottom();
+        }
+
+        console.log('上传完成，文件列表:', fileListMarkdown);
     }
 
     // 发送到服务器（流式响应）
@@ -1112,11 +1253,6 @@ class ChatApp {
         requestAnimationFrame(() => {
             container.scrollTop = container.scrollHeight;
         });
-    }
-
-    // 保存到本地存储（已禁用，仅保留方法避免报错）
-    saveChatsToStorage() {
-        // 不再使用 localStorage，所有数据从服务端获取
     }
 
     // 从服务端加载会话列表（向后兼容，调用 loadChatList）

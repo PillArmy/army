@@ -110,8 +110,10 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     ///
     /// key is upper case
     ///
-    /// @see DdlMode
     Map<String, MappingType> definedTypeMap = Map.of();
+
+    /// @see DdlMode
+    Set<String> extensionNameSet = Set.of();
 
 
     protected ArmyFactoryBuilder() {
@@ -401,14 +403,24 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         final Map<String, MappingType> definedTypeMap = new HashMap<>();
         this.definedTypeMap = definedTypeMap;
 
+        final Set<String> extensionNameSet = new HashSet<>();
+        this.extensionNameSet = extensionNameSet;
+
         final Map<Class<?>, String> definedTypeToNameMap = new HashMap<>();
 
         return field -> {
             final MappingType type;
             type = field.mappingType();
+
+            if (type instanceof MappingType.SqlExtension te) {
+                extensionNameSet.add(te.extensionName().toLowerCase(Locale.ROOT));
+            }
+
+
             if (!(type instanceof MappingType.SqlUserDefined st)) {
                 return;
             }
+
 
             final String oldName, typeName;
             typeName = st.objectName();
@@ -430,7 +442,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             }
 
             if (oldName == null && type instanceof MappingType.SqlComposite t) {
-                scanCompositeField(t, definedTypeMap, definedTypeToNameMap);
+                scanCompositeField(t, definedTypeMap, definedTypeToNameMap, extensionNameSet);
             }
 
         };
@@ -730,13 +742,18 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     /// @see #consumerForDefinedType
     private static void scanCompositeField(final MappingType.SqlComposite compositeType,
                                            final Map<String, MappingType> definedTypeMap,
-                                           final Map<Class<?>, String> definedTypeToNameMap) {
+                                           final Map<Class<?>, String> definedTypeToNameMap,
+                                           final Set<String> extensionNameSet) {
 
         MappingType type, oldType;
         String typeName, oldName;
         Class<?> fieldType;
         for (CompositeField field : compositeType.fieldList()) {
             type = field.mappingType();
+
+            if (type instanceof MappingType.SqlExtension te) {
+                extensionNameSet.add(te.extensionName().toLowerCase(Locale.ROOT));
+            }
 
             if (!(type instanceof MappingType.SqlUserDefined st)) {
                 continue;
@@ -760,7 +777,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             }
 
             if (oldName == null && type instanceof MappingType.SqlComposite ct) {
-                scanCompositeField(ct, definedTypeMap, definedTypeToNameMap);
+                scanCompositeField(ct, definedTypeMap, definedTypeToNameMap, extensionNameSet);
             }
         }
     }

@@ -23,9 +23,9 @@ import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 
-public abstract class Snowflakes {
+public abstract class Snowflake8s {
 
-    private Snowflakes() {
+    private Snowflake8s() {
         throw new UnsupportedOperationException();
     }
 
@@ -37,7 +37,7 @@ public abstract class Snowflakes {
         final Properties properties;
         properties = _ResourceUtils.loadArmyProperties(Snowflake8.class.getSimpleName());
         final String key, startTime;
-        key = Snowflakes.class.getName() + '.' + Snowflake8Generator.START_TIME;
+        key = Snowflake8s.class.getName() + '.' + Snowflake8Generator.START_TIME;
         startTime = properties.getProperty(key, "1776386333818");
         try {
             START_TIME = Long.parseLong(startTime);

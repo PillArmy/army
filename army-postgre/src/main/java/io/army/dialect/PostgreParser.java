@@ -38,9 +38,7 @@ import io.army.util.*;
 import java.math.BigDecimal;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 abstract class PostgreParser extends _ArmyDialectParser {
 
@@ -75,13 +73,13 @@ abstract class PostgreParser extends _ArmyDialectParser {
         return new PgTypeMappingHandler(env);
     }
 
-    /// 
+    ///
     /// Original Query defined type stmts,This statement is not used to unify processing logic for all dialects.
     /// 1. Identify composite type: pg_type.typcategory is 'C' and pg_class.relkind is 'c'
     /// 2. Identify domain type: pg_type.typbasetype > 0 ,If this is a domain (see typtype),
     /// then typbasetype identifies the type that this one is based on. Zero if this type is not a domain.
     /// [pg_type](https://www.postgresql.org/docs/current/catalog-pg-type.html)
-    /// 
+    ///
     /// ```postgresql
     /// SELECT t.typname AS "definedType", t.typcategory AS "type", et."enumLabelArray", at.*
     /// FROM pg_namespace AS n
@@ -191,6 +189,44 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 _SQLConsultant.forName("rangeSubDiff", StringType.INSTANCE)
         );
         return List.of(Stmts.simpleRead(sql, List.of(), selectionList));
+    }
+
+    @Override
+    public final List<String> createExtensionSql(@Nullable String catalog, @Nullable String schema, final Set<String> extensionSet) {
+        if (extensionSet.isEmpty()) {
+            return List.of();
+        }
+        final List<String> extensionList = new ArrayList<>(extensionSet.size());
+        final StringBuilder builder = new StringBuilder(50);
+
+        for (String name : extensionSet) {
+
+            builder.setLength(0); // clear
+
+            builder.append("CREATE")
+                    .append(_Constant.SPACE)
+                    .append("EXTENSION")
+                    .append(_Constant.SPACE)
+                    .append("IF")
+                    .append(_Constant.SPACE)
+                    .append("NOT")
+                    .append(_Constant.SPACE)
+                    .append("EXISTS")
+                    .append(_Constant.SPACE);
+
+            identifier(name.toLowerCase(Locale.ROOT), builder);
+
+            if (schema != null) {
+                builder.append(_Constant.SPACE)
+                        .append("SCHEMA")
+                        .append(_Constant.SPACE);
+
+                identifier(schema.toLowerCase(Locale.ROOT), builder);
+            }
+
+            extensionList.add(builder.toString());
+        }
+        return List.copyOf(extensionList);
     }
 
     @Override
@@ -668,7 +704,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
     }
 
 
-    /// 
+    ///
     /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS">Identifiers and Keywords</a>
     @Override
     protected final void handleIdentifier(final @Nullable DatabaseObject object, final String effectiveName, final StringBuilder sqlBuilder) {

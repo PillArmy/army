@@ -504,6 +504,12 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
                 }
             }
             break;
+            case VECTOR: {
+                builder.append(_Constant.SPACE)
+                        .append(dataType.typeName());
+                precision(field, dataType, Integer.MAX_VALUE, 1024, builder);
+            }
+            break;
             case BIT:
             case VARBIT: {
                 this.parser.typeName(field.mappingType(), builder);
@@ -512,8 +518,12 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
                 }
             }
             break;
-            default:
+            default: {
                 this.parser.typeName(field.mappingType(), builder);
+                if (field.precision() > -1) {
+                    precision(field, dataType, Integer.MAX_VALUE, 1024, builder);
+                }
+            }
 
 
         }// switch

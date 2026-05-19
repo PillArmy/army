@@ -8,7 +8,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Table(name = "upload_record",
-        indexes = @Index(name = "${DEFAULT}", fieldList = "userId"),
+        indexes = {
+                @Index(name = "${DEFAULT_NAME}", fieldList = "userId"),
+                @Index(name = "${DEFAULT_NAME}", fieldList = "fileHash")
+        },
         comment = "用户上传文档记录")
 public class UploadRecord extends BaseDomain<UploadRecord> {
 
@@ -22,11 +25,15 @@ public class UploadRecord extends BaseDomain<UploadRecord> {
     @Column(notNull = true, updatable = false, comment = "会话ID")
     public Long conversationId;
 
-    @Column(notNull = true, updatable = false, comment = "文件名")
+    @Column(notNull = true, precision = 100, updatable = false, comment = "文件名")
     public String fileName;
 
-    @Column(notNull = true, updatable = false, comment = "文件路径")
+    @Column(notNull = true, precision = 255, updatable = false, comment = "文件路径")
     public String filePath;
+
+    @Column(precision = 44, comment = "文件哈希值,SHA‑256算法,标准base64")
+    @Mapping("io.army.mapping.SqlCharType")
+    public String fileHash;
 
     @Column(notNull = true, defaultValue = "${DEFAULT}", comment = "上传完成时间")
     public LocalDateTime uploadCompleteTime;
@@ -35,13 +42,12 @@ public class UploadRecord extends BaseDomain<UploadRecord> {
     @Mapping("io.army.mapping.PreferredJsonbType")
     private List<Long> vectorIdList;
 
-    @Column(comment = "是否删除")
+    @Column(notNull = true, defaultValue = "false", comment = "是否删除")
     public boolean deleted;
 
     // below not column field
 
     public Path storePath;
-
 
     public Long getId() {
         return id;
@@ -85,6 +91,15 @@ public class UploadRecord extends BaseDomain<UploadRecord> {
 
     public UploadRecord setFilePath(String filePath) {
         this.filePath = filePath;
+        return this;
+    }
+
+    public String getFileHash() {
+        return fileHash;
+    }
+
+    public UploadRecord setFileHash(String fileHash) {
+        this.fileHash = fileHash;
         return this;
     }
 

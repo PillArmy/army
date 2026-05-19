@@ -19,6 +19,8 @@ package io.army.dao;
 import io.army.criteria.Select;
 import io.army.criteria.Update;
 import io.army.lang.Nullable;
+import io.army.meta.FieldMeta;
+import io.army.meta.PrimaryFieldMeta;
 import io.army.meta.TableMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.session.SyncSession;
@@ -73,6 +75,28 @@ public abstract class ArmySyncBaseDao implements SyncBaseDao {
         final SyncSession session;
         session = this.sessionContext.currentSession();
         return findByUniqueFor(session.tableMeta(domainClass), domainClass, session, fieldName, fieldValue);
+    }
+
+    @Override
+    public <T> boolean existsById(Class<T> domainClass, Object id) {
+        final SyncSession session = this.sessionContext.currentSession();
+        final TableMeta<T> tableMeta = session.tableMeta(domainClass);
+        final PrimaryFieldMeta<T> idField = tableMeta.id();
+
+        final Select stmt;
+        stmt = SQLStmts.existsByUniqueStmt(tableMeta, idField.fieldName(), id);
+        return session.queryOne(stmt, idField.javaType()) != null;
+    }
+
+    @Override
+    public <T> boolean existsByByUnique(Class<T> domainClass, String fieldName, Object fieldValue) {
+        final SyncSession session = this.sessionContext.currentSession();
+        final TableMeta<T> tableMeta = session.tableMeta(domainClass);
+        final FieldMeta<T> field = tableMeta.field(fieldName);
+
+        final Select stmt;
+        stmt = SQLStmts.existsByUniqueStmt(tableMeta, field.fieldName(), fieldValue);
+        return session.queryOne(stmt, field.javaType()) != null;
     }
 
     @Override

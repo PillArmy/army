@@ -43,6 +43,10 @@ public interface SyncBaseDao {
     <T> T findByUnique(Class<T> domainClass, String fieldName, Object fieldValue);
 
 
+    <T> boolean existsById(Class<T> domainClass, Object id);
+
+    <T> boolean existsByByUnique(Class<T> domainClass, String fieldName, Object fieldValue);
+
     <T> long rowCount(Class<T> domainClass);
 
     <T> int rowCountAsInt(Class<T> domainClass);

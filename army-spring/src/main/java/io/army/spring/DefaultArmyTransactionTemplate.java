@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
 
 public class DefaultArmyTransactionTemplate implements TransactionTemplate {
 
@@ -55,8 +57,33 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
 
 
     @Override
+    public <T> T execute(TransactionCallback<T> action) throws TransactionException {
+        return execute(DEFAULT_DEFINITION, action);
+    }
+
+    @Override
+    public <T> T execute(boolean readOnly, TransactionCallback<T> action) throws TransactionException {
+        return execute(from(Isolation.DEFAULT, readOnly), action);
+    }
+
+    @Override
     public <T> T execute(Isolation isolation, boolean readOnly, TransactionCallback<T> action) throws TransactionException {
         return execute(from(isolation, readOnly), action);
+    }
+
+    @Override
+    public long executeLong(boolean readOnly, ToLongFunction<TransactionStatus> action) throws TransactionException {
+        return execute(from(Isolation.DEFAULT, readOnly), action::applyAsLong);
+    }
+
+    @Override
+    public long executeLong(Isolation isolation, boolean readOnly, ToLongFunction<TransactionStatus> action) throws TransactionException {
+        return execute(from(isolation, readOnly), action::applyAsLong);
+    }
+
+    @Override
+    public long executeLong(TransactionDefinition definition, ToLongFunction<TransactionStatus> action) throws TransactionException {
+        return execute(definition, action::applyAsLong);
     }
 
     @Override
@@ -96,10 +123,30 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
 
 
     @Override
-    public <T> T execute(TransactionCallback<T> action) throws TransactionException {
-        return execute(DEFAULT_DEFINITION, action);
+    public <T> T executeNoNull(boolean readOnly, Function<TransactionStatus, T> action) throws TransactionException {
+        final T result;
+        result = execute(from(Isolation.DEFAULT, readOnly), action::apply);
+        return Objects.requireNonNull(result, "TransactionCallback returned null which is not allowed");
     }
 
+    @Override
+    public <T> T executeNoNull(Isolation isolation, boolean readOnly, Function<TransactionStatus, T> action) throws TransactionException {
+        final T result;
+        result = execute(from(isolation, readOnly), action::apply);
+        return Objects.requireNonNull(result, "TransactionCallback returned null which is not allowed");
+    }
+
+    @Override
+    public <T> T executeNoNull(TransactionDefinition definition, Function<TransactionStatus, T> action) throws TransactionException {
+        final T result;
+        result = execute(definition, action::apply);
+        return Objects.requireNonNull(result, "TransactionCallback returned null which is not allowed");
+    }
+
+    @Override
+    public void executeWithoutResult(boolean readOnly, Consumer<TransactionStatus> action) throws TransactionException {
+        execute(from(Isolation.DEFAULT, readOnly), createCallback(action));
+    }
 
     @Override
     public void executeWithoutResult(Isolation isolation, boolean readOnly, Consumer<TransactionStatus> action) throws TransactionException {

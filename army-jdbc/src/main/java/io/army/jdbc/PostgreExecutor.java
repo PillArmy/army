@@ -53,8 +53,9 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-/// 
+///
 /// This class is a implementation of {@link SyncExecutor} with postgre JDBC driver.
+///
 /// @since 0.6.0
 abstract class PostgreExecutor extends JdbcExecutor {
 
@@ -227,7 +228,8 @@ abstract class PostgreExecutor extends JdbcExecutor {
                 stmt.setObject(indexBasedOne, pgObject, Types.OTHER);
             }
             break;
-
+            case VECTOR:
+            case VECTOR_ARRAY:
             case JSON:
             case JSONB:
 

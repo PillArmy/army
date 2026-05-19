@@ -67,6 +67,8 @@
         <spring.cloud.version>2025.1.1</spring.cloud.version>
         <spring.ai.version>2.0.0-M5</spring.ai.version>
 
+        <volcengine.sdk.version>2.0.4</volcengine.sdk.version>
+
         <log4j.version>2.25.4</log4j.version>
 
         <slf4.version>2.0.17</slf4.version>

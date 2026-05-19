@@ -78,15 +78,25 @@ public abstract class ArmySyncBaseService<D extends SyncBaseDao> implements Sync
         );
     }
 
+    @Override
+    public <T> boolean existsById(Class<T> domainClass, Object id) {
+        return this.transactionTemplate.executeNoNull(true,
+                _ -> getDao().existsById(domainClass, id)
+        );
+    }
+
+    @Override
+    public <T> boolean existsByByUnique(Class<T> domainClass, String fieldName, Object fieldValue) {
+        return this.transactionTemplate.executeNoNull(true,
+                _ -> getDao().existsByByUnique(domainClass, fieldName, fieldValue)
+        );
+    }
 
     @Override
     public <T> long rowCount(Class<T> domainClass) {
-        final Long rowCont;
-        rowCont = this.transactionTemplate.execute(Isolation.READ_COMMITTED, true,
+        return this.transactionTemplate.executeLong(Isolation.READ_COMMITTED, true,
                 _ -> getDao().rowCount(domainClass)
         );
-        assert rowCont != null;
-        return rowCont;
     }
 
     @Override
@@ -101,16 +111,22 @@ public abstract class ArmySyncBaseService<D extends SyncBaseDao> implements Sync
 
     @Override
     public <T> long updateField(Class<T> domainClass, Object id, String fieldName, Object fieldValue) {
-        return this.transactionTemplate.execute(Isolation.READ_COMMITTED, false,
+        final Long rowCont;
+        rowCont = this.transactionTemplate.execute(Isolation.READ_COMMITTED, false,
                 _ -> getDao().updateField(domainClass, id, fieldName, fieldValue)
         );
+        assert rowCont != null;
+        return rowCont;
     }
 
     @Override
     public <T, F> long updateFieldWhenMatch(Class<T> domainClass, Object id, String fieldName, F fieldValue, @Nullable F defaultValue) {
-        return this.transactionTemplate.execute(Isolation.READ_COMMITTED, false,
+        final Long rowCont;
+        rowCont = this.transactionTemplate.execute(Isolation.READ_COMMITTED, false,
                 _ -> getDao().updateFieldWhenMatch(domainClass, id, fieldName, fieldValue, defaultValue)
         );
+        assert rowCont != null;
+        return rowCont;
     }
 
     protected abstract D getDao();

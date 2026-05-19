@@ -19,7 +19,7 @@ package io.army.spring.ai.chat.memory;
 import io.army.codec.JsonCodec;
 import io.army.criteria.*;
 import io.army.criteria.impl.SQLs;
-import io.army.generator.snowflake.Snowflakes;
+import io.army.generator.snowflake.Snowflake8s;
 import io.army.result.CurrentRecord;
 import io.army.session.SyncSession;
 import io.army.session.SyncSessionContext;
@@ -194,9 +194,9 @@ public final class ArmyMessageChatMemory implements ChatMemory, EnvironmentAware
         if (SpringAiChatMemory_.T.tryField("batchNo") == null) {
             batchNo = null;
         } else if (this.snowflakeStartTime < 0) {
-            batchNo = Snowflakes.defaultNext();
+            batchNo = Snowflake8s.defaultNext();
         } else {
-            batchNo = Snowflakes.next(this.snowflakeStartTime);
+            batchNo = Snowflake8s.next(this.snowflakeStartTime);
         }
 
         SpringAiChatMemory o;

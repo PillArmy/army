@@ -193,6 +193,7 @@ final class PostgreComparer extends ArmySchemaComparer {
             case CHAR:
                 switch (typeName) {
                     case "CHAR":
+                    case "BPCHAR":
                     case "CHARACTER": {
                         precision = field.precision();
                         notMatch = precision > -1 && precision != columnInfo.precision();

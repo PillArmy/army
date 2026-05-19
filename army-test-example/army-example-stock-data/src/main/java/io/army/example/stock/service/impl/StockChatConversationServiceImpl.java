@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Isolation;
 import java.util.List;
 import java.util.Map;
 
-@Service
+@Service("stockChatConversationService")
 public class StockChatConversationServiceImpl extends AbstractStockBaseService implements StockChatConversationService {
 
 
@@ -28,7 +28,7 @@ public class StockChatConversationServiceImpl extends AbstractStockBaseService i
     @Override
     public List<StockChatConversation> queryUserConversation(long userId) {
         final List<StockChatConversation> list;
-        list = this.transactionTemplate.execute(Isolation.DEFAULT, true,
+        list = this.transactionTemplate.execute(true,
                 _ -> this.stockChatConversationDao.queryUserConversation(userId)
         );
 
@@ -38,7 +38,7 @@ public class StockChatConversationServiceImpl extends AbstractStockBaseService i
     @Nullable
     @Override
     public Long currentConversationId(long userId) {
-        return this.transactionTemplate.execute(Isolation.DEFAULT, true,
+        return this.transactionTemplate.execute(true,
                 _ -> this.stockChatConversationDao.currentConversationId(userId)
         );
     }
@@ -46,7 +46,7 @@ public class StockChatConversationServiceImpl extends AbstractStockBaseService i
 
     @Override
     public List<Map<String, Object>> conversationMessageList(long userId, long conversationId) {
-        return this.transactionTemplate.execute(Isolation.DEFAULT, true,
+        return this.transactionTemplate.execute(true,
                 _ -> this.stockChatConversationDao.conversationMessageList(userId, conversationId)
         );
     }
@@ -54,7 +54,7 @@ public class StockChatConversationServiceImpl extends AbstractStockBaseService i
     @Nullable
     @Override
     public Long getUserId(long conversationId) {
-        return this.transactionTemplate.execute(Isolation.DEFAULT, true,
+        return this.transactionTemplate.execute(true,
                 _ -> this.stockChatConversationDao.getUserId(conversationId)
         );
     }

@@ -45,6 +45,8 @@ public abstract class TableMetaUtils {
 
     public static final String OPTIONAL_EXP = "${OPTIONAL}";
 
+    public static final String DEFAULT_NAME_EXP = "${DEFAULT_NAME}";
+
 
     public static String columnName(Class<?> domainClass, Column column, Field field, MetaContext context) {
         final String columnName = column.name(), fieldName = field.getName();
@@ -561,6 +563,9 @@ public abstract class TableMetaUtils {
         final String indexName = index.name();
         final String finalIndexName;
         switch (indexName) {
+            case DEFAULT_NAME_EXP:
+                finalIndexName = defaultIndexName(tableMeta, index, context);
+                break;
             case DEFAULT_EXP:
             case RUNTIME_EXP:
             case OPTIONAL_EXP: {

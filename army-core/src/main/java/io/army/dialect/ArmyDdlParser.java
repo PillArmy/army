@@ -651,9 +651,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
             }
 
             if (supportOpclass && _StringUtils.hasText(value = column.opclass())) {
-                builder.append(_Constant.SPACE)
-                        .append("opclass")
-                        .append(_Constant.SPACE);
+                builder.append(_Constant.SPACE);
                 this.parser.identifier(value.toLowerCase(Locale.ROOT), builder);
             }
 

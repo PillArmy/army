@@ -396,6 +396,10 @@ abstract class ArmyParser implements DialectParser {
         List<String> indexList;
         for (TableResult tableResult : schemaResult.changeTableList()) {
             TableMeta<?> table = tableResult.table();
+            if (!table.isCreateDdl()) {
+                continue;
+            }
+
             if (tableResult.comment()) {
                 ddlParser.modifyTableComment(table, ddlList);
             }

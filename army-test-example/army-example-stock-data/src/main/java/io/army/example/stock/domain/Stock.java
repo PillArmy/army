@@ -7,7 +7,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 
-@Table(name = "stock", indexes = {@Index(name = "${DEFAULT}", unique = true, fieldList = {"exchange", "code"})},
+@Table(name = "stock", indexes = {
+        @Index(name = "${DEFAULT}", unique = true, fieldList = {"exchange", "code"})
+},
         comment = "股票")
 public class Stock extends BaseDomain<Stock> {
 

@@ -30,6 +30,7 @@ import java.io.ObjectStreamException;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static io.army.criteria.impl.SQLs.AS;
 import static io.army.criteria.impl.SQLs.ASTERISK;
 
 public abstract class SQLStmts {
@@ -151,14 +152,14 @@ public abstract class SQLStmts {
 
             stmt = SQLs.query()
                     .select("p", SQLs.PERIOD, parent, "c", SQLs.PERIOD, child)
-                    .from(child, SQLs.AS, "c")
-                    .join(parent, SQLs.AS, "p").on(childId.equal(parent.id()))
+                    .from(child, AS, "c")
+                    .join(parent, AS, "p").on(childId.equal(parent.id()))
                     .where(uniqueFiled.equal(SQLs::param, fieldValue))
                     .asQuery();
         } else {
             stmt = SQLs.query()
                     .select("t", SQLs.PERIOD, domainTable)
-                    .from(domainTable, SQLs.AS, "t")
+                    .from(domainTable, AS, "t")
                     .where(uniqueFiled.equal(SQLs::param, fieldValue))
                     .asQuery();
         }
@@ -178,13 +179,13 @@ public abstract class SQLStmts {
             final ParentTableMeta<?> parent = ((ChildTableMeta<T>) domainTable).parentMeta();
             stmt = SQLs.query()
                     .select(SQLs.count(ASTERISK).as("count"))
-                    .from(domainTable, SQLs.AS, "c")
-                    .join(parent, SQLs.AS, "p").on(domainTable.id().equal(parent.id()))
+                    .from(domainTable, AS, "c")
+                    .join(parent, AS, "p").on(domainTable.id().equal(parent.id()))
                     .asQuery();
         } else {
             stmt = SQLs.query()
                     .select(SQLs.count(ASTERISK).as("count"))
-                    .from(domainTable, SQLs.AS, "t")
+                    .from(domainTable, AS, "t")
                     .asQuery();
         }
         return stmt;
@@ -197,14 +198,14 @@ public abstract class SQLStmts {
         if (domainTable instanceof SingleTableMeta) {
             final SingleTableMeta<T> singleMeta = (SingleTableMeta<T>) domainTable;
             stmt = SQLs.singleUpdate()
-                    .update(singleMeta, SQLs.AS, "t")
+                    .update(singleMeta, AS, "t")
                     .set(domainTable.field(filedName), fieldValue)
                     .where(domainTable.id().equal(id))
                     .asUpdate();
         } else {
             final ChildTableMeta<T> childMeta = (ChildTableMeta<T>) domainTable;
             stmt = SQLs.domainUpdate()
-                    .update(childMeta, SQLs.AS, "t")
+                    .update(childMeta, AS, "t")
                     .set(domainTable.field(filedName), fieldValue)
                     .where(domainTable.id().equal(id))
                     .asUpdate();
@@ -232,19 +233,37 @@ public abstract class SQLStmts {
         if (domainTable instanceof SingleTableMeta) {
             final SingleTableMeta<T> singleMeta = (SingleTableMeta<T>) domainTable;
             stmt = SQLs.singleUpdate()
-                    .update(singleMeta, SQLs.AS, "t")
+                    .update(singleMeta, AS, "t")
                     .set(field, fieldValue)
                     .where(consumer)
                     .asUpdate();
         } else {
             final ChildTableMeta<T> childMeta = (ChildTableMeta<T>) domainTable;
             stmt = SQLs.domainUpdate()
-                    .update(childMeta, SQLs.AS, "t")
+                    .update(childMeta, AS, "t")
                     .set(field, fieldValue)
                     .where(consumer)
                     .asUpdate();
         }
         return stmt;
+    }
+
+
+    public static <T> Select existsByUniqueStmt(TableMeta<T> table, String fieldName, Object fieldValue) {
+        final FieldMeta<T> idField, field;
+        field = table.field(fieldName);
+        if (field instanceof PrimaryFieldMeta<T>) {
+            idField = field;
+        } else {
+            idField = table.id();
+        }
+
+        return SQLs.query()
+                .select(idField)
+                .from(table, AS, "t")
+                .where(field.equal(fieldValue))
+                .limit(1)
+                .asQuery();
     }
 
 

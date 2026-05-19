@@ -32,7 +32,7 @@ public class DataSourceConfiguration {
         factoryBean
                 .setFactoryName("army-stock")
                 .setDataSource(dataSource)
-                .setPackagesToScan(List.of("io.army.example.stock.domain", "io.army.spring.ai.chat.memory"))
+                .setPackagesToScan(List.of("io.army.example.stock.domain", "io.army.spring.ai.chat.memory", "io.army.spring.ai.vectorstore"))
                 .setFieldGeneratorFactory(stockFieldGeneratorFactory())
                 .setFactoryAdviceCollection(List.of(new StockSessionFactoryAdvisor()))
         ;

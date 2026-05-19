@@ -17,6 +17,7 @@
 package io.army.dialect;
 
 import io.army.criteria.*;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.meta.ServerMeta;
@@ -27,6 +28,7 @@ import io.army.stmt.Stmt;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /// A common interface to all dialect of dialect.
@@ -34,29 +36,29 @@ public interface DialectParser {
 
 
     /// @return one of :
-    /// 
+    ///
     /// - {@link SimpleStmt}
     /// - {@link io.army.stmt.GeneratedKeyStmt}
     /// - {@link io.army.stmt.PairStmt}
-    /// 
+    ///
     Stmt insert(InsertStatement insert, SessionSpec sessionSpec);
 
     /// @return one of
     /// - {@link SimpleStmt}
     /// - {@link io.army.stmt.BatchStmt}
-    /// 
+    ///
     Stmt update(UpdateStatement update, boolean useMultiStmt, SessionSpec sessionSpec);
 
     /// @return one of
     /// - {@link SimpleStmt}
     /// - {@link io.army.stmt.BatchStmt}
-    /// 
+    ///
     Stmt delete(DeleteStatement delete, boolean useMultiStmt, SessionSpec sessionSpec);
 
     /// @return one of
     /// - {@link SimpleStmt}
     /// - {@link io.army.stmt.BatchStmt}
-    /// 
+    ///
     Stmt select(SelectStatement select, boolean useMultiStmt, SessionSpec sessionSpec);
 
     Stmt values(Values values, SessionSpec sessionSpec);
@@ -71,6 +73,10 @@ public interface DialectParser {
     }
 
     default List<SimpleStmt> queryDefinedTypeStmts(Map<String, MappingType> definedTypeMap) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> createExtensionSql(@Nullable String catalog, @Nullable String schema, Set<String> extensionSet) {
         throw new UnsupportedOperationException();
     }
 

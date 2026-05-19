@@ -1,10 +1,12 @@
 package io.army.example.stock.web.controller;
 
-import io.army.example.stock.StringUtils;
 import io.army.example.stock.domain.StockChatConversation;
 import io.army.example.stock.domain.UploadRecord;
 import io.army.example.stock.service.DocumentService;
 import io.army.example.stock.service.StockChatConversationService;
+import io.army.example.stock.service.UploadRecordService;
+import io.army.example.stock.util.StringUtils;
+import io.army.example.stock.utils.FileUtils;
 import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +21,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +38,14 @@ public class ChatConversationController {
 
     private final DocumentService documentService;
 
+    private final UploadRecordService uploadRecordService;
+
     public ChatConversationController(ChatClient chatClient, StockChatConversationService stockChatConversationService,
-                                      DocumentService documentService) {
+                                      DocumentService documentService, UploadRecordService uploadRecordService) {
         this.chatClient = chatClient;
         this.stockChatConversationService = stockChatConversationService;
         this.documentService = documentService;
+        this.uploadRecordService = uploadRecordService;
     }
 
     @GetMapping("list")
@@ -84,7 +88,7 @@ public class ChatConversationController {
 
         final StockChatConversation conversation = new StockChatConversation()
                 .setUserId(userId)
-                .setTitle(StringUtils.truncate(content, 30))
+                .setTitle(StringUtils.myTruncate(content, 30))
                 .setFirstContent(content);
 
         this.stockChatConversationService.save(conversation);
@@ -159,14 +163,12 @@ public class ChatConversationController {
                 for (int i = 0, peroidIndex; i < fileArray.length; i++) {
                     file = fileArray[i];
                     fieldName = file.getOriginalFilename();
-                    suffix = file.getContentType();
-                    if (suffix == null) {
-                        peroidIndex = fieldName.lastIndexOf('.');
-                        if (peroidIndex > 0) {
-                            suffix = fieldName.substring(peroidIndex);
-                        } else {
-                            suffix = "document";
-                        }
+                    if (fieldName == null) {
+                        suffix = "document";
+                    } else if ((peroidIndex = fieldName.lastIndexOf('.')) > 0) {
+                        suffix = fieldName.substring(peroidIndex + 1);
+                    } else {
+                        suffix = "document";
                     }
                     pathArray[i] = Files.createTempFile("stock_chat_doc", '.' + suffix);
 
@@ -187,21 +189,21 @@ public class ChatConversationController {
 
                     Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
                     o = recordList.get(i);
+                    o.fileHash = FileUtils.fileSHA256Base64(path);
                     o.storePath = path;
 
-                    this.stockChatConversationService.updateField(UploadRecord.class, o.id, "updateCompleteTime",
-                            LocalDateTime.now());
-
+                    this.uploadRecordService.uploadComplete(o.id, o.fileHash);
                 }
 
                 this.documentService.storeDocuments(recordList);
+
                 return DataUtils.ok();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         };
 
-        return new WebAsyncTask<>(callable);
+        return new WebAsyncTask<>(1000L * 3600, callable);
     }
 
 }
