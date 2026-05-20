@@ -46,7 +46,7 @@ public class StockChatConversationServiceImpl extends AbstractStockBaseService i
 
     @Override
     public List<Map<String, Object>> conversationMessageList(long userId, long conversationId) {
-        return this.transactionTemplate.execute(true,
+        return this.transactionTemplate.executeNoNull(true,
                 _ -> this.stockChatConversationDao.conversationMessageList(userId, conversationId)
         );
     }

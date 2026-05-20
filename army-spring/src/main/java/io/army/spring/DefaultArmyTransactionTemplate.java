@@ -20,7 +20,6 @@ package io.army.spring;
 import io.army.session.SyncSession;
 import io.army.spring.sync.ArmySyncLocalTransactionManager;
 import io.army.util._ResourceUtils;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.*;
@@ -28,7 +27,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.support.CallbackPreferringPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.util.StringUtils;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.*;
@@ -41,7 +39,7 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultArmyTransactionTemplate.class);
 
-    private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+    private static final StackWalker STACK_WALKER;
 
     private static final TransactionDefinition DEFAULT_DEFINITION = new DefaultTransactionDefinition();
 
@@ -54,29 +52,26 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
         final Properties properties;
         properties = _ResourceUtils.loadArmyProperties(TransactionTemplate.class.getSimpleName());
         final String key;
-        key = TransactionTemplate.class.getName() + '.' + "cache" + '.' + TransactionDefinition.class.getSimpleName();
+        key = DefaultArmyTransactionTemplate.class.getName() + '.' + "showTransactionName";
         if (Boolean.parseBoolean(properties.getProperty(key, "true"))) {
-            DEFINITION_MAP = Map.of();
-        } else {
             DEFINITION_MAP = Map.copyOf(createDefinitionMap());
+            STACK_WALKER = StackWalker.getInstance(EnumSet.of(StackWalker.Option.RETAIN_CLASS_REFERENCE));
+        } else {
+            DEFINITION_MAP = Map.of();
+            STACK_WALKER = null;
         }
     }
 
 
     private final PlatformTransactionManager transactionManager;
 
-    private final String basePackagePrefix;
+    private final boolean showTransactionName;
 
 
-    public DefaultArmyTransactionTemplate(PlatformTransactionManager transactionManager, @Nullable String basePackage) {
+    public DefaultArmyTransactionTemplate(PlatformTransactionManager transactionManager, boolean showTransactionName) {
         Objects.requireNonNull(transactionManager);
         this.transactionManager = transactionManager;
-        if (StringUtils.hasText(basePackage)) {
-            this.basePackagePrefix = basePackage + '.';
-        } else {
-            this.basePackagePrefix = null;
-        }
-
+        this.showTransactionName = showTransactionName;
     }
 
 
@@ -119,7 +114,9 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
             return cpptm.execute(definition, action);
         }
 
-        if (this.basePackagePrefix != null && definition instanceof DefaultTransactionDefinition td) {
+        if (this.showTransactionName
+                && STACK_WALKER != null
+                && definition instanceof DefaultTransactionDefinition td) {
             final String caller;
             caller = STACK_WALKER
                     .walk(this::filterFrame)
@@ -129,7 +126,6 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
             if (caller != null) {
                 td.setName(caller);
             }
-            LOG.debug("Executing transaction for [{}]", caller);
         }
 
 
@@ -203,31 +199,29 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
     }
 
 
-    private TransactionDefinition defaultDefinition() {
-        if (this.basePackagePrefix == null) {
-            return DEFAULT_DEFINITION;
-        }
-        return new DefaultTransactionDefinition();
-    }
-
-
     private String parseCaller(StackWalker.StackFrame frame) {
-        return frame.getClassName() + '.' + frame.getMethodName() + ':' + frame.getLineNumber();
+        return frame.getClassName() + '#' + frame.getMethodName() + ':' + frame.getLineNumber();
     }
 
     private Optional<StackWalker.StackFrame> filterFrame(Stream<StackWalker.StackFrame> frameStream) {
-        return frameStream.skip(2)
+        return frameStream
                 .filter(this::filterClassName)
                 .findFirst();
     }
 
     private boolean filterClassName(StackWalker.StackFrame frame) {
-        return frame.getClassName().startsWith(this.basePackagePrefix);
+        return !DefaultArmyTransactionTemplate.class.getName().equals(frame.getClassName());
     }
 
+    private TransactionDefinition defaultDefinition() {
+        if (this.showTransactionName) {
+            return new DefaultTransactionDefinition();
+        }
+        return DEFAULT_DEFINITION;
+    }
 
     private TransactionDefinition from(Isolation isolation, boolean readOnly) {
-        if (this.basePackagePrefix != null) {
+        if (this.showTransactionName) {
             return TransactionTemplate.of(isolation, readOnly);
         }
         int value = isolation.value();

@@ -60,7 +60,7 @@ public class DataSourceConfiguration {
 
     @Bean
     public TransactionTemplate stockTransactionTemplate(ArmySyncLocalTransactionManager manager) {
-        return new DefaultArmyTransactionTemplate(manager, "io.army.example.stock");
+        return new DefaultArmyTransactionTemplate(manager, true);
     }
 
 
