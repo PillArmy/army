@@ -23,6 +23,7 @@ import io.army.sqltype.*;
 
 /// This class map {@link String} to sql char .
 /// If you need to map varchar ,you can use {@link StringType} instead of this class.
+///
 /// @since 0.6.0
 public final class SqlCharType extends _ArmyBuildInType implements MappingType.SqlString {
 
@@ -57,7 +58,11 @@ public final class SqlCharType extends _ArmyBuildInType implements MappingType.S
                 dataType = MySQLType.CHAR;
                 break;
             case PostgreSQL:
-                dataType = PgType.CHAR;
+                if (meta.meetsMinimum(16, 0, 0)) {
+                    dataType = PgType.BPCHAR; // if no precision is specified, variable unlimited length, blank-trimmed
+                } else {
+                    dataType = PgType.CHAR;
+                }
                 break;
             case SQLite:
                 dataType = SQLiteType.CHAR;

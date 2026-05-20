@@ -86,16 +86,13 @@ final class PgTypeMappingHandler extends TypeMappingHandlerSupport {
                 break;
             case "CHAR":
             case "CHARACTER":
+            case "BPCHAR":
                 type = PgType.CHAR;
-                typeArray[index] = StringType.INSTANCE;
+                typeArray[index] = SqlCharType.INSTANCE;
                 break;
             case "VARCHAR":
             case "CHARACTER VARYING":
                 type = PgType.VARCHAR;
-                typeArray[index] = StringType.INSTANCE;
-                break;
-            case "BPCHAR":
-                type = PgType.BPCHAR;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "TEXT":

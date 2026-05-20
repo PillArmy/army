@@ -100,33 +100,17 @@ public abstract class ArmySyncBaseService<D extends SyncBaseDao> implements Sync
     }
 
     @Override
-    public <T> int rowCountAsInt(Class<T> domainClass) {
-        final Integer rowCont;
-        rowCont = this.transactionTemplate.execute(Isolation.READ_COMMITTED, true,
-                _ -> getDao().rowCountAsInt(domainClass)
-        );
-        assert rowCont != null;
-        return rowCont;
-    }
-
-    @Override
     public <T> long updateField(Class<T> domainClass, Object id, String fieldName, Object fieldValue) {
-        final Long rowCont;
-        rowCont = this.transactionTemplate.execute(Isolation.READ_COMMITTED, false,
+        return this.transactionTemplate.executeLong(Isolation.READ_COMMITTED, false,
                 _ -> getDao().updateField(domainClass, id, fieldName, fieldValue)
         );
-        assert rowCont != null;
-        return rowCont;
     }
 
     @Override
     public <T, F> long updateFieldWhenMatch(Class<T> domainClass, Object id, String fieldName, F fieldValue, @Nullable F defaultValue) {
-        final Long rowCont;
-        rowCont = this.transactionTemplate.execute(Isolation.READ_COMMITTED, false,
+        return this.transactionTemplate.executeLong(Isolation.READ_COMMITTED, false,
                 _ -> getDao().updateFieldWhenMatch(domainClass, id, fieldName, fieldValue, defaultValue)
         );
-        assert rowCont != null;
-        return rowCont;
     }
 
     protected abstract D getDao();

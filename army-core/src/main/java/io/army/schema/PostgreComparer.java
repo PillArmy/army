@@ -190,6 +190,7 @@ final class PostgreComparer extends ArmySchemaComparer {
                         notMatch = true;
                 }
                 break;
+            case BPCHAR:
             case CHAR:
                 switch (typeName) {
                     case "CHAR":
@@ -524,6 +525,7 @@ final class PostgreComparer extends ArmySchemaComparer {
                 break;
             // CHAR aliases
             case "CHAR":
+            case "BPCHAR":
             case "CHARACTER":
                 result = "CHAR";
                 break;

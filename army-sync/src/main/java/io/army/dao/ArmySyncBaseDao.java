@@ -104,10 +104,6 @@ public abstract class ArmySyncBaseDao implements SyncBaseDao {
         return SyncCriteria.rowCount(domainClass, this.sessionContext.currentSession());
     }
 
-    @Override
-    public <T> int rowCountAsInt(Class<T> domainClass) {
-        return SyncCriteria.rowCountAsInt(domainClass, this.sessionContext.currentSession());
-    }
 
     @Override
     public <T> long updateField(Class<T> domainClass, Object id, String fieldName, Object fieldValue) {

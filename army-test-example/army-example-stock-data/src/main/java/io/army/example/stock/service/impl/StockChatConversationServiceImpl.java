@@ -27,12 +27,9 @@ public class StockChatConversationServiceImpl extends AbstractStockBaseService i
 
     @Override
     public List<StockChatConversation> queryUserConversation(long userId) {
-        final List<StockChatConversation> list;
-        list = this.transactionTemplate.execute(true,
+        return this.transactionTemplate.executeNoNull(true,
                 _ -> this.stockChatConversationDao.queryUserConversation(userId)
         );
-
-        return list;
     }
 
     @Nullable
@@ -61,22 +58,16 @@ public class StockChatConversationServiceImpl extends AbstractStockBaseService i
 
     @Override
     public long deleteConversation(long userId, long conversationId) {
-        final Long rowCount;
-        rowCount = this.transactionTemplate.execute(Isolation.READ_COMMITTED, false,
+        return this.transactionTemplate.executeLong(Isolation.READ_COMMITTED, false,
                 _ -> this.stockChatConversationDao.deleteConversation(userId, conversationId)
         );
-        assert rowCount != null; // here never null, Just suppress non‑null warnings
-        return rowCount;
     }
 
     @Override
     public long updateTitle(long userId, long conversationId, String title) {
-        final Long rowCount;
-        rowCount = this.transactionTemplate.execute(Isolation.READ_COMMITTED, false,
+        return this.transactionTemplate.executeLong(Isolation.READ_COMMITTED, false,
                 _ -> this.stockChatConversationDao.updateTitle(userId, conversationId, title)
         );
-        assert rowCount != null; // here never null, Just suppress non‑null warnings
-        return rowCount;
     }
 
     @Override

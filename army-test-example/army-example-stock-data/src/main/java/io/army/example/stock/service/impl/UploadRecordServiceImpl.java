@@ -20,12 +20,9 @@ public class UploadRecordServiceImpl extends AbstractStockBaseService implements
 
     @Override
     public long uploadComplete(long id, String fileHast) {
-        final Long rowCount;
-        rowCount = this.transactionTemplate.execute(Isolation.READ_COMMITTED, false,
+        return this.transactionTemplate.executeLong(Isolation.READ_COMMITTED, false,
                 _ -> this.uploadRecordDao.uploadComplete(id, fileHast)
         );
-        assert rowCount != null;
-        return rowCount;
     }
 
     @Override

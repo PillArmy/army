@@ -7,12 +7,15 @@ import io.army.spring.ai.chat.memory.ArmyMessageChatMemory;
 import io.army.spring.ai.vectorstore.ArmyVectorStore;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class ChatModelConfiguration {
@@ -36,8 +39,12 @@ public class ChatModelConfiguration {
 
 
     @Bean
-    public ChatClient stockChatClient(ChatClient.Builder builder, @Qualifier("stockChatMemory") ChatMemory chatMemory) {
-        return builder.defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+    public ChatClient stockChatClient(ChatClient.Builder builder, @Qualifier("stockChatMemory") ChatMemory chatMemory,
+                                      @Qualifier("stockVectorStore") VectorStore vectorStore) {
+        final List<Advisor> advisorList = List.of(
+                MessageChatMemoryAdvisor.builder(chatMemory).build()
+        );
+        return builder.defaultAdvisors(advisorList)
                 .build();
     }
 

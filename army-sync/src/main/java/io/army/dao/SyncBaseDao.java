@@ -42,14 +42,11 @@ public interface SyncBaseDao {
     @Nullable
     <T> T findByUnique(Class<T> domainClass, String fieldName, Object fieldValue);
 
-
     <T> boolean existsById(Class<T> domainClass, Object id);
 
     <T> boolean existsByByUnique(Class<T> domainClass, String fieldName, Object fieldValue);
 
     <T> long rowCount(Class<T> domainClass);
-
-    <T> int rowCountAsInt(Class<T> domainClass);
 
     <T> long updateField(Class<T> domainClass, Object id, String fieldName, Object fieldValue);
 

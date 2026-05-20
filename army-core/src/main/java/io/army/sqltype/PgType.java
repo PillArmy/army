@@ -33,11 +33,11 @@ import java.util.BitSet;
 public enum PgType implements SQLType {
 
 
-    /// 
-    /// 
+    ///
+    ///
     /// - {@link MappingType#beforeBind(DataType, MappingEnv, Object)} must return {@link Boolean}
     /// - {@link MappingType#afterGet(DataType, MappingEnv, Object)} nonNull parameter must be {@link Boolean}
-    /// 
+    ///
     BOOLEAN("BOOLEAN", ArmyType.BOOLEAN, Boolean.class),
 
     SMALLINT("SMALLINT", ArmyType.SMALLINT, Short.class),
@@ -63,7 +63,8 @@ public enum PgType implements SQLType {
 
     CHAR("CHAR", ArmyType.CHAR, String.class),
 
-    /// As of postgre 16 .
+    /// As of postgre 16, if no precision is specified, variable unlimited length, blank-trimmed
+    ///
     /// @see <a href="https://www.postgresql.org/docs/current/datatype-character.html">bpchar</a>
     BPCHAR("BPCHAR", ArmyType.CHAR, String.class),
     VARCHAR("VARCHAR", ArmyType.VARCHAR, String.class),
