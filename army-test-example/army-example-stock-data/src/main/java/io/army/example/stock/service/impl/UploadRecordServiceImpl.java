@@ -20,7 +20,7 @@ public class UploadRecordServiceImpl extends AbstractStockBaseService implements
 
     @Override
     public long uploadComplete(long id, String fileHast) {
-        return this.transactionTemplate.executeLong(Isolation.READ_COMMITTED, false,
+        return this.transactionTemplate.executeNoNull(Isolation.READ_COMMITTED, false,
                 _ -> this.uploadRecordDao.uploadComplete(id, fileHast)
         );
     }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.army.spring;
 
 import org.jspecify.annotations.Nullable;
@@ -11,8 +27,6 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionOperations;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.ToLongFunction;
 
 public interface TransactionTemplate extends TransactionOperations {
 
@@ -26,24 +40,15 @@ public interface TransactionTemplate extends TransactionOperations {
     <T extends @Nullable Object> T execute(TransactionDefinition definition, TransactionCallback<T> action)
             throws TransactionException;
 
-    <T> T executeNoNull(boolean readOnly, Function<TransactionStatus, T> action)
+    <T> T executeNoNull(boolean readOnly, TransactionCallback<T> action)
             throws TransactionException;
 
-    <T> T executeNoNull(Isolation isolation, boolean readOnly, Function<TransactionStatus, T> action)
+    <T> T executeNoNull(Isolation isolation, boolean readOnly, TransactionCallback<T> action)
             throws TransactionException;
 
-    <T> T executeNoNull(TransactionDefinition definition, Function<TransactionStatus, T> action)
+    <T> T executeNoNull(TransactionDefinition definition, TransactionCallback<T> action)
             throws TransactionException;
 
-
-    long executeLong(boolean readOnly, ToLongFunction<TransactionStatus> action)
-            throws TransactionException;
-
-    long executeLong(Isolation isolation, boolean readOnly, ToLongFunction<TransactionStatus> action)
-            throws TransactionException;
-
-    long executeLong(TransactionDefinition definition, ToLongFunction<TransactionStatus> action)
-            throws TransactionException;
 
     void executeWithoutResult(boolean readOnly, Consumer<TransactionStatus> action)
             throws TransactionException;

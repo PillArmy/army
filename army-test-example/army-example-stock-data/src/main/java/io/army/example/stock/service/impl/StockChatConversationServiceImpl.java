@@ -58,14 +58,14 @@ public class StockChatConversationServiceImpl extends AbstractStockBaseService i
 
     @Override
     public long deleteConversation(long userId, long conversationId) {
-        return this.transactionTemplate.executeLong(Isolation.READ_COMMITTED, false,
+        return this.transactionTemplate.executeNoNull(Isolation.READ_COMMITTED, false,
                 _ -> this.stockChatConversationDao.deleteConversation(userId, conversationId)
         );
     }
 
     @Override
     public long updateTitle(long userId, long conversationId, String title) {
-        return this.transactionTemplate.executeLong(Isolation.READ_COMMITTED, false,
+        return this.transactionTemplate.executeNoNull(Isolation.READ_COMMITTED, false,
                 _ -> this.stockChatConversationDao.updateTitle(userId, conversationId, title)
         );
     }

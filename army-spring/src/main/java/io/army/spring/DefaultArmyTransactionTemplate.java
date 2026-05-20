@@ -19,7 +19,6 @@ package io.army.spring;
 
 import io.army.session.SyncSession;
 import io.army.spring.sync.ArmySyncLocalTransactionManager;
-import io.army.util._ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.*;
@@ -29,10 +28,10 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.ToLongFunction;
 import java.util.stream.Stream;
 
 public class DefaultArmyTransactionTemplate implements TransactionTemplate {
@@ -41,25 +40,9 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
 
     private static final StackWalker STACK_WALKER;
 
-    private static final TransactionDefinition DEFAULT_DEFINITION = new DefaultTransactionDefinition();
-
-    private static final Map<Integer, TransactionDefinition> DEFINITION_MAP;
-
-    private static final int READ_ONLY_MASK = 0B1_0000;
-
 
     static {
-        final Properties properties;
-        properties = _ResourceUtils.loadArmyProperties(TransactionTemplate.class.getSimpleName());
-        final String key;
-        key = DefaultArmyTransactionTemplate.class.getName() + '.' + "showTransactionName";
-        if (Boolean.parseBoolean(properties.getProperty(key, "true"))) {
-            DEFINITION_MAP = Map.copyOf(createDefinitionMap());
-            STACK_WALKER = StackWalker.getInstance(EnumSet.of(StackWalker.Option.RETAIN_CLASS_REFERENCE));
-        } else {
-            DEFINITION_MAP = Map.of();
-            STACK_WALKER = null;
-        }
+        STACK_WALKER = StackWalker.getInstance(EnumSet.of(StackWalker.Option.RETAIN_CLASS_REFERENCE));
     }
 
 
@@ -82,27 +65,12 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
 
     @Override
     public <T> T execute(boolean readOnly, TransactionCallback<T> action) throws TransactionException {
-        return execute(from(Isolation.DEFAULT, readOnly), action);
+        return execute(TransactionTemplate.of(Isolation.DEFAULT, readOnly), action);
     }
 
     @Override
     public <T> T execute(Isolation isolation, boolean readOnly, TransactionCallback<T> action) throws TransactionException {
-        return execute(from(isolation, readOnly), action);
-    }
-
-    @Override
-    public long executeLong(boolean readOnly, ToLongFunction<TransactionStatus> action) throws TransactionException {
-        return execute(from(Isolation.DEFAULT, readOnly), action::applyAsLong);
-    }
-
-    @Override
-    public long executeLong(Isolation isolation, boolean readOnly, ToLongFunction<TransactionStatus> action) throws TransactionException {
-        return execute(from(isolation, readOnly), action::applyAsLong);
-    }
-
-    @Override
-    public long executeLong(TransactionDefinition definition, ToLongFunction<TransactionStatus> action) throws TransactionException {
-        return execute(definition, action::applyAsLong);
+        return execute(TransactionTemplate.of(isolation, readOnly), action);
     }
 
 
@@ -114,9 +82,7 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
             return cpptm.execute(definition, action);
         }
 
-        if (this.showTransactionName
-                && STACK_WALKER != null
-                && definition instanceof DefaultTransactionDefinition td) {
+        if (this.showTransactionName && definition instanceof DefaultTransactionDefinition td) {
             final String caller;
             caller = STACK_WALKER
                     .walk(this::filterFrame)
@@ -138,7 +104,7 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
                 if (session != null
                         && session.inTransaction()
                         && isolationNotMatch(session, definition)) {
-                    throw isolationNotMatchError(session, definition, status);
+                    throw isolationNotMatchError(session, definition);
                 }
             }
 
@@ -158,34 +124,34 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
 
 
     @Override
-    public <T> T executeNoNull(boolean readOnly, Function<TransactionStatus, T> action) throws TransactionException {
+    public <T> T executeNoNull(boolean readOnly, TransactionCallback<T> action) throws TransactionException {
         final T result;
-        result = execute(from(Isolation.DEFAULT, readOnly), action::apply);
+        result = execute(TransactionTemplate.of(Isolation.DEFAULT, readOnly), action);
         return Objects.requireNonNull(result, "TransactionCallback returned null which is not allowed");
     }
 
     @Override
-    public <T> T executeNoNull(Isolation isolation, boolean readOnly, Function<TransactionStatus, T> action) throws TransactionException {
+    public <T> T executeNoNull(Isolation isolation, boolean readOnly, TransactionCallback<T> action) throws TransactionException {
         final T result;
-        result = execute(from(isolation, readOnly), action::apply);
+        result = execute(TransactionTemplate.of(isolation, readOnly), action);
         return Objects.requireNonNull(result, "TransactionCallback returned null which is not allowed");
     }
 
     @Override
-    public <T> T executeNoNull(TransactionDefinition definition, Function<TransactionStatus, T> action) throws TransactionException {
+    public <T> T executeNoNull(TransactionDefinition definition, TransactionCallback<T> action) throws TransactionException {
         final T result;
-        result = execute(definition, action::apply);
+        result = execute(definition, action);
         return Objects.requireNonNull(result, "TransactionCallback returned null which is not allowed");
     }
 
     @Override
     public void executeWithoutResult(boolean readOnly, Consumer<TransactionStatus> action) throws TransactionException {
-        execute(from(Isolation.DEFAULT, readOnly), createCallback(action));
+        execute(TransactionTemplate.of(Isolation.DEFAULT, readOnly), createCallback(action));
     }
 
     @Override
     public void executeWithoutResult(Isolation isolation, boolean readOnly, Consumer<TransactionStatus> action) throws TransactionException {
-        execute(from(isolation, readOnly), createCallback(action));
+        execute(TransactionTemplate.of(isolation, readOnly), createCallback(action));
     }
 
     @Override
@@ -214,30 +180,9 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
     }
 
     private TransactionDefinition defaultDefinition() {
-        if (this.showTransactionName) {
-            return new DefaultTransactionDefinition();
-        }
-        return DEFAULT_DEFINITION;
+        return new DefaultTransactionDefinition();
     }
 
-    private TransactionDefinition from(Isolation isolation, boolean readOnly) {
-        if (this.showTransactionName) {
-            return TransactionTemplate.of(isolation, readOnly);
-        }
-        int value = isolation.value();
-        if (isolation == Isolation.DEFAULT) {
-            value = 0;
-        }
-        if (readOnly) {
-            value |= READ_ONLY_MASK;
-        }
-        TransactionDefinition definition;
-        definition = DEFINITION_MAP.get(value);
-        if (definition == null) {
-            definition = TransactionTemplate.of(isolation, readOnly);
-        }
-        return definition;
-    }
 
     private void rollbackOnException(TransactionStatus status, Throwable ex) throws TransactionException {
 
@@ -288,8 +233,7 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
     }
 
 
-    private static IsolationNotMatchException isolationNotMatchError(SyncSession session, TransactionDefinition definition,
-                                                                     TransactionStatus status) {
+    private static IsolationNotMatchException isolationNotMatchError(SyncSession session, TransactionDefinition definition) {
 
 
         final int isolationLevel = definition.getIsolationLevel();
@@ -303,46 +247,12 @@ public class DefaultArmyTransactionTemplate implements TransactionTemplate {
         };
 
         String m = String.format("Existing transaction[%s] isolation[%s] and current transaction isolation[%s] not match,%s",
-                status.getTransactionName(), session.transactionInfo().isolation().name(), isolationName,
+                session.name(), session.transactionInfo().isolation().name(), isolationName,
                 "reject this transaction propagation");
         return new IsolationNotMatchException(m);
     }
 
 
-    private static Map<Integer, TransactionDefinition> createDefinitionMap() {
-        final Map<Integer, TransactionDefinition> map = new HashMap<>();
-
-        final int mask = 0B1111;
-
-        int value;
-        TransactionDefinition oldValue;
-        for (Isolation o : Isolation.values()) {
-            if (o == Isolation.SERIALIZABLE || o == Isolation.READ_UNCOMMITTED) {
-                continue;
-            }
-            value = o.value();
-            if (value > mask) {
-                String m = String.format("Isolation value %d is greater than %s", value, mask);
-                throw new IllegalStateException(m);
-            }
-
-            if (o == Isolation.DEFAULT) {
-                value = 0;
-            }
-
-            oldValue = map.putIfAbsent(value, TransactionTemplate.of(o, false));
-            if (oldValue != null) {
-                String m = String.format("Isolation value %d duplicate", value);
-                throw new IllegalStateException(m);
-            }
-            oldValue = map.put(value | READ_ONLY_MASK, TransactionTemplate.of(o, true));
-            if (oldValue != null) {
-                String m = String.format("Isolation value %d duplicate", value);
-                throw new IllegalStateException(m);
-            }
-        }
-        return map;
-    }
 
 
 }

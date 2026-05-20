@@ -23,7 +23,7 @@ public class UploadRecordDaoImpl extends ArmyStockBaseDao implements UploadRecor
 
     @Override
     public long uploadComplete(long id, String fileHast) {
-        if (!StringUtils.hasText(fileHast) || fileHast.length() != 44) {
+        if (!StringUtils.hasText(fileHast) || fileHast.length() != UploadRecord_.fileHash.precision()) {
             throw new IllegalArgumentException("fileHash must have text and length must be 44");
         }
         final Update stmt;
