@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-@io.army.lang.NonNullApi
+@org.jspecify.annotations.NullMarked
 package io.army.spring.ai.vectorstore;

@@ -19,6 +19,7 @@ package io.army.session;
 import io.army.lang.Nullable;
 import io.army.transaction.TransactionOption;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -52,8 +53,14 @@ public interface SyncSessionContext extends SessionContext {
 
     <T> T executeNotNull(@Nullable String name, boolean readOnly, Function<SyncSession, T> function);
 
+    void executeVoid(@Nullable String name, boolean readOnly, Consumer<SyncSession> consumer);
+
     @Nullable
     <T> T executeInTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Function<SyncSession, T> function);
+
+    <T> T executeNonNullInTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Function<SyncSession, T> function);
+
+    void executeVoidInTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Consumer<SyncSession> consumer);
 
 
 }

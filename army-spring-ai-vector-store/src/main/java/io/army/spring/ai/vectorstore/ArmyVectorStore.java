@@ -186,7 +186,7 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
         } else {
             final List<Map<String, String>> paramList = new ArrayList<>(idCount);
             for (String id : idList) {
-                paramList.add(Map.of(SpringAiVectorStore_.ID, id));
+                paramList.add(Map.of(this.id.fieldName(), id));
             }
             stmt = SQLs.batchSingleDelete()
                     .deleteFrom(this.tableMeta, AS, "t")
@@ -364,7 +364,7 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
                 .literalMode(this.literalMode)
                 .insertInto(this.tableMeta).as("t")
                 .values(rowList)
-                .onConflict().parens(s -> s.space(SpringAiVectorStore_.id))
+                .onConflict().parens(s -> s.space(this.id))
                 .doUpdate()
                 .set(this.content, Postgres.excluded(this.content))
                 .set(this.metadata, Postgres.excluded(this.metadata))
@@ -497,18 +497,20 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
             return new ArmyVectorStore<>(this);
         }
 
-        private static DistanceType findDistanceType() {
-            List<FieldMeta<SpringAiVectorStore>> fieldList;
+        private DistanceType findDistanceType() {
+            final FieldMeta<T> embedding = this.tableMeta.field("embedding");
+
+            List<FieldMeta<T>> fieldList;
             String opclass;
 
             DistanceType distanceType = null;
             topLoop:
-            for (IndexMeta<SpringAiVectorStore> index : SpringAiVectorStore_.T.indexList()) {
+            for (IndexMeta<T> index : this.tableMeta.indexList()) {
                 fieldList = index.fieldList();
                 if (fieldList.size() != 1) {
                     continue;
                 }
-                if (!SpringAiVectorStore_.embedding.equals(fieldList.getFirst())) {
+                if (!embedding.equals(fieldList.getFirst())) {
                     continue;
                 }
                 opclass = index.columnList().getFirst().opclass();
@@ -525,7 +527,7 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
             } // top loop
 
             if (distanceType == null) {
-                String m = String.format("%s no opclass and don't config %s", SpringAiVectorStore_.embedding,
+                String m = String.format("%s no opclass and don't config %s", embedding,
                         DistanceType.class.getName());
                 throw new IllegalArgumentException(m);
             }

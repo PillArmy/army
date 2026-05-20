@@ -28,7 +28,6 @@ import java.time.LocalDateTime;
 @Table(name = "${DEFAULT}",
         indexes = {
                 @Index(name = "${DEFAULT}", fieldList = {"conversationId"}),
-                @Index(name = "${DEFAULT}", fieldList = {"userId"}),
                 @Index(name = "${OPTIONAL}", type = "${OPTIONAL}", fieldList = {"batchNo"})
         },
         immutable = true,
@@ -50,14 +49,6 @@ public class SpringAiChatMemory {
     @Column(name = "${DEFAULT}", notNull = true, precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
     @Mapping("${DEFAULT}")
     private String conversationId;
-
-    /// {@link Mapping#value()} should be one of below:
-    /// - {@link io.army.mapping.SqlBigIntType}
-    /// - {@link io.army.mapping.StringType}
-    /// - {@link io.army.mapping.UUIDType}
-    @Column(name = "${DEFAULT}", notNull = true, precision = Column.DEFAULT_EXP, defaultValue = "${DEFAULT}", comment = "${DEFAULT}")
-    @Mapping("${DEFAULT}")
-    private String userId;
 
     @Column(name = "${DEFAULT}", notNull = true, comment = "${DEFAULT}")
     @Mapping("io.army.mapping.TextType")
@@ -101,15 +92,6 @@ public class SpringAiChatMemory {
 
     public SpringAiChatMemory setConversationId(String conversationId) {
         this.conversationId = conversationId;
-        return this;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public SpringAiChatMemory setUserId(String userId) {
-        this.userId = userId;
         return this;
     }
 

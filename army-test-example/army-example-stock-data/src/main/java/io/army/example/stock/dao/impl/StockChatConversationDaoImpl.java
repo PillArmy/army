@@ -47,8 +47,9 @@ public class StockChatConversationDaoImpl extends ArmyStockBaseDao implements St
         final Select stmt;
         stmt = SQLs.query()
                 .select(SpringAiChatMemory_.conversationId)
-                .from(SpringAiChatMemory_.T, AS, "t")
-                .where(SpringAiChatMemory_.userId.equal(userId))
+                .from(StockChatConversation_.T, AS, "sc")
+                .join(SpringAiChatMemory_.T, AS, "t").on(SpringAiChatMemory_.conversationId.equal(StockChatConversation_.id))
+                .where(StockChatConversation_.userId.equal(userId))
                 .orderBy(SpringAiChatMemory_.id.desc())
                 .limit(1)
                 .asQuery();
@@ -62,9 +63,10 @@ public class StockChatConversationDaoImpl extends ArmyStockBaseDao implements St
         stmt = SQLs.query()
                 .select(SpringAiChatMemory_.content.as("text"), SpringAiChatMemory_.type.as("messageType"))
                 .comma(SpringAiChatMemory_.createTime)
-                .from(SpringAiChatMemory_.T, AS, "t")
+                .from(StockChatConversation_.T, AS, "sc")
+                .join(SpringAiChatMemory_.T, AS, "t").on(SpringAiChatMemory_.conversationId.equal(StockChatConversation_.id))
                 .where(SpringAiChatMemory_.conversationId.equal(conversationId))
-                .and(SpringAiChatMemory_.userId.equal(userId))
+                .and(StockChatConversation_.userId.equal(userId))
                 .and(SpringAiChatMemory_.type.in(SQLs::rowLiteral, List.of(MessageType.USER, MessageType.ASSISTANT)))
                 .orderBy(SpringAiChatMemory_.id)
                 .asQuery();

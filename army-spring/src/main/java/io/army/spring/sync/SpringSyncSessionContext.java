@@ -22,6 +22,7 @@ import io.army.transaction.TransactionOption;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -114,6 +115,11 @@ final class SpringSyncSessionContext implements SyncSessionContext {
     }
 
     @Override
+    public void executeVoid(@Nullable String name, boolean readOnly, Consumer<SyncSession> consumer) {
+        execute(name, readOnly, createCallback(consumer));
+    }
+
+    @Override
     public <T> T executeInTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Function<SyncSession, T> function) {
 
         final SyncSession existSession, session;
@@ -156,6 +162,27 @@ final class SpringSyncSessionContext implements SyncSessionContext {
         }
 
         return result;
+    }
+
+
+    @Override
+    public <T> T executeNonNullInTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier,
+                                             Function<SyncSession, T> function) {
+        final T result;
+        result = executeInTransaction(name, optionSupplier, function);
+        return Objects.requireNonNull(result, "function must not return null");
+    }
+
+    @Override
+    public void executeVoidInTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Consumer<SyncSession> consumer) {
+        executeInTransaction(name, optionSupplier, createCallback(consumer));
+    }
+
+    private static Function<SyncSession, Void> createCallback(Consumer<SyncSession> action) {
+        return status -> {
+            action.accept(status);
+            return null;
+        };
     }
 
 

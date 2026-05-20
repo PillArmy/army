@@ -4,6 +4,7 @@ import io.army.criteria.LiteralMode;
 import io.army.criteria.NullMode;
 import io.army.session.SyncSessionContext;
 import io.army.spring.ai.chat.memory.ArmyMessageChatMemory;
+import io.army.spring.ai.chat.memory.SpringAiChatMemory_;
 import io.army.spring.ai.vectorstore.ArmyVectorStore;
 import io.army.spring.ai.vectorstore.SpringAiVectorStore_;
 import org.springframework.ai.chat.client.ChatClient;
@@ -25,7 +26,7 @@ public class ChatModelConfiguration {
 
     @Bean
     public ChatMemory stockChatMemory(SyncSessionContext sessionContext) {
-        return ArmyMessageChatMemory.builder(sessionContext)
+        return ArmyMessageChatMemory.builder(sessionContext, SpringAiChatMemory_.T)
                 .nullMode(NullMode.DEFAULT)
                 .literalMode(LiteralMode.LITERAL)
                 .maxMessages(20)

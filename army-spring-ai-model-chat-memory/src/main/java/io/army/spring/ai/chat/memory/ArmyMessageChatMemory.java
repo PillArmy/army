@@ -20,6 +20,10 @@ import io.army.codec.JsonCodec;
 import io.army.criteria.*;
 import io.army.criteria.impl.SQLs;
 import io.army.generator.snowflake.Snowflake8s;
+import io.army.meta.FieldMeta;
+import io.army.meta.PrimaryFieldMeta;
+import io.army.meta.SimpleTableMeta;
+import io.army.pojo.ObjectAccessorFactory;
 import io.army.result.CurrentRecord;
 import io.army.session.SyncSession;
 import io.army.session.SyncSessionContext;
@@ -27,21 +31,21 @@ import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.*;
-import org.springframework.context.EnvironmentAware;
-import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static io.army.criteria.impl.SQLs.AS;
 
 
 /// Unlike org.springframework.ai.chat.memory.MessageWindowChatMemory, this class does not delete previous messages. in {@link #add(String, List)}.
-public final class ArmyMessageChatMemory implements ChatMemory, EnvironmentAware {
+public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implements ChatMemory {
 
     public static final String USER_ID = "chat_memory_user_id";
 
@@ -51,27 +55,47 @@ public final class ArmyMessageChatMemory implements ChatMemory, EnvironmentAware
 
     private final long snowflakeStartTime;
 
+    private final SimpleTableMeta<T> tableMeta;
+
+    private final PrimaryFieldMeta<T> id;
+
+    private final FieldMeta<T> userId;
+
+    private final FieldMeta<T> type;
+
+    private final FieldMeta<T> content;
+
+    private final FieldMeta<T> specializedData;
+
+    private final FieldMeta<T> conversationId;
+
     private final NullMode nullMode;
 
     private final LiteralMode literalMode;
 
+    private final Supplier<T> constructor;
+
     private final Function<CurrentRecord, Message> rowFunc;
 
-    private final String crossSessionKey;
 
-    private Environment environment;
-
-    private ArmyMessageChatMemory(Builder builder) {
+    private ArmyMessageChatMemory(Builder<T> builder) {
         this.sessionContext = builder.sessionContext;
         this.maxMessages = builder.maxMessages;
         this.snowflakeStartTime = builder.snowflakeStartTime;
+        this.tableMeta = builder.tableMeta;
         this.nullMode = builder.nullMode;
         this.literalMode = builder.literalMode;
 
+        this.id = this.tableMeta.id();
+        this.userId = this.tableMeta.field("userId");
+        this.type = this.tableMeta.field("type");
+        this.content = this.tableMeta.field("content");
+        this.specializedData = this.tableMeta.field("specializedData");
+        this.conversationId = this.tableMeta.field("conversationId");
+
+        this.constructor = constructorFunc(this.tableMeta);
+
         this.rowFunc = messageReadFunc(this.sessionContext.sessionFactory().jsonCodec());
-        final String factoryName;
-        factoryName = this.sessionContext.sessionFactory().name();
-        this.crossSessionKey = String.format("army.%s.spring.ai.chat.memory.cross-session", factoryName);
     }
 
 
@@ -86,78 +110,42 @@ public final class ArmyMessageChatMemory implements ChatMemory, EnvironmentAware
             return;
         }
 
-        final List<SpringAiChatMemory> domainList = new ArrayList<>(messageCount);
+        final List<T> domainList = new ArrayList<>(messageCount);
         copyMessageInfo(conversationId, messages, domainList);
 
         final Insert stmt;
         stmt = SQLs.singleInsert()
                 .nullMode(this.nullMode)
                 .literalMode(this.literalMode)
-                .insertInto(SpringAiChatMemory_.T)
-                .defaultValue(SpringAiChatMemory_.userId, SQLs.scalarSubQuery()
-                        .select(SpringAiChatConversation_.userId)
-                        .from(SpringAiChatConversation_.T, AS, "u")
-                        .where(SpringAiChatConversation_.id.equal(SQLs.namedParam(SpringAiChatConversation_.id, SpringAiChatMemory_.CONVERSATION_ID)))
-                        .asQuery()
-                )
+                .insertInto(this.tableMeta)
                 .values(domainList)
                 .asInsert();
 
-
-        final Function<SyncSession, Void> function;
-        function = session -> {
-            session.update(stmt);
-            return null;
-        };
+        final Consumer<SyncSession> function;
+        function = session -> session.update(stmt);
         final String sessionName = getClass().getName() + '.' + "add";
-        this.sessionContext.execute(sessionName, false, function);
+        this.sessionContext.executeVoid(sessionName, false, function);
     }
+
 
     @Override
     public List<Message> get(final String conversationId) {
         assertConversationId(conversationId);
 
-
-        final boolean crossSession;
-        crossSession = this.environment.getProperty(this.crossSessionKey, Boolean.class, Boolean.FALSE);
-
         final Select stmt;
         stmt = SQLs.query()
-                .select(SpringAiChatMemory_.userId, SpringAiChatMemory_.content)
-                .comma(SpringAiChatMemory_.type, SpringAiChatMemory_.specializedData)
-                .from(SpringAiChatMemory_.T, AS, "t")
-                .ifCrossJoin(c -> {
-                    if (!crossSession) {
-                        return;
-                    }
-                    c.space(SQLs.subQuery()
-                            .select(SpringAiChatMemory_.userId)
-                            .from(SpringAiChatMemory_.T, AS, "t")
-                            .where(SpringAiChatMemory_.conversationId.equal(conversationId))
-                            .limit(1)
-                            .asQuery()
-                    ).as("u");
-
-                })
-                .where(wb -> {
-                    if (crossSession) {
-                        wb.accept(SpringAiChatMemory_.userId.equal(SQLs.refField("u", SpringAiChatMemory_.USER_ID)));
-                    } else {
-                        wb.accept(SpringAiChatMemory_.conversationId.equal(conversationId));
-                    }
-                })
-                .orderBy(SpringAiChatMemory_.id.desc())
+                .select(this.userId, this.content)
+                .comma(this.type, this.specializedData)
+                .from(this.tableMeta, AS, "t")
+                .where(this.conversationId.equal(conversationId))
+                .orderBy(this.id.desc())
                 .limit(this.maxMessages)
                 .asQuery();
 
         final Function<SyncSession, List<Message>> callBack;
         callBack = session -> session.queryRecordList(stmt, this.rowFunc);
         final String sessionName = getClass().getName() + '.' + "get";
-
-        final List<Message> list;
-        list = this.sessionContext.execute(sessionName, true, callBack);
-        assert list != null;    // here never null, Just suppress non‑null warnings
-        return list;
+        return this.sessionContext.executeNotNull(sessionName, true, callBack);
     }
 
     @Override
@@ -166,32 +154,23 @@ public final class ArmyMessageChatMemory implements ChatMemory, EnvironmentAware
 
         final Delete stmt;
         stmt = SQLs.singleDelete()
-                .deleteFrom(SpringAiChatMemory_.T, AS, "t")
-                .where(SpringAiChatMemory_.conversationId.equal(conversationId))
+                .deleteFrom(this.tableMeta, AS, "t")
+                .where(this.conversationId.equal(conversationId))
                 .asDelete();
 
-        final Function<SyncSession, Void> function;
-        function = session -> {
-            session.update(stmt);
-            return null;
-        };
+        final Consumer<SyncSession> function;
+        function = session -> session.update(stmt);
 
         final String sessionName = getClass().getName() + '.' + "clear";
-        this.sessionContext.execute(sessionName, false, function);
-
+        this.sessionContext.executeVoid(sessionName, false, function);
     }
 
 
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
-
-    private void copyMessageInfo(String conversationId, List<Message> messages, List<SpringAiChatMemory> list) {
+    private void copyMessageInfo(String conversationId, List<Message> messages, List<T> list) {
         final JsonCodec codec = sessionContext.sessionFactory().jsonCodec();
 
         final Long batchNo;
-        if (SpringAiChatMemory_.T.tryField("batchNo") == null) {
+        if (this.tableMeta.tryField("batchNo") == null) {
             batchNo = null;
         } else if (this.snowflakeStartTime < 0) {
             batchNo = Snowflake8s.defaultNext();
@@ -199,14 +178,14 @@ public final class ArmyMessageChatMemory implements ChatMemory, EnvironmentAware
             batchNo = Snowflake8s.next(this.snowflakeStartTime);
         }
 
-        SpringAiChatMemory o;
+        T o;
 
         for (Message message : messages) {
 
             Objects.requireNonNull(message, "message cannot be null");
 
-            o = new SpringAiChatMemory()
-                    .setConversationId(conversationId)
+            o = this.constructor.get();
+            o.setConversationId(conversationId)
                     .setContent(message.getText())
                     .setType(message.getMessageType());
 
@@ -226,8 +205,8 @@ public final class ArmyMessageChatMemory implements ChatMemory, EnvironmentAware
     }
 
 
-    public static Builder builder(SyncSessionContext sessionContext) {
-        return new Builder(sessionContext);
+    public static <T extends SpringAiChatMemory> Builder<T> builder(SyncSessionContext sessionContext, SimpleTableMeta<T> tableMeta) {
+        return new Builder<>(sessionContext, tableMeta);
     }
 
 
@@ -312,7 +291,7 @@ public final class ArmyMessageChatMemory implements ChatMemory, EnvironmentAware
                 }
                 break;
                 default:
-                    throw _Exceptions.unexpectedEnum(record.getNonNull(SpringAiChatMemory_.TYPE, MessageType.class));
+                    throw _Exceptions.unexpectedEnum(record.getNonNull("type", MessageType.class));
 
             }
             return message;
@@ -320,14 +299,28 @@ public final class ArmyMessageChatMemory implements ChatMemory, EnvironmentAware
     }
 
 
+    @SuppressWarnings("unchecked")
+    private static <T extends SpringAiChatMemory> Supplier<T> constructorFunc(SimpleTableMeta<T> tableMeta) {
+        Supplier<T> constructor;
+        if (tableMeta.javaType() == SpringAiChatMemory.class) {
+            final Supplier<SpringAiChatMemory> func = SpringAiChatMemory::new;
+            constructor = (Supplier<T>) func;
+        } else {
+            constructor = ObjectAccessorFactory.pojoConstructor(tableMeta.javaType());
+        }
+        return constructor;
+    }
+
     private static void assertConversationId(String conversationId) {
         Assert.hasText(conversationId, "conversationId cannot be null or empty");
     }
 
 
-    public static final class Builder {
+    public static final class Builder<T extends SpringAiChatMemory> {
 
         private final SyncSessionContext sessionContext;
+
+        private final SimpleTableMeta<T> tableMeta;
 
         private int maxMessages = 20;
 
@@ -337,11 +330,12 @@ public final class ArmyMessageChatMemory implements ChatMemory, EnvironmentAware
 
         private LiteralMode literalMode = LiteralMode.DEFAULT;
 
-        private Builder(SyncSessionContext sessionContext) {
+        private Builder(SyncSessionContext sessionContext, SimpleTableMeta<T> tableMeta) {
             this.sessionContext = sessionContext;
+            this.tableMeta = tableMeta;
         }
 
-        public Builder maxMessages(int maxMessages) {
+        public Builder<T> maxMessages(int maxMessages) {
             if (maxMessages < 1) {
                 throw new IllegalArgumentException(String.format("%s[%s] %s", "maxMessages", maxMessages, "error"));
             }
@@ -349,26 +343,26 @@ public final class ArmyMessageChatMemory implements ChatMemory, EnvironmentAware
             return this;
         }
 
-        public Builder snowflakeStartTime(long snowflakeStartTime) {
+        public Builder<T> snowflakeStartTime(long snowflakeStartTime) {
             this.snowflakeStartTime = snowflakeStartTime;
             return this;
         }
 
-        public Builder nullMode(NullMode nullMode) {
+        public Builder<T> nullMode(NullMode nullMode) {
             this.nullMode = nullMode;
             return this;
         }
 
-        public Builder literalMode(LiteralMode literalMode) {
+        public Builder<T> literalMode(LiteralMode literalMode) {
             this.literalMode = literalMode;
             return this;
         }
 
-        public ArmyMessageChatMemory build() {
-            if (this.sessionContext == null || this.nullMode == null || this.literalMode == null) {
+        public ArmyMessageChatMemory<T> build() {
+            if (this.sessionContext == null || this.nullMode == null || this.literalMode == null || this.tableMeta == null) {
                 throw new IllegalStateException("sessionContext, nullMode, and literalMode must be set");
             }
-            return new ArmyMessageChatMemory(this);
+            return new ArmyMessageChatMemory<>(this);
         }
 
     } // Builder
