@@ -236,11 +236,11 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
         } else if (targetType == String[].class) {
             instance = textInstance(this.dataType);
         } else if (!targetType.isArray()) {
-            throw noMatchCompatibleMapping(this, targetType);
+            throw noMatchCompatibleMapping(this, dataType, targetType);
         } else if ((targetComponentType = targetType.getComponentType()).isArray()) {
-            throw noMatchCompatibleMapping(this, targetType);
+            throw noMatchCompatibleMapping(this, dataType, targetType);
         } else if ((rangeFunc = tryCreateDefaultRangeFunc(targetComponentType, boundJavaType(this.dataType))) == null) {
-            throw noMatchCompatibleMapping(this, targetType);
+            throw noMatchCompatibleMapping(this, dataType, targetType);
         } else {
             instance = new PgMultiRangeType(this.dataType, targetType, rangeFunc);
         }

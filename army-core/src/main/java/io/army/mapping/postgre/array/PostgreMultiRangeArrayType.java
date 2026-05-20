@@ -209,13 +209,13 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
         if (targetType == String.class) {
             instance = TextType.INSTANCE;
         } else if (!targetType.isArray()) {
-            throw noMatchCompatibleMapping(this, targetType);
+            throw noMatchCompatibleMapping(this, dataType, targetType);
         } else if ((targetDimension = ArrayUtils.dimensionOf(targetType)) < 2) {
-            throw noMatchCompatibleMapping(this, targetType);
+            throw noMatchCompatibleMapping(this, dataType, targetType);
         } else if ((componentType = ArrayUtils.underlyingComponent(targetType)) != String.class) {
             final RangeFunction<?, ?> rangeFunc;
             if ((rangeFunc = tryCreateDefaultRangeFunc(componentType, boundJavaType(this.dataType))) == null) {
-                throw noMatchCompatibleMapping(this, targetType);
+                throw noMatchCompatibleMapping(this, dataType, targetType);
             }
             instance = new PostgreMultiRangeArrayType(this.dataType, targetType, rangeFunc);
         } else if (targetDimension > 2) {

@@ -83,11 +83,12 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
     }
 
     /// Find compatible {@link AbstractMappingType} for targetType.
+    ///
     /// @param dataType   from {@link StmtExecutor}, underlying api is one of following :
-    /// 
+    ///
     /// - {@code  java.sql.ResultSetMetaData#getTableName(int)}
     /// - {@code io.jdbd.result.ResultRowMeta#getDataType(int)}
-    /// 
+    ///
     /// if dataType is {@link SQLType} instance,then dataType representing appropriate database build-in data type.
     /// @param targetType the target type for application developer
     /// @throws NoMatchMappingException throw when not found compatible {@link AbstractMappingType}
@@ -95,7 +96,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
     public <Z> MappingType compatibleFor(final DataType dataType, final Class<Z> targetType)
             throws NoMatchMappingException {
         if (!(dataType instanceof SQLType)) {
-            throw noMatchCompatibleMapping(this, targetType);
+            throw noMatchCompatibleMapping(this, dataType, targetType);
         }
 
         final ArmyType armyType = ((SQLType) dataType).armyType();
@@ -140,7 +141,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                             type = YearMonthType.INSTANCE;
                             break;
                         default:
-                            throw noMatchCompatibleMapping(this, targetType);
+                            throw noMatchCompatibleMapping(this, dataType, targetType);
                     }
                 } else if (targetType == Year.class) {
                     switch (armyType) {
@@ -149,7 +150,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                             type = YearType.INSTANCE;
                             break;
                         default:
-                            throw noMatchCompatibleMapping(this, targetType);
+                            throw noMatchCompatibleMapping(this, dataType, targetType);
                     }
                 } else if (targetType == Instant.class && armyType == ArmyType.BIGINT) {
                     type = InstantType.INSTANCE;
@@ -161,12 +162,12 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                         } else if (CodeEnum.class.isAssignableFrom(targetType)) {
                             type = CodeEnumType.from(targetType);
                         } else {
-                            throw noMatchCompatibleMapping(this, targetType);
+                            throw noMatchCompatibleMapping(this, dataType, targetType);
                         }
                     }
                     break;
                     default:
-                        throw noMatchCompatibleMapping(this, targetType);
+                        throw noMatchCompatibleMapping(this, dataType, targetType);
                 } // switch
             }
             break;
@@ -194,7 +195,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else if (targetType == Double.class || targetType == double.class) {
                     type = DoubleType.INSTANCE;
                 } else {
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 }
             }
             break;
@@ -226,7 +227,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                     } else if (targetType == Double.class || targetType == double.class) {
                         type = DoubleType.INSTANCE;
                     } else {
-                        throw noMatchCompatibleMapping(this, targetType);
+                        throw noMatchCompatibleMapping(this, dataType, targetType);
                     }
                 } else if (Temporal.class.isAssignableFrom(targetType)) {
 
@@ -245,11 +246,11 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                     } else if (targetType == Instant.class) {
                         type = InstantType.INSTANCE;
                     } else {
-                        throw noMatchCompatibleMapping(this, targetType);
+                        throw noMatchCompatibleMapping(this, dataType, targetType);
                     }
                 } else if (TemporalAmount.class.isAssignableFrom(targetType)) {
                     // TODO
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 } else if (Enum.class.isAssignableFrom(targetType)) {
                     if (TextEnum.class.isAssignableFrom(targetType)) {
                         type = TextEnumType.from(targetType);
@@ -265,7 +266,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else if (targetType == MappingType.class) {
                     type = MappingTypeType.INSTANCE;
                 } else {
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 }
             }
             break;
@@ -273,7 +274,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 if (targetType == String.class) {
                     type = StringType.INSTANCE;
                 } else if (!Enum.class.isAssignableFrom(targetType)) {
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 } else if (TextEnumType.class.isAssignableFrom(targetType)) {
                     type = TextEnumType.from(targetType);
                 } else {
@@ -311,7 +312,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else if (targetType == String.class) {
                     type = StringType.INSTANCE;
                 } else { // TODO
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 }
             }
             break;
@@ -325,7 +326,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else if (targetType == String.class) {
                     type = StringType.INSTANCE;
                 } else {
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 }
             }
             break;
@@ -339,7 +340,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else if (targetType == String.class) {
                     type = StringType.INSTANCE;
                 } else {
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 }
             }
             break;
@@ -355,7 +356,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else if (targetType == String.class) {
                     type = StringType.INSTANCE;
                 } else {
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 }
             }
             break;
@@ -372,17 +373,17 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                         case SQLite:
                         case PostgreSQL:
                         default:
-                            throw noMatchCompatibleMapping(this, targetType);
+                            throw noMatchCompatibleMapping(this, dataType, targetType);
                     }
 
                 } else if (targetType == String.class) {
                     type = StringType.INSTANCE;
                 } else if (targetType != Duration.class) {
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 } else if (dataType == MySQLType.TIME) {
                     type = DurationType.INSTANCE;
                 } else {
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 }
             }
             break;
@@ -393,7 +394,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else if (targetType == String.class) {
                     type = StringType.INSTANCE;
                 } else {
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 }
             }
             break;
@@ -412,7 +413,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else if (targetType == Month.class || targetType == DayOfWeek.class) {
                     type = NameEnumType.from(targetType);
                 } else {
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 }
             }
             break;
@@ -429,14 +430,14 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                         } else if (targetType == ZonedDateTime.class) {
                             type = ZonedDateTimeType.INSTANCE;
                         } else {
-                            throw noMatchCompatibleMapping(this, targetType);
+                            throw noMatchCompatibleMapping(this, dataType, targetType);
                         }
                     }
                     break;
                     case SQLite:
                     case PostgreSQL:
                     default:
-                        throw noMatchCompatibleMapping(this, targetType);
+                        throw noMatchCompatibleMapping(this, dataType, targetType);
                 } // else switch
             }
             break;
@@ -449,7 +450,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else if (targetType == String.class) {
                     type = StringType.INSTANCE;
                 } else {
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 }
             }
             break;
@@ -465,7 +466,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 } else if (targetType == Integer.class || targetType == int.class) {
                     type = IntegerType.INSTANCE;
                 } else {
-                    throw noMatchCompatibleMapping(this, targetType);
+                    throw noMatchCompatibleMapping(this, dataType, targetType);
                 }
             }
             break;
@@ -482,7 +483,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
             case GEOMETRY:
             case DIALECT_TYPE:
             default:
-                throw noMatchCompatibleMapping(this, targetType);
+                throw noMatchCompatibleMapping(this, dataType, targetType);
         }
         return type;
     }
@@ -490,6 +491,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
 
     /// Throws CloneNotSupportedException.  This guarantees that MappingType
     /// are never cloned
+    ///
     /// @return (never returns)
     @Override
     protected final Object clone() throws CloneNotSupportedException {
@@ -512,9 +514,9 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
     /*-------------------below private methods -------------------*/
 
 
-    protected static NoMatchMappingException noMatchCompatibleMapping(AbstractMappingType type, Class<?> targetJavaType) {
-        String m = String.format("%s not found match %s for %s", type, MappingType.class.getName(),
-                targetJavaType.getName());
+    protected static NoMatchMappingException noMatchCompatibleMapping(MappingType type, DataType dataType, Class<?> targetJavaType) {
+        String m = String.format("%s not found match %s for DataType[%s] javaType[%s]", type, MappingType.class.getName(),
+                dataType.typeName(), targetJavaType.getName());
         return new NoMatchMappingException(m);
     }
 

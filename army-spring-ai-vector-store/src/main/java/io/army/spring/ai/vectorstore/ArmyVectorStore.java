@@ -22,9 +22,8 @@ import io.army.criteria.impl.Postgres;
 import io.army.criteria.impl.SQLs;
 import io.army.dialect.Database;
 import io.army.mapping.optional.JsonPathType;
-import io.army.meta.FieldMeta;
-import io.army.meta.IndexMeta;
-import io.army.meta.ServerMeta;
+import io.army.meta.*;
+import io.army.pojo.ObjectAccessorFactory;
 import io.army.result.CurrentRecord;
 import io.army.session.SyncSession;
 import io.army.session.SyncSessionContext;
@@ -46,11 +45,12 @@ import org.springframework.ai.vectorstore.observation.VectorStoreObservationCont
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static io.army.criteria.impl.SQLs.AS;
 
 /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
-public final class ArmyVectorStore extends AbstractObservationVectorStore {
+public final class ArmyVectorStore<T extends SpringAiVectorStore> extends AbstractObservationVectorStore {
 
 
     private final NullMode nullMode;
@@ -67,10 +67,24 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
 
     private final String model;
 
+    private final SimpleTableMeta<T> tableMeta;
+
+    private final PrimaryFieldMeta<T> id;
+
+    private final FieldMeta<T> content;
+
+    private final FieldMeta<T> metadata;
+
+    private final FieldMeta<T> embedding;
+
+    private final FieldMeta<T> documentId;
+
+    private final Supplier<T> constructor;
+
     private final FilterExpressionConverter converter;
 
 
-    private ArmyVectorStore(Builder builder) {
+    private ArmyVectorStore(Builder<T> builder) {
         super(builder);
 
         this.nullMode = builder.nullMode;
@@ -81,6 +95,17 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
         this.sessionContext = builder.sessionContext;
         this.distanceType = builder.distanceType;
         this.model = builder.model;
+
+        this.tableMeta = builder.tableMeta;
+
+        this.id = builder.tableMeta.id();
+
+        this.content = this.tableMeta.field("content");
+        this.metadata = this.tableMeta.field("metadata");
+        this.embedding = this.tableMeta.field("embedding");
+        this.documentId = this.tableMeta.field("documentId");
+
+        this.constructor = constructorFunc(this.tableMeta);
 
         switch (builder.sessionContext.sessionFactory().dialectDatabase()) {
             case PostgreSQL:
@@ -106,8 +131,8 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
             final Database database = session.dialectDatabase();
 
             final int documentCount = documents.size(), maxBatchSize = this.maxDocumentBatchSize;
-            final List<SpringAiVectorStore> rowList = new ArrayList<>(Math.min(documentCount, maxBatchSize));
-            SpringAiVectorStore o;
+            final List<T> rowList = new ArrayList<>(Math.min(documentCount, maxBatchSize));
+            T o;
             Document document;
             for (int offset = 0, batchEnd; offset < documentCount; offset += maxBatchSize) {
                 batchEnd = Math.min(documentCount, offset + maxBatchSize);
@@ -117,8 +142,8 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
                     // Do not take org.springframework.ai.document.Document#id as the value of
                     // io.army.spring.ai.vectorstore.SpringAiVectorStore#id. The former is uncertain,
                     // and such usage represents bad design.
-                    o = new SpringAiVectorStore()
-                            .setDocumentId(document.getId())
+                    o = this.constructor.get();
+                    o.setDocumentId(document.getId())
                             .setContent(document.getText())
                             .setMetadata(document.getMetadata())
                             .setEmbedding(embeddingList.get(i));
@@ -155,8 +180,8 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
         final DeleteStatement stmt;
         if (idCount < this.batchDeleteThreshold) {
             stmt = SQLs.singleDelete()
-                    .deleteFrom(SpringAiVectorStore_.T, AS, "t")
-                    .where(SpringAiVectorStore_.id.in(SQLs::rowParam, idList))
+                    .deleteFrom(this.tableMeta, AS, "t")
+                    .where(this.id.in(SQLs::rowParam, idList))
                     .asDelete();
         } else {
             final List<Map<String, String>> paramList = new ArrayList<>(idCount);
@@ -164,8 +189,8 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
                 paramList.add(Map.of(SpringAiVectorStore_.ID, id));
             }
             stmt = SQLs.batchSingleDelete()
-                    .deleteFrom(SpringAiVectorStore_.T, AS, "t")
-                    .where(SpringAiVectorStore_.id.spaceEqual(SQLs::namedParam))
+                    .deleteFrom(this.tableMeta, AS, "t")
+                    .where(this.id.spaceEqual(SQLs::namedParam))
                     .asDelete()
                     .namedParamList(paramList);
         }
@@ -193,8 +218,8 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
 
         final Delete stmt;
         stmt = SQLs.singleDelete()
-                .deleteFrom(SpringAiVectorStore_.T, AS, "t")
-                .where(SpringAiVectorStore_.metadata.space(Postgres.AT_AT, SQLs.literal(JsonPathType.INSTANCE, jsonPath)))
+                .deleteFrom(this.tableMeta, AS, "t")
+                .where(this.metadata.space(Postgres.AT_AT, SQLs.literal(JsonPathType.INSTANCE, jsonPath)))
                 .asDelete();
 
         final Function<SyncSession, Void> function;
@@ -235,23 +260,22 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
         final Select stmt;
         stmt = SQLs.query()
                 .selects(s -> {
-                    s.selection(SpringAiVectorStore_.id, SpringAiVectorStore_.content, SpringAiVectorStore_.metadata)
-                            .selection(SpringAiVectorStore_.embedding);
+                    s.selection(this.documentId, this.content, this.metadata);
                     if (operator == SQLs.NEG_DOT) {
-                        s.selection(SQLs.LITERAL_1.plus(SpringAiVectorStore_.embedding.space(operator, embedding)).as(distanceLabel));
+                        s.selection(SQLs.LITERAL_1.plus(this.embedding.space(operator, embedding)).as(distanceLabel));
                     } else {
-                        s.selection(SpringAiVectorStore_.embedding.space(operator, embedding).as(distanceLabel));
+                        s.selection(this.embedding.space(operator, embedding).as(distanceLabel));
                     }
                 })
-                .from(SpringAiVectorStore_.T, AS, "t")
+                .from(this.tableMeta, AS, "t")
                 .where(wb -> {
                     if (operator == SQLs.NEG_DOT) {
-                        wb.accept(SQLs.LITERAL_1.plus(SpringAiVectorStore_.embedding.space(operator, embedding)).less(distance));
+                        wb.accept(SQLs.LITERAL_1.plus(this.embedding.space(operator, embedding)).less(distance));
                     } else {
-                        wb.accept(SpringAiVectorStore_.embedding.space(operator, embedding).less(distance));
+                        wb.accept(this.embedding.space(operator, embedding).less(distance));
                     }
                     if (jsonPath != null) {
-                        wb.accept(SpringAiVectorStore_.metadata.space(Postgres.AT_AT, SQLs.literal(JsonPathType.INSTANCE, jsonPath)));
+                        wb.accept(this.metadata.space(Postgres.AT_AT, SQLs.literal(JsonPathType.INSTANCE, jsonPath)));
                     }
                 })
                 .orderBy(SQLs.refSelection(distanceLabel))
@@ -268,7 +292,7 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
             metadata.put(DocumentMetadata.DISTANCE.value(), distanceValue);
 
             return Document.builder()
-                    .id(row.getNonNull(0, SpringAiVectorStore_.id.javaType()).toString())
+                    .id(row.getNonNull(0, String.class))
                     .text(row.get(1, String.class))
                     .metadata(metadata)
                     .score(1.0 - distanceValue)
@@ -279,7 +303,7 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
         function = session -> session.queryRecordList(stmt, rowFunc);
 
         final String sessionName = getClass().getName() + '.' + "doSimilaritySearch";
-        return this.sessionContext.execute(sessionName, true, function);
+        return this.sessionContext.executeNotNull(sessionName, true, function);
     }
 
 
@@ -316,8 +340,8 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
         };
 
         return VectorStoreObservationContext.builder(VectorStoreProvider.PG_VECTOR.value(), operationName)
-                .collectionName(SpringAiVectorStore_.T.tableName())
-                .dimensions(SpringAiVectorStore_.embedding.precision())
+                .collectionName(this.tableMeta.tableName())
+                .dimensions(this.embedding.precision())
                 .namespace(nameSpace)
                 .similarityMetric(metric.value());
     }
@@ -328,43 +352,58 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
         if (this.model != null) {
             builder.model(this.model);
         }
-        builder.dimensions(SpringAiVectorStore_.embedding.precision());
+        builder.dimensions(this.embedding.precision());
         return builder.build();
     }
 
 
-    private Insert postgreInsertOrUpdateStmt(final List<SpringAiVectorStore> rowList) {
+    private Insert postgreInsertOrUpdateStmt(final List<T> rowList) {
+
         return Postgres.singleInsert()
                 .nullMode(this.nullMode)
                 .literalMode(this.literalMode)
-                .insertInto(SpringAiVectorStore_.T).as("t")
+                .insertInto(this.tableMeta).as("t")
                 .values(rowList)
                 .onConflict().parens(s -> s.space(SpringAiVectorStore_.id))
                 .doUpdate()
-                .set(SpringAiVectorStore_.content, Postgres.excluded(SpringAiVectorStore_.content))
-                .set(SpringAiVectorStore_.metadata, Postgres.excluded(SpringAiVectorStore_.metadata))
-                .set(SpringAiVectorStore_.embedding, Postgres.excluded(SpringAiVectorStore_.embedding))
+                .set(this.content, Postgres.excluded(this.content))
+                .set(this.metadata, Postgres.excluded(this.metadata))
+                .set(this.embedding, Postgres.excluded(this.embedding))
                 .asInsert();
     }
 
-    private Insert mysqlInsertOrUpdateStmt(final List<SpringAiVectorStore> rowList) {
+    private Insert mysqlInsertOrUpdateStmt(final List<T> rowList) {
         final String rowAlias = "r";
         return MySQLs.singleInsert()
                 .nullMode(this.nullMode)
                 .literalMode(this.literalMode)
-                .insertInto(SpringAiVectorStore_.T)
+                .insertInto(this.tableMeta)
                 .values(rowList)
                 .as(rowAlias)
                 .onDuplicateKey()
-                .update(SpringAiVectorStore_.content, SQLs.field(rowAlias, SpringAiVectorStore_.content))
-                .comma(SpringAiVectorStore_.metadata, SQLs.field(rowAlias, SpringAiVectorStore_.metadata))
-                .comma(SpringAiVectorStore_.embedding, SQLs.field(rowAlias, SpringAiVectorStore_.embedding))
+                .update(this.content, SQLs.field(rowAlias, this.content))
+                .comma(this.metadata, SQLs.field(rowAlias, this.metadata))
+                .comma(this.embedding, SQLs.field(rowAlias, this.embedding))
                 .asInsert();
     }
 
 
-    public static Builder builder(EmbeddingModel embeddingModel, SyncSessionContext sessionContext) {
-        return new Builder(embeddingModel, sessionContext);
+    public static <T extends SpringAiVectorStore> Builder<T> builder(EmbeddingModel embeddingModel,
+                                                                     SyncSessionContext sessionContext,
+                                                                     SimpleTableMeta<T> tableMeta) {
+        return new Builder<>(embeddingModel, sessionContext, tableMeta);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends SpringAiVectorStore> Supplier<T> constructorFunc(SimpleTableMeta<T> tableMeta) {
+        Supplier<T> constructor;
+        if (tableMeta.javaType() == SpringAiVectorStore.class) {
+            final Supplier<SpringAiVectorStore> func = SpringAiVectorStore::new;
+            constructor = (Supplier<T>) func;
+        } else {
+            constructor = ObjectAccessorFactory.pojoConstructor(tableMeta.javaType());
+        }
+        return constructor;
     }
 
     public enum DistanceType {
@@ -392,9 +431,11 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
 
     }
 
-    public static final class Builder extends AbstractVectorStoreBuilder<Builder> {
+    public static final class Builder<T extends SpringAiVectorStore> extends AbstractVectorStoreBuilder<Builder<T>> {
 
         private final SyncSessionContext sessionContext;
+
+        private final SimpleTableMeta<T> tableMeta;
 
         private NullMode nullMode = NullMode.DEFAULT;
 
@@ -406,41 +447,41 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
 
         private String model;
 
-
         private DistanceType distanceType;
 
-        private Builder(EmbeddingModel embeddingModel, SyncSessionContext sessionContext) {
+        private Builder(EmbeddingModel embeddingModel, SyncSessionContext sessionContext, SimpleTableMeta<T> tableMeta) {
             super(embeddingModel);
             this.sessionContext = sessionContext;
+            this.tableMeta = tableMeta;
         }
 
 
-        public Builder maxDocumentBatchSize(int maxDocumentBatchSize) {
+        public Builder<T> maxDocumentBatchSize(int maxDocumentBatchSize) {
             this.maxDocumentBatchSize = maxDocumentBatchSize;
             return this;
         }
 
-        public Builder batchDeleteThreshold(int batchDeleteThreshold) {
+        public Builder<T> batchDeleteThreshold(int batchDeleteThreshold) {
             this.batchDeleteThreshold = batchDeleteThreshold;
             return this;
         }
 
-        public Builder nullMode(NullMode nullMode) {
+        public Builder<T> nullMode(NullMode nullMode) {
             this.nullMode = nullMode;
             return this;
         }
 
-        public Builder literalMode(LiteralMode literalMode) {
+        public Builder<T> literalMode(LiteralMode literalMode) {
             this.literalMode = literalMode;
             return this;
         }
 
-        public Builder distanceType(DistanceType distanceType) {
+        public Builder<T> distanceType(DistanceType distanceType) {
             this.distanceType = distanceType;
             return this;
         }
 
-        public Builder mode(String mode) {
+        public Builder<T> mode(String mode) {
             this.model = mode;
             return this;
         }
@@ -453,7 +494,7 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
                 this.distanceType = findDistanceType();
             }
 
-            return new ArmyVectorStore(this);
+            return new ArmyVectorStore<>(this);
         }
 
         private static DistanceType findDistanceType() {

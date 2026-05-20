@@ -221,9 +221,9 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
         if (targetType == String.class) {
             instance = textInstance(this.dataType);
         } else if (targetType.isArray()) {
-            throw noMatchCompatibleMapping(this, targetType);
+            throw noMatchCompatibleMapping(this, dataType, targetType);
         } else if ((rangeFunc = tryCreateDefaultRangeFunc(targetType, boundJavaType(this.dataType))) == null) {
-            throw noMatchCompatibleMapping(this, targetType);
+            throw noMatchCompatibleMapping(this, dataType, targetType);
         } else {
             instance = new PgSingleRangeType(this.dataType, targetType, rangeFunc);
         }

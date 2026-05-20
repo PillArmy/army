@@ -91,7 +91,7 @@ public abstract class RowFunctions {
         final ObjectAccessor accessor;
         accessor = ObjectAccessorFactory.forPojo(resultClass);
         final ObjectRowReader<R> reader;
-        reader = new ObjectRowReader<>(ObjectAccessorFactory.beanConstructor(resultClass), accessor, true);
+        reader = new ObjectRowReader<>(ObjectAccessorFactory.pojoConstructor(resultClass), accessor, true);
         return reader::readRow;
     }
 

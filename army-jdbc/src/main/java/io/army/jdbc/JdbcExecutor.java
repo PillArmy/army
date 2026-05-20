@@ -1905,7 +1905,15 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             DataType dataType = null;
             if (!ClassUtils.isAssignableFrom(columnClass, type.javaType())) {
                 dataType = this.dataTypeArray[indexBasedZero];
-                type = type.compatibleFor(dataType, columnClass);
+
+                try {
+                    type = type.compatibleFor(dataType, columnClass);
+                } catch (Exception e) {
+                    final DataAccessException error;
+                    error = _Exceptions.columnGetError(indexBasedZero, getColumnLabel(indexBasedZero), e);
+                    throw this.executor.handleException(error);
+                }
+
                 this.compatibleTypeArray[indexBasedZero] = type;
             }
             return (T) readOneColumn(indexBasedZero, type, dataType);
@@ -2060,7 +2068,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                     value = null;
                 }
                 return value;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 final DataAccessException error;
                 error = _Exceptions.columnGetError(indexBasedZero, getColumnLabel(indexBasedZero), e);
                 throw this.executor.handleException(error);

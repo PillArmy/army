@@ -126,17 +126,17 @@ abstract class ArmyJsonType extends _ArmyBuildInType {
         final MappingType type;
         if (javaType == Map.class) {
             if (genericsTypeList.size() != 2) {
-                throw noMatchCompatibleMapping(this, javaType);
+                throw noMatchCompatibleMapping(this, dataType, javaType);
             }
             type = creatMapType(genericsTypeList.get(0), genericsTypeList.get(1));
         } else if (genericsTypeList.size() != 1) {
-            throw noMatchCompatibleMapping(this, javaType);
+            throw noMatchCompatibleMapping(this, dataType, javaType);
         } else if (javaType == List.class) {
             type = createListType(genericsTypeList.getFirst());
         } else if (javaType == Set.class) {
             type = createSetType(genericsTypeList.getFirst());
         } else {
-            throw noMatchCompatibleMapping(this, javaType);
+            throw noMatchCompatibleMapping(this, dataType, javaType);
         }
         return type;
     }

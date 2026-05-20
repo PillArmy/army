@@ -200,11 +200,11 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
         } else if (targetType == String[].class) {
             instance = linearInstance(this.dataType);
         } else if (!targetType.isArray()) {
-            throw noMatchCompatibleMapping(this, targetType);
+            throw noMatchCompatibleMapping(this, dataType, targetType);
         } else if ((targetComponentType = ArrayUtils.underlyingComponent(targetType)) == String.class) {
             instance = new PostgreSingleRangeArrayType(this.dataType, targetType, null);
         } else if ((rangeFunc = tryCreateDefaultRangeFunc(targetComponentType, boundJavaType(this.dataType))) == null) {
-            throw noMatchCompatibleMapping(this, targetType);
+            throw noMatchCompatibleMapping(this, dataType, targetType);
         } else {
             instance = new PostgreSingleRangeArrayType(this.dataType, targetType, rangeFunc);
         }

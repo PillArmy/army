@@ -64,7 +64,7 @@ public abstract class ObjectAccessorFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Supplier<T> beanConstructor(Class<T> beanClass) {
+    public static <T> Supplier<T> pojoConstructor(Class<T> beanClass) {
         return (Supplier<T>) CONSTRUCTOR_CACHE.get(beanClass);
     }
 

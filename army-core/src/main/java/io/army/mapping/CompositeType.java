@@ -195,7 +195,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         }
 
         final ObjectAccessor accessor = ObjectAccessorFactory.forPojo(instance.javaType);
-        final Supplier<?> constructor = ObjectAccessorFactory.beanConstructor(instance.javaType);
+        final Supplier<?> constructor = ObjectAccessorFactory.pojoConstructor(instance.javaType);
         final FieldParser fieldParser = new FieldParser(accessor, constructor.get(), instance.fieldList, env);
 
         try {

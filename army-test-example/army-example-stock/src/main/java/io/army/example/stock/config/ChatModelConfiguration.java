@@ -5,6 +5,7 @@ import io.army.criteria.NullMode;
 import io.army.session.SyncSessionContext;
 import io.army.spring.ai.chat.memory.ArmyMessageChatMemory;
 import io.army.spring.ai.vectorstore.ArmyVectorStore;
+import io.army.spring.ai.vectorstore.SpringAiVectorStore_;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
@@ -34,7 +35,7 @@ public class ChatModelConfiguration {
 
     @Bean
     public VectorStore stockVectorStore(EmbeddingModel embeddingModel, SyncSessionContext context) {
-        return ArmyVectorStore.builder(embeddingModel, context)
+        return ArmyVectorStore.builder(embeddingModel, context, SpringAiVectorStore_.T)
                 .build();
     }
 

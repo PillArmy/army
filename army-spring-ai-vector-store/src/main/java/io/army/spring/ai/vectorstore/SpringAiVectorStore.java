@@ -41,7 +41,7 @@ import java.util.Map;
 @Table(name = "${DEFAULT}",
         indexes = {
                 @Index(name = "${DEFAULT}", type = "${OPTIONAL}", fields = @IndexField(name = "embedding", opclass = "${DEFAULT}")),
-                @Index(name = "${DEFAULT}", unique = true, fieldList = "documentId")
+                @Index(name = "${DEFAULT}", type = "${OPTIONAL}", unique = true, fieldList = "documentId")
         },
         ddlMode = DdlMode.DEFAULT,
         comment = "${DEFAULT}")

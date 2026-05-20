@@ -473,6 +473,16 @@ abstract class PostgreParser extends _ArmyDialectParser {
                         .append(_Constant.QUOTE);
             }
             break;
+            case VECTOR: {
+                if (!(value instanceof String)) {
+                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
+                }
+                stringEscape((String) value, sqlBuilder);
+                if (typeName) {
+                    sqlBuilder.append("::VECTOR");
+                }
+            }
+            break;
             case CHAR:
             case BPCHAR:
             case VARCHAR:

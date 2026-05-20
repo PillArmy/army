@@ -21,6 +21,7 @@ import io.army.session.*;
 import io.army.transaction.TransactionOption;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -107,6 +108,10 @@ final class SpringSyncSessionContext implements SyncSessionContext {
         return result;
     }
 
+    @Override
+    public <T> T executeNotNull(@Nullable String name, boolean readOnly, Function<SyncSession, T> function) {
+        return Objects.requireNonNull(execute(name, readOnly, function), "function must not return null");
+    }
 
     @Override
     public <T> T executeInTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Function<SyncSession, T> function) {
