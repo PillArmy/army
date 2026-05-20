@@ -217,12 +217,8 @@ final class PostgreComparer extends ArmySchemaComparer {
                 }
                 break;
             case VECTOR:
-                if (typeName.equals("VECTOR")) {
-                    precision = field.precision();
-                    notMatch = precision > -1 && precision != columnInfo.precision();
-                } else {
-                    notMatch = true;
-                }
+                // Current JDBC does not return the real length of vector.
+                notMatch = !typeName.equals("VECTOR");
                 break;
             case TEXT:
                 switch (typeName) {
@@ -406,7 +402,11 @@ final class PostgreComparer extends ArmySchemaComparer {
             case UNKNOWN:
                 throw _Exceptions.unexpectedEnum((Enum<?>) dataType);
             default:
-                notMatch = !typeName.equalsIgnoreCase(dataType.typeName());
+                // Current JDBC does not return the real length of vector.
+                notMatch = !typeName.equalsIgnoreCase(dataType.typeName())
+                // || ((precision = field.precision()) > -1 && precision != columnInfo.precision())
+                //  || ((scale = field.scale()) > -1 && scale != columnInfo.scale())
+                ;
         }
         return notMatch;
     }
