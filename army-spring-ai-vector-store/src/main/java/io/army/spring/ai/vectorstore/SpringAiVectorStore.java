@@ -40,7 +40,8 @@ import java.util.Map;
 /// ${OPTIONAL} means that If you do not specify it, index will not be created.
 @Table(name = "${DEFAULT}",
         indexes = {
-                @Index(name = "${DEFAULT}", type = "${OPTIONAL}", fields = @IndexField(name = "embedding", opclass = "${DEFAULT}"))
+                @Index(name = "${DEFAULT}", type = "${OPTIONAL}", fields = @IndexField(name = "embedding", opclass = "${DEFAULT}")),
+                @Index(name = "${DEFAULT}", unique = true, fieldList = "documentId")
         },
         ddlMode = DdlMode.DEFAULT,
         comment = "${DEFAULT}")
@@ -52,7 +53,10 @@ public class SpringAiVectorStore {
     /// entity_class_name.field_name.Column.name=column_name
     ///
     /// If you do not specify it, {@link Long} will be used as the id java type.
-
+    ///
+    /// Do not take org.springframework.ai.document.Document#id as the value of
+    /// io.army.spring.ai.vectorstore.SpringAiVectorStore#id. The former is uncertain, and such usage represents bad design.
+    @Generator(type = GeneratorType.DEFAULT)
     @Column(name = "${DEFAULT}")
     @Mapping("${DEFAULT}")
     private String id;
@@ -65,6 +69,9 @@ public class SpringAiVectorStore {
 
     @Column(name = "${DEFAULT}")
     private Integer version;
+
+    @Column(name = "${DEFAULT}", notNull = true, precision = 36, comment = "${DEFAULT}")
+    private String documentId;
 
     @Column(name = "${DEFAULT}", comment = "${DEFAULT}")
     @Mapping("io.army.mapping.TextType")
@@ -117,6 +124,15 @@ public class SpringAiVectorStore {
 
     public SpringAiVectorStore setVersion(Integer version) {
         this.version = version;
+        return this;
+    }
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public SpringAiVectorStore setDocumentId(String documentId) {
+        this.documentId = documentId;
         return this;
     }
 

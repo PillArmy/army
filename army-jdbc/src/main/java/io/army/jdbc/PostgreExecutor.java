@@ -304,7 +304,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
             case DECIMAL:
                 value = resultSet.getObject(indexBasedOne, BigDecimal.class);
                 break;
-            case FLOAT8:
+            case DOUBLE:
                 value = resultSet.getObject(indexBasedOne, Double.class);
                 break;
             case REAL:

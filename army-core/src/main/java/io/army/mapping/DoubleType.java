@@ -75,7 +75,7 @@ public final class DoubleType extends _NumericType._FloatNumericType {
                 dataType = MySQLType.DOUBLE;
                 break;
             case PostgreSQL:
-                dataType = PgType.FLOAT8;
+                dataType = PgType.DOUBLE;
                 break;
             case SQLite:
                 dataType = SQLiteType.DOUBLE;

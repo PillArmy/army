@@ -513,7 +513,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
 
 
     protected static NoMatchMappingException noMatchCompatibleMapping(AbstractMappingType type, Class<?> targetJavaType) {
-        String m = String.format("%s not found match %s for %s", type, AbstractMappingType.class.getName(),
+        String m = String.format("%s not found match %s for %s", type, MappingType.class.getName(),
                 targetJavaType.getName());
         return new NoMatchMappingException(m);
     }

@@ -121,7 +121,7 @@ final class PostgreComparer extends ArmySchemaComparer {
                         notMatch = true;
                 }
                 break;
-            case FLOAT8:
+            case DOUBLE:
                 switch (typeName) {
                     case "FLOAT8":
                     case "DOUBLE PRECISION":

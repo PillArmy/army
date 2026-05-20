@@ -72,7 +72,7 @@ final class PgTypeMappingHandler extends TypeMappingHandlerSupport {
             case "FLOAT8":
             case "DOUBLE PRECISION":
             case "FLOAT":
-                type = PgType.FLOAT8;
+                type = PgType.DOUBLE;
                 typeArray[index] = DoubleType.INSTANCE;
                 break;
             case "FLOAT4":

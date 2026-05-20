@@ -48,7 +48,7 @@ public enum PgType implements SQLType {
     DECIMAL("DECIMAL", ArmyType.DECIMAL, BigDecimal.class),
 
     REAL("REAL", ArmyType.FLOAT, Float.class),
-    FLOAT8("FLOAT8", ArmyType.DOUBLE, Double.class),
+    DOUBLE("DOUBLE PRECISION", ArmyType.DOUBLE, Double.class),
 
     BIT("BIT", ArmyType.BIT, BitSet.class),
     VARBIT("VARBIT", ArmyType.VARBIT, BitSet.class),
@@ -134,7 +134,7 @@ public enum PgType implements SQLType {
     BIGINT_ARRAY(BIGINT),
     DECIMAL_ARRAY(DECIMAL),
     REAL_ARRAY(REAL),
-    FLOAT8_ARRAY(FLOAT8),
+    FLOAT8_ARRAY(DOUBLE),
     MONEY_ARRAY(MONEY),
 
     TIME_ARRAY(TIME),

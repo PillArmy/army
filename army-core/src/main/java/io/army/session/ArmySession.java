@@ -63,11 +63,12 @@ import java.util.function.Supplier;
 
 /// This class is all implementation of {@link Session}.
 /// This class is direct base class of following :
-/// 
+///
 /// - {@code  io.army.sync.ArmySyncSession}
 /// - {@code io.army.reactive.ArmyReactiveSession}
-/// 
+///
 /// Package class
+///
 /// @since 0.6.0
 abstract class ArmySession<F extends ArmySessionFactory> implements PackageSession {
 
@@ -441,12 +442,26 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
 
 
     private void printSql(final SqlLogMode mode, final Stmt stmt, final long startNanoSecond) {
+        final TransactionInfo info = obtainTransactionInfo();
+        final String isolation;
+        final boolean readOnly;
+        if (info == null) {
+            isolation = null;
+            readOnly = this.readonly;
+        } else {
+            isolation = info.isolation().name();
+            readOnly = info.isReadOnly();
+        }
 
         final StringBuilder builder = new StringBuilder(256);
         builder.append("session[name : ")
                 .append(this.name)
                 .append(" , hash : ")
                 .append(System.identityHashCode(this))
+                .append(" , isolation : ")
+                .append(isolation)
+                .append(" , readOnly : ")
+                .append(readOnly)
                 .append("]\n\n");
 
         this.factory.dialectParser.printStmt(stmt, mode.beautify, builder::append);

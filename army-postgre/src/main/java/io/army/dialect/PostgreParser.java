@@ -393,13 +393,13 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 }
             }
             break;
-            case FLOAT8: {
+            case DOUBLE: {
                 if (!(value instanceof Double)) {
                     throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
                 }
                 sqlBuilder.append(value);
                 if (typeName) {
-                    sqlBuilder.append("::FLOAT8");
+                    sqlBuilder.append("::DOUBLE PRECISION");
                 }
             }
             break;

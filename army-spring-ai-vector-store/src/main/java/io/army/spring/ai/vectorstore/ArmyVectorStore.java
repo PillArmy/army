@@ -98,7 +98,6 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
     @Override
     public void doAdd(final List<Document> documents) {
 
-
         final List<float[]> embeddingList;
         embeddingList = this.embeddingModel.embed(documents, embeddingOptions(), this.batchingStrategy);
 
@@ -115,9 +114,11 @@ public final class ArmyVectorStore extends AbstractObservationVectorStore {
 
                 for (int i = offset; i < batchEnd; i++) {
                     document = documents.get(i);
-
+                    // Do not take org.springframework.ai.document.Document#id as the value of
+                    // io.army.spring.ai.vectorstore.SpringAiVectorStore#id. The former is uncertain,
+                    // and such usage represents bad design.
                     o = new SpringAiVectorStore()
-                            .setId(document.getId())
+                            .setDocumentId(document.getId())
                             .setContent(document.getText())
                             .setMetadata(document.getMetadata())
                             .setEmbedding(embeddingList.get(i));

@@ -1,6 +1,7 @@
 package io.army.example.stock;
 
 
+import org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringApplicationRunListener;
 import org.springframework.boot.WebApplicationType;
@@ -8,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.bootstrap.ConfigurableBootstrapContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = {OllamaChatAutoConfiguration.class})
 public class StockApp {
 
 
