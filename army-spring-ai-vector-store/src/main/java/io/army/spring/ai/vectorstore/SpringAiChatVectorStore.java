@@ -16,34 +16,15 @@
 
 package io.army.spring.ai.vectorstore;
 
-import io.army.annotation.*;
+import io.army.annotation.Column;
+import io.army.annotation.MappedSuperclass;
+import io.army.annotation.Mapping;
+import io.army.generator.snowflake.Snowflake8s;
 
 
-/// In Army, {@code @Table(name = "${DEFAULT}", comment = "${DEFAULT}")} allowing users to supply configurations at runtime via the property file:
-/// classpath:META-INF/army/TableMeta.properties:
-/// entity_class_name.Table.name=table_name
-/// entity_class_name.Table.comment=table_comment
-///
-/// If you do not specify it, simple entity class name will be used as the table name(table comment) after converting.
-///
-///
-/// {@code @Index(name = "${DEFAULT}", type = "${OPTIONAL}", fields = @IndexField(name = "embedding", opclass = "${DEFAULT}"))}
-/// allowing users to supply configurations at runtime via the property file:
-/// classpath:META-INF/army/TableMeta.properties:
-/// entity_class_name.IndexMeta[0].name=index_name
-/// entity_class_name.IndexMeta[0].type=index_type
-/// entity_class_name.IndexMeta[0].field.field_name.opclass=opclass
-///
-/// ${OPTIONAL} means that If you do not specify it, index will not be created.
-
-@Table(name = "${DEFAULT}",
-        indexes = {
-                @Index(name = "${DEFAULT}", type = "${RUNTIME}", fields = @IndexField(name = "embedding", opclass = "${DEFAULT}")),
-                @Index(name = "${DEFAULT}", type = "${DEFAULT}", fieldList = "conversationId")
-        },
-        ddlMode = DdlMode.DEFAULT,
-        comment = "${DEFAULT}")
-public non-sealed class SpringAiChatVectorStore extends SpringAiVectorStore {
+/// Subclass for long-term memory storage of AI Agent
+@MappedSuperclass
+public abstract class SpringAiChatVectorStore extends SpringAiVectorStore {
 
     /// {@link Mapping#value()} should be one of below:
     /// - {@link io.army.mapping.SqlBigIntType}
@@ -58,6 +39,10 @@ public non-sealed class SpringAiChatVectorStore extends SpringAiVectorStore {
     @Mapping("${DEFAULT}")
     private String conversationId;
 
+    /// {@link org.springframework.ai.chat.messages.Message} batch no, use {@link Snowflake8s}
+    @Column(name = "${DEFAULT}", notNull = true, defaultValue = "${DEFAULT}", precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
+    private Long batchNo;
+
 
     public String getConversationId() {
         return conversationId;
@@ -68,5 +53,12 @@ public non-sealed class SpringAiChatVectorStore extends SpringAiVectorStore {
         return this;
     }
 
+    public Long getBatchNo() {
+        return batchNo;
+    }
 
+    public SpringAiChatVectorStore setBatchNo(Long batchNo) {
+        this.batchNo = batchNo;
+        return this;
+    }
 }

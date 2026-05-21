@@ -24,13 +24,10 @@ import java.util.Map;
 
 /// This class is base class of below:
 /// - {@link io.army.spring.ai.vectorstore.SpringAiChatVectorStore}
-/// - {@link io.army.spring.ai.vectorstore.SpringAiDocumentVectorStore}
 @MappedSuperclass
-public abstract sealed class SpringAiVectorStore permits SpringAiChatVectorStore, SpringAiDocumentVectorStore {
+public abstract class SpringAiVectorStore {
 
-    SpringAiVectorStore() {
 
-    }
 
     /// In Army, id are of type Object, allowing users to supply configurations at runtime via the property file:
     /// classpath:META-INF/army/TableMeta.properties:
@@ -63,7 +60,7 @@ public abstract sealed class SpringAiVectorStore permits SpringAiChatVectorStore
     @Mapping("io.army.mapping.TextType")
     private String content;
 
-    @Column(name = "${DEFAULT}", notNull = true, comment = "${DEFAULT}")
+    @Column(name = "${DEFAULT}", notNull = true, defaultValue = "'{}'", comment = "${DEFAULT}")
     @Mapping("io.army.mapping.PreferredJsonbType")
     private Map<String, Object> metadata;
 
@@ -73,7 +70,7 @@ public abstract sealed class SpringAiVectorStore permits SpringAiChatVectorStore
     /// entity_class_name.field_name.Column.precision=precision
     /// If you do not specify it, will throw {@link io.army.meta.MetaException}
     ///
-    @Column(name = "${DEFAULT}", notNull = true, precision = Column.RUNTIME_EXP, comment = "${DEFAULT}")
+    @Column(name = "${DEFAULT}", notNull = true, precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
     @Mapping("io.army.mapping.optional.VectorType")
     private float[] embedding;
 

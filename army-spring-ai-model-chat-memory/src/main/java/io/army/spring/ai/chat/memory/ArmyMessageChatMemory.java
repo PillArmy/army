@@ -87,7 +87,7 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
         this.specializedData = this.tableMeta.field("specializedData");
         this.conversationId = this.tableMeta.field("conversationId");
 
-        this.constructor = constructorFunc(this.tableMeta);
+        this.constructor = ObjectAccessorFactory.pojoConstructor(this.tableMeta.javaType());
 
         this.rowFunc = messageReadFunc(this.sessionContext.sessionFactory().jsonCodec());
     }
@@ -266,17 +266,6 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
     }
 
 
-    @SuppressWarnings("unchecked")
-    private static <T extends SpringAiChatMemory> Supplier<T> constructorFunc(SimpleTableMeta<T> tableMeta) {
-        Supplier<T> constructor;
-        if (tableMeta.javaType() == SpringAiChatMemory.class) {
-            final Supplier<SpringAiChatMemory> func = SpringAiChatMemory::new;
-            constructor = (Supplier<T>) func;
-        } else {
-            constructor = ObjectAccessorFactory.pojoConstructor(tableMeta.javaType());
-        }
-        return constructor;
-    }
 
     private static void assertConversationId(String conversationId) {
         Assert.hasText(conversationId, "conversationId cannot be null or empty");

@@ -25,15 +25,8 @@ import org.springframework.ai.chat.messages.ToolResponseMessage;
 import java.time.LocalDateTime;
 
 
-@Table(name = "${DEFAULT}",
-        indexes = {
-                @Index(name = "${DEFAULT}", fieldList = {"conversationId"}),
-                @Index(name = "${OPTIONAL}", type = "${OPTIONAL}", fieldList = {"batchNo"})
-        },
-        immutable = true,
-        ddlMode = DdlMode.DEFAULT,
-        comment = "${DEFAULT}")
-public class SpringAiChatMemory {
+@MappedSuperclass
+public abstract class SpringAiChatMemory {
 
     @Generator(type = GeneratorType.DEFAULT)
     @Column(name = "${DEFAULT}", precision = Column.DEFAULT_EXP, scale = Column.DEFAULT_EXP)

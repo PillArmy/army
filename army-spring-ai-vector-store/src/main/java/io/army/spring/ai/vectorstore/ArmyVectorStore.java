@@ -21,6 +21,7 @@ import io.army.criteria.impl.MySQLs;
 import io.army.criteria.impl.Postgres;
 import io.army.criteria.impl.SQLs;
 import io.army.dialect.Database;
+import io.army.generator.snowflake.Snowflake8s;
 import io.army.mapping.optional.JsonPathType;
 import io.army.meta.*;
 import io.army.pojo.ObjectAccessorFactory;
@@ -56,9 +57,6 @@ import static io.army.criteria.impl.SQLs.AS;
 public final class ArmyVectorStore<T extends SpringAiVectorStore> extends AbstractObservationVectorStore {
 
 
-    public static final String PRIMARY_KEY = "army_vector_store_id";
-
-
     private final NullMode nullMode;
 
     private final LiteralMode literalMode;
@@ -92,6 +90,8 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
     private final FieldMeta<T> onConflictField;
 
     private final Supplier<T> constructor;
+
+    private final long snowflakeStartTime;
 
     private final FilterExpressionConverter converter;
 
@@ -132,6 +132,7 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
         }
 
         this.constructor = ObjectAccessorFactory.pojoConstructor(this.tableMeta.javaType());
+        this.snowflakeStartTime = builder.snowflakeStartTime;
 
         switch (builder.sessionContext.sessionFactory().dialectDatabase()) {
             case PostgreSQL:
@@ -153,7 +154,7 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
         embeddingList = this.embeddingModel.embed(documents, embeddingOptions(), this.batchingStrategy);
 
 
-        final Function<SyncSession, Void> function;
+        final Consumer<SyncSession> function;
         function = session -> {
             final Database database = session.dialectDatabase();
 
@@ -183,6 +184,11 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
                             throw new IllegalArgumentException(m);
                         }
                         ((SpringAiChatVectorStore) o).setConversationId(conversationId.toString());
+                        if (this.snowflakeStartTime > -1) {
+                            ((SpringAiChatVectorStore) o).setBatchNo(Snowflake8s.next(this.snowflakeStartTime));
+                        } else {
+                            ((SpringAiChatVectorStore) o).setBatchNo(Snowflake8s.defaultNext());
+                        }
                     }
 
                     rowList.add(o);
@@ -203,11 +209,10 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
             } // loop
 
-            return null;
         };
 
         final String sessionName = getClass().getName() + '.' + "add";
-        this.sessionContext.execute(sessionName, false, function);
+        this.sessionContext.executeVoid(sessionName, false, function);
     }
 
 
@@ -659,6 +664,8 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
         private DistanceType distanceType;
 
+        private long snowflakeStartTime = -1L;
+
         private Builder(EmbeddingModel embeddingModel, SyncSessionContext sessionContext, SimpleTableMeta<T> tableMeta) {
             super(embeddingModel);
             this.sessionContext = sessionContext;
@@ -693,6 +700,11 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
         public Builder<T> mode(String mode) {
             this.model = mode;
+            return this;
+        }
+
+        public Builder<T> snowflakeStartTime(long snowflakeStartTime) {
+            this.snowflakeStartTime = snowflakeStartTime;
             return this;
         }
 

@@ -8,8 +8,8 @@ import io.army.criteria.impl.SQLs;
 import io.army.example.stock.dao.StockChatConversationDao;
 import io.army.example.stock.domain.StockChatConversation;
 import io.army.example.stock.domain.StockChatConversation_;
+import io.army.example.stock.domain.StockChatMemory_;
 import io.army.session.SyncSessionContext;
-import io.army.spring.ai.chat.memory.SpringAiChatMemory_;
 import io.army.util.RowMaps;
 import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.messages.MessageType;
@@ -46,11 +46,11 @@ public class StockChatConversationDaoImpl extends ArmyStockBaseDao implements St
     public Long currentConversationId(long userId) {
         final Select stmt;
         stmt = SQLs.query()
-                .select(SpringAiChatMemory_.conversationId)
+                .select(StockChatMemory_.conversationId)
                 .from(StockChatConversation_.T, AS, "sc")
-                .join(SpringAiChatMemory_.T, AS, "t").on(SpringAiChatMemory_.conversationId.equal(StockChatConversation_.id))
+                .join(StockChatMemory_.T, AS, "t").on(StockChatMemory_.conversationId.equal(StockChatConversation_.id))
                 .where(StockChatConversation_.userId.equal(userId))
-                .orderBy(SpringAiChatMemory_.id.desc())
+                .orderBy(StockChatMemory_.id.desc())
                 .limit(1)
                 .asQuery();
         return this.sessionContext.currentSession()
@@ -61,14 +61,14 @@ public class StockChatConversationDaoImpl extends ArmyStockBaseDao implements St
     public List<Map<String, Object>> conversationMessageList(long userId, long conversationId) {
         final Select stmt;
         stmt = SQLs.query()
-                .select(SpringAiChatMemory_.content.as("text"), SpringAiChatMemory_.type.as("messageType"))
-                .comma(SpringAiChatMemory_.createTime)
+                .select(StockChatMemory_.content.as("text"), StockChatMemory_.type.as("messageType"))
+                .comma(StockChatMemory_.createTime)
                 .from(StockChatConversation_.T, AS, "sc")
-                .join(SpringAiChatMemory_.T, AS, "t").on(SpringAiChatMemory_.conversationId.equal(StockChatConversation_.id))
-                .where(SpringAiChatMemory_.conversationId.equal(conversationId))
+                .join(StockChatMemory_.T, AS, "t").on(StockChatMemory_.conversationId.equal(StockChatConversation_.id))
+                .where(StockChatMemory_.conversationId.equal(conversationId))
                 .and(StockChatConversation_.userId.equal(userId))
-                .and(SpringAiChatMemory_.type.in(SQLs::rowLiteral, List.of(MessageType.USER, MessageType.ASSISTANT)))
-                .orderBy(SpringAiChatMemory_.id)
+                .and(StockChatMemory_.type.in(SQLs::rowLiteral, List.of(MessageType.USER, MessageType.ASSISTANT)))
+                .orderBy(StockChatMemory_.id)
                 .asQuery();
         return this.sessionContext.currentSession()
                 .queryObjectList(stmt, RowMaps.hashMapConstructor(3));
@@ -98,9 +98,9 @@ public class StockChatConversationDaoImpl extends ArmyStockBaseDao implements St
                         .returning(StockChatConversation_.id)
                         .asReturningDelete()
                 ).space()
-                .deleteFrom(SpringAiChatMemory_.T, AS, "t")
+                .deleteFrom(StockChatMemory_.T, AS, "t")
                 .using(w1)
-                .where(SpringAiChatMemory_.conversationId.equal(refField(w1, StockChatConversation_.ID)))
+                .where(StockChatMemory_.conversationId.equal(refField(w1, StockChatConversation_.ID)))
                 .asDelete();
         return this.sessionContext.currentSession().update(stmt);
     }

@@ -2,12 +2,12 @@ package io.army.example.stock.config;
 
 import io.army.criteria.LiteralMode;
 import io.army.criteria.NullMode;
+import io.army.example.stock.domain.StockChatMemory_;
+import io.army.example.stock.domain.StockChatVectorStore_;
+import io.army.example.stock.domain.StockDocumentVectorStore_;
 import io.army.session.SyncSessionContext;
 import io.army.spring.ai.chat.memory.ArmyMessageChatMemory;
-import io.army.spring.ai.chat.memory.SpringAiChatMemory_;
 import io.army.spring.ai.vectorstore.ArmyVectorStore;
-import io.army.spring.ai.vectorstore.SpringAiChatVectorStore_;
-import io.army.spring.ai.vectorstore.SpringAiDocumentVectorStore_;
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -33,7 +33,7 @@ public class ChatModelConfiguration {
 
     @Bean
     public ChatMemory stockChatMemory(SyncSessionContext sessionContext) {
-        return ArmyMessageChatMemory.builder(sessionContext, SpringAiChatMemory_.T)
+        return ArmyMessageChatMemory.builder(sessionContext, StockChatMemory_.T)
                 .nullMode(NullMode.DEFAULT)
                 .literalMode(LiteralMode.LITERAL)
                 .maxMessages(20)
@@ -43,13 +43,13 @@ public class ChatModelConfiguration {
 
     @Bean
     public VectorStore stockChatVectorStore(EmbeddingModel embeddingModel, SyncSessionContext context) {
-        return ArmyVectorStore.builder(embeddingModel, context, SpringAiChatVectorStore_.T)
+        return ArmyVectorStore.builder(embeddingModel, context, StockChatVectorStore_.T)
                 .build();
     }
 
     @Bean
     public VectorStore stockDocumentVectorStore(EmbeddingModel embeddingModel, SyncSessionContext context) {
-        return ArmyVectorStore.builder(embeddingModel, context, SpringAiDocumentVectorStore_.T)
+        return ArmyVectorStore.builder(embeddingModel, context, StockDocumentVectorStore_.T)
                 .build();
     }
 
