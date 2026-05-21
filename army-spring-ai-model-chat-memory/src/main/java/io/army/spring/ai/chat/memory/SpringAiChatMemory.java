@@ -17,7 +17,6 @@
 package io.army.spring.ai.chat.memory;
 
 import io.army.annotation.*;
-import io.army.generator.snowflake.Snowflake8s;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
@@ -58,10 +57,6 @@ public abstract class SpringAiChatMemory {
 
     @Column(name = "${DEFAULT}", notNull = true, precision = 10, comment = "${DEFAULT}")
     private MessageType type;
-
-    /// {@link org.springframework.ai.chat.messages.Message} batch no, use {@link Snowflake8s}
-    @Column(name = "${DEFAULT}", notNull = true, defaultValue = "${DEFAULT}", precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
-    private Long batchNo;
 
     public Long getId() {
         return id;
@@ -117,12 +112,4 @@ public abstract class SpringAiChatMemory {
         return this;
     }
 
-    public Long getBatchNo() {
-        return batchNo;
-    }
-
-    public SpringAiChatMemory setBatchNo(Long batchNo) {
-        this.batchNo = batchNo;
-        return this;
-    }
 }

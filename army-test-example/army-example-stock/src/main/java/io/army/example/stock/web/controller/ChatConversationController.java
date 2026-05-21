@@ -12,6 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.WebAsyncTask;
 import org.springframework.web.multipart.MultipartFile;
@@ -112,7 +116,16 @@ public class ChatConversationController {
             return Flux.error(new RuntimeException("userId not match"));
         }
 
-        return this.chatClient.prompt(content)
+        final List<Message> messageList;
+        final int index;
+        if (content.charAt(0) == '/' && (index = content.indexOf(':')) > -1) {
+            final SystemMessage systemMessage;
+            systemMessage = new SystemMessage(content.substring(1, index));
+            messageList = List.of(systemMessage, new UserMessage(content.substring(index + 1)));
+        } else {
+            messageList = List.of(new UserMessage(content));
+        }
+        return this.chatClient.prompt(new Prompt(messageList))
                 .advisors(s -> s.param(ChatMemory.CONVERSATION_ID, Long.toString(conversationId)))
                 .stream()
                 .content();
@@ -122,12 +135,8 @@ public class ChatConversationController {
     @PostMapping("delete/{conversationId}")
     public Map<String, Object> deleteConversation(@CookieValue(value = "AuthToken") long userId,
                                                   @PathVariable("conversationId") long conversationId) {
-        final long rowCount;
-        rowCount = this.stockChatConversationService.deleteConversation(userId, conversationId);
-        if (rowCount > 0) {
-            return DataUtils.ok();
-        }
-        return DataUtils.serverError(400, "无此会话");
+        this.stockChatConversationService.deleteConversation(userId, conversationId);
+        return DataUtils.ok();
     }
 
     @PostMapping("updateTitle/{conversationId}")

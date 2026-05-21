@@ -70,7 +70,7 @@ abstract class Expressions {
         if (operator == SQLs.COLLATE) {
             result = collateExp(left, right);
         } else {
-            result = new DualExpression(left, operator, wrapRight(left, left));
+            result = new DualExpression(left, operator, wrapRight(left, right));
         }
         return result;
     }

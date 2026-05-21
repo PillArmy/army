@@ -19,7 +19,6 @@ package io.army.spring.ai.chat.memory;
 import io.army.codec.JsonCodec;
 import io.army.criteria.*;
 import io.army.criteria.impl.SQLs;
-import io.army.generator.snowflake.Snowflake8s;
 import io.army.meta.FieldMeta;
 import io.army.meta.PrimaryFieldMeta;
 import io.army.meta.SimpleTableMeta;
@@ -163,15 +162,6 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
     private void copyMessageInfo(String conversationId, List<Message> messages, List<T> list) {
         final JsonCodec codec = sessionContext.sessionFactory().jsonCodec();
 
-        final Long batchNo;
-        if (this.tableMeta.tryField("batchNo") == null) {
-            batchNo = null;
-        } else if (this.snowflakeStartTime < 0) {
-            batchNo = Snowflake8s.defaultNext();
-        } else {
-            batchNo = Snowflake8s.next(this.snowflakeStartTime);
-        }
-
         T o;
 
         for (Message message : messages) {
@@ -187,10 +177,6 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
                 o.setSpecializedData(codec.encode(a.getToolCalls()));
             } else if (message instanceof ToolResponseMessage t) {
                 o.setSpecializedData(codec.encode(t.getResponses()));
-            }
-
-            if (batchNo != null) {
-                o.setBatchNo(batchNo);
             }
 
             list.add(o);

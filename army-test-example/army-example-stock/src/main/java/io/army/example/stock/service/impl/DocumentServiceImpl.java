@@ -63,7 +63,7 @@ public class DocumentServiceImpl extends AbstractStockBaseService implements Doc
                 if (fileType == null) {
                     continue;
                 }
-                if (existsByByUnique(VectorizedRecord.class, "fileHash", o.fileHash)) {
+                if (existsByByField(VectorizedRecord.class, "fileHash", o.fileHash)) {
                     continue;
                 }
                 if (fileType.equalsIgnoreCase("pdf")) {

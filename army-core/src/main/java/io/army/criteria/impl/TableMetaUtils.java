@@ -468,7 +468,7 @@ public abstract class TableMetaUtils {
             if (fieldArray.length == 0) {
                 fieldNameArray = index.fieldList();
                 fieldList = new ArrayList<>(fieldNameArray.length);
-                metaList = createIndexColumnList(index.fieldList(), tableMeta, indexName, fieldList, context, fieldMetaMap);
+                metaList = createIndexColumnList(index.fieldList(), tableMeta, i, fieldList, context, fieldMetaMap);
             } else {
                 fieldList = new ArrayList<>(fieldArray.length);
                 metaList = createIndexColumnMetaList(i, fieldArray, tableMeta, fieldList, indexName, context, fieldMetaMap);
@@ -551,7 +551,7 @@ public abstract class TableMetaUtils {
         final String finalIndexName;
         switch (indexName) {
             case DEFAULT_NAME_EXP:
-                finalIndexName = defaultIndexName(tableMeta, index, context);
+                finalIndexName = defaultIndexName(tableMeta, index, indexOfIndex, context);
                 break;
             case DEFAULT_EXP:
             case RUNTIME_EXP:
@@ -573,7 +573,7 @@ public abstract class TableMetaUtils {
                 if (_StringUtils.hasText(configIndexName)) {
                     finalIndexName = configIndexName.trim();
                 } else finalIndexName = switch (indexName) {
-                    case DEFAULT_EXP -> defaultIndexName(tableMeta, index, context);
+                    case DEFAULT_EXP -> defaultIndexName(tableMeta, index, indexOfIndex, context);
                     case RUNTIME_EXP -> throw new MetaException(String.format("%s no config", key));
                     case OPTIONAL_EXP -> null;
                     default -> throw new IllegalStateException("bug");
@@ -638,8 +638,9 @@ public abstract class TableMetaUtils {
         return finalOpclass;
     }
 
-
-    private static String defaultIndexName(final TableMeta<?> tableMeta, final Index index, final MetaContext context) {
+    /// @see #parseIndexName(TableMeta, Class, Index, int, MetaContext)
+    private static String defaultIndexName(final TableMeta<?> tableMeta, final Index index, int indexOfIndex,
+                                           final MetaContext context) {
         final StringBuilder builder = context.tempBuilderAndClear();
         if (index.unique()) {
             builder.append("uni");
@@ -652,21 +653,23 @@ public abstract class TableMetaUtils {
         FieldMeta<?> fieldMeta;
         final IndexField[] fieldArray = index.fields();
         if (fieldArray.length > 0) {
-            for (int i = 0; i < fieldArray.length; i++) {
-                fieldMeta = tableMeta.field(fieldArray[i].name()); // FieldMeta is created before IndexMeta
-                if (i > 0) {
-                    builder.append('_');
+            for (IndexField field : fieldArray) {
+                fieldMeta = tableMeta.tryField(field.name()); // FieldMeta is created before IndexMeta
+                if (fieldMeta == null) {
+                    throw notFoundIndexField(tableMeta, indexOfIndex, field.name());
                 }
-                builder.append(fieldMeta.columnName().toLowerCase(Locale.ROOT));
+                builder.append('_')
+                        .append(fieldMeta.columnName().toLowerCase(Locale.ROOT));
             }
         } else {
             final String[] fieldNameArray = index.fieldList();
-            for (int i = 0; i < fieldNameArray.length; i++) {
-                fieldMeta = tableMeta.field(fieldNameArray[i]); // FieldMeta is created before IndexMeta
-                if (i > 0) {
-                    builder.append('_');
+            for (String filedName : fieldNameArray) {
+                fieldMeta = tableMeta.tryField(filedName); // FieldMeta is created before IndexMeta
+                if (fieldMeta == null) {
+                    throw notFoundIndexField(tableMeta, indexOfIndex, filedName);
                 }
-                builder.append(fieldMeta.columnName().toLowerCase(Locale.ROOT));
+                builder.append('_')
+                        .append(fieldMeta.columnName().toLowerCase(Locale.ROOT));
             }
         }
 
@@ -688,7 +691,7 @@ public abstract class TableMetaUtils {
 
             fieldMeta = fieldMetaMap.get(fieldName);
             if (fieldMeta == null) {
-                throw notFoundIndexField(tableMeta, indexName, fieldName);
+                throw notFoundIndexField(tableMeta, indexOfIndex, fieldName);
             }
             collation = parseIndexColumnProperty(domainClass, field.collation(), indexOfIndex, fieldName, context, "collation");
 
@@ -702,11 +705,11 @@ public abstract class TableMetaUtils {
 
     /// @see #createIndexList(TableMeta, MetaContext, Map)
     private static <T> List<IndexColumnMeta> createIndexColumnList(String[] fieldNameArray, TableMeta<T> tableMeta,
-                                                                   String indexName, List<FieldMeta<T>> fieldList,
+                                                                   int indexOfIndex, List<FieldMeta<T>> fieldList,
                                                                    MetaContext context,
                                                                    Map<String, FieldMeta<T>> fieldMetaMap) {
         if (fieldNameArray.length == 0) {
-            throw noIndexField(tableMeta, indexName);
+            throw noIndexField(tableMeta, indexOfIndex);
         }
         final List<IndexColumnMeta> list = new ArrayList<>(fieldNameArray.length);
 
@@ -714,7 +717,7 @@ public abstract class TableMetaUtils {
         for (String fieldName : fieldNameArray) {
             fieldMeta = fieldMetaMap.get(fieldName);
             if (fieldMeta == null) {
-                throw notFoundIndexField(tableMeta, indexName, fieldName);
+                throw notFoundIndexField(tableMeta, indexOfIndex, fieldName);
             }
             list.add(MinIndexColumnMeta.INSTANCE);
             fieldList.add(fieldMeta);
@@ -988,15 +991,15 @@ public abstract class TableMetaUtils {
     }
 
 
-    private static MetaException notFoundIndexField(TableMeta<?> tableMeta, String indexName, String fieldName) {
+    private static MetaException notFoundIndexField(TableMeta<?> tableMeta, int indexOfIndex, String fieldName) {
         String m = String.format("Not found index field[%s] for domain[%s] index[%s]",
-                fieldName, tableMeta.javaType().getName(), indexName);
+                fieldName, tableMeta.javaType().getName(), indexOfIndex);
         return new MetaException(m);
     }
 
-    private static MetaException noIndexField(TableMeta<?> tableMeta, String indexName) {
+    private static MetaException noIndexField(TableMeta<?> tableMeta, int indexOfIndex) {
         String m = String.format("Not found index field for domain[%s] index[%s]",
-                tableMeta.javaType().getName(), indexName);
+                tableMeta.javaType().getName(), indexOfIndex);
         return new MetaException(m);
     }
 

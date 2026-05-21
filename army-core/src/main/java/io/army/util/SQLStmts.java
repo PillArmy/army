@@ -249,20 +249,23 @@ public abstract class SQLStmts {
     }
 
 
-    public static <T> Select existsByUniqueStmt(TableMeta<T> table, String fieldName, Object fieldValue) {
-        final FieldMeta<T> idField, field;
-        field = table.field(fieldName);
+    public static <T> Select existsByFieldStmt(FieldMeta<T> field, Object fieldValue) {
+        final TableMeta<T> table = field.tableMeta();
+        final Integer rowCount;
+        final FieldMeta<T> idField;
         if (field instanceof PrimaryFieldMeta<T>) {
             idField = field;
+            rowCount = null;
         } else {
             idField = table.id();
+            rowCount = 1;
         }
 
         return SQLs.query()
                 .select(idField)
                 .from(table, AS, "t")
                 .where(field.equal(fieldValue))
-                .limit(1)
+                .ifLimit(rowCount)
                 .asQuery();
     }
 

@@ -11,9 +11,6 @@ spring:
       max-request-size: 1024MB
       file-size-threshold: 10MB
 
-#  devtools:
-#    restart:
-#      open-in-browser: true
 
 nacos:
   username: nacos

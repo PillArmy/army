@@ -16,12 +16,16 @@
 
 package io.army.mapping;
 
+import io.army.annotation.Generator;
+import io.army.annotation.GeneratorType;
 import io.army.annotation.Mapping;
 import io.army.criteria.impl.MetaContext;
 import io.army.criteria.impl.TableMetaUtils;
+import io.army.generator.GeneratorStrategy;
 import io.army.lang.Nullable;
 import io.army.mapping.array.*;
 import io.army.meta.MetaException;
+import io.army.modelgen._MetaBridge;
 import io.army.struct.CodeEnum;
 import io.army.util.ArrayUtils;
 import io.army.util.ReflectionUtils;
@@ -225,7 +229,15 @@ public abstract class _MappingFactory {
 
         if (finalValue == null) {
             final MappingType type;
-            type = getDefaultIfMatch(field.getType());
+            final Generator generator;
+            if (_MetaBridge.ID.equals(field.getName())
+                    && (generator = field.getAnnotation(Generator.class)) != null
+                    && generator.type() == GeneratorType.DEFAULT
+                    && generatorNoConfig(domainClass, field, context)) {
+                type = SqlBigIntType.from(field.getType());
+            } else {
+                type = getDefaultIfMatch(field.getType());
+            }
             if (type == null) {
                 throw new MetaException(String.format("Not found default mapping type for %s.%s"
                         , domainClass.getName(), field.getName()));
@@ -242,6 +254,22 @@ public abstract class _MappingFactory {
             throw new MetaException(m);
         }
         return doMap(mappingClass, field, mapping);
+    }
+
+
+    private static boolean generatorNoConfig(Class<?> domainClass, Field field, MetaContext context) {
+        final String key, configValue;
+        key = context.tempBuilderAndClear()
+                .append(domainClass.getName())
+                .append('.')
+                .append(field.getName())
+                .append('.')
+                .append(GeneratorStrategy.class.getSimpleName())
+                .toString();
+
+        configValue = context.tableMetaProperties().getProperty(key);
+
+        return !_StringUtils.hasText(configValue);
     }
 
 

@@ -86,9 +86,9 @@ public abstract class ArmySyncBaseService<D extends SyncBaseDao> implements Sync
     }
 
     @Override
-    public <T> boolean existsByByUnique(Class<T> domainClass, String fieldName, Object fieldValue) {
+    public <T> boolean existsByByField(Class<T> domainClass, String fieldName, Object fieldValue) {
         return this.transactionTemplate.executeNoNull(true,
-                _ -> getDao().existsByByUnique(domainClass, fieldName, fieldValue)
+                _ -> getDao().existsByByField(domainClass, fieldName, fieldValue)
         );
     }
 

@@ -1,7 +1,5 @@
 package io.army.example.stock.config;
 
-import io.army.criteria.LiteralMode;
-import io.army.criteria.NullMode;
 import io.army.example.stock.domain.StockChatMemory_;
 import io.army.example.stock.domain.StockChatVectorStore_;
 import io.army.example.stock.domain.StockDocumentVectorStore_;
@@ -34,8 +32,6 @@ public class ChatModelConfiguration {
     @Bean
     public ChatMemory stockChatMemory(SyncSessionContext sessionContext) {
         return ArmyMessageChatMemory.builder(sessionContext, StockChatMemory_.T)
-                .nullMode(NullMode.DEFAULT)
-                .literalMode(LiteralMode.LITERAL)
                 .maxMessages(20)
                 .build();
     }

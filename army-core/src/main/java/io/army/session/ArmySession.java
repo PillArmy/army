@@ -399,6 +399,9 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
 
 
     final long getExecutionStartNanoSecond() {
+        if (!this.factory.sqlExecutionCostTime) {
+            return -1L;
+        }
         final SqlLogMode mode;
         if (factory.sqlLogDynamic) {
             mode = factory.env.getOrDefault(ArmyKey.SQL_LOG_MODE);

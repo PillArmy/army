@@ -19,7 +19,6 @@ package io.army.spring.ai.vectorstore;
 import io.army.annotation.Column;
 import io.army.annotation.MappedSuperclass;
 import io.army.annotation.Mapping;
-import io.army.generator.snowflake.Snowflake8s;
 
 
 /// Subclass for long-term memory storage of AI Agent
@@ -39,10 +38,6 @@ public abstract class SpringAiChatVectorStore extends SpringAiVectorStore {
     @Mapping("${DEFAULT}")
     private String conversationId;
 
-    /// {@link org.springframework.ai.chat.messages.Message} batch no, use {@link Snowflake8s}
-    @Column(name = "${DEFAULT}", notNull = true, defaultValue = "${DEFAULT}", precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
-    private Long batchNo;
-
 
     public String getConversationId() {
         return conversationId;
@@ -53,12 +48,4 @@ public abstract class SpringAiChatVectorStore extends SpringAiVectorStore {
         return this;
     }
 
-    public Long getBatchNo() {
-        return batchNo;
-    }
-
-    public SpringAiChatVectorStore setBatchNo(Long batchNo) {
-        this.batchNo = batchNo;
-        return this;
-    }
 }

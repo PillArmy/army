@@ -21,7 +21,6 @@ import io.army.criteria.impl.MySQLs;
 import io.army.criteria.impl.Postgres;
 import io.army.criteria.impl.SQLs;
 import io.army.dialect.Database;
-import io.army.generator.snowflake.Snowflake8s;
 import io.army.mapping.optional.JsonPathType;
 import io.army.meta.*;
 import io.army.pojo.ObjectAccessorFactory;
@@ -33,8 +32,10 @@ import io.army.util._StringUtils;
 import org.jspecify.annotations.Nullable;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.document.DocumentMetadata;
+import org.springframework.ai.embedding.Embedding;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.embedding.EmbeddingOptions;
+import org.springframework.ai.embedding.EmbeddingRequest;
 import org.springframework.ai.observation.conventions.VectorStoreProvider;
 import org.springframework.ai.observation.conventions.VectorStoreSimilarityMetric;
 import org.springframework.ai.vectorstore.AbstractVectorStoreBuilder;
@@ -91,8 +92,6 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
     private final Supplier<T> constructor;
 
-    private final long snowflakeStartTime;
-
     private final FilterExpressionConverter converter;
 
 
@@ -132,7 +131,6 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
         }
 
         this.constructor = ObjectAccessorFactory.pojoConstructor(this.tableMeta.javaType());
-        this.snowflakeStartTime = builder.snowflakeStartTime;
 
         switch (builder.sessionContext.sessionFactory().dialectDatabase()) {
             case PostgreSQL:
@@ -184,11 +182,6 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
                             throw new IllegalArgumentException(m);
                         }
                         ((SpringAiChatVectorStore) o).setConversationId(conversationId.toString());
-                        if (this.snowflakeStartTime > -1) {
-                            ((SpringAiChatVectorStore) o).setBatchNo(Snowflake8s.next(this.snowflakeStartTime));
-                        } else {
-                            ((SpringAiChatVectorStore) o).setBatchNo(Snowflake8s.defaultNext());
-                        }
                     }
 
                     rowList.add(o);
@@ -303,8 +296,13 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
         final double distance = 1 - request.getSimilarityThreshold();
 
-        final float[] embedding;
-        embedding = this.embeddingModel.embed(request.getQuery());
+        final float[] queryEmbedding;
+        queryEmbedding = this.embeddingModel.call(new EmbeddingRequest(List.of(request.getQuery()), embeddingOptions()))
+                .getResults()
+                .stream()
+                .map(Embedding::getOutput)
+                .findFirst()
+                .orElseThrow();
 
         final SQLs.DualOperator operator;
         operator = switch (this.distanceType) {
@@ -321,9 +319,9 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
                 .selects(s -> {
                     s.selection(this.documentId, this.content, this.metadata);
                     if (operator == SQLs.NEG_DOT) {
-                        s.selection(SQLs.LITERAL_1.plus(this.embedding.space(operator, embedding)).as(distanceLabel));
+                        s.selection(SQLs.LITERAL_1.plus(this.embedding.space(operator, queryEmbedding)).as(distanceLabel));
                     } else {
-                        s.selection(this.embedding.space(operator, embedding).as(distanceLabel));
+                        s.selection(this.embedding.space(operator, queryEmbedding).as(distanceLabel));
                     }
                 })
                 .from(this.tableMeta, AS, "t")
@@ -332,9 +330,9 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
                         wb.accept(conversationIdPredicate);
                     }
                     if (operator == SQLs.NEG_DOT) {
-                        wb.accept(SQLs.LITERAL_1.plus(this.embedding.space(operator, embedding)).less(distance));
+                        wb.accept(SQLs.LITERAL_1.plus(this.embedding.space(operator, queryEmbedding)).less(distance));
                     } else {
-                        wb.accept(this.embedding.space(operator, embedding).less(distance));
+                        wb.accept(this.embedding.space(operator, queryEmbedding).less(distance));
                     }
                     if (jsonPath != null) {
                         wb.accept(this.metadata.space(Postgres.AT_AT, SQLs.literal(JsonPathType.INSTANCE, jsonPath)));
@@ -664,7 +662,6 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
         private DistanceType distanceType;
 
-        private long snowflakeStartTime = -1L;
 
         private Builder(EmbeddingModel embeddingModel, SyncSessionContext sessionContext, SimpleTableMeta<T> tableMeta) {
             super(embeddingModel);
@@ -700,11 +697,6 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
         public Builder<T> mode(String mode) {
             this.model = mode;
-            return this;
-        }
-
-        public Builder<T> snowflakeStartTime(long snowflakeStartTime) {
-            this.snowflakeStartTime = snowflakeStartTime;
             return this;
         }
 

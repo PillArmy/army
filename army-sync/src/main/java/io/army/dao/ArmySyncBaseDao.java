@@ -84,18 +84,18 @@ public abstract class ArmySyncBaseDao implements SyncBaseDao {
         final PrimaryFieldMeta<T> idField = tableMeta.id();
 
         final Select stmt;
-        stmt = SQLStmts.existsByUniqueStmt(tableMeta, idField.fieldName(), id);
+        stmt = SQLStmts.existsByFieldStmt(idField, id);
         return session.queryOne(stmt, idField.javaType()) != null;
     }
 
     @Override
-    public <T> boolean existsByByUnique(Class<T> domainClass, String fieldName, Object fieldValue) {
+    public <T> boolean existsByByField(Class<T> domainClass, String fieldName, Object fieldValue) {
         final SyncSession session = this.sessionContext.currentSession();
         final TableMeta<T> tableMeta = session.tableMeta(domainClass);
         final FieldMeta<T> field = tableMeta.field(fieldName);
 
         final Select stmt;
-        stmt = SQLStmts.existsByUniqueStmt(tableMeta, field.fieldName(), fieldValue);
+        stmt = SQLStmts.existsByFieldStmt(field, fieldValue);
         return session.queryOne(stmt, field.javaType()) != null;
     }
 
