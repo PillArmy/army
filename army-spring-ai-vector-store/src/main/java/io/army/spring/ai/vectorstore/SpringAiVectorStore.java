@@ -17,35 +17,20 @@
 package io.army.spring.ai.vectorstore;
 
 import io.army.annotation.*;
-import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
-/// In Army, {@code @Table(name = "${DEFAULT}", comment = "${DEFAULT}")} allowing users to supply configurations at runtime via the property file:
-/// classpath:META-INF/army/TableMeta.properties:
-/// entity_class_name.Table.name=table_name
-/// entity_class_name.Table.comment=table_comment
-///
-/// If you do not specify it, simple entity class name will be used as the table name(table comment) after converting.
-///
-///
-/// {@code @Index(name = "${DEFAULT}", type = "${OPTIONAL}", fields = @IndexField(name = "embedding", opclass = "${DEFAULT}"))}
-/// allowing users to supply configurations at runtime via the property file:
-/// classpath:META-INF/army/TableMeta.properties:
-/// entity_class_name.IndexMeta[0].name=index_name
-/// entity_class_name.IndexMeta[0].type=index_type
-/// entity_class_name.IndexMeta[0].field.field_name.opclass=opclass
-///
-/// ${OPTIONAL} means that If you do not specify it, index will not be created.
-@Table(name = "${DEFAULT}",
-        indexes = {
-                @Index(name = "${DEFAULT}", type = "${OPTIONAL}", fields = @IndexField(name = "embedding", opclass = "${DEFAULT}")),
-                @Index(name = "${DEFAULT}", type = "${OPTIONAL}", unique = true, fieldList = "documentId")
-        },
-        ddlMode = DdlMode.DEFAULT,
-        comment = "${DEFAULT}")
-public class SpringAiVectorStore {
+
+/// This class is base class of below:
+/// - {@link io.army.spring.ai.vectorstore.SpringAiChatVectorStore}
+/// - {@link io.army.spring.ai.vectorstore.SpringAiDocumentVectorStore}
+@MappedSuperclass
+public abstract sealed class SpringAiVectorStore permits SpringAiChatVectorStore, SpringAiDocumentVectorStore {
+
+    SpringAiVectorStore() {
+
+    }
 
     /// In Army, id are of type Object, allowing users to supply configurations at runtime via the property file:
     /// classpath:META-INF/army/TableMeta.properties:
@@ -71,6 +56,7 @@ public class SpringAiVectorStore {
     private Integer version;
 
     @Column(name = "${DEFAULT}", notNull = true, precision = 36, comment = "${DEFAULT}")
+    @Mapping("${DEFAULT}")
     private String documentId;
 
     @Column(name = "${DEFAULT}", comment = "${DEFAULT}")
@@ -140,7 +126,7 @@ public class SpringAiVectorStore {
         return content;
     }
 
-    public SpringAiVectorStore setContent(@Nullable String content) {
+    public SpringAiVectorStore setContent(String content) {
         this.content = content;
         return this;
     }

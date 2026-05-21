@@ -49,13 +49,12 @@ public abstract class TableMetaUtils {
 
 
     public static String columnName(Class<?> domainClass, Column column, Field field, MetaContext context) {
-        final String columnName = column.name(), fieldName = field.getName();
-        final String finalColumnName;
-        switch (columnName) {
+        final String value = column.name(), fieldName = field.getName();
+        final String finalValue;
+        switch (value) {
             case DEFAULT_EXP:
-            case RUNTIME_EXP:
-            case OPTIONAL_EXP: {
-                final String key, configColumnName;
+            case RUNTIME_EXP: {
+                final String key, configValue;
                 key = context.tempBuilderAndClear().append(domainClass.getName())
                         .append('.')
                         .append(fieldName)
@@ -65,33 +64,37 @@ public abstract class TableMetaUtils {
                         .append("name")
                         .toString();
 
-                configColumnName = context.tableMetaProperties().getProperty(key);
-                if (_StringUtils.hasText(configColumnName)) {
-                    finalColumnName = configColumnName.trim();
-                } else switch (columnName) {
+                configValue = context.tableMetaProperties().getProperty(key);
+                if (_StringUtils.hasText(configValue)) {
+                    finalValue = configValue.trim();
+                } else switch (value) {
                     case DEFAULT_EXP: {
-                        finalColumnName = _MetaBridge.camelToLowerCase(fieldName, context.tempBuilderAndClear());
+                        finalValue = _MetaBridge.camelToLowerCase(fieldName, context.tempBuilderAndClear());
                     }
                     break;
                     case RUNTIME_EXP:
                         throw new MetaException(String.format("%s no config", key));
-                    case OPTIONAL_EXP: // see io.army.criteria.impl.TableMetaUtils.createFieldMetaList
                     default:
                         throw new IllegalStateException("bug");
                 }
             }
             break;
+            case OPTIONAL_EXP: {
+                String m = String.format("%s in %s.%s %s.%s is unsupported", value, domainClass.getName(), field.getName(),
+                        "Column", "name");
+                throw new MetaException(m);
+            }
             default: {
-                if (_StringUtils.hasText(columnName)) {
-                    finalColumnName = columnName;
+                if (_StringUtils.hasText(value)) {
+                    finalValue = value;
                 } else {
-                    finalColumnName = _MetaBridge.camelToLowerCase(fieldName, context.tempBuilderAndClear());
+                    finalValue = _MetaBridge.camelToLowerCase(fieldName, context.tempBuilderAndClear());
                 }
             } // default
 
         } // switch
-        context.validateColumnName(domainClass, finalColumnName);
-        return finalColumnName;
+        context.validateColumnName(domainClass, finalValue);
+        return finalValue;
     }
 
 
@@ -414,23 +417,6 @@ public abstract class TableMetaUtils {
                 if (column == null) {
                     continue;
                 }
-                columnName = column.name();
-                if (OPTIONAL_EXP.equals(columnName)) {
-                    key = context.tempBuilderAndClear()
-                            .append(domainClass.getName())
-                            .append('.')
-                            .append(field.getName())
-                            .append('.')
-                            .append("Column")
-                            .append('.')
-                            .append("name")
-                            .toString();
-                    configValue = context.tableMetaProperties().getProperty(key);
-                    if (!_StringUtils.hasText(configValue)) {
-                        continue;
-                    }
-                }
-
                 list.add(TableFieldMeta.createFieldMeta(tableMeta, field, context));
             } // field loop
 
@@ -976,9 +962,9 @@ public abstract class TableMetaUtils {
                 }
             }
             break;
-            default:
-                finalValue = value;
-
+            default: {
+                finalValue = Math.max(value, -1);
+            } // default
         } // switch
         return finalValue;
     }

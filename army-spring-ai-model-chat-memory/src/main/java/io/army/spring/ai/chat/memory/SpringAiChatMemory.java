@@ -46,6 +46,8 @@ public class SpringAiChatMemory {
     /// - {@link io.army.mapping.SqlBigIntType}
     /// - {@link io.army.mapping.StringType}
     /// - {@link io.army.mapping.UUIDType}
+    ///
+    /// @see org.springframework.ai.chat.memory.ChatMemory#CONVERSATION_ID
     @Column(name = "${DEFAULT}", notNull = true, precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
     @Mapping("${DEFAULT}")
     private String conversationId;
@@ -65,7 +67,7 @@ public class SpringAiChatMemory {
     private MessageType type;
 
     /// {@link org.springframework.ai.chat.messages.Message} batch no, use {@link Snowflake8s}
-    @Column(name = "${OPTIONAL}", notNull = true, defaultValue = "${DEFAULT}", precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
+    @Column(name = "${DEFAULT}", notNull = true, defaultValue = "${DEFAULT}", precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
     private Long batchNo;
 
     public Long getId() {

@@ -19,6 +19,7 @@ package io.army.pojo;
 
 import io.army.lang.Nullable;
 import io.army.util.ClassUtils;
+import io.army.util.FuncClassValue;
 import io.army.util._Collections;
 
 import java.lang.invoke.*;
@@ -43,9 +44,9 @@ public abstract class ObjectAccessorFactory {
 
     public static final ObjectAccessor MAP_ACCESSOR = MapWriterAccessor.INSTANCE;
 
-    private static final ClassValue<ObjectAccessor> ACCESSOR_CACHE = new AccessorClassValue();
+    private static final ClassValue<ObjectAccessor> ACCESSOR_CACHE = FuncClassValue.create(ObjectAccessorFactory::createAccessor);
 
-    private static final ClassValue<Supplier<?>> CONSTRUCTOR_CACHE = new ConstructorClassValue();
+    private static final ClassValue<Supplier<?>> CONSTRUCTOR_CACHE = FuncClassValue.create(ObjectAccessorFactory::createPojoConstructor);
 
 
     public static ObjectAccessor forPojo(Class<?> beanClass) {
@@ -288,6 +289,45 @@ public abstract class ObjectAccessorFactory {
         assert index == nameCount;
         return new BeanWriterAccessor(beanClass, nameToIndexMap, classArray, readerArray, writeArray, setterAndGetterMatch);
     }
+
+    private static ObjectAccessor createAccessor(final Class<?> type) {
+        final ObjectAccessor accessor;
+        if (FieldAccessPojo.class.isAssignableFrom(type)) {
+            accessor = createFieldAccessorPair(type);
+        } else {
+            accessor = createMethodAccessors(type);
+        }
+        return accessor;
+    }
+
+    private static <T> Supplier<?> createPojoConstructor(final Class<T> type) {
+        final Constructor<?> constructor;
+        try {
+            constructor = type.getConstructor();
+        } catch (NoSuchMethodException e) {
+            String m = String.format("%s no default Constructor.", type.getName());
+            throw new ObjectAccessException(m, e);
+        }
+
+        try {
+            final MethodHandles.Lookup lookup = MethodHandles.lookup();
+            final MethodHandle mh = lookup.unreflectConstructor(constructor);
+            final CallSite site = LambdaMetafactory.metafactory(
+                    lookup,
+                    "get",
+                    MethodType.methodType(Supplier.class),
+                    MethodType.methodType(Object.class),
+                    mh,
+                    MethodType.methodType(type)
+            );
+
+            return (Supplier<?>) site.getTarget().invokeExact();
+        } catch (Throwable e) {
+            String m = String.format("%s constructor LambdaMetafactory error.", type.getName());
+            throw new ObjectAccessException(m, e);
+        }
+
+    } // createPojoConstructor
 
 
     private static final class BeanWriterAccessor implements ObjectAccessor {
@@ -642,62 +682,6 @@ public abstract class ObjectAccessorFactory {
 
 
     }// MapWriterAccessor
-
-    private static final class AccessorClassValue extends ClassValue<ObjectAccessor> {
-
-        private AccessorClassValue() {
-        }
-
-        @Override
-        protected ObjectAccessor computeValue(Class<?> type) {
-            final ObjectAccessor accessor;
-            if (FieldAccessPojo.class.isAssignableFrom(type)) {
-                accessor = createFieldAccessorPair(type);
-            } else {
-                accessor = createMethodAccessors(type);
-            }
-            return accessor;
-        }
-
-
-    } // AccessorClassValue
-
-    private static final class ConstructorClassValue extends ClassValue<Supplier<?>> {
-
-        private ConstructorClassValue() {
-        }
-
-        @Override
-        protected Supplier<?> computeValue(Class<?> type) {
-            final Constructor<?> constructor;
-            try {
-                constructor = type.getConstructor();
-            } catch (NoSuchMethodException e) {
-                String m = String.format("%s no default Constructor.", type.getName());
-                throw new ObjectAccessException(m, e);
-            }
-
-            try {
-                final MethodHandles.Lookup lookup = MethodHandles.lookup();
-                final MethodHandle mh = lookup.unreflectConstructor(constructor);
-                final CallSite site = LambdaMetafactory.metafactory(
-                        lookup,
-                        "get",
-                        MethodType.methodType(Supplier.class),
-                        MethodType.methodType(Object.class),
-                        mh,
-                        MethodType.methodType(type)
-                );
-
-                return (Supplier<?>) site.getTarget().invokeExact();
-            } catch (Throwable e) {
-                String m = String.format("%s constructor LambdaMetafactory error.", type.getName());
-                throw new ObjectAccessException(m, e);
-            }
-        }
-
-
-    } // ConstructorClassValue
 
 
 }

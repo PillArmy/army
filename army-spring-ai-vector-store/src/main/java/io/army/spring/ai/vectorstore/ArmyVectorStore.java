@@ -29,6 +29,7 @@ import io.army.session.SyncSession;
 import io.army.session.SyncSessionContext;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.document.DocumentMetadata;
 import org.springframework.ai.embedding.EmbeddingModel;
@@ -42,8 +43,10 @@ import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.vectorstore.filter.FilterExpressionConverter;
 import org.springframework.ai.vectorstore.observation.AbstractObservationVectorStore;
 import org.springframework.ai.vectorstore.observation.VectorStoreObservationContext;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -51,6 +54,9 @@ import static io.army.criteria.impl.SQLs.AS;
 
 /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
 public final class ArmyVectorStore<T extends SpringAiVectorStore> extends AbstractObservationVectorStore {
+
+
+    public static final String PRIMARY_KEY = "army_vector_store_id";
 
 
     private final NullMode nullMode;
@@ -69,6 +75,8 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
     private final SimpleTableMeta<T> tableMeta;
 
+    private final boolean chatStore;
+
     private final PrimaryFieldMeta<T> id;
 
     private final FieldMeta<T> content;
@@ -78,6 +86,10 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
     private final FieldMeta<T> embedding;
 
     private final FieldMeta<T> documentId;
+
+    private final FieldMeta<T> conversationId;
+
+    private final FieldMeta<T> onConflictField;
 
     private final Supplier<T> constructor;
 
@@ -98,6 +110,8 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
         this.tableMeta = builder.tableMeta;
 
+        this.chatStore = SpringAiChatVectorStore.class.isAssignableFrom(this.tableMeta.javaType());
+
         this.id = builder.tableMeta.id();
 
         this.content = this.tableMeta.field("content");
@@ -105,7 +119,19 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
         this.embedding = this.tableMeta.field("embedding");
         this.documentId = this.tableMeta.field("documentId");
 
-        this.constructor = constructorFunc(this.tableMeta);
+        if (this.chatStore) {
+            this.conversationId = this.tableMeta.field("conversationId");
+        } else {
+            this.conversationId = null;
+        }
+
+        if (this.documentId.isUniqueField()) {
+            this.onConflictField = this.documentId;
+        } else {
+            this.onConflictField = this.id;
+        }
+
+        this.constructor = ObjectAccessorFactory.pojoConstructor(this.tableMeta.javaType());
 
         switch (builder.sessionContext.sessionFactory().dialectDatabase()) {
             case PostgreSQL:
@@ -126,6 +152,7 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
         final List<float[]> embeddingList;
         embeddingList = this.embeddingModel.embed(documents, embeddingOptions(), this.batchingStrategy);
 
+
         final Function<SyncSession, Void> function;
         function = session -> {
             final Database database = session.dialectDatabase();
@@ -134,6 +161,7 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
             final List<T> rowList = new ArrayList<>(Math.min(documentCount, maxBatchSize));
             T o;
             Document document;
+            Object conversationId;
             for (int offset = 0, batchEnd; offset < documentCount; offset += maxBatchSize) {
                 batchEnd = Math.min(documentCount, offset + maxBatchSize);
 
@@ -147,6 +175,15 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
                             .setContent(document.getText())
                             .setMetadata(document.getMetadata())
                             .setEmbedding(embeddingList.get(i));
+
+                    if (this.chatStore) {
+                        conversationId = document.getMetadata().get("conversationId");
+                        if (conversationId == null) {
+                            String m = String.format("metadata conversationId is required for %s", this.tableMeta);
+                            throw new IllegalArgumentException(m);
+                        }
+                        ((SpringAiChatVectorStore) o).setConversationId(conversationId.toString());
+                    }
 
                     rowList.add(o);
                 } // inner loop
@@ -181,7 +218,7 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
         if (idCount < this.batchDeleteThreshold) {
             stmt = SQLs.singleDelete()
                     .deleteFrom(this.tableMeta, AS, "t")
-                    .where(this.id.in(SQLs::rowParam, idList))
+                    .where(this.documentId.in(SQLs::rowParam, idList))
                     .asDelete();
         } else {
             final List<Map<String, String>> paramList = new ArrayList<>(idCount);
@@ -190,7 +227,7 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
             }
             stmt = SQLs.batchSingleDelete()
                     .deleteFrom(this.tableMeta, AS, "t")
-                    .where(this.id.spaceEqual(SQLs::namedParam))
+                    .where(this.documentId.spaceEqual(SQLs::namedParam))
                     .asDelete()
                     .namedParamList(paramList);
         }
@@ -216,30 +253,47 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
         final String jsonPath;
         jsonPath = this.converter.convertExpression(filterExpression);
 
+        final IPredicate conversationIdPredicate;
+        if (this.chatStore) {
+            conversationIdPredicate = parseFirstLevelConversationIdPredicate(filterExpression);
+        } else {
+            conversationIdPredicate = null;
+        }
+
         final Delete stmt;
         stmt = SQLs.singleDelete()
                 .deleteFrom(this.tableMeta, AS, "t")
-                .where(this.metadata.space(Postgres.AT_AT, SQLs.literal(JsonPathType.INSTANCE, jsonPath)))
+                .where(wb -> {
+                    if (conversationIdPredicate != null) {
+                        wb.accept(conversationIdPredicate);
+                    }
+                    wb.accept(this.metadata.space(Postgres.AT_AT, SQLs.literal(JsonPathType.INSTANCE, jsonPath)));
+                })
                 .asDelete();
 
-        final Function<SyncSession, Void> function;
-        function = session -> {
-            session.update(stmt);
-            return null;
-        };
+        final Consumer<SyncSession> function;
+        function = session -> session.update(stmt);
 
         final String sessionName = getClass().getName() + '.' + "deleteByExp";
-        this.sessionContext.execute(sessionName, false, function);
+        this.sessionContext.executeVoid(sessionName, false, function);
     }
 
     @Override
     public List<Document> doSimilaritySearch(final SearchRequest request) {
         final Filter.Expression expression = request.getFilterExpression();
+
+        final IPredicate conversationIdPredicate;
         final String jsonPath;
         if (expression == null) {
             jsonPath = null;
+            conversationIdPredicate = null;
         } else {
             jsonPath = this.converter.convertExpression(expression);
+            if (this.chatStore) {
+                conversationIdPredicate = parseFirstLevelConversationIdPredicate(expression);
+            } else {
+                conversationIdPredicate = null;
+            }
         }
 
         final double distance = 1 - request.getSimilarityThreshold();
@@ -269,6 +323,9 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
                 })
                 .from(this.tableMeta, AS, "t")
                 .where(wb -> {
+                    if (conversationIdPredicate != null) {
+                        wb.accept(conversationIdPredicate);
+                    }
                     if (operator == SQLs.NEG_DOT) {
                         wb.accept(SQLs.LITERAL_1.plus(this.embedding.space(operator, embedding)).less(distance));
                     } else {
@@ -364,7 +421,7 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
                 .literalMode(this.literalMode)
                 .insertInto(this.tableMeta).as("t")
                 .values(rowList)
-                .onConflict().parens(s -> s.space(this.id))
+                .onConflict().parens(s -> s.space(this.onConflictField))
                 .doUpdate()
                 .set(this.content, Postgres.excluded(this.content))
                 .set(this.metadata, Postgres.excluded(this.metadata))
@@ -394,17 +451,170 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
         return new Builder<>(embeddingModel, sessionContext, tableMeta);
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T extends SpringAiVectorStore> Supplier<T> constructorFunc(SimpleTableMeta<T> tableMeta) {
-        Supplier<T> constructor;
-        if (tableMeta.javaType() == SpringAiVectorStore.class) {
-            final Supplier<SpringAiVectorStore> func = SpringAiVectorStore::new;
-            constructor = (Supplier<T>) func;
-        } else {
-            constructor = ObjectAccessorFactory.pojoConstructor(tableMeta.javaType());
-        }
-        return constructor;
+
+    /// Parse the first-level conversationId value in the expression
+    @Nullable
+    private IPredicate parseFirstLevelConversationIdPredicate(final Filter.Expression expression) {
+
+        final Filter.ExpressionType type = expression.type();
+        return switch (type) {
+            case OR, ISNULL, ISNOTNULL, NOT -> null;
+            case AND -> parsePredicateInAndClause(expression.left(), expression.right());
+            default -> parsePredicate(expression.left(), type, expression.right());
+        };
     }
+
+    @Nullable
+    private IPredicate parsePredicateInAndClause(Filter.Operand left, Filter.Operand right) {
+        if (!(left instanceof Filter.Expression leftExp && right instanceof Filter.Expression rightExp)) {
+            return null;
+        }
+        Filter.ExpressionType type;
+        IPredicate predicate;
+        type = leftExp.type();
+        if (type == Filter.ExpressionType.OR) {
+            return null;
+        }
+        predicate = parsePredicate(leftExp.left(), type, leftExp.right());
+        if (predicate != null) {
+            return predicate;
+        }
+        type = rightExp.type();
+        if (type == Filter.ExpressionType.OR) {
+            return null;
+        }
+        return parsePredicate(rightExp.left(), rightExp.type(), rightExp.right());
+    }
+
+
+    @Nullable
+    private IPredicate parsePredicate(Filter.Operand left, Filter.ExpressionType type, Filter.Operand right) {
+        final IPredicate predicate;
+        final String conversationId;
+        switch (type) {
+            case AND:
+                predicate = parsePredicateInAndClause(left, right);
+                break;
+            case EQ: {
+                conversationId = parseConversationIdFromExpression(left, right);
+                if (StringUtils.hasText(conversationId)) {
+                    predicate = this.conversationId.equal(conversationId);
+                } else {
+                    predicate = null;
+                }
+            }
+            break;
+            case GT: {
+                conversationId = parseConversationIdFromExpression(left, right);
+                if (StringUtils.hasText(conversationId)) {
+                    predicate = this.conversationId.greater(conversationId);
+                } else {
+                    predicate = null;
+                }
+            }
+            break;
+
+            case LT: {
+                conversationId = parseConversationIdFromExpression(left, right);
+                if (StringUtils.hasText(conversationId)) {
+                    predicate = this.conversationId.less(conversationId);
+                } else {
+                    predicate = null;
+                }
+            }
+            break;
+            case NE: {
+                conversationId = parseConversationIdFromExpression(left, right);
+                if (StringUtils.hasText(conversationId)) {
+                    predicate = this.conversationId.notEqual(conversationId);
+                } else {
+                    predicate = null;
+                }
+            }
+            break;
+            case GTE: {
+                conversationId = parseConversationIdFromExpression(left, right);
+                if (StringUtils.hasText(conversationId)) {
+                    predicate = this.conversationId.greaterEqual(conversationId);
+                } else {
+                    predicate = null;
+                }
+            }
+            break;
+            case LTE: {
+                conversationId = parseConversationIdFromExpression(left, right);
+                if (StringUtils.hasText(conversationId)) {
+                    predicate = this.conversationId.lessEqual(conversationId);
+                } else {
+                    predicate = null;
+                }
+            }
+            break;
+            case IN: {
+                final List<String> list;
+                list = parseConversationIdListFromExpression(left, right);
+                if (list.isEmpty()) {
+                    predicate = null;
+                } else {
+                    predicate = this.conversationId.in(SQLs::rowParam, list);
+                }
+            }
+            break;
+            case NIN: {
+                final List<String> list;
+                list = parseConversationIdListFromExpression(left, right);
+                if (list.isEmpty()) {
+                    predicate = null;
+                } else {
+                    predicate = this.conversationId.notIn(SQLs::rowParam, list);
+                }
+            }
+            break;
+            default:
+                predicate = null;
+        }
+        return predicate;
+    }
+
+    @Nullable
+    private static String parseConversationIdFromExpression(Filter.Operand left, Filter.Operand right) {
+        final String conversationId;
+        if (!(left instanceof Filter.Key(String key) && right instanceof Filter.Value(Object value))) {
+            conversationId = null;
+        } else if (key.equals("conversationId") && value instanceof String) {
+            conversationId = (String) value;
+        } else {
+            conversationId = null;
+        }
+        return conversationId;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<String> parseConversationIdListFromExpression(Filter.Operand left, Filter.Operand right) {
+        final List<String> conversationIdList;
+        if (!(left instanceof Filter.Key(String key) && right instanceof Filter.Value(Object value))) {
+            conversationIdList = List.of();
+        } else if (key.equals("conversationId") && value instanceof List<?> list) {
+            boolean match = false;
+            for (Object o : list) {
+                if (o == null || o instanceof String) {
+                    match = true;
+                } else {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                conversationIdList = (List<String>) list;
+            } else {
+                conversationIdList = List.of();
+            }
+        } else {
+            conversationIdList = List.of();
+        }
+        return conversationIdList;
+    }
+
 
     public enum DistanceType {
 

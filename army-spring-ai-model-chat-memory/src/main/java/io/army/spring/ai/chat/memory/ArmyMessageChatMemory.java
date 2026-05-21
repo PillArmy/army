@@ -35,7 +35,6 @@ import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -47,8 +46,6 @@ import static io.army.criteria.impl.SQLs.AS;
 /// Unlike org.springframework.ai.chat.memory.MessageWindowChatMemory, this class does not delete previous messages. in {@link #add(String, List)}.
 public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implements ChatMemory {
 
-    public static final String USER_ID = "chat_memory_user_id";
-
     private final SyncSessionContext sessionContext;
 
     private final int maxMessages;
@@ -58,8 +55,6 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
     private final SimpleTableMeta<T> tableMeta;
 
     private final PrimaryFieldMeta<T> id;
-
-    private final FieldMeta<T> userId;
 
     private final FieldMeta<T> type;
 
@@ -87,7 +82,6 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
         this.literalMode = builder.literalMode;
 
         this.id = this.tableMeta.id();
-        this.userId = this.tableMeta.field("userId");
         this.type = this.tableMeta.field("type");
         this.content = this.tableMeta.field("content");
         this.specializedData = this.tableMeta.field("specializedData");
@@ -134,7 +128,7 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
 
         final Select stmt;
         stmt = SQLs.query()
-                .select(this.userId, this.content)
+                .select(this.content)
                 .comma(this.type, this.specializedData)
                 .from(this.tableMeta, AS, "t")
                 .where(this.conversationId.equal(conversationId))
@@ -211,52 +205,29 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
 
 
     /// {@link io.army.criteria.Selection} order :
-    /// 0. userId
-    /// 1. content
-    /// 2. type
-    /// 3. specializedData
+    /// 0. content
+    /// 1. type
+    /// 2. specializedData
     ///
     public static Function<CurrentRecord, Message> messageReadFunc(final JsonCodec codec) {
         return record -> {
-            final String content, userId;
-            userId = record.get(0, String.class);
-            content = record.getNonNull(1, String.class);
+            final String content;
+            content = record.getNonNull(0, String.class);
 
-            final boolean userIdHasText = _StringUtils.hasText(userId);
 
             final Message message;
-            switch (record.getNonNull(2, MessageType.class)) {
-                case USER: {
-                    if (userIdHasText) {
-                        message = UserMessage.builder()
-                                .metadata(Map.of(USER_ID, userId))
-                                .text(content)
-                                .build();
-                    } else {
-                        message = new UserMessage(content);
-                    }
-                }
+            switch (record.getNonNull(1, MessageType.class)) {
+                case USER:
+                    message = new UserMessage(content);
                 break;
-                case SYSTEM: {
-                    if (userIdHasText) {
-                        message = SystemMessage.builder()
-                                .metadata(Map.of(USER_ID, userId))
-                                .text(content)
-                                .build();
-                    } else {
-                        message = new SystemMessage(content);
-                    }
-                }
+                case SYSTEM:
+                    message = new SystemMessage(content);
                 break;
                 case ASSISTANT: {
-                    final String specializedData = record.get(3, String.class);
+                    final String specializedData = record.get(2, String.class);
                     final AssistantMessage.Builder builder;
                     builder = AssistantMessage.builder()
                             .content(content);
-
-                    if (userIdHasText) {
-                        builder.properties(Map.of(USER_ID, userId));
-                    }
 
                     List<AssistantMessage.ToolCall> list;
                     if (!_StringUtils.hasText(specializedData)) {
@@ -270,13 +241,9 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
                 }
                 break;
                 case TOOL: {
-                    final String specializedData = record.get(3, String.class);
+                    final String specializedData = record.get(2, String.class);
                     final ToolResponseMessage.Builder builder;
                     builder = ToolResponseMessage.builder();
-
-                    if (userIdHasText) {
-                        builder.metadata(Map.of(USER_ID, userId));
-                    }
 
                     List<ToolResponseMessage.ToolResponse> list;
 

@@ -15,6 +15,7 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
 import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -36,7 +37,7 @@ public class DocumentServiceImpl extends AbstractStockBaseService implements Doc
     private final VectorStore vectorStore;
 
     public DocumentServiceImpl(TransactionTemplate transactionTemplate, UploadRecordDao uploadRecordDao,
-                               VectorStore vectorStore) {
+                               @Qualifier("stockDocumentVectorStore") VectorStore vectorStore) {
         super(transactionTemplate);
         this.uploadRecordDao = uploadRecordDao;
         this.vectorStore = vectorStore;

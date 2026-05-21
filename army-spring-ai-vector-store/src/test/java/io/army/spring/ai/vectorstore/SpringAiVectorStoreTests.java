@@ -18,7 +18,7 @@ public class SpringAiVectorStoreTests {
     public void fieldColumnName() {
         final StringBuilder tempBuilder = new StringBuilder(20);
         final StringBuilder logBuilder = new StringBuilder(1024);
-        for (FieldMeta<SpringAiVectorStore> field : SpringAiVectorStore_.T.fieldList()) {
+        for (FieldMeta<SpringAiDocumentVectorStore> field : SpringAiDocumentVectorStore_.T.fieldList()) {
             logBuilder.append(field.fieldName())
                     .append(_Constant.SPACE)
                     .append(':')
@@ -34,7 +34,7 @@ public class SpringAiVectorStoreTests {
     @Test
     public void metadataFieldMeta() {
         final MappingType type;
-        type = SpringAiVectorStore_.metadata.mappingType();
+        type = SpringAiDocumentVectorStore_.metadata.mappingType();
         if (type instanceof DualGenericsMapping t) {
             Assert.assertEquals(t.firstGenericsType(), String.class);
             Assert.assertEquals(t.secondGenericsType(), Object.class);

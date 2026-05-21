@@ -23,15 +23,16 @@ import io.army.modelgen._MetaBridge;
 import java.util.List;
 
 /// this interface representing a Java class then tableMeta column mapping.
+///
 /// @param <T> representing Domain Java Type
-public interface FieldMeta<T> extends TypedTableField<T>,DatabaseObject.FieldObject {
+public interface FieldMeta<T> extends TypedTableField<T>, DatabaseObject.FieldObject {
 
 
-    boolean primary();
+    boolean isPrimaryField();
 
-    boolean unique();
+    boolean isUniqueField();
 
-    boolean index();
+    boolean isIndexField();
 
 
     ///

@@ -237,18 +237,42 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
     }
 
     @Override
-    public final boolean primary() {
-        return _MetaBridge.ID.equals(this.fieldName);
+    public final boolean isPrimaryField() {
+        return this.table.primaryField == this;
     }
 
     @Override
-    public final boolean unique() {
-        return this instanceof UniqueFieldMeta;
+    public final boolean isUniqueField() {
+        List<FieldMeta<T>> fieldList;
+        boolean match = false;
+        for (IndexMeta<T> index : this.table.indexList()) {
+            if (!index.isUnique()) {
+                continue;
+            }
+            fieldList = index.fieldList();
+            if (fieldList.size() != 1) {
+                continue;
+            }
+            if (fieldList.getFirst() == this) {
+                match = true;
+                break;
+            }
+        }
+        return match;
     }
 
     @Override
-    public final boolean index() {
-        return this instanceof IndexFieldMeta;
+    public final boolean isIndexField() {
+        List<FieldMeta<T>> fieldList;
+        boolean match = false;
+        for (IndexMeta<T> index : this.table.indexList()) {
+            fieldList = index.fieldList();
+            if (fieldList.getFirst() == this) {
+                match = true;
+                break;
+            }
+        }
+        return match;
     }
 
     @Override
