@@ -46,7 +46,7 @@ public abstract class TableMetaUtils {
 
     public static final String OPTIONAL_EXP = "${OPTIONAL}";
 
-    public static final String DEFAULT_NAME_EXP = "${DEFAULT_NAME}";
+    public static final String DEFAULT_VALUE_EXP = "${DEFAULT_VALUE}";
 
 
     public static String columnName(Class<?> domainClass, Column column, Field field, MetaContext context) {
@@ -550,7 +550,7 @@ public abstract class TableMetaUtils {
         final String indexName = index.name();
         final String finalIndexName;
         switch (indexName) {
-            case DEFAULT_NAME_EXP:
+            case DEFAULT_VALUE_EXP:
                 finalIndexName = defaultIndexName(tableMeta, index, indexOfIndex, context);
                 break;
             case DEFAULT_EXP:

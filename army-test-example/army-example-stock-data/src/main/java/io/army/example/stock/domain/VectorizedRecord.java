@@ -4,7 +4,7 @@ import io.army.annotation.*;
 import io.army.generator.snowflake.Snowflake8Generator;
 
 @Table(name = "vectorized_record", indexes = {
-        @Index(name = "${DEFAULT_NAME}", unique = true, fieldList = {"fileHash"})
+        @Index(name = "${DEFAULT_VALUE}", unique = true, fieldList = {"fileHash"})
 },
         immutable = true,
         comment = "文件已向量化的记录")

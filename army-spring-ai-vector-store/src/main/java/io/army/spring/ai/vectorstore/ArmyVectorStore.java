@@ -120,6 +120,9 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
         if (this.chatStore) {
             this.conversationId = this.tableMeta.field("conversationId");
+            if (!this.conversationId.isIndexField()) {
+                throw new IllegalArgumentException(String.format("%s must be an index field", this.conversationId));
+            }
         } else {
             this.conversationId = null;
         }
@@ -703,7 +706,6 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
         @Override
         public VectorStore build() {
-
             if (this.distanceType == null) {
                 this.distanceType = findDistanceType();
             }

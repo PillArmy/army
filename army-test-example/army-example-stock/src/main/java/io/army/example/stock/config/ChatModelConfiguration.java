@@ -69,6 +69,7 @@ public class ChatModelConfiguration {
                 VectorStoreChatMemoryAdvisor.builder(vectorStore).build()
         );
         return builder.defaultAdvisors(advisorList)
+                //.defaultTools(Tools.INSTANCE)
                 .build();
     }
 

@@ -6,7 +6,7 @@ import io.army.spring.ai.chat.memory.SpringAiChatMemory;
 
 @Table(name = "stock_chat_memory",
         indexes = {
-                @Index(name = "${DEFAULT_NAME}", fieldList = {"conversationId"})
+                @Index(name = "${DEFAULT_VALUE}", fieldList = {"conversationId"})
         },
         immutable = true,
         comment = "股票聊天短期记忆")

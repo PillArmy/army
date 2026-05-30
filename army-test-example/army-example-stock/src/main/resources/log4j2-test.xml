@@ -22,7 +22,7 @@
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingFile"/>
         </Logger>
-        <Logger name="com.alibaba.nacos" level="ERROR" additivity="false">
+        <Logger name="org.springframework.web.reactive.function.client" level="DEBUG" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingFile"/>
         </Logger>

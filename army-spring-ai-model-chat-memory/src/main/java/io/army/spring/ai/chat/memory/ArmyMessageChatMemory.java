@@ -34,6 +34,7 @@ import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -44,6 +45,8 @@ import static io.army.criteria.impl.SQLs.AS;
 
 /// Unlike org.springframework.ai.chat.memory.MessageWindowChatMemory, this class does not delete previous messages. in {@link #add(String, List)}.
 public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implements ChatMemory {
+
+    public static final String PRIMARY_ID = "chat_memory_primary_id";
 
     private final SyncSessionContext sessionContext;
 
@@ -128,7 +131,7 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
         final Select stmt;
         stmt = SQLs.query()
                 .select(this.content)
-                .comma(this.type, this.specializedData)
+                .comma(this.type, this.specializedData, this.id)
                 .from(this.tableMeta, AS, "t")
                 .where(this.conversationId.equal(conversationId))
                 .orderBy(this.id.desc())
@@ -136,10 +139,18 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
                 .asQuery();
 
         final Function<SyncSession, List<Message>> callBack;
-        callBack = session -> session.queryRecordList(stmt, this.rowFunc);
+        callBack = session -> {
+            final List<Message> list;
+            list = session.queryRecordList(stmt, this.rowFunc);
+            if (list.size() == this.maxMessages) {
+                deleteExpiredMessages(session, conversationId, list.getLast());
+            }
+            return list;
+        };
         final String sessionName = getClass().getName() + '.' + "get";
-        return this.sessionContext.executeNotNull(sessionName, true, callBack);
+        return this.sessionContext.executeNotNull(sessionName, false, callBack);
     }
+
 
     @Override
     public void clear(String conversationId) {
@@ -184,6 +195,23 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
 
     }
 
+    private void deleteExpiredMessages(SyncSession session, String conversationId, Message message) {
+        final Object id = message.getMetadata().get(PRIMARY_ID);
+        if (id == null) {
+            return;
+        }
+
+        final Delete stmt;
+        stmt = SQLs.singleDelete()
+                .deleteFrom(this.tableMeta, AS, "t")
+                .where(this.conversationId.equal(conversationId))
+                .and(this.id.less(id))
+                .asDelete();
+
+        session.update(stmt);
+
+    }
+
 
     public static <T extends SpringAiChatMemory> Builder<T> builder(SyncSessionContext sessionContext, SimpleTableMeta<T> tableMeta) {
         return new Builder<>(sessionContext, tableMeta);
@@ -200,20 +228,29 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
             final String content;
             content = record.getNonNull(0, String.class);
 
+            final String id = record.getNonNull(3, String.class);
+
 
             final Message message;
             switch (record.getNonNull(1, MessageType.class)) {
                 case USER:
-                    message = new UserMessage(content);
-                break;
+                    message = UserMessage.builder()
+                            .metadata(Map.of(PRIMARY_ID, id))
+                            .text(content)
+                            .build();
+                    break;
                 case SYSTEM:
-                    message = new SystemMessage(content);
-                break;
+                    message = SystemMessage.builder()
+                            .text(content)
+                            .metadata(Map.of(PRIMARY_ID, id))
+                            .build();
+                    break;
                 case ASSISTANT: {
                     final String specializedData = record.get(2, String.class);
                     final AssistantMessage.Builder builder;
                     builder = AssistantMessage.builder()
-                            .content(content);
+                            .content(content)
+                            .properties(Map.of(PRIMARY_ID, id));
 
                     List<AssistantMessage.ToolCall> list;
                     if (!_StringUtils.hasText(specializedData)) {
@@ -229,7 +266,9 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
                 case TOOL: {
                     final String specializedData = record.get(2, String.class);
                     final ToolResponseMessage.Builder builder;
-                    builder = ToolResponseMessage.builder();
+                    builder = ToolResponseMessage
+                            .builder()
+                            .metadata(Map.of(PRIMARY_ID, id));
 
                     List<ToolResponseMessage.ToolResponse> list;
 
@@ -250,7 +289,6 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> implement
             return message;
         };
     }
-
 
 
     private static void assertConversationId(String conversationId) {

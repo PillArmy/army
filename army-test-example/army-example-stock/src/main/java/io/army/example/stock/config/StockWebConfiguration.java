@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.time.Duration;
 
 @Configuration
-public class SockWebConfiguration implements WebMvcConfigurer {
+public class StockWebConfiguration implements WebMvcConfigurer {
 
 
     @Override

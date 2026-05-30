@@ -16,6 +16,7 @@ nacos:
   username: nacos
   password: NvoZD0jomivo
 
+
 #logging:
 #  level:
 #    com.alibaba.nacos: DEBUG

@@ -9,8 +9,8 @@ import java.util.List;
 
 @Table(name = "upload_record",
         indexes = {
-                @Index(name = "${DEFAULT_NAME}", fieldList = "userId"),
-                @Index(name = "${DEFAULT_NAME}", fieldList = "fileHash")
+                @Index(name = "${DEFAULT_VALUE}", fieldList = "userId"),
+                @Index(name = "${DEFAULT_VALUE}", fieldList = "fileHash")
         },
         comment = "用户上传文档记录")
 public class UploadRecord extends BaseDomain<UploadRecord> {

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public final class DefaultMetaContext implements MetaContext {
+final class DefaultMetaContext implements MetaContext {
 
     private Map<SchemaMeta, Map<String, Class<?>>> tableNameValidMap;
 
