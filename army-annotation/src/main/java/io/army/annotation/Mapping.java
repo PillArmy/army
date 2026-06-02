@@ -75,10 +75,29 @@ public @interface Mapping {
     /// or for collection types to specify element type parameters.
     String[] params() default {};
 
-    /// (Optional) A **custom database function name** for type conversion.
+    /// (Optional) A **Java method reference** for constructing or creating instances
+    /// of the mapped Java type.
     ///
-    /// When specified, the framework uses this function in SQL expressions
-    /// instead of the default type casting.
+    /// The format follows the `"ClassName::methodName"` convention:
+    /// - `"com.example.YourClass::new"` — references the constructor
+    ///   (resolved via `_ArmyPgRangeType#loadConstructor(Class, String, int, Class)`).
+    /// - `"com.example.YourClass::forName"` — references a public static
+    ///   factory method (resolved via
+    ///   `_ArmyPgRangeType#loadFactoryMethod(Class, String, int, Class)`).
+    ///
+    /// This is consumed by `MappingType` factory methods such as:
+    /// - `PgSingleRangeType#fromMethod(Class, String, String)`
+    /// - `PgMultiRangeType#fromMethod(Class, String, String)`
+    /// - `PostgreSingleRangeArrayType#fromMethod(Class, String, String)`
+    /// - `PostgreMultiRangeArrayType#fromMethod(Class, String, String)`
+    /// which pass it to
+    /// `PgRangeType#createRangeFunction(Class, Class, String)`
+    /// to build a `RangeFunction` for range value conversion.
+    ///
+    /// For non-range types, the framework dispatches via
+    /// `_MappingFactory#doMap(Class, Field, Mapping)` — which reflectively
+    /// invokes the appropriate factory method (`from`, `fromMethod`,
+    /// `forText`, `forElements`, etc.) based on the `MappingType` subclass.
     String func() default "";
 
     /// (Optional) The **character set name** for text-based binary mappings.
@@ -94,10 +113,11 @@ public @interface Mapping {
     /// ```
     String charset() default "";
 
-    /// (Optional) The **element type(s)** for collection/array mapping types.
+    /// (Optional) The **element type(s)** for collection mapping types.
     ///
     /// Required when `value()` is an `ElementMappingType` implementation (e.g., MySQL `SET` type).
     /// Specifies the Java class of each collection element.
+    /// Not needed for array types — the component type is obtained via reflection.
     ///
     /// ### Example
     /// ```java

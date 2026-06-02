@@ -426,7 +426,7 @@ public class UploadRecord { }
 ----
 
 TIP: Use `++${DEFAULT_VALUE}++` as the index name to let the framework auto-generate `+uni_{table}_{col}+` or `+idx_{table}_{col}+`.
-Use `++${DEFAULT}++` only when you want to override the generated name via `TableMeta.properties`.
+Use `++${DEFAULT}++` only when you want to override the generated name via `META-INF/army/TableMeta.properties`.
 For most cases, `++${DEFAULT_VALUE}++` is the right choice.
 
 === @Column — Column Mapping
@@ -495,7 +495,7 @@ Overridden for reserved fields: `createTime`/`updateTime`/`version`/`visible` ar
 Overridden: `id`/`createTime`/discriminator are **never** updatable; `updateTime`/`version`/`visible` are **always** updatable; fields on `immutable` tables are never updatable.
 * `precision` (optional, default `-1`) — Total digit count or length.
 Defaults by type (see table above).
-Use `Column.DEFAULT_EXP` (`-8150`) to resolve from `TableMeta.properties`.
+Use `Column.DEFAULT_EXP` (`-8150`) to resolve from `META-INF/army/TableMeta.properties`.
 * `scale` (optional, default `-1`) — Fractional digit count.
 Defaults by type (see table above).
 Use `Column.DEFAULT_EXP` to resolve from properties.
@@ -568,7 +568,7 @@ public LocalDateTime createTime;
 `@Generator` controls **how a field's value is produced** — before INSERT (application-side, like Snowflake ID) or after INSERT (database auto-increment). `@GeneratorType` is the enum that tells the framework *when* to generate.
 
 At runtime, `++TableFieldMeta++`'s constructor reads `@Generator` and `@GeneratorType` to create `++GeneratorMeta++` instances.
-If the type is `RUNTIME` or `DEFAULT`, it calls `++FieldMetaUtils.loadGeneratorStrategy++` to look up `GeneratorStrategy` from `TableMeta.properties`.
+If the type is `RUNTIME` or `DEFAULT`, it calls `++FieldMetaUtils.loadGeneratorStrategy++` to look up `GeneratorStrategy` from `META-INF/army/TableMeta.properties`.
 
 ==== Generator Types
 
@@ -577,7 +577,7 @@ If the type is `RUNTIME` or `DEFAULT`, it calls `++FieldMetaUtils.loadGeneratorS
 | Type | When to Use
 | `PRECEDE` (default) | Application generates the value **before** INSERT. Use for Snowflake IDs, UUIDs, or custom ID generation. The value from your generator is written into the `INSERT` statement.
 | `POST` | Database **auto-increment** column. No code runs — the DB assigns the value during INSERT, and Army reads it back afterward. **Only supported on the `id` field**, and the Java type must be `int`, `long`, `Integer`, `Long`, `String`, or `BigInteger`.
-| `RUNTIME` | Defer the decision to `TableMeta.properties`. Army reads the key `{className}.{fieldName}.Generator.type` and loads a `GeneratorStrategy`. Property value format: `POST`, `PRECEDE`, or `DEFAULT`.
+| `RUNTIME` | Defer the decision to `META-INF/army/TableMeta.properties`. Army reads the key `{className}.{fieldName}.Generator.type` and loads a `GeneratorStrategy`. Property value format: `POST`, `PRECEDE`, or `DEFAULT`.
 | `DEFAULT` | Let the framework decide. For child tables in an `@Inheritance` hierarchy, defaults to `POST`; otherwise, behaves like `PRECEDE`.
 |===
 
@@ -691,10 +691,14 @@ You only need `@Mapping` when:
 * `value` (optional) — Fully-qualified class name of the `MappingType` implementation.
 * `type` (optional) — `Class` reference of the `MappingType`. **Takes precedence over `value`**.
 * `params` (optional) — Extra parameters for the mapping type, e.g., the enum type name for PostgreSQL `ENUM`.
-* `func` (optional) — Custom database function name for type conversion.
+* `func` (optional) — Java method reference for constructing/creating instances of the mapped type.
+Format: `"ClassName::new"` (constructor) or `"ClassName::methodName"` (static factory).
+Consumed by `PgSingleRangeType.fromMethod`, `PgMultiRangeType.fromMethod`, and their array variants via `PgRangeType.createRangeFunction`.
+Resolved by `_ArmyPgRangeType.loadConstructor` / `loadFactoryMethod`.
 * `charset` (optional) — Character set name. **Required** when `value` is a `TextMappingType` representing binary data (e.g., `InputStream`, `Path`).
-* `elements` (optional) — Element type(s) for collection/array mappings.
+* `elements` (optional) — Element type(s) for collection mappings.
 Required for `ElementMappingType` implementations like MySQL `SET`.
+Not needed for array types — the component type is obtained via reflection.
 
 ==== Examples from stock-data
 
@@ -738,7 +742,7 @@ Supports `++${DEFAULT}++`, `++${RUNTIME}++`, `++${OPTIONAL}++` placeholders.
 |===
 | Placeholder | Generated Name
 | `++${DEFAULT_VALUE}++` | `+uni_{table}_{col1}_{col2}+` (unique) or `+idx_{table}_{col1}_{col2}+` (non-unique)
-| `++${DEFAULT}++` | Same as above, but consults `TableMeta.properties` first; falls back to `DEFAULT_VALUE` behavior
+| `++${DEFAULT}++` | Same as above, but consults `META-INF/army/TableMeta.properties` first; falls back to `DEFAULT_VALUE` behavior
 | Literal string | Used as-is
 |===
 
@@ -927,7 +931,7 @@ At runtime, `++TableMetaUtils.tableCreateDdl++` reads `@Table.ddlMode()`:
 | Value | Behavior
 | `CREATE` (default) | Always generate `CREATE TABLE` DDL
 | `NONE` | Never generate DDL. Use for tables managed externally (e.g., by Flyway or Liquibase)
-| `DEFAULT` | Check `TableMeta.properties` key `{className}.Table.ddlMode`; fallback to `CREATE`
+| `DEFAULT` | Check `META-INF/army/TableMeta.properties` key `{className}.Table.ddlMode`; fallback to `CREATE`
 |===
 
 [source,java]
@@ -952,16 +956,16 @@ Army scans **all JARs and directories** on the classpath and merges entries from
 ==== Placeholder Expressions Reference
 
 Many annotation attributes accept placeholder expressions instead of literal values.
-These placeholders are resolved against `TableMeta.properties` at startup.
+These placeholders are resolved against `META-INF/army/TableMeta.properties` at startup.
 They are defined as constants in `++TableMetaUtils++`:
 
 [cols="2,3,5",options="header"]
 |===
 | Placeholder | Constant | Behavior
-| `++${DEFAULT}++` | `TableMetaUtils.DEFAULT_EXP` | Check `TableMeta.properties` first; if not found, use the framework's built-in convention (e.g., camelCase→snake_case for column names)
-| `++${RUNTIME}++` | `TableMetaUtils.RUNTIME_EXP` | **Must** be in `TableMeta.properties`; throws `MetaException` if missing. Use when the value depends on the deployment environment
-| `++${OPTIONAL}++` | `TableMetaUtils.OPTIONAL_EXP` | Check `TableMeta.properties` first; if not found, silently skip the element (used mainly for index types). Not all attributes support `++${OPTIONAL}++`
-| `++${DEFAULT_VALUE}++` | `TableMetaUtils.DEFAULT_VALUE_EXP` | Skip `TableMeta.properties` entirely; always use the convention-based default (e.g., auto-generated index names)
+| `++${DEFAULT}++` | `TableMetaUtils.DEFAULT_EXP` | Check `META-INF/army/TableMeta.properties` first; if not found, use the framework's built-in convention (e.g., camelCase→snake_case for column names)
+| `++${RUNTIME}++` | `TableMetaUtils.RUNTIME_EXP` | **Must** be in `META-INF/army/TableMeta.properties`; throws `MetaException` if missing. Use when the value depends on the deployment environment
+| `++${OPTIONAL}++` | `TableMetaUtils.OPTIONAL_EXP` | Check `META-INF/army/TableMeta.properties` first; if not found, silently skip the element (used mainly for index types). Not all attributes support `++${OPTIONAL}++`
+| `++${DEFAULT_VALUE}++` | `TableMetaUtils.DEFAULT_VALUE_EXP` | Skip `META-INF/army/TableMeta.properties` entirely; always use the convention-based default (e.g., auto-generated index names)
 |===
 
 [IMPORTANT]
@@ -973,7 +977,7 @@ They are defined as constants in `++TableMetaUtils++`:
 ==== What Happens When Not Configured
 
 When you use a placeholder in your annotation, the framework enters a resolution chain.
-Here is the **exact fallback behavior** for every attribute — what happens when the property is **not configured** in `TableMeta.properties`:
+Here is the **exact fallback behavior** for every attribute — what happens when the property is **not configured** in `META-INF/army/TableMeta.properties`:
 
 [cols="2,3,3",options="header"]
 |===
@@ -1264,26 +1268,222 @@ When a domain field has *no* `@Mapping` annotation, Army infers the `MappingType
 
 ==== Enum Type Inference
 
-Enum fields are resolved by the enum kind:
+When a domain field's Java type is an `enum`, Army has three distinct mapping strategies:
 
-- If the enum implements `CodeEnum` → `io.army.mapping.CodeEnumType` (stores the integer code)
-- If the enum extends `TextEnumType` → `io.army.mapping.TextEnumType` (stores the string text)
-- Otherwise → `io.army.mapping.NameEnumType` (stores `Enum.name()`)
+[cols="1,2,3,3",options="header"]
+|===
+| Strategy | Implements/Extends | Stored in DB as | Use Case
+
+| `NameEnumType`
+| (plain `enum`, no marker interface)
+| `VARCHAR` (or PostgreSQL native `ENUM` with `@DefinedType`)
+| Simple enums where `name()` is human-readable enough (e.g., `NORMAL`, `DELISTED`)
+
+| `TextEnumType`
+| `implements TextEnum`
+| `VARCHAR` (or PostgreSQL native `ENUM` with `@DefinedType`)
+| Enum values need a display text different from the Java constant name (e.g., `ZORO` → `"Roronoa Zoro"`)
+
+| `CodeEnumType`
+| `implements CodeEnum`
+| `INTEGER`
+| Fixed, stable integer codes for maximum storage efficiency and ABI compatibility
+|===
+
+===== NameEnumType — Default Enum Strategy
+
+A plain `enum` with no marker interface uses `NameEnumType`.
+The stored value is `Enum.name()`, which is the Java constant identifier.
 
 [source,java]
 ----
-// CodeEnum stores its code value as an integer column
-public enum StockStatus implements CodeEnum {
-    NORMAL(0),
-    DELISTED(1),
-    SUSPENDED(2);
-
-    private final int code;
-    @Override public int code() { return code; }
+public enum StockStatus {
+    NORMAL,     // → stored as "NORMAL"
+    DELISTED,   // → stored as "DELISTED"
+    STOPT,      // → stored as "STOPT"
+    UNKNOWN     // → stored as "UNKNOWN"
 }
 
-@Column(notNull = true, defaultValue = "'NORMAL'")
-public StockStatus status;  // → CodeEnumType, mapped to INT column
+@Column(notNull = true, defaultValue = "'NORMAL'", comment = "股票在市场状态")
+public StockStatus status;
+
+// Default inference: StockStatus → NameEnumType → VARCHAR column
+----
+
+Under the hood, `NameEnumType.beforeBind()` calls `((Enum<?>) source).name()`, and `afterGet()` calls `Enum.valueOf(enumClass, string)`.
+The mapping to SQL types is dialect-dependent:
+
+- **MySQL**: native `ENUM('NORMAL','DELISTED','STOPT','UNKNOWN')`
+- **PostgreSQL**: `VARCHAR` by default; becomes a native `CREATE TYPE ... AS ENUM` if the enum class is annotated with `@DefinedType`
+- **H2**: native `ENUM`
+- **SQLite**: `VARCHAR`
+
+TIP: A plain enum mapped via `NameEnumType` is safe for adding new constants at the end of the list, but *renaming* or *reordering* existing constants will break existing data (the stored string won't match).
+
+===== TextEnumType — Text-Based Enum with Custom Label
+
+`NameEnumType` stores `Enum.name()` — but `name()` is constrained to valid Java identifiers.
+What if you need the database to store a more descriptive text, like `"Roronoa Zoro"` instead of `"ZORO"`?
+
+That's what `TextEnumType` is for.
+By implementing `io.army.struct.TextEnum`, the enum provides a `text()` method that returns the value to be stored:
+
+[source,java]
+----
+public enum QinArmy implements TextEnum {
+
+    ZORO("Roronoa Zoro"),         // stored as "Roronoa Zoro"
+    ANZAI("Mitsuyoshi Anzai");    // stored as "Mitsuyoshi Anzai"
+
+    private final String text;
+
+    QinArmy(String text) {
+        this.text = text;
+    }
+
+    @Override
+    public String text() {
+        return this.text;
+    }
+}
+
+@Column(comment = "剑士名称")
+public QinArmy swordsman;  // → TextEnumType, stored as VARCHAR
+----
+
+`TextEnumType.beforeBind()` calls `((TextEnum) source).text()` instead of `name()`, and `afterGet()` reads the stored text and looks up the enum instance via an internal `Map<String, TextEnum>` built at initialization time.
+
+TextEnumType vs NameEnumType:
+
+[cols="2,3,3",options="header"]
+|===
+| Aspect | `NameEnumType` | `TextEnumType`
+
+| Stored value source
+| `Enum.name()` (Java constant identifier)
+| `TextEnum.text()` (arbitrary string)
+
+| Rename safety
+| Renaming the Java constant breaks data
+| Renaming the Java constant is safe — only `text()` matters
+
+| Database readability
+| Stored as Java-style identifiers (`NORMAL`)
+| Stored as human-readable text (`"Roronoa Zoro"`)
+
+| Special enum support
+| Handles `Month` and `DayOfWeek` (see SpecialEnums)
+| No special enum handling
+
+| `@DefinedType` support
+| ✓ (PostgreSQL native `ENUM`)
+| ✓ (PostgreSQL native `ENUM`)
+|===
+
+===== CodeEnumType — Integer-Code Enum
+
+When the enum values have stable, semantically-meaningful integer codes, `CodeEnumType` is the best choice.
+It stores only the integer, which is the most storage-efficient option and is immune to refactoring (the code stays unchanged even if the Java constant is renamed).
+
+[source,java]
+----
+public enum BankAccountType implements CodeEnum {
+
+    BANK(0),
+    LENDER(100),
+    BORROWER(200),
+    PARTNER(300),
+    LENDER_BUSINESS(400),
+    BORROWER_BUSINESS(500),
+    GUARANTOR(600);
+
+    private final short code;
+
+    BankAccountType(short code) {
+        this.code = code;
+    }
+
+    @Override
+    public final int code() {
+        return this.code;
+    }
+}
+
+@Column(comment = "账户类型")
+public BankAccountType accountType;  // → CodeEnumType, stored as INT
+----
+
+`CodeEnumType.beforeBind()` returns `((CodeEnum) source).code()` as an `Integer`. `afterGet()` is flexible — it can deserialize from `Integer`, `Long`, `Short`, `Byte`, `BigInteger`, or `String`.
+
+CodeEnumType is mapped to an `INTEGER` column on all dialects.
+It is the most robust strategy for long-lived enums whose semantics are encoded in numbers (e.g., protocol codes, status codes, wire-format constants).
+
+IMPORTANT: Never use consecutive integer codes (`0, 1, 2, 3, ...`) for `CodeEnum`.
+Always leave gaps between codes — use increments of **10** (e.g., `0, 10, 20, 30`) or **100** (e.g., `0, 100, 200, 300`).
+Consecutive values make it impossible to insert a new constant between existing ones without renumbering, which would corrupt existing data.
+With spaced codes, you can always insert a new value — e.g., between `LENDER(100)` and `BORROWER(200)` you can add `LENDER_PREMIUM(150)`.
+
+WARNING: Never implement both `CodeEnum` and `TextEnum` on the same enum class.
+Army will reject it at startup with an `IllegalArgumentException`.
+
+===== PostgreSQL Native ENUM via @DefinedType
+
+Both `NameEnumType` and `TextEnumType` support PostgreSQL native `ENUM` types through the `io.army.struct.DefinedType` annotation.
+When applied to the enum class, Army generates a `CREATE TYPE` DDL and maps the field to the named PostgreSQL enum type instead of `VARCHAR`:
+
+[source,java]
+----
+@DefinedType(name = "stock_status_enum", category = TypeCategory.ENUM)
+public enum StockStatus {
+    NORMAL,
+    DELISTED,
+    STOPT,
+    UNKNOWN
+}
+
+@Column(comment = "股票在市状态")
+public StockStatus status;
+
+// Without @DefinedType → VARCHAR
+// With @DefinedType(name = "stock_status_enum") → PostgreSQL: CREATE TYPE stock_status_enum AS ENUM (...)
+----
+
+This is especially useful when the enum type needs to be shared across multiple tables, or when you want the database to enforce value constraints at the schema level.
+
+===== Special Enums: Month and DayOfWeek
+
+`NameEnumType` has built-in intelligent handling for `java.time.Month` and `java.time.DayOfWeek`.
+These enums are commonly returned as integers by database functions (e.g., `MONTH()`, `DAYOFWEEK()`) and as strings by others (`MONTHNAME()`, `DAYNAME()`).
+
+**Month** — `NameEnumType.afterGet()` accepts:
+
+- `Integer` (1–12) → `Month.of(n)` — covers MySQL `MONTH()` / PostgreSQL `EXTRACT(MONTH FROM ...)`
+- `Long` (1–12) → `Month.of((int) n)`
+- `String` (`"JANUARY"`, `"FEBRUARY"`, ...) → `Month.valueOf(name.toUpperCase())` — covers `MONTHNAME()`
+- `LocalDate`, `YearMonth`, `MonthDay`, `LocalDateTime`, `OffsetDateTime`, `ZonedDateTime` → `Month.from(temporal)`
+
+[source,java]
+----
+// MySQL: SELECT MONTH(create_time) m, MONTHNAME(create_time) mn FROM ...
+// Both m (integer) and mn (string) can be read into a Month field
+@Column
+public Month birthMonth;  // → NameEnumType + Month special handling
+----
+
+**DayOfWeek** — `NameEnumType.afterGet()` accepts:
+
+- `Integer` — on MySQL, `1` maps to `SUNDAY` (MySQL `DAYOFWEEK()` convention); otherwise `DayOfWeek.of(n)`
+- `Long` → same as integer
+- `String` (`"MONDAY"`, `"TUESDAY"`, ...) → `DayOfWeek.valueOf(name.toUpperCase())`
+- `LocalDate`, `LocalDateTime`, `OffsetDateTime`, `ZonedDateTime` → `DayOfWeek.from(temporal)`
+
+[source,java]
+----
+// MySQL: SELECT DAYOFWEEK(create_time) dow, DAYNAME(create_time) dn FROM ...
+// In MySQL, DAYOFWEEK returns 1=Sunday, 2=Monday, ..., 7=Saturday
+// NameEnumType handles this MySQL-specific mapping automatically
+@Column
+public DayOfWeek tradingDay;  // → NameEnumType + DayOfWeek special handling
 ----
 
 === Navigation: stock-data Example
@@ -1313,7 +1513,11 @@ public @interface Mapping {
     /// Extra configuration parameters (e.g., PostgreSQL enum type name).
     String[] params() default {};
 
-    /// Custom database function name for type conversion.
+    /// Java method reference for constructing or creating instances of the mapped type.
+    /// Format: "ClassName::new" (constructor) or "ClassName::methodName" (static factory).
+    /// Consumed by PgSingleRangeType.fromMethod / PgMultiRangeType.fromMethod and array variants
+    /// via PgRangeType.createRangeFunction; resolved by _ArmyPgRangeType.loadConstructor / loadFactoryMethod.
+    /// For non-range types, dispatched via _MappingFactory.doMap.
     String func() default "";
 
     /// Character set for text-based binary mappings (e.g., LongBlobType + InputStream).
@@ -1427,9 +1631,8 @@ For custom element types (enums, composites), use `@Mapping` to specify an array
 
 [source,java]
 ----
-// PostgreSQL ENUM array
-@Mapping("io.army.mapping.array.NameEnumArrayType",
-         elements = Gender.class)
+// PostgreSQL ENUM array — element type inferred from field component type via reflection
+@Mapping("io.army.mapping.array.NameEnumArrayType")
 private Gender[] genders;
 ----
 
@@ -1672,6 +1875,284 @@ final MappingType handleDefinedType(final String typeName, final MappingType def
 
 This design means the `MappingType` hierarchy is database-agnostic — each `MappingType` declares its target `DataType` per-dialect in `map()`, and `TypeMappingHandler` provides the final resolution for custom/composite/array types.
 In most cases, developers interact only with the `@Mapping` annotation; the handler chain operates transparently behind the scenes.
+
+=== Custom MappingType — Extending the Type System
+
+When the built-in mapping types don't fit your domain, Army provides two abstract base classes for creating custom types.
+
+==== Step 1: Choose the Right Base Class
+
+[cols="2,5,3",options="header"]
+|===
+| Scenario | Base Class | Example
+
+| Non-array Java type
+| Extend `io.army.mapping.UserMappingType`
+| A custom `Currency` type mapped to `NUMERIC(10,2)`
+
+| Array Java type
+| Extend `io.army.mapping.UserArrayType`
+| A custom `IntRange[]` type mapped to PostgreSQL `INT4RANGE[]`
+|===
+
+`UserMappingType` extends `AbstractMappingType`, which already provides `beforeBind()` / `afterGet()` defaults (pass-through to `String`).
+`UserArrayType` extends `UserMappingType` and additionally implements `ArrayMappingType`.
+
+==== Step 2: Implement the Corresponding `Sql*` Marker Interface
+
+Every mapping type must declare what *kind* of SQL value it represents by implementing one of `MappingType`'s inner marker interfaces.
+The Army framework uses these markers for validation and type compatibility checks.
+
+Common marker interfaces:
+
+[cols="2,3,4",options="header"]
+|===
+| Category | Interface | When to Use
+
+| Number
+| `MappingType.SqlInteger`
+| Maps to `INT`. Your type handles integer values.
+
+| Number
+| `MappingType.SqlDecimal`
+| Maps to `NUMERIC`. Your type handles decimal values.
+
+| String
+| `MappingType.SqlText`
+| Maps to `TEXT`. Your type handles long unbounded strings.
+
+| String
+| `MappingType.SqlString`
+| Maps to `VARCHAR`. Your type handles short bounded strings.
+
+| Binary
+| `MappingType.SqlBlob`
+| Maps to `BYTEA` / `BLOB`. Your type handles binary data.
+
+| JSON
+| `MappingType.SqlJson`
+| Maps to `JSON`. Your type stores JSON documents.
+
+| Extension
+| `MappingType.SqlVector`
+| Maps to pgvector `VECTOR` type. Combine with `MappingType.SqlExtension` to auto-create the extension.
+
+| Time
+| `MappingType.SqlLocalDateTime`
+| Maps to `TIMESTAMP`. Your type handles date-time values.
+|===
+
+[TIP]
+====
+The full list of marker interfaces is in `io.army.mapping.MappingType`:
+`SqlBoolean`, `SqlInteger`, `SqlFloat`, `SqlDecimal`, `SqlText`, `SqlString`, `SqlBlob`, `SqlBinary`, `SqlBit`, `SqlJson`, `SqlJsonb`, `SqlLocalDate`, `SqlLocalTime`, `SqlLocalDateTime`, `SqlOffsetDateTime`, `SqlDuration`, `SqlVector`, `SqlExtension`, etc.
+
+Pick the one that most closely describes your target SQL type — each has a single unambiguous semantic meaning.
+====
+
+==== Step 3: Follow the Implementation Pattern
+
+All built-in mapping types follow a consistent pattern.
+Your custom type must adhere to it for framework compatibility:
+
+[source,java]
+----
+/// Custom mapping: maps a Java `Currency` record to PostgreSQL `NUMERIC(10,2)`.
+public final class CurrencyType extends UserMappingType
+        implements MappingType.SqlDecimal {
+
+    // 1. Static factory method — required for @Mapping resolution
+    public static CurrencyType from(final Class<?> javaType) {
+        if (javaType != Currency.class) {
+            throw errorJavaType(CurrencyType.class, javaType);
+        }
+        return INSTANCE;
+    }
+
+    public static final CurrencyType INSTANCE = new CurrencyType();
+
+    // 2. Constructor must be non-public (private or package-private)
+    private CurrencyType() {
+    }
+
+    // 3. Declare the Java type this mapping handles
+    @Override
+    public Class<?> javaType() {
+        return Currency.class;
+    }
+
+    // 4. Map to the concrete SQL DataType per database
+    @Override
+    public DataType map(final ServerMeta meta) {
+        switch (meta.serverDatabase()) {
+            case PostgreSQL:  return PgType.NUMERIC;
+            case MySQL:       return MySQLType.DECIMAL;
+            default:          throw mapError(this, meta);
+        }
+    }
+
+    // 5. Serialize Java value → SQL parameter
+    @Override
+    public String beforeBind(DataType dataType, MappingEnv env, Object source) {
+        if (!(source instanceof Currency c)) {
+            throw paramError(this, dataType, source, null);
+        }
+        return c.value().toString();  // e.g., "99.99"
+    }
+
+    // 6. Deserialize database value → Java object
+    @Override
+    public Currency afterGet(DataType dataType, MappingEnv env, Object source) {
+        if (source instanceof Currency c) {
+            return c;
+        }
+        if (source instanceof BigDecimal bd) {
+            return new Currency(bd);
+        }
+        if (source instanceof String s) {
+            return new Currency(new BigDecimal(s));
+        }
+        throw dataAccessError(this, dataType, source, null);
+    }
+
+    // 7. Required: override hashCode/equals for singleton types
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof CurrencyType;
+    }
+}
+----
+
+[IMPORTANT]
+====
+The `from(Class)` static factory method is how `_MappingFactory.doMap` reflectively creates your MappingType.
+Without it, the framework cannot instantiate your type.
+The constructor must be non-public — all built-in types use `private` constructors and expose a singleton `INSTANCE`.
+====
+
+==== Array Type Example
+
+For array types, extend `UserArrayType` and implement `MappingType.SqlArray`:
+
+[source,java]
+----
+/// Custom mapping: maps `Currency[]` to PostgreSQL `NUMERIC[]`.
+public final class CurrencyArrayType extends UserArrayType
+        implements MappingType.SqlArray {
+
+    public static CurrencyArrayType from(final Class<?> javaType) {
+        if (javaType != Currency[].class) {
+            throw errorJavaType(CurrencyArrayType.class, javaType);
+        }
+        return INSTANCE;
+    }
+
+    public static final CurrencyArrayType INSTANCE = new CurrencyArrayType();
+
+    private CurrencyArrayType() {
+    }
+
+    @Override
+    public Class<?> javaType() {
+        return Currency[].class;
+    }
+
+    @Override
+    public Class<?> underlyingJavaType() {
+        return Currency.class;
+    }
+
+    @Override
+    public MappingType elementType() {
+        return CurrencyType.INSTANCE;
+    }
+
+    @Override
+    public DataType map(final ServerMeta meta) {
+        switch (meta.serverDatabase()) {
+            case PostgreSQL:  return PgType.NUMERIC_ARRAY;
+            case MySQL:       throw mapError(this, meta);  // MySQL doesn't support arrays
+            default:          throw mapError(this, meta);
+        }
+    }
+
+    // beforeBind / afterGet omitted for brevity — see built-in array types for reference
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof CurrencyArrayType;
+    }
+}
+----
+
+[TIP]
+====
+For array types, the element type is obtained from the field's component type via reflection — you do NOT need `@Mapping(elements = ...)`.
+The `elements` attribute is only for generic collections (`List<Foo>`, `Set<Bar>`) where type erasure loses the element type.
+====
+
+==== Real-World Reference: VectorType
+
+`io.army.mapping.optional.VectorType` demonstrates the full pattern for extension-backed types:
+
+[source,java]
+----
+public final class VectorType extends _ArmyNoInjectionType
+        implements MappingType.SqlExtension,  // auto-create "CREATE EXTENSION IF NOT EXISTS vector"
+                   MappingType.SqlVector {    // marker for VECTOR type
+
+    public static VectorType from(final Class<?> javaType) {
+        if (javaType != float[].class) {
+            throw errorJavaType(VectorType.class, javaType);
+        }
+        return INSTANCE;
+    }
+
+    public static final VectorType INSTANCE = new VectorType();
+
+    private VectorType() {
+    }
+
+    @Override
+    public DataType map(final ServerMeta meta) {
+        if (meta.serverDatabase() != Database.PostgreSQL) {
+            throw mapError(this, meta);
+        }
+        return PgType.VECTOR;
+    }
+
+    @Override
+    public String extensionName() {
+        return "VECTOR";
+    }
+
+    // beforeBind: float[]{0.1, 0.2} → "[0.1,0.2]"
+    // afterGet:   "[0.1,0.2]" → float[]{0.1, 0.2}
+}
+----
+
+==== Quick Checklist
+
+Before writing your custom type, verify:
+
+- [ ] Non-array type → extends `UserMappingType`; Array type → extends `UserArrayType`
+- [ ] Implements the correct `Sql*` marker interface (e.g., `SqlDecimal`, `SqlVector`)
+- [ ] Provides a `public static ... from(Class)` factory method
+- [ ] Constructor is `private` (or package-private)
+- [ ] Overrides `javaType()`, `map()`, `beforeBind()`, `afterGet()`
+- [ ] Overrides `hashCode()` and `equals(Object)`
+- [ ] (Optional) For array types, also overrides `underlyingJavaType()` and `elementType()`
+- [ ] (Optional) If the type needs a PostgreSQL extension, implements `MappingType.SqlExtension`
 
 === Full Mapping Chain Summary
 
