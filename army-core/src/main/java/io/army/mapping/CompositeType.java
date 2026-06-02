@@ -30,10 +30,7 @@ import io.army.pojo.ObjectAccessor;
 import io.army.pojo.ObjectAccessorFactory;
 import io.army.sqltype.DataType;
 import io.army.struct.DefinedType;
-import io.army.util.AnnotationUtils;
-import io.army.util.ClassUtils;
-import io.army.util.ItemsParser;
-import io.army.util._StringUtils;
+import io.army.util.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -53,12 +50,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
     }
 
 
-    private static final ClassValue<CompositeType> CLASS_VALUE = new ClassValue<>() {
-        @Override
-        protected CompositeType computeValue(Class<?> type) {
-            return new CompositeType(type);
-        }
-    };
+    private static final ClassValue<CompositeType> CLASS_VALUE = FuncClassValue.create(CompositeType::new);
 
 
     private final Class<?> javaType;

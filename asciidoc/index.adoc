@@ -1636,6 +1636,98 @@ For custom element types (enums, composites), use `@Mapping` to specify an array
 private Gender[] genders;
 ----
 
+=== Composite Type (PostgreSQL Row Types)
+
+`io.army.mapping.CompositeType` maps POJOs annotated with `@DefinedType` to PostgreSQL <<https://www.postgresql.org/docs/current/rowtypes.html, composite (row) types>>.
+The POJO's fields (annotated with `@Column`) become the composite type's attributes, serialized as `(val1,val2,...)`.
+
+[IMPORTANT]
+====
+`io.army.struct.DefinedType#fieldOrder()` is *mandatory* because PostgreSQL composite types require a fixed attribute order.
+The parser must know which position each field occupies in the tuple to correctly serialize and deserialize.
+Without it, Army cannot determine the mapping between Java field names and tuple positions.
+
+Additionally:
+
+* `@DefinedType.name()` defines the PostgreSQL composite type name (e.g., `currency_pair`).
+Army uses it for DDL generation and type resolution.
+* The POJO must provide a no-arg constructor or a constructor matching field types for deserialization.
+* `CompositeType` is PostgreSQL-only.
+For arrays of composite types, use `io.army.mapping.array.CompositeArrayType`.
+====
+
+First, define the composite type POJO:
+
+[source,java]
+----
+/// @see io.army.struct.DefinedType
+@DefinedType(name = "currency_pair", fieldOrder = {"code", "rate"})
+public final class CurrencyPair {
+
+    @Column
+    private final String code;
+
+    @Column
+    private final BigDecimal rate;
+
+    public CurrencyPair(String code, BigDecimal rate) {
+        this.code = code;
+        this.rate = rate;
+    }
+
+    public String code() {
+        return this.code;
+    }
+
+    public BigDecimal rate() {
+        return this.rate;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.code, this.rate);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof CurrencyPair o) {
+            match = this.code.equals(o.code) && this.rate.equals(o.rate);
+        } else {
+            match = false;
+        }
+        return match;
+    }
+
+}
+----
+
+Then reference `CompositeType` in the `@Mapping` annotation:
+
+[source,java]
+----
+@Table(name = "exchange_rate")
+public class ExchangeRate {
+
+    @Id
+    @Column
+    @GeneratedValue
+    private Long id;
+
+    @Column
+    @Mapping(io.army.mapping.CompositeType.class)  // or "io.army.mapping.CompositeType"
+    private CurrencyPair pair;
+
+}
+----
+
+Serialization example:
+
+* `beforeBind`: a `CurrencyPair("USD", 7.25)` becomes the literal `('USD',7.25)`
+* `afterGet`: the text `('USD',7.25)` is parsed back to `CurrencyPair("USD", 7.25)`
+
 === Vector Type (pgvector Embeddings)
 
 For AI/ML embedding storage, Army provides `io.army.mapping.optional.VectorType` — a `MappingType` for the PostgreSQL `pgvector` extension's `VECTOR` type.
@@ -1900,8 +1992,24 @@ When the built-in mapping types don't fit your domain, Army provides two abstrac
 
 ==== Step 2: Implement the Corresponding `Sql*` Marker Interface
 
-Every mapping type must declare what *kind* of SQL value it represents by implementing one of `MappingType`'s inner marker interfaces.
+Every mapping type should declare what *kind* of SQL value it represents by implementing one of `MappingType`'s inner marker interfaces.
 The Army framework uses these markers for validation and type compatibility checks.
+
+[NOTE]
+====
+The `map()`, `beforeBind()`, and `afterGet()` methods work regardless of whether you implement a `Sql*` marker — the mapping will execute correctly in basic read/write scenarios.
+
+The problem arises when Army needs to know the *semantic category* of your type.
+For example:
+
+* Generating DDL — Army must decide `INT` vs `VARCHAR` vs `TIMESTAMP` column type.
+Without a marker, it cannot infer the SQL type family.
+* Type compatibility checks — when comparing two columns or assigning a parameter, Army verifies that both sides are in the same type family (e.g., both are `SqlNumber`).
+* Array element inference — when creating an array type automatically, Army uses the marker to determine the element SQL type.
+
+In short: your type *will* work without a marker, but it may fail in DDL generation or type-checking scenarios.
+Implementing the correct `Sql*` interface is strongly recommended.
+====
 
 Common marker interfaces:
 
@@ -1945,7 +2053,14 @@ Common marker interfaces:
 [TIP]
 ====
 The full list of marker interfaces is in `io.army.mapping.MappingType`:
-`SqlBoolean`, `SqlInteger`, `SqlFloat`, `SqlDecimal`, `SqlText`, `SqlString`, `SqlBlob`, `SqlBinary`, `SqlBit`, `SqlJson`, `SqlJsonb`, `SqlLocalDate`, `SqlLocalTime`, `SqlLocalDateTime`, `SqlOffsetDateTime`, `SqlDuration`, `SqlVector`, `SqlExtension`, etc.
+
+* **Boolean** — `SqlBoolean`
+* **Numeric** — `SqlInteger`, `SqlFloat`, `SqlDecimal`
+* **String** — `SqlString`, `SqlText`
+* **Binary** — `SqlBinary`, `SqlBlob`, `SqlBit`
+* **JSON** — `SqlJson`, `SqlJsonb`
+* **Time** — `SqlLocalDate`, `SqlLocalTime`, `SqlLocalDateTime`, `SqlOffsetDateTime`, `SqlDuration`
+* **Extension** — `SqlVector`, `SqlExtension`
 
 Pick the one that most closely describes your target SQL type — each has a single unambiguous semantic meaning.
 ====
@@ -1958,7 +2073,7 @@ Your custom type must adhere to it for framework compatibility:
 [source,java]
 ----
 /// Custom mapping: maps a Java `Currency` record to PostgreSQL `NUMERIC(10,2)`.
-public final class CurrencyType extends UserMappingType
+public final class CurrencyType extends UserMappingType   // io.army.mapping.UserMappingType
         implements MappingType.SqlDecimal {
 
     // 1. Static factory method — required for @Mapping resolution
@@ -1984,35 +2099,43 @@ public final class CurrencyType extends UserMappingType
     // 4. Map to the concrete SQL DataType per database
     @Override
     public DataType map(final ServerMeta meta) {
+        final DataType dataType;
         switch (meta.serverDatabase()) {
-            case PostgreSQL:  return PgType.NUMERIC;
-            case MySQL:       return MySQLType.DECIMAL;
-            default:          throw mapError(this, meta);
+            case PostgreSQL:
+                dataType = PgType.NUMERIC;
+                break;
+            case MySQL:
+                dataType = MySQLType.DECIMAL;
+                break;
+            default:
+                throw mapError(this, meta);
         }
+        return dataType;
     }
 
     // 5. Serialize Java value → SQL parameter
     @Override
-    public String beforeBind(DataType dataType, MappingEnv env, Object source) {
+    public BigDecimal beforeBind(DataType dataType, MappingEnv env, Object source) {
         if (!(source instanceof Currency c)) {
             throw paramError(this, dataType, source, null);
         }
-        return c.value().toString();  // e.g., "99.99"
+        return c.value();
     }
 
     // 6. Deserialize database value → Java object
     @Override
     public Currency afterGet(DataType dataType, MappingEnv env, Object source) {
+        final Currency value;
         if (source instanceof Currency c) {
-            return c;
+            value = c;
+        } else if (source instanceof BigDecimal bd) {
+            value = new Currency(bd);
+        } else if (source instanceof String s) {
+            value = new Currency(new BigDecimal(s));
+        } else {
+            throw dataAccessError(this, dataType, source, null);
         }
-        if (source instanceof BigDecimal bd) {
-            return new Currency(bd);
-        }
-        if (source instanceof String s) {
-            return new Currency(new BigDecimal(s));
-        }
-        throw dataAccessError(this, dataType, source, null);
+        return value;
     }
 
     // 7. Required: override hashCode/equals for singleton types
@@ -2046,51 +2169,99 @@ public final class CurrencyArrayType extends UserArrayType
         implements MappingType.SqlArray {
 
     public static CurrencyArrayType from(final Class<?> javaType) {
-        if (javaType != Currency[].class) {
+        final CurrencyArrayType instance;
+        if (javaType == Currency[].class) {
+            instance = LINEAR;
+        } else if (javaType == Object.class) {
+            instance = UNLIMITED;
+        } else if (!javaType.isArray()) {
+            throw errorJavaType(CurrencyArrayType.class, javaType);
+        } else if (ArrayUtils.underlyingComponent(javaType) == Currency.class) {
+            instance = new CurrencyArrayType(javaType);
+        } else {
             throw errorJavaType(CurrencyArrayType.class, javaType);
         }
-        return INSTANCE;
+        return instance;
     }
 
-    public static final CurrencyArrayType INSTANCE = new CurrencyArrayType();
+    /// Used for default array parsing when the database returns an array
+    /// of unknown dimensions. Typically consumed by {@code io.army.dialect.TypeMappingHandler}
+    /// implementations.
+    public static final CurrencyArrayType UNLIMITED = new CurrencyArrayType(Object.class);
 
-    private CurrencyArrayType() {
+    public static final CurrencyArrayType LINEAR = new CurrencyArrayType(Currency[].class);
+
+    private final Class<?> javaType;
+
+    /// private constructor
+    private CurrencyArrayType(Class<?> javaType) {
+        this.javaType = javaType;
     }
 
     @Override
-    public Class<?> javaType() {
-        return Currency[].class;
+    public final Class<?> javaType() {
+        return this.javaType;
     }
 
     @Override
-    public Class<?> underlyingJavaType() {
+    public final Class<?> underlyingJavaType() {
         return Currency.class;
     }
 
     @Override
-    public MappingType elementType() {
-        return CurrencyType.INSTANCE;
+    public final DataType map(final ServerMeta meta) {
+        final DataType dataType;
+        switch (meta.serverDatabase()) {
+            case PostgreSQL:
+                dataType = PgType.NUMERIC_ARRAY;
+                break;
+            default:
+                throw mapError(this, meta);
+        }
+        return dataType;
     }
 
     @Override
-    public DataType map(final ServerMeta meta) {
-        switch (meta.serverDatabase()) {
-            case PostgreSQL:  return PgType.NUMERIC_ARRAY;
-            case MySQL:       throw mapError(this, meta);  // MySQL doesn't support arrays
-            default:          throw mapError(this, meta);
+    public final MappingType elementType() {
+        final MappingType instance;
+        final Class<?> javaType = this.javaType;
+        if (javaType == Object.class) { // unlimited dimension array
+            instance = this;
+        } else if (javaType == Currency[].class) {
+            instance = CurrencyType.INSTANCE;
+        } else {
+            instance = from(javaType.getComponentType());
         }
+        return instance;
+    }
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        final Class<?> javaType = this.javaType;
+        if (javaType == Object.class) { // unlimited dimension array
+            return this;
+        }
+        return from(ArrayUtils.arrayClassOf(javaType));
     }
 
     // beforeBind / afterGet omitted for brevity — see built-in array types for reference
 
     @Override
     public int hashCode() {
-        return System.identityHashCode(this);
+        return this.javaType.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof CurrencyArrayType;
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof CurrencyArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
     }
 }
 ----
@@ -2100,46 +2271,6 @@ public final class CurrencyArrayType extends UserArrayType
 For array types, the element type is obtained from the field's component type via reflection — you do NOT need `@Mapping(elements = ...)`.
 The `elements` attribute is only for generic collections (`List<Foo>`, `Set<Bar>`) where type erasure loses the element type.
 ====
-
-==== Real-World Reference: VectorType
-
-`io.army.mapping.optional.VectorType` demonstrates the full pattern for extension-backed types:
-
-[source,java]
-----
-public final class VectorType extends _ArmyNoInjectionType
-        implements MappingType.SqlExtension,  // auto-create "CREATE EXTENSION IF NOT EXISTS vector"
-                   MappingType.SqlVector {    // marker for VECTOR type
-
-    public static VectorType from(final Class<?> javaType) {
-        if (javaType != float[].class) {
-            throw errorJavaType(VectorType.class, javaType);
-        }
-        return INSTANCE;
-    }
-
-    public static final VectorType INSTANCE = new VectorType();
-
-    private VectorType() {
-    }
-
-    @Override
-    public DataType map(final ServerMeta meta) {
-        if (meta.serverDatabase() != Database.PostgreSQL) {
-            throw mapError(this, meta);
-        }
-        return PgType.VECTOR;
-    }
-
-    @Override
-    public String extensionName() {
-        return "VECTOR";
-    }
-
-    // beforeBind: float[]{0.1, 0.2} → "[0.1,0.2]"
-    // afterGet:   "[0.1,0.2]" → float[]{0.1, 0.2}
-}
-----
 
 ==== Quick Checklist
 
@@ -2151,7 +2282,7 @@ Before writing your custom type, verify:
 - [ ] Constructor is `private` (or package-private)
 - [ ] Overrides `javaType()`, `map()`, `beforeBind()`, `afterGet()`
 - [ ] Overrides `hashCode()` and `equals(Object)`
-- [ ] (Optional) For array types, also overrides `underlyingJavaType()` and `elementType()`
+- [ ] For array types, also overrides `underlyingJavaType()`, `elementType()`, and `arrayTypeOfThis()`
 - [ ] (Optional) If the type needs a PostgreSQL extension, implements `MappingType.SqlExtension`
 
 === Full Mapping Chain Summary
