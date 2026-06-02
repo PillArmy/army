@@ -266,6 +266,10 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
+    interface SqlVector {
+
+    }
+
     /// This interface representing the type that need to create extension.
     ///
     /// For example: "CREATE EXTENSION IF NOT EXISTS vector" , "CREATE EXTENSION IF NOT EXISTS hstore"

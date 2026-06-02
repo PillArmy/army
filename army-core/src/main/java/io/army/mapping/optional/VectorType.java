@@ -35,7 +35,7 @@ import io.army.util.ArrayUtils;
 ///@see VectorArrayType
 /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
 /// @see <a href="https://github.com/pgvector/pgvector-java">pgvector-java</a>
-public final class VectorType extends _ArmyNoInjectionType implements MappingType.SqlExtension {
+public final class VectorType extends _ArmyNoInjectionType implements MappingType.SqlExtension, MappingType.SqlVector {
 
     public static VectorType from(final Class<?> javaType) {
         if (javaType != float[].class) {

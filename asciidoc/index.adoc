@@ -1,18 +1,2501 @@
-= Army - better way to write SQL in Java,better blocking/reactive orm framework
+= Army — A Better Way to Write SQL in Java, A Better Blocking ORM Framework
 :author: zoro<zoro@qinarmy.io>
 :email: zoro@qinarmy.io
-:revnumber: {version}
+:revnumber: 0.6.8-SNAPSHOT
 :revdate: {docdate}
 :revremark: Snapshot
+:toc: left
+# :toclevels: 4
+:sectnums:
+:icons: font
+:source-highlighter: prettify
+:experimental:
+:prewrap!:
+:toc-title: Contents
+:collapse: true
+:docinfo: shared
+
 ifdef::backend-pdf[]
 :pagenums:
-:toc:
 endif::[]
 
 (C) 2023-2027 The original authors.
 
 NOTE: Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.
 
-toc::[]
+== Preface
 
-include::preface.adoc[]
+=== Introduction
+
+Army is a better Java SQL framework offering the following core capabilities:
+
+* A better way to write SQL in Java
+* A better blocking ORM framework
+* A higher-level database driver
+
+=== Design Philosophy
+
+1. **Don't create a new world — just map the real world.** Respect database standards and dialect differences.
+2. **We need standards, and we need dialects.** That's how the real world works.
+3. **Keep it simple — blocking by default, straightforward and predictable.**
+
+=== Project Conventions
+
+* Interfaces or classes whose names begin with an underscore (`_`) are **private to the Army framework** and should not be directly depended upon in user code.
+
+=== Core Concepts at a Glance
+
+Using Army follows a clear pipeline:
+
+```
+Domain classes (annotated)
+→ Annotation processor generates metamodel classes at compile time
+→ Criteria API builds SQL statements
+→ Dialect parser generates native SQL
+→ Session API executes statements
+→ Executor (StmtExecutor) drives JDBC execution
+```
+
+* **Domain Class** — A POJO annotated with `@Table`, `@Column`, etc., describing the mapping between Java objects and database tables.
+* **Metamodel Class** — A `_`-suffixed class auto-generated at compile time by `ArmyMetaModelDomainProcessor`, providing type-safe field references.
+* **Criteria API** — A Java DSL for building SQL statements (SELECT, INSERT, UPDATE, DELETE).
+* **Session API** — A unified entry point for executing statements and managing transactions.
+* **Dialect Parser** — Translates standard Criteria into native SQL for each database.
+* **Executor** — `io.army.executor.StmtExecutor`, responsible for JDBC statement execution, parameter binding, and result set processing.
+
+== Quick Start
+
+=== Maven Dependency Configuration
+
+==== Core Dependency
+
+[source,xml,subs="specialchars"]
+----
+<dependency>
+    <groupId>io.qinarmy</groupId>
+    <artifactId>army-jdbc</artifactId>
+    <version>0.6.8-SNAPSHOT</version>
+</dependency>
+----
+
+==== Annotation Processor Configuration
+
+Configure the annotation processor in the Maven module that contains your domain classes:
+
+[source,xml,subs="specialchars"]
+----
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <annotationProcessors>io.army.modelgen.ArmyMetaModelDomainProcessor</annotationProcessors>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+----
+
+=== Your First Domain Class
+
+Map a Java class to a database table using annotations:
+
+[source,java]
+----
+@Table(name = "stock",
+       indexes = @Index(name = "uni_stock_exchange_code", fieldList = {"exchange", "code"}, unique = true),
+       comment = "stock")
+public class Stock {
+
+    @Generator(value = "io.army.generator.snowflake.Snowflake8Generator",
+               params = @Param(name = "startTime", value = "1779012232202"))
+    @Column
+    public long id;
+
+    @Column(notNull = true, updatable = false, precision = 5, comment = "exchange code")
+    public String exchange;
+
+    @Column(notNull = true, updatable = false, precision = 15, comment = "stock code")
+    public String code;
+
+    @Column(notNull = true, precision = 130, comment = "company name")
+    public String name;
+
+    @Column(notNull = true, precision = 10, defaultValue = "'NORMAL'", comment = "listing status")
+    public StockStatus status;
+
+    @Column(precision = 10, scale = 2, defaultValue = "0.00", comment = "offer price")
+    public BigDecimal offerPrice;
+
+    @Column(defaultValue = "DATE '1970-01-01'", comment = "listing date")
+    public LocalDate listingDate;
+
+    @Column
+    public LocalDateTime createTime;
+
+    @Column
+    public LocalDateTime updateTime;
+
+    @Column(comment = "version")
+    public int version;
+}
+----
+
+=== Compile-Time Metamodel Generation
+
+`ArmyMetaModelDomainProcessor` automatically processes `@Table`-annotated classes at compile time and generates a static metamodel class `Stock_`:
+
+[source,java]
+----
+@Generated(value = "io.army.modelgen.ArmyMetaModelDomainProcessor",
+        date = "2024-01-02 07:13:54.605524+08:00",
+        comments = "stock")
+public abstract class Stock_ {
+
+    public static final TableMeta<Stock> T;
+
+    static {
+        T =  _TableMetaFactory.getTableMeta(Stock.class);
+    }
+
+    // Field name constants (type-safe references)
+    public static final String NAME = "name";
+    public static final String OFFER_PRICE = "offerPrice";
+    public static final String EXCHANGE = "exchange";
+    public static final String CODE = "code";
+    // ... other fields
+
+    // Field metadata
+    public static final FieldMeta<Stock> name = T.getField(NAME);
+    public static final FieldMeta<Stock> offerPrice = T.getField(OFFER_PRICE);
+    public static final PrimaryFieldMeta<Stock> id = T.id();
+    // ... other field metadata
+}
+----
+
+NOTE: Metamodel classes are the key to building **type-safe** Criteria statements.
+All field references go through metamodel constants, eliminating string-based typos.
+
+=== Creating a SessionFactory
+
+==== Blocking Mode
+
+[source,java]
+----
+public void createSessionFactory() {
+    final Map<String, Object> envMap = new HashMap<>();
+    envMap.put(ArmyKey.DATABASE.name, Database.MySQL);
+    envMap.put(ArmyKey.DIALECT.name, MySQLDialect.MySQL80);
+
+    final DataSource dataSource = createDataSource();
+    sessionFactory = SyncFactoryBuilder.builder()
+            .name("army-test")
+            .packagesToScan(Collections.singletonList("io.army.example.stock.domain"))
+            .datasource(dataSource)
+            .environment(StandardEnvironment.from(envMap))
+            .build();
+}
+----
+
+==== What's Required vs. Optional
+
+*FactoryBuilder* methods come with clear markers in the source code.
+Here's the breakdown:
+
+[cols="1,2,5a",options="header"]
+|===
+| Method | Status | Notes
+
+| `name(String)`
+| **Required**
+| SessionFactory name, must be non-empty.
+
+| `datasource(Object)`
+| **Required**
+| JDBC `DataSource` instance. Can be a `ReadWriteSplittingDataSource` for read/write splitting.
+
+| `packagesToScan(List)`
+| **Required**
+| List of packages where domain classes (annotated with `@Table`) reside.
+
+| `environment(ArmyEnvironment)`
+| **Required**
+| Environment configuration passed via `StandardEnvironment.from(map)`. Must contain at least `DATABASE` and `DIALECT` (see below).
+
+| `classLoader(ClassLoader)`
+| Optional
+| Default: `Thread.currentThread().getContextClassLoader()`
+
+| `loadStaticModel(boolean)`
+| Optional
+| Default `false`. Enable to load static metamodel classes after `TableMeta` creation for extra safety.
+
+| `validateOnStartup(boolean)`
+| Optional
+| Default `false`. Enable for stronger consistency validation at startup.
+
+| `jsonCodec(JsonCodec)` / `xmlCodec(XmlCodec)`
+| Optional
+| Custom JSON/XML codec.
+
+| `fieldGeneratorFactory(FieldGeneratorFactory)`
+| Optional
+| Custom field generator factory.
+
+|===
+
+*ArmyKey* environment entries — only two are truly mandatory, all others have sensible defaults:
+
+[cols="1,1,5a",options="header"]
+|===
+| ArmyKey | Required? | Notes
+
+| `DATABASE`
+| **Yes**
+| `Database.MySQL` / `Database.PostgreSQL` / `Database.SQLite`. No default — framework needs to know which database to operate against.
+
+| `DIALECT`
+| **Yes**
+| `MySQLDialect.MySQL80` / `PostgreDialect.POSTGRE15` / `SQLiteDialect.SQLite34`. No default — must match your database version.
+
+| `ZONE_OFFSET`
+| No
+| Timezone offset. When omitted, the framework uses database defaults.
+
+| `DDL_MODE`
+| No
+| Default: `DdlMode.UPDATE` (create tables if absent, update columns if changed).
+
+| `VISIBLE_MODE`
+| No
+| Default: `AllowMode.NEVER` (disable soft-delete visible field).
+
+| `SQL_LOG_MODE`
+| No
+| Default: `SqlLogMode.OFF`. Set to `SqlLogMode.BEAUTIFY_DEBUG` during development.
+
+| All other keys
+| No
+| Default values are defined in `ArmyKey` / `SyncKey`. See the source for the complete list.
+
+|===
+
+That means the minimal environment setup looks like the example above — just `DATABASE` and `DIALECT`.
+In the test example at `FactoryUtils.java`, extra keys like `SQL_LOG_MODE` and `VISIBLE_MODE` are set for development convenience, but they are not required for production.
+
+TIP: If you forget `DATABASE` or `DIALECT`, the framework throws `IllegalStateException` with a clear message — no silent failures.
+
+=== Your First Insert
+
+[source,java]
+----
+// 1. Build the insert statement
+final Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values(stockList)  // List<Stock> — id & managed fields are auto-generated
+        .asInsert();
+
+// 2. Execute the insert
+try (SyncLocalSession session = sessionFactory.localSession()) {
+    long rows;
+    rows = session.update(stmt);
+    System.out.println("Inserted " + rows + " row(s)");
+}
+----
+
+=== Your First Query
+
+[source,java]
+----
+// 1. Build the query statement
+final Select stmt;
+    stmt = SQLs.query()
+        .select(Stock_.id, Stock_.name, Stock_.offerPrice)
+        .from(Stock_.T, AS, "s")
+        .where(Stock_.name.equal("Tesla"))
+        .asQuery();
+
+// 2. Execute the query
+try (SyncLocalSession session = sessionFactory.localSession()) {
+    Stock stock ;
+    stock = session.queryOne(stmt, Stock.class);
+    System.out.println(stock);
+}
+----
+
+== Domain Model Definition
+
+Domain model definition is the starting point of Army.
+This chapter walks you through how to use annotations to tell the framework: "_this Java class maps to that database table, this field maps to that column, this field needs a Snowflake ID generator..._" — all in plain Java, no XML.
+
+Behind the scenes, Army's `++TableMetaUtils++` and `++FieldMetaUtils++` read these annotations at runtime to build `++TableMeta++` objects, which are the immutable metadata blueprints that drive SQL generation.
+The entry point is `++DefaultTableMeta#getTableMeta(Class, MetaContext)++`, which reads `++@Table++`, walks the class hierarchy, creates `++FieldMeta++` instances via `++TableFieldMeta#createFieldMeta++`, and caches the result — so each domain class is parsed only once.
+
+=== Annotation Overview
+
+Here's a quick reference of all Army annotations.
+Don't worry about memorizing them now — each is explained in detail with real examples below.
+
+[cols="1,3,1",options="header"]
+|===
+| Annotation | Purpose | Target
+| `@Table` | Maps a class to a database table (name, comment, indexes) | Class
+| `@Column` | Maps a field to a database column (name, type, nullability, default) | Field
+| `@Generator` | Specifies how a field's value is generated (e.g., Snowflake ID) | Field
+| `@GeneratorType` | When generation happens: `PRECEDE` / `POST` / `RUNTIME` / `DEFAULT` | Enum
+| `@Param` | A name-value pair passed to a `FieldGenerator` | Annotation member
+| `@FieldParam` | Binds a field name to parameter overrides (inside `@OverrideParams`) | Annotation member
+| `@OverrideParams` | Overrides generator parameters of inherited fields | Class
+| `@Index` | Defines a database index (name, fields, uniqueness, type) | Class (inside `@Table`)
+| `@IndexField` | Per-column index configuration (collation, opclass, sort) | Class (inside `@Index`)
+| `@SortOrder` | Index column sort: `ASC` / `DESC` / `DEFAULT` | Enum
+| `@NullsOrder` | Index column NULL ordering: `NULLS_FIRST` / `NULLS_LAST` / `DEFAULT` | Enum
+| `@Mapping` | Custom Java↔SQL type mapping | Field
+| `@Inheritance` | Marks the root of a single-table inheritance hierarchy | Class
+| `@DiscriminatorValue` | Discriminator enum value for a child class in inheritance | Class
+| `@MappedSuperclass` | Marks a base class whose fields are inherited by subclasses | Class
+| `@DdlMode` | Controls DDL generation: `CREATE` / `NONE` / `DEFAULT` | Enum
+| `@Codec` | Marker for future custom encoding/decoding | Field
+|===
+
+NOTE: Many annotation attributes support **placeholders** (`+${DEFAULT}+`, `+${RUNTIME}+`, `+${OPTIONAL}+`, `+${DEFAULT_VALUE}+`) that are resolved at runtime from the configuration file `META-INF/army/TableMeta.properties` on the classpath.
+See <<TableMeta.properties — Runtime Configuration>> for details.
+
+=== @Table — Table Mapping
+
+`@Table` is placed on a Java class to tell Army: "_this class maps to a database table._" It controls the table name, index definitions, DDL behavior, and more.
+At runtime, `++TableMetaUtils.tableName++` and `++TableMetaUtils.tableComment++` resolve its values; `++TableMetaUtils.schemaMeta++` handles `catalog`/`schema`, and `++TableMetaUtils.tableCreateDdl++` determines whether DDL is generated.
+
+[TIP]
+====
+Both `name` and `comment` are **required** attributes.
+If you omit them (or use empty strings), the framework throws `MetaException` at startup.
+This is intentional — Army refuses to guess silently.
+====
+
+==== Attributes
+
+* `name` (required) — The database table name.
+Must not be in camelCase.
+Supports placeholders: `++${DEFAULT}++` auto-converts the class simple name to snake_case (e.g., `StockQuotes` → `"stock_quotes"`); `++${RUNTIME}++` requires a property entry.
+* `comment` (required) — Table comment for DDL.
+Supports `++${DEFAULT}++` (auto-derive from class simple name) and `++${RUNTIME}++`.
+* `catalog` (optional) — Catalog name, defaults to the database default.
+Property key: `{className}.Table.catalog`.
+* `schema` (optional) — Schema name, defaults to the user's default schema.
+Property key: `{className}.Table.schema`.
+* `indexes` (optional) — Array of `@Index` definitions.
+If no index covers the `id` field, a unique primary key index is **created automatically**.
+* `immutable` (optional, default `false`) — When `true`, all `UPDATE` DML on this table is disallowed.
+Parent tables with `@Inheritance` cannot be marked as immutable — Army detects this at startup and throws `MetaException`.
+* `allColumnNotNull` (optional, default `false`) — When `true`, every column gets `NOT NULL` in DDL.
+Note: reserved fields (`id`, `createTime`, `updateTime`, `version`, `visible`), discriminator fields, and primitive-typed fields are always `NOT NULL` regardless of this setting.
+* `ddlMode` (optional, default `CREATE`) — Controls DDL generation.
+See `@DdlMode`.
+* `tableOptions` (optional) — Raw SQL fragment appended to `CREATE TABLE`, e.g., `"ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"`.
+* `partitionOptions` (optional) — SQL partition clause, e.g., `"PARTITION BY RANGE (YEAR(create_time))"`.
+
+==== Examples from stock-data
+
+[source,java]
+----
+// Stock: table with a unique composite index
+@Table(name = "stock",
+       indexes = @Index(name = "${DEFAULT_VALUE}", unique = true,
+                        fieldList = {"exchange", "code"}), // auto-generates: uni_stock_exchange_code
+       comment = "stock")
+public class Stock { }
+
+// StockQuotes: table with unique index on (stockId, date)
+@Table(name = "stock_quotes",
+       indexes = @Index(name = "${DEFAULT_VALUE}", unique = true,
+                        fieldList = {"stockId", "date"}), // auto-generates: uni_stock_quotes_stockId_date
+       comment = "daily stock quotes")
+public class StockQuotes { }
+
+// UploadRecord: table with multiple non-unique indexes
+@Table(name = "upload_record",
+       indexes = {
+           @Index(name = "${DEFAULT_VALUE}", fieldList = "userId"),
+           @Index(name = "${DEFAULT_VALUE}", fieldList = "fileHash")
+       },
+       comment = "uploaded document record")
+public class UploadRecord { }
+----
+
+TIP: Use `++${DEFAULT_VALUE}++` as the index name to let the framework auto-generate `+uni_{table}_{col}+` or `+idx_{table}_{col}+`.
+Use `++${DEFAULT}++` only when you want to override the generated name via `TableMeta.properties`.
+For most cases, `++${DEFAULT_VALUE}++` is the right choice.
+
+=== @Column — Column Mapping
+
+`@Column` maps a Java field to a database column. **Without `@Column`, a field is just a plain Java field** — not persisted, not included in any SQL, not part of the table schema.
+The framework's `++TableMetaUtils.columnName++` resolves the column name, `++TableMetaUtils.columnPrecision/columnScale++` resolve numeric attributes, and `++FieldMetaUtils.columnComment++` resolves the comment text.
+
+==== Built-in Conventions (Zero-Config)
+
+Army provides smart defaults for many `@Column` attributes — you only need to specify what differs from the convention:
+
+[cols="2,3,3",options="header"]
+|===
+| Attribute | Convention | How It Works
+| `name` (not set) | `camelCase` → `snake_case` | `offerPrice` → `"offer_price"`, `stockId` → `"stock_id"`
+| `comment` (not set) | Auto-generated for reserved fields | `id`→`"primary key"`, `createTime`→`"create time"`, `updateTime`→`"update time"`, `version`→`"version that's update counter of row"`, `visible`→`"visible for soft delete"`
+| `precision` (not set) | By Java type | `String`→`255`, `BigDecimal`→`16`, `Enum`→max label length + 5, `UUID`→`36`, `Vector`→`1024`
+| `scale` (not set) | By Java type | `BigDecimal`→`3`, temporal types (`LocalDateTime`/`OffsetDateTime`/`LocalTime`/`OffsetTime`)→`6` (microsecond precision)
+| `defaultValue` (not set) | By Java type | 数值类型→`"0"`, `String`→`"''"`, `LocalTime`→`"'00:00:00'"`, `LocalDate`→`"'1970-01-01'"`, `LocalDateTime`→`"'1970-01-01 00:00:00'"`
+| `notNull` (not set) | `false` — except for reserved fields | `id`/`createTime`/`updateTime`/`version`/`visible` and discriminator fields are always `NOT NULL`
+| `collation` (not set) | Empty — no collation clause | Set explicitly only when needed, e.g., `"en_US.utf8"`
+|===
+
+[IMPORTANT]
+====
+For business fields (non-reserved), if you don't provide a `comment`, Army throws `MetaException`.
+Reserved fields get automatic comments, but your business columns must be documented.
+====
+
+==== Reserved Fields
+
+Army recognizes five field names as **reserved** — they are auto-managed by the framework and have special behavior:
+
+[cols="1,1,2,2",options="header"]
+|===
+| Field Name | `NOT NULL` | INSERT Behavior | UPDATE Behavior
+| `id` | Always | Value from `@Generator` | **Never updatable**
+| `createTime` | Always | Auto-set to current time | **Never updatable**
+| `updateTime` | Always | Auto-set to current time | **Always updatable**, auto-refreshed on every UPDATE
+| `version` | Always | Auto-set to `0` | **Always updatable**, auto-incremented (optimistic lock)
+| `visible` | Always | Auto-set to `true` | **Always updatable** (soft delete toggle)
+|===
+
+[TIP]
+====
+Reserved fields **never need `notNull`** — Army enforces it automatically.
+Reserved fields (except `id`) **must not have `@Generator`** — Army throws `MetaException` if you try.
+====
+
+==== Attributes
+
+* `name` (optional) — Column name.
+If empty, camelCase→snake_case.
+Supports `++${DEFAULT}++` and `++${RUNTIME}++`.
+Property key: `{className}.{fieldName}.Column.name`.
+* `comment` (optional) — Column comment for DDL.
+Reserved fields auto-generate.
+Enum fields with `++${DEFAULT}++` auto-generate `"enum, @see {EnumClass}"`.
+Business fields without a value throw `MetaException`.
+Supports `++${DEFAULT}++` and `++${RUNTIME}++`.
+* `notNull` (optional, default `false`) — Declares `NOT NULL`.
+Forced `true` when: the field is reserved, a discriminator, primitive-typed, or `Table.allColumnNotNull` is `true`.
+* `insertable` (optional, default `true`) — Whether included in `INSERT`.
+Overridden for reserved fields: `createTime`/`updateTime`/`version`/`visible` are always insertable; fields with `PRECEDE` generators are always insertable; `id` with `POST` generator is insertable only on child tables.
+* `updatable` (optional, default `true`) — Whether included in `UPDATE`.
+Overridden: `id`/`createTime`/discriminator are **never** updatable; `updateTime`/`version`/`visible` are **always** updatable; fields on `immutable` tables are never updatable.
+* `precision` (optional, default `-1`) — Total digit count or length.
+Defaults by type (see table above).
+Use `Column.DEFAULT_EXP` (`-8150`) to resolve from `TableMeta.properties`.
+* `scale` (optional, default `-1`) — Fractional digit count.
+Defaults by type (see table above).
+Use `Column.DEFAULT_EXP` to resolve from properties.
+* `defaultValue` (optional) — SQL expression for column default. **String values must include quotes**: `"'NORMAL'"` → `DEFAULT 'NORMAL'`.
+Date values use SQL syntax: `"DATE '1970-01-01'"`.
+Supports `++${DEFAULT}++` for type-appropriate zero values.
+* `collation` (optional) — Column collation, e.g., `"en_US.utf8"`.
+Property key: `{className}.{fieldName}.Column.collation`.
+
+==== Override via TableMeta.properties
+
+The following `@Column` attributes support placeholder expressions.
+Place the file at `META-INF/army/TableMeta.properties` on the classpath:
+
+.`META-INF/army/TableMeta.properties`
+[source,properties]
+----
+# File: META-INF/army/TableMeta.properties
+
+# Override column name
+# Used when @Column(name = "${DEFAULT}") or @Column(name = "${RUNTIME}")
+com.example.domain.Stock.userName.Column.name=user_name
+
+# Override column comment
+com.example.domain.Stock.status.Column.comment=custom status
+
+# Override column precision (e.g., increase VARCHAR length to 512)
+com.example.domain.Stock.name.Column.precision=512
+
+# Override column scale (e.g., increase decimal places to 4)
+com.example.domain.Stock.offerPrice.Column.scale=4
+
+# Override column default value (SQL expression)
+com.example.domain.Stock.status.Column.defaultValue='ACTIVE'
+
+# Override column collation
+com.example.domain.Stock.name.Column.collation=en_US.utf8
+----
+
+IMPORTANT: Property keys are **case-sensitive**.
+The path component `Column` (with capital C) is a literal keyword — it must appear exactly as shown.
+
+==== Examples from stock-data
+
+[source,java]
+----
+// Simple column: auto name (exchange → exchange), NOT NULL, updatable only on INSERT
+@Column(notNull = true, updatable = false, precision = 5, comment = "exchange code")
+public String exchange;
+
+// Decimal column with precision and scale → DDL: DECIMAL(10, 2)
+@Column(precision = 10, scale = 2, defaultValue = "0.00", comment = "offer price")
+public BigDecimal offerPrice;
+
+// Enum column with a string default → DDL includes: DEFAULT 'NORMAL'
+@Column(notNull = true, precision = 10, defaultValue = "'NORMAL'", comment = "listing status")
+public StockStatus status;
+
+// Date column with SQL default expression
+@Column(defaultValue = "DATE '1970-01-01'", comment = "listing date")
+public LocalDate listingDate;
+
+// Managed field: auto-set by the framework on INSERT, never updatable
+@Column
+public LocalDateTime createTime;
+----
+
+=== @Generator / @GeneratorType — Field Value Generation
+
+`@Generator` controls **how a field's value is produced** — before INSERT (application-side, like Snowflake ID) or after INSERT (database auto-increment). `@GeneratorType` is the enum that tells the framework *when* to generate.
+
+At runtime, `++TableFieldMeta++`'s constructor reads `@Generator` and `@GeneratorType` to create `++GeneratorMeta++` instances.
+If the type is `RUNTIME` or `DEFAULT`, it calls `++FieldMetaUtils.loadGeneratorStrategy++` to look up `GeneratorStrategy` from `TableMeta.properties`.
+
+==== Generator Types
+
+[cols="1,4",options="header"]
+|===
+| Type | When to Use
+| `PRECEDE` (default) | Application generates the value **before** INSERT. Use for Snowflake IDs, UUIDs, or custom ID generation. The value from your generator is written into the `INSERT` statement.
+| `POST` | Database **auto-increment** column. No code runs — the DB assigns the value during INSERT, and Army reads it back afterward. **Only supported on the `id` field**, and the Java type must be `int`, `long`, `Integer`, `Long`, `String`, or `BigInteger`.
+| `RUNTIME` | Defer the decision to `TableMeta.properties`. Army reads the key `{className}.{fieldName}.Generator.type` and loads a `GeneratorStrategy`. Property value format: `POST`, `PRECEDE`, or `DEFAULT`.
+| `DEFAULT` | Let the framework decide. For child tables in an `@Inheritance` hierarchy, defaults to `POST`; otherwise, behaves like `PRECEDE`.
+|===
+
+[IMPORTANT]
+====
+Discriminator fields (the field named in `@Inheritance`) and reserved fields except `id` (`createTime`, `updateTime`, `version`, `visible`) **must not** have `@Generator` — Army throws `MetaException` at startup.
+====
+
+==== Override via TableMeta.properties
+
+When `@Generator(type = GeneratorType.RUNTIME)` is used, the actual generator strategy is loaded from `META-INF/army/TableMeta.properties`.
+Two keys are supported:
+
+.`META-INF/army/TableMeta.properties`
+[source,properties]
+----
+# File: META-INF/army/TableMeta.properties
+
+# Option 1: Switch generator type at runtime (POST, PRECEDE, or DEFAULT)
+com.example.domain.Stock.id.Generator.type=POST
+
+# Option 2: Load a custom GeneratorStrategy (takes precedence over .Generator.type)
+# Format: fully.qualified.StrategyClass[:jsonParams]
+com.example.domain.Stock.id.GeneratorStrategy=io.army.generator.Snowflake8GeneratorStrategy:{"startTime":1779111192831}
+
+# Override SQL type mapping for the id column (optional)
+com.example.domain.Stock.id.Mapping.value=io.army.mapping.SqlBigIntType
+----
+
+IMPORTANT: The `GeneratorStrategy` value contains a colon (`:`) separating the class name from optional JSON parameters.
+The JSON is parsed by the strategy's static `create(String)` factory method.
+
+==== Attributes
+
+* `type` (optional, default `PRECEDE`) — The `GeneratorType` enum value.
+* `value` (optional) — Fully-qualified class name of the `FieldGenerator` implementation. **Required** for `PRECEDE`.
+Ignored for `POST` (since `POST` uses the database, not application code).
+* `params` (optional) — Array of `@Param` name-value pairs passed to the generator at initialization.
+
+==== Examples from stock-data
+
+Each entity uses the **Snowflake-8 generator** with a unique `startTime` to produce non-overlapping ID ranges across tables:
+
+[source,java]
+----
+// Stock entity: startTime=1779012232202
+@Generator(value = "io.army.generator.snowflake.Snowflake8Generator",
+           params = @Param(name = "startTime", value = "1779012232202"))
+@Column
+public long id;
+
+// StockQuotes entity: different startTime for a different ID space
+@Generator(value = "io.army.generator.snowflake.Snowflake8Generator",
+           params = @Param(name = "startTime", value = "1779111192831"))
+@Column
+public long id;
+----
+
+TIP: Each table should use a **different `startTime`** so Snowflake produces non-colliding ID ranges.
+This prevents primary key conflicts when joining data across tables.
+
+=== @Param / @FieldParam / @OverrideParams — Generator Parameters
+
+These three annotations work together to pass and override generator configuration. `++FieldMetaUtils.getOrcreateFieldParmMap++` creates the parameter map; `++FieldMetaUtils.overrideParamMapIfNeed++` applies `@OverrideParams` overrides.
+
+`@Param` — A simple **name-value pair** passed to a generator as `@Generator(params = ...)`.
+The generator parses the string value into its needed type:
+
+[source,java]
+----
+// Snowflake8Generator reads "startTime" as a long
+@Generator(value = "io.army.generator.snowflake.Snowflake8Generator",
+           params = @Param(name = "startTime", value = "1779012232202"))
+@Column
+public long id;
+----
+
+`@FieldParam` — Binds a field name to replacement parameters inside `@OverrideParams`:
+
+[source,java]
+----
+@FieldParam(name = "id", params = @Param(name = "startTime", value = "1600000000000"))
+----
+
+`@OverrideParams` — Class-level annotation for subclasses to change generator parameters of inherited fields **without rewriting the `@Generator` annotation**:
+
+[source,java]
+----
+@OverrideParams(fields = {
+    @FieldParam(name = "id", params = @Param(name = "startTime", value = "1600000000000")),
+    @FieldParam(name = "uid", params = @Param(name = "startTime", value = "1600000000000"))
+})
+public class ChildEntity extends ParentEntity { }
+----
+
+TIP: `@OverrideParams` is the recommended way to give subclasses **different Snowflake ID spaces** without redeclaring `@Generator`.
+
+=== @Mapping — Custom Type Mapping
+
+`@Mapping` overrides Army's default Java↔SQL type inference.
+Armey's `++_MappingFactory++` automatically maps common types (String, Long, BigDecimal, LocalDateTime, etc.) to sensible SQL types.
+You only need `@Mapping` when:
+
+* Storing binary data in a text column with a specific charset
+* Using database-specific types like MySQL `SET` or PostgreSQL `ENUM`
+* Mapping collection types (List, Set) to JSON/JSONB
+* Overriding the framework's type choice (e.g., forcing `CHAR` for a hash)
+
+==== Attributes
+
+* `value` (optional) — Fully-qualified class name of the `MappingType` implementation.
+* `type` (optional) — `Class` reference of the `MappingType`. **Takes precedence over `value`**.
+* `params` (optional) — Extra parameters for the mapping type, e.g., the enum type name for PostgreSQL `ENUM`.
+* `func` (optional) — Custom database function name for type conversion.
+* `charset` (optional) — Character set name. **Required** when `value` is a `TextMappingType` representing binary data (e.g., `InputStream`, `Path`).
+* `elements` (optional) — Element type(s) for collection/array mappings.
+Required for `ElementMappingType` implementations like MySQL `SET`.
+
+==== Examples from stock-data
+
+[source,java]
+----
+// SHA-256 hash → fixed-length CHAR(44) instead of VARCHAR
+@Column(precision = 44, comment = "file hash (SHA-256, standard base64)")
+@Mapping("io.army.mapping.SqlCharType")
+public String fileHash;
+
+// List<Long> → JSONB (PostgreSQL) or JSON (MySQL), defaulting to '[]'
+@Column(notNull = true, defaultValue = "'[]'", comment = "vector ID list")
+@Mapping("io.army.mapping.PreferredJsonbType")
+private List<Long> vectorIdList;
+----
+
+=== @Index — Index Definitions
+
+`@Index` defines a database index within `@Table#indexes`.
+At runtime, `++TableMetaUtils.createIndexList++` reads all `@Index` annotations, resolves index names and types, and builds `IndexMeta` objects.
+If no index covers the `id` field, a unique primary key index is appended automatically.
+
+==== Attributes
+
+* `name` (required) — Index name.
+Supports all placeholders.
+See the naming convention below.
+* `fieldList` (optional) — Simple list of Java field names.
+Each name refers to a field in the domain class and is resolved to its column name at runtime.
+* `fields` (optional) — `@IndexField[]` with per-column settings (collation, opclass, sort order). **Takes precedence over `fieldList`** when both are specified.
+* `unique` (optional, default `false`) — Whether the index enforces uniqueness.
+The primary key index is always unique.
+* `type` (optional) — Index access method.
+Supports `BTREE`, `HASH`, `FULLTEXT`, `SPATIAL` (MySQL); `btree`, `hash`, `gist`, `gin`, `brin`, `hnsw` (PostgreSQL).
+Empty string (default) = database default.
+Supports `++${DEFAULT}++`, `++${RUNTIME}++`, `++${OPTIONAL}++` placeholders.
+
+==== Index Name Convention
+
+[cols="2,4",options="header"]
+|===
+| Placeholder | Generated Name
+| `++${DEFAULT_VALUE}++` | `+uni_{table}_{col1}_{col2}+` (unique) or `+idx_{table}_{col1}_{col2}+` (non-unique)
+| `++${DEFAULT}++` | Same as above, but consults `TableMeta.properties` first; falls back to `DEFAULT_VALUE` behavior
+| Literal string | Used as-is
+|===
+
+==== Examples from stock-data
+
+[source,java]
+----
+// Stock: unique composite index — no duplicate (exchange, code) pairs
+@Table(name = "stock",
+       indexes = @Index(name = "${DEFAULT_VALUE}", unique = true,
+                        fieldList = {"exchange", "code"})) // → uni_stock_exchange_code
+
+// StockQuotes: unique index — one quote record per stock per trading day
+@Table(name = "stock_quotes",
+       indexes = @Index(name = "${DEFAULT_VALUE}", unique = true,
+                        fieldList = {"stockId", "date"})) // → uni_stock_quotes_stockId_date
+
+// UploadRecord: two non-unique indexes for fast lookup
+@Table(name = "upload_record",
+       indexes = {
+           @Index(name = "${DEFAULT_VALUE}", fieldList = "userId"),  // → idx_upload_record_userId
+           @Index(name = "${DEFAULT_VALUE}", fieldList = "fileHash") // → idx_upload_record_fileHash
+       })
+----
+
+==== @IndexField — Per-Column Index Configuration
+
+For scenarios requiring per-column settings (collation, opclass, sort order), use `@IndexField` instead of simple `fieldList`:
+
+[source,java]
+----
+// Standard B-tree index with column collation
+@Index(name = "${DEFAULT_VALUE}", unique = true, type = "btree",
+    fields = {
+        @IndexField(name = "exchange"),
+        @IndexField(name = "code", collation = "en_US.utf8")
+    })
+
+// PostgreSQL HNSW vector index for embedding similarity search
+@Index(name = "${DEFAULT_VALUE}", type = "hnsw",
+    fields = @IndexField(name = "embedding", opclass = "vector_cosine_ops"))
+----
+
+[cols="1,3",options="header"]
+|===
+| Attribute | Description
+| `name` (required) | Java field name of the indexed column
+| `collation` (optional) | Column collation, e.g., `"en_US.utf8"`. PostgreSQL only. Supports `++${DEFAULT}++` and `++${OPTIONAL}++`
+| `opclass` (optional) | Operator class for PostgreSQL, e.g., `"vector_cosine_ops"`, `"jsonb_path_ops"`. Supports `++${DEFAULT}++` and `++${OPTIONAL}++`
+| `order` (optional) | Sort order: `SortOrder.ASC` / `DESC` / `DEFAULT`
+| `nulls` (optional) | NULL ordering: `NullsOrder.NULLS_FIRST` / `NULLS_LAST` / `DEFAULT`
+|===
+
+=== @MappedSuperclass — The Base Domain Pattern
+
+`@MappedSuperclass` marks a class whose `@Column`-annotated fields are **inherited by subclasses**, but which does **not** map to any database table.
+It's purely a field-template mechanism.
+
+At startup, `++TableMetaUtils.mappedClassPair++` walks the class hierarchy upward from the domain class: it collects every superclass with `@MappedSuperclass` or `@Table` (reversing the list so the topmost superclass comes first), then `++createFieldMetaList++` collects all `@Column` fields from each class in order.
+
+Unlike `@Inheritance`, a `@MappedSuperclass` has no discriminator column and cannot be queried directly.
+
+==== The Inheritance Hierarchy
+
+The `army-example-stock-data` module uses a three-level `@MappedSuperclass` chain:
+
+```
+MinBaseDomain<T>           → @Column createTime         (auto-set on INSERT, never updatable)
+  └─ BaseDomain<T>         → + @Column updateTime, version  (auto-set on INSERT/UPDATE; version auto-incremented)
+      └─ StockBaseDomain<T> → + @Column stockId, date        (foreign key + trading date)
+          ├── Stock              → table: stock               (exchange, code, name, status...)
+          ├── StockQuotes        → table: stock_quotes        (open, high, low, volume...)
+          ├── StockCandles       → table: stock_candles       (OHLCV data)
+          └── StockRankDaily     → table: stock_rank_daily    (daily ranking)
+```
+
+Only the concrete classes at the bottom have `@Table`.
+The `@MappedSuperclass` levels above add fields that every concrete entity inherits.
+
+==== Code Example
+
+[source,java]
+----
+// Level 1: Every entity needs a creation timestamp
+@MappedSuperclass
+public abstract class MinBaseDomain<T extends MinBaseDomain<T>> {
+
+    @Column
+    public LocalDateTime createTime;   // Auto-set by the framework on INSERT
+}
+
+// Level 2: Add update tracking and optimistic locking
+@MappedSuperclass
+public abstract class BaseDomain<T extends BaseDomain<T>> extends MinBaseDomain<T> {
+
+    @Column
+    public LocalDateTime updateTime;   // Auto-refreshed on every INSERT / UPDATE
+
+    @Column
+    public int version;                 // Auto-incremented on UPDATE (optimistic lock)
+}
+
+// Level 3: Add fields shared by all stock-related entities
+@MappedSuperclass
+public abstract class StockBaseDomain<T extends StockBaseDomain<T>> extends BaseDomain<T> {
+
+    @Column(notNull = true, updatable = false, comment = "stock id")
+    public Long stockId;
+
+    @Column(notNull = true, updatable = false, comment = "trading date")
+    public LocalDate date;
+}
+
+// Concrete entity: inherits createTime/updateTime/version/stockId/date from the chain
+@Table(name = "stock_quotes", comment = "daily stock quotes",
+       indexes = @Index(name = "${DEFAULT_VALUE}", unique = true,
+                        fieldList = {"stockId", "date"}))
+public class StockQuotes extends StockBaseDomain<StockQuotes> {
+
+    @Generator(value = "io.army.generator.snowflake.Snowflake8Generator",
+               params = @Param(name = "startTime", value = "1779111192831"))
+    @Column
+    public long id;
+
+    @Column(precision = 9, scale = 3, comment = "open price")
+    public BigDecimal open;
+    // ... more fields
+}
+----
+
+==== Key Points
+
+1. A `@MappedSuperclass` never maps to a table — only `@Table` subclasses do.
+2. All `@Column` annotations from every `@MappedSuperclass` in the chain are **inherited** by the concrete subclass.
+3. Fields without `@Column` are **not persisted**.
+4. You can nest `@MappedSuperclass` to build reusable inheritance chains.
+5. For small projects, skip `@MappedSuperclass` and declare all fields directly — it's entirely optional.
+
+=== @Inheritance / @DiscriminatorValue — Single-Table Inheritance
+
+While `@MappedSuperclass` shares field definitions, `@Inheritance` implements the **single-table inheritance** strategy: a parent class and its subclasses all live in one database table, with a discriminator column telling them apart.
+
+At startup, `++TableMetaUtils.discriminator++` locates the field named in `@Inheritance` and verifies it is an `Enum` type. `++TableMetaUtils.discriminatorValue++` reads `@DiscriminatorValue` on each child class and validates it against the enum constants.
+
+[source,java]
+----
+// Parent: the root of the inheritance tree
+@Table(name = "u_user", comment = "User entity")
+@Inheritance("status")  // "status" field acts as the discriminator
+public abstract class User extends BaseDomain<User> {
+
+    @Column(comment = "User status")
+    public UserStatus status;  // Must be an enum implementing CodeEnum
+}
+
+// Child: identified by discriminator value "ADMIN"
+@DiscriminatorValue("ADMIN")
+public class Admin extends User { }
+
+// Child: identified by discriminator value "MEMBER"
+@DiscriminatorValue("MEMBER")
+public class Member extends User { }
+----
+
+The discriminator field must be an `Enum` implementing `io.army.struct.CodeEnum`.
+The framework uses this column to filter rows by entity subtype in queries.
+
+[IMPORTANT]
+====
+Only **one** `@Inheritance` is allowed per class hierarchy.
+If multiple superclasses have `@Inheritance`, Army throws `MetaException`.
+The parent table with `@Inheritance` cannot be marked as `immutable`.
+====
+
+TIP: `@Inheritance` and `@MappedSuperclass` serve different purposes.
+Use `@MappedSuperclass` when you just want to share field definitions.
+Use `@Inheritance` when you want polymorphic queries — storing different entity types in one table and filtering by discriminator.
+
+=== @DdlMode — DDL Generation Control
+
+Controls whether Army generates `CREATE TABLE` DDL during schema initialization.
+At runtime, `++TableMetaUtils.tableCreateDdl++` reads `@Table.ddlMode()`:
+
+[cols="1,4",options="header"]
+|===
+| Value | Behavior
+| `CREATE` (default) | Always generate `CREATE TABLE` DDL
+| `NONE` | Never generate DDL. Use for tables managed externally (e.g., by Flyway or Liquibase)
+| `DEFAULT` | Check `TableMeta.properties` key `{className}.Table.ddlMode`; fallback to `CREATE`
+|===
+
+[source,java]
+----
+// Prevent DDL generation for a legacy table
+@Table(name = "legacy_data", comment = "Legacy data", ddlMode = DdlMode.NONE)
+public class LegacyData { }
+----
+
+=== @Codec — Reserved for Future Use
+
+`@Codec` is a marker annotation with no current runtime effect.
+The `++TableFieldMeta++` constructor records its presence in `CODEC_MAP`, but the framework does not act on it yet.
+It is reserved as an extension point for future custom encode/decode interceptors.
+
+=== TableMeta.properties — Runtime Configuration
+
+`TableMeta.properties` is the **runtime override hub** of Army.
+Place this file at `META-INF/army/TableMeta.properties` on the classpath (typically +src/main/resources/META-INF/army/TableMeta.properties+).
+Army scans **all JARs and directories** on the classpath and merges entries from every location — this lets you change annotation attributes without recompiling.
+
+==== Placeholder Expressions Reference
+
+Many annotation attributes accept placeholder expressions instead of literal values.
+These placeholders are resolved against `TableMeta.properties` at startup.
+They are defined as constants in `++TableMetaUtils++`:
+
+[cols="2,3,5",options="header"]
+|===
+| Placeholder | Constant | Behavior
+| `++${DEFAULT}++` | `TableMetaUtils.DEFAULT_EXP` | Check `TableMeta.properties` first; if not found, use the framework's built-in convention (e.g., camelCase→snake_case for column names)
+| `++${RUNTIME}++` | `TableMetaUtils.RUNTIME_EXP` | **Must** be in `TableMeta.properties`; throws `MetaException` if missing. Use when the value depends on the deployment environment
+| `++${OPTIONAL}++` | `TableMetaUtils.OPTIONAL_EXP` | Check `TableMeta.properties` first; if not found, silently skip the element (used mainly for index types). Not all attributes support `++${OPTIONAL}++`
+| `++${DEFAULT_VALUE}++` | `TableMetaUtils.DEFAULT_VALUE_EXP` | Skip `TableMeta.properties` entirely; always use the convention-based default (e.g., auto-generated index names)
+|===
+
+[IMPORTANT]
+====
+`++${DEFAULT}++` and `++${DEFAULT_VALUE}++` are NOT the same:
+* `++${DEFAULT}++` — allows override via properties, falls back to convention if not found * `++${DEFAULT_VALUE}++` — bypasses properties entirely, always uses the framework default Use `++${DEFAULT_VALUE}++` when you never want the value accidentally overridden.
+====
+
+==== What Happens When Not Configured
+
+When you use a placeholder in your annotation, the framework enters a resolution chain.
+Here is the **exact fallback behavior** for every attribute — what happens when the property is **not configured** in `TableMeta.properties`:
+
+[cols="2,3,3",options="header"]
+|===
+| Attribute (Placeholder) | Annotation | Behavior When NOT Found
+
+.2+^| **Table name**
+`++${DEFAULT}++` | `@Table(name = "${DEFAULT}")` | Convert class simple name to snake_case: +`_MetaBridge.camelToLowerCase()`+
+→ `StockQuotes` → `"stock_quotes"`
+→ `UserAccount` → `"user_account"`
+| `@Table(name = "${RUNTIME}")` | Throw `MetaException` — no fallback
+
+.2+^| **Table comment**
+`++${DEFAULT}++` | `@Table(comment = "${DEFAULT}")` | Convert class simple name to spaced comment: +`_MetaBridge.camelToComment()`+
+→ `StockQuotes` → `"Stock Quotes"`
+→ `UserOrder` → `"User Order"`
+| `@Table(comment = "${RUNTIME}")` | Throw `MetaException` — no fallback
+
+.2+^| **Catalog / Schema**
+`++${DEFAULT}++` | `@Table(catalog = "${DEFAULT}")` | Empty string → **database default**
+| `@Table(catalog = "${RUNTIME}")` | Throw `MetaException` — no fallback
+
+.2+^| **Column name**
+`++${DEFAULT}++` | `@Column(name = "${DEFAULT}")` | Convert field name camelCase→snake_case: +`_MetaBridge.camelToLowerCase()`+
+→ `userName` → `"user_name"`
+→ `createTime` → `"create_time"`
+| `@Column(name = "${RUNTIME}")` | Throw `MetaException` — no fallback
+
+.3+^| **Column comment**
+`++${DEFAULT}++` | `@Column(comment = "${DEFAULT}")` | **Reserved fields** (id/createTime/…) → auto-comment; **Enum fields** → `"enum, @see {EnumClass}"`; **Business fields** → throw `MetaException`
+| `@Column(comment = "${RUNTIME}")` | Throw `MetaException` — no fallback
+| (empty string) | (no `comment` value) | Same as `++${DEFAULT}++` — reserved → auto, business → error
+
+.2+^| **Column precision**
+`DEFAULT_EXP` | `@Column(precision = Column.DEFAULT_EXP)` | By Java type: `String`→`255`, `BigDecimal`→`16`, `Enum`→max label+5, `UUID`→`36`, `Vector`→`1024`
+| `RUNTIME_EXP` | Throw `MetaException` — no fallback
+
+.2+^| **Column scale**
+`DEFAULT_EXP` | `@Column(scale = Column.DEFAULT_EXP)` | By type: `BigDecimal`→`3`, temporal types→`6` (microsecond); otherwise `-1`
+| `RUNTIME_EXP` | Throw `MetaException` — no fallback
+
+.2+^| **Column default**
+`++${DEFAULT}++` | `@Column(defaultValue = "${DEFAULT}")` | Type-appropriate zero: number→`"0"`, string→`"''"`, boolean→`"false"`, `LocalDate`→`"'1970-01-01'"`, `LocalDateTime`→`"'1970-01-01 00:00:00'"`
+| `RUNTIME_EXP` | Throw `MetaException` — no fallback
+
+.3+^| **Generator type**
+`RUNTIME` | `@Generator(type = GeneratorType.RUNTIME)` | Throw `MetaException` — no fallback; property **must** provide `Generator.type` or `GeneratorStrategy`
+| `DEFAULT` | `@Generator(type = GeneratorType.DEFAULT)` | Child tables in `@Inheritance` → `POST`; Otherwise → `PRECEDE`
+| `PRECEDE`/`POST` | (literal enum) | Always used as-is — no placeholder involved
+
+.3+^| **Index name**
+`++${DEFAULT_VALUE}++` | `@Index(name = "${DEFAULT_VALUE}")` | Always auto-generated (ignores properties):
+Unique → `+uni_{table}_{col1}_{col2}+`
+Non-unique → `+idx_{table}_{col1}_{col2}+`
+| `++${DEFAULT}++` | `@Index(name = "${DEFAULT}")` | Falls back to `++${DEFAULT_VALUE}++` behavior (auto-generated name)
+| `++${OPTIONAL}++` | `@Index(name = "${OPTIONAL}")` | `null` → **index is silently skipped**
+
+.3+^| **Index type**
+`++${DEFAULT}++` | `@Index(type = "${DEFAULT}")` | Empty string → **database default** index type
+| `++${RUNTIME}++` | `@Index(type = "${RUNTIME}")` | Throw `MetaException` — no fallback
+| `++${OPTIONAL}++` | `@Index(type = "${OPTIONAL}")` | `null` → **entire index is silently skipped**
+
+.2+^| **IndexField collation/opclass**
+`++${DEFAULT}++` | `@IndexField(collation = "${DEFAULT}")` | Empty string → **no collation/opclass**
+| `++${RUNTIME}++` | `@IndexField(collation = "${RUNTIME}")` | Throw `MetaException` — no fallback
+
+.1+^| **DDL mode**
+`DEFAULT` | `@Table(ddlMode = DdlMode.DEFAULT)` | Falls back to `CREATE` (DDL enabled)
+|===
+
+==== Usage Examples
+
+[source,java]
+----
+// ── Table name: auto-derive from class name, allow override via properties ──
+// Without properties: StockQuotes → "stock_quotes"
+// With properties: com.example.domain.StockQuotes.Table.name=stock_v2
+@Table(name = "${DEFAULT}", comment = "stock data")
+
+// ── Table name: MUST be in properties, startup fails otherwise ──
+// Used when team A defines the entity but team B controls deployment name
+@Table(name = "${RUNTIME}", comment = "cross-team table")
+
+// ── Column name: camelCase → snake_case by default, configurable ──
+// Without properties: userName → "user_name"
+// With properties: com.example.Stock.userName.Column.name=login_name
+@Column(name = "${DEFAULT}")
+public String userName;
+
+// ── Column precision: must be configured at startup — varies by deployment ──
+// Without properties: throws MetaException
+// With properties: com.example.Stock.embedding.Column.precision=768
+@Column(precision = Column.RUNTIME_EXP)
+public String embedding;
+
+// ── Index name: always auto-generate, never override ──
+// @Table(name = "stock") + @Index(fieldList = "userId")
+// → unique: uni_stock_user_id, non-unique: idx_stock_user_id
+@Index(name = "${DEFAULT_VALUE}", fieldList = "userId")
+
+// ── Index name: default generation but allow override via properties ──
+// Without properties: same as ${DEFAULT_VALUE}
+// With properties: com.example.IndexMeta[0].name=my_index
+@Index(name = "${DEFAULT}", fieldList = "userId")
+
+// ── Optional index: skip entirely on staging, keep in production ──
+// Without properties: index is silently skipped
+// With properties: com.example.IndexMeta[0].type=btree → index is created
+@Index(name = "idx_stock", type = "${OPTIONAL}", fieldList = "userId")
+
+// ── Column default value: type-appropriate zero ──
+// LocalDateTime → '1970-01-01 00:00:00'
+// BigDecimal → 0
+// String → ''
+@Column(defaultValue = "${DEFAULT}", comment = "upload complete time")
+public LocalDateTime uploadCompleteTime;
+
+// ── Generator type: defer to deployment config ──
+// Development: POST (auto-increment), Production: PRECEDE (Snowflake)
+@Generator(type = GeneratorType.RUNTIME)
+@Column
+public long id;
+----
+
+==== Property Key Format
+
+Every property key follows this pattern:
+
+```
+{fully.qualified.ClassName}.{fieldName|Table}.{AttributeCategory}.{attributeName}
+```
+
+[cols="3,5,3",options="header"]
+|===
+| Category | Example Key | Example Value
+| `Table` | `com.example.domain.Stock.Table.name` | `stock_v2`
+| `Table.comment` | `com.example.domain.Stock.Table.comment` | `stock data v2`
+| `Table.catalog` | `com.example.domain.Stock.Table.catalog` | `production`
+| `Table.schema` | `com.example.domain.Stock.Table.schema` | `public`
+| `Table.ddlMode` | `com.example.domain.Stock.Table.ddlMode` | `NONE`
+| `Column.name` | `com.example.domain.Stock.userName.Column.name` | `user_name`
+| `Column.comment` | `com.example.domain.Stock.status.Column.comment` | `custom status`
+| `Column.precision` | `com.example.domain.Stock.name.Column.precision` | `512`
+| `Column.scale` | `com.example.domain.Stock.offerPrice.Column.scale` | `4`
+| `Column.defaultValue` | `com.example.domain.Stock.status.Column.defaultValue` | `'ACTIVE'`
+| `Column.collation` | `com.example.domain.Stock.name.Column.collation` | `en_US.utf8`
+| `Generator.type` | `com.example.domain.Stock.id.Generator.type` | `POST`
+| `GeneratorStrategy` | `com.example.domain.Stock.id.GeneratorStrategy` | `io.army.generator.Snowflake8GeneratorStrategy:{"startTime":1779111192831}`
+| `Mapping.value` | `com.example.domain.Stock.id.Mapping.value` | `io.army.mapping.SqlBigIntType`
+| `IndexMeta[n].name` | `com.example.domain.Stock.IndexMeta[0].name` | `idx_stock_custom`
+| `IndexMeta[n].type` | `com.example.domain.Stock.IndexMeta[0].type` | `btree`
+| `IndexMeta[n].field.X.collation` | `com.example.domain.Stock.IndexMeta[0].field.code.collation` | `en_US.utf8`
+| `IndexMeta[n].field.X.opclass` | `com.example.domain.Stock.IndexMeta[0].field.embedding.opclass` | `vector_cosine_ops`
+|===
+
+[IMPORTANT]
+====
+Property keys are **case-sensitive**.
+Keyword components — `Table`, `Column`, `Generator`, `GeneratorStrategy`, `Mapping`, `IndexMeta` — must appear **exactly** with that capitalization.
+
+The `IndexMeta[n]` syntax uses a 0-based index: `[0]` refers to the **first** `@Index` in `@Table.indexes` array, `[1]` to the second, etc.
+The `field.{fieldName}` segment uses the **Java field name** (not the column name).
+====
+
+NOTE: The `GeneratorStrategy` value format is `fully.qualified.StrategyClass[:jsonParams]`.
+The optional JSON parameters after the colon are parsed by the strategy's static `create(String)` factory method.
+
+==== Complete Configuration Example
+
+Here is a realistic `META-INF/army/TableMeta.properties` file showing all categories in one place:
+
+[source,properties]
+----
+# File: META-INF/army/TableMeta.properties
+# Place in: src/main/resources/META-INF/army/TableMeta.properties
+
+# ── @Table ──
+com.example.domain.Stock.Table.name=stock_v2
+com.example.domain.Stock.Table.comment=stock data v2
+com.example.domain.Stock.Table.schema=public
+com.example.domain.Stock.Table.ddlMode=NONE
+
+# ── @Column ──
+com.example.domain.Stock.userName.Column.name=user_name
+com.example.domain.Stock.status.Column.comment=custom status
+com.example.domain.Stock.name.Column.precision=512
+com.example.domain.Stock.offerPrice.Column.scale=4
+com.example.domain.Stock.status.Column.defaultValue='ACTIVE'
+com.example.domain.Stock.name.Column.collation=en_US.utf8
+
+# ── @Generator ──
+com.example.domain.Stock.id.Generator.type=POST
+com.example.domain.Stock.id.GeneratorStrategy=io.army.generator.Snowflake8GeneratorStrategy:{"startTime":1779111192831}
+
+# ── @Mapping ──
+com.example.domain.Stock.id.Mapping.value=io.army.mapping.SqlBigIntType
+
+# ── @Index ──
+com.example.domain.Stock.IndexMeta[0].name=idx_stock_custom
+com.example.domain.Stock.IndexMeta[0].type=btree
+
+# Skip an optional index (empty value = skip)
+com.example.domain.Stock.IndexMeta[1].type=
+
+# ── @IndexField (per-column index settings) ──
+com.example.domain.Stock.IndexMeta[0].field.code.collation=en_US.utf8
+com.example.domain.Stock.IndexMeta[0].field.embedding.opclass=vector_cosine_ops
+
+# ── @DdlMode ──
+com.example.domain.LegacyData.Table.ddlMode=NONE
+----
+
+TIP: Start with an empty `TableMeta.properties` file and add entries only when you need to override defaults for a specific deployment environment.
+Most projects need only 2–5 entries (e.g., switching generator types, adjusting precisions, disabling DDL).
+
+== MappingType — Java-to-Database Type Mapping
+
+Every domain field in Army must declare its *type mapping* — the rule that converts between a Java type and a database column type.
+This mapping is defined either implicitly (via default type inference) or explicitly (via the `@Mapping` annotation).
+The `MappingType` interface is the core abstraction that orchestrates this conversion.
+
+=== Overview: MappingType Interface
+
+[source,java]
+----
+public sealed interface MappingType permits AbstractMappingType, ArrayMappingType {
+
+    /// The Java type that this mapping represents.
+    Class<?> javaType();
+
+    /// Resolve to the concrete SQL data type for the current database dialect.
+    DataType map(ServerMeta meta);
+
+    /// Convert a Java value → SQL parameter value (before binding).
+    Object beforeBind(DataType dataType, MappingEnv env, Object source);
+
+    /// Convert a database value → Java object (after fetching).
+    Object afterGet(DataType dataType, MappingEnv env, Object source);
+
+    /// Return the corresponding array MappingType for this scalar type.
+    MappingType arrayTypeOfThis();
+}
+----
+
+A `MappingType` implementation defines four things:
+
+. **Which Java type** it handles — returned by `javaType()`.
+. **Which SQL type** it maps to — resolved by `map(ServerMeta)`, which is database-dialect-aware.
+. **How values are serialized** before binding to a prepared statement — `beforeBind()`.
+. **How values are deserialized** after fetching from a `ResultSet` — `afterGet()`.
+
+For example, `io.army.mapping.StringType` maps `java.lang.String` → MySQL `VARCHAR` / PostgreSQL `VARCHAR` / Oracle `VARCHAR2`, and during `beforeBind()` it can convert `Number`, `Boolean`, `Enum`, `LocalDateTime`, etc. into their string representations automatically.
+
+=== Default Type Inference
+
+When a domain field has *no* `@Mapping` annotation, Army infers the `MappingType` from the field's Java type via `io.army.mapping._MappingFactory.getDefaultIfMatch()`.
+
+==== Built-in Java-to-MappingType Lookup
+
+[cols="2,3,3",options="header"]
+|===
+| Java Type | MappingType | SQL Type (PostgreSQL / MySQL)
+
+| `String` | `StringType` | `VARCHAR` / `VARCHAR`
+| `boolean` / `Boolean` | `BooleanType` | `BOOLEAN` / `TINYINT(1)`
+| `int` / `Integer` | `IntegerType` | `INTEGER` / `INT`
+| `long` / `Long` | `LongType` | `BIGINT` / `BIGINT`
+| `float` / `Float` | `FloatType` | `REAL` / `FLOAT`
+| `double` / `Double` | `DoubleType` | `DOUBLE PRECISION` / `DOUBLE`
+| `short` / `Short` | `ShortType` | `SMALLINT` / `SMALLINT`
+| `byte` / `Byte` | `ByteType` | `SMALLINT` / `TINYINT`
+| `char` / `Character` | `SqlCharType` | `CHAR(1)` / `CHAR(1)`
+| `BigInteger` | `BigIntegerType` | `NUMERIC` / `DECIMAL`
+| `BigDecimal` | `BigDecimalType` | `NUMERIC` / `DECIMAL`
+| `LocalDateTime` | `LocalDateTimeType` | `TIMESTAMP` / `DATETIME`
+| `LocalDate` | `LocalDateType` | `DATE` / `DATE`
+| `LocalTime` | `LocalTimeType` | `TIME` / `TIME`
+| `OffsetDateTime` | `OffsetDateTimeType` | `TIMESTAMPTZ` / (n/a)
+| `ZonedDateTime` | `ZonedDateTimeType` | `TIMESTAMPTZ` / `TIMESTAMP`
+| `Instant` | `InstantType` | `TIMESTAMPTZ` / `TIMESTAMP`
+| `Year` | `YearType` | `SMALLINT` / `SMALLINT`
+| `YearMonth` | `YearMonthType` | `DATE` / `DATE`
+| `MonthDay` | `MonthDayType` | `DATE` / `DATE`
+| `UUID` | `UUIDType` | `UUID` / `VARCHAR(36)`
+| `byte[]` | `VarBinaryType` | `BYTEA` / `VARBINARY`
+| `BitSet` | `BitSetType` | `VARBIT` / `BIT`
+| `ZoneId` | `ZoneIdType` | `VARCHAR` / `VARCHAR`
+|===
+
+==== Enum Type Inference
+
+Enum fields are resolved by the enum kind:
+
+- If the enum implements `CodeEnum` → `io.army.mapping.CodeEnumType` (stores the integer code)
+- If the enum extends `TextEnumType` → `io.army.mapping.TextEnumType` (stores the string text)
+- Otherwise → `io.army.mapping.NameEnumType` (stores `Enum.name()`)
+
+[source,java]
+----
+// CodeEnum stores its code value as an integer column
+public enum StockStatus implements CodeEnum {
+    NORMAL(0),
+    DELISTED(1),
+    SUSPENDED(2);
+
+    private final int code;
+    @Override public int code() { return code; }
+}
+
+@Column(notNull = true, defaultValue = "'NORMAL'")
+public StockStatus status;  // → CodeEnumType, mapped to INT column
+----
+
+=== Navigation: stock-data Example
+
+The `army-example-stock-data` module contains a complete stock market application demonstrating all mapping patterns discussed in this chapter.
+Browse its `domain/` package to see real `@Mapping` usages across `Stock`, `StockQuotes`, `StockChatConversation`, `UploadRecord`, and vector store entities.
+
+=== @Mapping Annotation: Explicit Mapping Control
+
+When the default inference is insufficient — or when you need a non-standard database type — use the `io.army.annotation.Mapping` annotation.
+
+==== Annotation Definition
+
+[source,java]
+----
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Mapping {
+
+    /// Fully-qualified class name of the MappingType implementation.
+    /// Used as a string to avoid compile-time dependencies on dialect-specific classes.
+    String value() default "";
+
+    /// The MappingType class itself (takes precedence over value()).
+    Class<?> type() default void.class;
+
+    /// Extra configuration parameters (e.g., PostgreSQL enum type name).
+    String[] params() default {};
+
+    /// Custom database function name for type conversion.
+    String func() default "";
+
+    /// Character set for text-based binary mappings (e.g., LongBlobType + InputStream).
+    String charset() default "";
+
+    /// Element types for collection mappings (e.g., MySQL SET).
+    Class<?>[] elements() default {};
+}
+----
+
+==== Resolution Priority
+
+The `@Mapping` value follows the same placeholder mechanism as other annotations:
+
+. If `type()` is set (not `void.class`), it takes precedence over `value()`.
+. If `value()` is `"${DEFAULT}"`, Army checks `TableMeta.properties`; if not configured, falls back to default type inference.
+. If `value()` is `"${RUNTIME}"`, the property *must* be configured in `TableMeta.properties` or a `MetaException` is thrown.
+. Otherwise, `value()` is a fully-qualified class name resolved via `Class.forName()`.
+
+==== Example: Mapping a String to TEXT (Long Content)
+
+The `StockChatConversation.firstContent` field stores a Java `String` but needs a PostgreSQL `TEXT` column (not `VARCHAR`).
+This is achieved by explicitly specifying `TextType`:
+
+[source,java]
+----
+@Column(notNull = true, updatable = false, comment = "首次会话内容")
+@Mapping("io.army.mapping.TextType")
+private String firstContent;
+----
+
+Similarly, `SpringAiChatMemory.content` and `SpringAiVectorStore.content` both use `@Mapping("io.army.mapping.TextType")` to store potentially long message text in a `TEXT` column:
+
+[source,java]
+----
+// From SpringAiChatMemory (chat memory module)
+@Column(name = "${DEFAULT}", notNull = true, comment = "${DEFAULT}")
+@Mapping("io.army.mapping.TextType")
+private String content;
+
+// From SpringAiVectorStore (vector store module)
+@Column(name = "${DEFAULT}", comment = "${DEFAULT}")
+@Mapping("io.army.mapping.TextType")
+private String content;
+----
+
+==== Example: Mapping a String to CHAR (Fixed-Length)
+
+The `UploadRecord.fileHash` field stores a SHA-256 Base64 hash (always 44 characters).
+Using `SqlCharType` enforces a `CHAR(44)` column:
+
+[source,java]
+----
+@Column(precision = 44, comment = "文件哈希值,SHA‑256算法,标准base64")
+@Mapping("io.army.mapping.SqlCharType")
+public String fileHash;
+----
+
+==== Example: Runtime-Configurable Mapping
+
+The `SpringAiChatVectorStore.conversationId` uses `"${DEFAULT}"` to allow deployment-time type selection:
+
+[source,java]
+----
+///  Mapping#value() should be one of below:
+///  - SqlBigIntType
+///  - StringType
+///  - UUIDType
+@Column(name = "${DEFAULT}", notNull = true, precision = Column.DEFAULT_EXP)
+@Mapping("${DEFAULT}")
+private String conversationId;
+----
+
+In `TableMeta.properties`, you can choose:
+
+[source,properties]
+----
+# Use Long-based conversation ID
+com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.army.mapping.SqlBigIntType
+
+# Or use UUID-based
+# com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.army.mapping.UUIDType
+----
+
+=== Array Types
+
+Army supports PostgreSQL native arrays (`integer[]`, `text[]`, etc.) through the `array` subpackage of `io.army.mapping`.
+Each scalar `MappingType` has a corresponding array variant.
+
+==== Default Array Inference
+
+When a Java array field has no `@Mapping`, the framework infers the array `MappingType` from the element type via `_MappingFactory.getDefaultIfMatch()`:
+
+- `int[]` / `Integer[]` → `IntegerArrayType` → PostgreSQL `INTEGER[]`
+- `long[]` / `Long[]` → `LongArrayType` → PostgreSQL `BIGINT[]`
+- `String[]` → `StringArrayType` → PostgreSQL `TEXT[]`
+- `BigDecimal[]` → `BigDecimalArrayType` → PostgreSQL `NUMERIC[]`
+- `LocalDate[]` → `LocalDateArrayType` → PostgreSQL `DATE[]`
+- `Boolean[]` → `BooleanArrayType` → PostgreSQL `BOOLEAN[]`
+
+[source,java]
+----
+// Auto-inferred: Integer[] → IntegerArrayType → INTEGER[]
+@Column(name = "tag_ids")
+private Integer[] tagIds;
+----
+
+==== Custom Array Mapping
+
+For custom element types (enums, composites), use `@Mapping` to specify an array type explicitly:
+
+[source,java]
+----
+// PostgreSQL ENUM array
+@Mapping("io.army.mapping.array.NameEnumArrayType",
+         elements = Gender.class)
+private Gender[] genders;
+----
+
+=== Vector Type (pgvector Embeddings)
+
+For AI/ML embedding storage, Army provides `io.army.mapping.optional.VectorType` — a `MappingType` for the PostgreSQL `pgvector` extension's `VECTOR` type.
+
+[source,java]
+----
+public final class VectorType extends _ArmyNoInjectionType
+        implements MappingType.SqlExtension {
+
+    public static VectorType from(Class<?> javaType) {
+        // Only float[] is supported
+        return INSTANCE;
+    }
+
+    @Override
+    public DataType map(ServerMeta meta) {
+        if (meta.serverDatabase() != Database.PostgreSQL) {
+            throw mapError(this, meta);  // VECTOR is PostgreSQL-only
+        }
+        return PgType.VECTOR;
+    }
+
+    // beforeBind: float[] → "[0.1,0.2,...,0.9]" SQL string
+    // afterGet:   SQL string → float[]
+}
+----
+
+==== Vector Store Example (army-spring-ai-vector-store)
+
+The `io.army.spring.ai.vectorstore.SpringAiVectorStore` base class uses `VectorType` for its embedding column:
+
+[source,java]
+----
+/// Java type: float[] → MappingType: VectorType → PostgreSQL: VECTOR
+@Column(name = "${DEFAULT}", notNull = true,
+        precision = Column.DEFAULT_EXP,  // required: embed dimension configured at runtime
+        comment = "${DEFAULT}")
+@Mapping("io.army.mapping.optional.VectorType")
+private float[] embedding;
+----
+
+IMPORTANT: The `precision = Column.DEFAULT_EXP` (which equates to `Integer.MIN_VALUE`) signals that the vector dimension must be configured at runtime.
+Without `precision` configured (via `TableMeta.properties` or the `@Column` annotation), Army throws a `MetaException`.
+
+==== Vector Store Domain Subclass Example
+
+Domain entities extend the parent class to define their table and indexes:
+
+[source,java]
+----
+// Long-term chat memory vector store — uses HNSW index with cosine similarity
+@Table(name = "stock_chat_vector_store",
+        indexes = {
+                @Index(name = "${DEFAULT_VALUE}", type = "hnsw",
+                       fields = @IndexField(name = "embedding",
+                                            opclass = "vector_cosine_ops")),
+                @Index(name = "${DEFAULT_VALUE}", fieldList = "conversationId"),
+                @Index(name = "${DEFAULT_VALUE}", type = "gin", fieldList = "metadata")
+        },
+        comment = "股票聊天长期记忆向量存储")
+public class StockChatVectorStore extends SpringAiChatVectorStore {
+}
+
+// Document vector store — uses HNSW index with L2 (Euclidean) distance
+@Table(name = "stock_document_vector_store",
+        indexes = {
+                @Index(name = "${DEFAULT_VALUE}", type = "hnsw",
+                       fields = @IndexField(name = "embedding",
+                                            opclass = "vector_l2_ops")),
+                @Index(name = "${DEFAULT_VALUE}", unique = true, fieldList = "documentId"),
+                @Index(name = "${DEFAULT_VALUE}", type = "gin", fieldList = "metadata")
+        },
+        comment = "股票文档向量存储")
+public class StockDocumentVectorStore extends SpringAiVectorStore {
+}
+----
+
+=== JSON / JSONB Types
+
+Army provides several JSON mapping types for document-oriented storage:
+
+[cols="2,3,4",options="header"]
+|===
+| MappingType | Java Types | Behavior
+
+| `JsonType`
+| `String`, `Map`, `List`, `Set`
+| Always maps to vanilla `JSON` (MySQL `JSON`, PostgreSQL `JSON`)
+
+| `PreferredJsonbType`
+| `String`, `Map<String,Object>`, `List`, `Set`
+| Maps to `JSONB` on PostgreSQL, falls back to `JSON` on MySQL
+
+| `JsonbType`
+| `String`
+| Strictly maps to `JSONB` (PostgreSQL-only, throws on other dialects)
+
+| `ArmyJsonType`
+| (abstract base)
+| Base class for all JSON types; provides auto-expansion of Map/List generics
+|===
+
+`PreferredJsonbType` is the most commonly used because it provides optimal storage and indexing (`jsonb`) on PostgreSQL while gracefully degrading to `json` on MySQL.
+
+==== Metadata Storage (army-spring-ai-vector-store)
+
+The `io.army.spring.ai.vectorstore.SpringAiVectorStore.metadata` field uses `PreferredJsonbType` to store a `Map<String, Object>`:
+
+[source,java]
+----
+@Column(name = "${DEFAULT}", notNull = true, defaultValue = "'{}'", comment = "${DEFAULT}")
+@Mapping("io.army.mapping.PreferredJsonbType")
+private Map<String, Object> metadata;
+----
+
+On PostgreSQL this produces a `JSONB` column with a `GIN` index for efficient containment queries; on MySQL it produces a `JSON` column.
+
+==== Specialized Data Storage (army-spring-ai-model-chat-memory)
+
+The `io.army.spring.ai.chat.memory.SpringAiChatMemory.specializedData` field stores tool call data or tool response data as JSON:
+
+[source,java]
+----
+/// store one of below :
+/// 1. AssistantMessage.getToolCalls()
+/// 2. ToolResponseMessage.getResponses()
+@Column(name = "${DEFAULT}", notNull = true, defaultValue = "'[]'",
+        comment = "${DEFAULT}")
+@Mapping("io.army.mapping.PreferredJsonbType")
+private String specializedData;
+----
+
+The `ArmyMessageChatMemory.add()` method uses `JsonCodec` to serialize tool calls/responses before inserting:
+
+[source,java]
+----
+// Inside ArmyMessageChatMemory.copyMessageInfo()
+if (message instanceof AssistantMessage a) {
+    o.setSpecializedData(codec.encode(a.getToolCalls()));
+} else if (message instanceof ToolResponseMessage t) {
+    o.setSpecializedData(codec.encode(t.getResponses()));
+}
+----
+
+==== List Storage in JSONB (UploadRecord)
+
+The `io.army.example.stock.domain.UploadRecord.vectorIdList` field stores a `List<Long>` of vector IDs as JSONB:
+
+[source,java]
+----
+@Column(notNull = true, defaultValue = "'[]'", comment = "向量ID列表")
+@Mapping("io.army.mapping.PreferredJsonbType")
+private List<Long> vectorIdList;
+----
+
+=== Text vs Varchar — Choosing the Right String Mapping
+
+Army distinguishes between three string storage strategies:
+
+[cols="2,2,4",options="header"]
+|===
+| MappingType | SQL Type | Use Case
+
+| `StringType` (default for `String`)
+| `VARCHAR(precision)`
+| Short to medium strings (names, codes, hashes) — precision comes from `@Column(precision=N)`
+
+| `TextType`
+| `TEXT`
+| Long, unbounded text (article content, message body, document text)
+
+| `SqlCharType`
+| `CHAR(N)`
+| Fixed-length strings (SHA-256 Base64 hashes, ISO country codes)
+|===
+
+[source,java]
+----
+// VARCHAR — default inference for String, precision from @Column
+@Column(notNull = true, precision = 130, comment = "股票公司名称")
+public String name;  // → StringType → VARCHAR(130)
+
+// CHAR — fixed-length, used for deterministic-length hashes
+@Column(precision = 44, comment = "文件哈希值")
+@Mapping("io.army.mapping.SqlCharType")
+public String fileHash;  // → SqlCharType → CHAR(44)
+
+// TEXT — unbounded, for long content
+@Column(notNull = true, comment = "首次会话内容")
+@Mapping("io.army.mapping.TextType")
+private String firstContent;  // → TextType → TEXT
+----
+
+=== How TypeMappingHandler Resolves to SQL Types
+
+After Army determines a field's `MappingType`, the `io.army.dialect.TypeMappingHandler` interface finalizes the concrete `DataType` for the target database:
+
+[source,java]
+----
+public sealed interface TypeMappingHandler permits TypeMappingHandlerSupport {
+
+    /// For a given custom type name and MappingType array, return the concrete DataType.
+    DataType apply(String typeName, MappingType[] typeArray, int index);
+}
+----
+
+The implementation `io.army.dialect.TypeMappingHandlerSupport` performs this resolution:
+
+. **Custom type lookup** — First checks if a `DefinedTypeMapFunc` is registered (for user-defined database types like PostgreEnum).
+. **Named type lookup** — Checks the dialect's internal type registry (e.g., `"vector"` → `PgType.VECTOR`).
+. **Array detection** — If the type name contains `[` (e.g., `"integer[]"`), it resolves the element type then wraps it via `arrayTypeOfThis()`.
+. **Fallback** — If no match is found, returns the `defaultType` (the `MappingType.map()` result).
+
+[source,java]
+----
+// Simplified resolution logic in TypeMappingHandlerSupport
+final MappingType handleDefinedType(final String typeName, final MappingType defaultType) {
+    // 1. Try user-defined type function
+    MappingType type = func.apply(typeName, serverMeta, typeMap);
+    if (type != null) return type;
+
+    // 2. Check if it's an array type (e.g., "integer[]")
+    final int index = typeName.indexOf('[');
+    if (index < 0) {
+        type = this.typeMap.getOrDefault(typeName, defaultType);
+    } else {
+        type = this.typeMap.get(typeName.substring(0, index));  // element type
+        if (type != null) {
+            type = ((MappingType.SqlArray) type.arrayTypeOfThis()).unlimited();
+        } else {
+            type = defaultType;
+        }
+    }
+    return type;
+}
+----
+
+This design means the `MappingType` hierarchy is database-agnostic — each `MappingType` declares its target `DataType` per-dialect in `map()`, and `TypeMappingHandler` provides the final resolution for custom/composite/array types.
+In most cases, developers interact only with the `@Mapping` annotation; the handler chain operates transparently behind the scenes.
+
+=== Full Mapping Chain Summary
+
+[cols="2,5,4",options="header"]
+|===
+| Stage | What Happens | Example
+
+| 1. **Annotation Processing**
+| Army reads `@Mapping` (or infers default) to determine `MappingType`
+| `@Mapping("io.army.mapping.optional.VectorType")` → `VectorType`
+
+| 2. **Dialect Resolution**
+| `MappingType.map(ServerMeta)` returns database-specific `DataType`
+| `VectorType.map()` → `PgType.VECTOR` (PostgreSQL only)
+
+| 3. **TypeHandler Finalization**
+| `TypeMappingHandler.apply()` resolves custom/composite/array types
+| `"vector"` → `PgType.VECTOR`; `"integer[]"` → `PgType.INTEGER_ARRAY`
+
+| 4. **Value Binding**
+| `MappingType.beforeBind()` serializes Java value to SQL parameter
+| `VectorType.beforeBind()`: `float[]{0.1,0.2}` → `"[0.1,0.2]"`
+
+| 5. **Value Fetching**
+| `MappingType.afterGet()` deserializes database value to Java object
+| `VectorType.afterGet()`: `"[0.1,0.2]"` → `float[]{0.1,0.2}`
+|===
+
+== Criteria API — Writing SQL
+
+The Criteria API is Army's SQL construction layer.
+It generates a database-agnostic statement tree through a type-safe Java DSL, which the dialect parser then translates into native SQL.
+
+=== Standard Criteria API
+
+==== The SQLs Utility Class
+
+`SQLs` is the unified entry point for building standard SQL statements.
+All standard operations (SELECT, INSERT, UPDATE, DELETE) begin with `SQLs`.
+
+==== SELECT Statements
+
+[source,java]
+----
+final Select stmt;
+stmt = SQLs.query()
+        .select(Stock_.id, Stock_.name, Stock_.offerPrice)
+        .from(Stock_.T, AS, "s")
+        .where(Stock_.name.equal(SQLs::param, "Tesla"))
+        .and(Stock_.createTime::less, SQLs::literal, LocalDateTime.now().minusDays(1))
+        .limit(SQLs::literal, 1)
+        .asQuery();
+----
+
+==== INSERT Statements
+
+[source,java]
+----
+final Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .defaultValue(Stock_.status, SQLs::literal, StockStatus.NORMAL)
+        .values(stockList)
+        .asInsert();
+----
+
+==== UPDATE Statements
+
+[source,java]
+----
+final Update stmt;
+stmt = SQLs.singleUpdate()
+        .update(Stock_.T, AS, "s")
+        .set(Stock_.name, SQLs::param, "Tesla Inc.")
+        .set(Stock_.offerPrice, SQLs::plusEqual, SQLs::param, addPrice)
+        .where(Stock_.id::between, SQLs::literal, map.get("firstId"), AND, map.get("secondId"))
+        .asUpdate();
+----
+
+==== DELETE Statements
+
+[source,java]
+----
+final Delete stmt;
+stmt = SQLs.singleDelete()
+        .deleteFrom(Stock_.T, AS, "s")
+        .where(Stock_.status.equal(SQLs::literal, StockStatus.DELISTED))
+        .asDelete();
+----
+
+=== Expression Building
+
+==== Conditional Expressions
+
+* Equality: `field.equal(...)`
+* Inequality: `field.notEqual(...)`
+* Greater / Less than: `field.greater(...)` / `field.less(...)`
+* Between: `field.between(...)`
+* Inclusion: `field.in(...)`
+* Null check: `field.isNull()` / `field.isNotNull()`
+
+==== Logical Operators
+
+* `AND` — Logical conjunction
+* `OR` — Logical disjunction
+* `NOT` — Logical negation
+
+==== Aggregate Functions
+
+* `COUNT` / `SUM` / `AVG` / `MAX` / `MIN`
+
+==== Window Functions
+
+* `ROW_NUMBER()` / `RANK()` / `DENSE_RANK()` / `NTILE()`
+
+=== CTE (Common Table Expressions)
+
+[source,java]
+----
+final Insert stmt;
+stmt = Postgres.singleInsert()
+        .with("new_stock").as(s -> s
+                .insertInto(Stock_.T)
+                .values(stockList)
+                .returning(Stock_.id)
+                .asReturningInsert()
+        )
+        .comma("stock_row").as(s -> s
+                .select(ss -> ss
+                        .space(Postgres.rowNumber().over().as("rowNumber"))
+                        .comma(SQLs.refField("new_stock", Stock_.ID))
+                )
+                .from("new_stock")
+                .asQuery()
+        )
+        .insertInto(Stock_.T)
+        .values(relatedStockList)
+        .asInsert();
+----
+
+=== Subqueries
+
+==== Scalar Subquery
+
+[source,java]
+----
+SQLs.scalarSubQuery()
+        .select(s -> s.space(SQLs.refField("s", Stock_.ID)))
+        .from("stock_row", AS, "s")
+        .where(SQLs.refField("s", "rowNumber")::equal, BATCH_NO_LITERAL)
+        .asQuery()
+----
+
+==== Table Subquery
+
+[source,java]
+----
+SQLs.subQuery()
+        .select(s -> s.space("*"))
+        .from(Stock_.T, AS, "s")
+        .where(Stock_.status.equal(SQLs::literal, StockStatus.NORMAL))
+        .asQuery()
+----
+
+=== MySQL Dialect API
+
+==== The MySQLs Utility Class
+
+MySQL-specific SQL construction entry point: `MySQLs.singleInsert()`, `MySQLs.query()`, etc.
+
+==== MySQL-Specific Features
+
+* `INSERT IGNORE`
+* `INSERT ON DUPLICATE KEY UPDATE`
+* `REPLACE INTO`
+* `LOAD DATA INFILE`
+* MySQL-specific functions
+
+[source,java]
+----
+final Insert stmt;
+stmt = MySQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values(stockList)
+        .onDuplicateKeyUpdate()
+        .set(Stock_.offerPrice, SQLs::values, Stock_.offerPrice)
+        .asInsert();
+----
+
+=== PostgreSQL Dialect API
+
+==== The Postgres Utility Class
+
+PostgreSQL-specific SQL construction entry point: `Postgres.singleInsert()`, `Postgres.query()`, etc.
+
+==== PostgreSQL-Specific Features
+
+* `RETURNING` clause — Return field values directly after INSERT/UPDATE
+* `ON CONFLICT` clause — Update or ignore on conflict
+* `WITH` clause (CTE) — Complex chained operations
+* Array operations — `ANY`, `ALL`, array functions
+* JSON/JSONB operations — Field extraction, containment queries
+* Composite types — Custom composite type reads and writes
+
+[source,java]
+----
+final Insert stmt;
+stmt = Postgres.singleInsert()
+        .insertInto(Stock_.T)
+        .values(stockList)
+        .onConflict(Stock_.name)
+        .doUpdate()
+        .set(Stock_.offerPrice, SQLs::excluded, Stock_.offerPrice)
+        .returning(Stock_.id, Stock_.name)
+        .asInsert();
+----
+
+== Session API — Executing SQL
+
+The Session API is Army's data operation execution layer, providing a unified entry point for blocking operations.
+
+=== SessionFactory Configuration
+
+==== Configuration Options
+
+* `name` — SessionFactory name
+* `packagesToScan` — List of packages to scan for domain classes
+* `datasource` — Data source (blocking mode)
+* `environment` — Environment configuration (database type, dialect version, etc.)
+* `fieldGeneratorFactory` — Field generator factory
+* `schemaMeta` — Schema metadata
+
+=== Session Operations
+
+==== Obtaining a Session
+
+===== Local Session (recommended for short-lived operations)
+
+[source,java]
+----
+try (SyncLocalSession session = sessionFactory.localSession()) {
+    // Automatic transaction and resource management
+}
+----
+
+===== Regular Session
+
+[source,java]
+----
+SyncSession session = sessionFactory.session();
+try {
+    // Use the session
+} finally {
+    session.close();
+}
+----
+
+==== Query Operations
+
+[source,java]
+----
+// Query a list of objects
+List<Stock> stocks = session.query(stmt, Stock.class);
+
+// Query a single object
+Stock stock = session.queryOne(stmt, Stock.class);
+
+// Query with custom mapping
+session.queryObject(stmt, RowMaps::hashMap)
+        .forEach(map -> LOG.debug("{}", map));
+----
+
+==== Update Operations
+
+[source,java]
+----
+// Insert
+long rows = session.update(insertStmt);
+
+// Update
+long rows = session.update(updateStmt);
+
+// Delete
+long rows = session.update(deleteStmt);
+----
+
+==== Batch Operations
+
+[source,java]
+----
+long[] rows = session.batchUpdate(batchUpdateStmt);
+----
+
+=== Transaction Management
+
+==== Blocking-Mode Transactions
+
+[source,java]
+----
+try (SyncLocalSession session = sessionFactory.localSession()) {
+    session.startTransaction();
+    try {
+        session.update(stmt);
+        session.commit();
+    } catch (Exception e) {
+        session.rollback();
+        throw e;
+    }
+}
+----
+
+==== Savepoints
+
+[source,java]
+----
+session.startTransaction();
+try {
+    session.update(stmt1);
+    session.setSavepoint("sp1");
+    session.update(stmt2);
+    session.commit();
+} catch (Exception e) {
+    session.rollbackToSavepoint("sp1");
+    session.update(stmt3);
+    session.commit();
+}
+----
+
+==== Transaction Isolation Levels
+
+* `READ_UNCOMMITTED` / `READ_COMMITTED` / `REPEATABLE_READ` / `SERIALIZABLE`
+
+== Core Architecture
+
+Understanding Army's internal architecture helps with advanced customization and troubleshooting.
+
+=== Module Breakdown
+
+The Army framework adopts a modular design with the following core modules:
+
+==== army-core (Core Module)
+
+Standard Criteria API implementation, SQL parsing and generation, metadata management, session management, transaction management, type mapping, and executor support.
+
+==== army-annotation (Annotation Module)
+
+Provides all domain object mapping annotations (`@Table`, `@Column`, `@Generator`, etc.) and the `ArmyMetaModelDomainProcessor` annotation processor for compile-time metamodel class generation.
+
+==== army-mysql (MySQL Dialect Module)
+
+MySQL-specific Criteria API extensions, dialect parser, and DDL parser.
+
+==== army-postgre (PostgreSQL Dialect Module)
+
+PostgreSQL-specific Criteria API extensions, dialect parser, and composite/array type support.
+
+==== army-oracle (Oracle Dialect Module)
+
+(To be completed)
+
+==== army-sqlite (SQLite Dialect Module)
+
+SQLite dialect support.
+
+==== army-jdbc (JDBC Executor Module)
+
+JDBC-based executor implementations (`MySQLExecutor`, `PostgreExecutor`, `SQLiteExecutor`).
+
+==== army-spring (Spring Integration Module)
+
+`SessionFactory` bean support and Spring transaction manager integration.
+
+==== army-sync (Blocking Mode Module)
+
+Blocking synchronous API implementation.
+
+==== army-struct (Foundation Structures Module)
+
+Foundation data structures (such as `CodeEnum`) and language utilities.
+
+==== army-spring-ai-model-chat-memory / army-spring-ai-vector-store
+
+Army implementations of Spring AI chat memory and vector store — bringing database capabilities into the AI ecosystem.
+
+=== Architectural Layers
+
+```
+Presentation Layer (Criteria API)
+  ↓ Generates Statement tree
+Parsing Layer (Dialect Parser)
+  ↓ Dialect-specific SQL + parameter binding
+Metadata Layer (Meta)
+  ↓ Table / field / index metadata queries
+Execution Layer (Executor)
+  ↓ JDBC driver
+Session Layer (Session)
+  ↓ Transaction context, lifecycle management
+Type Mapping Layer (Mapping)
+  ↓ Java ↔ SQL bidirectional type conversion
+```
+
+==== Presentation Layer (Criteria API)
+
+`SQLs` (standard), `MySQLs` (MySQL dialect), `Postgres` (PostgreSQL dialect) — builds standardized Statement trees using a type-safe DSL.
+
+==== Parsing Layer (Dialect Parser)
+
+Dialect parsers (`ArmyParser` / `MySQLParser` / `PostgreParser`) convert Statement trees into native SQL for each database and bind parameters.
+
+==== Metadata Layer (Meta)
+
+* `TableMeta` — Table metadata (table name, schema, field chain, primary key fields, discriminator fields)
+* `FieldMeta` — Field metadata (Java type, mapping type, generator metadata)
+* `PrimaryFieldMeta` — Primary key field metadata
+* `IndexMeta` — Index metadata (index name, field list, uniqueness)
+* `ServerMeta` — Server metadata (database type, version, dialect information)
+* `SchemaMeta` — Schema metadata registry
+
+==== Execution Layer (Executor)
+
+The executor interface provides JDBC-based result set processing and batch operations.
+
+==== Session Layer (Session)
+
+The `Session` / `SessionFactory` interfaces manage transactions, session context, and lifecycle.
+
+==== Type Mapping Layer (Mapping)
+
+The type mapping handler is responsible for bidirectional Java ↔ SQL type conversion, supporting both built-in types and custom extensions.
+
+== Type Mapping System
+
+=== Built-in Type Mappings
+
+==== Numeric Types
+
+* `Byte` / `byte` · `Short` / `short` · `Integer` / `int` · `Long` / `long`
+* `Float` / `float` · `Double` / `double`
+* `BigInteger` · `BigDecimal`
+
+==== String Types
+
+* `String` · `Character` / `char`
+
+==== Date-Time Types
+
+* `LocalDate` · `LocalTime` · `LocalDateTime`
+* `OffsetDateTime` · `ZonedDateTime` · `Instant`
+* `Year` · `YearMonth` · `MonthDay`
+
+==== Other Types
+
+* `Boolean` / `boolean` · `UUID` · `BitSet` · `ZoneId`
+
+=== Array Types
+
+* PostgreSQL native array type support: `String[]`, `Integer[]`, `Long[]`, etc.
+
+=== JSON Types
+
+* `ArmyJsonType` — JSON type base class, supporting generic mapping (List / Set / Map)
+
+=== Custom Type Mappings
+
+==== Implementing the MappingType Interface
+
+[source,java]
+----
+public class MyCustomType implements MappingType {
+    @Override
+    public Class<?> javaType() { return MyCustomClass.class; }
+
+    @Override
+    public Object beforeBind(DataType dataType, MappingEnv env, Object source) {
+        // Convert before writing to the database
+    }
+
+    @Override
+    public Object afterGet(DataType dataType, MappingEnv env, Object source) {
+        // Convert after reading from the database
+    }
+}
+----
+
+==== Registering Custom Types
+
+Register custom type mappings through `TypeMappingHandler`.
+
+=== JSON / XML Codecs
+
+* `DefaultJacksonCodec` — Jackson-based JSON codec
+* `DefaultGsonCodec` — Gson-based JSON codec
+* XML codec — To be implemented
+
+== Field Generators
+
+=== Snowflake Generator
+
+A distributed ID generator based on the Snowflake algorithm.
+
+==== Configuration Parameters
+
+* `startTime` — Start timestamp
+* `workerId` — Worker node ID
+* `datacenterId` — Data center ID
+
+[source,java]
+----
+@Generator(type = GeneratorType.PRECEDE,
+           value = "io.army.generator.snowflake.Snowflake8Generator",
+           params = {
+               @Param(name = "startTime", value = "1580224449498")
+           })
+@Column
+private Long id;
+----
+
+=== UUID Generator
+
+A UUID-based ID generator.
+
+=== Custom Generators
+
+==== Implementing the FieldGenerator Interface
+
+[source,java]
+----
+public class MyCustomGenerator implements FieldGenerator {
+    @Override
+    public Object next(FieldMeta<?> field, ReadWrapper domain) {
+        // Generation logic
+    }
+}
+----
+
+==== Registering a Generator Factory
+
+[source,java]
+----
+public class MyFieldGeneratorFactory implements FieldGeneratorFactory {
+    @Override
+    public FieldGenerator get(FieldMeta<?> field) {
+        GeneratorMeta meta = field.generator();
+        if (meta.javaType() == MyCustomGenerator.class) {
+            return MyCustomGenerator.create(field);
+        }
+        throw new IllegalArgumentException("Unsupported generator");
+    }
+}
+----
+
+== Spring Integration
+
+=== SessionFactory Bean Configuration
+
+==== Blocking Mode
+
+[source,java]
+----
+@Bean
+public ArmySyncSessionFactoryBean sessionFactory(DataSource dataSource) {
+    ArmySyncSessionFactoryBean bean = new ArmySyncSessionFactoryBean();
+    bean.setDataSource(dataSource);
+    bean.setPackagesToScan(Arrays.asList("io.army.example.domain"));
+    bean.setFactoryName("army-session-factory");
+    return bean;
+}
+----
+
+=== Spring Transaction Management
+
+==== Blocking Transaction Manager
+
+[source,java]
+----
+@Bean
+public PlatformTransactionManager transactionManager(ArmySyncSessionFactoryBean sessionFactory) {
+    return new ArmySyncLocalTransactionManager(sessionFactory);
+}
+----
+
+=== Declarative Transactions
+
+[source,java]
+----
+@Transactional
+public void createUser(User user) {
+    session.update(insertStmt);
+}
+----
+
+=== DataSource Integration
+
+Supports HikariCP, Druid, and all standard `DataSource` implementations.
+
+== Database Dialect Support Matrix
+
+=== MySQL
+
+* **Supported versions**: 5.7, 8.0
+* **Blocking**: Supported
+* **Special features**: `INSERT ON DUPLICATE KEY UPDATE`, `REPLACE INTO`, `LOAD DATA INFILE`, MySQL-specific functions, JSON type
+
+=== PostgreSQL
+
+* **Supported versions**: 12+
+* **Blocking**: Supported
+* **Special features**: `RETURNING`, `ON CONFLICT`, CTE, array types, JSON/JSONB, composite types, window functions, HNSW vector indexes
+
+=== SQLite
+
+* **Blocking**: Supported
+
+=== Oracle
+
+* To be completed
+
+== Advanced Features
+
+=== Reserved Field Mechanism
+
+Army reserves the following field names with framework-managed behavior:
+
+[cols="1,1,3",options="header"]
+|===
+| Field | Type | Behavior
+| `id` | Numeric | Primary key; automatic NOT NULL; non-updatable
+| `createTime` | Temporal | Auto-populated on creation; non-updatable
+| `updateTime` | Temporal | Auto-populated on update
+| `version` | Integer | Optimistic lock version; auto-incremented on update
+| `visible` | Boolean | Soft-delete flag; auto-filtered
+|===
+
+=== Soft Deletes
+
+Use the `visible` field to implement logical deletion.
+Rows marked as invisible are automatically filtered out in queries.
+
+[source,java]
+----
+@Column
+private Boolean visible;
+----
+
+Visibility mode configuration: `SUPPORT` (enable filtering), `NEVER` (no filtering), `WHITE_LIST` (whitelist mode).
+
+=== Optimistic Locking
+
+Use the `version` field for optimistic concurrency control: UPDATE statements automatically validate the version in the WHERE clause; the update fails if the version does not match.
+
+[source,java]
+----
+@Column
+private Integer version;
+----
+
+=== Inheritance Mapping in Depth
+
+Army uses the single-table inheritance strategy: the parent and all child classes share one database table, with the discriminator column (`@Inheritance`) distinguishing which subtype each row belongs to.
+
+Child classes use `@DiscriminatorValue` to specify their own enum value.
+The framework automatically filters by the discriminator value in queries.
+
+=== Parameter Binding Modes
+
+[cols="1,2,3",options="header"]
+|===
+| Mode | Syntax | SQL Output
+| `param` | `SQLs::param` | `?` parameter placeholder (prepared statement)
+| `literal` | `SQLs::literal` | Inline literal value
+| `namedParam` | `SQLs::namedParam` | Named parameter binding
+|===
+
+=== SQL Logging
+
+[source,java]
+----
+envMap.put(ArmyKey.SQL_LOG_MODE.name, SqlLogMode.INFO);
+envMap.put(ArmyKey.SQL_LOG_DYNAMIC.name, true);
+envMap.put(ArmyKey.SQL_LOG_EXECUTION_TAKE_TIME.name, true);
+----
+
+* `SQL_LOG_MODE` — `OFF` / `DEBUG` / `INFO`
+* `SQL_LOG_DYNAMIC` — Dynamic logging toggle
+* `SQL_LOG_EXECUTION_TAKE_TIME` — Execution-time logging
+
+=== Batch Operation Optimization
+
+* Batch insert / batch update / batch delete
+* Multi-statement batching
+
+=== Result Set Mapping (RowMaps)
+
+[source,java]
+----
+session.queryObject(stmt, RowMaps::hashMap)
+        .forEach(map -> {
+            Long id = map.getLong("id");
+            String name = map.getString("name");
+        });
+----
+
+== Schema Comparison & Synchronization
+
+=== SchemaComparer
+
+The Schema Comparer compares the actual database schema against the Army metadata model to detect differences.
+
+=== Comparison Process
+
+1. Retrieve actual schema information from the database
+2. Compare against the Army metadata model
+3. Generate a diff report
+4. Generate idempotent DDL statements
+
+=== Supported Comparison Items
+
+* Table structure, columns (type / length / precision / nullability), indexes, constraints
+
+=== PostgreSQL Composite Type Synchronization
+
+Automatically detect and synchronize composite type definitions at startup, generating idempotent DDL (safe to execute repeatedly without errors).
+
+== Best Practices
+
+=== Domain Class Design
+
+1. Use generics to support inheritance mapping
+2. Add comments to all fields
+3. Use reserved fields judiciously (`id`, `createTime`, `updateTime`, `version`, `visible`)
+4. Configure generators correctly (`PRECEDE` vs `POST`)
+5. Externalize environment-specific configuration through `TableMeta.properties`
+
+=== Criteria API Usage
+
+1. Prefer the standard Criteria API (`SQLs`)
+2. Use dialect APIs (`MySQLs` / `Postgres`) only when database-specific features are needed
+3. Choose parameter binding (`param`) vs literal binding (`literal`) wisely
+4. Be aware of the performance implications of CTEs and subqueries
+
+=== Transaction Management
+
+1. Use declarative transactions (`@Transactional`)
+2. Set appropriate transaction isolation levels
+3. Be mindful of the performance impact of long-running transactions
+4. Use savepoints for fine-grained control
+
+=== Performance Optimization
+
+1. Use batch operations instead of looping single-row operations
+2. Use indexes wisely (create them during DDL generation via `@Index`)
+3. Avoid N+1 query problems
+4. Use appropriate parameter binding strategies
+
+=== Type Mapping
+
+1. Prefer built-in type mappings
+2. Use custom type mappings with caution
+3. Configure JSON/XML codecs correctly
+4. Pay attention to timezone handling
+
+== FAQ
+
+=== Metamodel Classes Not Generated by the Annotation Processor
+
+Check: 1. Whether `annotationProcessors` is configured correctly 2. Whether the domain class uses the `@Table` annotation 3. Whether the compile classpath includes the `army-annotation` dependency
+
+=== Snowflake Generator Duplicate startTime Warning
+
+Issue: Using the same `startTime` parameter across multiple domain classes risks ID collisions.
+
+Solution: 1. Use distinct `startTime` values for different entities 2. Suppress the warning with `-Aarmy.snowflakeStartTimeWarning=false`
+
+=== Transaction Exception (IllegalTransactionStateException)
+
+Solution: 1. Verify that a transaction has been properly started 2. Check the transaction propagation behavior configuration 3. Ensure database operations are executed within a transaction context
+
+=== Type Mapping Errors
+
+Solution: 1. Check whether the field type matches the database type 2. Configure the correct `MappingType` 3. Verify the JSON/XML codec configuration
+
+== Appendix
+
+=== Reserved Fields Reference
+
+* `id` — Primary key
+* `createTime` — Creation timestamp
+* `updateTime` — Update timestamp
+* `version` — Optimistic lock version number
+* `visible` — Soft-delete visibility flag
+
+=== Database Support Matrix
+
+[cols="1,1,1,3",options="header"]
+|===
+| Database | Version | Blocking | Special Features
+| MySQL | 5.7, 8.0 | ✓ | INSERT ON DUPLICATE KEY UPDATE, LOAD DATA
+| PostgreSQL | 12+ | ✓ | RETURNING, ON CONFLICT, array types, composite types, HNSW
+| SQLite | — | ✓ | —
+| Oracle | — | Planned | —
+|===
+
+=== Version History
+
+==== 0.6.8-SNAPSHOT (Current)
+
+* Under active development
+
+==== 0.6.6
+
+* Stable release
+* Improved MySQL and PostgreSQL support
+
+==== 0.6.0
+
+* Major architecture overhaul
+* Introduced the new Criteria API
+
+=== Related Resources
+
+* GitHub: https://github.com/PillArmy/army
+* Documentation: https://army.qinarmy.io
+* Organization: https://qinarmy.io
+
+=== License
+
+Apache License 2.0
