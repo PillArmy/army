@@ -5,6 +5,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+/// Spring MVC interceptor that ensures every request has an **`AuthToken` cookie**.
+///
+/// <p>If the cookie is not present, it automatically sets a default `AuthToken` cookie
+/// with a hard-coded user ID for development/demo purposes.
+/// The cookie is configured as HTTP-only with maximum age for persistence.</p>
 public class CookieInterceptor implements HandlerInterceptor {
 
 

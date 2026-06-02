@@ -16,11 +16,20 @@
 
 package io.army.annotation;
 
+/// Defines the **sort direction** for index columns.
+///
+/// Used within `IndexField#order()` to control the ordering of values
+/// within a database index.
+///
+/// @see IndexField#order()
 public enum SortOrder {
 
+    /// Ascending sort order (`ASC`).
     ASC,
 
+    /// Descending sort order (`DESC`).
     DESC,
 
+    /// Use the database's **default** sort order (typically ascending).
     DEFAULT
 }

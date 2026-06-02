@@ -19,6 +19,14 @@ import java.util.List;
 
 import static io.army.criteria.impl.SQLs.*;
 
+/// `FactoryAdvice` implementation that performs **post-initialization data seeding**
+/// and cleanup when the Army session factory is created.
+///
+/// <p>Executed during `afterInitialize` callback:</p>
+/// 1. **Seeds a default user** (`zoro`) using PostgreSQL's `ON CONFLICT DO NOTHING`
+///    to ensure idempotent insertion
+/// 2. **Deletes expired uploaded files** older than 1 day that haven't been
+///    soft-deleted yet, cleaning up both filesystem and database records
 final class StockSessionFactoryAdvisor implements FactoryAdvice {
 
     @Override

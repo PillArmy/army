@@ -38,8 +38,26 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/// @see FieldMeta
-/// @see TableFieldMeta
+/// Utility class for resolving **field-level metadata** such as generators, column attributes,
+/// insertability, updatability, and comments.
+///
+/// <p>Extends `TableMetaUtils` to leverage shared placeholder resolution logic.
+/// This class focuses on field-specific concerns including:</p>
+/// - **Generator strategy** resolution (`@Generator` annotation + `TableMeta.properties` overrides)
+/// - **Column insertability/updatability** rules based on generator type and reserved fields
+/// - **Column comment** resolution with support for enum types and managed fields
+/// - **Discriminator field** detection for table inheritance hierarchies
+///
+/// ### Example: Generator resolution via properties
+/// ```properties
+/// # TableMeta.properties
+/// com.example.Stock.id.GeneratorStrategy=io.army.generator.Snowflake8GeneratorStrategy:{"startTime":1779012232202}
+/// com.example.Stock.id.Mapping.value=io.army.mapping.SqlBigIntType
+/// ```
+///
+/// @see TableMetaUtils
+/// @see io.army.meta.FieldMeta
+/// @see io.army.annotation.Generator
 abstract class FieldMetaUtils extends TableMetaUtils {
 
     private FieldMetaUtils() {
@@ -47,6 +65,11 @@ abstract class FieldMetaUtils extends TableMetaUtils {
     }
 
 
+    /// Implementation of `GeneratorMeta` for **PRECEDE-type** (pre-insert) field generators.
+    ///
+    /// <p>Holds the generator Java class, target field metadata, and an immutable parameter map.
+    /// Created during field metadata resolution when a `@Generator` annotation specifies
+    /// a generator class or when a `GeneratorStrategy` resolves to `GeneratorType.PRECEDE`.</p>
     static final class PreGeneratorMetaImpl implements GeneratorMeta {
 
         private final FieldMeta<?> fieldMeta;
@@ -79,6 +102,20 @@ abstract class FieldMetaUtils extends TableMetaUtils {
     }
 
 
+    /// Validates that a `@Generator` annotation configured for `GeneratorType.POST` mode
+    /// satisfies all constraints for post-generation (database auto-increment) fields.
+    ///
+    /// <p>Validation rules:</p>
+    /// - No generator class or params should be specified (POST uses database auto-id)
+    /// - Discriminator fields cannot use POST generation
+    /// - Only the `id` field supports POST generation
+    /// - The field must **not** be insertable
+    /// - Java type must be `int`, `long`, `Integer`, `Long`, `String`, or `BigInteger`
+    ///
+    /// @param field           the field metadata to validate
+    /// @param generator       the `@Generator` annotation instance
+    /// @param isDiscriminator whether the field is a discriminator column
+    /// @throws MetaException if any validation rule is violated
     static void validatePostGenerator(FieldMeta<?> field, Generator generator, boolean isDiscriminator) {
         if (!generator.value().isEmpty() || generator.params().length != 0) {
             String m = String.format("%s config error on %s.", Generator.class.getName(), field);
@@ -108,6 +145,21 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         }
     }
 
+    /// Resolves the **generator metadata** for a column-level `@Generator` annotation.
+    ///
+    /// <p>This method loads the generator class, builds the parameter map from `@Param` annotations,
+    /// and applies any `@OverrideParams` declared at the table level.</p>
+    ///
+    /// <p>Reserved Army-managed fields (e.g., `createTime`, `updateTime`) and discriminator
+    /// fields are not allowed to have generators.</p>
+    ///
+    /// @param generator       the `@Generator` annotation on the field
+    /// @param field           the Java reflection `Field` object
+    /// @param fieldMeta       the resolved field metadata
+    /// @param isDiscriminator whether the field is a discriminator column
+    /// @param context         the metadata resolution context
+    /// @return a `GeneratorMeta` instance for PRECEDE-type generators
+    /// @throws MetaException if the field is reserved or the generator class cannot be loaded
     static GeneratorMeta columnGeneratorMeta(Generator generator, Field field, FieldMeta<?> fieldMeta,
                                              boolean isDiscriminator, MetaContext context) {
         final String fieldName = fieldMeta.fieldName();
@@ -125,6 +177,24 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         return new PreGeneratorMetaImpl(fieldMeta, generatorClass, finalMap);
     }
 
+    /// Loads a `GeneratorStrategy` instance from `TableMeta.properties` for a given field.
+    ///
+    /// <p>The property key follows the pattern:
+    /// `{className}.{fieldName}.GeneratorStrategy`.</p>
+    ///
+    /// <p>The property value format is: `fully.qualified.StrategyClass[:jsonParams]`.</p>
+    ///
+    /// ### Example
+    /// ```properties
+    /// io.army.example.stock.domain.Stock.id.GeneratorStrategy=\
+    ///   io.army.generator.Snowflake8GeneratorStrategy:{"startTime":1779012232202}
+    /// ```
+    ///
+    /// @param fieldMeta   the resolved field metadata
+    /// @param generatorType the expected generator type (`PRECEDE`, `POST`, or `RUNTIME`)
+    /// @param context     the metadata resolution context
+    /// @return the loaded `GeneratorStrategy` instance
+    /// @throws MetaException if the property is missing for `RUNTIME` type or loading fails
     static GeneratorStrategy loadGeneratorStrategy(final FieldMeta<?> fieldMeta, final GeneratorType generatorType,
                                                    final MetaContext context) {
         final String key, fieldName;
@@ -177,6 +247,18 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         return strategy;
     }
 
+    /// Creates a `GeneratorMeta` from a resolved `GeneratorStrategy`.
+    ///
+    /// <p>Returns `null` for `POST`-type generators (database auto-increment),
+    /// since they require no application-side generator configuration.
+    /// For `PRECEDE`-type generators, returns a `PreGeneratorMetaImpl`.</p>
+    ///
+    /// @param strategy       the resolved generator strategy
+    /// @param fieldMeta      the field metadata
+    /// @param isDiscriminator whether the field is a discriminator column
+    /// @param context        the metadata resolution context
+    /// @return a `GeneratorMeta` for PRECEDE generators, or `null` for POST generators
+    /// @throws MetaException if the field is reserved or managed by Army
     @Nullable
     static GeneratorMeta createGeneratorMeta(GeneratorStrategy strategy, FieldMeta<?> fieldMeta,
                                              boolean isDiscriminator, MetaContext context) {
@@ -195,11 +277,31 @@ abstract class FieldMetaUtils extends TableMetaUtils {
     }
 
 
+    /// Determines whether a given field is a **discriminator column** for table inheritance.
+    ///
+    /// <p>A field is a discriminator if the table class has an `@Inheritance` annotation
+    /// whose value matches the given field name.</p>
+    ///
+    /// @param tableJavaType the domain class to check for `@Inheritance`
+    /// @param fieldName     the field name to test
+    /// @return `true` if the field is the discriminator column
     static boolean isDiscriminator(final Class<?> tableJavaType, final String fieldName) {
         final Inheritance inheritance = tableJavaType.getAnnotation(Inheritance.class);
         return inheritance != null && fieldName.equals(inheritance.value());
     }
 
+    /// Determines whether a column is **insertable** based on its generator type and role.
+    ///
+    /// <p>Insertability rules:</p>
+    /// - **No generator**: insertable if it's a discriminator, reserved field, or `@Column(insertable=true)`
+    /// - **PRECEDE generator**: always insertable (application generates the value)
+    /// - **POST generator**: insertable only for child tables (inheritance)
+    ///
+    /// @param field         the field metadata
+    /// @param generatorType the generator type, or `null` if no generator
+    /// @param column        the `@Column` annotation instance
+    /// @param isDiscriminator whether the field is a discriminator column
+    /// @return `true` if the column should be included in INSERT statements
     static boolean columnInsertable(FieldMeta<?> field, @Nullable GeneratorType generatorType,
                                     final Column column, final boolean isDiscriminator) {
         final boolean insertable;
@@ -221,6 +323,17 @@ abstract class FieldMetaUtils extends TableMetaUtils {
         return insertable;
     }
 
+    /// Determines whether a column is **updatable** based on its role and table immutability.
+    ///
+    /// <p>Update rules:</p>
+    /// - **Never updatable**: discriminator, `id`, `createTime`, or fields on immutable tables
+    /// - **Always updatable**: `updateTime`, `version`, `visible`
+    /// - **Otherwise**: follows `@Column(updatable=...)` annotation value
+    ///
+    /// @param field         the field metadata
+    /// @param column        the `@Column` annotation instance
+    /// @param isDiscriminator whether the field is a discriminator column
+    /// @return `true` if the column should be included in UPDATE statements
     static boolean columnUpdatable(FieldMeta<?> field, final Column column, boolean isDiscriminator) {
         final String fieldName = field.fieldName();
         final boolean able;
@@ -240,6 +353,28 @@ abstract class FieldMetaUtils extends TableMetaUtils {
     }
 
 
+    /// Resolves the **column comment** from the `@Column.comment()` attribute and
+    /// optional `TableMeta.properties` overrides.
+    ///
+    /// <p>Comment resolution supports:</p>
+    /// - `${DEFAULT}`: auto-generate from enum type or camelCase-to-spaced conversion
+    /// - `${RUNTIME}`: must be provided in properties (key: `{className}.{fieldName}.Column.comment`)
+    /// - Reserved Army fields: automatic comments like `"primary key"`, `"create time"`, etc.
+    /// - Discriminator fields: auto-generated `@see` comment pointing to the enum class
+    ///
+    /// ### Example
+    /// ```java
+    /// @Column(comment = "${DEFAULT}")
+    /// public StockStatus status;
+    /// // Resolved to: "enum, @see io.army.example.stock.domain.StockStatus"
+    /// ```
+    ///
+    /// @param column        the `@Column` annotation instance
+    /// @param fieldMeta     the resolved field metadata
+    /// @param isDiscriminator whether the field is a discriminator column
+    /// @param context       the metadata resolution context
+    /// @return the resolved comment string
+    /// @throws MetaException if the comment is required but cannot be resolved
     static String columnComment(final Column column, FieldMeta<?> fieldMeta, final boolean isDiscriminator,
                                 MetaContext context) {
         final String value = column.comment(), finalValue;

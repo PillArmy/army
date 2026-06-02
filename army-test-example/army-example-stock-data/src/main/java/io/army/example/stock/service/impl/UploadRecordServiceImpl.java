@@ -7,6 +7,10 @@ import io.army.spring.TransactionTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 
+/// Transactional service implementation for **upload record** operations.
+///
+/// <p>The `uploadComplete` method runs in a `READ_COMMITTED` non-read-only transaction
+/// to atomically mark an upload as finished.</p>
 @Service("uploadRecordService")
 public class UploadRecordServiceImpl extends AbstractStockBaseService implements UploadRecordService {
 

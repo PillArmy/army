@@ -23,6 +23,13 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
 
+/// Marker annotation for fields that require **custom encoding/decoding** logic
+/// when reading from or writing to the database.
+///
+/// This annotation is reserved for future use. Currently, it serves as an extension point
+/// for custom type codecs that can intercept field-level data transformation.
+///
+/// @since Army 1.0
 @Target({FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

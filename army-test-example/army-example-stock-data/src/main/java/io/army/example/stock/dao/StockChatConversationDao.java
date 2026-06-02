@@ -7,6 +7,10 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
+/// DAO interface for **stock chat conversation** data access operations.
+///
+/// <p>Provides methods for managing chat conversations including listing,
+/// querying current conversation, message retrieval, deletion, and title updates.</p>
 public interface StockChatConversationDao extends StockBaseDao {
 
 

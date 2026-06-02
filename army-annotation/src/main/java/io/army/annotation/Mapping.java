@@ -18,65 +18,93 @@ package io.army.annotation;
 
 import java.lang.annotation.*;
 
+/// Specifies the **type mapping** between a Java field and its database column representation.
+///
+/// This annotation controls how Army's mapping system converts Java types to/from
+/// database types. It is especially important for non-standard mappings such as
+/// MySQL `LONGTEXT`, PostgreSQL `ENUM`, set types, and binary LOB types.
+///
+/// ## Resolution Priority
+///
+/// `type()` takes precedence over `value()`. At least one must be specified
+/// unless the framework can infer the mapping from the Java type automatically.
+///
+/// ### Example: MySQL LONGTEXT with charset
+/// ```java
+/// @Mapping("io.army.mapping.mysql.MySQLLongTextType", charset = "UTF-8")
+/// @Column(comment = "User article content")
+/// public java.nio.file.Path article;
+/// ```
+///
+/// ### Example: MySQL SET type with elements
+/// ```java
+/// @Mapping("io.army.mapping.mysql.MySQLSetType", elements = DayOfWeek.class)
+/// @Column(comment = "Update day of week")
+/// public java.util.Set<DayOfWeek> dayOfWeek;
+/// ```
+///
+/// ### Example: PostgreSQL ENUM with params
+/// ```java
+/// @Mapping(type = PostgreEnumType.class, params = {"gender_enum"})
+/// @Column(comment = "Gender")
+/// public Gender gender;
+/// ```
+///
+/// @see Column
+/// @see Generator
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Mapping {
 
-    /// (Optional) ,You must choose one of the two methods (this method and {@link #type()})
-    /// This method priority is lower than {@link #type()}.
-    /// @return the qualified class name of the implementation of {@code io.army.mapping.MappingType}.
+    /// (Optional) The **fully-qualified class name** of the `MappingType` implementation.
+    ///
+    /// Either this or `type()` must be specified; `type()` takes precedence.
+    /// For `TextMappingType` implementations representing binary data, `charset()` is also required.
     String value() default "";
 
-    /// (Optional) ,You must choose one of the two methods (this method and {@link #value()})
-    /// This method priority is higher than {@link #value()}.
+    /// (Optional) The **class of the `MappingType` implementation**.
+    ///
+    /// Takes precedence over `value()`. Use this when the mapping type class
+    /// is available at compile time.
     Class<?> type() default void.class;
 
-    /// 
-    /// - 'enum' : enum name ,for example : postgre enum
-    /// 
+    /// (Optional) **Extra parameters** for the mapping type configuration.
+    ///
+    /// Commonly used for PostgreSQL `ENUM` types to specify the enum type name,
+    /// or for collection types to specify element type parameters.
     String[] params() default {};
 
+    /// (Optional) A **custom database function name** for type conversion.
+    ///
+    /// When specified, the framework uses this function in SQL expressions
+    /// instead of the default type casting.
     String func() default "";
 
-    /// 
-    /// If {@link #value()} is the class name
-    /// of the implementation of {@code io.army.mapping.TextMappingType} and representing binary then required,
-    /// else ignore.
-    /// *
-    /// example:
-    /// <pre>
-    /// <code>
-    /// &#64;Mapping("io.army.mapping.mysql.MySQLLongTextType",charset="UTF-8")
-    /// &#64;Column(comment="user article")
-    /// private java.nio.file.Path article;
-    /// &#64;Mapping("io.army.mapping.mysql.MySQLLongTextType",charset="UTF-8")
-    /// &#64;Column(comment="user info")
-    /// private InputStream userInfo;
-    /// </code>
-    /// </pre>
-    /// *
-    /// @return the name of {@link java.nio.charset.Charset}.
+    /// (Optional) The **character set name** for text-based binary mappings.
+    ///
+    /// Required when `value()` is a `TextMappingType` implementation representing
+    /// binary data (e.g., `InputStream`, `Path`). Ignored otherwise.
+    ///
+    /// ### Example
+    /// ```java
+    /// @Mapping("io.army.mapping.mysql.MySQLLongTextType", charset = "UTF-8")
+    /// @Column(comment = "User info")
+    /// public InputStream userInfo;
+    /// ```
     String charset() default "";
 
-    /// 
-    /// If {@link #value()} is the class name
-    /// of the implementation of {@code io.army.mapping.ElementMappingType} then required,
-    /// else ignore.
-    /// *
-    /// example:
-    /// <pre>
-    /// <code>
-    /// &#64;Mapping("io.army.mapping.mysql.MySQLSetType",elements=DayOfWeek.class)
-    /// &#64;Column(comment="update day of week")
-    /// private java.util.Set<DayOfWeek> dayOfWeek;
-    /// &#64;Mapping("io.army.mapping.mysql.MySQLLongBlob",elements=byte[].class)
-    /// &#64;Column(comment="user image")
-    /// private reactor.core.publisher.Flux<byte[]> image;
-    /// </code>
-    /// </pre>
-    /// *
-    /// @return the name of {@link java.nio.charset.Charset}.
+    /// (Optional) The **element type(s)** for collection/array mapping types.
+    ///
+    /// Required when `value()` is an `ElementMappingType` implementation (e.g., MySQL `SET` type).
+    /// Specifies the Java class of each collection element.
+    ///
+    /// ### Example
+    /// ```java
+    /// @Mapping("io.army.mapping.mysql.MySQLSetType", elements = DayOfWeek.class)
+    /// @Column(comment = "Update day of week")
+    /// public java.util.Set<DayOfWeek> dayOfWeek;
+    /// ```
     Class<?>[] elements() default {};
 
 

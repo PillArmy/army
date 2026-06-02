@@ -14,6 +14,24 @@ import org.springframework.context.annotation.Configuration;
 import javax.sql.DataSource;
 import java.util.List;
 
+/// Spring configuration class for setting up the **Army synchronous session factory**
+/// and related infrastructure beans for the stock example module.
+///
+/// <p>Configured beans include:</p>
+/// - `FieldGeneratorFactory` — standalone Snowflake ID generator
+/// - `ArmySyncSessionFactoryBean` — Army session factory scanning `io.army.example.stock.domain`
+/// - `ArmySyncLocalTransactionManager` — transaction manager with nested transaction support
+/// - `SyncSessionContext` — session context for DAO injection
+/// - `TransactionTemplate` — programmatic transaction template
+///
+/// ### Example: Session factory configuration
+/// ```java
+/// factoryBean
+///     .setFactoryName("army-stock")
+///     .setDataSource(dataSource)
+///     .setPackagesToScan(List.of("io.army.example.stock.domain"))
+///     .setFieldGeneratorFactory(stockFieldGeneratorFactory());
+/// ```
 @Configuration
 public class DataSourceConfiguration {
 

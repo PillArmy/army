@@ -33,6 +33,44 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 
+/// Core utility class for resolving and constructing **table-level** and **field-level** metadata
+/// from Army ORM annotations and external `TableMeta.properties` configuration files.
+///
+/// <p>This class serves as the foundational metadata resolution engine within the Army framework.
+/// It bridges the gap between compile-time annotations (e.g., `@Table`, `@Column`, `@Index`)
+/// and runtime metadata objects (e.g., `TableMeta`, `FieldMeta`, `IndexMeta`).</p>
+///
+/// ## Placeholder Expressions
+///
+/// <p>Army supports a set of **placeholder expressions** in annotation attributes, enabling
+/// flexible, environment-aware metadata resolution:</p>
+///
+/// | Expression         | Behavior                                                              |
+/// |--------------------|-----------------------------------------------------------------------|
+/// | `${DEFAULT}`       | Use properties file override if present; otherwise apply built-in default |
+/// | `${RUNTIME}`       | Must be resolved from `TableMeta.properties` at runtime; throws if missing |
+/// | `${OPTIONAL}`      | Optional override from properties; skips the element if unresolved    |
+/// | `${DEFAULT_VALUE}` | Use a convention-based default (e.g., generated index names)         |
+///
+/// ### Example: Column name resolution
+/// ```java
+/// @Column(name = "${DEFAULT}")
+/// public String userName;
+/// // Resolved as "user_name" (camelCase → snake_case)
+/// // Or overridden via: com.example.User.userName.Column.name=user_name
+/// ```
+///
+/// ## Property Key Convention
+///
+/// <p>External overrides in `TableMeta.properties` follow the naming pattern:</p>
+/// ```
+/// {fully.qualified.ClassName}.{fieldName}.{Attribute}.{property}
+/// ```
+///
+/// @see FieldMetaUtils
+/// @see io.army.meta.TableMeta
+/// @see io.army.annotation.Table
+/// @see io.army.annotation.Column
 public abstract class TableMetaUtils {
 
     TableMetaUtils() {
@@ -40,15 +78,55 @@ public abstract class TableMetaUtils {
     }
 
 
+    /// Placeholder expression that resolves from `TableMeta.properties` if present,
+    /// otherwise falls back to a **built-in default** convention.
+    ///
+    /// <p>For column names, the default is camelCase-to-snake_case conversion.
+    /// For table names, it converts the simple class name to lowercase with underscores.</p>
     public static final String DEFAULT_EXP = "${DEFAULT}";
 
+    /// Placeholder expression that **must** be resolved from `TableMeta.properties` at runtime.
+    ///
+    /// <p>Throws `MetaException` if no corresponding property entry is found.
+    /// Use this when the value is environment-specific and has no sensible built-in default.</p>
     public static final String RUNTIME_EXP = "${RUNTIME}";
 
+    /// Placeholder expression for **optional** metadata overrides.
+    ///
+    /// <p>If the property is not found, the annotated element (e.g., an index) is silently skipped
+    /// rather than causing an error. Not all attributes support this expression.</p>
     public static final String OPTIONAL_EXP = "${OPTIONAL}";
 
+    /// Placeholder expression that resolves to a **convention-based default value**.
+    ///
+    /// <p>Currently used primarily for index name generation, where the framework
+    /// automatically constructs names like `uni_{table}_{column}` or `idx_{table}_{column}`.</p>
     public static final String DEFAULT_VALUE_EXP = "${DEFAULT_VALUE}";
 
 
+    /// Resolves the **database column name** for a given field based on the `@Column` annotation
+    /// and optional `TableMeta.properties` overrides.
+    ///
+    /// <p>Resolution order:</p>
+    /// 1. If `Column.name()` is `${DEFAULT}` or `${RUNTIME}`, look up the property key
+    ///    `{domainClass}.{fieldName}.Column.name`
+    /// 2. If `${DEFAULT}` and no property found → convert field name from camelCase to snake_case
+    /// 3. If `${RUNTIME}` and no property found → throw `MetaException`
+    /// 4. If `${OPTIONAL}` → unsupported, throws `MetaException`
+    /// 5. If literal text → use as-is (or convert to snake_case if empty)
+    ///
+    /// ### Example
+    /// ```java
+    /// // Field "userName" → column "user_name"
+    /// TableMetaUtils.columnName(User.class, column, field, context);
+    /// ```
+    ///
+    /// @param domainClass the domain entity class that owns the field
+    /// @param column      the `@Column` annotation instance on the field
+    /// @param field       the Java reflection `Field` object
+    /// @param context     the metadata resolution context providing properties and utilities
+    /// @return the resolved database column name (snake_case by convention)
+    /// @throws MetaException if the column name cannot be resolved or is invalid
     public static String columnName(Class<?> domainClass, Column column, Field field, MetaContext context) {
         final String value = column.name(), fieldName = field.getName();
         final String finalValue;
@@ -99,24 +177,75 @@ public abstract class TableMetaUtils {
     }
 
 
+    /// Resolves the **column precision** (total digit count or length) for a field.
+    ///
+    /// <p>Delegates to `columnIntValue` with built-in defaults based on mapping type:</p>
+    /// - `SqlDecimal` → 16
+    /// - `SqlString` → 255
+    /// - `SqlEnum` → max label length + 5
+    /// - `UUID` → 36
+    /// - `Vector` → 1024
+    ///
+    /// @param column  the `@Column` annotation instance
+    /// @param field   the database field object (either `FieldMeta` or `CompositeField`)
+    /// @param context the metadata resolution context
+    /// @return the resolved precision value, or `-1` if not applicable
     public static int columnPrecision(Column column, DatabaseObject.FieldObject field, MetaContext context) {
         return columnIntValue(column.precision(), "precision", field, context);
     }
 
+    /// Resolves the **column scale** (decimal digit count or fractional seconds) for a field.
+    ///
+    /// <p>Built-in defaults by mapping type:</p>
+    /// - `SqlDecimal` → 3
+    /// - `SqlLocalDateTime` / `SqlOffsetDateTime` / time types → 6 (microsecond precision)
+    ///
+    /// @param column  the `@Column` annotation instance
+    /// @param field   the database field object
+    /// @param context the metadata resolution context
+    /// @return the resolved scale value, or `-1` if not applicable
     public static int columnScale(Column column, DatabaseObject.FieldObject field, MetaContext context) {
         return columnIntValue(column.scale(), "scale", field, context);
     }
 
+    /// Resolves the **column collation** string (e.g., `"en_US.utf8"`) for a field.
+    ///
+    /// <p>Collation can be overridden via `TableMeta.properties` using the key:
+    /// `{className}.{fieldName}.Column.collation`.</p>
+    ///
+    /// @param column  the `@Column` annotation instance
+    /// @param field   the database field object
+    /// @param context the metadata resolution context
+    /// @return the resolved collation string, or empty string if not specified
     public static String columnCollation(Column column, DatabaseObject.FieldObject field, MetaContext context) {
         return columnStringValue(column.collation(), "collation", field, context);
     }
 
 
+    /// Resolves the **default value** expression for a column.
+    ///
+    /// <p>When `${DEFAULT}` is used and no property override is found, the framework generates
+    /// a type-appropriate zero value (e.g., `0` for numbers, `''` for strings,
+    /// `'1970-01-01'` for dates).</p>
+    ///
+    /// @param column  the `@Column` annotation instance
+    /// @param field   the database field object
+    /// @param context the metadata resolution context
+    /// @return the resolved default value expression as a SQL literal string
     static String columnDefault(Column column, DatabaseObject.FieldObject field, MetaContext context) {
         return columnStringValue(column.defaultValue(), "defaultValue", field, context);
     }
 
 
+    /// Resolves the **schema metadata** (catalog and schema) from the `@Table` annotation.
+    ///
+    /// <p>Both `catalog` and `schema` support `${DEFAULT}` and `${RUNTIME}` placeholders.
+    /// Property keys follow the pattern: `{className}.Table.catalog` and `{className}.Table.schema`.</p>
+    ///
+    /// @param table       the `@Table` annotation instance
+    /// @param domainClass the domain entity class
+    /// @param context     the metadata resolution context
+    /// @return the resolved `SchemaMeta` containing catalog and schema information
     static SchemaMeta schemaMeta(Table table, Class<?> domainClass, MetaContext context) {
         final String[] methods = {"catalog", "schema"};
         final String[] values = {table.catalog(), table.schema()};
@@ -162,6 +291,24 @@ public abstract class TableMetaUtils {
         return _SchemaMetaFactory.getSchema(values[0], values[1]);
     }
 
+    /// Resolves the **database table name** from the `@Table` annotation.
+    ///
+    /// <p>The table name is **required** and must not be in camelCase format.
+    /// Supports `${DEFAULT}` (auto-convert class simple name to snake_case) and
+    /// `${RUNTIME}` (must be provided in properties) placeholders.</p>
+    ///
+    /// ### Example
+    /// ```java
+    /// @Table(name = "stock_quotes")
+    /// public class StockQuotes { ... }
+    /// // Or use @Table(name = "${DEFAULT}") → "stock_quotes" (auto-derived)
+    /// ```
+    ///
+    /// @param table       the `@Table` annotation instance
+    /// @param domainClass the domain entity class
+    /// @param context     the metadata resolution context
+    /// @return the resolved table name in snake_case
+    /// @throws MetaException if the table name is empty, camelCase, or cannot be resolved
     static String tableName(Table table, Class<?> domainClass, MetaContext context) {
         final String tableName = table.name();
         if (!_StringUtils.hasText(tableName)) {
@@ -211,6 +358,17 @@ public abstract class TableMetaUtils {
     }
 
 
+    /// Resolves the **table comment** from the `@Table` annotation.
+    ///
+    /// <p>The comment is used for DDL generation and database documentation.
+    /// Supports `${DEFAULT}` (auto-convert class simple name to spaced comment)
+    /// and `${RUNTIME}` placeholders.</p>
+    ///
+    /// @param table       the `@Table` annotation instance
+    /// @param domainClass the domain entity class
+    /// @param context     the metadata resolution context
+    /// @return the resolved table comment string
+    /// @throws MetaException if the comment is empty or cannot be resolved
     static String tableComment(Table table, Class<?> domainClass, MetaContext context) {
         final String comment = table.comment();
 
@@ -254,6 +412,15 @@ public abstract class TableMetaUtils {
         return finalComment;
     }
 
+    /// Determines whether the table is **immutable** (read-only).
+    ///
+    /// <p>An immutable table does not support `UPDATE` operations on its fields.
+    /// Parent tables with `@Inheritance` cannot be marked as immutable.</p>
+    ///
+    /// @param table       the `@Table` annotation instance
+    /// @param domainClass the domain entity class
+    /// @return `true` if the table is immutable
+    /// @throws MetaException if an immutable table also has `@Inheritance`
     static boolean immutable(Table table, Class<?> domainClass) {
         final boolean immutable = table.immutable();
         if (immutable && domainClass.getAnnotation(Inheritance.class) != null) {
@@ -263,6 +430,17 @@ public abstract class TableMetaUtils {
         return immutable;
     }
 
+    /// Determines whether the framework should **generate DDL CREATE statements** for the table.
+    ///
+    /// <p>Resolution is based on the `DdlMode` specified in `@Table.ddlMode()`:</p>
+    /// - `CREATE` → always generate DDL
+    /// - `NONE` → never generate DDL
+    /// - `DEFAULT` → check `TableMeta.properties` key `{className}.Table.ddlMode`
+    ///
+    /// @param table       the `@Table` annotation instance
+    /// @param domainClass the domain entity class
+    /// @param context     the metadata resolution context
+    /// @return `true` if DDL CREATE should be generated for this table
     static boolean tableCreateDdl(Table table, Class<?> domainClass, MetaContext context) {
         final DdlMode mode = table.ddlMode();
         boolean createDdl;
@@ -298,6 +476,12 @@ public abstract class TableMetaUtils {
         return createDdl;
     }
 
+    /// Validates that the given parent table meta is a `DefaultTableMeta` instance
+    /// and its Java type is assignable from the specified domain class.
+    ///
+    /// @param parentTableMeta the parent table metadata to validate
+    /// @param domainClass     the child domain class
+    /// @throws MetaException if validation fails
     static <T> void assertParentTableMeta(ParentTableMeta<? super T> parentTableMeta
             , Class<T> domainClass) {
         if (!(parentTableMeta instanceof DefaultTableMeta)) {
@@ -313,6 +497,15 @@ public abstract class TableMetaUtils {
         }
     }
 
+    /// Resolves the **discriminator value** for a subclass in a table inheritance hierarchy.
+    ///
+    /// <p>The discriminator value is obtained from the `@DiscriminatorValue` annotation
+    /// on the domain class and must match a valid enum constant of the discriminator field type.</p>
+    ///
+    /// @param fieldJavaClass the enum type of the discriminator field
+    /// @param domainClass    the child domain class annotated with `@DiscriminatorValue`
+    /// @return the resolved discriminator enum value
+    /// @throws MetaException if `@DiscriminatorValue` is missing or the value is invalid
     static Enum<?> discriminatorValue(final Class<?> fieldJavaClass, final Class<?> domainClass) {
 
         final DiscriminatorValue discriminatorValue;
@@ -332,6 +525,16 @@ public abstract class TableMetaUtils {
         }
     }
 
+    /// Locates the **discriminator field** from the field metadata map based on the
+    /// `@Inheritance` annotation's value (which specifies the discriminator field name).
+    ///
+    /// <p>The discriminator field must be of **enum type** and present in the field map.</p>
+    ///
+    /// @param fieldMetaMap the map of field name to `FieldMeta`
+    /// @param domainClass  the parent domain class annotated with `@Inheritance`
+    /// @param <T>          the domain type
+    /// @return the discriminator `FieldMeta`
+    /// @throws MetaException if the discriminator field is not found or is not an enum type
     static <T> FieldMeta<T> discriminator(final Map<String, FieldMeta<T>> fieldMetaMap,
                                           final Class<T> domainClass) {
         final Inheritance inheritance = domainClass.getAnnotation(Inheritance.class);
@@ -350,6 +553,15 @@ public abstract class TableMetaUtils {
     }
 
 
+    /// Builds the **mapped class pair** for a domain class by traversing its inheritance hierarchy.
+    ///
+    /// <p>This method collects all classes in the extends chain that are annotated with
+    /// `@MappedSuperclass` or `@Table`, and identifies the parent class annotated with
+    /// `@Inheritance` (if any). Only one `@Inheritance` is allowed per hierarchy.</p>
+    ///
+    /// @param domainClass the domain entity class to analyze
+    /// @return a `DomainPair` containing the ordered list of mapped classes and the optional parent class
+    /// @throws MetaException if multiple `@Inheritance` annotations are found in the hierarchy
     static DomainPair mappedClassPair(final Class<?> domainClass) throws MetaException {
         List<Class<?>> list = new ArrayList<>(6);
         // add entity class firstly
@@ -384,6 +596,16 @@ public abstract class TableMetaUtils {
         return new DomainPair(list, parentDomainClass);
     }
 
+    /// Creates the **ordered list of field metadata** for all `@Column`-annotated fields
+    /// in the domain class and its mapped superclasses.
+    ///
+    /// <p>Fields are collected from the topmost superclass down to the domain class itself,
+    /// preserving declaration order. Static fields and fields without `@Column` are skipped.</p>
+    ///
+    /// @param tableMeta the resolved table metadata
+    /// @param context   the metadata resolution context
+    /// @param <T>       the domain type
+    /// @return an immutable list of `FieldMeta` instances in declaration order
     static <T> List<FieldMeta<T>> createFieldMetaList(final TableMeta<T> tableMeta, final MetaContext context) {
         final Class<?> domainClass = tableMeta.javaType();
 
@@ -428,6 +650,12 @@ public abstract class TableMetaUtils {
     }
 
 
+    /// Creates an **immutable map** from field name to `FieldMeta` for fast lookup.
+    ///
+    /// @param list the list of field metadata to index
+    /// @param <T>  the domain type
+    /// @return an unmodifiable map keyed by field name
+    /// @throws MetaException if duplicate field names are detected
     static <T> Map<String, FieldMeta<T>> createFieldMap(final List<FieldMeta<T>> list) {
         final Map<String, FieldMeta<T>> map = _Collections.hashMapForSize(list.size());
         for (FieldMeta<T> field : list) {
@@ -439,6 +667,25 @@ public abstract class TableMetaUtils {
     }
 
 
+    /// Creates the **index metadata list** for a table based on `@Index` annotations.
+    ///
+    /// <p>Each `@Index` is resolved for name, type, fields, collation, and opclass.
+    /// If no primary key index is found among the declared indexes, an automatic
+    /// unique index is appended for the `id` field.</p>
+    ///
+    /// ### Example
+    /// ```java
+    /// @Table(name = "stock",
+    ///     indexes = @Index(name = "${DEFAULT}", unique = true, fieldList = {"exchange", "code"}))
+    /// public class Stock { ... }
+    /// // Generates index name: "uni_stock_exchange_code"
+    /// ```
+    ///
+    /// @param tableMeta    the resolved table metadata
+    /// @param context      the metadata resolution context
+    /// @param fieldMetaMap the field name to `FieldMeta` map for resolving index columns
+    /// @param <T>          the domain type
+    /// @return an immutable list of `IndexMeta` instances
     static <T> List<IndexMeta<T>> createIndexList(TableMeta<T> tableMeta, MetaContext context,
                                                   Map<String, FieldMeta<T>> fieldMetaMap) {
         final Class<?> domainClass = tableMeta.javaType();
@@ -726,6 +973,16 @@ public abstract class TableMetaUtils {
     }
 
 
+    /// Builds the **generator execution chain** by resolving field-level dependencies.
+    ///
+    /// <p>Fields with `GeneratorMeta` are sorted by dependency depth so that
+    /// generators with no dependencies execute first. The dependency is declared
+    /// via the `FieldGenerator.DEPEND_FIELD_NAME` parameter.</p>
+    ///
+    /// @param nameToField the map of field name to `FieldMeta`
+    /// @param <T>         the domain type
+    /// @return an immutable list of fields ordered by generator dependency depth
+    /// @throws MetaException if a referenced dependent field is not found
     static <T> List<FieldMeta<?>> createGeneratorChain(final Map<String, FieldMeta<T>> nameToField)
             throws MetaException {
 
@@ -1016,6 +1273,10 @@ public abstract class TableMetaUtils {
     }
 
 
+    /// Default implementation of `IndexMeta` that holds resolved index metadata
+    /// including name, uniqueness, field list, column list, and index type.
+    ///
+    /// @param <T> the domain type
     private static final class DefaultIndexMeta<T> implements IndexMeta<T> {
 
         private final TableMeta<T> table;
@@ -1084,6 +1345,11 @@ public abstract class TableMetaUtils {
     } // DefaultIndexMeta
 
 
+    /// Represents a pair of the ordered mapped class hierarchy and the optional
+    /// parent class annotated with `@Inheritance`.
+    ///
+    /// <p>The `mappedList` contains classes from topmost superclass to the domain class,
+    /// while `parent` is non-null only when table inheritance is in use.</p>
     static final class DomainPair {
 
         final List<Class<?>> mappedList;
@@ -1099,6 +1365,10 @@ public abstract class TableMetaUtils {
     }
 
 
+    /// Minimal `IndexColumnMeta` implementation with all default values.
+    ///
+    /// <p>Used when index fields are specified via `@Index.fieldList()` (simple string array)
+    /// without detailed per-column configuration (no collation, opclass, or sort order).</p>
     private static final class MinIndexColumnMeta implements IndexColumnMeta {
 
         private static final MinIndexColumnMeta INSTANCE = new MinIndexColumnMeta();
@@ -1129,6 +1399,11 @@ public abstract class TableMetaUtils {
 
     } // MinIndexColumnMeta
 
+    /// Full-featured `IndexColumnMeta` implementation that stores collation, opclass,
+    /// sort order, and nulls order for each index column.
+    ///
+    /// <p>Used when index fields are specified via `@Index.fields()` with `@IndexField`
+    /// annotations providing detailed per-column configuration.</p>
     private static final class DefaultIndexColumnMeta implements IndexColumnMeta {
 
         private final String collation;

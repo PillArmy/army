@@ -7,6 +7,19 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/// Domain entity representing a **user-uploaded document record**.
+///
+/// <p>Maps to the `upload_record` table. Tracks the full lifecycle of a document upload:
+/// creation → file copy → SHA-256 hash computation → vectorization → optional soft deletion.</p>
+///
+/// ### Indexes
+/// - Non-unique index on `userId` for per-user record listing
+/// - Non-unique index on `fileHash` for deduplication checks
+///
+/// <p>The `vectorIdList` field is stored as JSONB (`@Mapping("io.army.mapping.PreferredJsonbType")`)
+/// and contains the IDs of vector embeddings generated from the uploaded document.</p>
+///
+/// @see BaseDomain
 @Table(name = "upload_record",
         indexes = {
                 @Index(name = "${DEFAULT_VALUE}", fieldList = "userId"),

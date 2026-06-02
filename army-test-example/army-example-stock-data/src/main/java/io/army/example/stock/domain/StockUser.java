@@ -9,6 +9,13 @@ import io.army.generator.snowflake.Snowflake8Generator;
 import java.time.LocalDateTime;
 
 
+/// Domain entity representing a **stock application user**.
+///
+/// <p>Maps to the `stock_user` table. Each user has a name, gender, and last login timestamp.
+/// A default user is seeded during application startup via `StockSessionFactoryAdvisor`.</p>
+///
+/// @see Gender
+/// @see BaseDomain
 @Table(name = "stock_user", comment = "股票用户")
 public class StockUser extends BaseDomain<StockUser> {
 

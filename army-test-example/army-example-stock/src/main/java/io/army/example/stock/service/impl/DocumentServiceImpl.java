@@ -27,6 +27,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/// Service implementation for **document vectorization and storage**.
+///
+/// <p>Processes uploaded PDF documents through the following pipeline:</p>
+/// 1. **File type detection** — only PDF files are currently supported
+/// 2. **Deduplication check** — skips if the SHA-256 hash already exists in `VectorizedRecord`
+/// 3. **PDF parsing** — uses Spring AI's `PagePdfDocumentReader` with margin configuration
+/// 4. **Embedding generation** — creates vector embeddings via the configured `VectorStore`
+/// 5. **Metadata enrichment** — adds SHA-256 hash and filename to each document's metadata
+/// 6. **Record persistence** — saves `VectorizedRecord` and updates `UploadRecord.vectorIdList`
+/// 7. **Cleanup** — deletes temporary files and marks upload records as deleted
+///
+/// <p>The `storeDocuments` method is annotated with `@Transactional(propagation = Propagation.NEVER)`
+/// to avoid long-running transactions during vectorization.</p>
 @Service
 public class DocumentServiceImpl extends AbstractStockBaseService implements DocumentService {
 

@@ -7,6 +7,23 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 
+/// Domain entity representing a **listed stock** in the exchange.
+///
+/// <p>Maps to the `stock` table with a unique composite index on `(exchange, code)`.
+/// Each stock record contains fundamental information such as the company name,
+/// listing date, offer price, and current market status.</p>
+///
+/// ### Table Schema Overview
+/// | Column       | Type           | Description                    |
+/// |--------------|----------------|----------------------------------|
+/// | `id`         | `BIGINT`       | Snowflake-8 primary key          |
+/// | `exchange`   | `VARCHAR(5)`   | Exchange code (e.g., SHSE, SZSE) |
+/// | `code`       | `VARCHAR(15)`  | Stock ticker code                |
+/// | `name`       | `VARCHAR(130)` | Company short name               |
+/// | `status`     | `ENUM`         | Market status (`NORMAL`, `DELISTED`, etc.) |
+///
+/// @see StockStatus
+/// @see BaseDomain
 @Table(name = "stock", indexes = {
         @Index(name = "${DEFAULT}", unique = true, fieldList = {"exchange", "code"})
 },

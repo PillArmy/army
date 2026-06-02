@@ -6,6 +6,16 @@ import io.army.annotation.MappedSuperclass;
 
 import java.time.LocalDate;
 
+/// Base domain for stock-related entities that are associated with a specific **stock** and **date**.
+///
+/// <p>Extends `BaseDomain` with two additional persisted fields:</p>
+/// - `stockId` — foreign key referencing the `stock` table (not primitive, to support DEFAULT value clause)
+/// - `date` — the trading date for the record
+///
+/// <p>Also provides non-persisted convenience fields (`exchange`, `code`, `name`) for
+/// runtime data enrichment without additional columns in the database.</p>
+///
+/// @param <T> the concrete domain type for fluent setter chaining
 @MappedSuperclass
 @SuppressWarnings("unchecked")
 public abstract class StockBaseDomain<T extends StockBaseDomain<T>> extends BaseDomain<T> {

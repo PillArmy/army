@@ -5,6 +5,17 @@ import io.army.annotation.*;
 import static io.army.generator.snowflake.Snowflake8Generator.START_TIME;
 
 
+/// Domain entity representing a **stock chat conversation session**.
+///
+/// <p>Maps to the `stock_chat_conversation` table. Each conversation is owned by a user
+/// and contains a truncated title (max 30 chars) auto-generated from the first message content.
+/// The `firstContent` field is mapped to a `TEXT` column via `@Mapping("io.army.mapping.TextType")`
+/// to store the initial user message.</p>
+///
+/// ### Index
+/// - Non-unique index on `userId` for efficient user conversation listing
+///
+/// @see BaseDomain
 @Table(name = "stock_chat_conversation",
         indexes = {
                 @Index(name = "${DEFAULT}", fieldList = {"userId"})

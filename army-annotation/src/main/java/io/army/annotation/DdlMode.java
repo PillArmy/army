@@ -16,9 +16,45 @@
 
 package io.army.annotation;
 
+/// Defines the **DDL (Data Definition Language) generation mode** for a table entity.
+///
+/// Controls whether the framework should generate `CREATE TABLE` statements during
+/// schema initialization.
+///
+/// ## Mode Summary
+///
+/// | Value     | Behavior                                               |
+/// |-----------|--------------------------------------------------------|
+/// | `CREATE`  | Always generate `CREATE TABLE` DDL                     |
+/// | `NONE`    | Never generate `CREATE TABLE` DDL                      |
+/// | `DEFAULT` | Resolve from `TableMeta.properties`, fallback to `CREATE` |
+///
+/// Configuration file path: `META-INF/army/TableMeta.properties` on the classpath.
+///
+/// ### Properties override example
+/// ```properties
+/// # File: META-INF/army/TableMeta.properties
+///
+/// # Override DDL mode for Stock entity (value: CREATE, NONE, or DEFAULT)
+/// com.example.domain.Stock.Table.ddlMode=NONE
+/// ```
+///
+/// @see Table#ddlMode()
 public enum DdlMode {
 
+    /// **Never** generate `CREATE TABLE` DDL for this entity.
+    ///
+    /// Use this for entities that map to externally-managed or pre-existing tables.
     NONE,
+
+    /// **Always** generate `CREATE TABLE` DDL for this entity.
+    ///
+    /// This is the default mode for most entities.
     CREATE,
+
+    /// Resolve the DDL mode from `TableMeta.properties` (located at `META-INF/army/TableMeta.properties`
+    /// on the classpath) using the key `{className}.Table.ddlMode`.
+    ///
+    /// If no property is found, falls back to `CREATE`.
     DEFAULT
 }

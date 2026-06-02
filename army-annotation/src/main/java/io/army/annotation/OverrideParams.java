@@ -19,13 +19,31 @@ package io.army.annotation;
 
 import java.lang.annotation.*;
 
-/// This annotation on a class can override
-/// {@link Generator} param of a field in the base class.
+/// Overrides the `@Generator` configuration parameters of fields **inherited from a superclass**.
+///
+/// This class-level annotation allows a subclass to customize the generator parameters
+/// of inherited fields without modifying the parent class. The most common use case is
+/// providing a different `startTime` for Snowflake ID generators in child entities.
+///
+/// ### Example
+/// ```java
+/// @OverrideParams(fields = {
+///     @FieldParam(name = "id", params = @Param(name = "startTime", value = "1600000000000")),
+///     @FieldParam(name = "uid", params = @Param(name = "startTime", value = "1600000000000"))
+/// })
+/// public class ChildEntity extends BaseEntity { }
+/// ```
+///
+/// @see Generator
+/// @see FieldParam
+/// @see Param
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface OverrideParams {
 
-    /// Specifies the creation value(s) of {@code io.army.generator.FieldGenerator}.
+    /// (Required) The **field-level parameter overrides**.
+    ///
+    /// Each `@FieldParam` specifies a field name and its replacement generator parameters.
     FieldParam[] fields();
 }

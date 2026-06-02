@@ -6,6 +6,11 @@ import io.army.spring.TransactionTemplate;
 import io.army.spring.sync.ArmySyncBaseService;
 
 
+/// Abstract base service for the stock module, extending `ArmySyncBaseService`
+/// with `StockBaseDao` as the generic DAO type.
+///
+/// <p>Provides transaction template injection and a template method `getDao()`
+/// for subclass-specific DAO access.</p>
 public abstract class AbstractStockBaseService extends ArmySyncBaseService<StockBaseDao> implements StockBaseService {
 
 

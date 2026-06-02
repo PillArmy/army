@@ -3,6 +3,15 @@ package io.army.example.stock.domain;
 import io.army.annotation.*;
 import io.army.generator.snowflake.Snowflake8Generator;
 
+/// Domain entity tracking files that have been **vectorized** into embeddings.
+///
+/// <p>Maps to the `vectorized_record` table. Used for deduplication: before vectorizing
+/// an uploaded document, the system checks whether its SHA-256 hash already exists
+/// in this table to avoid redundant processing.</p>
+///
+/// <p>This table is marked as **immutable** — records are insert-only and never updated.</p>
+///
+/// @see MinBaseDomain
 @Table(name = "vectorized_record", indexes = {
         @Index(name = "${DEFAULT_VALUE}", unique = true, fieldList = {"fileHash"})
 },

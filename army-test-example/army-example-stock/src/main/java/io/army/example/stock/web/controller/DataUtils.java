@@ -4,6 +4,14 @@ import io.army.util._Collections;
 
 import java.util.Map;
 
+/// Utility class for constructing **standardized API response maps**.
+///
+/// <p>All responses follow the convention:</p>
+/// ```json
+/// {"code": 0, "msg": "ok", "data": {...}}
+/// ```
+///
+/// <p>Error responses use non-zero `code` values with descriptive `msg`.</p>
 public abstract class DataUtils {
 
 

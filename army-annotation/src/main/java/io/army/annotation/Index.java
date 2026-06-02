@@ -21,32 +21,72 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+/// Defines a **database index** on the table mapped by the enclosing `@Table` annotation.
+///
+/// Index names support placeholder expressions (`${DEFAULT}`, `${DEFAULT_VALUE}`, `${RUNTIME}`, `${OPTIONAL}`)
+/// for flexible, environment-aware name resolution.
+///
+/// ## Name Conventions
+///
+/// | Placeholder        | Generated Name Pattern                |
+/// |--------------------|---------------------------------------|
+/// | `${DEFAULT_VALUE}` | `uni_{table}_{col}` or `idx_{table}_{col}` |
+/// | `${DEFAULT}`       | Same as above, with properties override    |
+/// | Literal string     | Used as-is                           |
+///
+/// ### Example
+/// ```java
+/// @Table(name = "stock",
+///     indexes = {
+///         @Index(name = "${DEFAULT}", unique = true, fieldList = {"exchange", "code"}),
+///         @Index(name = "${DEFAULT_VALUE}", type = "gin", fieldList = "metadata")
+///     })
+/// public class Stock { ... }
+/// ```
+///
 /// @since 0.6.0
+/// @see Table#indexes()
+/// @see IndexField
 @Target({})
 @Retention(RUNTIME)
 public @interface Index {
 
-    /// (Optional) The name of the indexMap; defaults to a provider-generated name.
+    /// (Required) The **name of the index**.
     ///
-    /// see {@code io.army.criteria.impl.TableMetaUtils#parseIndexName(io.army.meta.TableMeta, java.lang.Class, io.army.annotation.Index, int, io.army.criteria.impl.MetaContext)}
+    /// Supports placeholder expressions for automatic or runtime-resolved naming.
     String name();
 
-    /// (Optional) The names of index field .
-    /// in asSort.
+    /// (Optional) **Simple field name list** for the index columns.
+    ///
+    /// Field names refer to Java field names and are resolved to column names.
+    /// Use this for simple indexes without per-column configuration.
+    /// For detailed per-column settings (collation, opclass, sort order), use `fields()` instead.
+    ///
+    /// @see #fields()
     String[] fieldList() default {};
 
-    /// (Optional) The fields of index.
+    /// (Optional) **Detailed index field definitions** with per-column configuration.
     ///
-    /// Field takes precedence over {@link #fieldList()}.
+    /// Takes precedence over `fieldList()` when both are specified.
+    /// Each `@IndexField` can configure collation, opclass, sort order, and nulls order.
+    ///
+    /// @see IndexField
     IndexField[] fields() default {};
 
-    /// (Optional) Whether the indexMap is unique.
+    /// (Optional) Whether the index enforces **uniqueness**.
+    ///
+    /// The primary key index is always unique and is generated automatically.
     boolean unique() default false;
 
-    /// - MySQL: BTREE,HASH,FULLTEXT,SPATIAL
-    /// - PostgreSQL: btree, hash, gist, spgist, gin, brin
+    /// (Optional) The **index access method type** (database-specific).
     ///
-    /// see {@code io.army.criteria.impl.TableMetaUtils#parseIndexType(java.lang.Class, java.lang.String, int, io.army.criteria.impl.MetaContext)}
+    /// | Database   | Supported Types                                  |
+    /// |------------|--------------------------------------------------|
+    /// | MySQL      | `BTREE`, `HASH`, `FULLTEXT`, `SPATIAL`           |
+    /// | PostgreSQL | `btree`, `hash`, `gist`, `spgist`, `gin`, `brin` |
+    ///
+    /// Supports `${DEFAULT}`, `${RUNTIME}`, and `${OPTIONAL}` placeholders.
+    /// An empty string (default) uses the database's default index type.
     String type() default "";
 
 }

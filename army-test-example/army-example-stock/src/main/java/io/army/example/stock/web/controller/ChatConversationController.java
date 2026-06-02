@@ -30,6 +30,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+/// REST controller for **chat conversation** management endpoints.
+///
+/// <p>Provides the web API layer for the stock chat application, including:</p>
+/// - `GET /api/chat/conversation/list` — list user's conversations
+/// - `GET /api/chat/conversation/currentId` — get current active conversation ID
+/// - `GET /api/chat/conversation/{id}/messages` — retrieve conversation messages
+/// - `POST /api/chat/conversation/create` — create a new conversation
+/// - `POST /api/chat/conversation/talk/{id}` — stream chat response via SSE
+/// - `POST /api/chat/conversation/delete/{id}` — delete a conversation
+/// - `POST /api/chat/conversation/updateTitle/{id}` — rename conversation title
+/// - `POST /api/chat/conversation/{id}/upload/documents` — upload documents for RAG
+///
+/// <p>User authentication is handled via `AuthToken` cookie (injected by `CookieInterceptor`).</p>
+///
+/// @see CookieInterceptor
 @RestController
 @RequestMapping("/api/chat/conversation")
 public class ChatConversationController {

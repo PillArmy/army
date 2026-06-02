@@ -10,6 +10,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.time.Duration;
 
+/// Spring MVC configuration for the stock web application.
+///
+/// <p>Configures:</p>
+/// - **Static resource handling** with 365-day cache for `/static/**` paths
+/// - **Cookie interceptor** registration for all request paths
 @Configuration
 public class StockWebConfiguration implements WebMvcConfigurer {
 

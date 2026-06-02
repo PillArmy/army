@@ -12,6 +12,11 @@ import java.time.LocalDateTime;
 
 import static io.army.criteria.impl.SQLs.AS;
 
+/// Implementation of `UploadRecordDao` using Army's type-safe criteria API.
+///
+/// <p>The `uploadComplete` method atomically updates the record with the file hash
+/// and completion timestamp, guarded by a `fileHash IS NULL` condition to prevent
+/// double-completion.</p>
 @Repository("uploadRecordDao")
 public class UploadRecordDaoImpl extends ArmyStockBaseDao implements UploadRecordDao {
 

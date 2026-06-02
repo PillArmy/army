@@ -4,6 +4,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+/// Utility class for **stock trading day calculations**.
+///
+/// <p>Provides methods to determine the current trading day, accounting for:</p>
+/// - **Market close time**: If before 15:05, uses the previous day (market not yet closed)
+/// - **Weekend adjustment**: Skips Saturday and Sunday to return the nearest weekday
 public abstract class StockUtils {
 
 

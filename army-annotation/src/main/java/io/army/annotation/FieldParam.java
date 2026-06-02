@@ -21,15 +21,31 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/// Binds a **field name** to a set of `@Param` values within an `@OverrideParams` declaration.
+///
+/// This annotation acts as a grouping element that associates generator parameter overrides
+/// with a specific inherited field. It is used exclusively inside `OverrideParams#fields()`.
+///
+/// ### Example
+/// ```java
+/// @OverrideParams(fields = @FieldParam(name = "id",
+///     params = @Param(name = "startTime", value = "1600000000000")))
+/// ```
+///
+/// @see OverrideParams
+/// @see Param
 @Target({})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface FieldParam {
 
-    /// java field name
+    /// (Required) The **Java field name** of the inherited field to override.
     String name();
 
 
+    /// (Required) The **replacement generator parameters** for the specified field.
+    ///
+    /// @see Param
     Param[] params();
 
 }

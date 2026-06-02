@@ -18,15 +18,47 @@ package io.army.annotation;
 
 import java.lang.annotation.*;
 
-
+/// Marks a class as the **root entity of an inheritance hierarchy** using the
+/// **single-table inheritance** strategy (one table for all subtypes).
+///
+/// The `value()` attribute specifies the Java field name that maps to a discriminator column.
+/// The discriminator field's mapped column must be an `Enum` type implementing
+/// `io.army.struct.CodeEnum`.
+///
+/// ## Inheritance Model
+/// ```
+/// @Inheritance("status")          ← parent table
+/// └── User (abstract base)
+///     ├── Admin   @DiscriminatorValue("ADMIN")
+///     └── Member  @DiscriminatorValue("MEMBER")
+/// ```
+///
+/// ### Example
+/// ```java
+/// @Table(name = "u_user", comment = "User entity")
+/// @Inheritance("status")
+/// public abstract class User extends BaseDomain<User> {
+///     @Column(comment = "User status")
+///     public UserStatus status;
+/// }
+///
+/// @DiscriminatorValue("ADMIN")
+/// public class Admin extends User { }
+/// ```
+///
 /// @see DiscriminatorValue
+/// @see MappedSuperclass
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Inheritance {
 
 
-    /// Domain's filed name ,the column mapping property must be {@link Enum} that implements {@code io.army.struct.CodeEnum}.
+    /// (Required) The **Java field name** of the discriminator column.
+    ///
+    /// The referenced field's mapped column type must be an `Enum` implementing
+    /// `io.army.struct.CodeEnum`. The framework uses this column to filter rows
+    /// by entity subtype in queries.
     String value();
 
 

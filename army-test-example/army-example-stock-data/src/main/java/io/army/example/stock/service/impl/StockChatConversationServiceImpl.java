@@ -12,6 +12,11 @@ import org.springframework.transaction.annotation.Isolation;
 import java.util.List;
 import java.util.Map;
 
+/// Transactional service implementation for **stock chat conversation** operations.
+///
+/// <p>All read operations use read-only transactions, while write operations
+/// (`deleteConversation`, `updateTitle`) explicitly specify `READ_COMMITTED` isolation
+/// and non-read-only mode.</p>
 @Service("stockChatConversationService")
 public class StockChatConversationServiceImpl extends AbstractStockBaseService implements StockChatConversationService {
 

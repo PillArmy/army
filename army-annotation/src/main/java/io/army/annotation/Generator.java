@@ -23,42 +23,66 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
 
-/// Specifies the {@code io.army.generator.PreFieldGenerator} for the mapping property of Entity.
-/// 
-/// <pre>
-/// Example:
-/// &#064;Table(name="u_user", schema="army",comment="storage user info")
-/// public class User {
-/// &#064;Generator("io.army.generator.snowflake.SnowflakeMultiGenerator")
-/// &#064;Column
-/// private Long id;
-/// &#064;Column
-/// private LocalDateTime createTime;
-/// &#064;Column
-/// private Boolean visible;
-/// &#064;Column
-/// private LocalDateTime updateTime;
-/// &#064;Column
-/// private Integer version;
-/// &#064;Generator(generator=SnowflakeMultiGenerator.class,params={&#064;GeneratorParam(name="startTime",value="1580224449498")})
-/// &#064;Column(updatable=false,comment="identifier of user")
-/// private String uid;
-/// }
-/// </pre>
-/// *
-/// see {@code io.army.generator.PreFieldGenerator} and {@code io.army.generator.FieldGenerator}
-/// * @see Column
+/// Specifies a **field value generator** for the annotated property.
+///
+/// Generators produce values before (`PRECEDE`) or after (`POST`) an INSERT statement.
+/// The most common use case is generating unique primary key values using Snowflake ID generators.
+///
+/// ## Generator Types
+///
+/// | Type       | Description                                               |
+/// |------------|-----------------------------------------------------------|
+/// | `PRECEDE`  | Application-side generator, runs before INSERT            |
+/// | `POST`     | Database auto-increment, no application-side generation   |
+/// | `RUNTIME`  | Strategy resolved from `TableMeta.properties` at runtime  |
+/// | `DEFAULT`  | Framework decides based on context                        |
+///
+/// Configuration file path: `META-INF/army/TableMeta.properties` on the classpath.
+/// Property key pattern: `{className}.{fieldName}.Generator.type`
+///
+/// ### Properties override example
+/// ```properties
+/// # File: META-INF/army/TableMeta.properties
+///
+/// # Override generator strategy and startTime for 'id' field
+/// com.example.domain.Stock.id.GeneratorStrategy=io.army.generator.Snowflake8GeneratorStrategy:{"startTime":1779111192831}
+/// ```
+///
+/// ### Example: Snowflake ID generator
+/// ```java
+/// @Generator(value = "io.army.generator.snowflake.Snowflake8Generator",
+///            params = @Param(name = Snowflake8Generator.START_TIME, value = "1779012232202"))
+/// @Column
+/// public long id;
+/// ```
+///
 /// @since 0.6.0
+/// @see Column
+/// @see GeneratorType
+/// @see Param
+/// @see OverrideParams
 @Target({FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Generator {
 
+    /// (Optional) The **generator type** controlling when and how the value is generated.
+    ///
+    /// Default is `GeneratorType.PRECEDE` (application-side generation before INSERT).
+    ///
+    /// @see GeneratorType
     GeneratorType type() default GeneratorType.PRECEDE;
 
-    /// Specifies the class name of {@code io.army.generator.PreFieldGenerator}.
+    /// (Optional) The **fully-qualified class name** of the `FieldGenerator` implementation.
+    ///
+    /// Required for `PRECEDE` type generators. Ignored for `POST` type.
+    /// The specified class must implement `io.army.generator.FieldGenerator`.
     String value() default "";
 
-    /// Specifies the creation value(s) of {@code io.army.generator.FieldGenerator}.
+    /// (Optional) **Configuration parameters** passed to the generator during initialization.
+    ///
+    /// Common parameters include `startTime` for Snowflake generators.
+    ///
+    /// @see Param
     Param[] params() default {};
 }

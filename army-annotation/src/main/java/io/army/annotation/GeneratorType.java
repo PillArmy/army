@@ -16,12 +16,56 @@
 
 package io.army.annotation;
 
+/// Defines the **strategy types** for field value generators.
+///
+/// Controls when and how a generator produces values relative to the INSERT lifecycle.
+///
+/// ## Type Summary
+///
+/// | Value     | Description                                                            |
+/// |-----------|------------------------------------------------------------------------|
+/// | `PRECEDE` | Application-side generation before INSERT (e.g., Snowflake ID)         |
+/// | `POST`    | Database auto-increment; no application-side generation needed         |
+/// | `RUNTIME` | Strategy resolved from `TableMeta.properties` at runtime               |
+/// | `DEFAULT` | Framework decides based on context (e.g., parent table inheritance)    |
+///
+/// Configuration file path: `META-INF/army/TableMeta.properties` on the classpath.
+///
+/// ### Properties override example
+/// ```properties
+/// # File: META-INF/army/TableMeta.properties
+///
+/// # Override generator type for 'id' field (value: PRECEDE, POST, or DEFAULT)
+/// com.example.domain.Stock.id.Generator.type=POST
+/// ```
+///
+/// @see Generator#type()
 public enum GeneratorType {
+
+    /// Application-side generator that produces a value **before** the INSERT statement.
+    ///
+    /// The generator must implement `io.army.generator.FieldGenerator`.
+    /// This is the default type.
     PRECEDE,
+
+    /// Database auto-increment column — **no** application-side generation.
+    ///
+    /// The database assigns the value during INSERT. After INSERT, the framework
+    /// reads the generated key back into the entity.
     POST,
 
-    /// see {@code io.army.meta.GeneratorStrategy}
+    /// Strategy resolved from `TableMeta.properties` (located at `META-INF/army/TableMeta.properties`
+    /// on the classpath) using the key `{className}.{fieldName}.Generator.type`.
+    ///
+    /// The property value must be one of `PRECEDE`, `POST`, or `DEFAULT`.
+    ///
+    /// See {@code io.army.meta.GeneratorStrategy}
     RUNTIME,
+
+    /// Framework-decided strategy based on the entity context.
+    ///
+    /// For child entities inheriting from a parent with `@Inheritance`, defaults to `POST`.
+    /// Otherwise, behaves like `PRECEDE`.
     DEFAULT;
 
 

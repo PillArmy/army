@@ -22,15 +22,34 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/// see {@code io.army.generator.PreFieldGenerator}
-/// 
+/// A **name-value pair** used to configure a field generator's initialization parameters.
+///
+/// This annotation is used within `Generator#params()` and `FieldParam#params()` to
+/// pass configuration values (such as `startTime` for Snowflake generators) to the
+/// generator implementation.
+///
+/// ### Example
+/// ```java
+/// @Generator(value = "io.army.generator.snowflake.Snowflake8Generator",
+///     params = @Param(name = Snowflake8Generator.START_TIME, value = "1779012232202"))
+/// @Column
+/// public long id;
+/// ```
+///
 /// @see Generator
+/// @see FieldParam
+/// @see OverrideParams
 @Target({})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Param {
 
+    /// (Required) The **parameter name** recognized by the generator implementation.
     String name();
 
+    /// (Required) The **parameter value** as a string.
+    ///
+    /// The generator implementation is responsible for parsing this string
+    /// into the appropriate type (e.g., `long` for `startTime`).
     String value();
 }

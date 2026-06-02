@@ -6,6 +6,14 @@ import io.army.generator.snowflake.Snowflake8Generator;
 
 import java.math.BigDecimal;
 
+/// Domain entity representing **stock K-line (candlestick) data**.
+///
+/// <p>Maps to the `stock_candles` table with a unique composite index on `(stockId, date)`.
+/// Each record captures OHLCV (Open-High-Low-Close-Volume) candlestick data
+/// used for technical analysis and charting.</p>
+///
+/// @see StockBaseDomain
+/// @see Stock
 @Table(name = "stock_candles",
         indexes = @Index(name = "${DEFAULT}", unique = true, fieldList = {"stockId", "date"}),
         comment = "股票k线数据")

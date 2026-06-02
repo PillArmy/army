@@ -3,6 +3,10 @@ package io.army.example.stock.util;
 
 import org.springframework.util.Assert;
 
+/// String utility class extending Spring's `StringUtils` with additional truncation support.
+///
+/// <p>Provides the `myTruncate` method for safely truncating strings
+/// to a maximum character length, commonly used for generating conversation titles.</p>
 public abstract class StringUtils extends org.springframework.util.StringUtils {
 
     private StringUtils() {

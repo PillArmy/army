@@ -9,6 +9,12 @@ import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.util.Base64;
 
+/// Utility class for **file I/O operations** used in document upload and processing.
+///
+/// <p>Provides methods for:</p>
+/// - **SHA-256 hashing** with Base64 encoding for file deduplication
+/// - **Safe file deletion** with exception wrapping
+/// - **File type detection** based on file extension
 public abstract class FileUtils {
 
     private FileUtils() {

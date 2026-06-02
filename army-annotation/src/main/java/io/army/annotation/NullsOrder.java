@@ -16,11 +16,23 @@
 
 package io.army.annotation;
 
+/// Defines the **NULL values ordering** within an index column.
+///
+/// Used within `IndexField#nulls()` to control whether NULL values appear
+/// before or after non-NULL values in the index. This is primarily useful
+/// for PostgreSQL, which supports explicit `NULLS FIRST` / `NULLS LAST` syntax.
+///
+/// @see IndexField#nulls()
 public enum NullsOrder {
 
+    /// NULL values appear **before** non-NULL values in the index.
     NULLS_FIRST,
 
+    /// NULL values appear **after** non-NULL values in the index.
     NULLS_LAST,
 
+    /// Use the database's **default** nulls ordering.
+    ///
+    /// PostgreSQL default: `NULLS LAST` for ASC, `NULLS FIRST` for DESC.
     DEFAULT
 }

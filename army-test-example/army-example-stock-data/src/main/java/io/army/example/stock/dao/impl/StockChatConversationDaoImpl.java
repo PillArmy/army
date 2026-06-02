@@ -20,6 +20,17 @@ import java.util.Map;
 
 import static io.army.criteria.impl.SQLs.*;
 
+/// Implementation of `StockChatConversationDao` using Army's type-safe criteria API.
+///
+/// <p>All queries are built using the Army SQL builder (`SQLs.query()`, `Postgres.singleDelete()`, etc.)
+/// with compile-time type-safe field references from the generated `StockChatConversation_` and
+/// `StockChatMemory_` meta-model classes.</p>
+///
+/// <p>Notable implementation details:</p>
+/// - `deleteConversation` uses PostgreSQL's `WITH ... DELETE ... RETURNING` + `DELETE ... USING`
+///   pattern for cascading deletion in a single statement
+/// - `currentConversationId` joins conversation and memory tables to find the latest active conversation
+/// - `conversationMessageList` filters by `MessageType.USER` and `MessageType.ASSISTANT` only
 @Repository("stockChatConversationDao")
 public class StockChatConversationDaoImpl extends ArmyStockBaseDao implements StockChatConversationDao {
 

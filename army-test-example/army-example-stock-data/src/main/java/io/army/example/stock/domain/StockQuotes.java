@@ -6,6 +6,24 @@ import io.army.generator.snowflake.Snowflake8Generator;
 
 import java.math.BigDecimal;
 
+/// Domain entity representing **daily stock quotes** (market snapshot data).
+///
+/// <p>Maps to the `stock_quotes` table with a unique composite index on `(stockId, date)`.
+/// Contains comprehensive daily trading metrics including OHLC prices, volume,
+/// valuation ratios (P/E, P/B, P/S), market capitalization, and trading flags.</p>
+///
+/// ### Key Financial Metrics
+/// | Field           | Description                          |
+/// |-----------------|--------------------------------------|
+/// | `open/high/low` | Intraday OHLC prices                 |
+/// | `prevClose`     | Previous day's closing price         |
+/// | `volume`        | Trading volume (in lots)             |
+/// | `peTtm/peLyr`   | P/E ratio (TTM / Last Year)          |
+/// | `marketCap`     | Total market capitalization           |
+/// | `turnoverRate`  | Daily turnover rate (%)              |
+///
+/// @see StockBaseDomain
+/// @see Stock
 @Table(name = "stock_quotes",
         indexes = @Index(name = "${DEFAULT}", unique = true, fieldList = {"stockId", "date"}),
         comment = "股票每日行情数据")

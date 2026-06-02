@@ -18,13 +18,34 @@ package io.army.annotation;
 
 import java.lang.annotation.*;
 
+/// Specifies the **discriminator value** for an entity subtype in a single-table inheritance hierarchy.
+///
+/// This annotation is placed on child classes of an `@Inheritance`-annotated parent.
+/// The value must match one of the enum constants defined in the parent's discriminator field type.
+///
+/// ### Example
+/// ```java
+/// // Parent class
+/// @Inheritance("status")
+/// public abstract class User extends BaseDomain<User> {
+///     public UserStatus status;
+/// }
+///
+/// // Child class
+/// @DiscriminatorValue("ADMIN")
+/// public class Admin extends User { }
+/// ```
+///
 /// @since 0.6.0
+/// @see Inheritance
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface DiscriminatorValue {
 
-    /// @return The name of the discriminator enum value.
+    /// (Required) The **discriminator enum constant name** that identifies this entity subtype.
+    ///
+    /// Must match a value of the `CodeEnum` type used by the parent's discriminator field.
     String value();
 
 }

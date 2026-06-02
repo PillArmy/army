@@ -5,6 +5,13 @@ import io.army.generator.snowflake.Snowflake8Generator;
 
 import java.math.BigDecimal;
 
+/// Domain entity representing **daily stock ranking data**.
+///
+/// <p>Maps to the `stock_rank_daily` table with a unique composite index on `(stockId, date)`.
+/// Contains ranking information such as daily rank number, closing price, volume,
+/// and market capitalization used for cross-stock comparison and screening.</p>
+///
+/// @see StockBaseDomain
 @Table(name = "stock_rank_daily",
         indexes = @Index(name = "${DEFAULT}", unique = true, fieldList = {"stockId", "date"}),
         comment = "每日排名")

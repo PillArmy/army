@@ -24,6 +24,23 @@ import org.springframework.core.io.Resource;
 
 import java.util.List;
 
+/// Spring Boot application entry point for the **Stock AI Chat** web application.
+///
+/// <p>This application integrates:</p>
+/// - **Army ORM** for PostgreSQL data persistence (stock data, chat conversations, vector stores)
+/// - **Spring AI** for LLM-powered chat with tool calling and memory
+/// - **Sub-agent architecture** using Claude-based task delegation
+///
+/// <p>Configured as a **servlet web application** with chat streaming, document upload,
+/// and vector-based RAG (Retrieval-Augmented Generation) capabilities.</p>
+///
+/// ### Key Components
+/// - `ChatClient` — Spring AI chat client with advisors (tool calling, memory)
+/// - `TaskTool` — Sub-agent delegation for complex tasks
+/// - `StockSessionFactoryAdvisor` — Data seeding on startup
+///
+/// @see StockSessionFactoryAdvisor
+/// @see ChatConversationController
 @SpringBootApplication(exclude = {OllamaChatAutoConfiguration.class})
 public class StockApp {
 

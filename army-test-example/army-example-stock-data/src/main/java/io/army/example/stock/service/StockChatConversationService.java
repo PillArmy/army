@@ -6,6 +6,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
+/// Service interface for **stock chat conversation** business operations.
+///
+/// <p>Provides transactional methods for managing chat conversations:
+/// listing user conversations, querying current conversation, retrieving messages,
+/// deleting conversations, and updating titles.</p>
 public interface StockChatConversationService extends StockBaseService {
 
 
