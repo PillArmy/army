@@ -23,7 +23,6 @@ import io.army.mapping.MappingType;
 import io.army.mapping.NameEnumType;
 import io.army.mapping.UUIDType;
 import io.army.mapping.optional.CompositeField;
-import io.army.mapping.optional.VectorType;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.util.*;
@@ -1154,7 +1153,7 @@ public abstract class TableMetaUtils {
             value = maxLength + 5;
         } else if (type instanceof UUIDType || javaType == UUID.class) {
             value = 36;
-        } else if (type instanceof VectorType) {
+        } else if (type instanceof MappingType.SqlVector) {
             value = 1024;
         } else {
             value = -1;
