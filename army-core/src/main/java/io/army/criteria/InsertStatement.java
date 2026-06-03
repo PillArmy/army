@@ -249,16 +249,12 @@ public interface InsertStatement extends DmlStatement {
     interface _DomainValueClause<T, R> {
 
         <TS extends T> R value(TS domain);
-
-        <TS extends T> R value(Supplier<TS> supplier);
     }
 
     /// @since 0.6.0
     interface _DomainValuesClause<T, R> extends _DomainValueClause<T, R> {
 
         <TS extends T> R values(List<TS> domainList);
-
-        <TS extends T> R values(Supplier<List<TS>> supplier);
 
     }
 

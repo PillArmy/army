@@ -126,8 +126,8 @@ public abstract class Stock_ {
     // ... other fields
 
     // Field metadata
-    public static final FieldMeta<Stock> name = T.getField(NAME);
-    public static final FieldMeta<Stock> offerPrice = T.getField(OFFER_PRICE);
+    public static final FieldMeta<Stock> name = T.field(NAME);
+    public static final FieldMeta<Stock> offerPrice = T.field(OFFER_PRICE);
     public static final PrimaryFieldMeta<Stock> id = T.id();
     // ... other field metadata
 }

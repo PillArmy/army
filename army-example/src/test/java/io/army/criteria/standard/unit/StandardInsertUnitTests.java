@@ -51,7 +51,7 @@ public class StandardInsertUnitTests extends StandardUnitTests {
                 .defaultValue(ChinaRegion_.regionGdp, SQLs::literal, "88888.88")
                 .defaultValue(ChinaRegion_.visible, SQLs::literal, true)
                 .defaultValue(ChinaRegion_.parentId, SQLs::literal, 0)
-                .values(this::createRegionList)
+                .values(this.createRegionList())
                 .asInsert();
 
         printStmt(LOG, stmt);

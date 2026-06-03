@@ -174,8 +174,8 @@ public abstract class Stock_ {
     // ... other fields
 
     // Field metadata
-    public static final FieldMeta<Stock> name = T.getField(NAME);
-    public static final FieldMeta<Stock> offerPrice = T.getField(OFFER_PRICE);
+    public static final FieldMeta<Stock> name = T.field(NAME);
+    public static final FieldMeta<Stock> offerPrice = T.field(OFFER_PRICE);
     public static final PrimaryFieldMeta<Stock> id = T.id();
     // ... other field metadata
 }
@@ -198,7 +198,7 @@ public void createSessionFactory() {
     final DataSource dataSource = createDataSource();
     sessionFactory = SyncFactoryBuilder.builder()
             .name("army-test")
-            .packagesToScan(Collections.singletonList("io.army.example.stock.domain"))
+            .packagesToScan(List.of("io.army.example.stock.domain"))
             .datasource(dataSource)
             .environment(StandardEnvironment.from(envMap))
             .build();
@@ -2323,12 +2323,59 @@ It generates a database-agnostic statement tree through a type-safe Java DSL, wh
 
 === Standard Criteria API
 
+The Standard Criteria API is Army's database-agnostic SQL construction layer.
+It generates an internal statement tree through a type-safe Java DSL, which the dialect parser then translates into native SQL for your target database.
+
+[cols="1,2,2",options="header"]
+|===
+| Concept | Interface (design) | Implementation
+
+| Entry point | `SQLs` (utility class) | link:../army-core/src/main/java/io/army/criteria/impl/SQLs.java[`criteria/impl/SQLs.java`,role="extern"]
+| Statement specs | link:../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java[`standard/StandardInsert`,role="extern"] +
+link:../army-core/src/main/java/io/army/criteria/standard/StandardQuery.java[`standard/StandardQuery`,role="extern"] +
+link:../army-core/src/main/java/io/army/criteria/standard/StandardUpdate.java[`standard/StandardUpdate`,role="extern"] +
+link:../army-core/src/main/java/io/army/criteria/standard/StandardDelete.java[`standard/StandardDelete`,role="extern"] | link:../army-core/src/main/java/io/army/criteria/impl/StandardInserts.java[`impl/StandardInserts`,role="extern"] +
+link:../army-core/src/main/java/io/army/criteria/impl/StandardQueries.java[`impl/StandardQueries`,role="extern"] +
+link:../army-core/src/main/java/io/army/criteria/impl/StandardUpdates.java[`impl/StandardUpdates`,role="extern"] +
+link:../army-core/src/main/java/io/army/criteria/impl/StandardDeletes.java[`impl/StandardDeletes`,role="extern"]
+| Standard functions | link:../army-core/src/main/java/io/army/criteria/standard/SQLFunction.java[`standard/SQLFunction`,role="extern"] | link:../army-core/src/main/java/io/army/criteria/impl/Functions.java[`impl/Functions`,role="extern"]
+| Window functions | link:../army-core/src/main/java/io/army/criteria/dialect/Window.java[`dialect/Window`,role="extern"] | link:../army-core/src/main/java/io/army/criteria/impl/Windows.java[`impl/Windows`,role="extern"]
+|===
+
 ==== The SQLs Utility Class
 
-`SQLs` is the unified entry point for building standard SQL statements.
-All standard operations (SELECT, INSERT, UPDATE, DELETE) begin with `SQLs`.
+`SQLs` (link:../army-core/src/main/java/io/army/criteria/impl/SQLs.java[role="extern"]) is the unified entry point.
+Internally, its static factory methods delegate to `StandardInserts`, `StandardQueries`, `StandardUpdates`, and `StandardDeletes`:
+
+[source,java]
+----
+// SELECT entry
+Select stmt = SQLs.query()...asQuery();
+
+// INSERT entry
+Insert stmt = SQLs.singleInsert()...asInsert();
+
+// UPDATE entry
+Update stmt = SQLs.singleUpdate()...asUpdate();
+
+// DELETE entry
+Delete stmt = SQLs.singleDelete()...asDelete();
+
+// Domain UPDATE entry (no table alias required)
+Update stmt = SQLs.domainUpdate()...asUpdate();
+
+// Domain DELETE entry
+Delete stmt = SQLs.domainDelete()...asDelete();
+----
+
+Each returns a type-safe chain that exposes only the clauses valid for that statement type.
 
 ==== SELECT Statements
+
+`SQLs.query()` enters the SELECT chain.
+Internally it calls link:../army-core/src/main/java/io/army/criteria/impl/StandardQueries.java[`StandardQueries#simpleQuery`,role="extern"], which returns a `StandardQuery.WithSpec`.
+
+===== Basic SELECT
 
 [source,java]
 ----
@@ -2337,48 +2384,623 @@ stmt = SQLs.query()
         .select(Stock_.id, Stock_.name, Stock_.offerPrice)
         .from(Stock_.T, AS, "s")
         .where(Stock_.name.equal("Tesla"))
-        .and(Stock_.createTime.less( LocalDateTime.now().minusDays(1)))
+        .and(Stock_.createTime.less(LocalDateTime.now().minusDays(1)))
         .limit(1)
         .asQuery();
 ----
 
+===== Full Clause Chain
+
+The SELECT chain follows SQL clause order:
+
+. `WITH ... AS` — CTE prefix (via `with(name).as(...)`)
+. `SELECT` — `select(...)` / `selectDistinct(...)`
+. `FROM` — `from(table, AS, alias)` / nested `from(function)`
+. `JOIN` — `join(...) / leftJoin(...) / rightJoin(...) / crossJoin(...)`
+. `WHERE` — `where(predicate).and(predicate)...`
+. `GROUP BY` — `groupBy(...)`
+. `HAVING` — `having(predicate)`
+. `WINDOW` — `window(name).as(...)` (named window definitions)
+. `ORDER BY` — `orderBy(...)`
+. `LIMIT / OFFSET` — `limit(n).offset(n)`
+. `FOR UPDATE` — `lock(...)` for row-level locking
+. `UNION / INTERSECT / EXCEPT` — set operations via `union(...)`, etc.
+. `asQuery()` — terminal method, returns `Select`
+
+Each clause method returns the next narrow interface in the chain, so the compiler enforces correct SQL clause ordering.
+
 ==== INSERT Statements
+
+===== Single Table INSERT
+
+`SQLs.singleInsert()` enters the INSERT chain.
+Internally it calls link:../army-core/src/main/java/io/army/criteria/impl/StandardInserts.java[`StandardInserts#singleInsert20`,role="extern"], which returns link:../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java[`StandardInsert._PrimaryInsertInto20Clause`,role="extern"].
+
+After `insertInto(SimpleTableMeta)`, the chain enters link:../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java[`StandardInsert._ColumnListSpec`,role="extern"], which extends link:../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java[`_ComplexColumnDefaultSpec`,role="extern"].
+This is the *junction point* where all value modes branch off:
+
+[cols="1,2,3",options="header"]
+|===
+| Mode | Entry method on `_ColumnListSpec` | Source interface
+| Domain | `.value(domain)` / `.values(domainList)` | `InsertStatement._DomainValuesClause`
+| Value (static) | `.values()` (no-arg) → `.parens(Consumer)` | `InsertStatement._StaticValuesClause` → `_ValuesParensClause`
+| Value (dynamic) | `.values(Consumer<ValuesConstructor>)` | `InsertStatement._DynamicValuesClause`
+| Query | `.parens(Consumer<_StaticColumnSpaceClause>)` or `.space(subQuery)` directly | `InsertStatement._ColumnListParensClause` / `_QueryInsertSpaceClause`
+|===
+
+Below each mode is detailed with verified interface signatures.
+
+*Domain mode* — pass domain objects directly.
+Defined in link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._DomainValuesClause`,role="extern"] +
+link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._DomainValueClause`,role="extern"]:
+
+[source,java]
+----
+// (A) Single domain object — returns _DmlInsertClause, chain ends with asInsert()
+final Insert stmt1;
+stmt1 = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .value(new Stock("GOOGL", "Alphabet"))          // <TS extends T> R value(TS domain)
+        .asInsert();
+
+// (B) Lazy single domain — Supplier<T>
+final Insert stmt2;
+stmt2 = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .value(() -> lazyLoadStock())                    // <TS extends T> R value(Supplier<TS> supplier)
+        .asInsert();
+
+// (C) Multiple domain objects — List<T>
+final Insert stmt3;
+stmt3 = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .defaultValue(Stock_.status, StockStatus.NORMAL) // optional column default
+        .values(stockList)                                // <TS extends T> R values(List<TS> domainList)
+        .asInsert();
+
+// (D) Lazy list of domain objects
+final Insert stmt4;
+stmt4 = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values(() -> loadStockBatch())                  // R values(Supplier<List<TS>> supplier)
+        .asInsert();
+----
+
+[cols="1,2,3",options="header"]
+|===
+| Method | Interface signature | Returns
+| `value(TS domain)` | `_DomainValueClause<T,R>` | `R` → `_DmlInsertClause<I>`
+| `value(Supplier<TS>)` | `_DomainValueClause<T,R>` | `R` → `_DmlInsertClause<I>`
+| `values(List<TS>)` | `_DomainValuesClause<T,R>` | `R` → `_DmlInsertClause<I>`
+| `values(Supplier<List<TS>>)` | `_DomainValuesClause<T,R>` | `R` → `_DmlInsertClause<I>`
+|===
+
+*Value mode — Static (single row / multi-row)*
+
+Static Value mode requires calling `.values()` (no-arg) first — this bridges from `_ColumnListSpec` to
+link:../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java[`StandardInsert._StandardValuesParensClause`,role="extern"], which extends link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._ValuesParensClause`,role="extern"].
+
+Each `parens()` call adds one row.
+All column references use `FieldMeta` constants for compile-time safety.
+
+_Single row:_
+
+[source,java]
+----
+// One parens(...) → one row
+final Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values()                                          // → _StandardValuesParensClause
+        .parens(row -> row                                 // parens(Consumer<_StaticValueSpaceClause>)
+                .space(Stock_.exchange, "NYSE")            //   space(FieldMeta<T>, Object)
+                .comma(Stock_.code, "AAPL")                //   comma(FieldMeta<T>, Object)
+                .comma(Stock_.name, SQLs::literalValue, "Apple Inc.") // comma(FieldMeta<T>, BiFunction, E)
+                .ifComma(Stock_.offerPrice, priceSupplier.get()) // ifComma — skipped when null
+        )
+        .asInsert();
+----
+
+_Multi-row:_
+
+[source,java]
+----
+// Chain parens() via .comma() — each parens() adds another VALUES row
+final Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values()                                          // → _StandardValuesParensClause
+        .parens(r1 -> r1                                   // row 1
+                .space(Stock_.exchange, "NYSE")
+                .comma(Stock_.code, "AAPL")
+                .comma(Stock_.name, "Apple Inc.")
+        )
+        .comma()                                           // → back to _StandardValuesParensClause
+        .parens(r2 -> r2                                   // row 2
+                .space(Stock_.exchange, "NASDAQ")
+                .comma(Stock_.code, "GOOGL")
+                .comma(Stock_.name, SQLs::literalValue, "Alphabet")
+        )
+        .comma()
+        .parens(r3 -> r3                                   // row 3
+                .spaceIf(Stock_.exchange, exchangeValue)   // conditional space: skipped when null
+                .comma(Stock_.code, "MSFT")
+                .comma(Stock_.name, "Microsoft")
+        )
+        .asInsert();
+----
+
+[cols="1,2",options="header"]
+|===
+| Method (from `_StaticValueSpaceClause<T>`) | Signature
+| `space(field, value)` / `spaceIf(field, value)` | First column-value pair; `value` can be literal, `Expression`, or `null`
+| `space(field, funcRef, value)` / `spaceIf(field, funcRef, value)` | First pair with binding (e.g. `SQLs::literalValue`, `SQLs::param`)
+| `comma(field, value)` / `ifComma(field, value)` | Subsequent column-value pairs (from `_StaticColumnValueClause`)
+| `comma(field, funcRef, value)` / `ifComma(field, funcRef, value)` | Subsequent pair with binding
+|===
+
+*Value mode — Dynamic (multi-row via `ValuesConstructor`)*
+
+Defined in link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._DynamicValuesClause`,role="extern"], which provides `values(Consumer<ValuesConstructor<T>>)`.
+
+link:../army-core/src/main/java/io/army/criteria/ValuesConstructor.java[`ValuesConstructor`,role="extern"]
+extends `_ValuesParensClause<T, _CommaClause<ValuesConstructor<T>>>` — each `parens()` returns a comma clause, and `.comma()` chains back to `ValuesConstructor` for the next row.
+
+Inside `parens()`, there are *two* sub-modes:
+
+_Static row — type-safe via `FieldMeta`:_
 
 [source,java]
 ----
 final Insert stmt;
-stmt = SQLs.singleInsert()   // single table insert
+stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
-        .defaultValue(Stock_.status, StockStatus.NORMAL)
-        .values(stockList)
+        .values(rows -> rows                                // Consumer<ValuesConstructor<Stock>>
+                .parens(r1 -> r1                            // parens(Consumer<_StaticValueSpaceClause<Stock>>)
+                        .space(Stock_.exchange, "NYSE")    //   same _StaticValueSpaceClause as single-row
+                        .comma(Stock_.code, "AAPL")
+                        .comma(Stock_.name, "Apple Inc.")
+                )
+                .comma()                                    // comma() → back to ValuesConstructor
+                .parens(r2 -> r2                            // row 2
+                        .space(Stock_.exchange, "NASDAQ")
+                        .comma(Stock_.code, "GOOGL")
+                        .comma(Stock_.name, SQLs::literalValue, "Alphabet")
+                )
+        )
         .asInsert();
 ----
 
+_Dynamic row — via `Assignments` (collections-style `set()`):_
+
+[source,java]
+----
+final Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values(rows -> rows                                // Consumer<ValuesConstructor<Stock>>
+                .parens(SQLs.SPACE, a -> a                  // parens(SQLs.SymbolSpace, Consumer<Assignments<Stock>>)
+                        .set(Stock_.exchange, "NYSE")       //   set(FieldMeta<T>, Expression)
+                        .set(Stock_.code, "AAPL")           //   each set() returns Assignments<T> for chaining
+                        .set(Stock_.name, "Apple Inc.")
+                        .ifSet(Stock_.offerPrice, () -> priceSupplier.get()) // conditional set
+                )
+                .comma()
+                .parens(SQLs.SPACE, a -> a                  // row 2 — dynamic
+                        .set(Stock_.exchange, "NASDAQ")
+                        .set(Stock_.code, "GOOGL")
+                        .set(Stock_.name, SQLs::literalValue, "Alphabet")
+                )
+        )
+        .asInsert();
+----
+
+[cols="1,2",options="header"]
+|===
+| Row style | Method
+| Static (type-safe) | `parens(Consumer<_StaticValueSpaceClause<T>>)` — `space()`/`comma()` with `FieldMeta`
+| Dynamic (set-style) | `parens(SQLs.SymbolSpace, Consumer<Assignments<T>>)` — `set()`/`ifSet()` with `FieldMeta`
+|===
+
+Assignments methods (from `InsertStatement._StaticAssignmentSetClause`):
+
+[cols="1,2",options="header"]
+|===
+| Method | Signature
+| `set(field, value)` | `R set(FieldMeta<T>, Expression)` — literal or expression
+| `set(field, supplier)` | `R set(FieldMeta<T>, Supplier<Expression>)` — lazy expression
+| `set(field, funcRef, value)` | `<E> R set(FieldMeta<T>, BiFunction<...,E,Expression>, @Nullable E)` — binding
+| `ifSet(field, supplier)` | Conditional — skipped when supplier returns `null`
+| `ifSet(field, funcRef, supplier)` | Conditional with binding
+|===
+
+TIP: The static row uses the same `_StaticValueSpaceClause` as the single-row static mode.
+The dynamic row uses `Assignments`'s `set()` methods — useful when you need to add columns conditionally in a loop.
+
+*Query mode* — insert from a subquery.
+
+Defined in link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._QueryInsertSpaceClause`,role="extern"].
+The column list is specified via link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._ColumnListParensClause`,role="extern"].
+
+_Form 1 — Pre-built SubQuery with static column list:_
+
+[source,java]
+----
+// Static column list via _StaticColumnSpaceClause + pre-built SubQuery
+final Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .parens(cols -> cols                              // parens(Consumer<_StaticColumnSpaceClause<Stock>>)
+                .space(Stock_.exchange, Stock_.code)      //   space(field1, field2) — up to 4 columns
+                .comma(Stock_.name)                       //   comma(field) — add one more column
+        )
+        .space(subQuery)                                  // space(Supplier<SubQuery>)
+        .asInsert();
+----
+
+_Form 2 — Build SubQuery via `Supplier`:_
+
+[source,java]
+----
+// Separate method builds the SubQuery, Supplier passes it
+SubQuery buildStockSubQuery() {
+    return SQLs.simpleQuery()
+            .select(Stock_.exchange, Stock_.code, Stock_.name, Stock_.status)
+            .from(Stock_.T, AS, "s")
+            .where(Stock_.listed.equal(true))
+            .asQuery();
+}
+
+final Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .parens(cols -> cols
+                .space(Stock_.exchange, Stock_.code, Stock_.name, Stock_.status) // space(f1,f2,f3,f4) — 1/2/4 params supported
+        )
+        .space(() -> buildStockSubQuery())                // space(Supplier<SubQuery>)
+        .asInsert();
+----
+
+_Form 3 — No explicit column list (subquery determines columns):_
+
+[source,java]
+----
+// Skip parens() entirely — columns come from the subquery's SELECT list
+final Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .space(subQuery)                                  // space() directly on _ComplexColumnDefaultSpec
+        .asInsert();
+----
+
+_Form 4 — Dynamic column list via Consumer callback:_
+
+[source,java]
+----
+// Dynamic column list: each accept(field) adds a column
+final Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .parens(SQLs.SPACE, list -> {                     // parens(SQLs.SymbolSpace, Consumer<Consumer<FieldMeta<Stock>>>)
+                list.accept(Stock_.exchange);              //   accept(FieldMeta<T>)
+                list.accept(Stock_.code);                  //   useful when columns are determined at runtime
+                list.accept(Stock_.name);
+        })
+        .space(() -> subQuery)                             // Supplier<SubQuery>
+        .asInsert();
+----
+
+_Form 5 — No-arg `space()` returns `SelectSpec` (advanced):_
+
+[source,java]
+----
+// space() no-arg returns SelectSpec for inline subquery building
+// After select/from/where, chain ends with asInsert()
+final Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .parens(cols -> cols.space(Stock_.exchange, Stock_.code, Stock_.name, Stock_.status))
+        .space()                                          // T space() — returns SelectSpec<_DmlInsertClause>
+        .select(Stock_.exchange, Stock_.code, Stock_.name)
+        .from(NasdaqTable_.T, AS, "n")
+        .where(NasdaqTable_.listed.equal(true))
+        .asInsert();
+----
+
+[cols="1,2,3",options="header"]
+|===
+| Form | Method | Returns
+| `.space(subQuery)` | `R space(Supplier<SubQuery>)` | `_DmlInsertClause<I>`
+| `.space(() -> buildSubQuery())` | `R space(Supplier<SubQuery>)` — with method ref | `_DmlInsertClause<I>`
+| `.space()` | `T space()` | `SelectSpec<_DmlInsertClause<I>>` — chain `.asInsert()` to finish
+| `.parens(c -> c.space(f1, f2))` | static column list | `_ComplexColumnDefaultSpec`
+| `.parens(SQLs.SPACE, list -> list.accept(f1))` | dynamic column list | `_ComplexColumnDefaultSpec`
+|===
+
+===== Child INSERT (Parent-Child Hierarchy)
+
+When using `@Inheritance` single-table inheritance, a *parent insert* must be followed by a *child insert*.
+This is enforced at the interface level:
+`insertInto(ParentTableMeta)` returns a chain that ends with `child()` to enter the child table's insert.
+
+Internally, `StandardInserts` handles this via link:../army-core/src/main/java/io/army/criteria/impl/StandardInserts.java[`_ChildInsertIntoClause`,role="extern"]
+and link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._ParentInsert20`,role="extern"]:
+
+[source,java]
+----
+// Parent insert → child insert chain
+final Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(ParentUser_.T)         // ParentTableMeta — returns _ParentInsert20
+        .defaultValue(ParentUser_.status, UserStatus.ADMIN)
+        .values(parentUserList)
+        .child()                            // enters child insert context
+        .insertInto(Admin_.T)              // ChildTableMeta
+        .values(adminUserList)
+        .asInsert();
+----
+
+[TIP]
+====
+The `child()` method is only available when the previous `insertInto()` received a `ParentTableMeta`.
+Army generates separate `INSERT` statements for parent and child tables internally.
+====
+
+===== INSERT Options
+
+[cols="1,2",options="header"]
+|===
+| Option | Interface (from `InsertStatement`)
+| `literalMode(mode)` | `_PreferLiteralClause` — reduce placeholders for large batches
+| `nullMode(mode)` | `_NullOptionClause` — control NULL handling
+| `migration()` | `_MigrationOptionClause` — migration mode for schema transfer
+| `ignoreReturnIds()` | `_IgnoreReturnIdsOptionClause` — skip ID return for conflict clauses
+|===
+
 ==== UPDATE Statements
+
+===== Single Table UPDATE
+
+`SQLs.singleUpdate()` enters the UPDATE chain.
+Internally it calls link:../army-core/src/main/java/io/army/criteria/impl/StandardUpdates.java[`StandardUpdates#singleUpdate`,role="extern"].
 
 [source,java]
 ----
 final Update stmt;
-stmt = SQLs.singleUpdate()   // single table update
-        .update(Stock_.T, AS, "s")
+stmt = SQLs.singleUpdate()
+        .update(Stock_.T, AS, "s")         // SingleTableMeta — requires alias
         .set(Stock_.name, "Tesla")
-        .set(Stock_.offerPrice, SQLs::plusEqual,  addPrice)
+        .set(Stock_.offerPrice, SQLs::plusEqual, addPrice)
         .where(Stock_.id.between(map.get("firstId"), SQLs.AND, map.get("secondId")))
         .asUpdate();
 ----
 
+The `set()` method comes from link:../army-core/src/main/java/io/army/criteria/UpdateStatement.java[`UpdateStatement._StaticSetClause`,role="extern"].
+It supports value operators like `SQLs::plusEqual`, `SQLs::minusEqual`, etc., and `setRow()` for multi-column subquery assignment.
+
+===== Domain UPDATE
+
+`SQLs.domainUpdate()` is for updating domain objects directly — no table alias needed.
+Internally it calls link:../army-core/src/main/java/io/army/criteria/impl/StandardUpdates.java[`StandardUpdates#simpleDomain`,role="extern"], which implements link:../army-core/src/main/java/io/army/criteria/standard/StandardUpdate.java[`StandardUpdate._DomainUpdateClause`,role="extern"]:
+
+[source,java]
+----
+final Update stmt;
+stmt = SQLs.domainUpdate()
+        .update(Stock_.T, "s")             // TableMeta — no AS keyword
+        .set(Stock_.name, "Tesla")
+        .where(Stock_.id.equal(100L))
+        .asUpdate();
+----
+
+[cols="1,3",options="header"]
+|===
+| Entry Point | Description
+| `SQLs.singleUpdate()` | Standard UPDATE with table alias; `update(SingleTableMeta, AS, alias)`
+| `SQLs.domainUpdate()` | Domain UPDATE without `AS` keyword; `update(TableMeta, alias)` — supports `ChildTableMeta`
+|===
+
+===== Batch UPDATE
+
+For batch operations with named parameters:
+
+[source,java]
+----
+final BatchUpdate stmt;
+stmt = SQLs.batchSingleUpdate()
+        .update(Stock_.T, AS, "s")
+        .sets(pairs -> pairs
+                .setSpace(Stock_.name, SQLs::namedParam)      // named param placeholder
+                .setSpace(Stock_.offerPrice, SQLs::namedLiteral) // named literal placeholder
+        )
+        .where(Stock_.id.spaceEqual(SQLs::namedParam))       // space* methods for named params
+        .asUpdate();
+
+// Execute with named parameter list
+List<Map<String, Object>> paramList = List.of(
+    Map.of("name", "Tesla", "offerPrice", 250, "id", 1),
+    Map.of("name", "Apple", "offerPrice", 180, "id", 2)
+);
+long rows = session.update(stmt.namedParamList(paramList));
+----
+
 ==== DELETE Statements
+
+===== Single Table DELETE
+
+`SQLs.singleDelete()` enters the DELETE chain.
+Internally it calls link:../army-core/src/main/java/io/army/criteria/impl/StandardDeletes.java[`StandardDeletes#singleDelete`,role="extern"].
 
 [source,java]
 ----
 final Delete stmt;
 stmt = SQLs.singleDelete()
-        .deleteFrom(Stock_.T, AS, "s")
+        .deleteFrom(Stock_.T, AS, "s")      // SingleTableMeta — requires alias
         .where(Stock_.status.equal(StockStatus.DELISTED))
         .asDelete();
 ----
 
-=== Expression Building
+===== Domain DELETE
+
+`SQLs.domainDelete()` supports `TableMeta` — no `AS` keyword or alias required.
+Internally it calls link:../army-core/src/main/java/io/army/criteria/impl/StandardDeletes.java[`StandardDeletes#domainDelete`,role="extern"], which implements link:../army-core/src/main/java/io/army/criteria/standard/StandardDelete.java[`StandardDelete._DomainDeleteClause`,role="extern"]:
+
+[source,java]
+----
+final Delete stmt;
+stmt = SQLs.domainDelete()
+        .deleteFrom(Stock_.T, AS, "s")      // TableMeta — any table type
+        .where(Stock_.visible.equal(false))
+        .asDelete();
+----
+
+All base interfaces for DELETE are defined in link:../army-core/src/main/java/io/army/criteria/DeleteStatement.java[`DeleteStatement`,role="extern"]:
+
+[cols="1,2",options="header"]
+|===
+| Clause | Interface
+| Single-table | `_SingleDeleteFromClause` / `_SingleDeleteClause`
+| Parent table | `_DeleteParentClause`
+| Child table | `_DeleteChildClause`
+|===
+
+==== Standard Functions
+
+Army provides standard SQL functions through the `Functions` utility class (link:../army-core/src/main/java/io/army/criteria/impl/Functions.java[`impl/Functions.java`,role="extern"]).
+All standard function interfaces are declared in link:../army-core/src/main/java/io/army/criteria/standard/SQLFunction.java[`standard/SQLFunction.java`,role="extern"].
+
+Functions can be used anywhere an `Expression` is expected — in `SELECT`, `WHERE`, `ORDER BY`, `GROUP BY`, and `HAVING`.
+
+===== Aggregate Functions
+
+[cols="1,3",options="header"]
+|===
+| Function | Signature
+| `COUNT(*)` | `Functions.countAsterisk()`
+| `COUNT(expr)` | `Functions.count(expr)`
+| `COUNT(DISTINCT expr)` | `Functions.count(SQLs.DISTINCT, expr)`
+| `SUM(expr)` | `Functions.sum(expr)`, `Functions.sum(SQLs.DISTINCT, expr)`
+| `AVG(expr)` | `Functions.avg(expr)`, `Functions.avg(SQLs.DISTINCT, expr)`
+| `MIN(expr)` | `Functions.min(expr)`
+| `MAX(expr)` | `Functions.max(expr)`
+|===
+
+[source,java]
+----
+// Aggregate in SELECT
+stmt = SQLs.query()
+        .select(Stock_.exchange, Functions.countAsterisk())
+        .from(Stock_.T, AS, "s")
+        .groupBy(Stock_.exchange)
+        .asQuery();
+
+// Aggregate in HAVING
+stmt = SQLs.query()
+        .select(Stock_.exchange, Functions.countAsterisk())
+        .from(Stock_.T, AS, "s")
+        .groupBy(Stock_.exchange)
+        .having(Functions.countAsterisk().greater(SQLs::literalValue, 100))
+        .asQuery();
+----
+
+===== Scalar Functions
+
+Army provides the full range of standard SQL scalar functions:
+
+*Math functions* — `acos`, `asin`, `atan`, `atan2`, `ceil`, `cos`, `floor`, `ln`, `log`, `mod`, `power`, `round`, `sign`, `sqrt`, `truncate`, etc.
+
+*String functions* — `concat`, `length`, `lower`, `upper`, `trim`, `substring`, `replace`, `reverse`, `position`, etc.
+
+*Datetime functions* — `currentDate`, `currentTime`, `currentTimestamp`, `localTime`, `localTimestamp`, `extract`, `dateAdd`, `dateSub`, `dateDiff`, `datediff`, `timestampAdd`, `timestampDiff`, etc.
+
+*Conditional functions* — `coalesce`, `nullif`, `greatest`, `least`, `ifNull`, `if`
+
+*CASE expression* — `Functions.cases()` / `Functions.cases(expr)` + `.when(...).then(...).elseValue(...).end(type)`
+
+[source,java]
+----
+// Math: ROUND(offer_price, 2) > 100
+Stock_.offerPrice.greater(Functions.round(Stock_.offerPrice, SQLs::literalValue, 2))
+
+// String: CONCAT(exchange, '-', code)
+Functions.concat(Stock_.exchange, SQLs::literalValue, "-", Stock_.code)
+
+// Datetime: EXTRACT(YEAR FROM create_time)
+Functions.extract(SQLs.WordYear.YEAR, Stock_.createTime)
+
+// CASE: price category
+Functions.cases()
+         .when(Stock_.offerPrice.greater(SQLs::literalValue, 1000)).then(SQLs::literalValue, "HIGH")
+         .when(Stock_.offerPrice.greater(SQLs::literalValue, 100)).then(SQLs::literalValue, "MID")
+         .elseValue(SQLs::literalValue, "LOW")
+         .end(StandardInfer.STRING)
+----
+
+For the complete function reference, see link:../army-core/src/main/java/io/army/criteria/impl/Functions.java[`Functions.java`,role="extern"].
+
+==== Standard Window Functions
+
+Window functions are provided through the `Windows` utility class (link:../army-core/src/main/java/io/army/criteria/impl/Windows.java[`impl/Windows.java`,role="extern"]), implementing link:../army-core/src/main/java/io/army/criteria/dialect/Window.java[`dialect/Window`,role="extern"].
+
+Unlike aggregate functions, window functions require an `OVER` clause which specifies partitioning, ordering, and framing.
+
+[cols="1,2,2",options="header"]
+|===
+| Function | Signature | Return Type
+| `ROW_NUMBER()` | `Windows.rowNumber()` | `LongType`
+| `RANK()` | (use dialect API) | —
+| `DENSE_RANK()` | `Windows.denseRank()` | `LongType`
+| `NTILE(n)` | `Windows.ntile(n)` | `LongType`
+| `CUME_DIST()` | `Windows.cumeDist()` | `DoubleType`
+| `LAG(expr)` | `Windows.lag(expr)` | Same as `expr`
+| `LAG(expr, n)` | `Windows.lag(expr, n)` | Same as `expr`
+| `LAG(expr, n, default)` | `Windows.lag(expr, n, default)` | Same as `expr`
+| `LEAD(expr)` | `Windows.lead(expr)` | Same as `expr`
+| `LEAD(expr, n)` | `Windows.lead(expr, n)` | Same as `expr`
+| `LEAD(expr, n, default)` | `Windows.lead(expr, n, default)` | Same as `expr`
+| `FIRST_VALUE(expr)` | `Windows.firstValue(expr)` | Same as `expr`
+| `LAST_VALUE(expr)` | `Windows.lastValue(expr)` | Same as `expr`
+| `NTH_VALUE(expr, n)` | `Windows.nthValue(expr, n)` | Same as `expr`
+|===
+
+Each window function returns a `Windows._OverSpec` (or `Windows._WindowAggSpec` for aggregate windows), which exposes the `over()` methods defined by link:../army-core/src/main/java/io/army/criteria/dialect/Window.java[`Window._OverWindowClause`,role="extern"]:
+
+[source,java]
+----
+// Simple OVER()
+Windows.rowNumber().over()
+
+// OVER with named window definition
+Windows.rowNumber().over("w")
+
+// OVER with inline PARTITION BY + ORDER BY
+Windows.rowNumber().over(w -> w
+        .partitionBy(Stock_.exchange)
+        .orderBy(Stock_.offerPrice.desc())
+)
+
+// LAG with offset and default
+Windows.lag(Stock_.offerPrice, SQLs::literalValue, 1, SQLs::literalValue, 0)
+     .over(w -> w.partitionBy(Stock_.exchange).orderBy(Stock_.createTime.asc()))
+
+// Aggregate window: SUM over a sliding frame
+Functions.sum(Stock_.offerPrice)
+         .over(w -> w
+                 .partitionBy(Stock_.exchange)
+                 .orderBy(Stock_.createTime.asc())
+                 .rowsBetween(
+                         Window._FrameUnit.UNBOUNDED_PRECEDING,
+                         Window._FrameUnit.CURRENT_ROW
+                 )
+         )
+----
+
+[NOTE]
+====
+**Aggregate functions as window functions:** `Functions.sum(expr)`, `Functions.avg(expr)`, etc.
+can also be used with `.over(...)` — they become window aggregates.
+When used without `.over()`, they remain standard aggregates (require `GROUP BY`).
+====
 
 ==== Conditional Expressions
 
@@ -2394,14 +3016,6 @@ stmt = SQLs.singleDelete()
 * `AND` — Logical conjunction
 * `OR` — Logical disjunction
 * `NOT` — Logical negation
-
-==== Aggregate Functions
-
-* `COUNT` / `SUM` / `AVG` / `MAX` / `MIN`
-
-==== Window Functions
-
-* `ROW_NUMBER()` / `RANK()` / `DENSE_RANK()` / `NTILE()`
 
 ==== Default Parameter Binding
 
@@ -2419,61 +3033,53 @@ Stock_.status.equal(StockStatus.NORMAL)
 
 What happens inside Army when this line executes?
 
-[cols="1,4",options="header"]
-|===
-| Step
-| What Army does
-
-| 1. Call `equal(Object)`
-| `Stock_.status` is an `OperationTypedField` (extends `OperationTypedExpression`, which extends
+. Step 1 — Call `equal(Object)`
++
+`Stock_.status` is an `OperationTypedField` (extends `OperationTypedExpression`, which extends
 `OperationExpression`). It calls link:../army-core/src/main/java/io/army/criteria/impl/OperationExpression.java[`OperationExpression#equal(Object)`,role="extern"]:
 +
---
 [source,java]
 ----
 return Expressions.biPredicate(this, DualBooleanOperator.EQUAL, operand);
 ----
---
 
-| 2. `biPredicate` → `wrapRight`
-| link:../army-core/src/main/java/io/army/criteria/impl/Expressions.java[`Expressions#biPredicate`,role="extern"]
+. Step 2 — `biPredicate` → `wrapRight`
++
+link:../army-core/src/main/java/io/army/criteria/impl/Expressions.java[`Expressions#biPredicate`,role="extern"]
 calls link:../army-core/src/main/java/io/army/criteria/impl/Expressions.java[`Expressions#wrapRight(left,right)`,role="extern"]
 to decide how to wrap the right operand `StockStatus.NORMAL`.
 
-| 3. `wrapRight` checks `left` type
-| Because `left` (i.e. `Stock_.status`) implements `TypedExpression`, `wrapRight` enters:
+. Step 3 — `wrapRight` checks `left` type
 +
---
+Because `left` (i.e. `Stock_.status`) implements `TypedExpression`, `wrapRight` enters:
++
 [source,java]
 ----
 else if (left instanceof TypedExpression) {
     rightExp = wrapValue((TypedExpression) left, right);
 }
 ----
---
++
 It passes the left operand's `MappingType` to `wrapValue`.
 
-| 4. `wrapValue` checks `LiteralMode`
-| By default (`LiteralMode.DEFAULT`), it creates a parameterized value:
+. Step 4 — `wrapValue` checks `LiteralMode`
 +
---
+By default (`LiteralMode.DEFAULT`), it creates a parameterized value:
++
 [source,java]
 ----
 case DEFAULT:
     valueExp = SQLs.param(infer, value);  // → JDBC ?
 ----
---
 
-| 5. Result
-| The generated SQL looks like:
+. Step 5 — Result
 +
---
+The generated SQL looks like:
++
 [source,sql]
 ----
 status = ?   -- with bound value: StockStatus.NORMAL
 ----
---
-|===
 
 [NOTE]
 ====
@@ -2564,17 +3170,21 @@ The four modes and their effect:
 Prevents SQL injection.
 
 | `LITERAL`
-| `status = 'NORMAL'`
+| `listingDate = DATE '1970-01-01'`
 +,br+
-(the value is embedded in the SQL string)
-| Use only when you control the value (e.g. constants).
+(the value is embedded together with its *literal type* —
+e.g. `DATE`, `TIME`, `TIMESTAMP` in standard SQL;
+PostgreSQL additionally supports `::type` cast syntax, e.g. `0::decimal`)
+| Use when you control the value and want to ensure the database
+interprets it with the correct type.
 Avoid for user-provided values — SQL injection risk.
 
 | `CONST`
-| `status = 'NORMAL'`
+| `listingDate = '1970-01-01'`
 +,br+
-(same as `LITERAL` but semantically marks the value as a database constant)
-| Rarely needed. Mainly for dialect-level optimizations.
+(the raw value is embedded *without* any literal type prefix —
+same as `LITERAL` minus the type annotation)
+| Rarely needed. Use when literal type coercion is not required.
 
 | `PREFERENCE`
 | Numeric/Boolean → `price = 100.00` (literal)
@@ -2597,12 +3207,14 @@ LiteralMode.DEFAULT:
   status = ?          -- param: NORMAL
 
 LiteralMode.LITERAL:
-  offer_price > 100.00   -- embedded in SQL
-  status = 'NORMAL'      -- embedded in SQL
+  offer_price > 100.00               -- numeric literal with type
+  status = 'NORMAL'                  -- string literal with type
+  listingDate = DATE '1970-01-01'    -- with DATE literal type prefix
 
 LiteralMode.CONST:
-  offer_price > 100.00   -- embedded in SQL (marked as constant)
-  status = 'NORMAL'      -- embedded in SQL (marked as constant)
+  offer_price > 100.00               -- raw value, no type annotation
+  status = 'NORMAL'                  -- raw value, no type annotation
+  listingDate = '1970-01-01'         -- without DATE prefix
 
 LiteralMode.PREFERENCE:
   offer_price > 100.00   -- BigDecimal → _ArmyNoInjectionType → literal, safe
@@ -2654,7 +3266,7 @@ The BiFunction protocol:
 
 | `field.spaceEqual(func)`
 | `(TypedField, String) → Expression`
-| `SQLs::param` receives the field name for named parameters
+| `SQLs::namedParam`, `SQLs::namedLiteral` — uses `TypedField#fieldName()` as the named parameter key
 |===
 
 [TIP]
@@ -2669,8 +3281,10 @@ Explicit binding becomes useful in edge cases:
 
 [NOTE]
 ====
-The ``space*`` prefix on `spaceEqual`, `spaceIn`, etc. indicates "helper API" — these methods are designed for internal use by generated code and advanced scenarios.
-In normal application code, prefer the non-``space`` overloads (e.g. `equal(value)`).
+The ``space*`` prefix on `spaceEqual`, `spaceIn`, etc. avoids method overload conflicts with the base interface at the JVM level — these methods are designed for *batch operations* (e.g. `batchUpdate`) where each row's parameter must carry a unique name.
+They only accept named parameters or named literals (`SQLs::namedParam`, `SQLs::namedLiteral`) because `TypedField#fieldName()`
+serves as the named parameter key.
+In normal query operations, prefer the non-``space`` overloads (e.g. `equal(value)`).
 ====
 
 === CTE (Common Table Expressions)

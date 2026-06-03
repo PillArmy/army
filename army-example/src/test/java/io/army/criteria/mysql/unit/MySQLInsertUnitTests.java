@@ -55,7 +55,7 @@ public class MySQLInsertUnitTests extends MySQLUnitTests {
                         .comma(ChinaRegion_.parentId)
                 )
                 .defaultValue(ChinaRegion_.visible, SQLs::literal, true)
-                .values(this::createReginList)
+                .values(this.createReginList())
                 .asInsert();
 
         printStmt(LOG, stmt);
@@ -76,7 +76,7 @@ public class MySQLInsertUnitTests extends MySQLUnitTests {
                         .comma(ChinaRegion_.parentId)
                 )
                 .defaultValue(ChinaRegion_.visible, SQLs::literal, true)
-                .values(this::createReginList)
+                .values(this.createReginList())
                 .onDuplicateKey()
                 .update(ChinaRegion_.name, MySQLs::values)
                 .comma(ChinaRegion_.regionGdp, SQLs::plusEqual, MySQLs.values(ChinaRegion_.regionGdp))
@@ -115,7 +115,7 @@ public class MySQLInsertUnitTests extends MySQLUnitTests {
                             .comma(ChinaRegion_.parentId)
                     )
                     .defaultValue(ChinaRegion_.visible, SQLs::literal, true)
-                    .values(this::createReginList)
+                    .values(this.createReginList())
                     .onDuplicateKey()       // here ,exists ON DUPLICATE KEY and insert multi row,so database couldn't return ids.
                     .update(ChinaRegion_.name, MySQLs::values)
                     .asInsert();
@@ -148,7 +148,7 @@ public class MySQLInsertUnitTests extends MySQLUnitTests {
                         .comma(ChinaRegion_.parentId)
                 )
                 .defaultValue(ChinaRegion_.visible, SQLs::literal, true)
-                .values(this::createReginList)
+                .values(this.createReginList())
                 .as("cr")
                 .onDuplicateKey() // TODO validate version = version + persist to database result
                 .update(ChinaRegion_.name, SQLs.field("cr", ChinaRegion_.name))

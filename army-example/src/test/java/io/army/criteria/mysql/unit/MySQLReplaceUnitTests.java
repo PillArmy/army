@@ -60,7 +60,7 @@ public class MySQLReplaceUnitTests extends MySQLUnitTests {
                         .comma(BankUser_.registerRecordId)
                 )
                 .defaultValue(BankUser_.visible, SQLs::literal, true)
-                .values(this::createBankUserList)
+                .values(this.createBankUserList())
                 .asInsert();
 
         print80Stmt(LOG, stmt, Visible.BOTH);
@@ -88,7 +88,7 @@ public class MySQLReplaceUnitTests extends MySQLUnitTests {
                         .comma(ChinaRegion_.parentId)
                 )
                 .defaultValue(ChinaRegion_.visible, SQLs::literal, true)
-                .values(this::createReginList)
+                .values(this.createReginList())
                 .asInsert();
 
         print80Stmt(LOG, stmt, Visible.BOTH);

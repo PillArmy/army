@@ -1031,10 +1031,6 @@ abstract class InsertSupports {
             return (VR) this;
         }
 
-        @Override
-        public final <TS extends T> VR value(Supplier<TS> supplier) {
-            return this.value(supplier.get());
-        }
 
 
         /// @see #domainListForSingle()
@@ -1050,11 +1046,6 @@ abstract class InsertSupports {
             this.originalDomainList = List.copyOf(domainList);
             assert this.insertMode == InsertMode.DOMAIN;
             return (VR) this;
-        }
-
-        @Override
-        public final <TS extends T> VR values(Supplier<List<TS>> supplier) {
-            return this.values(supplier.get());
         }
 
 
