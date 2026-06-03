@@ -76,6 +76,11 @@ Domain classes (annotated)
     <artifactId>army-jdbc</artifactId>
     <version>0.6.8-SNAPSHOT</version>
 </dependency>
+<dependency>
+    <groupId>io.qinarmy</groupId>
+    <artifactId>army-postgre</artifactId>
+    <version>0.6.6</version>
+</dependency>
 ----
 
 ==== Annotation Processor Configuration
@@ -1814,20 +1819,17 @@ Army provides several JSON mapping types for document-oriented storage:
 | MappingType | Java Types | Behavior
 
 | `JsonType`
-| `String`, `Map`, `List`, `Set`
+| `String`, `Map`, `List`, `Set`,`POJO`
 | Always maps to vanilla `JSON` (MySQL `JSON`, PostgreSQL `JSON`)
 
 | `PreferredJsonbType`
-| `String`, `Map<String,Object>`, `List`, `Set`
+| `String`, `Map`, `List`, `Set`,`POJO`
 | Maps to `JSONB` on PostgreSQL, falls back to `JSON` on MySQL
 
 | `JsonbType`
-| `String`
+| `String`, `Map`, `List`, `Set`,`POJO`
 | Strictly maps to `JSONB` (PostgreSQL-only, throws on other dialects)
 
-| `ArmyJsonType`
-| (abstract base)
-| Base class for all JSON types; provides auto-expansion of Map/List generics
 |===
 
 `PreferredJsonbType` is the most commonly used because it provides optimal storage and indexing (`jsonb`) on PostgreSQL while gracefully degrading to `json` on MySQL.
