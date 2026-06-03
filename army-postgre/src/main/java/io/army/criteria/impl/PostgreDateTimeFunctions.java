@@ -21,7 +21,6 @@ import io.army.criteria.Expression;
 import io.army.criteria.SimpleExpression;
 import io.army.mapping.*;
 import io.army.mapping.optional.IntervalType;
-import io.army.type.Interval;
 
 import java.util.Locale;
 import java.util.function.Function;
@@ -251,7 +250,7 @@ abstract class PostgreDateTimeFunctions extends PostgreStringFunctions {
     /// @see Postgres#namedNotation(String, Function, Object)
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-POSITIONAL">Using Positional Notation</a>
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-NAMED">Using Named Notation</a>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( [ years int [, months int [, weeks int [, days int [, hours int [, mins int [, secs double precision ]]]]]]] ) → interval</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( \[ years int \[, months int \[, weeks int \[, days int \[, hours int \[, mins int \[, secs double precision \]\]\]\]\]\] ) → interval</a>
     public static SimpleExpression makeInterval(Expression years) {
         return FunctionUtils.oneNotationFunc("MAKE_INTERVAL",
                 PostgreDateTimeFunctions::isErrorMakeIntervalNotation,
@@ -266,7 +265,7 @@ abstract class PostgreDateTimeFunctions extends PostgreStringFunctions {
     /// @see Postgres#namedNotation(String, Function, Object)
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-POSITIONAL">Using Positional Notation</a>
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-NAMED">Using Named Notation</a>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( [ years int [, months int [, weeks int [, days int [, hours int [, mins int [, secs double precision ]]]]]]] ) → interval</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( \[ years int \[, months int \[, weeks int \[, days int \[, hours int \[, mins int \[, secs double precision \]\]\]\]\]\] ) → interval</a>
     public static SimpleExpression makeInterval(Expression years, Expression months) {
         return FunctionUtils.twoNotationFunc("MAKE_INTERVAL",
                 PostgreDateTimeFunctions::isErrorMakeIntervalNotation,
@@ -282,7 +281,7 @@ abstract class PostgreDateTimeFunctions extends PostgreStringFunctions {
     /// @see Postgres#namedNotation(String, Function, Object)
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-POSITIONAL">Using Positional Notation</a>
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-NAMED">Using Named Notation</a>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( [ years int [, months int [, weeks int [, days int [, hours int [, mins int [, secs double precision ]]]]]]] ) → interval</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( \[ years int \[, months int \[, weeks int \[, days int \[, hours int \[, mins int \[, secs double precision \]\]\]\]\]\] ) → interval</a>
     public static SimpleExpression makeInterval(Expression years, Expression months, Expression weeks) {
         return FunctionUtils.threeNotationFunc("MAKE_INTERVAL",
                 PostgreDateTimeFunctions::isErrorMakeIntervalNotation,
@@ -299,7 +298,7 @@ abstract class PostgreDateTimeFunctions extends PostgreStringFunctions {
     /// @see Postgres#namedNotation(String, Function, Object)
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-POSITIONAL">Using Positional Notation</a>
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-NAMED">Using Named Notation</a>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( [ years int [, months int [, weeks int [, days int [, hours int [, mins int [, secs double precision ]]]]]]] ) → interval</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( \[ years int \[, months int \[, weeks int \[, days int \[, hours int \[, mins int \[, secs double precision \]\]\]\]\]\] ) → interval</a>
     public static SimpleExpression makeInterval(Expression years, Expression months, Expression weeks, Expression days) {
         return FunctionUtils.fourNotationFunc("MAKE_INTERVAL",
                 PostgreDateTimeFunctions::isErrorMakeIntervalNotation,
@@ -317,7 +316,7 @@ abstract class PostgreDateTimeFunctions extends PostgreStringFunctions {
     /// @see Postgres#namedNotation(String, Function, Object)
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-POSITIONAL">Using Positional Notation</a>
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-NAMED">Using Named Notation</a>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( [ years int [, months int [, weeks int [, days int [, hours int [, mins int [, secs double precision ]]]]]]] ) → interval</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( \[ years int \[, months int \[, weeks int \[, days int \[, hours int \[, mins int \[, secs double precision \]\]\]\]\]\] ) → interval</a>
     public static SimpleExpression makeInterval(Expression years, Expression months, Expression weeks, Expression days,
                                                 Expression hours) {
         return FunctionUtils.fiveNotationFunc("MAKE_INTERVAL",
@@ -337,7 +336,7 @@ abstract class PostgreDateTimeFunctions extends PostgreStringFunctions {
     /// @see Postgres#namedNotation(String, Function, Object)
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-POSITIONAL">Using Positional Notation</a>
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-NAMED">Using Named Notation</a>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( [ years int [, months int [, weeks int [, days int [, hours int [, mins int [, secs double precision ]]]]]]] ) → interval</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( \[ years int \[, months int \[, weeks int \[, days int \[, hours int \[, mins int \[, secs double precision \]\]\]\]\]\] ) → interval</a>
     public static SimpleExpression makeInterval(Expression years, Expression months, Expression weeks, Expression days,
                                                 Expression hours, Expression mins) {
         return FunctionUtils.sixNotationFunc("MAKE_INTERVAL",
@@ -358,7 +357,7 @@ abstract class PostgreDateTimeFunctions extends PostgreStringFunctions {
     /// @see Postgres#namedNotation(String, Function, Object)
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-POSITIONAL">Using Positional Notation</a>
     /// @see <a href="https://www.postgresql.org/docs/15/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-NAMED">Using Named Notation</a>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( [ years int [, months int [, weeks int [, days int [, hours int [, mins int [, secs double precision ]]]]]]] ) → interval</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( \[ years int \[, months int \[, weeks int \[, days int \[, hours int \[, mins int \[, secs double precision \]\]\]\]\]\] ) → interval</a>
     public static SimpleExpression makeInterval(Expression years, Expression months, Expression weeks, Expression days,
                                                 Expression hours, Expression mins, Expression secs) {
 
@@ -384,7 +383,7 @@ abstract class PostgreDateTimeFunctions extends PostgreStringFunctions {
 
     /// 
     /// The {@link MappingType} of function return type: {@link OffsetDateTimeType}
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_timestamptz ( year int, month int, day int, hour int, min int, sec double precision [, timezone text ] ) → timestamp with time zone</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_timestamptz ( year int, month int, day int, hour int, min int, sec double precision \[, timezone text \] ) → timestamp with time zone</a>
     public static SimpleExpression makeTimestampTz(Expression year, Expression month, Expression day, Expression hour,
                                                    Expression min, Expression sec) {
         return FunctionUtils.sixArgFunc("MAKE_TIMESTAMPTZ", year, month, day, hour, min, sec);
@@ -392,7 +391,7 @@ abstract class PostgreDateTimeFunctions extends PostgreStringFunctions {
 
     /// 
     /// The {@link MappingType} of function return type: {@link OffsetDateTimeType}
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_timestamptz ( year int, month int, day int, hour int, min int, sec double precision [, timezone text ] ) → timestamp with time zone</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_timestamptz ( year int, month int, day int, hour int, min int, sec double precision \[, timezone text \] ) → timestamp with time zone</a>
     public static SimpleExpression makeTimestampTz(Expression year, Expression month, Expression day, Expression hour,
                                                    Expression min, Expression sec, Expression timeZone) {
         return FunctionUtils.sevenArgFunc("MAKE_TIMESTAMPTZ",
@@ -471,7 +470,7 @@ abstract class PostgreDateTimeFunctions extends PostgreStringFunctions {
     }
 
     /// @see PostgreDateTimeFunctions#makeInterval(Expression, Expression, Expression, Expression, Expression, Expression, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( [ years int [, months int [, weeks int [, days int [, hours int [, mins int [, secs double precision ]]]]]]] ) → interval</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE">make_interval ( \[ years int \[, months int \[, weeks int \[, days int \[, hours int \[, mins int \[, secs double precision \]\]\]\]\]\] ) → interval</a>
     private static boolean isErrorMakeIntervalNotation(final String argName) {
         final boolean error;
         switch (argName) {

@@ -416,7 +416,7 @@ abstract class Functions {
 
     /// 
     /// The {@link MappingType} of function return type: {@link DoubleType} .
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/mathematical-functions.html#function_rand">RAND([N])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/mathematical-functions.html#function_rand">RAND(\[N\])</a>
     public static SimpleExpression rand() {
         return LiteralFunctions.zeroArgFunc("RAND");
     }
@@ -426,8 +426,8 @@ abstract class Functions {
     /// 
     /// - {@link Expression} instance
     /// - literal
-    /// 
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/mathematical-functions.html#function_rand">RAND([N])</a>
+    ///
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/mathematical-functions.html#function_rand">RAND(\[N\])</a>
     public static SimpleExpression rand(final Object n) {
         return LiteralFunctions.oneArgFunc("RAND", n);
     }
@@ -690,7 +690,7 @@ abstract class Functions {
     /// - {@link String} literal
     /// 
     /// @throws CriteriaException throw when argument error
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_trim">TRIM([BOTH | LEADING | TRAILING] remstr FROM str), TRIM([remstr FROM] str),TRIM(remstr FROM str)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_trim">TRIM(\[BOTH | LEADING | TRAILING\] remstr FROM str), TRIM(\[remstr FROM\] str),TRIM(remstr FROM str)</a>
     public static SimpleExpression trim(SQLs.TrimSpec position, SQLs.WordFrom from, Object str) {
         FuncExpUtils.assertTrimSpec(position);
         FuncExpUtils.assertWord(from, SQLs.FROM);
@@ -719,7 +719,7 @@ abstract class Functions {
     /// - {@link String} literal
     /// 
     /// @throws CriteriaException throw when argument error
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_trim">TRIM([BOTH | LEADING | TRAILING] remstr FROM str), TRIM([remstr FROM] str),TRIM(remstr FROM str)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_trim">TRIM(\[BOTH | LEADING | TRAILING\] remstr FROM str), TRIM(\[remstr FROM\] str),TRIM(remstr FROM str)</a>
     public static SimpleExpression trim(SQLs.TrimSpec position, Object remstr, SQLs.WordFrom from, Object str) {
         FuncExpUtils.assertTrimSpec(position);
         FuncExpUtils.assertTextExp(remstr);
@@ -840,7 +840,7 @@ abstract class Functions {
     /// The {@link MappingType} of function return type: {@link  LongType}
     /// @param distinct see {@link SQLs#DISTINCT}
     /// @param expr     non-null
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_count">COUNT(expr) [over_clause]</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_count">COUNT(expr) \[over_clause\]</a>
     public static SimpleExpression count(SQLs.ArgDistinct distinct, Expression expr) {
         FuncExpUtils.assertDistinct(distinct, SQLs.DISTINCT);
         return LiteralFunctions.compositeFunc("COUNT", Arrays.asList(distinct, expr));
@@ -877,9 +877,9 @@ abstract class Functions {
     /// - Else he {@link MappingType} of exp
     /// 
     /// @param exp non-null
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_sum">MySQL SUM([DISTINCT] expr)</a>
-    /// @see <a href="https://www.h2database.com/html/functions-aggregate.html#sum">H2 SUM([DISTINCT] expr)</a>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-aggregate.html#FUNCTIONS-AGGREGATE-TABLE">Postgre SUM([DISTINCT] expr)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_sum">MySQL SUM(\[DISTINCT\] expr)</a>
+    /// @see <a href="https://www.h2database.com/html/functions-aggregate.html#sum">H2 SUM(\[DISTINCT\] expr)</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-aggregate.html#FUNCTIONS-AGGREGATE-TABLE">Postgre SUM(\[DISTINCT\] expr)</a>
     public static SimpleExpression sum(Expression exp) {
         return LiteralFunctions.oneArgFunc("SUM", exp);
     }
@@ -902,8 +902,8 @@ abstract class Functions {
     /// 
     /// @param distinct see {@link SQLs#DISTINCT}
     /// @param exp      non-null
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_sum">MySQL SUM([DISTINCT] expr)</a>
-    /// @see <a href="https://www.h2database.com/html/functions-aggregate.html#sum">H2 SUM([DISTINCT] expr)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_sum">MySQL SUM(\[DISTINCT\] expr)</a>
+    /// @see <a href="https://www.h2database.com/html/functions-aggregate.html#sum">H2 SUM(\[DISTINCT\] expr)</a>
     public static SimpleExpression sum(SQLs.ArgDistinct distinct, Expression exp) {
         FuncExpUtils.assertDistinct(distinct, SQLs.DISTINCT);
         return LiteralFunctions.compositeFunc("SUM", Arrays.asList(distinct, exp));
@@ -917,7 +917,7 @@ abstract class Functions {
     /// - else : {@link TextType}
     /// 
     /// @param expr non-null
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_avg">AVG([DISTINCT] expr)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_avg">AVG(\[DISTINCT\] expr)</a>
     public static SimpleExpression avg(Expression expr) {
         return LiteralFunctions.oneArgFunc("AVG", expr);
     }
@@ -932,7 +932,7 @@ abstract class Functions {
     /// 
     /// @param distinct see {@link SQLs#DISTINCT}
     /// @param expr     non-null
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_avg">AVG([DISTINCT] expr)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_avg">AVG(\[DISTINCT\] expr)</a>
     public static SimpleExpression avg(SQLs.ArgDistinct distinct, Expression expr) {
         FuncExpUtils.assertDistinct(distinct, SQLs.DISTINCT);
         return LiteralFunctions.compositeFunc("AVG", Arrays.asList(distinct, expr));

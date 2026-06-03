@@ -95,7 +95,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// the first argument of funcRefForQuery always is {@link TextType#INSTANCE}.
     /// @param query           non-null,it will be passed to funcRefForQuery as the second argument of funcRefForQuery
     /// @see #plainToTsQuery(Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">plainto_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">plainto_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static <T> Expression plainToTsQuery(BiFunction<MappingType, T, Expression> funcRefForQuery, T query) {
         return plainToTsQuery(funcRefForQuery.apply(TextType.INSTANCE, query));
     }
@@ -103,7 +103,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link  PgTsQueryType}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">plainto_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">plainto_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static SimpleExpression plainToTsQuery(Expression query) {
         return LiteralFunctions.oneArgFunc("PLAINTO_TSQUERY", query);
     }
@@ -132,7 +132,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// the first argument of funcRefForQuery always is {@link TextType#INSTANCE}.
     /// @param query            non-null,it will be passed to funcRefForQuery as the second argument of funcRefForQuery
     /// @see #plainToTsQuery(Expression, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">plainto_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">plainto_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static <T, U> Expression plainToTsQuery(BiFunction<MappingType, T, Expression> funcRefForConfig, T config,
                                                          BiFunction<MappingType, U, Expression> funcRefForQuery, U query) {
         return plainToTsQuery(funcRefForConfig.apply(StringType.INSTANCE, config),
@@ -143,7 +143,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link  PgTsQueryType}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">plainto_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">plainto_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static SimpleExpression plainToTsQuery(Expression config, Expression query) {
         return LiteralFunctions.twoArgFunc("PLAINTO_TSQUERY", config, query);
     }
@@ -162,7 +162,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// he first argument of funcRefForQuery always is {@link TextType#INSTANCE}.
     /// @param query           non-null,it will be passed to funcRefForQuery as the second argument of funcRefForQuery
     /// @see #phraseToTsQuery(Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">phraseto_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">phraseto_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static <T> Expression phraseToTsQuery(BiFunction<MappingType, T, Expression> funcRefForQuery, T query) {
         return phraseToTsQuery(funcRefForQuery.apply(TextType.INSTANCE, query));
     }
@@ -170,7 +170,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link  PgTsQueryType}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">phraseto_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">phraseto_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static SimpleExpression phraseToTsQuery(Expression query) {
         return LiteralFunctions.oneArgFunc("PHRASETO_TSQUERY", query);
     }
@@ -199,7 +199,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// he first argument of funcRefForQuery always is {@link TextType#INSTANCE}.
     /// @param query            non-null,it will be passed to funcRefForQuery as the second argument of funcRefForQuery
     /// @see #phraseToTsQuery(Expression, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">phraseto_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">phraseto_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static <T, U> Expression phraseToTsQuery(BiFunction<MappingType, T, Expression> funcRefForConfig, T config,
                                                           BiFunction<MappingType, U, Expression> funcRefForQuery, U query) {
         return phraseToTsQuery(funcRefForConfig.apply(StringType.INSTANCE, config),
@@ -210,7 +210,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link  PgTsQueryType}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">phraseto_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">phraseto_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static SimpleExpression phraseToTsQuery(Expression config, Expression query) {
         return LiteralFunctions.twoArgFunc("PHRASETO_TSQUERY", config, query);
     }
@@ -229,7 +229,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// the first argument of funcRefForQuery always is {@link TextType#INSTANCE}.
     /// @param query           non-null,it will be passed to funcRefForQuery as the second argument of funcRefForQuery
     /// @see #webSearchToTsQuery(Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">websearch_to_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">websearch_to_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static <T> Expression webSearchToTsQuery(BiFunction<MappingType, T, Expression> funcRefForQuery, T query) {
         return webSearchToTsQuery(funcRefForQuery.apply(TextType.INSTANCE, query));
     }
@@ -237,7 +237,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link  PgTsQueryType}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">websearch_to_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">websearch_to_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static SimpleExpression webSearchToTsQuery(Expression query) {
         return LiteralFunctions.oneArgFunc("WEBSEARCH_TO_TSQUERY", query);
     }
@@ -266,7 +266,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// the first argument of funcRefForQuery always is {@link TextType#INSTANCE}.
     /// @param query            non-null,it will be passed to funcRefForQuery as the second argument of funcRefForQuery
     /// @see #webSearchToTsQuery(Expression, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">websearch_to_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">websearch_to_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static <T, U> Expression webSearchToTsQuery(BiFunction<MappingType, T, Expression> funcRefForConfig, T config,
                                                              BiFunction<MappingType, U, Expression> funcRefForQuery, U query) {
         return webSearchToTsQuery(funcRefForConfig.apply(StringType.INSTANCE, config),
@@ -277,7 +277,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link  PgTsQueryType}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">websearch_to_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">websearch_to_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static SimpleExpression webSearchToTsQuery(Expression config, Expression query) {
         return LiteralFunctions.twoArgFunc("WEBSEARCH_TO_TSQUERY", config, query);
     }
@@ -440,7 +440,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// the first argument of funcRefForQuery always is {@link TextType#INSTANCE}.
     /// @param query           non-null,it will be passed to funcRefForQuery as the second argument of funcRefForQuery
     /// @see #toTsQuery(Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static <T> Expression toTsQuery(BiFunction<MappingType, T, Expression> funcRefForQuery, T query) {
         return toTsQuery(funcRefForQuery.apply(TextType.INSTANCE, query));
     }
@@ -448,7 +448,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link  PgTsQueryType}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static SimpleExpression toTsQuery(Expression query) {
         return LiteralFunctions.oneArgFunc("TO_TSQUERY", query);
     }
@@ -477,7 +477,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// the first argument of funcRefForQuery always is {@link TextType#INSTANCE}.
     /// @param query            non-null,it will be passed to funcRefForQuery as the second argument of funcRefForQuery
     /// @see #toTsQuery(Expression, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static <T, U> Expression toTsQuery(BiFunction<MappingType, T, Expression> funcRefForConfig, T config,
                                                     BiFunction<MappingType, U, Expression> funcRefForQuery, U query) {
         return toTsQuery(funcRefForConfig.apply(StringType.INSTANCE, config),
@@ -488,7 +488,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link  PgTsQueryType}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsquery ( [ config regconfig, ] query text ) → tsquery</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsquery ( \[ config regconfig, \] query text ) → tsquery</a>
     public static SimpleExpression toTsQuery(Expression config, Expression query) {
         return LiteralFunctions.twoArgFunc("TO_TSQUERY", config, query);
     }
@@ -497,7 +497,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
     /// @see #toTsVector(Expression, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsvector ( [ config regconfig, ] document text ) → tsvector</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsvector ( \[ config regconfig, \] document text ) → tsvector</a>
     public static SimpleExpression toTsVector(Expression document) {
         return LiteralFunctions.oneArgFunc("TO_TSVECTOR", document);
     }
@@ -505,7 +505,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     ///
     /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsvector ( [ config regconfig, ] document text ) → tsvector</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">to_tsvector ( \[ config regconfig, \] document text ) → tsvector</a>
     public static SimpleExpression toTsVector(Expression config, Expression document) {
         return LiteralFunctions.twoArgFunc("TO_TSVECTOR", config, document);
     }
@@ -534,7 +534,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// the first argument of funcRefForFilter always is {@link JsonbType#TEXT} .
     /// @param filter             non-null,it will be passed to funcRefForFilter as the second argument of funcRefForFilter
     /// @see #jsonToTsVector(Expression, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">json_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">json_to_tsvector ( \[ config regconfig, \] document json, filter jsonb ) → tsvector</a>
     public static <T, U> Expression jsonToTsVector(BiFunction<MappingType, T, Expression> funcRefForDocument, T document,
                                                          BiFunction<MappingType, U, Expression> funcRefForFilter, U filter) {
         return jsonToTsVector(funcRefForDocument.apply(JsonType.TEXT, document),
@@ -545,7 +545,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     ///
     /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">json_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">json_to_tsvector ( \[ config regconfig, \] document json, filter jsonb ) → tsvector</a>
     public static SimpleExpression jsonToTsVector(Expression document, Expression filter) {
         return LiteralFunctions.twoArgFunc("JSON_TO_TSVECTOR", document, filter);
     }
@@ -584,7 +584,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// the first argument of funcRefForFilter always is {@link JsonbType#TEXT} .
     /// @param filter             non-null,it will be passed to funcRefForFilter as the second argument of funcRefForFilter
     /// @see #jsonToTsVector(Expression, Expression, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">json_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">json_to_tsvector ( \[ config regconfig, \] document json, filter jsonb ) → tsvector</a>
     public static <T, U, V> Expression jsonToTsVector(BiFunction<MappingType, T, Expression> funcRefForConfig, T config,
                                                             BiFunction<MappingType, U, Expression> funcRefForDocument, U document,
                                                             BiFunction<MappingType, V, Expression> funcRefForFilter, V filter) {
@@ -597,7 +597,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     ///
     /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">json_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">json_to_tsvector ( \[ config regconfig, \] document json, filter jsonb ) → tsvector</a>
     public static SimpleExpression jsonToTsVector(Expression config, Expression document, Expression filter) {
         return LiteralFunctions.threeArgFunc("JSON_TO_TSVECTOR", config, document, filter);
     }
@@ -626,7 +626,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// the first argument of funcRefForFilter always is {@link JsonbType#TEXT} .
     /// @param filter             non-null,it will be passed to funcRefForFilter as the second argument of funcRefForFilter
     /// @see #jsonbToTsVector(Expression, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">jsonb_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">jsonb_to_tsvector ( \[ config regconfig, \] document json, filter jsonb ) → tsvector</a>
     public static <T, U> Expression jsonbToTsVector(BiFunction<MappingType, T, Expression> funcRefForDocument, T document,
                                                           BiFunction<MappingType, U, Expression> funcRefForFilter, U filter) {
         return jsonbToTsVector(funcRefForDocument.apply(JsonType.TEXT, document),
@@ -637,7 +637,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     ///
     /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">jsonb_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">jsonb_to_tsvector ( \[ config regconfig, \] document json, filter jsonb ) → tsvector</a>
     public static SimpleExpression jsonbToTsVector(Expression document, Expression filter) {
         return LiteralFunctions.twoArgFunc("JSONB_TO_TSVECTOR", document, filter);
     }
@@ -676,7 +676,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// the first argument of funcRefForFilter always is {@link JsonbType#TEXT} .
     /// @param filter             non-null,it will be passed to funcRefForFilter as the second argument of funcRefForFilter
     /// @see #jsonbToTsVector(Expression, Expression, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">jsonb_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">jsonb_to_tsvector ( \[ config regconfig, \] document json, filter jsonb ) → tsvector</a>
     public static <T, U, V> Expression jsonbToTsVector(BiFunction<MappingType, T, Expression> funcRefForConfig, T config,
                                                              BiFunction<MappingType, U, Expression> funcRefForDocument, U document,
                                                              BiFunction<MappingType, V, Expression> funcRefForFilter, V filter) {
@@ -689,7 +689,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     ///
     /// The {@link MappingType} of function return type: {@link  VectorType}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">jsonb_to_tsvector ( [ config regconfig, ] document json, filter jsonb ) → tsvector</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">jsonb_to_tsvector ( \[ config regconfig, \] document json, filter jsonb ) → tsvector</a>
     public static SimpleExpression jsonbToTsVector(Expression config, Expression document, Expression filter) {
         return LiteralFunctions.threeArgFunc("JSONB_TO_TSVECTOR", config, document, filter);
     }
@@ -1126,7 +1126,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// @see #xmlExists(Expression, WordPassing, PassingOption, Expression)
     /// @see #xmlExists(Expression, WordPassing, Expression, PassingOption)
     /// @see #xmlExists(Expression, WordPassing, PassingOption, Expression, PassingOption)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-PRODUCING-XML">XMLEXISTS ( text PASSING [BY {REF|VALUE}] xml [BY {REF|VALUE}] ) → boolean
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-PRODUCING-XML">XMLEXISTS ( text PASSING \[BY {REF|VALUE}\] xml \[BY {REF|VALUE}\] ) → boolean
     /// </a>
     public static SimplePredicate xmlExists(Expression text, WordPassing passing, Expression xml) {
         return _xmlExists(text, passing, null, xml, null);
@@ -1138,7 +1138,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// @see #xmlExists(Expression, WordPassing, Expression)
     /// @see #xmlExists(Expression, WordPassing, PassingOption, Expression)
     /// @see #xmlExists(Expression, WordPassing, PassingOption, Expression, PassingOption)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-PRODUCING-XML">XMLEXISTS ( text PASSING [BY {REF|VALUE}] xml [BY {REF|VALUE}] ) → boolean
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-PRODUCING-XML">XMLEXISTS ( text PASSING \[BY {REF|VALUE}\] xml \[BY {REF|VALUE}\] ) → boolean
     /// </a>
     public static SimplePredicate xmlExists(Expression text, WordPassing passing, Expression xml,
                                             PassingOption xmlOption) {
@@ -1152,7 +1152,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// @see #xmlExists(Expression, WordPassing, Expression)
     /// @see #xmlExists(Expression, WordPassing, Expression, PassingOption)
     /// @see #xmlExists(Expression, WordPassing, PassingOption, Expression, PassingOption)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-PRODUCING-XML">XMLEXISTS ( text PASSING [BY {REF|VALUE}] xml [BY {REF|VALUE}] ) → boolean
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-PRODUCING-XML">XMLEXISTS ( text PASSING \[BY {REF|VALUE}\] xml \[BY {REF|VALUE}\] ) → boolean
     /// </a>
     public static SimplePredicate xmlExists(Expression text, WordPassing passing, PassingOption textOption,
                                             Expression xml) {
@@ -1166,7 +1166,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// @see #xmlExists(Expression, WordPassing, Expression)
     /// @see #xmlExists(Expression, WordPassing, PassingOption, Expression)
     /// @see #xmlExists(Expression, WordPassing, Expression, PassingOption)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PREDICATES">XMLEXISTS ( text PASSING [BY {REF|VALUE}] xml [BY {REF|VALUE}] ) → boolean
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PREDICATES">XMLEXISTS ( text PASSING \[BY {REF|VALUE}\] xml \[BY {REF|VALUE}\] ) → boolean
     /// </a>
     public static SimplePredicate xmlExists(Expression text, WordPassing passing, PassingOption textOption,
                                             Expression xml, PassingOption xmlOption) {
@@ -1207,7 +1207,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// The {@link MappingType} of function return type: {@link XmlArrayType#TEXT_LINEAR}
     /// *
     /// @see #xpath(Expression, Expression, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PREDICATES">xpath ( xpath text, xml xml [, nsarray text[] ] ) → xml[]
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PREDICATES">xpath ( xpath text, xml xml \[, nsarray text[] \] ) → xml[]
     /// </a>
     public static SimpleExpression xpath(Expression xpath, Expression xml) {
         return LiteralFunctions.twoArgFunc("XPATH", xpath, xml);
@@ -1216,7 +1216,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link XmlArrayType#TEXT_LINEAR}
     /// *
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PREDICATES">xpath ( xpath text, xml xml [, nsarray text[] ] ) → xml[]
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PREDICATES">xpath ( xpath text, xml xml \[, nsarray text[] \] ) → xml[]
     /// </a>
     public static SimpleExpression xpath(Expression xpath, Expression xml, Expression nsArray) {
         return LiteralFunctions.threeArgFunc("XPATH", xpath, xml, nsArray);
@@ -1226,7 +1226,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// The {@link MappingType} of function return type: {@link BooleanType}
     /// *
     /// @see #xpathExists(Expression, Expression, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PREDICATES">xpath_exists ( xpath text, xml xml [, nsarray text[] ] ) → boolean
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PREDICATES">xpath_exists ( xpath text, xml xml \[, nsarray text[] \] ) → boolean
     /// </a>
     public static SimplePredicate xpathExists(Expression xpath, Expression xml) {
         return LiteralFunctions.twoArgPredicate("XPATH_EXISTS", xpath, xml);
@@ -1236,7 +1236,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// The {@link MappingType} of function return type: {@link BooleanType}
     /// *
     /// @see #xpathExists(Expression, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PREDICATES">xpath_exists ( xpath text, xml xml [, nsarray text[] ] ) → boolean
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PREDICATES">xpath_exists ( xpath text, xml xml \[, nsarray text[] \] ) → boolean
     /// </a>
     public static SimplePredicate xpathExists(Expression xpath, Expression xml, Expression nsArray) {
         return LiteralFunctions.threeArgPredicate("XPATH_EXISTS", xpath, xml, nsArray);
@@ -1260,7 +1260,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - namespaceName isn't simple identifier
     /// 
     /// @see #xmlNamespaces(Expression, SQLs.WordAs, String)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PROCESSING">XMLNAMESPACES ( namespace_uri AS namespace_name [, ...] )
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PROCESSING">XMLNAMESPACES ( namespace_uri AS namespace_name \[, ...\] )
     /// </a>
     public static XmlNameSpaces xmlNamespaces(BiFunction<MappingType, String, Expression> funcRef, String namespaceUri, SQLs.WordAs as, String namespaceName) {
         return xmlNamespaces(funcRef.apply(TextType.INSTANCE, namespaceUri), as, namespaceName);
@@ -1272,7 +1272,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// @param namespaceName a simple identifier
     /// @see #xmlNamespaces(BiFunction, String, SQLs.WordAs, String)
     /// @see #xmlNamespaces(Consumer)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PROCESSING">XMLNAMESPACES ( namespace_uri AS namespace_name [, ...] )
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PROCESSING">XMLNAMESPACES ( namespace_uri AS namespace_name \[, ...\] )
     /// </a>
     public static XmlNameSpaces xmlNamespaces(Expression namespaceUri, SQLs.WordAs as, String namespaceName) {
         final PostgreFunctionUtils.XmlNamedElementPart<XmlNameSpaces> clause;
@@ -1284,7 +1284,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
 
     /// @see #xmlNamespaces(BiFunction, String, SQLs.WordAs, String)
     /// @see #xmlNamespaces(Consumer)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PROCESSING">XMLNAMESPACES ( namespace_uri AS namespace_name [, ...] )
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PROCESSING">XMLNAMESPACES ( namespace_uri AS namespace_name \[, ...\] )
     /// </a>
     public static XmlNameSpaces xmlNamespaces(Consumer<Postgres._XmlNamedElementClause> consumer) {
         final PostgreFunctionUtils.XmlNamedElementPart<XmlNameSpaces> clause;
@@ -1293,15 +1293,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return clause.endNamedPart();
     }
 
-    /// <pre>
     /// XMLTABLE (
-    /// [ XMLNAMESPACES ( namespace_uri AS namespace_name [, ...] ), ]
-    /// row_expression PASSING [BY {REF|VALUE}] document_expression [BY {REF|VALUE}]
-    /// COLUMNS name { type [PATH column_expression] [DEFAULT default_expression] [NOT NULL | NULL]
+    /// \[ XMLNAMESPACES ( namespace_uri AS namespace_name \[, ...\] ), \]
+    /// row_expression PASSING \[BY {REF|VALUE}\] document_expression \[BY {REF|VALUE}\]
+    /// COLUMNS name { type \[PATH column_expression\] \[DEFAULT default_expression\] \[NOT NULL | NULL\]
     /// | FOR ORDINALITY }
-    /// [, ...]
+    /// \[, ...\]
     /// ) → setof record
-    /// </pre>
     /// @see #xmlTable(Expression, WordPassing, Expression, Consumer)
     /// @see #xmlTable(Expression, WordPassing, PassingOption, Expression, Consumer)
     /// @see #xmlTable(XmlNameSpaces, Expression, WordPassing, Expression, Consumer)
@@ -1315,15 +1313,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return _xmlTable(null, rowExp, passing, null, docExp, null, consumer);
     }
 
-    /// <pre>
     /// XMLTABLE (
-    /// [ XMLNAMESPACES ( namespace_uri AS namespace_name [, ...] ), ]
-    /// row_expression PASSING [BY {REF|VALUE}] document_expression [BY {REF|VALUE}]
-    /// COLUMNS name { type [PATH column_expression] [DEFAULT default_expression] [NOT NULL | NULL]
+    /// \[ XMLNAMESPACES ( namespace_uri AS namespace_name \[, ...\] ), \]
+    /// row_expression PASSING \[BY {REF|VALUE}\] document_expression \[BY {REF|VALUE}\]
+    /// COLUMNS name { type \[PATH column_expression\] \[DEFAULT default_expression\] \[NOT NULL | NULL\]
     /// | FOR ORDINALITY }
-    /// [, ...]
+    /// \[, ...\]
     /// ) → setof record
-    /// </pre>
     /// @see #xmlTable(Expression, WordPassing, Expression, Consumer)
     /// @see #xmlTable(Expression, WordPassing, PassingOption, Expression, Consumer)
     /// @see #xmlTable(XmlNameSpaces, Expression, WordPassing, Expression, Consumer)
@@ -1338,15 +1334,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return _xmlTable(nameSpaces, rowExp, passing, null, docExp, null, consumer);
     }
 
-    /// <pre>
     /// XMLTABLE (
-    /// [ XMLNAMESPACES ( namespace_uri AS namespace_name [, ...] ), ]
-    /// row_expression PASSING [BY {REF|VALUE}] document_expression [BY {REF|VALUE}]
-    /// COLUMNS name { type [PATH column_expression] [DEFAULT default_expression] [NOT NULL | NULL]
+    /// \[ XMLNAMESPACES ( namespace_uri AS namespace_name \[, ...\] ), \]
+    /// row_expression PASSING \[BY {REF|VALUE}\] document_expression \[BY {REF|VALUE}\]
+    /// COLUMNS name { type \[PATH column_expression\] \[DEFAULT default_expression\] \[NOT NULL | NULL\]
     /// | FOR ORDINALITY }
-    /// [, ...]
+    /// \[, ...\]
     /// ) → setof record
-    /// </pre>
     /// @see #xmlTable(Expression, WordPassing, Expression, Consumer)
     /// @see #xmlTable(Expression, WordPassing, PassingOption, Expression, Consumer)
     /// @see #xmlTable(XmlNameSpaces, Expression, WordPassing, Expression, Consumer)
@@ -1361,15 +1355,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return _xmlTable(null, rowExp, passing, rowOption, docExp, null, consumer);
     }
 
-    /// <pre>
     /// XMLTABLE (
-    /// [ XMLNAMESPACES ( namespace_uri AS namespace_name [, ...] ), ]
-    /// row_expression PASSING [BY {REF|VALUE}] document_expression [BY {REF|VALUE}]
-    /// COLUMNS name { type [PATH column_expression] [DEFAULT default_expression] [NOT NULL | NULL]
+    /// \[ XMLNAMESPACES ( namespace_uri AS namespace_name \[, ...\] ), \]
+    /// row_expression PASSING \[BY {REF|VALUE}\] document_expression \[BY {REF|VALUE}\]
+    /// COLUMNS name { type \[PATH column_expression\] \[DEFAULT default_expression\] \[NOT NULL | NULL\]
     /// | FOR ORDINALITY }
-    /// [, ...]
+    /// \[, ...\]
     /// ) → setof record
-    /// </pre>
     /// @see #xmlTable(Expression, WordPassing, Expression, Consumer)
     /// @see #xmlTable(Expression, WordPassing, PassingOption, Expression, Consumer)
     /// @see #xmlTable(XmlNameSpaces, Expression, WordPassing, Expression, Consumer)
@@ -1385,15 +1377,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return _xmlTable(null, rowExp, passing, null, docExp, docOption, consumer);
     }
 
-    /// <pre>
     /// XMLTABLE (
-    /// [ XMLNAMESPACES ( namespace_uri AS namespace_name [, ...] ), ]
-    /// row_expression PASSING [BY {REF|VALUE}] document_expression [BY {REF|VALUE}]
-    /// COLUMNS name { type [PATH column_expression] [DEFAULT default_expression] [NOT NULL | NULL]
+    /// \[ XMLNAMESPACES ( namespace_uri AS namespace_name \[, ...\] ), \]
+    /// row_expression PASSING \[BY {REF|VALUE}\] document_expression \[BY {REF|VALUE}\]
+    /// COLUMNS name { type \[PATH column_expression\] \[DEFAULT default_expression\] \[NOT NULL | NULL\]
     /// | FOR ORDINALITY }
-    /// [, ...]
+    /// \[, ...\]
     /// ) → setof record
-    /// </pre>
     /// @see #xmlTable(Expression, WordPassing, Expression, Consumer)
     /// @see #xmlTable(Expression, WordPassing, PassingOption, Expression, Consumer)
     /// @see #xmlTable(XmlNameSpaces, Expression, WordPassing, Expression, Consumer)
@@ -1410,15 +1400,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return _xmlTable(nameSpaces, rowExp, passing, rowOption, docExp, null, consumer);
     }
 
-    /// <pre>
     /// XMLTABLE (
-    /// [ XMLNAMESPACES ( namespace_uri AS namespace_name [, ...] ), ]
-    /// row_expression PASSING [BY {REF|VALUE}] document_expression [BY {REF|VALUE}]
-    /// COLUMNS name { type [PATH column_expression] [DEFAULT default_expression] [NOT NULL | NULL]
+    /// \[ XMLNAMESPACES ( namespace_uri AS namespace_name \[, ...\] ), \]
+    /// row_expression PASSING \[BY {REF|VALUE}\] document_expression \[BY {REF|VALUE}\]
+    /// COLUMNS name { type \[PATH column_expression\] \[DEFAULT default_expression\] \[NOT NULL | NULL\]
     /// | FOR ORDINALITY }
-    /// [, ...]
+    /// \[, ...\]
     /// ) → setof record
-    /// </pre>
     /// @see #xmlTable(Expression, WordPassing, Expression, Consumer)
     /// @see #xmlTable(Expression, WordPassing, PassingOption, Expression, Consumer)
     /// @see #xmlTable(XmlNameSpaces, Expression, WordPassing, Expression, Consumer)
@@ -1435,15 +1423,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return _xmlTable(nameSpaces, rowExp, passing, null, docExp, docOption, consumer);
     }
 
-    /// <pre>
     /// XMLTABLE (
-    /// [ XMLNAMESPACES ( namespace_uri AS namespace_name [, ...] ), ]
-    /// row_expression PASSING [BY {REF|VALUE}] document_expression [BY {REF|VALUE}]
-    /// COLUMNS name { type [PATH column_expression] [DEFAULT default_expression] [NOT NULL | NULL]
+    /// \[ XMLNAMESPACES ( namespace_uri AS namespace_name \[, ...\] ), \]
+    /// row_expression PASSING \[BY {REF|VALUE}\] document_expression \[BY {REF|VALUE}\]
+    /// COLUMNS name { type \[PATH column_expression\] \[DEFAULT default_expression\] \[NOT NULL | NULL\]
     /// | FOR ORDINALITY }
-    /// [, ...]
+    /// \[, ...\]
     /// ) → setof record
-    /// </pre>
     /// @see #xmlTable(Expression, WordPassing, Expression, Consumer)
     /// @see #xmlTable(Expression, WordPassing, PassingOption, Expression, Consumer)
     /// @see #xmlTable(XmlNameSpaces, Expression, WordPassing, Expression, Consumer)
@@ -1460,15 +1446,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return _xmlTable(null, rowExp, passing, rowOption, docExp, docOption, consumer);
     }
 
-    /// <pre>
     /// XMLTABLE (
-    /// [ XMLNAMESPACES ( namespace_uri AS namespace_name [, ...] ), ]
-    /// row_expression PASSING [BY {REF|VALUE}] document_expression [BY {REF|VALUE}]
-    /// COLUMNS name { type [PATH column_expression] [DEFAULT default_expression] [NOT NULL | NULL]
+    /// \[ XMLNAMESPACES ( namespace_uri AS namespace_name \[, ...\] ), \]
+    /// row_expression PASSING \[BY {REF|VALUE}\] document_expression \[BY {REF|VALUE}\]
+    /// COLUMNS name { type \[PATH column_expression\] \[DEFAULT default_expression\] \[NOT NULL | NULL\]
     /// | FOR ORDINALITY }
-    /// [, ...]
+    /// \[, ...\]
     /// ) → setof record
-    /// </pre>
     /// @see #xmlTable(Expression, WordPassing, Expression, Consumer)
     /// @see #xmlTable(Expression, WordPassing, PassingOption, Expression, Consumer)
     /// @see #xmlTable(XmlNameSpaces, Expression, WordPassing, Expression, Consumer)
@@ -2387,14 +2371,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonType#TEXT}.
     /// Default Selection alias is 'value'.
-    /// * <pre>
-    /// select * from json_array_elements('[1,true, [2,false]]') →
+    /// *
+    /// select * from json_array_elements('\[1,true, \[2,false\]\]') →
     /// value
     /// -----------
     /// 1
     /// true
-    /// [2,false]
-    /// </pre>
+    /// \[2,false\]
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -2416,14 +2399,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonType#TEXT}.
     /// Default Selection alias is 'value'.
-    /// * <pre>
-    /// select * from json_array_elements('[1,true, [2,false]]') →
+    /// *
+    /// select * from json_array_elements('\[1,true, \[2,false\]\]') →
     /// value
     /// -----------
     /// 1
     /// true
-    /// [2,false]
-    /// </pre>
+    /// \[2,false\]
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">json_array_elements ( json ) → setof json
     /// Expands the top-level JSON array into a set of JSON values.
     /// </a>
@@ -2434,14 +2416,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// Default Selection alias is 'value'.
-    /// * <pre>
-    /// select * from jsonb_array_elements('[1,true, [2,false]]') →
+    /// *
+    /// select * from jsonb_array_elements('\[1,true, \[2,false\]\]') →
     /// value
     /// -----------
     /// 1
     /// true
-    /// [2,false]
-    /// </pre>
+    /// \[2,false\]
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -2463,14 +2444,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// Default Selection alias is 'value'.
-    /// * <pre>
-    /// select * from jsonb_array_elements('[1,true, [2,false]]') →
+    /// *
+    /// select * from jsonb_array_elements('\[1,true, \[2,false\]\]') →
     /// value
     /// -----------
     /// 1
     /// true
-    /// [2,false]
-    /// </pre>
+    /// \[2,false\]
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_array_elements ( json ) → setof json
     /// Expands the top-level JSON array into a set of JSON values.
     /// </a>
@@ -2481,13 +2461,12 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link TextType#INSTANCE}.
     /// Default Selection alias is 'value'.
-    /// * <pre>
-    /// select * from json_array_elements_text('["foo", "bar"]') →
+    /// *
+    /// select * from json_array_elements_text('\["foo", "bar"\]') →
     /// value
     /// -----------
     /// foo
     /// bar
-    /// </pre>
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -2510,13 +2489,12 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link TextType#INSTANCE}.
     /// Default Selection alias is 'value'.
-    /// * <pre>
-    /// select * from json_array_elements_text('["foo", "bar"]') →
+    /// *
+    /// select * from json_array_elements_text('\["foo", "bar"\]') →
     /// value
     /// -----------
     /// foo
     /// bar
-    /// </pre>
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">json_array_elements_text ( json ) → setof text
     /// Expands the top-level JSON array into a set of text values.
     /// </a>
@@ -2527,13 +2505,12 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link TextType#INSTANCE}.
     /// Default Selection alias is 'value'.
-    /// * <pre>
-    /// select * from jsonb_array_elements_text('["foo", "bar"]') →
+    /// *
+    /// select * from jsonb_array_elements_text('\["foo", "bar"\]') →
     /// value
     /// -----------
     /// foo
     /// bar
-    /// </pre>
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -2555,13 +2532,12 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link TextType#INSTANCE}.
     /// Default Selection alias is 'value'.
-    /// * <pre>
-    /// select * from jsonb_array_elements_text('["foo", "bar"]') →
+    /// *
+    /// select * from jsonb_array_elements_text('\["foo", "bar"\]') →
     /// value
     /// -----------
     /// foo
     /// bar
-    /// </pre>
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_array_elements_text ( json ) → setof text
     /// Expands the top-level JSON array into a set of text values.
     /// </a>
@@ -2593,14 +2569,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - key : {@link TextType}
     /// - value : {@link JsonType#TEXT}
     /// - ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}
-    /// 
-    /// * <pre>
+    ///
+    /// *
     /// select * from json_each('{"a":"foo", "b":"bar"}') →
     /// key | value
     /// -----+-------
     /// a   | "foo"
     /// b   | "bar"
-    /// </pre>
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -2625,14 +2600,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - key : {@link TextType}
     /// - value : {@link JsonType#TEXT}
     /// - ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}
-    /// 
-    /// * <pre>
+    ///
+    /// *
     /// select * from json_each('{"a":"foo", "b":"bar"}') →
     /// key | value
     /// -----+-------
     /// a   | "foo"
     /// b   | "bar"
-    /// </pre>
     /// @see #jsonEach(Expression)
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">json_each ( json ) → setof record ( key text, value json )
     /// Expands the top-level JSON object into a set of key/value pairs.
@@ -2650,13 +2624,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - value : {@link JsonbType#TEXT}
     /// - ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}
     /// 
-    /// <pre>
     /// select * from jsonb_each('{"a":"foo", "b":"bar"}') →
     /// key | value
     /// -----+-------
     /// a   | "foo"
     /// b   | "bar"
-    /// </pre>
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -2682,13 +2654,11 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - value : {@link JsonbType#TEXT}
     /// - ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}
     /// 
-    /// <pre>
     /// select * from jsonb_each('{"a":"foo", "b":"bar"}') →
     /// key | value
     /// -----+-------
     /// a   | "foo"
     /// b   | "bar"
-    /// </pre>
     /// @see #jsonEach(Expression)
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_each ( json ) → setof record ( key text, value json )
     /// Expands the top-level JSON object into a set of key/value pairs.
@@ -2706,14 +2676,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - key : {@link TextType}
     /// - value : {@link TextType}
     /// - ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}
-    /// 
-    /// * <pre>
+    ///
+    /// *
     /// select * from json_each_text('{"a":"foo", "b":"bar"}') →
     /// key | value
     /// -----+-------
     /// a   | "foo"
     /// b   | "bar"
-    /// </pre>
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -2738,14 +2707,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - key : {@link TextType}
     /// - value : {@link TextType}
     /// - ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}
-    /// 
-    /// * <pre>
+    ///
+    /// *
     /// select * from json_each_text('{"a":"foo", "b":"bar"}') →
     /// key | value
     /// -----+-------
     /// a   | "foo"
     /// b   | "bar"
-    /// </pre>
     /// @see #jsonEachText(BiFunction, Object)
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">json_each_text ( json ) → setof record ( key text, value text )
     /// Expands the top-level JSON object into a set of key/value pairs. The returned values will be of type text.
@@ -2762,14 +2730,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - key : {@link TextType}
     /// - value : {@link TextType}
     /// - ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}
-    /// 
-    /// * <pre>
+    ///
+    /// *
     /// select * from jsonb_each_text('{"a":"foo", "b":"bar"}') →
     /// key | value
     /// -----+-------
     /// a   | "foo"
     /// b   | "bar"
-    /// </pre>
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -2794,14 +2761,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - key : {@link StringType}
     /// - value : {@link TextType}
     /// - ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}
-    /// 
-    /// * <pre>
+    ///
+    /// *
     /// select * from jsonb_each_text('{"a":"foo", "b":"bar"}') →
     /// key | value
     /// -----+-------
     /// a   | "foo"
     /// b   | "bar"
-    /// </pre>
     /// @see #jsonbEachText(BiFunction, Object)
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_each_text ( json ) → setof record ( key text, value text )
     /// Expands the top-level JSON object into a set of key/value pairs. The returned values will be of type text.
@@ -3218,14 +3184,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// The {@link MappingType} of fields of derived table :
     /// - function alias(is specified by AS clause) : {@link TextType}
     /// - ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}
-    /// 
-    /// * <pre>
+    ///
+    /// *
     /// select keys.keys from json_object_keys('{"f1":"abc","f2":{"f3":"a", "f4":"b"}}') as keys  →
     /// keys
     /// ------------------
     /// f1
     /// f2
-    /// </pre>
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -3249,14 +3214,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// The {@link MappingType} of fields of derived table :
     /// - function alias(is specified by AS clause) : {@link TextType}
     /// - ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}
-    /// 
-    /// * <pre>
+    ///
+    /// *
     /// select keys.keys from json_object_keys('{"f1":"abc","f2":{"f3":"a", "f4":"b"}}') as keys  →
     /// keys
     /// ------------------
     /// f1
     /// f2
-    /// </pre>
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">json_object_keys ( json ) → setof text
     /// Returns the set of keys in the top-level JSON object.
     /// </a>
@@ -3269,14 +3233,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// The {@link MappingType} of fields of derived table :
     /// - function alias(is specified by AS clause) : {@link TextType}
     /// - ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}
-    /// 
-    /// * <pre>
+    ///
+    /// *
     /// select keys.keys from json_object_keys('{"f1":"abc","f2":{"f3":"a", "f4":"b"}}') as keys  →
     /// keys
     /// ------------------
     /// f1
     /// f2
-    /// </pre>
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -3299,14 +3262,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// The {@link MappingType} of fields of derived table :
     /// - function alias(is specified by AS clause) : {@link TextType}
     /// - ordinality (optioinal) : {@link IntegerType}. see {@link _WithOrdinalityClause#withOrdinality()}
-    /// 
-    /// * <pre>
+    ///
+    /// *
     /// select keys.keys from json_object_keys('{"f1":"abc","f2":{"f3":"a", "f4":"b"}}') as keys  →
     /// keys
     /// ------------------
     /// f1
     /// f2
-    /// </pre>
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_object_keys ( json ) → setof text
     /// Returns the set of keys in the top-level JSON object.
     /// </a>
@@ -3369,18 +3331,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     }
 
 
-    /// <pre>
     /// Expands the top-level JSON object to a row having the composite type defined by an AS clause.
     /// (As with all functions returning record, the calling query must explicitly define the structure of the record
     /// with an AS clause.) The output record is filled from fields of the JSON object, in the same way as described
-    /// above for json[b]_populate_record. Since there is no input record value, unmatched columns are always filled
+    /// above for json\[b\]_populate_record. Since there is no input record value, unmatched columns are always filled
     /// with nulls.
     /// create type myrowtype as (a int, b text);
-    /// select * from json_to_record('{"a":1,"b":[1,2,3],"c":[1,2,3],"e":"bar","r": {"a": 123, "b": "a b c"}}') as x(a int, b text, c int[], d text, r myrowtype) →
+    /// select * from json_to_record('{"a":1,"b":\[1,2,3\],"c":\[1,2,3\],"e":"bar","r": {"a": 123, "b": "a b c"}}') as x(a int, b text, c int[], d text, r myrowtype) →
     /// a |    b    |    c    | d |       r
     /// ---+---------+---------+---+---------------
-    /// 1 | [1,2,3] | {1,2,3} |   | (123,"a b c")
-    /// </pre>
+    /// 1 | \[1,2,3\] | {1,2,3} |   | (123,"a b c")
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -3399,36 +3359,32 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return jsonToRecord(funcRef.apply(JsonType.TEXT, value));
     }
 
-    /// <pre>
     /// Expands the top-level JSON object to a row having the composite type defined by an AS clause.
     /// (As with all functions returning record, the calling query must explicitly define the structure of the record
     /// with an AS clause.) The output record is filled from fields of the JSON object, in the same way as described
-    /// above for json[b]_populate_record. Since there is no input record value, unmatched columns are always filled
+    /// above for json\[b\]_populate_record. Since there is no input record value, unmatched columns are always filled
     /// with nulls.
     /// create type myrowtype as (a int, b text);
-    /// select * from json_to_record('{"a":1,"b":[1,2,3],"c":[1,2,3],"e":"bar","r": {"a": 123, "b": "a b c"}}') as x(a int, b text, c int[], d text, r myrowtype) →
+    /// select * from json_to_record('{"a":1,"b":\[1,2,3\],"c":\[1,2,3\],"e":"bar","r": {"a": 123, "b": "a b c"}}') as x(a int, b text, c int[], d text, r myrowtype) →
     /// a |    b    |    c    | d |       r
     /// ---+---------+---------+---+---------------
-    /// 1 | [1,2,3] | {1,2,3} |   | (123,"a b c")
-    /// </pre>
+    /// 1 | \[1,2,3\] | {1,2,3} |   | (123,"a b c")
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">json_to_record ( json ) → record
     /// </a>
     public static UndoneFunction jsonToRecord(final Expression json) {
         return DialectFunctionUtils.oneArgUndoneFunc("JSON_TO_RECORD", json);
     }
 
-    /// <pre>
     /// Expands the top-level JSON object to a row having the composite type defined by an AS clause.
     /// (As with all functions returning record, the calling query must explicitly define the structure of the record
     /// with an AS clause.) The output record is filled from fields of the JSON object, in the same way as described
-    /// above for json[b]_populate_record. Since there is no input record value, unmatched columns are always filled
+    /// above for json\[b\]_populate_record. Since there is no input record value, unmatched columns are always filled
     /// with nulls.
     /// create type myrowtype as (a int, b text);
-    /// select * from json_to_record('{"a":1,"b":[1,2,3],"c":[1,2,3],"e":"bar","r": {"a": 123, "b": "a b c"}}') as x(a int, b text, c int[], d text, r myrowtype) →
+    /// select * from json_to_record('{"a":1,"b":\[1,2,3\],"c":\[1,2,3\],"e":"bar","r": {"a": 123, "b": "a b c"}}') as x(a int, b text, c int[], d text, r myrowtype) →
     /// a |    b    |    c    | d |       r
     /// ---+---------+---------+---+---------------
-    /// 1 | [1,2,3] | {1,2,3} |   | (123,"a b c")
-    /// </pre>
+    /// 1 | \[1,2,3\] | {1,2,3} |   | (123,"a b c")
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -3448,18 +3404,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     }
 
 
-    /// <pre>
     /// Expands the top-level JSON object to a row having the composite type defined by an AS clause.
     /// (As with all functions returning record, the calling query must explicitly define the structure of the record
     /// with an AS clause.) The output record is filled from fields of the JSON object, in the same way as described
-    /// above for json[b]_populate_record. Since there is no input record value, unmatched columns are always filled
+    /// above for json\[b\]_populate_record. Since there is no input record value, unmatched columns are always filled
     /// with nulls.
     /// create type myrowtype as (a int, b text);
-    /// select * from json_to_record('{"a":1,"b":[1,2,3],"c":[1,2,3],"e":"bar","r": {"a": 123, "b": "a b c"}}') as x(a int, b text, c int[], d text, r myrowtype) →
+    /// select * from json_to_record('{"a":1,"b":\[1,2,3\],"c":\[1,2,3\],"e":"bar","r": {"a": 123, "b": "a b c"}}') as x(a int, b text, c int[], d text, r myrowtype) →
     /// a |    b    |    c    | d |       r
     /// ---+---------+---------+---+---------------
-    /// 1 | [1,2,3] | {1,2,3} |   | (123,"a b c")
-    /// </pre>
+    /// 1 | \[1,2,3\] | {1,2,3} |   | (123,"a b c")
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_to_record ( jsonb ) → record
     /// </a>
     public static UndoneFunction jsonbToRecord(final Expression json) {
@@ -3467,16 +3421,14 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     }
 
 
-    /// <pre>
     /// Expands the top-level JSON array of objects to a set of rows having the composite type defined by an AS clause.
     /// (As with all functions returning record, the calling query must explicitly define the structure of the record
-    /// with an AS clause.) Each element of the JSON array is processed as described above for json[b]_populate_record.
+    /// with an AS clause.) Each element of the JSON array is processed as described above for json\[b\]_populate_record.
     /// select * from json_to_recordset('[{"a":1,"b":"foo"}, {"a":"2","c":"bar"}]') as x(a int, b text) →
     /// a |  b
     /// ---+-----
     /// 1 | foo
     /// 2 |
-    /// </pre>
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -3495,32 +3447,28 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return jsonToRecordSet(funcRef.apply(JsonType.TEXT, value));
     }
 
-    /// <pre>
     /// Expands the top-level JSON array of objects to a set of rows having the composite type defined by an AS clause.
     /// (As with all functions returning record, the calling query must explicitly define the structure of the record
-    /// with an AS clause.) Each element of the JSON array is processed as described above for json[b]_populate_record.
+    /// with an AS clause.) Each element of the JSON array is processed as described above for json\[b\]_populate_record.
     /// select * from json_to_recordset('[{"a":1,"b":"foo"}, {"a":"2","c":"bar"}]') as x(a int, b text) →
     /// a |  b
     /// ---+-----
     /// 1 | foo
     /// 2 |
-    /// </pre>
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">json_to_recordset ( json ) → setof record
     /// </a>
     public static UndoneFunction jsonToRecordSet(final Expression json) {
         return DialectFunctionUtils.oneArgUndoneFunc("JSON_TO_RECORDSET", json);
     }
 
-    /// <pre>
     /// Expands the top-level JSON array of objects to a set of rows having the composite type defined by an AS clause.
     /// (As with all functions returning record, the calling query must explicitly define the structure of the record
-    /// with an AS clause.) Each element of the JSON array is processed as described above for json[b]_populate_record.
+    /// with an AS clause.) Each element of the JSON array is processed as described above for json\[b\]_populate_record.
     /// select * from json_to_recordset('[{"a":1,"b":"foo"}, {"a":"2","c":"bar"}]') as x(a int, b text) →
     /// a |  b
     /// ---+-----
     /// 1 | foo
     /// 2 |
-    /// </pre>
     /// @param funcRef the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -3540,16 +3488,14 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     }
 
 
-    /// <pre>
     /// Expands the top-level JSON array of objects to a set of rows having the composite type defined by an AS clause.
     /// (As with all functions returning record, the calling query must explicitly define the structure of the record
-    /// with an AS clause.) Each element of the JSON array is processed as described above for json[b]_populate_record.
+    /// with an AS clause.) Each element of the JSON array is processed as described above for json\[b\]_populate_record.
     /// select * from json_to_recordset('[{"a":1,"b":"foo"}, {"a":"2","c":"bar"}]') as x(a int, b text) →
     /// a |  b
     /// ---+-----
     /// 1 | foo
     /// 2 |
-    /// </pre>
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_to_recordset ( jsonb ) → setof record
     /// </a>
     public static UndoneFunction jsonbToRecordSet(final Expression json) {
@@ -4304,17 +4250,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// this filed name of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
-    /// select q.q from jsonb_path_query('{"a":[1,2,3,4,5]}', '$.a[*] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
+    /// select q.q from jsonb_path_query('{"a":\[1,2,3,4,5\]}', '$.a\[*\] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
     /// q
     /// ------------------
     /// 2
     /// 3
     /// 4
-    /// </pre>
     /// @param funcRefForPath the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -4338,17 +4283,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// this filed name of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
-    /// select q.q from jsonb_path_query('{"a":[1,2,3,4,5]}', '$.a[*] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
+    /// select q.q from jsonb_path_query('{"a":\[1,2,3,4,5\]}', '$.a\[*\] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
     /// q
     /// ------------------
     /// 2
     /// 3
     /// 4
-    /// </pre>
     /// @throws CriteriaException throw when argument isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
     /// {@link SQLs#rowParam(TypeInfer, Collection)}
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_path_query ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
@@ -4360,17 +4304,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// this filed name of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
-    /// select q.q from jsonb_path_query('{"a":[1,2,3,4,5]}', '$.a[*] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
+    /// select q.q from jsonb_path_query('{"a":\[1,2,3,4,5\]}', '$.a\[*\] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
     /// q
     /// ------------------
     /// 2
     /// 3
     /// 4
-    /// </pre>
     /// @param funcRefForPath the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -4394,17 +4337,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// this filed name of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
-    /// select q.q from jsonb_path_query('{"a":[1,2,3,4,5]}', '$.a[*] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
+    /// select q.q from jsonb_path_query('{"a":\[1,2,3,4,5\]}', '$.a\[*\] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
     /// q
     /// ------------------
     /// 2
     /// 3
     /// 4
-    /// </pre>
     /// @param funcRefForPath the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -4430,17 +4372,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// this filed name of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
-    /// select q.q from jsonb_path_query('{"a":[1,2,3,4,5]}', '$.a[*] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
+    /// select q.q from jsonb_path_query('{"a":\[1,2,3,4,5\]}', '$.a\[*\] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
     /// q
     /// ------------------
     /// 2
     /// 3
     /// 4
-    /// </pre>
     /// @throws CriteriaException throw when argument isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
     /// {@link SQLs#rowParam(TypeInfer, Collection)}
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_path_query ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
@@ -4453,17 +4394,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// this filed name of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
-    /// select q.q from jsonb_path_query('{"a":[1,2,3,4,5]}', '$.a[*] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
+    /// select q.q from jsonb_path_query('{"a":\[1,2,3,4,5\]}', '$.a\[*\] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
     /// q
     /// ------------------
     /// 2
     /// 3
     /// 4
-    /// </pre>
     /// @param funcRefForPath the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -4488,17 +4428,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// this filed name of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
-    /// select q.q from jsonb_path_query('{"a":[1,2,3,4,5]}', '$.a[*] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
+    /// select q.q from jsonb_path_query('{"a":\[1,2,3,4,5\]}', '$.a\[*\] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
     /// q
     /// ------------------
     /// 2
     /// 3
     /// 4
-    /// </pre>
     /// @param funcRefForPath the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -4536,17 +4475,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// this filed name of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
-    /// select q.q from jsonb_path_query('{"a":[1,2,3,4,5]}', '$.a[*] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
+    /// select q.q from jsonb_path_query('{"a":\[1,2,3,4,5\]}', '$.a\[*\] ? (@ >= $min && @ <= $max)', '{"min":2, "max":4}') as q →
     /// q
     /// ------------------
     /// 2
     /// 3
     /// 4
-    /// </pre>
     /// @param silent in most case {@link SQLs#TRUE} or {@link  SQLs#FALSE}
     /// @throws CriteriaException throw when argument isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
     /// {@link SQLs#rowParam(TypeInfer, Collection)}
@@ -5275,7 +5213,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// the field of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query_tz ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
@@ -5294,7 +5232,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// "2015-08-02 12:00:00-05"
     /// "2015-08-03 12:00:00-05"
     /// "2015-08-04 12:00:00-05"
-    /// </pre>
     /// @param funcRefForPath the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -5318,7 +5255,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// the field of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query_tz ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
@@ -5337,7 +5274,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// "2015-08-02 12:00:00-05"
     /// "2015-08-03 12:00:00-05"
     /// "2015-08-04 12:00:00-05"
-    /// </pre>
     /// @throws CriteriaException throw when argument isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
     /// {@link SQLs#rowParam(TypeInfer, Collection)}
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_path_query_tz ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
@@ -5349,7 +5285,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// the field of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query_tz ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
@@ -5368,7 +5304,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// "2015-08-02 12:00:00-05"
     /// "2015-08-03 12:00:00-05"
     /// "2015-08-04 12:00:00-05"
-    /// </pre>
     /// @param funcRefForPath the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -5392,7 +5327,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// the field of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query_tz ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
@@ -5411,7 +5346,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// "2015-08-02 12:00:00-05"
     /// "2015-08-03 12:00:00-05"
     /// "2015-08-04 12:00:00-05"
-    /// </pre>
     /// @param funcRefForPath the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -5437,7 +5371,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// the field of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query_tz ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
@@ -5456,7 +5390,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// "2015-08-02 12:00:00-05"
     /// "2015-08-03 12:00:00-05"
     /// "2015-08-04 12:00:00-05"
-    /// </pre>
     /// @throws CriteriaException throw when argument isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
     /// {@link SQLs#rowParam(TypeInfer, Collection)}
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_path_query_tz ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
@@ -5469,7 +5402,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// the field of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query_tz ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
@@ -5488,7 +5421,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// "2015-08-02 12:00:00-05"
     /// "2015-08-03 12:00:00-05"
     /// "2015-08-04 12:00:00-05"
-    /// </pre>
     /// @param funcRefForPath the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -5513,7 +5445,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// the field of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query_tz ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
@@ -5532,7 +5464,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// "2015-08-02 12:00:00-05"
     /// "2015-08-03 12:00:00-05"
     /// "2015-08-04 12:00:00-05"
-    /// </pre>
     /// @param funcRefForPath the reference of method,Note: it's the reference of method,not lambda. Valid method:
     /// 
     /// - {@link SQLs#param(TypeInfer, Object)}
@@ -5559,7 +5490,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// 
     /// The {@link MappingType} of function return type: {@link JsonbType#TEXT}.
     /// the field of function is specified by AS clause.
-    /// * <pre>
+    /// *
     /// jsonb_path_query_tz ( target jsonb, path jsonpath [, vars jsonb [, silent boolean ]] ) → setof jsonb
     /// Returns all JSON items returned by the JSON path for the specified JSON value. The optional vars
     /// and silent arguments act the same as for jsonb_path_exists.
@@ -5578,7 +5509,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// "2015-08-02 12:00:00-05"
     /// "2015-08-03 12:00:00-05"
     /// "2015-08-04 12:00:00-05"
-    /// </pre>
     /// @param silent in most case {@link SQLs#TRUE} or {@link  SQLs#FALSE}
     /// @throws CriteriaException throw when argument isn't operable {@link Expression},for example {@link SQLs#DEFAULT},
     /// {@link SQLs#rowParam(TypeInfer, Collection)}
@@ -6078,7 +6008,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// @see #xmlExists(Expression, WordPassing, PassingOption, Expression)
     /// @see #xmlExists(Expression, WordPassing, Expression, PassingOption)
     /// @see #xmlExists(Expression, WordPassing, PassingOption, Expression, PassingOption)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-PRODUCING-XML">XMLEXISTS ( text PASSING [BY {REF|VALUE}] xml [BY {REF|VALUE}] ) → boolean
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-PRODUCING-XML">XMLEXISTS ( text PASSING \[BY {REF|VALUE}\] xml \[BY {REF|VALUE}\] ) → boolean
     /// </a>
     private static SimplePredicate _xmlExists(final Expression text, final WordPassing passing,
                                               final @Nullable PassingOption textOption,
@@ -6110,15 +6040,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         return func;
     }
 
-    /// <pre>
     /// XMLTABLE (
-    /// [ XMLNAMESPACES ( namespace_uri AS namespace_name [, ...] ), ]
-    /// row_expression PASSING [BY {REF|VALUE}] document_expression [BY {REF|VALUE}]
-    /// COLUMNS name { type [PATH column_expression] [DEFAULT default_expression] [NOT NULL | NULL]
+    /// \[ XMLNAMESPACES ( namespace_uri AS namespace_name \[, ...\] ), \]
+    /// row_expression PASSING \[BY {REF|VALUE}\] document_expression \[BY {REF|VALUE}\]
+    /// COLUMNS name { type \[PATH column_expression\] \[DEFAULT default_expression\] \[NOT NULL | NULL\]
     /// | FOR ORDINALITY }
-    /// [, ...]
+    /// \[, ...\]
     /// ) → setof record
-    /// </pre>
     /// @see #xmlTable(Expression, WordPassing, Expression, Consumer)
     /// @see #xmlTable(Expression, WordPassing, PassingOption, Expression, Consumer)
     /// @see #xmlTable(XmlNameSpaces, Expression, WordPassing, Expression, Consumer)

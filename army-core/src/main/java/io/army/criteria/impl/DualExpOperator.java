@@ -57,20 +57,20 @@ enum DualExpOperator implements Operator.SqlDualExpressionOperator, SQLs.DualOpe
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING">json #> text[] → json
     /// jsonb #> text[] → jsonb
     /// Extracts JSON sub-object at the specified path, where path elements can be either field keys or array indexes.
-    /// '{"a": {"b": ["foo","bar"]}}'::json #> '{a,b,1}' → "bar"
+    /// '{"a": {"b": \["foo","bar"\]}}'::json #> '{a,b,1}' → "bar"
     /// </a>
     POUND_GT(" #>", 20),// postgre only
 
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE">jsonb #- text[] → jsonb
     /// Deletes the field or array element at the specified path, where path elements can be either field keys or array indexes.
-    /// '["a", {"b":1}]'::jsonb #- '{1,b}' → ["a", {}]
+    /// '\["a", {"b":1}\]'::jsonb #- '{1,b}' → \["a", {}\]
     /// </a>
     POUND_HYPHEN(" #-", 20),// postgre only
 
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING">json #>> text[] → text
     /// jsonb #>> text[] → text
     /// Extracts JSON sub-object at the specified path as text.
-    /// '{"a": {"b": ["foo","bar"]}}'::json #>> '{a,b,1}' → bar
+    /// '{"a": {"b": \["foo","bar"\]}}'::json #>> '{a,b,1}' → bar
     /// </a>
     POUND_GT_GT(" #>>", 20),// postgre only
     /// @see <a href="https://www.postgresql.org/docs/current/functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE">geometric_type ## geometric_type → point
@@ -86,14 +86,14 @@ enum DualExpOperator implements Operator.SqlDualExpressionOperator, SQLs.DualOpe
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING">json -> integer → json
     /// jsonb -> integer → jsonb
     /// Extracts n'th element of JSON array (array elements are indexed from zero, but negative integers count from the end).
-    /// '[{"a":"foo"},{"b":"bar"},{"c":"baz"}]'::json -> 2 → {"c":"baz"}
+    /// '\[{"a":"foo"},{"b":"bar"},{"c":"baz"}\]'::json -> 2 → {"c":"baz"}
     /// </a>
     ARROW(" ->", 20),// postgre mysql
 
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING">json ->> integer → text
     /// jsonb ->> integer → text
     /// Extracts n'th element of JSON array, as text.
-    /// '[1,2,3]'::json ->> 2 → 3
+    /// '\[1,2,3\]'::json ->> 2 → 3
     /// json ->> text → text
     /// jsonb ->> text → text
     /// </a>

@@ -113,7 +113,7 @@ enum PgDualBoolOperator implements Operator.SqlDualBooleanOperator, SQLs.BiOpera
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE">jsonb ? text → boolean
     /// Does the text string exist as a top-level key or array element within the JSON value?
     /// '{"a":1, "b":2}'::jsonb ? 'b' → t
-    /// '["a", "b", "c"]'::jsonb ? 'b' → t
+    /// '\["a", "b", "c"\]'::jsonb ? 'b' → t
     /// </a>
     QUESTION(" ?"),
 
@@ -127,7 +127,7 @@ enum PgDualBoolOperator implements Operator.SqlDualBooleanOperator, SQLs.BiOpera
 
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE">jsonb ?& text[] → boolean
     /// Do all of the strings in the text array exist as top-level keys or array elements?
-    /// '["a", "b", "c"]'::jsonb ?& array['a', 'b'] → t
+    /// '\["a", "b", "c"\]'::jsonb ?& array['a','b'] → t
     /// </a>
     QUESTION_AMP(" ?&"),
 
@@ -158,7 +158,7 @@ enum PgDualBoolOperator implements Operator.SqlDualBooleanOperator, SQLs.BiOpera
 
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE">jsonb @? jsonpath → boolean
     /// Does JSON path return any item for the specified JSON value?
-    /// '{"a":[1,2,3,4,5]}'::jsonb @? '$.a[*] ? (@ > 2)' → t
+    /// '{"a":\[1,2,3,4,5\]}'::jsonb @? '$.a\[*\] ? (@ > 2)' → t
     /// </a>
     AT_QUESTION(" @?"),
 

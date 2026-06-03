@@ -279,45 +279,43 @@ public abstract class Postgres extends PostgreSyntax {
 
 
     /// Create postgre DECLARE statement.
-    /// <pre>
-    /// <code>
-    /// &#64;Transactional(readOnly = true)
-    /// &#64;Test
+    /// ```java
+    /// @Transactional(readOnly = true)
+    /// @Test
     /// public void readOnlyCursor(final SyncLocalSession session) {
-    /// final List<ChinaRegion<?>> regionList = createReginListWithCount(300);
-    /// session.batchSave(regionList);
-    /// final DeclareCursor stmt;
-    /// stmt = Postgres.declareStmt()
-    /// .declare("my_china_region_cursor").cursor()
-    /// .forSpace()
-    /// .select("c", PERIOD, ChinaRegion_.T)
-    /// .from(ChinaRegion_.T, AS, "c")
-    /// .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-    /// .orderBy(ChinaRegion_.id)
-    /// .limit(SQLs::literal, regionList.size())
-    /// .asQuery()
-    /// .asCommand();
-    /// final ResultStates states;
-    /// states = session.updateAsStates(stmt);
-    /// try (SyncStmtCursor cursor = states.nonNullOf(SyncStmtCursor.SYNC_STMT_CURSOR)) {
-    /// ChinaRegion<?> region, firstRow;
-    /// int rowCount = 0;
-    /// while ((region = cursor.next(ChinaRegion_.CLASS)) != null) {
-    /// LOG.debug("region : {}", region);
-    /// rowCount++;
-    /// if (rowCount > 200) {
-    /// break;
+    ///     final List<ChinaRegion<?>> regionList = createReginListWithCount(300);
+    ///     session.batchSave(regionList);
+    ///     final DeclareCursor stmt;
+    ///     stmt = Postgres.declareStmt()
+    ///             .declare("my_china_region_cursor").cursor()
+    ///             .forSpace()
+    ///             .select("c", PERIOD, ChinaRegion_.T)
+    ///             .from(ChinaRegion_.T, AS, "c")
+    ///             .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
+    ///             .orderBy(ChinaRegion_.id)
+    ///             .limit(SQLs::literal, regionList.size())
+    ///             .asQuery()
+    ///             .asCommand();
+    ///     final ResultStates states;
+    ///     states = session.updateAsStates(stmt);
+    ///     try (SyncStmtCursor cursor = states.nonNullOf(SyncStmtCursor.SYNC_STMT_CURSOR)) {
+    ///         ChinaRegion<?> region, firstRow;
+    ///         int rowCount = 0;
+    ///         while ((region = cursor.next(ChinaRegion_.CLASS)) != null) {
+    ///             LOG.debug("region : {}", region);
+    ///             rowCount++;
+    ///             if (rowCount > 200) {
+    ///                 break;
+    ///             }
+    ///         }
+    ///         firstRow = cursor.fetchOneObject(Direction.FIRST, ChinaRegion_::constructor, ResultStates.IGNORE_STATES);
+    ///         LOG.debug("{} firstRow : {}", session.name(), firstRow);
+    ///         cursor.move(Direction.LAST);
+    ///         cursor.fetch(Direction.FORWARD_ALL, ChinaRegion_.CLASS, ResultStates.IGNORE_STATES)
+    ///                 .forEach(System.out::println);
+    ///     }
     /// }
-    /// }
-    /// firstRow = cursor.fetchOneObject(Direction.FIRST, ChinaRegion_::constructor, ResultStates.IGNORE_STATES);
-    /// LOG.debug("{} firstRow : {}", session.name(), firstRow);
-    /// cursor.move(Direction.LAST);
-    /// cursor.fetch(Direction.FORWARD_ALL, ChinaRegion_.CLASS, ResultStates.IGNORE_STATES)
-    /// .forEach(System.out::println);
-    /// }
-    /// }
-    /// </code>
-    /// </pre>
+    /// ```
     /// @see #closeCursor(String)
     /// @see #closeAllCursor()
     /// @see <a href="https://www.postgresql.org/docs/current/sql-declare.html">DECLARE — define a cursor</a>

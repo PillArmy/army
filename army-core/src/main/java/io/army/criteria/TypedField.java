@@ -34,9 +34,9 @@ public interface TypedField extends SqlField, TypedExpression, SimpleExpression 
     /// The implementation of this method is equivalent to following:
     /// 
     /// ```java
-    /// IPredicate spaceEqual(BiFunction<TypedField, String, Expression> namedOperator) {
-    /// return this.equal(namedOperator.apply(this, this.fieldName()))
-    /// }
+    ///     IPredicate spaceEqual(BiFunction<TypedField, String, Expression> namedOperator) {
+    ///         return this.equal(namedOperator.apply(this, this.fieldName()))
+    ///     }
     /// ```
     /// 
     /// @param namedOperator one of below:
@@ -55,9 +55,9 @@ public interface TypedField extends SqlField, TypedExpression, SimpleExpression 
     /// The implementation of this method is equivalent to following:
     /// 
     /// ```java
-    /// IPredicate spaceLess(BiFunction<TypedField, String, Expression> namedOperator) {
-    /// return this.less(namedOperator.apply(this, this.fieldName()))
-    /// }
+    ///     IPredicate spaceLess(BiFunction<TypedField, String, Expression> namedOperator) {
+    ///         return this.less(namedOperator.apply(this, this.fieldName()))
+    ///     }
     /// ```
     /// 
     /// @param namedOperator one of below:
@@ -82,14 +82,14 @@ public interface TypedField extends SqlField, TypedExpression, SimpleExpression 
     /// The implementation of this method is equivalent to following:
     /// 
     /// ```java
-    /// IPredicate spaceLike(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar) {
-    /// final Expression operand; // the right operand of LIKE .
-    /// operand = namedOperator.apply(this, this.fieldName());
-    /// if (operand instanceof LiteralExpression && !(escapeChar instanceof Expression)) {
-    /// escapeChar = SQLs.constant(StringType.INSTANCE, escapeChar);
-    /// }
-    /// return this.like(operand,escape,escapeChar)
-    /// }
+    ///     IPredicate spaceLike(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar) {
+    ///         final Expression operand; // the right operand of LIKE .
+    ///         operand = namedOperator.apply(this, this.fieldName());
+    ///         if (operand instanceof LiteralExpression && !(escapeChar instanceof Expression)) {
+    ///             escapeChar = SQLs.constant(StringType.INSTANCE, escapeChar);
+    ///         }
+    ///         return this.like(operand,escape,escapeChar)
+    ///     }
     /// ```
     /// 
     /// @param namedOperator one of below:
@@ -112,14 +112,14 @@ public interface TypedField extends SqlField, TypedExpression, SimpleExpression 
     /// The implementation of this method is equivalent to following:
     /// 
     /// ```java
-    /// IPredicate spaceNotLike(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar) {
-    /// final Expression operand; // the right operand of LIKE .
-    /// operand = namedOperator.apply(this, this.fieldName());
-    /// if (operand instanceof LiteralExpression && !(escapeChar instanceof Expression)) {
-    /// escapeChar = SQLs.constant(StringType.INSTANCE, escapeChar);
-    /// }
-    /// return this.notLike(operand,escape,escapeChar)
-    /// }
+    ///     IPredicate spaceNotLike(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar) {
+    ///         final Expression operand; // the right operand of LIKE .
+    ///         operand = namedOperator.apply(this, this.fieldName());
+    ///         if (operand instanceof LiteralExpression && !(escapeChar instanceof Expression)) {
+    ///             escapeChar = SQLs.constant(StringType.INSTANCE, escapeChar);
+    ///         }
+    ///         return this.notLike(operand,escape,escapeChar)
+    ///     }
     /// ```
     /// 
     /// @param namedOperator one of below:
@@ -142,14 +142,14 @@ public interface TypedField extends SqlField, TypedExpression, SimpleExpression 
     /// The implementation of this method is equivalent to following:
     /// 
     /// ```java
-    /// IPredicate spaceSimilarTo(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar) {
-    /// final Expression operand; // the right operand of SIMILAR TO .
-    /// operand = namedOperator.apply(this, this.fieldName());
-    /// if (operand instanceof LiteralExpression && !(escapeChar instanceof Expression)) {
-    /// escapeChar = SQLs.constant(StringType.INSTANCE, escapeChar);
-    /// }
-    /// return this.similarTo(operand,escape,escapeChar)
-    /// }
+    ///     IPredicate spaceSimilarTo(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar) {
+    ///         final Expression operand; // the right operand of SIMILAR TO .
+    ///         operand = namedOperator.apply(this, this.fieldName());
+    ///         if (operand instanceof LiteralExpression && !(escapeChar instanceof Expression)) {
+    ///             escapeChar = SQLs.constant(StringType.INSTANCE, escapeChar);
+    ///         }
+    ///         return this.similarTo(operand,escape,escapeChar)
+    ///     }
     /// ```
     /// 
     /// @param namedOperator one of below:
@@ -172,14 +172,14 @@ public interface TypedField extends SqlField, TypedExpression, SimpleExpression 
     /// The implementation of this method is equivalent to following:
     /// 
     /// ```java
-    /// IPredicate spaceNotSimilarTo(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar) {
-    /// final Expression operand; // the right operand of NOT SIMILAR TO .
-    /// operand = namedOperator.apply(this, this.fieldName());
-    /// if (operand instanceof LiteralExpression && !(escapeChar instanceof Expression)) {
-    /// escapeChar = SQLs.constant(StringType.INSTANCE, escapeChar);
-    /// }
-    /// return this.notSimilarTo(operand,escape,escapeChar)
-    /// }
+    ///     IPredicate spaceNotSimilarTo(BiFunction<TypedField, String, Expression> namedOperator, SQLs.WordEscape escape, Object escapeChar) {
+    ///         final Expression operand; // the right operand of NOT SIMILAR TO .
+    ///         operand = namedOperator.apply(this, this.fieldName());
+    ///         if (operand instanceof LiteralExpression && !(escapeChar instanceof Expression)) {
+    ///             escapeChar = SQLs.constant(StringType.INSTANCE, escapeChar);
+    ///         }
+    ///         return this.notSimilarTo(operand,escape,escapeChar)
+    ///     }
     /// ```
     /// 
     /// @param namedOperator one of below:
@@ -290,14 +290,14 @@ public interface TypedField extends SqlField, TypedExpression, SimpleExpression 
     /// The implementation of this method is equivalent to following:
     /// 
     /// ```java
-    /// IPredicate spaceSpace(SQLs.BiOperator operator,BiFunction<TypedField, String, Expression> namedOperator, SQLToken modifier, Object optionalExp) {
-    /// final Expression operand; // the right operand of operator .
-    /// operand = namedOperator.apply(this, this.fieldName());
-    /// if (operand instanceof LiteralExpression && !(optionalExp instanceof Expression)) {
-    /// optionalExp = SQLs.constant(StringType.INSTANCE, optionalExp);
-    /// }
-    /// return this.space(operator,operand,modifier,optionalExp)
-    /// }
+    ///     IPredicate spaceSpace(SQLs.BiOperator operator,BiFunction<TypedField, String, Expression> namedOperator, SQLToken modifier, Object optionalExp) {
+    ///         final Expression operand; // the right operand of operator .
+    ///         operand = namedOperator.apply(this, this.fieldName());
+    ///         if (operand instanceof LiteralExpression && !(optionalExp instanceof Expression)) {
+    ///             optionalExp = SQLs.constant(StringType.INSTANCE, optionalExp);
+    ///         }
+    ///         return this.space(operator,operand,modifier,optionalExp)
+    ///     }
     /// ```
     /// 
     /// @param operator      one of below:

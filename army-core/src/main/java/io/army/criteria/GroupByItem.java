@@ -32,7 +32,7 @@ public interface GroupByItem extends Item {
 
     }
 
-    /// This interface representing : ( expression [, ...] )
+    /// This interface representing : ( expression \[, ...\] )
     interface ExpressionGroup extends ExpressionItem {
 
     }

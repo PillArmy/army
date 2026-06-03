@@ -21,9 +21,9 @@ import io.army.criteria.dialect.Hint;
 import io.army.criteria.dialect.VarExpression;
 import io.army.criteria.mysql.HintStrategy;
 import io.army.dialect._Constant;
+import io.army.lang.Nullable;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -66,35 +66,35 @@ abstract class MySQLSyntax extends MySQLOtherFunctions {
 
     /// Reference MySQL User-Defined Variables from statement context.
     /// Example :
-    /// <pre>
-    /// <code>
-    /// &#64;Test
-    /// public void rowNumber(final SyncLocalSession session) {
-    /// final List<ChinaRegion<?>> regionList = createReginListWithCount(10);
-    /// session.batchSave(regionList);
-    /// final Select stmt;
-    /// stmt = MySQLs.query()
-    /// .select(s -> s.space(MySQLs.at("my_row_number").increment().as("rowNumber")) // NOTE : here is defer SELECT clause, so SELECT clause is executed after FROM clause
-    /// .comma("t", PERIOD, ChinaRegion_.T)
-    /// )
-    /// .from(ChinaRegion_.T, AS, "t")
-    /// .crossJoin(SQLs.subQuery()
-    /// .select(MySQLs.at("my_row_number", SQLs.COLON_EQUAL, SQLs.LITERAL_0).as("n"))
-    /// .asQuery()
-    /// ).as("s")
-    /// .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-    /// .orderBy(ChinaRegion_.id)
-    /// .asQuery();
-    /// final List<Map<String, Object>> rowList;
-    /// rowList = session.queryObjectList(stmt, RowMaps::hashMap);
-    /// final int rowSize = rowList.size();
-    /// Assert.assertEquals(rowSize, regionList.size());
-    /// for (int i = 0; i < rowSize; i++) {
-    /// Assert.assertEquals(rowList.get(i).get("rowNumber"), i + 1);
-    /// }
-    /// }
+    /// ```java
+    ///     @Test
+    ///     public void rowNumber(final SyncLocalSession session) {
+    ///         final List<ChinaRegion<?>> regionList = createReginListWithCount(10);
+    ///         session.batchSave(regionList);
+    ///         final Select stmt;
+    ///         stmt = MySQLs.query()
+    ///                 .select(s -> s.space(MySQLs.at("my_row_number").increment().as("rowNumber")) // NOTE : here is defer SELECT clause, so SELECT clause is executed after FROM clause
+    ///                         .comma("t", PERIOD, ChinaRegion_.T)
+    ///                 )
+    ///                 .from(ChinaRegion_.T, AS, "t")
+    ///                 .crossJoin(SQLs.subQuery()
+    ///                         .select(MySQLs.at("my_row_number", SQLs.COLON_EQUAL, SQLs.LITERAL_0).as("n"))
+    ///                         .asQuery()
+    ///                 ).as("s")
+    ///                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
+    ///                 .orderBy(ChinaRegion_.id)
+    ///                 .asQuery();
+    ///         final List<Map<String, Object>> rowList;
+    ///         rowList = session.queryObjectList(stmt, RowMaps::hashMap);
+    ///         final int rowSize = rowList.size();
+    ///         Assert.assertEquals(rowSize, regionList.size());
+    ///         for (int i = 0; i < rowSize; i++) {
+    ///             Assert.assertEquals(rowList.get(i).get("rowNumber"), i + 1);
+    ///         }
+    ///     }
+    /// ```
     /// output sql:
-    /// SELECT (&#64;my_row_number := &#64;my_row_number + 1) AS rowNumber,
+    /// SELECT (@my_row_number := @my_row_number + 1) AS rowNumber,
     /// t.id                                   AS id,
     /// t.create_time                          AS createTime,
     /// t.update_time                          AS updateTime,
@@ -106,12 +106,10 @@ abstract class MySQLSyntax extends MySQLOtherFunctions {
     /// t.parent_id                            AS parentId,
     /// t.population                           AS population
     /// FROM china_region AS t
-    /// CROSS JOIN (SELECT (&#64;my_row_number := 0) AS n) AS s
+    /// CROSS JOIN (SELECT (@my_row_number := 0) AS n) AS s
     /// WHERE t.id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     /// AND t.`visible` = TRUE
     /// ORDER BY t.id
-    /// </code>
-    /// </pre>
     /// @throws CriteriaException throw when
     /// 
     /// - varName first char is '@'
@@ -128,35 +126,35 @@ abstract class MySQLSyntax extends MySQLOtherFunctions {
 
     /// Assignment MySQL User-Defined Variables and register to statement context.
     /// Example :
-    /// <pre>
-    /// <code>
-    /// &#64;Test
-    /// public void rowNumber(final SyncLocalSession session) {
-    /// final List<ChinaRegion<?>> regionList = createReginListWithCount(10);
-    /// session.batchSave(regionList);
-    /// final Select stmt;
-    /// stmt = MySQLs.query()
-    /// .select(s -> s.space(MySQLs.at("my_row_number").increment().as("rowNumber")) // NOTE : here is defer SELECT clause, so SELECT clause is executed after FROM clause
-    /// .comma("t", PERIOD, ChinaRegion_.T)
-    /// )
-    /// .from(ChinaRegion_.T, AS, "t")
-    /// .crossJoin(SQLs.subQuery()
-    /// .select(MySQLs.at("my_row_number", SQLs.COLON_EQUAL, SQLs.LITERAL_0).as("n"))
-    /// .asQuery()
-    /// ).as("s")
-    /// .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
-    /// .orderBy(ChinaRegion_.id)
-    /// .asQuery();
-    /// final List<Map<String, Object>> rowList;
-    /// rowList = session.queryObjectList(stmt, RowMaps::hashMap);
-    /// final int rowSize = rowList.size();
-    /// Assert.assertEquals(rowSize, regionList.size());
-    /// for (int i = 0; i < rowSize; i++) {
-    /// Assert.assertEquals(rowList.get(i).get("rowNumber"), i + 1);
-    /// }
-    /// }
+    /// ```java
+    ///     @Test
+    ///     public void rowNumber(final SyncLocalSession session) {
+    ///         final List<ChinaRegion<?>> regionList = createReginListWithCount(10);
+    ///         session.batchSave(regionList);
+    ///         final Select stmt;
+    ///         stmt = MySQLs.query()
+    ///                 .select(s -> s.space(MySQLs.at("my_row_number").increment().as("rowNumber")) // NOTE : here is defer SELECT clause, so SELECT clause is executed after FROM clause
+    ///                         .comma("t", PERIOD, ChinaRegion_.T)
+    ///                 )
+    ///                 .from(ChinaRegion_.T, AS, "t")
+    ///                 .crossJoin(SQLs.subQuery()
+    ///                         .select(MySQLs.at("my_row_number", SQLs.COLON_EQUAL, SQLs.LITERAL_0).as("n"))
+    ///                         .asQuery()
+    ///                 ).as("s")
+    ///                 .where(ChinaRegion_.id.in(SQLs::rowParam, extractRegionIdList(regionList)))
+    ///                 .orderBy(ChinaRegion_.id)
+    ///                 .asQuery();
+    ///         final List<Map<String, Object>> rowList;
+    ///         rowList = session.queryObjectList(stmt, RowMaps::hashMap);
+    ///         final int rowSize = rowList.size();
+    ///         Assert.assertEquals(rowSize, regionList.size());
+    ///         for (int i = 0; i < rowSize; i++) {
+    ///             Assert.assertEquals(rowList.get(i).get("rowNumber"), i + 1);
+    ///         }
+    ///     }
+    /// ```
     /// output sql:
-    /// SELECT (&#64;my_row_number := &#64;my_row_number + 1) AS rowNumber,
+    /// SELECT (@my_row_number := @my_row_number + 1) AS rowNumber,
     /// t.id                                   AS id,
     /// t.create_time                          AS createTime,
     /// t.update_time                          AS updateTime,
@@ -168,12 +166,10 @@ abstract class MySQLSyntax extends MySQLOtherFunctions {
     /// t.parent_id                            AS parentId,
     /// t.population                           AS population
     /// FROM china_region AS t
-    /// CROSS JOIN (SELECT (&#64;my_row_number := 0) AS n) AS s
+    /// CROSS JOIN (SELECT (@my_row_number := 0) AS n) AS s
     /// WHERE t.id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     /// AND t.`visible` = TRUE
     /// ORDER BY t.id
-    /// </code>
-    /// </pre>
     /// @param value literal or {@link Expression}
     /// @throws CriteriaException throw when
     /// 
@@ -211,24 +207,22 @@ abstract class MySQLSyntax extends MySQLOtherFunctions {
 
     /// Create SESSION system variable expression that output {@code @@SESSION.system_var_name }
     /// Example :
-    /// <pre>
-    /// <code>
-    /// &#64;Test
-    /// public void readSystemVariable(final SyncLocalSession session) {
-    /// final Select stmt;
-    /// stmt = MySQLs.query()
-    /// .select(atAtSession("autocommit").as("autoCommit"), atAtSession("sql_mode").as("sqlMode"))
-    /// .asQuery();
-    /// final Map<String, Object> row;
-    /// row = session.queryOneObject(stmt, RowMaps::hashMap);
-    /// Assert.assertNotNull(row);
-    /// Assert.assertEquals(row.size(),2);
-    /// Assert.assertEquals(row.get("autoCommit"),true);
-    /// Assert.assertTrue(row.get("sqlMode") instanceof  String);
-    /// }
-    /// </code>
+    /// ```java
+    ///     @Test
+    ///     public void readSystemVariable(final SyncLocalSession session) {
+    ///         final Select stmt;
+    ///         stmt = MySQLs.query()
+    ///                 .select(atAtSession("autocommit").as("autoCommit"), atAtSession("sql_mode").as("sqlMode"))
+    ///                 .asQuery();
+    ///         final Map<String, Object> row;
+    ///         row = session.queryOneObject(stmt, RowMaps::hashMap);
+    ///         Assert.assertNotNull(row);
+    ///         Assert.assertEquals(row.size(),2);
+    ///         Assert.assertEquals(row.get("autoCommit"),true);
+    ///         Assert.assertTrue(row.get("sqlMode") instanceof  String);
+    ///     }
+    /// ```
     /// output sql : SELECT @@SESSION.autocommit AS autoCommit , @@SESSION.sql_mode AS sqlMode
-    /// </pre>
     /// @throws CriteriaException throw when
     /// 
     /// - name have no text
@@ -242,24 +236,22 @@ abstract class MySQLSyntax extends MySQLOtherFunctions {
 
     /// Create GLOBAL system variable expression that output {@code @@GLOBAL.system_var_name }
     /// Example :
-    /// <pre>
-    /// <code>
-    /// &#64;Test
-    /// public void readSystemVariable(final SyncLocalSession session) {
-    /// final Select stmt;
-    /// stmt = MySQLs.query()
-    /// .select(atAtGlobal("autocommit").as("autoCommit"), atAtGlobal("sql_mode").as("sqlMode"))
-    /// .asQuery();
-    /// final Map<String, Object> row;
-    /// row = session.queryOneObject(stmt, RowMaps::hashMap);
-    /// Assert.assertNotNull(row);
-    /// Assert.assertEquals(row.size(),2);
-    /// Assert.assertEquals(row.get("autoCommit"),true);
-    /// Assert.assertTrue(row.get("sqlMode") instanceof  String);
-    /// }
-    /// </code>
+    /// ```java
+    ///     @Test
+    ///     public void readSystemVariable(final SyncLocalSession session) {
+    ///         final Select stmt;
+    ///         stmt = MySQLs.query()
+    ///                 .select(atAtGlobal("autocommit").as("autoCommit"), atAtGlobal("sql_mode").as("sqlMode"))
+    ///                 .asQuery();
+    ///         final Map<String, Object> row;
+    ///         row = session.queryOneObject(stmt, RowMaps::hashMap);
+    ///         Assert.assertNotNull(row);
+    ///         Assert.assertEquals(row.size(),2);
+    ///         Assert.assertEquals(row.get("autoCommit"),true);
+    ///         Assert.assertTrue(row.get("sqlMode") instanceof  String);
+    ///     }
+    /// ```
     /// output sql : SELECT @@GLOBAL.autocommit AS autoCommit , @@GLOBAL.sql_mode AS sqlMode
-    /// </pre>
     /// @throws CriteriaException throw when
     /// 
     /// - name have no text

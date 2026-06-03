@@ -21,7 +21,6 @@ import io.army.criteria.Expression;
 import io.army.criteria.SimpleExpression;
 import io.army.criteria.SqlValueParam;
 import io.army.mapping.*;
-import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.util._TimeUtils;
 
@@ -434,23 +433,21 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     }
 
     /// The {@link MappingType} of function return type:{@link StringType}
-    /// <pre>
-    /// <code>
-    /// &#64;Test
-    /// public void dayNameFunc(final ReactiveLocalSession session){
-    /// final LocalDate today =LocalDate.now();
-    /// final DayOfWeek week = DayOfWeek.from(today);
-    /// final Select stmt;
-    /// stmt = MySQLs.query()
-    /// .select(dayName(today).as("dayName"))
-    /// .asQuery();
-    /// final DayOfWeek row;
-    /// row =  session.queryOne(stmt, DayOfWeek.class) // army can find compatible {@link MappingType} by {@link MappingType#compatibleFor(DataType, Class)} method.
-    /// .block();
-    /// Assert.assertEquals(row,week);
-    /// }
-    /// </code>
-    /// </pre>
+    /// ```java
+    ///     @Test
+    ///     public void dayNameFunc(final ReactiveLocalSession session){
+    ///         final LocalDate today =LocalDate.now();
+    ///         final DayOfWeek week = DayOfWeek.from(today);
+    ///         final Select stmt;
+    ///         stmt = MySQLs.query()
+    ///                 .select(dayName(today).as("dayName"))
+    ///                 .asQuery();
+    ///         final DayOfWeek row;
+    ///         row =  session.queryOne(stmt, DayOfWeek.class) // army can find compatible {@link MappingType} by {@link MappingType#compatibleFor(DataType, Class)} method.
+    ///                 .block();
+    ///         Assert.assertEquals(row,week);
+    ///     }
+    /// ```
     /// @param date non-null, one of following :
     /// 
     /// - {@link Expression} instance
@@ -471,23 +468,21 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     }
 
     /// The {@link MappingType} of function return type:{@link IntegerType}
-    /// <pre>
-    /// <code>
-    /// &#64;Test
-    /// public void dayOfWeekFunc(final ReactiveLocalSession session){
-    /// final LocalDate today =LocalDate.now();
-    /// final DayOfWeek week = DayOfWeek.from(today);
-    /// final Select stmt;
-    /// stmt = MySQLs.query()
-    /// .select(dayOfWeek(today).as("dayCode"))
-    /// .asQuery();
-    /// final DayOfWeek row;
-    /// row =  session.queryOne(stmt, DayOfWeek.class) // army can find compatible {@link MappingType} by {@link MappingType#compatibleFor(DataType, Class)} method.
-    /// .block();
-    /// Assert.assertEquals(row,week);
-    /// }
-    /// </code>
-    /// </pre>
+    /// ```java
+    ///     @Test
+    ///     public void dayOfWeekFunc(final ReactiveLocalSession session){
+    ///         final LocalDate today =LocalDate.now();
+    ///         final DayOfWeek week = DayOfWeek.from(today);
+    ///         final Select stmt;
+    ///         stmt = MySQLs.query()
+    ///                 .select(dayOfWeek(today).as("dayCode"))
+    ///                 .asQuery();
+    ///         final DayOfWeek row;
+    ///         row =  session.queryOne(stmt, DayOfWeek.class) // army can find compatible {@link MappingType} by {@link MappingType#compatibleFor(DataType, Class)} method.
+    ///                 .block();
+    ///         Assert.assertEquals(row,week);
+    ///     }
+    /// ```
     /// @param date non-null, one of following :
     /// 
     /// - {@link Expression} instance
@@ -1020,23 +1015,21 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     }
 
     /// The {@link MappingType} of function return type:{@link IntegerType}
-    /// <pre>
-    /// <code>
-    /// &#64;Test
-    /// public void weekDayFunc(final ReactiveLocalSession session){
-    /// final LocalDate today =LocalDate.now();
-    /// final DayOfWeek week = DayOfWeek.from(today);
-    /// final Select stmt;
-    /// stmt = MySQLs.query()
-    /// .select(weekDay(today).as("dayCode"))
-    /// .asQuery();
-    /// final DayOfWeek row;
-    /// row =  session.queryOne(stmt, DayOfWeek.class) // army can find compatible {@link MappingType} by {@link MappingType#compatibleFor(DataType, Class)} method.
-    /// .block();
-    /// Assert.assertEquals(row,week);
-    /// }
-    /// </code>
-    /// </pre>
+    /// ```java
+    ///     @Test
+    ///     public void weekDayFunc(final ReactiveLocalSession session){
+    ///         final LocalDate today =LocalDate.now();
+    ///         final DayOfWeek week = DayOfWeek.from(today);
+    ///         final Select stmt;
+    ///         stmt = MySQLs.query()
+    ///                 .select(weekDay(today).as("dayCode"))
+    ///                 .asQuery();
+    ///         final DayOfWeek row;
+    ///         row =  session.queryOne(stmt, DayOfWeek.class) // army can find compatible {@link MappingType} by {@link MappingType#compatibleFor(DataType, Class)} method.
+    ///                 .block();
+    ///         Assert.assertEquals(row,week);
+    ///     }
+    /// ```
     /// @param date non-null, one of following :
     /// 
     /// - {@link Expression} instance
@@ -1228,23 +1221,21 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     }
 
     /// The {@link MappingType} of function return type:{@link IntegerType}
-    /// <pre>
-    /// <code>
-    /// &#64;Test
-    /// public void monthFunc(final ReactiveLocalSession session){
-    /// final LocalDate today =LocalDate.now();
-    /// final Month month = Month.from(today);
-    /// final Select stmt;
-    /// stmt = MySQLs.query()
-    /// .select(month(today).as("monthCode"))
-    /// .asQuery();
-    /// final Month row;
-    /// row =  session.queryOne(stmt, Month.class) // army can find compatible {@link MappingType} by {@link MappingType#compatibleFor(DataType, Class)} method.
-    /// .block();
-    /// Assert.assertEquals(row,month);
-    /// }
-    /// </code>
-    /// </pre>
+    /// ```java
+    ///     @Test
+    ///     public void monthFunc(final ReactiveLocalSession session){
+    ///         final LocalDate today =LocalDate.now();
+    ///         final Month month = Month.from(today);
+    ///         final Select stmt;
+    ///         stmt = MySQLs.query()
+    ///                 .select(month(today).as("monthCode"))
+    ///                 .asQuery();
+    ///         final Month row;
+    ///         row =  session.queryOne(stmt, Month.class) // army can find compatible {@link MappingType} by {@link MappingType#compatibleFor(DataType, Class)} method.
+    ///                 .block();
+    ///         Assert.assertEquals(row,month);
+    ///     }
+    /// ```
     /// @param date non-null, one of following :
     /// 
     /// - {@link Expression} instance
@@ -1265,23 +1256,21 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     }
 
     /// The {@link MappingType} of function return type:{@link StringType}
-    /// <pre>
-    /// <code>
-    /// &#64;Test
-    /// public void monthNameFunc(final ReactiveLocalSession session){
-    /// final LocalDate today =LocalDate.now();
-    /// final Month month = Month.from(today);
-    /// final Select stmt;
-    /// stmt = MySQLs.query()
-    /// .select(monthName(today).as("monthName"))
-    /// .asQuery();
-    /// final Month row;
-    /// row =  session.queryOne(stmt, Month.class) // army can find compatible {@link MappingType} by {@link MappingType#compatibleFor(DataType, Class)} method.
-    /// .block();
-    /// Assert.assertEquals(row,month);
-    /// }
-    /// </code>
-    /// </pre>
+    /// ```java
+    ///     @Test
+    ///     public void monthNameFunc(final ReactiveLocalSession session){
+    ///         final LocalDate today =LocalDate.now();
+    ///         final Month month = Month.from(today);
+    ///         final Select stmt;
+    ///         stmt = MySQLs.query()
+    ///                 .select(monthName(today).as("monthName"))
+    ///                 .asQuery();
+    ///         final Month row;
+    ///         row =  session.queryOne(stmt, Month.class) // army can find compatible {@link MappingType} by {@link MappingType#compatibleFor(DataType, Class)} method.
+    ///                 .block();
+    ///         Assert.assertEquals(row,month);
+    ///     }
+    /// ```
     /// @param date non-null, one of following :
     /// 
     /// - {@link Expression} instance

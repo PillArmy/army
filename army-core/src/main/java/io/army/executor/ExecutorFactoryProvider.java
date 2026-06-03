@@ -23,12 +23,10 @@ import java.util.function.Function;
 
 /// This interface representing provider of {@link ExecutorFactory} spec.
 /// This implementation of this interface must declared :
-/// <pre>
-/// <code>
+/// ```java
 /// public static {implementation class of StmtExecutorFactoryProviderSpec} create(Object datasource,String factoryName,ArmyEnvironment env){
 /// }
-/// </code>
-/// </pre>
+/// ```
 /// This interface is base interface of following
 /// 
 /// - {@code io.army.executor.SyncStmtExecutorFactoryProvider}

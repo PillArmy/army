@@ -25,10 +25,10 @@ import io.army.dialect.Dialect;
 import io.army.dialect.MySQLDialect;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
+import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.mapping.optional.JsonPathType;
 import io.army.meta.ChildTableMeta;
-import io.army.meta.TypeMeta;
 import io.army.sqltype.MySQLType;
 import io.army.stmt.SimpleStmt;
 import io.army.stmt.SingleParam;
@@ -38,7 +38,6 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -100,7 +99,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
         return new JsonValueFunc(jsonDoc, path, clause);
     }
 
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_char">CHAR(N,... [USING charset_name])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_char">CHAR(N,... \[USING charset_name\])</a>
     static SimpleExpression charFunc(Consumer<? super FuncExpUtils.VariadicClause> consumer, @Nullable String charName) {
         if (charName != null && !_StringUtils.hasText(charName)) {
             throw ContextStack.clearStackAndCriteriaError("CHAR function charset_name must have text");
@@ -120,7 +119,7 @@ abstract class MySQLFunctions extends DialectFunctionUtils {
 
 
     /// Create jsonTable function.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html#function_json-table">JSON_TABLE(expr, path COLUMNS (column_list) [AS] alias)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html#function_json-table">JSON_TABLE(expr, path COLUMNS (column_list) \[AS\] alias)</a>
     static Functions._TabularFunction jsonTable(final Object jsonDoc, final Object path,
                                                 final Consumer<? super MySQLJsonTableColumns> consumer) {
 

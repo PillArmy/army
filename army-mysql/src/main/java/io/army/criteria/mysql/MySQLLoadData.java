@@ -74,12 +74,10 @@ public interface MySQLLoadData extends MySQLStatement, DmlCommand {
     interface _EscapedByClause {
 
         /// This method is equivalent to following :
-        /// <pre>
-        /// <code>
+        /// ```java
         /// // this is instance of {@link _EscapedByClause}
         /// this.escapedBy(String.valueOf(ch)) ;
-        /// </code>
-        /// </pre>
+        /// ```
         /// @see #escapedBy(String)
         void escapedBy(char ch);
 
@@ -97,12 +95,10 @@ public interface MySQLLoadData extends MySQLStatement, DmlCommand {
     interface _EnclosedBySpec extends _EscapedByClause, Item {
 
         /// This method is equivalent to following :
-        /// <pre>
-        /// <code>
+        /// ```java
         /// // this is instance of {@link _EnclosedBySpec}
         /// this.enclosedBy(String.valueOf(ch)) ;
-        /// </code>
-        /// </pre>
+        /// ```
         /// @see #escapedBy(String)
         _EscapedByClause enclosedBy(char ch);
 
@@ -116,12 +112,10 @@ public interface MySQLLoadData extends MySQLStatement, DmlCommand {
         _EscapedByClause ifEnclosedBy(Supplier<String> supplier);
 
         /// This method is equivalent to following :
-        /// <pre>
-        /// <code>
+        /// ```java
         /// // this is instance of {@link _EnclosedBySpec}
         /// this.optionallyEnclosedBy(String.valueOf(ch)) ;
-        /// </code>
-        /// </pre>
+        /// ```
         /// @see #escapedBy(String)
         _EscapedByClause optionallyEnclosedBy(char ch);
 

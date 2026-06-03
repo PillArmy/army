@@ -17,7 +17,10 @@
 package io.army.criteria.impl;
 
 
-import io.army.criteria.*;
+import io.army.criteria.CriteriaException;
+import io.army.criteria.Expression;
+import io.army.criteria.SimpleExpression;
+import io.army.criteria.SimplePredicate;
 import io.army.mapping.*;
 
 import java.util.List;
@@ -41,7 +44,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param geometryList non-null,empty list or list
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_geometrycollection">GeometryCollection(g [, g] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_geometrycollection">GeometryCollection(g \[, g\] ...)</a>
     public static SimpleExpression geometryCollection(final List<Expression> geometryList) {
         return LiteralFunctions.multiArgFunc("GeometryCollection", geometryList);
     }
@@ -52,7 +55,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param first non-null
     /// @param rest  non-null,empty or non-empty
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_geometrycollection">GeometryCollection(g [, g] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_geometrycollection">GeometryCollection(g \[, g\] ...)</a>
     public static SimpleExpression geometryCollection(final Expression first, Expression... rest) {
         return FunctionUtils.oneAndRestFunc("GeometryCollection", first, rest);
     }
@@ -63,7 +66,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param ptList non-null,empty list or list
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_linestring">LineString(pt [, pt] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_linestring">LineString(pt \[, pt\] ...)</a>
     public static SimpleExpression lineString(final List<Expression> ptList) {
         return LiteralFunctions.multiArgFunc("LineString", ptList);
     }
@@ -74,7 +77,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param first non-null
     /// @param rest  non-null,empty or non-empty
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_linestring">LineString(pt [, pt] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_linestring">LineString(pt \[, pt\] ...)</a>
     public static SimpleExpression lineString(final Expression first, Expression... rest) {
         return FunctionUtils.oneAndRestFunc("LineString", first, rest);
     }
@@ -85,7 +88,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param ptList non-null,empty list or list
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_multilinestring">MultiLineString(ls [, ls] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_multilinestring">MultiLineString(ls \[, ls\] ...)</a>
     public static SimpleExpression multiLineString(final List<Expression> ptList) {
         return LiteralFunctions.multiArgFunc("MultiLineString", ptList);
     }
@@ -96,7 +99,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param first non-null
     /// @param rest  non-null,empty or non-empty
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_multilinestring">MultiLineString(ls [, ls] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_multilinestring">MultiLineString(ls \[, ls\] ...)</a>
     public static SimpleExpression multiLineString(final Expression first, Expression... rest) {
         return FunctionUtils.oneAndRestFunc("MultiLineString", first, rest);
     }
@@ -106,7 +109,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param ptList non-null,empty list or list
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_multipoint">MultiPoint(pt [, pt2] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_multipoint">MultiPoint(pt \[, pt2\] ...)</a>
     public static SimpleExpression multiPoint(final List<Expression> ptList) {
         return LiteralFunctions.multiArgFunc("MultiPoint", ptList);
     }
@@ -117,7 +120,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param first non-null
     /// @param rest  non-null,empty or non-empty
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_multipoint">MultiPoint(pt [, pt2] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_multipoint">MultiPoint(pt \[, pt2\] ...)</a>
     public static SimpleExpression multiPoint(final Expression first, Expression... rest) {
         return FunctionUtils.oneAndRestFunc("MultiPoint", first, rest);
     }
@@ -128,7 +131,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param ptList non-null,empty list or list
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_multipolygon">MultiPolygon(poly [, poly] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_multipolygon">MultiPolygon(poly \[, poly\] ...)</a>
     public static SimpleExpression multiPolygon(final List<Expression> ptList) {
         return LiteralFunctions.multiArgFunc("MultiPolygon", ptList);
     }
@@ -139,7 +142,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param first non-null
     /// @param rest  non-null,empty or non-empty
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_multipolygon">MultiPolygon(poly [, poly] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_multipolygon">MultiPolygon(poly \[, poly\] ...)</a>
     public static SimpleExpression multiPolygon(final Expression first, Expression... rest) {
         return FunctionUtils.oneAndRestFunc("MultiPolygon", first, rest);
     }
@@ -150,7 +153,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param lsList non-null,empty list or list
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_polygon">Polygon(ls [, ls] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_polygon">Polygon(ls \[, ls\] ...)</a>
     public static SimpleExpression polygon(final List<Expression> lsList) {
         return LiteralFunctions.multiArgFunc("Polygon", lsList);
     }
@@ -161,7 +164,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param first non-null
     /// @param rest  non-null,empty or non-empty
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_polygon">Polygon(ls [, ls] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-mysql-specific-functions.html#function_polygon">Polygon(ls \[, ls\] ...)</a>
     public static SimpleExpression polygon(final Expression first, Expression... rest) {
         return FunctionUtils.oneAndRestFunc("Polygon", first, rest);
     }
@@ -334,7 +337,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param g non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-asbinary">ST_AsBinary(g [, options])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-asbinary">ST_AsBinary(g \[, options\])</a>
     public static SimpleExpression stAsBinary(final Expression g) {
         return LiteralFunctions.oneArgFunc("ST_AsBinary", g);
     }
@@ -345,7 +348,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param g       non-null
     /// @param options non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-asbinary">ST_AsBinary(g [, options])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-asbinary">ST_AsBinary(g \[, options\])</a>
     public static SimpleExpression stAsBinary(final Expression g, final Expression options) {
         return LiteralFunctions.twoArgFunc("ST_AsBinary", g, options);
     }
@@ -355,7 +358,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param g non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-asbinary">ST_AsWKB(g [, options])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-asbinary">ST_AsWKB(g \[, options\])</a>
     public static SimpleExpression stAsWKB(final Expression g) {
         return LiteralFunctions.oneArgFunc("ST_AsWKB", g);
     }
@@ -366,7 +369,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param g       non-null
     /// @param options non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-asbinary">ST_AsWKB(g [, options])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-asbinary">ST_AsWKB(g \[, options\])</a>
     public static SimpleExpression stAsWKB(final Expression g, final Expression options) {
         return LiteralFunctions.twoArgFunc("ST_AsWKB", g, options);
     }
@@ -376,7 +379,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// The {@link MappingType} of function return type:{@link StringType}
     /// @param g non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-astext">ST_AsText(g [, options])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-astext">ST_AsText(g \[, options\])</a>
     public static SimpleExpression stAsText(final Expression g) {
         return LiteralFunctions.oneArgFunc("ST_AsText", g);
     }
@@ -386,7 +389,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param g       non-null
     /// @param options non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-astext">ST_AsText(g [, options])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-astext">ST_AsText(g \[, options\])</a>
     public static SimpleExpression stAsText(final Expression g, final Expression options) {
         return LiteralFunctions.twoArgFunc("ST_AsText", g, options);
     }
@@ -395,7 +398,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// The {@link MappingType} of function return type:{@link StringType}
     /// @param g non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-astext">ST_AsWKT(g [, options])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-astext">ST_AsWKT(g \[, options\])</a>
     public static SimpleExpression stAsWKT(final Expression g) {
         return LiteralFunctions.oneArgFunc("ST_AsWKT", g);
     }
@@ -405,7 +408,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param g       non-null
     /// @param options non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-astext">ST_AsWKT(g [, options])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-format-conversion-functions.html#function_st-astext">ST_AsWKT(g \[, options\])</a>
     public static SimpleExpression stAsWKT(final Expression g, final Expression options) {
         return LiteralFunctions.twoArgFunc("ST_AsWKT", g, options);
     }
@@ -425,7 +428,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// The {@link MappingType} of function return type:{@link StringType}
     /// @param g non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-geojson-functions.html#function_st-asgeojson">ST_AsGeoJSON(g [, max_dec_digits [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-geojson-functions.html#function_st-asgeojson">ST_AsGeoJSON(g \[, max_dec_digits \[, options\]\])</a>
     public static SimpleExpression stAsGeoJson(Expression g) {
         return LiteralFunctions.oneArgFunc("ST_AsGeoJSON", g);
     }
@@ -435,7 +438,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param g            non-null
     /// @param maxDecDigits non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-geojson-functions.html#function_st-asgeojson">ST_AsGeoJSON(g [, max_dec_digits [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-geojson-functions.html#function_st-asgeojson">ST_AsGeoJSON(g \[, max_dec_digits \[, options\]\])</a>
     public static SimpleExpression stAsGeoJson(Expression g, Expression maxDecDigits) {
         return LiteralFunctions.twoArgFunc("ST_AsGeoJSON", g, maxDecDigits);
     }
@@ -445,7 +448,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param g            non-null
     /// @param maxDecDigits non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-geojson-functions.html#function_st-asgeojson">ST_AsGeoJSON(g [, max_dec_digits [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-geojson-functions.html#function_st-asgeojson">ST_AsGeoJSON(g \[, max_dec_digits \[, options\]\])</a>
     public static SimpleExpression stAsGeoJson(Expression g, Expression maxDecDigits, Expression options) {
         return LiteralFunctions.threeArgFunc("ST_AsGeoJSON", g, maxDecDigits, options);
     }
@@ -455,7 +458,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// The {@link MappingType} of function return type:{@link StringType}
     /// @param str non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-geojson-functions.html#function_st-geomfromgeojson">ST_GeomFromGeoJSON(str [, options [, srid]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-geojson-functions.html#function_st-geomfromgeojson">ST_GeomFromGeoJSON(str \[, options \[, srid\]\])</a>
     public static SimpleExpression stGeomFromGeoJson(Expression str) {
         return LiteralFunctions.oneArgFunc("ST_GeomFromGeoJSON", str);
     }
@@ -465,7 +468,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param str     non-null
     /// @param options non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-geojson-functions.html#function_st-geomfromgeojson">ST_GeomFromGeoJSON(str [, options [, srid]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-geojson-functions.html#function_st-geomfromgeojson">ST_GeomFromGeoJSON(str \[, options \[, srid\]\])</a>
     public static SimpleExpression stGeomFromGeoJson(Expression str, Expression options) {
         return LiteralFunctions.twoArgFunc("ST_GeomFromGeoJSON", str, options);
     }
@@ -475,7 +478,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param str     non-null
     /// @param options non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-geojson-functions.html#function_st-geomfromgeojson">ST_GeomFromGeoJSON(str [, options [, srid]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-geojson-functions.html#function_st-geomfromgeojson">ST_GeomFromGeoJSON(str \[, options \[, srid\]\])</a>
     public static SimpleExpression stGeomFromGeoJson(Expression str, Expression options, Expression srid) {
         return LiteralFunctions.threeArgFunc("ST_GeomFromGeoJSON", str, options, srid);
     }
@@ -487,7 +490,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param g non-null
     /// @param d non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer">ST_Buffer(g, d [, strategy1 [, strategy2 [, strategy3]]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer">ST_Buffer(g, d \[, strategy1 \[, strategy2 \[, strategy3\]\]\])</a>
     public static SimpleExpression stBuffer(Expression g, Expression d) {
         return LiteralFunctions.twoArgFunc("ST_Buffer", g, d);
     }
@@ -498,7 +501,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param g non-null
     /// @param d non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer">ST_Buffer(g, d [, strategy1 [, strategy2 [, strategy3]]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer">ST_Buffer(g, d \[, strategy1 \[, strategy2 \[, strategy3\]\]\])</a>
     public static SimpleExpression stBuffer(Expression g, Expression d, Expression strategy1) {
         return LiteralFunctions.threeArgFunc("ST_Buffer", g, d, strategy1);
     }
@@ -509,7 +512,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param g non-null
     /// @param d non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer">ST_Buffer(g, d [, strategy1 [, strategy2 [, strategy3]]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer">ST_Buffer(g, d \[, strategy1 \[, strategy2 \[, strategy3\]\]\])</a>
     public static SimpleExpression stBuffer(Expression g, Expression d, Expression strategy1, Expression strategy2) {
         return LiteralFunctions.multiArgFunc("ST_Buffer", List.of(g, d, strategy1, strategy2));
     }
@@ -520,7 +523,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// @param g non-null
     /// @param d non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer">ST_Buffer(g, d [, strategy1 [, strategy2 [, strategy3]]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer">ST_Buffer(g, d \[, strategy1 \[, strategy2 \[, strategy3\]\]\])</a>
     public static SimpleExpression stBuffer(Expression g, Expression d
             , Expression strategy1, Expression strategy2
             , Expression strategy3) {
@@ -529,9 +532,9 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
 
     /// 
     /// The {@link MappingType} of function return type:{@link VarBinaryType}
-    /// @param expList non-null ,the list that size in [1,2].
+    /// @param expList non-null ,the list that size in \[1,2\].
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer-strategy">ST_Buffer_Strategy(strategy [, points_per_circle])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer-strategy">ST_Buffer_Strategy(strategy \[, points_per_circle\])</a>
     public static SimpleExpression stBufferStrategy(final List<Expression> expList) {
         final String name = "ST_Buffer_Strategy";
         return switch (expList.size()) {
@@ -543,18 +546,18 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
 
     /// 
     /// The {@link MappingType} of function return type:{@link VarBinaryType}
-    /// @param strategy non-null ,the list that size in [1,2].
+    /// @param strategy non-null ,the list that size in \[1,2\].
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer-strategy">ST_Buffer_Strategy(strategy [, points_per_circle])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer-strategy">ST_Buffer_Strategy(strategy \[, points_per_circle\])</a>
     public static SimpleExpression stBufferStrategy(Expression strategy) {
         return LiteralFunctions.oneArgFunc("ST_Buffer_Strategy", strategy);
     }
 
     /// 
     /// The {@link MappingType} of function return type:{@link VarBinaryType}
-    /// @param strategy non-null ,the list that size in [1,2].
+    /// @param strategy non-null ,the list that size in \[1,2\].
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer-strategy">ST_Buffer_Strategy(strategy [, points_per_circle])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/spatial-operator-functions.html#function_st-buffer-strategy">ST_Buffer_Strategy(strategy \[, points_per_circle\])</a>
     public static SimpleExpression stBufferStrategy(Expression strategy, Expression pointsPerCircle) {
         return LiteralFunctions.twoArgFunc("ST_Buffer_Strategy", strategy, pointsPerCircle);
     }
@@ -1025,7 +1028,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-geomcollfromtext">ST_GeomCollFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-geomcollfromtext">ST_GeomCollFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stGeomCollFromText(final Expression wkt) {
         return LiteralFunctions.oneArgFunc("ST_GeomCollFromText", wkt);
     }
@@ -1035,7 +1038,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-geomcollfromtext">ST_GeomCollFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-geomcollfromtext">ST_GeomCollFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stGeomCollFromText(final Expression wkt, Expression srid) {
         return LiteralFunctions.twoArgFunc("ST_GeomCollFromText", wkt, srid);
     }
@@ -1045,7 +1048,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-geomcollfromtext">ST_GeomCollFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-geomcollfromtext">ST_GeomCollFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stGeomCollFromText(final Expression wkt, Expression srid, Expression options) {
         return LiteralFunctions.threeArgFunc("ST_GeomCollFromText", wkt, srid, options);
     }
@@ -1056,7 +1059,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-geomfromtext">ST_GeomFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-geomfromtext">ST_GeomFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stGeomFromText(final Expression wkt) {
         return LiteralFunctions.oneArgFunc("ST_GeomFromText", wkt);
     }
@@ -1066,7 +1069,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-geomfromtext">ST_GeomFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-geomfromtext">ST_GeomFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stGeomFromText(final Expression wkt, Expression srid) {
         return LiteralFunctions.twoArgFunc("ST_GeomFromText", wkt, srid);
     }
@@ -1076,7 +1079,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-geomfromtext">ST_GeomFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-geomfromtext">ST_GeomFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stGeomFromText(final Expression wkt, Expression srid, Expression options) {
         return LiteralFunctions.threeArgFunc("ST_GeomFromText", wkt, srid, options);
     }
@@ -1087,7 +1090,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-linefromtext">ST_LineStringFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-linefromtext">ST_LineStringFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stLineStringFromText(final Expression wkt) {
         return LiteralFunctions.oneArgFunc("ST_LineStringFromText", wkt);
     }
@@ -1097,7 +1100,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-linefromtext">ST_LineStringFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-linefromtext">ST_LineStringFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stLineStringFromText(final Expression wkt, Expression srid) {
         return LiteralFunctions.twoArgFunc("ST_LineStringFromText", wkt, srid);
     }
@@ -1107,7 +1110,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-linefromtext">ST_LineStringFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-linefromtext">ST_LineStringFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stLineStringFromText(final Expression wkt, Expression srid, Expression options) {
         return LiteralFunctions.threeArgFunc("ST_LineStringFromText", wkt, srid, options);
     }
@@ -1118,7 +1121,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mlinefromtext">ST_MultiLineStringFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mlinefromtext">ST_MultiLineStringFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stMultiLineStringFromText(final Expression wkt) {
         return LiteralFunctions.oneArgFunc("ST_MultiLineStringFromText", wkt);
     }
@@ -1128,7 +1131,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mlinefromtext">ST_MultiLineStringFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mlinefromtext">ST_MultiLineStringFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stMultiLineStringFromText(final Expression wkt, Expression srid) {
         return LiteralFunctions.twoArgFunc("ST_MultiLineStringFromText", wkt, srid);
     }
@@ -1138,7 +1141,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mlinefromtext">ST_MultiLineStringFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mlinefromtext">ST_MultiLineStringFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stMultiLineStringFromText(final Expression wkt, Expression srid, Expression options) {
         return LiteralFunctions.threeArgFunc("ST_MultiLineStringFromText", wkt, srid, options);
     }
@@ -1149,7 +1152,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mpointfromtext">ST_MultiPointFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mpointfromtext">ST_MultiPointFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stMultiPointFromText(final Expression wkt) {
         return LiteralFunctions.oneArgFunc("ST_MultiPointFromText", wkt);
     }
@@ -1159,7 +1162,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mpointfromtext">ST_MultiPointFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mpointfromtext">ST_MultiPointFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stMultiPointFromText(final Expression wkt, Expression srid) {
         return LiteralFunctions.twoArgFunc("ST_MultiPointFromText", wkt, srid);
     }
@@ -1169,7 +1172,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mpointfromtext">ST_MultiPointFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mpointfromtext">ST_MultiPointFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stMultiPointFromText(final Expression wkt, Expression srid, Expression options) {
         return LiteralFunctions.threeArgFunc("ST_MultiPointFromText", wkt, srid, options);
     }
@@ -1180,7 +1183,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mpolyfromtext">ST_MultiPolygonFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mpolyfromtext">ST_MultiPolygonFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stMultiPolygonFromText(final Expression wkt) {
         return LiteralFunctions.oneArgFunc("ST_MultiPolygonFromText", wkt);
     }
@@ -1190,7 +1193,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mpolyfromtext">ST_MultiPolygonFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mpolyfromtext">ST_MultiPolygonFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stMultiPolygonFromText(final Expression wkt, Expression srid) {
         return LiteralFunctions.twoArgFunc("ST_MultiPolygonFromText", wkt, srid);
     }
@@ -1200,7 +1203,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mpolyfromtext">ST_MultiPolygonFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-mpolyfromtext">ST_MultiPolygonFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stMultiPolygonFromText(final Expression wkt, Expression srid, Expression options) {
         return LiteralFunctions.threeArgFunc("ST_MultiPolygonFromText", wkt, srid, options);
     }
@@ -1211,7 +1214,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-pointfromtext">ST_PointFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-pointfromtext">ST_PointFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stPointFromText(final Expression wkt) {
         return LiteralFunctions.oneArgFunc("ST_PointFromText", wkt);
     }
@@ -1221,7 +1224,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-pointfromtext">ST_PointFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-pointfromtext">ST_PointFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stPointFromText(final Expression wkt, Expression srid) {
         return LiteralFunctions.twoArgFunc("ST_PointFromText", wkt, srid);
     }
@@ -1231,7 +1234,7 @@ abstract class MySQLSpatialFunctions extends MySQLWindowFunctions {
     /// , not Internal Geometry Storage Format,that is converted by {@link io.army.stmt.Stmt} executor.
     /// @param wkt non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-pointfromtext">ST_PointFromText(wkt [, srid [, options]])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/gis-wkt-functions.html#function_st-pointfromtext">ST_PointFromText(wkt \[, srid \[, options\]\])</a>
     public static SimpleExpression stPointFromText(final Expression wkt, Expression srid, Expression options) {
         return LiteralFunctions.threeArgFunc("ST_PointFromText", wkt, srid, options);
     }

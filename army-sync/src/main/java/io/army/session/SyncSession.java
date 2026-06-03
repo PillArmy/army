@@ -76,17 +76,15 @@ public sealed interface SyncSession extends PackageSession, Closeable
     /// - If session exists transaction ,then return transaction info
     /// - Else query session level transaction info ,for example : isolation ,readonly etc.
     /// 
-    /// <pre>
     /// The implementation of this method like following :
-    /// <code>
-    /// TransactionInfo info = this.transactionInfo;
-    /// if(info == null){
-    /// // this.executor is a instance of {@link io.army.executor.SyncExecutor}
-    /// info = this.executor.transactionInfo(); // query session level transaction info
-    /// }
-    /// return info;
-    /// </code>
-    /// </pre>
+    /// ```java
+    ///     TransactionInfo info = this.transactionInfo;
+    ///     if(info == null){
+    ///         // this.executor is a instance of {@link io.army.executor.SyncExecutor}
+    ///         info = this.executor.transactionInfo(); // query session level transaction info
+    ///     }
+    ///     return info;
+    /// ```
     /// @return session transaction info session have closed
     /// @throws SessionException throw when
     TransactionInfo transactionInfo();
@@ -104,12 +102,10 @@ public sealed interface SyncSession extends PackageSession, Closeable
     TransactionInfo sessionTransactionCharacteristics();
 
     /// This method is equivalent to following :
-    /// <pre>
-    /// <code>
+    /// ```java
     /// // session is instance of {@link SyncSession}
     /// session.setSavePoint(Option.EMPTY_FUNC) ;
-    /// </code>
-    /// </pre>
+    /// ```
     /// @see #setSavePoint(Function)
     Object setSavePoint();
 
@@ -131,12 +127,10 @@ public sealed interface SyncSession extends PackageSession, Closeable
     Object setSavePoint(Function<Option<?>, ?> optionFunc);
 
     /// This method is equivalent to following :
-    /// <pre>
-    /// <code>
+    /// ```java
     /// // session is instance of {@link SyncSession}
     /// session.releaseSavePoint(savepoint,Option.EMPTY_FUNC) ;
-    /// </code>
-    /// </pre>
+    /// ```
     /// @see #releaseSavePoint(Object, Function)
     void releaseSavePoint(Object savepoint);
 
@@ -153,12 +147,10 @@ public sealed interface SyncSession extends PackageSession, Closeable
     void releaseSavePoint(Object savepoint, Function<Option<?>, ?> optionFunc);
 
     /// This method is equivalent to following :
-    /// <pre>
-    /// <code>
+    /// ```java
     /// // session is instance of {@link SyncSession}
     /// session.rollbackToSavePoint(savepoint,Option.EMPTY_FUNC) ;
-    /// </code>
-    /// </pre>
+    /// ```
     /// @see #rollbackToSavePoint(Object, Function)
     void rollbackToSavePoint(Object savepoint);
 
@@ -179,21 +171,19 @@ public sealed interface SyncSession extends PackageSession, Closeable
     /// - These characteristics applies to all subsequent transactions performed within the current session,if you use appropriate default characteristic.
     /// - This method is permitted within transactions ,but does not affect the current ongoing transaction.
     /// - If you don't use appropriate default value,then appropriate characteristic does not affect new transaction,for example : {@link TransactionOption#isolation()} not null.
-    /// 
-    /// <pre>For example:
-    /// <code>
+    ///
+    /// For example:
+    /// ```java
     /// TransactionOption.option(Isolation.REPEATABLE_READ)
     /// MySQL database will execute following sql :
     /// SET SESSION TRANSACTION READ WRITE , ISOLATION LEVEL REPEATABLE READ
-    /// </code>
-    /// </pre>
-    /// <pre>For example:
-    /// <code>
+    /// ```
+    /// For example:
+    /// ```java
     /// TransactionOption.option(Isolation.REPEATABLE_READ)
     /// PostgreSQL database will execute following sql :
     /// SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE, ISOLATION LEVEL REPEATABLE READ
-    /// </code>
-    /// </pre>
+    /// ```
     /// @see SyncLocalSession#startTransaction(TransactionOption, HandleMode)
     /// @see SyncRmSession#start(Xid, int, TransactionOption)
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/set-transaction.html">MySQL SET TRANSACTION Statement</a>
@@ -202,12 +192,10 @@ public sealed interface SyncSession extends PackageSession, Closeable
 
 
     /// This method is equivalent to following :
-    /// <pre>
-    /// <code>
+    /// ```java
     /// // session is instance of {@link SyncSession}
     /// session.queryOne(statement,resultClass,defaultOption()) ; // defaultOption() is private method of the implementation of {@link SyncSession}.
-    /// </code>
-    /// </pre>
+    /// ```
     /// @throws NoSuchElementException throw when no row
     /// @throws NonMonoException       throw when more than one row.
     /// @see #queryOne(SimpleDqlStatement, Class, SyncStmtOption)
@@ -217,25 +205,23 @@ public sealed interface SyncSession extends PackageSession, Closeable
     /// Execute a simple(non-batch) statement to query one row.
     /// This method don't support {@link java.util.Map},but you can use {@link #queryOneObject(SimpleDqlStatement, Supplier, SyncStmtOption)} instead of this method.
     /// statement will be parsed as {@link io.army.stmt.Stmt} by {@link io.army.dialect.DialectParser} and {@link io.army.stmt.Stmt} will be executed by {@link io.army.executor.SyncExecutor}.
-    /// <pre>
     /// This method is equivalent to following :
-    /// <code>
-    /// final List<R> resultList;
-    /// resultList = this.queryList(statement,resultClass,option);
-    /// final R result;
-    /// switch (resultList.size()) {
-    /// case 1:
-    /// result = resultList.get(0);
-    /// break;
-    /// case 0:
-    /// result = null;
-    /// break;
-    /// default:
-    /// throw _Exceptions.nonUnique(resultList);
-    /// }
-    /// return result;
-    /// </code>
-    /// </pre>
+    /// ```java
+    ///     final List<R> resultList;
+    ///     resultList = this.queryList(statement,resultClass,option);
+    ///     final R result;
+    ///     switch (resultList.size()) {
+    ///     case 1:
+    ///         result = resultList.get(0);
+    ///         break;
+    ///     case 0:
+    ///         result = null;
+    ///         break;
+    ///     default:
+    ///         throw _Exceptions.nonUnique(resultList);
+    ///     }
+    ///     return result;
+    /// ```
     /// @param statement   simple(non-batch) query statement
     /// @param resultClass result class is one of
     /// 

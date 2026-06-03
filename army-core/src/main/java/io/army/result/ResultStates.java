@@ -111,54 +111,52 @@ public interface ResultStates extends ResultItem, OptionSpec {
     /// - query()
     /// - queryObject()
     /// - queryRecord()
-    /// 
-    /// <pre>
-    /// <code>
-    /// &#64;Transactional
-    /// &#64;Test
-    /// public void returningDomainInsertChildWithTowStmtQueryMode(final SyncLocalSession session) {
-    /// final List<ChinaProvince> provinceList;
-    /// provinceList = createProvinceListWithCount(3);
-    /// final ReturningInsert stmt;
-    /// stmt = Postgres.singleInsert()
-    /// .insertInto(ChinaRegion_.T)
-    /// .values(provinceList)
-    /// .returningAll()
-    /// .asReturningInsert()
-    /// .child()
-    /// .insertInto(ChinaProvince_.T)
-    /// .values(provinceList)
-    /// .returningAll()
-    /// .asReturningInsert();
-    /// final int[] flagHolder = new int[]{0};
-    /// final Consumer<ResultStates> statesConsumer;
-    /// statesConsumer = states -> {
-    /// flagHolder[0] ++;
-    /// if (flagHolder[0] == 1) {
-    /// Assert.assertTrue(secondDmlStates == null || !secondDmlStates);
-    /// } else {
-    /// Assert.assertEquals(secondDmlStates, Boolean.TRUE);
-    /// }
-    /// Assert.assertEquals(states.affectedRows(), provinceList.size());
-    /// if (states.isSupportInsertId()) {
-    /// Assert.assertEquals(states.lastInsertedId(), provinceList.get(0).getId());
-    /// }
-    /// Assert.assertEquals(states.batchSize(), 0);
-    /// Assert.assertEquals(states.batchNo(), 0);
-    /// Assert.assertEquals(states.resultNo(), 1);
-    /// Assert.assertFalse(states.hasMoreResult());
-    /// Assert.assertFalse(states.hasMoreFetch());
-    /// Assert.assertTrue(states.inTransaction());
-    /// Assert.assertTrue(states.hasColumn());
-    /// Assert.assertEquals(states.rowCount(), states.affectedRows());
-    /// };
-    /// final List<ChinaProvince> resultList;
-    /// resultList = session.queryList(stmt, ChinaProvince.class, ArrayList::new,SyncStmtOption.stateConsumer(statesConsumer));
-    /// Assert.assertEquals(resultList.size(), provinceList.size());
-    /// Assert.assertEquals(flagHolder[0],2);
-    /// }
-    /// </code>
-    /// </pre>
+    ///
+    /// ```java
+    ///     @Transactional
+    ///     @Test
+    ///     public void returningDomainInsertChildWithTowStmtQueryMode(final SyncLocalSession session) {
+    ///         final List<ChinaProvince> provinceList;
+    ///         provinceList = createProvinceListWithCount(3);
+    ///         final ReturningInsert stmt;
+    ///         stmt = Postgres.singleInsert()
+    ///                 .insertInto(ChinaRegion_.T)
+    ///                 .values(provinceList)
+    ///                 .returningAll()
+    ///                 .asReturningInsert()
+    ///                 .child()
+    ///                 .insertInto(ChinaProvince_.T)
+    ///                 .values(provinceList)
+    ///                 .returningAll()
+    ///                 .asReturningInsert();
+    ///         final int[] flagHolder = new int[]{0};
+    ///         final Consumer<ResultStates> statesConsumer;
+    ///         statesConsumer = states -> {
+    ///             flagHolder[0] ++;
+    ///             if (flagHolder[0] == 1) {
+    ///                 Assert.assertTrue(secondDmlStates == null || !secondDmlStates);
+    ///             } else {
+    ///                 Assert.assertEquals(secondDmlStates, Boolean.TRUE);
+    ///             }
+    ///             Assert.assertEquals(states.affectedRows(), provinceList.size());
+    ///             if (states.isSupportInsertId()) {
+    ///                 Assert.assertEquals(states.lastInsertedId(), provinceList.get(0).getId());
+    ///             }
+    ///             Assert.assertEquals(states.batchSize(), 0);
+    ///             Assert.assertEquals(states.batchNo(), 0);
+    ///             Assert.assertEquals(states.resultNo(), 1);
+    ///             Assert.assertFalse(states.hasMoreResult());
+    ///             Assert.assertFalse(states.hasMoreFetch());
+    ///             Assert.assertTrue(states.inTransaction());
+    ///             Assert.assertTrue(states.hasColumn());
+    ///             Assert.assertEquals(states.rowCount(), states.affectedRows());
+    ///         };
+    ///         final List<ChinaProvince> resultList;
+    ///         resultList = session.queryList(stmt, ChinaProvince.class, ArrayList::new,SyncStmtOption.stateConsumer(statesConsumer));
+    ///         Assert.assertEquals(resultList.size(), provinceList.size());
+    ///         Assert.assertEquals(flagHolder[0],2);
+    ///     }
+    /// ```
     /// @return true : child dml query with tow statement mode,for example : postgre insert child with RETURNING clause.
     /// @see Option#FIRST_DML_STATES
     /// @see Option#SECOND_DML_QUERY_STATES

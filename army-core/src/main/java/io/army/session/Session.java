@@ -70,25 +70,21 @@ public sealed interface Session extends CloseableSpec, SessionSpec permits Local
     /// 
     /// - This method don't check whether session closed or not
     /// - This method don't invoke {@link TransactionInfo#inTransaction()} method
-    /// 
-    /// <pre>The implementation of this method like following
-    /// <code>
-    /// &#64;Override
+    ///
+    /// ```java
+    /// @Override
     /// public boolean hasTransactionInfo() {
-    /// return this.transactionInfo != null;
+    ///     return this.transactionInfo != null;
     /// }
-    /// </code>
-    /// </pre>
+    /// ```
     /// @return true : session hold one  {@link TransactionInfo} instance.
     boolean hasTransactionInfo();
 
     /// This method is equivalent to following :
-    /// <pre>
-    /// <code>
+    /// ```java
     /// // session is instance of {@link Session}
     /// session.inTransaction() || session.inPseudoTransaction()
-    /// </code>
-    /// </pre>
+    /// ```
     /// @throws SessionException throw when {@link #inTransaction()} throw
     boolean inAnyTransaction() throws SessionException;
 

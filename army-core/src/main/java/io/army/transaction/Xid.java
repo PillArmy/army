@@ -16,11 +16,11 @@
 
 package io.army.transaction;
 
+import io.army.lang.Nullable;
 import io.army.option.Option;
 import io.army.session.RmSession;
 import io.army.spec.OptionSpec;
 
-import io.army.lang.Nullable;
 import java.util.function.Function;
 
 /// 
@@ -76,14 +76,12 @@ public interface Xid extends OptionSpec {
     /// - {@link #getFormatId()}
     /// 
     /// Like following :
-    /// <pre>
-    /// <code>
-    /// &#64;Override
+    /// ```java
+    /// @Override
     /// public int hashCode() {
-    /// return Objects.hash(this.gtrid, this.bqual, this.formatId);
+    ///     return Objects.hash(this.gtrid, this.bqual, this.formatId);
     /// }
-    /// </code>
-    /// </pre>
+    /// ```
     /// 
     @Override
     int hashCode();
@@ -96,25 +94,23 @@ public interface Xid extends OptionSpec {
     /// 
     /// 
     /// Like following :
-    /// <pre>
-    /// <code>
-    /// &#64;Override
+    /// ```java
+    /// @Override
     /// public boolean equals(final Object obj) {
-    /// final boolean match;
-    /// if (obj == this) {
-    /// match = true;
-    /// } else if (obj instanceof Xid) {
-    /// final Xid o = (Xid) obj;
-    /// match = this.gtrid.equals(o.getGtrid())
-    /// && Objects.equals(o.getBqual(), this.bqual)
-    /// && o.getFormatId() == this.formatId;
-    /// } else {
-    /// match = false;
+    ///     final boolean match;
+    ///     if (obj == this) {
+    ///         match = true;
+    ///     } else if (obj instanceof Xid) {
+    ///         final Xid o = (Xid) obj;
+    ///         match = this.gtrid.equals(o.getGtrid())
+    ///                 && Objects.equals(o.getBqual(), this.bqual)
+    ///                 && o.getFormatId() == this.formatId;
+    ///     } else {
+    ///         match = false;
+    ///     }
+    ///     return match;
     /// }
-    /// return match;
-    /// }
-    /// </code>
-    /// </pre>
+    /// ```
     /// 
     @Override
     boolean equals(Object obj);

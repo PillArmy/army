@@ -97,35 +97,33 @@ public abstract class MySQLs extends MySQLSyntax {
     /// - If target table contain 'visible' field,then MySQL REPLACE can only be used in {@link Visible#BOTH} mode,see {@link Session#visible()} and {@link io.army.env.ArmyKey#VISIBLE_MODE}
     /// - If target table primary key is auto increment and you replace multi-row with "domain" syntax (see Example 3),then database will couldn't return correct multi-row primary key value , because of conflict. So you have to use ignoreReturnIds() option clause before replace into clause.
     /// 
-    /// <pre>
-    /// <code>
     /// Example 3 :
-    /// &#64;VisibleMode(Visible.BOTH)
-    /// &#64;Test(invocationCount = 3)
+    /// ```java
+    /// @VisibleMode(Visible.BOTH)
+    /// @Test(invocationCount = 3)
     /// public void domainReplaceParent(final SyncLocalSession session) {
-    /// assert ChinaRegion_.id.generatorType() == GeneratorType.POST; // primary key is auto increment
-    /// final List<ChinaRegion<?>> regionList = createReginListWithCount(3);
-    /// final long startNanoSecond = System.nanoTime();
-    /// final Insert stmt;
-    /// stmt = MySQLs.singleReplace()
-    /// .ignoreReturnIds() // due to you use "domain" api replace multi-row , so you have to use ignoreReturnIds() option clause,because database couldn't return correct multi-row primary key value.
-    /// .replaceInto(ChinaRegion_.T)
-    /// .parens(s -> s.space(ChinaRegion_.name, ChinaRegion_.regionGdp)
-    /// .comma(ChinaRegion_.parentId)
-    /// )
-    /// .defaultValue(ChinaRegion_.regionGdp, SQLs::param, "88888.88")
-    /// .defaultValue(ChinaRegion_.visible, SQLs::param, true)
-    /// .defaultValue(ChinaRegion_.parentId, SQLs::param, 0)
-    /// .values(regionList)  // here , "domain" api
-    /// .asInsert();
-    /// statementCostTimeLog(session, LOG, startNanoSecond);
-    /// Assert.assertEquals(session.update(stmt), regionList.size());
-    /// for (ChinaRegion<?> region : regionList) {
-    /// Assert.assertNull(region.getId()); // because ignoreReturnIds() option clause.
+    ///     assert ChinaRegion_.id.generatorType() == GeneratorType.POST; // primary key is auto increment
+    ///     final List<ChinaRegion<?>> regionList = createReginListWithCount(3);
+    ///     final long startNanoSecond = System.nanoTime();
+    ///     final Insert stmt;
+    ///     stmt = MySQLs.singleReplace()
+    ///             .ignoreReturnIds() // due to you use "domain" api replace multi-row , so you have to use ignoreReturnIds() option clause,because database couldn't return correct multi-row primary key value.
+    ///             .replaceInto(ChinaRegion_.T)
+    ///             .parens(s -> s.space(ChinaRegion_.name, ChinaRegion_.regionGdp)
+    ///                     .comma(ChinaRegion_.parentId)
+    ///             )
+    ///             .defaultValue(ChinaRegion_.regionGdp, SQLs::param, "88888.88")
+    ///             .defaultValue(ChinaRegion_.visible, SQLs::param, true)
+    ///             .defaultValue(ChinaRegion_.parentId, SQLs::param, 0)
+    ///             .values(regionList)  // here , "domain" api
+    ///             .asInsert();
+    ///     statementCostTimeLog(session, LOG, startNanoSecond);
+    ///     Assert.assertEquals(session.update(stmt), regionList.size());
+    ///     for (ChinaRegion<?> region : regionList) {
+    ///         Assert.assertNull(region.getId()); // because ignoreReturnIds() option clause.
+    ///     }
     /// }
-    /// }
-    /// </code>
-    /// </pre>
+    /// ```
     /// @return MySQL REPLACE statement api instance.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/replace.html">REPLACE Statement</a>
     public static MySQLReplace._PrimaryOptionSpec singleReplace() {
@@ -207,69 +205,67 @@ public abstract class MySQLs extends MySQLSyntax {
     /// - Client allowLoadLocalInfile property(JDBC/JDBD) must be true
     /// - You have to use client-prepared statement or static statement,see {@link StmtOption#isPreferServerPrepare()} ,see following LOCAL INFILE Request
     /// - Due to the literal(in COLUMNS/LINES clause) use {@link io.army.env.EscapeMode#BACK_SLASH} and ignore {@link io.army.env.ArmyKey#LITERAL_ESCAPE_MODE},so you should guarantee sql mode NO_BACKSLASH_ESCAPES is disabled.
-    /// 
-    /// <pre>
-    /// <code>
+    ///
+    /// ```java
     /// // Example 01 :
-    /// &#64;Test
+    /// @Test
     /// public void singleLoadData(final SyncLocalSession session) {
-    /// final Path csvFile;
-    /// csvFile = MyPaths.myLocal("china_region.csv");
-    /// if (Files.notExists(csvFile)) {
-    /// return;
-    /// }
-    /// final DmlCommand stmt;
-    /// stmt = MySQLs.loadDataStmt()
-    /// .loadData(MySQLs.LOCAL)
-    /// .infile(csvFile)
-    /// .ignore()
-    /// .intoTable(ChinaRegion_.T)
-    /// .characterSet("utf8mb4")
-    /// .columns(s -> s.terminatedBy(","))
-    /// .lines(s -> s.terminatedBy("\n"))
-    /// .ignore(1, SQLs.LINES)
-    /// .set(ChinaRegion_.visible, SQLs::literal, true)
-    /// .set(ChinaRegion_.regionType, SQLs::literal, RegionType.NONE)
-    /// .asCommand();
-    /// final long rows;
-    /// rows = session.update(stmt, SyncStmtOption.preferServerPrepare(false));
-    /// LOG.debug("session[name : {}] rows {}", session.name(), rows);
+    ///     final Path csvFile;
+    ///     csvFile = MyPaths.myLocal("china_region.csv");
+    ///     if (Files.notExists(csvFile)) {
+    ///         return;
+    ///     }
+    ///     final DmlCommand stmt;
+    ///     stmt = MySQLs.loadDataStmt()
+    ///             .loadData(MySQLs.LOCAL)
+    ///             .infile(csvFile)
+    ///             .ignore()
+    ///             .intoTable(ChinaRegion_.T)
+    ///             .characterSet("utf8mb4")
+    ///             .columns(s -> s.terminatedBy(","))
+    ///             .lines(s -> s.terminatedBy("\n"))
+    ///             .ignore(1, SQLs.LINES)
+    ///             .set(ChinaRegion_.visible, SQLs::literal, true)
+    ///             .set(ChinaRegion_.regionType, SQLs::literal, RegionType.NONE)
+    ///             .asCommand();
+    ///     final long rows;
+    ///     rows = session.update(stmt, SyncStmtOption.preferServerPrepare(false));
+    ///     LOG.debug("session[name : {}] rows {}", session.name(), rows);
     /// }
     /// // Example 02 :
-    /// &#64;Test
+    /// @Test
     /// public void childLoadData(final SyncLocalSession session) {
-    /// final Path parentTempFile, childTempFile;
-    /// parentTempFile = MyPaths.myLocal("china_region_parent.csv");
-    /// childTempFile = MyPaths.myLocal("china_province.csv");
-    /// final DmlCommand stmt;
-    /// stmt = MySQLs.loadDataStmt()
-    /// .loadData(MySQLs.LOCAL)
-    /// .infile(parentTempFile)
-    /// .ignore()
-    /// .intoTable(ChinaRegion_.T)
-    /// .characterSet("utf8mb4")
-    /// .columns(s -> s.terminatedBy(","))
-    /// .lines(s -> s.terminatedBy("\n"))
-    /// .ignore(1, SQLs.LINES)
-    /// .parens(s -> s.space(ChinaRegion_.name))
-    /// .set(ChinaRegion_.regionType, SQLs::literal, RegionType.PROVINCE)
-    /// .asCommand()
-    /// .child()
-    /// .loadData(MySQLs.LOCAL)
-    /// .infile(childTempFile)
-    /// .ignore()
-    /// .intoTable(ChinaProvince_.T)
-    /// .characterSet("utf8mb4")
-    /// .columns(s -> s.terminatedBy(","))
-    /// .lines(s -> s.terminatedBy("\n"))
-    /// .ignore(1, SQLs.LINES)
-    /// .asCommand();
-    /// final long rows;
-    /// rows = session.update(stmt, SyncStmtOption.preferServerPrepare(false));
-    /// LOG.debug("session[name : {}] rows {}", session.name(), rows);
+    ///     final Path parentTempFile, childTempFile;
+    ///     parentTempFile = MyPaths.myLocal("china_region_parent.csv");
+    ///     childTempFile = MyPaths.myLocal("china_province.csv");
+    ///     final DmlCommand stmt;
+    ///     stmt = MySQLs.loadDataStmt()
+    ///             .loadData(MySQLs.LOCAL)
+    ///             .infile(parentTempFile)
+    ///             .ignore()
+    ///             .intoTable(ChinaRegion_.T)
+    ///             .characterSet("utf8mb4")
+    ///             .columns(s -> s.terminatedBy(","))
+    ///             .lines(s -> s.terminatedBy("\n"))
+    ///             .ignore(1, SQLs.LINES)
+    ///             .parens(s -> s.space(ChinaRegion_.name))
+    ///             .set(ChinaRegion_.regionType, SQLs::literal, RegionType.PROVINCE)
+    ///             .asCommand()
+    ///             .child()
+    ///             .loadData(MySQLs.LOCAL)
+    ///             .infile(childTempFile)
+    ///             .ignore()
+    ///             .intoTable(ChinaProvince_.T)
+    ///             .characterSet("utf8mb4")
+    ///             .columns(s -> s.terminatedBy(","))
+    ///             .lines(s -> s.terminatedBy("\n"))
+    ///             .ignore(1, SQLs.LINES)
+    ///             .asCommand();
+    ///     final long rows;
+    ///     rows = session.update(stmt, SyncStmtOption.preferServerPrepare(false));
+    ///     LOG.debug("session[name : {}] rows {}", session.name(), rows);
     /// }
-    /// </code>
-    /// </pre>
+    /// ```
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html">LOAD DATA Statement</a>
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/load-data.html#load-data-local">Non-LOCAL Versus LOCAL Operation</a>
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_local_infile">Server local_infile system variables</a>

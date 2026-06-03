@@ -17,13 +17,13 @@
 package io.army.session;
 
 import io.army.executor.StmtExecutor;
+import io.army.lang.Nullable;
 import io.army.option.Option;
 import io.army.transaction.HandleMode;
 import io.army.transaction.Isolation;
 import io.army.transaction.TransactionInfo;
 import io.army.transaction.TransactionOption;
 
-import io.army.lang.Nullable;
 import java.util.function.Function;
 
 /// This interface representing local {@link SyncSession} that support database local transaction.
@@ -40,22 +40,14 @@ public sealed interface SyncLocalSession extends SyncSession, PackageSession.Pac
 
 
     /// This method is equivalent to following :
-    /// <pre>
-    /// <code>
     /// // session is instance of {@link SyncLocalSession}
     /// session.startTransaction(TransactionOption.option(),HandleMode.ERROR_IF_EXISTS) ;
-    /// </code>
-    /// </pre>
     /// @see #startTransaction(TransactionOption, HandleMode)
     TransactionInfo startTransaction();
 
     /// This method is equivalent to following :
-    /// <pre>
-    /// <code>
     /// // session is instance of {@link SyncLocalSession}
     /// session.startTransaction(option,HandleMode.ERROR_IF_EXISTS) ;
-    /// </code>
-    /// </pre>
     /// @see #startTransaction(TransactionOption, HandleMode)
     TransactionInfo startTransaction(TransactionOption option);
 
@@ -69,21 +61,19 @@ public sealed interface SyncLocalSession extends SyncSession, PackageSession.Pac
     /// 
     /// **NOTE**: if option representing pseudo transaction,then this method don't access database server.
     /// Army prefer to start local transaction with one sql statement or multi-statement( if driver support),because transaction starting should keep atomicity and reduce network overhead.
-    /// <pre>For example: {@code TransactionOption.option(Isolation.READ_COMMITTED)},MySQL database will execute following sql :
-    /// <code>
+    /// For example: {@code TransactionOption.option(Isolation.READ_COMMITTED)},MySQL database will execute following sql :
+    /// ```sql
     /// SET TRANSACTION ISOLATION LEVEL READ COMMITTED ; START TRANSACTION READ WRITE
-    /// </code>
+    /// ```
     /// {@code TransactionOption.option()},MySQL database will execute following sql :
-    /// <code>
+    /// ```sql
     /// SET @@transaction_isolation = @@SESSION.transaction_isolation ; SELECT @@SESSION.transaction_isolation AS txIsolationLevel ; START TRANSACTION READ WRITE
     /// // SET @@transaction_isolation = @@SESSION.transaction_isolation to  guarantee isolation is session isolation
-    /// </code>
-    /// </pre>
-    /// <pre>For example : {@code TransactionOption.option(Isolation.READ_COMMITTED)},PostgreSQL database will execute following sql :
-    /// <code>
+    /// ```
+    /// For example : {@code TransactionOption.option(Isolation.READ_COMMITTED)},PostgreSQL database will execute following sql :
+    /// ```sql
     /// START TRANSACTION ISOLATION LEVEL READ COMMITTED , READ WRITE
-    /// </code>
-    /// </pre>
+    /// ```
     /// **NOTE**:
     /// 
     /// - {@link TransactionInfo#valueOf(Option)} with {@link Option#START_MILLIS} always non-null.
@@ -110,12 +100,8 @@ public sealed interface SyncLocalSession extends SyncSession, PackageSession.Pac
     TransactionInfo startTransaction(TransactionOption option, HandleMode mode);
 
     /// This method is equivalent to following :
-    /// <pre>
-    /// <code>
     /// // session is instance of {@link SyncLocalSession}
     /// session.commit(Option.EMPTY_FUNC) ;
-    /// </code>
-    /// </pre>
     /// @see #commit(Function)
     void commit();
 
@@ -152,35 +138,23 @@ public sealed interface SyncLocalSession extends SyncSession, PackageSession.Pac
     TransactionInfo commit(Function<Option<?>, ?> optionFunc);
 
     /// This method is equivalent to following :
-    /// <pre>
-    /// <code>
     /// // session is instance of {@link SyncLocalSession}
     /// session.commitIfExists(Option.EMPTY_FUNC) ;
-    /// </code>
-    /// </pre>
     /// @see #commitIfExists(Function)
     void commitIfExists();
 
     /// This method is equivalent to following :
-    /// <pre>
-    /// <code>
     /// // session is instance of {@link SyncLocalSession}
     /// if(session.hasTransactionInfo()){
     /// session.commit(Option.EMPTY_FUNC) ;
     /// }
-    /// </code>
-    /// </pre>
     /// @see #commit(Function)
     @Nullable
     TransactionInfo commitIfExists(Function<Option<?>, ?> optionFunc);
 
     /// This method is equivalent to following :
-    /// <pre>
-    /// <code>
     /// // session is instance of {@link SyncLocalSession}
     /// session.rollback(Option.EMPTY_FUNC) ;
-    /// </code>
-    /// </pre>
     /// @see #rollback(Function)
     void rollback();
 
@@ -215,24 +189,16 @@ public sealed interface SyncLocalSession extends SyncSession, PackageSession.Pac
     TransactionInfo rollback(Function<Option<?>, ?> optionFunc);
 
     /// This method is equivalent to following :
-    /// <pre>
-    /// <code>
     /// // session is instance of {@link SyncLocalSession}
     /// session.rollbackIfExists(Option.EMPTY_FUNC) ;
-    /// </code>
-    /// </pre>
     /// @see #rollbackIfExists(Function)
     void rollbackIfExists();
 
     /// This method is equivalent to following :
-    /// <pre>
-    /// <code>
     /// // session is instance of {@link SyncLocalSession}
     /// if(session.hasTransactionInfo()){
     /// session.rollback(Option.EMPTY_FUNC) ;
     /// }
-    /// </code>
-    /// </pre>
     /// @see #rollback(Function)
     @Nullable
     TransactionInfo rollbackIfExists(Function<Option<?>, ?> optionFunc);

@@ -125,11 +125,11 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
     /// This method is used for postgre dialect type, for example : text, regclass .
     /// **NOTE**: {@link LiteralExpression#typeMeta()} always is {@link NoCastTextType#INSTANCE}
     /// examples :
-    /// <pre>
+    /// ```
     /// Postgres.space("my_seq",Postgres.DOUBLE_COLON,"regclass")
     /// Postgres.space('my_seq',DOUBLE_COLON,"regclass")
     /// Postgres.space('QinArmy',DOUBLE_COLON,"text")
-    /// </pre>
+    /// ```
     /// @param literal     text literal
     /// @param doubleColon must be {@link Postgres#DOUBLE_COLON}
     /// @param typeName    not key word , a simple sql identifier.
@@ -194,8 +194,8 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
     }
 
 
-    /// 
-    /// The {@link MappingType} of function return type: follow <pre><code>
+    ///
+    /// The {@link MappingType} of function return type: follow:
     /// private static MappingType caretResultType(final MappingType left, final MappingType right) {
     /// final MappingType returnType;
     /// if (left instanceof MappingType.IntegerOrDecimalType
@@ -206,7 +206,6 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
     /// }
     /// return returnType;
     /// }
-    /// </code></pre>
     /// @see <a href="https://www.postgresql.org/docs/current/functions-math.html#FUNCTIONS-MATH-OP-TABLE">numeric ^ numeric → numeric
     /// double precision ^ double precision → double precision
     /// Exponentiation</a>
@@ -271,8 +270,8 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
     }
 
 
-    /// 
-    /// The {@link MappingType} of operator return type: follow <pre><code>
+    ///
+    /// The {@link MappingType} of operator return type: follow:
     /// private static MappingType doubleVerticalType(final MappingType left, final MappingType right) {
     /// final MappingType returnType;
     /// if (left instanceof MappingType.SqlStringType || right instanceof MappingType.SqlStringType) {
@@ -289,8 +288,6 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
     /// }
     /// return returnType;
     /// }
-    /// </code>
-    /// </pre>
     /// @param left  not {@link SQLs#DEFAULT} etc.
     /// @param right not {@link SQLs#DEFAULT} etc.
     /// @see Expression#space(SQLs.DualOperator, Object)

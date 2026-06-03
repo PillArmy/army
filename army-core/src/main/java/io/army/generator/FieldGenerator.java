@@ -24,32 +24,28 @@ import io.army.pojo.ReadWrapper;
 /// if you want creation before persistence.
 /// 
 /// there is two ways for implementation of MultiGenerator:
-/// <pre>
-/// Example one:
+/// ```java
 /// public class MyMultiGenerator implements PreMultiGenerator {
-/// private MyMultiGenerator(){}
-/// &#047;&#042;&#042;
-/// &#042; &#064;paramMeta not null
-/// &#042; &#064;paramMap not null,a unmodifiable map
-/// &#042;
-/// &#042;&#047;
-/// public static MyMultiGenerator debugSQL(FieldMeta<?,?> paramMeta, Map<String,String> paramMap){
-/// ...
+///     private MyMultiGenerator(){}
+///     /**
+///      * @paramMeta not null
+///      * @paramMap not null,a unmodifiable map
+///      */
+///     public static MyMultiGenerator debugSQL(FieldMeta<?,?> paramMeta, Map<String,String> paramMap){
+///         ...
+///     }
 /// }
-/// }
-/// </pre>
+/// ```
 /// or
-/// <pre>
-/// Example two:
+/// ```java
 /// public class MyMultiGenerator implements PreMultiGenerator {
-/// &#047;&#042;&#042;
-/// &#042; &#064;paramMeta not null
-/// &#042; &#064;paramMap not null,a unmodifiable map
-/// &#042;
-/// &#042;&#047;
-/// public MyMultiGenerator(FieldMeta<?,?> paramMeta,  Map<String,String> paramMap){...}
+///     /**
+///      * @paramMeta not null
+///      * @paramMap not null,a unmodifiable map
+///      */
+///     public MyMultiGenerator(FieldMeta<?,?> paramMeta,  Map<String,String> paramMap){...}
 /// }
-/// </pre>
+/// ```
 /// @see io.army.annotation.Generator
 /// @see FieldGeneratorFactory
 /// @since Army 1.0

@@ -6097,14 +6097,13 @@ stmt2 = SQLs.singleInsert()
                             <p>Requires <code>.values()</code> (no-arg) first — this bridges
                                 <code>_ColumnListSpec</code> via <code>_StaticValuesClause</code> to
                                 <a href="../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java"
-                                   class="extern"><code>StandardInsert._StandardValuesParensClause</code></a>,
-                                which extends <a href="../army-core/src/main/java/io/army/criteria/InsertStatement.java"
-                                                 class="extern"><code>InsertStatement._ValuesParensClause</code></a>.
-                            </p>
+                                   class="extern"><code>StandardInsert._StandardValuesParensClause</code></a>, which
+                                extends <a href="../army-core/src/main/java/io/army/criteria/InsertStatement.java"
+                                           class="extern"><code>InsertStatement._ValuesParensClause</code></a>.</p>
                         </div>
                         <div class="paragraph">
-                            <p>Each <code>parens()</code> call adds one VALUES row. All columns are referenced via
-                                <code>FieldMeta</code> constants.</p>
+                            <p>Each <code>parens()</code> call adds one VALUES row.
+                                All columns are referenced via <code>FieldMeta</code> constants.</p>
                         </div>
                         <div class="paragraph">
                             <p><em>Single row:</em></p>
@@ -6242,8 +6241,8 @@ stmt = SQLs.singleInsert()
                         <div class="paragraph">
                             <p>Defined in <a href="../army-core/src/main/java/io/army/criteria/InsertStatement.java"
                                              class="extern"><code>InsertStatement._DynamicValuesClause</code></a>:
-                                <code>values(Consumer&lt;ValuesConstructor&lt;T&gt;&gt;)</code>. Returns <code>_DmlInsertClause&lt;I&gt;</code>.
-                            </p>
+                                <code>values(Consumer&lt;ValuesConstructor&lt;T&gt;&gt;)</code>.
+                                Returns <code>_DmlInsertClause&lt;I&gt;</code>.</p>
                         </div>
                         <div class="paragraph">
                             <p><a href="../army-core/src/main/java/io/army/criteria/ValuesConstructor.java"
@@ -9161,7 +9160,7 @@ envMap.put(ArmyKey.SQL_LOG_EXECUTION_TAKE_TIME.name, <span class="predefined-con
 <div id="footer">
     <div id="footer-text">
         Version 0.6.8-SNAPSHOT<br>
-        Last updated 2026-06-04 01:58:12 +0800
+        Last updated 2026-06-04 02:31:27 +0800
     </div>
 </div>
 </body>

@@ -23,9 +23,9 @@ import io.army.dialect._SqlContext;
 import io.army.function.BetweenOperator;
 import io.army.function.BetweenValueOperator;
 import io.army.function.ExpressionOperator;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
-import io.army.meta.ParentTableMeta;
 import io.army.meta.ServerMeta;
 import io.army.meta.TypeMeta;
 import io.army.sqltype.DataType;
@@ -33,7 +33,6 @@ import io.army.sqltype.MySQLType;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -966,7 +965,7 @@ abstract class LiteralFunctions {
     } // StandardCastFunc
 
 
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/cast-functions.html#function_cast">CAST(expr AS type [ARRAY])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/cast-functions.html#function_cast">CAST(expr AS type \[ARRAY\])</a>
     private static String castFuncAppendMySQLDataType(final DataType dataTyp, final ServerMeta meta) {
         if (!(dataTyp instanceof MySQLType)) {
             throw new CriteriaException("");

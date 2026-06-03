@@ -19,10 +19,10 @@ package io.army.criteria.impl;
 import io.army.criteria.*;
 import io.army.criteria.mysql.MySQLCastType;
 import io.army.criteria.mysql.MySQLFunction;
+import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.util._Collections;
 
-import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +42,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
 
     /// The {@link MappingType} of function return type: {@link JsonType#TEXT}
     /// @throws CriteriaException throw when argument error.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY([val[, val] ...])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY(\[val\[, val\] ...\])</a>
     public static SimpleExpression jsonArray() {
         return LiteralFunctions.zeroArgFunc("JSON_ARRAY");
     }
@@ -54,7 +54,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// - literal
     /// 
     /// @throws CriteriaException throw when argument error.
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY([val[, val] ...])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY(\[val\[, val\] ...\])</a>
     public static SimpleExpression jsonArray(Object value) {
         return LiteralFunctions.oneArgFunc("JSON_ARRAY", value);
     }
@@ -75,8 +75,8 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// 
     /// - {@link Expression} instance
     /// - literal
-    /// 
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY([val[, val] ...])</a>
+    ///
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY(\[val\[, val\] ...\])</a>
     public static SimpleExpression jsonArray(Object value1, Object value2, Object... variadic) {
         return LiteralFunctions.multiArgFunc("JSON_ARRAY", FuncExpUtils.twoAndVariadic(value1, value2, variadic));
     }
@@ -88,8 +88,8 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// 
     /// - {@link Expression} instance
     /// - literal
-    /// 
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY([val[, val] ...])</a>
+    ///
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY(\[val\[, val\] ...\])</a>
     public static SimpleExpression jsonArray(Consumer<Clause._VariadicSpaceClause> consumer) {
         return LiteralFunctions.multiArgFunc("JSON_ARRAY", FuncExpUtils.variadicList(false, consumer));
     }
@@ -101,21 +101,21 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// 
     /// - {@link Expression} instance
     /// - literal
-    /// 
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY([val[, val] ...])</a>
+    ///
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-array">JSON_ARRAY(\[val\[, val\] ...\])</a>
     public static SimpleExpression jsonArray(SQLs.SymbolSpace space, Consumer<Clause._VariadicConsumer> consumer) {
         return LiteralFunctions.multiArgFunc("JSON_ARRAY", FuncExpUtils.variadicList(false, consumer));
     }
 
     /// The {@link MappingType} of function return type: {@link JsonType#TEXT}
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-object">JSON_OBJECT([key, val[, key, val] ...])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-object">JSON_OBJECT(\[key, val\[, key, val\] ...\])</a>
     public static SimpleExpression jsonObject() {
         return LiteralFunctions.zeroArgFunc("JSON_OBJECT");
     }
 
     /// The {@link MappingType} of function return type: {@link JsonType#TEXT}
     /// @param expMap non-null
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-object">JSON_OBJECT([key, val[, key, val] ...])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-object">JSON_OBJECT(\[key, val\[, key, val\] ...\])</a>
     public static SimpleExpression jsonObject(final Map<String, ?> expMap) {
         return LiteralFunctions.jsonMapFunc("JSON_OBJECT", expMap);
     }
@@ -123,14 +123,14 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
 
     /// jsonObject function static method.
     /// The {@link MappingType} of function return type: {@link JsonType#TEXT}
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-object">JSON_OBJECT([key, val[, key, val] ...])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-object">JSON_OBJECT(\[key, val\[, key, val\] ...\])</a>
     public static SimpleExpression jsonObject(final Consumer<Clause._PairVariadicSpaceClause> consumer) {
         return LiteralFunctions.multiArgFunc("JSON_OBJECT", FuncExpUtils.pariVariadicList(false, consumer));
     }
 
     /// jsonObject function dynamic method.
     /// The {@link MappingType} of function return type: {@link JsonType#TEXT}
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-object">JSON_OBJECT([key, val[, key, val] ...])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-object">JSON_OBJECT(\[key, val\[, key, val\] ...\])</a>
     public static SimpleExpression jsonObject(SQLs.SymbolSpace space, Consumer<Clause._PairVariadicConsumerClause> consumer) {
         return LiteralFunctions.multiArgFunc("JSON_OBJECT", FuncExpUtils.pariVariadicList(false, consumer));
     }
@@ -162,7 +162,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// 
     /// @throws CriteriaException throw when argument error
     /// @see #jsonContains(Object, Object, Object)
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-contains">JSON_CONTAINS(target, candidate[, path])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-contains">JSON_CONTAINS(target, candidate\[, path\])</a>
     public static SimplePredicate jsonContains(final Object target, final Object candidate) {
         return LiteralFunctions.twoArgPredicate("JSON_CONTAINS", FuncExpUtils.jsonDocExp(target),
                 FuncExpUtils.jsonDocExp(candidate)
@@ -189,7 +189,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// 
     /// @throws CriteriaException throw when argument error
     /// @see #jsonContains(Object, Object)
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-contains">JSON_CONTAINS(target, candidate[, path])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-contains">JSON_CONTAINS(target, candidate\[, path\])</a>
     public static SimplePredicate jsonContains(final Object target, final Object candidate, final Object path) {
         FuncExpUtils.assertPathExp(path);
         return LiteralFunctions.threeArgPredicate("JSON_CONTAINS", FuncExpUtils.jsonDocExp(target),
@@ -213,7 +213,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// - {@link String} literal
     /// 
     /// @throws CriteriaException throw when argument error
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-contains-path">JSON_CONTAINS_PATH(json_doc, one_or_all, path[, path] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-contains-path">JSON_CONTAINS_PATH(json_doc, one_or_all, path\[, path\] ...)</a>
     public static SimplePredicate jsonContainsPath(Object jsonDoc, Object oneOrAll, Object path) {
         FuncExpUtils.assertTextExp(oneOrAll);
         FuncExpUtils.assertPathExp(path);
@@ -247,7 +247,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// - {@link String} literal
     /// 
     /// @throws CriteriaException throw when argument error
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-contains-path">JSON_CONTAINS_PATH(json_doc, one_or_all, path[, path] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-contains-path">JSON_CONTAINS_PATH(json_doc, one_or_all, path\[, path\] ...)</a>
     public static SimplePredicate jsonContainsPath(Object jsonDoc, final Object oneOrAll, Object path1, Object path2, Object... pathVariadic) {
         FuncExpUtils.assertTextExp(oneOrAll);
         FuncExpUtils.assertPathExp(path1);
@@ -279,7 +279,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// 
     /// @throws CriteriaException throw when argument error
     /// @see #jsonExtract(Object, Object, Object, Object...)
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-extract">JSON_EXTRACT(json_doc, path[, path] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-extract">JSON_EXTRACT(json_doc, path\[, path\] ...)</a>
     public static SimpleExpression jsonExtract(Object jsonDoc, Object path) {
         FuncExpUtils.assertPathExp(path);
         return LiteralFunctions.twoArgFunc("JSON_EXTRACT", FuncExpUtils.jsonDocExp(jsonDoc), path);
@@ -308,7 +308,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// 
     /// @throws CriteriaException throw when argument error
     /// @see #jsonExtract(Object, Object)
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-extract">JSON_EXTRACT(json_doc, path[, path] ...)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-creation-functions.html#function_json-extract">JSON_EXTRACT(json_doc, path\[, path\] ...)</a>
     public static SimpleExpression jsonExtract(Object jsonDoc, Object path1, Object path2, Object... pathVariadic) {
         FuncExpUtils.assertPathExp(path1);
         FuncExpUtils.assertPathExp(path2);
@@ -333,7 +333,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// 
     /// @throws CriteriaException throw when argument error
     /// @see #jsonKeys(Object, Object)
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-keys">JSON_KEYS(json_doc[, path])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-keys">JSON_KEYS(json_doc\[, path\])</a>
     public static SimpleExpression jsonKeys(final Object jsonDoc) {
         return LiteralFunctions.oneArgFunc("JSON_KEYS", FuncExpUtils.jsonDocExp(jsonDoc));
     }
@@ -351,7 +351,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// 
     /// @throws CriteriaException throw when argument error
     /// @see #jsonKeys(Object)
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-keys">JSON_KEYS(json_doc[, path])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-keys">JSON_KEYS(json_doc\[, path\])</a>
     public static SimpleExpression jsonKeys(final Object jsonDoc, final Object path) {
         FuncExpUtils.assertPathExp(path);
         return LiteralFunctions.twoArgFunc("JSON_KEYS", FuncExpUtils.jsonDocExp(jsonDoc), path);
@@ -395,7 +395,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// 
     /// @throws CriteriaException throw when argument error
     /// @see #jsonSearch(Object, Object, Object, Object)
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-search">JSON_SEARCH(json_doc, one_or_all, search_str[, escape_char[, path] ...])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-search">JSON_SEARCH(json_doc, one_or_all, search_str\[, escape_char\[, path\] ...\])</a>
     public static SimpleExpression jsonSearch(final Object jsonDoc, final Object oneOrAll, final Object searchStr) {
         FuncExpUtils.assertTextExp(oneOrAll);
         FuncExpUtils.assertTextExp(searchStr);
@@ -425,7 +425,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// 
     /// @throws CriteriaException throw when argument error
     /// @see #jsonSearch(Object, Object, Object)
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-search">JSON_SEARCH(json_doc, one_or_all, search_str[, escape_char[, path] ...])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-search">JSON_SEARCH(json_doc, one_or_all, search_str\[, escape_char\[, path\] ...\])</a>
     public static SimpleExpression jsonSearch(final Object jsonDoc, Object oneOrAll, Object searchStr, @Nullable Object escapeChar) {
         FuncExpUtils.assertTextExp(oneOrAll);
         FuncExpUtils.assertTextExp(searchStr);
@@ -471,7 +471,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// 
     /// @throws CriteriaException throw when argument error
     /// @see #jsonSearch(Object, Object, Object)
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-search">JSON_SEARCH(json_doc, one_or_all, search_str[, escape_char[, path] ...])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-search">JSON_SEARCH(json_doc, one_or_all, search_str\[, escape_char\[, path\] ...\])</a>
     public static SimpleExpression jsonSearch(final Object jsonDoc, Object oneOrAll, Object searchStr,
                                               @Nullable Object escapeChar, final Object path) {
         FuncExpUtils.assertTextExp(oneOrAll);
@@ -530,7 +530,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// 
     /// @throws CriteriaException throw when argument error
     /// @see #jsonSearch(Object, Object, Object)
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-search">JSON_SEARCH(json_doc, one_or_all, search_str[, escape_char[, path] ...])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-search">JSON_SEARCH(json_doc, one_or_all, search_str\[, escape_char\[, path\] ...\])</a>
     public static SimpleExpression jsonSearch(final Object jsonDoc, Object oneOrAll, Object searchStr,
                                               @Nullable Object escapeChar, Object path1, Object path2,
                                               Object... pathVariadic) {
@@ -1021,30 +1021,28 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
 
 
     /// MySQL jsonTable function static method
-    /// <pre>
-    /// <code>
-    /// &#64;Test
-    /// public void jsonTableStatic(final ReactiveLocalSession session) {
-    /// final String jsonDocument;
-    /// jsonDocument = "[{\"a\":\"3\"},{\"a\":2},{\"b\":1},{\"a\":0},{\"a\":[1,2]}]";
-    /// final Select stmt;
-    /// stmt = MySQLs.query()
-    /// .select(s -> s.space("t", PERIOD, ASTERISK))
-    /// .from(jsonTable(jsonDocument, "$[*]", COLUMNS, s -> s.space("rowId", FOR_ORDINALITY)
-    /// .comma("ac", TypeDefs.space(MySQLType.VARCHAR, 100), PATH, "$.a", o -> o.spaceDefault("111").onEmpty().spaceDefault("999").onError())
-    /// .comma("aj", MySQLType.JSON, PATH, "$.a", o -> o.spaceDefault("{\"x\":333}").onEmpty())
-    /// .comma("bx", MySQLType.INT, EXISTS, PATH, "$.b")
-    /// )
-    /// )
-    /// .as("t")
-    /// .asQuery();
-    /// final Supplier<Map<String, Object>> constructor = HashMap::new;
-    /// session.queryObject(stmt, constructor)
-    /// .doOnNext(System.out::println)
-    /// .blockLast();
-    /// }
-    /// </code>
-    /// </pre>
+    /// ```java
+    ///     @Test
+    ///     public void jsonTableStatic(final ReactiveLocalSession session) {
+    ///         final String jsonDocument;
+    ///         jsonDocument = "[{\"a\":\"3\"},{\"a\":2},{\"b\":1},{\"a\":0},{\"a\":[1,2]}]";
+    ///         final Select stmt;
+    ///         stmt = MySQLs.query()
+    ///                 .select(s -> s.space("t", PERIOD, ASTERISK))
+    ///                 .from(jsonTable(jsonDocument, "$[*]", COLUMNS, s -> s.space("rowId", FOR_ORDINALITY)
+    ///                         .comma("ac", TypeDefs.space(MySQLType.VARCHAR, 100), PATH, "$.a", o -> o.spaceDefault("111").onEmpty().spaceDefault("999").onError())
+    ///                         .comma("aj", MySQLType.JSON, PATH, "$.a", o -> o.spaceDefault("{\"x\":333}").onEmpty())
+    ///                         .comma("bx", MySQLType.INT, EXISTS, PATH, "$.b")
+    ///                 )
+    ///                 )
+    ///                 .as("t")
+    ///                 .asQuery();
+    ///         final Supplier<Map<String, Object>> constructor = HashMap::new;
+    ///         session.queryObject(stmt, constructor)
+    ///                 .doOnNext(System.out::println)
+    ///                 .blockLast();
+    ///     }
+    /// ```
     /// @param expr     json expression
     /// 
     /// - {@link Expression} instance
@@ -1059,7 +1057,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// @param consumer the consumer can accept jsonTable static columns clause.
     /// @throws CriteriaException throw when argument error
     /// @see #jsonTable(Object, Object, SQLs.WordColumns, SQLs.SymbolSpace, Consumer) dynamic method
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html#function_json-table">JSON_TABLE(expr, path COLUMNS (column_list) [AS] alias)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html#function_json-table">JSON_TABLE(expr, path COLUMNS (column_list) \[AS\] alias)</a>
     public static _TabularFunction jsonTable(Object expr, Object pathExp, SQLs.WordColumns columns,
                                              Consumer<MySQLFunction._JsonTableColumnSpaceClause> consumer) {
 
@@ -1067,34 +1065,32 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     }
 
     /// MySQL jsonTable function dynamic method
-    /// <pre>
-    /// <code>
-    /// &#64;Test
-    /// public void jsonTableDynamic(final ReactiveLocalSession session) {
-    /// final String jsonDocument;
-    /// jsonDocument = "[{\"a\":\"3\"},{\"a\":2},{\"b\":1},{\"a\":0},{\"a\":[1,2]}]";
-    /// final boolean needAjRow = false;
-    /// final Select stmt;
-    /// stmt = MySQLs.query()
-    /// .select(s -> s.space("t", PERIOD, ASTERISK))
-    /// .from(jsonTable(jsonDocument, "$[*]", COLUMNS, s -> {
-    /// s.column("rowId", FOR_ORDINALITY)
-    /// .column("ac", TypeDefs.space(MySQLType.VARCHAR, 100), PATH, "$.a", o -> o.spaceDefault("111").onEmpty().spaceDefault("999").onError());
-    /// if(needAjRow){
-    /// s.column("aj", MySQLType.JSON, PATH, "$.a", o -> o.spaceDefault("{\"x\":333}").onEmpty())
-    /// }
-    /// s.column("bx", MySQLType.INT, EXISTS, PATH, "$.b")
-    /// })
-    /// )
-    /// .as("t")
-    /// .asQuery();
-    /// final Supplier<Map<String, Object>> constructor = HashMap::new;
-    /// session.queryObject(stmt, constructor)
-    /// .doOnNext(System.out::println)
-    /// .blockLast();
-    /// }
-    /// </code>
-    /// </pre>
+    /// ```java
+    ///     @Test
+    ///     public void jsonTableDynamic(final ReactiveLocalSession session) {
+    ///         final String jsonDocument;
+    ///         jsonDocument = "[{\"a\":\"3\"},{\"a\":2},{\"b\":1},{\"a\":0},{\"a\":[1,2]}]";
+    ///         final boolean needAjRow = false;
+    ///         final Select stmt;
+    ///         stmt = MySQLs.query()
+    ///                 .select(s -> s.space("t", PERIOD, ASTERISK))
+    ///                 .from(jsonTable(jsonDocument, "$[*]", COLUMNS, s -> {
+    ///                     s.column("rowId", FOR_ORDINALITY)
+    ///                             .column("ac", TypeDefs.space(MySQLType.VARCHAR, 100), PATH, "$.a", o -> o.spaceDefault("111").onEmpty().spaceDefault("999").onError());
+    ///                     if(needAjRow){
+    ///                         s.column("aj", MySQLType.JSON, PATH, "$.a", o -> o.spaceDefault("{\"x\":333}").onEmpty())
+    ///                     }
+    ///                     s.column("bx", MySQLType.INT, EXISTS, PATH, "$.b")
+    ///                 })
+    ///                 )
+    ///                 .as("t")
+    ///                 .asQuery();
+    ///         final Supplier<Map<String, Object>> constructor = HashMap::new;
+    ///         session.queryObject(stmt, constructor)
+    ///                 .doOnNext(System.out::println)
+    ///                 .blockLast();
+    ///     }
+    /// ```
     /// @param expr     json expression
     /// 
     /// - {@link Expression} instance
@@ -1110,7 +1106,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// @param consumer the consumer can accept jsonTable dynamic columns clause.
     /// @throws CriteriaException throw when argument error
     /// @see #jsonTable(Object, Object, SQLs.WordColumns, Consumer) static method
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html#function_json-table">JSON_TABLE(expr, path COLUMNS (column_list) [AS] alias)</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html#function_json-table">JSON_TABLE(expr, path COLUMNS (column_list) \[AS\] alias)</a>
     public static _TabularFunction jsonTable(Object expr, Object pathExp, SQLs.WordColumns columns,
                                              SQLs.SymbolSpace space,
                                              Consumer<MySQLFunction._JsonTableColumnConsumerClause> consumer) {

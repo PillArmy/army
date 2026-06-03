@@ -41,8 +41,8 @@ import java.util.Set;
 /// Utility class for resolving **field-level metadata** such as generators, column attributes,
 /// insertability, updatability, and comments.
 ///
-/// <p>Extends `TableMetaUtils` to leverage shared placeholder resolution logic.
-/// This class focuses on field-specific concerns including:</p>
+/// Extends `TableMetaUtils` to leverage shared placeholder resolution logic.
+/// This class focuses on field-specific concerns including:
 /// - **Generator strategy** resolution (`@Generator` annotation + `TableMeta.properties` overrides)
 /// - **Column insertability/updatability** rules based on generator type and reserved fields
 /// - **Column comment** resolution with support for enum types and managed fields
@@ -67,9 +67,9 @@ abstract class FieldMetaUtils extends TableMetaUtils {
 
     /// Implementation of `GeneratorMeta` for **PRECEDE-type** (pre-insert) field generators.
     ///
-    /// <p>Holds the generator Java class, target field metadata, and an immutable parameter map.
+    /// Holds the generator Java class, target field metadata, and an immutable parameter map.
     /// Created during field metadata resolution when a `@Generator` annotation specifies
-    /// a generator class or when a `GeneratorStrategy` resolves to `GeneratorType.PRECEDE`.</p>
+    /// a generator class or when a `GeneratorStrategy` resolves to `GeneratorType.PRECEDE`.
     static final class PreGeneratorMetaImpl implements GeneratorMeta {
 
         private final FieldMeta<?> fieldMeta;
@@ -105,7 +105,7 @@ abstract class FieldMetaUtils extends TableMetaUtils {
     /// Validates that a `@Generator` annotation configured for `GeneratorType.POST` mode
     /// satisfies all constraints for post-generation (database auto-increment) fields.
     ///
-    /// <p>Validation rules:</p>
+    /// Validation rules:
     /// - No generator class or params should be specified (POST uses database auto-id)
     /// - Discriminator fields cannot use POST generation
     /// - Only the `id` field supports POST generation
@@ -147,11 +147,11 @@ abstract class FieldMetaUtils extends TableMetaUtils {
 
     /// Resolves the **generator metadata** for a column-level `@Generator` annotation.
     ///
-    /// <p>This method loads the generator class, builds the parameter map from `@Param` annotations,
-    /// and applies any `@OverrideParams` declared at the table level.</p>
+    /// This method loads the generator class, builds the parameter map from `@Param` annotations,
+    /// and applies any `@OverrideParams` declared at the table level.
     ///
-    /// <p>Reserved Army-managed fields (e.g., `createTime`, `updateTime`) and discriminator
-    /// fields are not allowed to have generators.</p>
+    /// Reserved Army-managed fields (e.g., `createTime`, `updateTime`) and discriminator
+    /// fields are not allowed to have generators.
     ///
     /// @param generator       the `@Generator` annotation on the field
     /// @param field           the Java reflection `Field` object
@@ -179,10 +179,10 @@ abstract class FieldMetaUtils extends TableMetaUtils {
 
     /// Loads a `GeneratorStrategy` instance from `TableMeta.properties` for a given field.
     ///
-    /// <p>The property key follows the pattern:
-    /// `{className}.{fieldName}.GeneratorStrategy`.</p>
+    /// The property key follows the pattern:
+    /// `{className}.{fieldName}.GeneratorStrategy`.
     ///
-    /// <p>The property value format is: `fully.qualified.StrategyClass[:jsonParams]`.</p>
+    /// The property value format is: `fully.qualified.StrategyClass[:jsonParams]`.
     ///
     /// ### Example
     /// ```properties
@@ -249,9 +249,9 @@ abstract class FieldMetaUtils extends TableMetaUtils {
 
     /// Creates a `GeneratorMeta` from a resolved `GeneratorStrategy`.
     ///
-    /// <p>Returns `null` for `POST`-type generators (database auto-increment),
+    /// Returns `null` for `POST`-type generators (database auto-increment),
     /// since they require no application-side generator configuration.
-    /// For `PRECEDE`-type generators, returns a `PreGeneratorMetaImpl`.</p>
+    /// For `PRECEDE`-type generators, returns a `PreGeneratorMetaImpl`.
     ///
     /// @param strategy       the resolved generator strategy
     /// @param fieldMeta      the field metadata
@@ -279,8 +279,8 @@ abstract class FieldMetaUtils extends TableMetaUtils {
 
     /// Determines whether a given field is a **discriminator column** for table inheritance.
     ///
-    /// <p>A field is a discriminator if the table class has an `@Inheritance` annotation
-    /// whose value matches the given field name.</p>
+    /// A field is a discriminator if the table class has an `@Inheritance` annotation
+    /// whose value matches the given field name.
     ///
     /// @param tableJavaType the domain class to check for `@Inheritance`
     /// @param fieldName     the field name to test
@@ -292,7 +292,7 @@ abstract class FieldMetaUtils extends TableMetaUtils {
 
     /// Determines whether a column is **insertable** based on its generator type and role.
     ///
-    /// <p>Insertability rules:</p>
+    /// Insertability rules:
     /// - **No generator**: insertable if it's a discriminator, reserved field, or `@Column(insertable=true)`
     /// - **PRECEDE generator**: always insertable (application generates the value)
     /// - **POST generator**: insertable only for child tables (inheritance)
@@ -325,7 +325,7 @@ abstract class FieldMetaUtils extends TableMetaUtils {
 
     /// Determines whether a column is **updatable** based on its role and table immutability.
     ///
-    /// <p>Update rules:</p>
+    /// Update rules:
     /// - **Never updatable**: discriminator, `id`, `createTime`, or fields on immutable tables
     /// - **Always updatable**: `updateTime`, `version`, `visible`
     /// - **Otherwise**: follows `@Column(updatable=...)` annotation value
@@ -356,7 +356,7 @@ abstract class FieldMetaUtils extends TableMetaUtils {
     /// Resolves the **column comment** from the `@Column.comment()` attribute and
     /// optional `TableMeta.properties` overrides.
     ///
-    /// <p>Comment resolution supports:</p>
+    /// Comment resolution supports:
     /// - `${DEFAULT}`: auto-generate from enum type or camelCase-to-spaced conversion
     /// - `${RUNTIME}`: must be provided in properties (key: `{className}.{fieldName}.Column.comment`)
     /// - Reserved Army fields: automatic comments like `"primary key"`, `"create time"`, etc.

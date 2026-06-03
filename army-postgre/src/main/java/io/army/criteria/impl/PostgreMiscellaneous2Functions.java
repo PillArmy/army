@@ -599,28 +599,24 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
     /// - ordinality (this is optional) {@link LongType},see {@link _WithOrdinalityClause#withOrdinality()}
     /// 
     /// 
-    /// <pre>
     /// select * from unnest('cat:3 fat:2,4 rat:5A'::tsvector) →
     /// lexeme | positions | weights
     /// --------+-----------+---------
     /// cat    | {3}       | {D}
     /// fat    | {2,4}     | {D,D}
     /// rat    | {5}       | {A}
-    /// </pre>
     /// 
     /// If exp is array,then the {@link MappingType} of function returned is the {@link MappingType} of the element.
-    /// <pre>
     /// unnest ( anyarray ) → setof anyelement
     /// Expands an array into a set of rows. The array's elements are read out in storage order.
-    /// unnest(ARRAY[1,2]) →
+    /// unnest(ARRAY\[1,2\]) →
     /// 1
     /// 2
-    /// unnest(ARRAY[['foo','bar'],['baz','quux']]) →
+    /// unnest(ARRAY\[\['foo','bar'\],\['baz','quux'\]\]) →
     /// foo
     /// bar
     /// baz
     /// quux
-    /// </pre>
     /// @param exp must be {@link TypedExpression}, see {@link TypedField} or  {@link Expression#mapTo(MappingType)} or {@link Expression#castTo(MappingType)}
     /// @see <a href="https://www.postgresql.org/docs/current/functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE">unnest ( tsvector ) → setof record ( lexeme text, positions smallint[], weights text )
     /// Expands a tsvector into a set of rows, one per lexeme
@@ -630,9 +626,9 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
     /// </a>
     /// @see <a href="https://www.postgresql.org/docs/current/functions-range.html#MULTIRANGE-FUNCTIONS-TABLE">unnest ( anymultirange ) → setof anyrange
     /// Expands a multirange into a set of ranges. The ranges are read out in storage order (ascending).
-    /// unnest('{[1,2), [3,4)}'::int4multirange) →
-    /// [1,2)
-    /// [3,4)
+    /// unnest('\{\[1,2), \[3,4)\}'::int4multirange) →
+    /// \[1,2)
+    /// \[3,4)
     /// </a>
     public static _TabularWithOrdinalityFunction unnest(final TypedExpression exp) {  // here must be TypedExpression or error
         final String name = "unnest";
@@ -660,15 +656,13 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
 
     /// 
     /// If exp is array,then the {@link MappingType} of function returned is the {@link MappingType} of the element.
-    /// <pre>
-    /// select * from unnest(ARRAY[1,2], ARRAY['foo','bar','baz']) as x(a,b) →
+    /// select * from unnest(ARRAY\[1,2\], ARRAY['foo','bar','baz']) as x(a,b) →
     /// a |  b
     /// ---+-----
     /// 1 | foo
     /// 2 | bar
     /// | baz
-    /// </pre>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">unnest ( anyarray, anyarray [, ... ] ) → setof anyelement, anyelement [, ... ]
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">unnest ( anyarray, anyarray \[, ... \] ) → setof anyelement, anyelement \[, ... \]
     /// Expands multiple arrays (possibly of different data types) into a set of rows. If the arrays are not all the same length then the shorter ones are padded with NULLs. This form is only allowed in a query's FROM clause;
     /// </a>
     public static _TabularWithOrdinalityFunction unnest(Expression array1, Expression array2) {
@@ -681,15 +675,13 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
 
     /// 
     /// If exp is array,then the {@link MappingType} of function returned is the {@link MappingType} of the element.
-    /// <pre>
-    /// select * from unnest(ARRAY[1,2], ARRAY['foo','bar','baz']) as x(a,b) →
+    /// select * from unnest(ARRAY\[1,2\], ARRAY['foo','bar','baz']) as x(a,b) →
     /// a |  b
     /// ---+-----
     /// 1 | foo
     /// 2 | bar
     /// | baz
-    /// </pre>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">unnest ( anyarray, anyarray [, ... ] ) → setof anyelement, anyelement [, ... ]
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">unnest ( anyarray, anyarray \[, ... \] ) → setof anyelement, anyelement \[, ... \]
     /// Expands multiple arrays (possibly of different data types) into a set of rows. If the arrays are not all the same length then the shorter ones are padded with NULLs. This form is only allowed in a query's FROM clause;
     /// </a>
     public static _TabularWithOrdinalityFunction unnest(Expression array1, Expression array2,
@@ -722,15 +714,13 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
 
     /// 
     /// If exp is array,then the {@link MappingType} of function returned is the {@link MappingType} of the element.
-    /// <pre>
-    /// select * from unnest(ARRAY[1,2], ARRAY['foo','bar','baz']) as x(a,b) →
+    /// select * from unnest(ARRAY\[1,2\], ARRAY['foo','bar','baz']) as x(a,b) →
     /// a |  b
     /// ---+-----
     /// 1 | foo
     /// 2 | bar
     /// | baz
-    /// </pre>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">unnest ( anyarray, anyarray [, ... ] ) → setof anyelement, anyelement [, ... ]
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-array.html#ARRAY-FUNCTIONS-TABLE">unnest ( anyarray, anyarray \[, ... \] ) → setof anyelement, anyelement \[, ... \]
     /// Expands multiple arrays (possibly of different data types) into a set of rows. If the arrays are not all the same length then the shorter ones are padded with NULLs. This form is only allowed in a query's FROM clause;
     /// </a>
     public static _TabularWithOrdinalityFunction unnest(final List<Expression> arrayList) {
