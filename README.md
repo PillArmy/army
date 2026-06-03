@@ -22,17 +22,18 @@
 
 ```xml
 
-<dependency>
-    <groupId>io.qinarmy</groupId>
-    <artifactId>army-jdbc</artifactId>
-    <version>0.6.6</version>
-</dependency>
-<dependency>
-<groupId>io.qinarmy</groupId>
-<artifactId>army-postgre</artifactId>
-<version>0.6.6</version>
-</dependency>
-
+<dependencies>
+    <dependency>
+        <groupId>io.qinarmy</groupId>
+        <artifactId>army-jdbc</artifactId>
+        <version>0.6.6</version>
+    </dependency>
+    <dependency>
+        <groupId>io.qinarmy</groupId>
+        <artifactId>army-postgre</artifactId>
+        <version>0.6.6</version>
+    </dependency>
+</dependencies>
 ```
 
 ##### appropriate maven module that contain domain class
