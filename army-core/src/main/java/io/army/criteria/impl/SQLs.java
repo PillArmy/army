@@ -398,8 +398,8 @@ public abstract class SQLs extends SQLSyntax {
     static final UnaryOperator<Insert> UPDATE_IDENTITY = SQLs::identity;
 
 
-    public static StandardInsert._PrimaryOption20Spec<Insert> singleInsert() {
-        return StandardInserts.singleInsert20();
+    public static StandardInsert._PrimaryOptionSpec<Insert> singleInsert() {
+        return StandardInserts.singleInsert();
     }
 
 

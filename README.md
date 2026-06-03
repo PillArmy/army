@@ -112,10 +112,19 @@ public class Stock {
         comments = "stock")
 public abstract class Stock_ {
 
-    public static final TableMeta<Stock> T;
+    private Stock_() {
+        throw new UnsupportedOperationException();
+    }
+
+    public static final SimpleTableMeta<Stock> T;
 
     static {
-        T = _TableMetaFactory.getTableMeta(Stock.class);
+        T = _TableMetaFactory.getSimpleTableMeta(Stock.class);
+
+        final int fieldSize = T.fieldList().size();
+        if (fieldSize != 11) {
+            throw _TableMetaFactory.tableFiledSizeError(Stock.class, fieldSize);
+        }
     }
 
     // Field name constants (type-safe references)

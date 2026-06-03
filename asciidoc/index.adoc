@@ -160,11 +160,20 @@ public class Stock {
         comments = "stock")
 public abstract class Stock_ {
 
-    public static final TableMeta<Stock> T;
+	private Stock_(){
+		throw new UnsupportedOperationException();
+	}
 
-    static {
-        T =  _TableMetaFactory.getTableMeta(Stock.class);
-    }
+	public static final SimpleTableMeta<Stock> T;
+
+	static {
+		T = _TableMetaFactory.getSimpleTableMeta(Stock.class);
+
+		final int fieldSize = T.fieldList().size();
+		if(fieldSize != 11){
+			throw _TableMetaFactory.tableFiledSizeError(Stock.class,fieldSize);
+		}
+	}
 
     // Field name constants (type-safe references)
     public static final String NAME = "name";
@@ -2443,14 +2452,7 @@ stmt1 = SQLs.singleInsert()
         .value(new Stock("GOOGL", "Alphabet"))          // <TS extends T> R value(TS domain)
         .asInsert();
 
-// (B) Lazy single domain — Supplier<T>
-final Insert stmt2;
-stmt2 = SQLs.singleInsert()
-        .insertInto(Stock_.T)
-        .value(() -> lazyLoadStock())                    // <TS extends T> R value(Supplier<TS> supplier)
-        .asInsert();
-
-// (C) Multiple domain objects — List<T>
+// (B) Multiple domain objects — List<T>
 final Insert stmt3;
 stmt3 = SQLs.singleInsert()
         .insertInto(Stock_.T)
@@ -2458,12 +2460,6 @@ stmt3 = SQLs.singleInsert()
         .values(stockList)                                // <TS extends T> R values(List<TS> domainList)
         .asInsert();
 
-// (D) Lazy list of domain objects
-final Insert stmt4;
-stmt4 = SQLs.singleInsert()
-        .insertInto(Stock_.T)
-        .values(() -> loadStockBatch())                  // R values(Supplier<List<TS>> supplier)
-        .asInsert();
 ----
 
 [cols="1,2,3",options="header"]
@@ -2492,10 +2488,10 @@ final Insert stmt;
 stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
         .values()                                          // → _StandardValuesParensClause
-        .parens(row -> row                                 // parens(Consumer<_StaticValueSpaceClause>)
+        .parens(r -> r                                 // parens(Consumer<_StaticValueSpaceClause>)
                 .space(Stock_.exchange, "NYSE")            //   space(FieldMeta<T>, Object)
                 .comma(Stock_.code, "AAPL")                //   comma(FieldMeta<T>, Object)
-                .comma(Stock_.name, SQLs::literalValue, "Apple Inc.") // comma(FieldMeta<T>, BiFunction, E)
+                .comma(Stock_.name, "Apple Inc.") // comma(FieldMeta<T>, BiFunction, E)
                 .ifComma(Stock_.offerPrice, priceSupplier.get()) // ifComma — skipped when null
         )
         .asInsert();
@@ -2510,19 +2506,19 @@ final Insert stmt;
 stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
         .values()                                          // → _StandardValuesParensClause
-        .parens(r1 -> r1                                   // row 1
+        .parens(r -> r                                   // row 1
                 .space(Stock_.exchange, "NYSE")
                 .comma(Stock_.code, "AAPL")
                 .comma(Stock_.name, "Apple Inc.")
         )
         .comma()                                           // → back to _StandardValuesParensClause
-        .parens(r2 -> r2                                   // row 2
+        .parens(r -> r                                    // row 2
                 .space(Stock_.exchange, "NASDAQ")
                 .comma(Stock_.code, "GOOGL")
-                .comma(Stock_.name, SQLs::literalValue, "Alphabet")
+                .comma(Stock_.name, SQLs::param, "Alphabet")
         )
         .comma()
-        .parens(r3 -> r3                                   // row 3
+        .parens(r -> r                                   // row 3
                 .spaceIf(Stock_.exchange, exchangeValue)   // conditional space: skipped when null
                 .comma(Stock_.code, "MSFT")
                 .comma(Stock_.name, "Microsoft")
@@ -2556,16 +2552,17 @@ final Insert stmt;
 stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
         .values(rows -> rows                                // Consumer<ValuesConstructor<Stock>>
-                .parens(r1 -> r1                            // parens(Consumer<_StaticValueSpaceClause<Stock>>)
+                .parens(r -> r                            // parens(Consumer<_StaticValueSpaceClause<Stock>>)
                         .space(Stock_.exchange, "NYSE")    //   same _StaticValueSpaceClause as single-row
                         .comma(Stock_.code, "AAPL")
                         .comma(Stock_.name, "Apple Inc.")
                 )
                 .comma()                                    // comma() → back to ValuesConstructor
-                .parens(r2 -> r2                            // row 2
-                        .space(Stock_.exchange, "NASDAQ")
-                        .comma(Stock_.code, "GOOGL")
-                        .comma(Stock_.name, SQLs::literalValue, "Alphabet")
+               .parens(SQLs.SPACE,s -> {    // row 2 — dynamic column
+                        s.set(Stock_.exchange, "NASDAQ");
+                        s.set(Stock_.code, "GOOGL");
+                        s.set(Stock_.name,  "Alphabet");
+                    }
                 )
         )
         .asInsert();
@@ -2579,17 +2576,18 @@ final Insert stmt;
 stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
         .values(rows -> rows                                // Consumer<ValuesConstructor<Stock>>
-                .parens(SQLs.SPACE, a -> a                  // parens(SQLs.SymbolSpace, Consumer<Assignments<Stock>>)
-                        .set(Stock_.exchange, "NYSE")       //   set(FieldMeta<T>, Expression)
-                        .set(Stock_.code, "AAPL")           //   each set() returns Assignments<T> for chaining
-                        .set(Stock_.name, "Apple Inc.")
-                        .ifSet(Stock_.offerPrice, () -> priceSupplier.get()) // conditional set
+                .parens( s -> s                )
+                        .space(Stock_.exchange, "NYSE")       //   space(FieldMeta<T>, Expression) , return _StaticColumnValueClause
+                        .comma(Stock_.code, "AAPL")           //   comma(FieldMeta<T>, Expression)
+                        .comma(Stock_.name, "Apple Inc.")
+                        .ifComma(Stock_.offerPrice, priceSupplier.get()) // conditional comma , fail -> default value
                 )
                 .comma()
-                .parens(SQLs.SPACE, a -> a                  // row 2 — dynamic
-                        .set(Stock_.exchange, "NASDAQ")
-                        .set(Stock_.code, "GOOGL")
-                        .set(Stock_.name, SQLs::literalValue, "Alphabet")
+               .parens(SQLs.SPACE,s -> {    // row 2 — dynamic column
+                        s.set(Stock_.exchange, "NASDAQ");
+                        s.set(Stock_.code, "GOOGL");
+                        s.set(Stock_.name,  "Alphabet");
+                    }
                 )
         )
         .asInsert();

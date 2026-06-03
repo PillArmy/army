@@ -1032,7 +1032,6 @@ abstract class InsertSupports {
         }
 
 
-
         /// @see #domainListForSingle()
         @Override
         public final <TS extends T> VR values(final @Nullable List<TS> domainList) {
@@ -1261,20 +1260,8 @@ abstract class InsertSupports {
         }
 
         @Override
-        public final R set(final FieldMeta<T> field, final @Nullable Expression value) {
-            this.consumer.accept(field, value);
-            return (R) this;
-        }
-
-        @Override
-        public final R set(FieldMeta<T> field, Supplier<Expression> supplier) {
-            this.consumer.accept(field, supplier.get());
-            return (R) this;
-        }
-
-        @Override
-        public final R set(FieldMeta<T> field, Function<FieldMeta<T>, Expression> function) {
-            this.consumer.accept(field, function.apply(field));
+        public final R set(final FieldMeta<T> field, final @Nullable Object value) {
+            this.consumer.accept(field, Expressions.wrapRight(field, value));
             return (R) this;
         }
 
@@ -1286,56 +1273,15 @@ abstract class InsertSupports {
         }
 
         @Override
-        public final <E> R set(FieldMeta<T> field, SQLs.SymbolEqual equal,
-                               BiFunction<FieldMeta<T>, E, Expression> valueOperator, Supplier<E> supplier) {
-            this.consumer.accept(field, valueOperator.apply(field, supplier.get()));
-            return (R) this;
-        }
-
-        @Override
-        public final <K, V> R set(FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> valueOperator,
-                                  Function<K, V> function, K key) {
-            this.consumer.accept(field, valueOperator.apply(field, function.apply(key)));
-            return (R) this;
-        }
-
-        @Override
-        public final R ifSet(FieldMeta<T> field, Supplier<Expression> supplier) {
-            final Expression expression;
-            expression = supplier.get();
-            if (expression != null) {
-                this.consumer.accept(field, expression);
-            }
-            return (R) this;
-        }
-
-        @Override
-        public final R ifSet(FieldMeta<T> field, Function<FieldMeta<T>, Expression> function) {
-            final Expression expression;
-            expression = function.apply(field);
-            if (expression != null) {
-                this.consumer.accept(field, expression);
-            }
-            return (R) this;
-        }
-
-
-        @Override
-        public final <E> R ifSet(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> valueOperator
-                , Supplier<E> supplier) {
-            final E value;
-            value = supplier.get();
+        public final R ifSet(FieldMeta<T> field, @Nullable Object value) {
             if (value != null) {
-                this.consumer.accept(field, valueOperator.apply(field, value));
+                this.consumer.accept(field, Expressions.wrapRight(field, value));
             }
             return (R) this;
         }
 
         @Override
-        public final <K, V> R ifSet(FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> valueOperator
-                , Function<K, V> function, K key) {
-            final V value;
-            value = function.apply(key);
+        public final <E> R ifSet(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> valueOperator, @Nullable E value) {
             if (value != null) {
                 this.consumer.accept(field, valueOperator.apply(field, value));
             }
@@ -1377,7 +1323,7 @@ abstract class InsertSupports {
         }
 
         @Override
-        public final SR set(final FieldMeta<T> field, final @Nullable Expression value) {
+        public final SR set(final FieldMeta<T> field, final @Nullable Object value) {
 
             List<_Pair<FieldMeta<?>, _Expression>> pairList = this.assignmentPairList;
             Map<FieldMeta<?>, _Expression> assignmentMap = this.assignmentMap;
@@ -1385,7 +1331,6 @@ abstract class InsertSupports {
                 if (((ComplexInsertValuesClause<?, ?, ?, ?>) this).insertMode != null) {
                     throw ContextStack.clearStackAndCastCriteriaApi();
                 }
-                assert ((ComplexInsertValuesClause<?, ?, ?, ?>) this).insertMode == null;
                 pairList = _Collections.arrayList();
                 this.assignmentPairList = pairList;
                 assignmentMap = _Collections.hashMap();
@@ -1393,31 +1338,20 @@ abstract class InsertSupports {
             } else if (!(pairList instanceof ArrayList)) {
                 throw ContextStack.clearStackAndCastCriteriaApi();
             }
-            if (value == null) {
-                throw ContextStack.nullPointer(this.context);
-            } else if (!(value instanceof ArmyExpression)) {
-                throw ContextStack.nonArmyExp(this.context);
-            } else {
-                this.validateField(field, (ArmyExpression) value);
-            }
+
+            final ArmyExpression right;
+            right = (ArmyExpression) Expressions.wrapRight(field, value);
+
+            this.validateField(field, right);
+
             assert assignmentMap != null;
-            if (assignmentMap.putIfAbsent(field, (ArmyExpression) value) != null) {
+            if (assignmentMap.putIfAbsent(field, right) != null) {
                 throw duplicationValuePair(this.context, field);
             }
-            pairList.add(_Pair.create(field, (ArmyExpression) value));
+            pairList.add(_Pair.create(field, right));
             return (SR) this;
         }
 
-
-        @Override
-        public final SR set(FieldMeta<T> field, Supplier<Expression> supplier) {
-            return this.set(field, supplier.get());
-        }
-
-        @Override
-        public final SR set(FieldMeta<T> field, Function<FieldMeta<T>, Expression> function) {
-            return this.set(field, function.apply(field));
-        }
 
         @Override
         public final <E> SR set(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> valueOperator, @Nullable E value) {
@@ -1425,56 +1359,17 @@ abstract class InsertSupports {
         }
 
         @Override
-        public final <E> SR set(FieldMeta<T> field, SQLs.SymbolEqual equal,
-                                BiFunction<FieldMeta<T>, E, Expression> valueOperator, Supplier<E> supplier) {
-            return this.set(field, valueOperator.apply(field, supplier.get()));
-        }
-
-        @Override
-        public final <K, V> SR set(FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> valueOperator,
-                                   Function<K, V> function, K key) {
-            return this.set(field, valueOperator.apply(field, function.apply(key)));
-        }
-
-        @Override
-        public final SR ifSet(FieldMeta<T> field, Supplier<Expression> supplier) {
-            final Expression expression;
-            expression = supplier.get();
-            if (expression != null) {
-                this.set(field, expression);
-            }
-            return (SR) this;
-        }
-
-        @Override
-        public final SR ifSet(FieldMeta<T> field, Function<FieldMeta<T>, Expression> function) {
-            final Expression expression;
-            expression = function.apply(field);
-            if (expression != null) {
-                this.set(field, expression);
-            }
-            return (SR) this;
-        }
-
-
-        @Override
-        public final <E> SR ifSet(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> valueOperator
-                , Supplier<E> supplier) {
-            final E value;
-            value = supplier.get();
+        public final SR ifSet(FieldMeta<T> field, @Nullable Object value) {
             if (value != null) {
-                this.set(field, valueOperator.apply(field, value));
+                set(field, value);
             }
             return (SR) this;
         }
 
         @Override
-        public final <K, V> SR ifSet(FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> valueOperator,
-                                     Function<K, V> function, K key) {
-            final V value;
-            value = function.apply(key);
+        public final <E> SR ifSet(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> valueOperator, @Nullable E value) {
             if (value != null) {
-                this.set(field, valueOperator.apply(field, value));
+                set(field, valueOperator.apply(field, value));
             }
             return (SR) this;
         }
@@ -1483,7 +1378,7 @@ abstract class InsertSupports {
         public final VR sets(Consumer<Assignments<T>> consumer) {
             this.ifSets(consumer);
             final List<_Pair<FieldMeta<?>, _Expression>> list = this.assignmentPairList;
-            if (list == null || list.size() == 0) {
+            if (list == null || list.isEmpty()) {
                 throw ContextStack.criteriaError(this.context, "You don't assignment any value.");
             }
             return (VR) this;
@@ -1494,7 +1389,7 @@ abstract class InsertSupports {
             if (this.assignmentPairList != null || ((ComplexInsertValuesClause<?, ?, ?, ?>) this).insertMode != null) {
                 throw ContextStack.clearStackAndCastCriteriaApi();
             }
-            consumer.accept(new AssignmentsImpl<>(this.context, this::set));
+            ClauseUtils.invokeConsumer(new AssignmentsImpl<>(this.context, this::set), consumer);
             this.endStaticAssignmentClauseIfNeed();
             return (VR) this;
         }

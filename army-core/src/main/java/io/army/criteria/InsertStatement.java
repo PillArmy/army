@@ -328,26 +328,14 @@ public interface InsertStatement extends DmlStatement {
     /// ,because army don't guarantee compatibility to future distribution.
     interface _StaticAssignmentSetClause<T, R> extends Item {
 
-        R set(FieldMeta<T> field, Expression value);
-
-        R set(FieldMeta<T> field, Supplier<Expression> supplier);
-
-        R set(FieldMeta<T> field, Function<FieldMeta<T>, Expression> function);
+        R set(FieldMeta<T> field, @Nullable Object value);
 
         <E> R set(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> valueOperator, @Nullable E value);
 
-        <E> R set(FieldMeta<T> field, SQLs.SymbolEqual equal, BiFunction<FieldMeta<T>, E, Expression> valueOperator, Supplier<E> supplier);
+        R ifSet(FieldMeta<T> field, @Nullable Object value);
 
-        <K, V> R set(FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> valueOperator, Function<K, V> function, K key);
+        <E> R ifSet(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> valueOperator, @Nullable E value);
 
-
-        R ifSet(FieldMeta<T> field, Supplier<Expression> supplier);
-
-        R ifSet(FieldMeta<T> field, Function<FieldMeta<T>, Expression> function);
-
-        <E> R ifSet(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> valueOperator, Supplier<E> supplier);
-
-        <K, V> R ifSet(FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> valueOperator, Function<K, V> function, K key);
 
     }
 
