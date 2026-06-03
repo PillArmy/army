@@ -172,7 +172,13 @@
                     // Recursively process child ul
                     makeCollapsible(childUl);
                 } else {
-                    // Leaf node — no children
+                    // Leaf node — insert invisible toggle placeholder for text alignment
+                    var a = li.querySelector(':scope > a');
+                    var toggle = document.createElement('span');
+                    toggle.className = 'toc-toggle';
+                    if (a) {
+                        a.parentNode.insertBefore(toggle, a);
+                    }
                     li.classList.add('leaf');
                 }
             });
