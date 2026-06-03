@@ -4,14 +4,195 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Asciidoctor 2.0.18">
-    <meta name="author" content="# :toclevels: 4">
+    <meta name="generator" content="Asciidoctor 2.0.23">
+    <meta name="author" content="zoro&lt;zoro@qinarmy.io&gt;">
     <title>Army — A Better Way to Write SQL in Java, A Better Blocking ORM Framework</title>
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
     <link rel="stylesheet" href="./asciidoctor.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="./coderay-asciidoctor.css">
+    <style>
+        /* ── Header link icons (top-right corner) ── */
+        #header {
+            position: relative;
+        }
+
+        #header .army-header-links {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            gap: 10px;
+            padding: 6px 12px;
+        }
+
+        #header .army-header-links a {
+            color: #999;
+            font-size: 26px;
+            text-decoration: none;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        #header .army-header-links a:hover {
+            color: #555;
+        }
+
+        /* ── Collapsible TOC styles ── */
+        #toc ul {
+            list-style: none;
+            padding-left: 1.2em;
+        }
+
+        /* Toggle indicator: ▶ collapsed, ▼ expanded */
+        #toc .toc-toggle {
+            cursor: pointer;
+            display: inline-block;
+            width: 1.0em;
+            margin-right: 0.2em;
+            text-align: center;
+            user-select: none;
+            font-size: 0.85em;
+            color: #666;
+            vertical-align: baseline;
+        }
+
+        #toc .toc-toggle:hover {
+            color: #333;
+        }
+
+        /* Hide children when collapsed */
+        #toc li.collapsed > ul {
+            display: none;
+        }
+
+        /* Leaf nodes (no children) — no toggle icon */
+        #toc li.leaf > .toc-toggle {
+            visibility: hidden;
+        }
+
+        /* ── Expand / Collapse All toggle button ── */
+        #toc .toc-actions {
+            margin-bottom: 0.4em;
+        }
+
+        #toc .toc-toggle-all {
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background: #f5f5f5;
+            color: #555;
+            font-size: 0.75em;
+            padding: 1px 6px;
+            line-height: 1.4;
+            user-select: none;
+        }
+
+        #toc .toc-toggle-all:hover {
+            background: #e8e8e8;
+            color: #333;
+        }
+    </style>
+
+    <script>
+        (function () {
+            document.addEventListener('DOMContentLoaded', function () {
+                // ── Inject header link icons ──
+                var header = document.getElementById('header');
+                if (header) {
+                    var links = document.createElement('div');
+                    links.className = 'army-header-links';
+                    links.innerHTML =
+                        '<a href="https://github.com/PillArmy/army" target="_blank" title="GitHub">' +
+                        '<i class="fa fa-github"></i></a>' +
+                        '<a href="https://mvnrepository.com/artifact/io.qinarmy" target="_blank" title="Maven Central">' +
+                        '<i class="fa fa-cube"></i></a>';
+                    header.appendChild(links);
+                }
+
+                var toc = document.getElementById('toc');
+                if (!toc) return;
+                var ul = toc.querySelector('ul.sectlevel1');
+                if (!ul) return;
+                makeCollapsible(ul);
+
+                // ── Insert single Expand / Collapse All toggle after #toctitle ──
+                var titleEl = toc.querySelector('#toctitle');
+                if (titleEl) {
+                    var actions = document.createElement('div');
+                    actions.className = 'toc-actions';
+                    var toggleAllBtn = document.createElement('span');
+                    toggleAllBtn.className = 'toc-toggle-all';
+                    toggleAllBtn.textContent = '\u229F';          // ⊟
+                    toggleAllBtn.setAttribute('title', '\u6536\u8D77\u5168\u90E8');  // 收起全部
+
+                    toggleAllBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        toggleAll(toc, toggleAllBtn);
+                    });
+
+                    actions.appendChild(toggleAllBtn);
+                    toc.insertBefore(actions, titleEl.nextSibling);
+                }
+            });
+
+            function toggleAll(toc, btn) {
+                var toggles = toc.querySelectorAll('.toc-toggle');
+                // If any node is expanded → collapse all, else → expand all
+                var anyExpanded = false;
+                toggles.forEach(function (toggle) {
+                    if (!toggle.parentNode.classList.contains('collapsed')) {
+                        anyExpanded = true;
+                    }
+                });
+                var collapse = anyExpanded;
+                toggles.forEach(function (toggle) {
+                    var li = toggle.parentNode;
+                    if (collapse) {
+                        li.classList.add('collapsed');
+                        toggle.textContent = '\u25B6';  // ▶
+                    } else {
+                        li.classList.remove('collapsed');
+                        toggle.textContent = '\u25BC';  // ▼
+                    }
+                });
+                btn.textContent = collapse ? '\u229E' : '\u229F';  // ⊞ or ⊟
+                btn.setAttribute('title', collapse ? '\u5C55\u5F00\u5168\u90E8' : '\u6536\u8D77\u5168\u90E8');
+            }
+
+            function makeCollapsible(ul) {
+                var items = ul.querySelectorAll(':scope > li');
+                items.forEach(function (li) {
+                    var childUl = li.querySelector(':scope > ul');
+                    if (childUl) {
+                        // Has children — insert toggle indicator
+                        var a = li.querySelector(':scope > a');
+                        var toggle = document.createElement('span');
+                        toggle.className = 'toc-toggle';
+                        toggle.textContent = '\u25BC'; // ▼ expanded by default
+
+                        toggle.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            var isCollapsed = li.classList.toggle('collapsed');
+                            toggle.textContent = isCollapsed ? '\u25B6' : '\u25BC'; // ▶ collapsed, ▼ expanded
+                        });
+
+                        if (a) {
+                            a.parentNode.insertBefore(toggle, a);
+                        }
+
+                        // Recursively process child ul
+                        makeCollapsible(childUl);
+                    } else {
+                        // Leaf node — no children
+                        li.classList.add('leaf');
+                    }
+                });
+            }
+        })();
+    </script>
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
@@ -20,7 +201,7 @@
         <span id="author" class="author">zoro&lt;zoro@qinarmy.io&gt;</span><br>
         <span id="email" class="email"><a href="mailto:zoro@qinarmy.io">zoro@qinarmy.io</a></span><br>
         <span id="revnumber">version 0.6.8-SNAPSHOT,</span>
-        <span id="revdate">2026-06-03</span>
+        <span id="revdate">2026-06-04</span>
         <br><span id="revremark">Snapshot</span>
     </div>
     <div id="toc" class="toc2">
@@ -36,10 +217,22 @@
             </li>
             <li><a href="#_quick_start">2. Quick Start</a>
                 <ul class="sectlevel2">
-                    <li><a href="#_maven_dependency_configuration">2.1. Maven Dependency Configuration</a></li>
+                    <li><a href="#_maven_dependency_configuration">2.1. Maven Dependency Configuration</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_core_dependency">2.1.1. Core Dependency</a></li>
+                            <li><a href="#_annotation_processor_configuration">2.1.2. Annotation Processor
+                                Configuration</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#_your_first_domain_class">2.2. Your First Domain Class</a></li>
                     <li><a href="#_compile_time_metamodel_generation">2.3. Compile-Time Metamodel Generation</a></li>
-                    <li><a href="#_creating_a_sessionfactory">2.4. Creating a SessionFactory</a></li>
+                    <li><a href="#_creating_a_sessionfactory">2.4. Creating a SessionFactory</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_blocking_mode">2.4.1. Blocking Mode</a></li>
+                            <li><a href="#_whats_required_vs_optional">2.4.2. What&#8217;s Required vs. Optional</a>
+                            </li>
+                        </ul>
+                    </li>
                     <li><a href="#_your_first_insert">2.5. Your First Insert</a></li>
                     <li><a href="#_your_first_query">2.6. Your First Query</a></li>
                 </ul>
@@ -47,88 +240,358 @@
             <li><a href="#_domain_model_definition">3. Domain Model Definition</a>
                 <ul class="sectlevel2">
                     <li><a href="#_annotation_overview">3.1. Annotation Overview</a></li>
-                    <li><a href="#_table_table_mapping">3.2. @Table — Table Mapping</a></li>
-                    <li><a href="#_column_column_mapping">3.3. @Column — Column Mapping</a></li>
+                    <li><a href="#_table_table_mapping">3.2. @Table — Table Mapping</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_attributes">3.2.1. Attributes</a></li>
+                            <li><a href="#_examples_from_stock_data">3.2.2. Examples from stock-data</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#_column_column_mapping">3.3. @Column — Column Mapping</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_built_in_conventions_zero_config">3.3.1. Built-in Conventions
+                                (Zero-Config)</a></li>
+                            <li><a href="#_reserved_fields">3.3.2. Reserved Fields</a></li>
+                            <li><a href="#_attributes_2">3.3.3. Attributes</a></li>
+                            <li><a href="#_override_via_tablemeta_properties">3.3.4. Override via
+                                TableMeta.properties</a></li>
+                            <li><a href="#_examples_from_stock_data_2">3.3.5. Examples from stock-data</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#_generator_generatortype_field_value_generation">3.4. @Generator / @GeneratorType —
-                        Field Value Generation</a></li>
+                        Field Value Generation</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_generator_types">3.4.1. Generator Types</a></li>
+                            <li><a href="#_override_via_tablemeta_properties_2">3.4.2. Override via
+                                TableMeta.properties</a></li>
+                            <li><a href="#_attributes_3">3.4.3. Attributes</a></li>
+                            <li><a href="#_examples_from_stock_data_3">3.4.4. Examples from stock-data</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#_param_fieldparam_overrideparams_generator_parameters">3.5. @Param / @FieldParam /
                         @OverrideParams — Generator Parameters</a></li>
-                    <li><a href="#_mapping_custom_type_mapping">3.6. @Mapping — Custom Type Mapping</a></li>
-                    <li><a href="#_index_index_definitions">3.7. @Index — Index Definitions</a></li>
+                    <li><a href="#_mapping_custom_type_mapping">3.6. @Mapping — Custom Type Mapping</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_attributes_4">3.6.1. Attributes</a></li>
+                            <li><a href="#_examples_from_stock_data_4">3.6.2. Examples from stock-data</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#_index_index_definitions">3.7. @Index — Index Definitions</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_attributes_5">3.7.1. Attributes</a></li>
+                            <li><a href="#_index_name_convention">3.7.2. Index Name Convention</a></li>
+                            <li><a href="#_examples_from_stock_data_5">3.7.3. Examples from stock-data</a></li>
+                            <li><a href="#_indexfield_per_column_index_configuration">3.7.4. @IndexField — Per-Column
+                                Index Configuration</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#_mappedsuperclass_the_base_domain_pattern">3.8. @MappedSuperclass — The Base Domain
-                        Pattern</a></li>
+                        Pattern</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_the_inheritance_hierarchy">3.8.1. The Inheritance Hierarchy</a></li>
+                            <li><a href="#_code_example">3.8.2. Code Example</a></li>
+                            <li><a href="#_key_points">3.8.3. Key Points</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#_inheritance_discriminatorvalue_single_table_inheritance">3.9. @Inheritance /
                         @DiscriminatorValue — Single-Table Inheritance</a></li>
                     <li><a href="#_ddlmode_ddl_generation_control">3.10. @DdlMode — DDL Generation Control</a></li>
                     <li><a href="#_codec_reserved_for_future_use">3.11. @Codec — Reserved for Future Use</a></li>
                     <li><a href="#_tablemeta_properties_runtime_configuration">3.12. TableMeta.properties — Runtime
-                        Configuration</a></li>
+                        Configuration</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_placeholder_expressions_reference">3.12.1. Placeholder Expressions
+                                Reference</a></li>
+                            <li><a href="#_what_happens_when_not_configured">3.12.2. What Happens When Not
+                                Configured</a></li>
+                            <li><a href="#_usage_examples">3.12.3. Usage Examples</a></li>
+                            <li><a href="#_property_key_format">3.12.4. Property Key Format</a></li>
+                            <li><a href="#_complete_configuration_example">3.12.5. Complete Configuration Example</a>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </li>
             <li><a href="#_mappingtype_java_to_database_type_mapping">4. MappingType — Java-to-Database Type Mapping</a>
                 <ul class="sectlevel2">
                     <li><a href="#_overview_mappingtype_interface">4.1. Overview: MappingType Interface</a></li>
-                    <li><a href="#_default_type_inference">4.2. Default Type Inference</a></li>
+                    <li><a href="#_default_type_inference">4.2. Default Type Inference</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_built_in_java_to_mappingtype_lookup">4.2.1. Built-in Java-to-MappingType
+                                Lookup</a></li>
+                            <li><a href="#_enum_type_inference">4.2.2. Enum Type Inference</a>
+                                <ul class="sectlevel4">
+                                    <li><a href="#_nameenumtype_default_enum_strategy">NameEnumType — Default Enum
+                                        Strategy</a></li>
+                                    <li><a href="#_textenumtype_text_based_enum_with_custom_label">TextEnumType —
+                                        Text-Based Enum with Custom Label</a></li>
+                                    <li><a href="#_codeenumtype_integer_code_enum">CodeEnumType — Integer-Code Enum</a>
+                                    </li>
+                                    <li><a href="#_postgresql_native_enum_via_definedtype">PostgreSQL Native ENUM via
+                                        @DefinedType</a></li>
+                                    <li><a href="#_special_enums_month_and_dayofweek">Special Enums: Month and
+                                        DayOfWeek</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
                     <li><a href="#_navigation_stock_data_example">4.3. Navigation: stock-data Example</a></li>
                     <li><a href="#_mapping_annotation_explicit_mapping_control">4.4. @Mapping Annotation: Explicit
-                        Mapping Control</a></li>
-                    <li><a href="#_array_types">4.5. Array Types</a></li>
+                        Mapping Control</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_annotation_definition">4.4.1. Annotation Definition</a></li>
+                            <li><a href="#_resolution_priority">4.4.2. Resolution Priority</a></li>
+                            <li><a href="#_example_mapping_a_string_to_text_long_content">4.4.3. Example: Mapping a
+                                String to TEXT (Long Content)</a></li>
+                            <li><a href="#_example_mapping_a_string_to_char_fixed_length">4.4.4. Example: Mapping a
+                                String to CHAR (Fixed-Length)</a></li>
+                            <li><a href="#_example_runtime_configurable_mapping">4.4.5. Example: Runtime-Configurable
+                                Mapping</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#_array_types">4.5. Array Types</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_default_array_inference">4.5.1. Default Array Inference</a></li>
+                            <li><a href="#_custom_array_mapping">4.5.2. Custom Array Mapping</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#_composite_type_postgresql_row_types">4.6. Composite Type (PostgreSQL Row Types)</a>
                     </li>
-                    <li><a href="#_vector_type_pgvector_embeddings">4.7. Vector Type (pgvector Embeddings)</a></li>
-                    <li><a href="#_json_jsonb_types">4.8. JSON / JSONB Types</a></li>
+                    <li><a href="#_vector_type_pgvector_embeddings">4.7. Vector Type (pgvector Embeddings)</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_vector_store_example_army_spring_ai_vector_store">4.7.1. Vector Store Example
+                                (army-spring-ai-vector-store)</a></li>
+                            <li><a href="#_vector_store_domain_subclass_example">4.7.2. Vector Store Domain Subclass
+                                Example</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#_json_jsonb_types">4.8. JSON / JSONB Types</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_metadata_storage_army_spring_ai_vector_store">4.8.1. Metadata Storage
+                                (army-spring-ai-vector-store)</a></li>
+                            <li><a href="#_specialized_data_storage_army_spring_ai_model_chat_memory">4.8.2. Specialized
+                                Data Storage (army-spring-ai-model-chat-memory)</a></li>
+                            <li><a href="#_list_storage_in_jsonb_uploadrecord">4.8.3. List Storage in JSONB
+                                (UploadRecord)</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#_text_vs_varchar_choosing_the_right_string_mapping">4.9. Text vs Varchar — Choosing
                         the Right String Mapping</a></li>
                     <li><a href="#_how_typemappinghandler_resolves_to_sql_types">4.10. How TypeMappingHandler Resolves
                         to SQL Types</a></li>
                     <li><a href="#_custom_mappingtype_extending_the_type_system">4.11. Custom MappingType — Extending
-                        the Type System</a></li>
+                        the Type System</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_step_1_choose_the_right_base_class">4.11.1. Step 1: Choose the Right Base
+                                Class</a></li>
+                            <li><a href="#_step_2_implement_the_corresponding_sql_marker_interface">4.11.2. Step 2:
+                                Implement the Corresponding <code>Sql*</code> Marker Interface</a></li>
+                            <li><a href="#_step_3_follow_the_implementation_pattern">4.11.3. Step 3: Follow the
+                                Implementation Pattern</a></li>
+                            <li><a href="#_array_type_example">4.11.4. Array Type Example</a></li>
+                            <li><a href="#_quick_checklist">4.11.5. Quick Checklist</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#_full_mapping_chain_summary">4.12. Full Mapping Chain Summary</a></li>
                 </ul>
             </li>
             <li><a href="#_criteria_api_writing_sql">5. Criteria API — Writing SQL</a>
                 <ul class="sectlevel2">
-                    <li><a href="#_standard_criteria_api">5.1. Standard Criteria API</a></li>
-                    <li><a href="#_expression_building">5.2. Expression Building</a></li>
-                    <li><a href="#_cte_common_table_expressions">5.3. CTE (Common Table Expressions)</a></li>
-                    <li><a href="#_subqueries">5.4. Subqueries</a></li>
-                    <li><a href="#_mysql_dialect_api">5.5. MySQL Dialect API</a></li>
-                    <li><a href="#_postgresql_dialect_api">5.6. PostgreSQL Dialect API</a></li>
+                    <li><a href="#_standard_criteria_api">5.1. Standard Criteria API</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_the_sqls_utility_class">5.1.1. The SQLs Utility Class</a></li>
+                            <li><a href="#_select_statements">5.1.2. SELECT Statements</a>
+                                <ul class="sectlevel4">
+                                    <li><a href="#_basic_select">Basic SELECT</a></li>
+                                    <li><a href="#_full_clause_chain">Full Clause Chain</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#_insert_statements">5.1.3. INSERT Statements</a>
+                                <ul class="sectlevel4">
+                                    <li><a href="#_single_table_insert">Single Table INSERT</a></li>
+                                    <li><a href="#_child_insert_parent_child_hierarchy">Child INSERT (Parent-Child
+                                        Hierarchy)</a></li>
+                                    <li><a href="#_insert_options">INSERT Options</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#_update_statements">5.1.4. UPDATE Statements</a>
+                                <ul class="sectlevel4">
+                                    <li><a href="#_single_table_update">Single Table UPDATE</a></li>
+                                    <li><a href="#_domain_update">Domain UPDATE</a></li>
+                                    <li><a href="#_batch_update">Batch UPDATE</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#_delete_statements">5.1.5. DELETE Statements</a>
+                                <ul class="sectlevel4">
+                                    <li><a href="#_single_table_delete">Single Table DELETE</a></li>
+                                    <li><a href="#_domain_delete">Domain DELETE</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#_standard_functions">5.1.6. Standard Functions</a>
+                                <ul class="sectlevel4">
+                                    <li><a href="#_aggregate_functions">Aggregate Functions</a></li>
+                                    <li><a href="#_scalar_functions">Scalar Functions</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#_standard_window_functions">5.1.7. Standard Window Functions</a></li>
+                            <li><a href="#_conditional_expressions">5.1.8. Conditional Expressions</a></li>
+                            <li><a href="#_logical_operators">5.1.9. Logical Operators</a></li>
+                            <li><a href="#_default_parameter_binding">5.1.10. Default Parameter Binding</a>
+                                <ul class="sectlevel4">
+                                    <li><a href="#_the_default_path_field_equalvalue">The default path: <code>field.equal(value)</code></a>
+                                    </li>
+                                    <li><a href="#_what_happens_with_different_value_types">What happens with different
+                                        value types</a></li>
+                                    <li><a href="#_controlling_the_binding_mode_literalmode">Controlling the binding
+                                        mode: LiteralMode</a></li>
+                                    <li><a href="#_explicit_binding_with_bifunction_overloads">Explicit binding with
+                                        BiFunction overloads</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="#_cte_common_table_expressions">5.2. CTE (Common Table Expressions)</a></li>
+                    <li><a href="#_subqueries">5.3. Subqueries</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_scalar_subquery">5.3.1. Scalar Subquery</a></li>
+                            <li><a href="#_table_subquery">5.3.2. Table Subquery</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#_mysql_dialect_api">5.4. MySQL Dialect API</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_the_mysqls_utility_class">5.4.1. The MySQLs Utility Class</a></li>
+                            <li><a href="#_mysql_specific_features">5.4.2. MySQL-Specific Features</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#_postgresql_dialect_api">5.5. PostgreSQL Dialect API</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_the_postgres_utility_class">5.5.1. The Postgres Utility Class</a></li>
+                            <li><a href="#_postgresql_specific_features">5.5.2. PostgreSQL-Specific Features</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </li>
             <li><a href="#_session_api_executing_sql">6. Session API — Executing SQL</a>
                 <ul class="sectlevel2">
-                    <li><a href="#_sessionfactory_configuration">6.1. SessionFactory Configuration</a></li>
-                    <li><a href="#_session_operations">6.2. Session Operations</a></li>
-                    <li><a href="#_transaction_management">6.3. Transaction Management</a></li>
+                    <li><a href="#_sessionfactory_configuration">6.1. SessionFactory Configuration</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_configuration_options">6.1.1. Configuration Options</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#_session_operations">6.2. Session Operations</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_obtaining_a_session">6.2.1. Obtaining a Session</a>
+                                <ul class="sectlevel4">
+                                    <li><a href="#_local_session_recommended_for_short_lived_operations">Local Session
+                                        (recommended for short-lived operations)</a></li>
+                                    <li><a href="#_regular_session">Regular Session</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#_query_operations">6.2.2. Query Operations</a></li>
+                            <li><a href="#_update_operations">6.2.3. Update Operations</a></li>
+                            <li><a href="#_batch_operations">6.2.4. Batch Operations</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#_transaction_management">6.3. Transaction Management</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_blocking_mode_transactions">6.3.1. Blocking-Mode Transactions</a></li>
+                            <li><a href="#_savepoints">6.3.2. Savepoints</a></li>
+                            <li><a href="#_transaction_isolation_levels">6.3.3. Transaction Isolation Levels</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </li>
             <li><a href="#_core_architecture">7. Core Architecture</a>
                 <ul class="sectlevel2">
-                    <li><a href="#_module_breakdown">7.1. Module Breakdown</a></li>
-                    <li><a href="#_architectural_layers">7.2. Architectural Layers</a></li>
+                    <li><a href="#_module_breakdown">7.1. Module Breakdown</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_army_core_core_module">7.1.1. army-core (Core Module)</a></li>
+                            <li><a href="#_army_annotation_annotation_module">7.1.2. army-annotation (Annotation
+                                Module)</a></li>
+                            <li><a href="#_army_mysql_mysql_dialect_module">7.1.3. army-mysql (MySQL Dialect Module)</a>
+                            </li>
+                            <li><a href="#_army_postgre_postgresql_dialect_module">7.1.4. army-postgre (PostgreSQL
+                                Dialect Module)</a></li>
+                            <li><a href="#_army_oracle_oracle_dialect_module">7.1.5. army-oracle (Oracle Dialect
+                                Module)</a></li>
+                            <li><a href="#_army_sqlite_sqlite_dialect_module">7.1.6. army-sqlite (SQLite Dialect
+                                Module)</a></li>
+                            <li><a href="#_army_jdbc_jdbc_executor_module">7.1.7. army-jdbc (JDBC Executor Module)</a>
+                            </li>
+                            <li><a href="#_army_spring_spring_integration_module">7.1.8. army-spring (Spring Integration
+                                Module)</a></li>
+                            <li><a href="#_army_sync_blocking_mode_module">7.1.9. army-sync (Blocking Mode Module)</a>
+                            </li>
+                            <li><a href="#_army_struct_foundation_structures_module">7.1.10. army-struct (Foundation
+                                Structures Module)</a></li>
+                            <li><a href="#_army_spring_ai_model_chat_memory_army_spring_ai_vector_store">7.1.11.
+                                army-spring-ai-model-chat-memory / army-spring-ai-vector-store</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#_architectural_layers">7.2. Architectural Layers</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_presentation_layer_criteria_api">7.2.1. Presentation Layer (Criteria API)</a>
+                            </li>
+                            <li><a href="#_parsing_layer_dialect_parser">7.2.2. Parsing Layer (Dialect Parser)</a></li>
+                            <li><a href="#_metadata_layer_meta">7.2.3. Metadata Layer (Meta)</a></li>
+                            <li><a href="#_execution_layer_executor">7.2.4. Execution Layer (Executor)</a></li>
+                            <li><a href="#_session_layer_session">7.2.5. Session Layer (Session)</a></li>
+                            <li><a href="#_type_mapping_layer_mapping">7.2.6. Type Mapping Layer (Mapping)</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </li>
             <li><a href="#_type_mapping_system">8. Type Mapping System</a>
                 <ul class="sectlevel2">
-                    <li><a href="#_built_in_type_mappings">8.1. Built-in Type Mappings</a></li>
+                    <li><a href="#_built_in_type_mappings">8.1. Built-in Type Mappings</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_numeric_types">8.1.1. Numeric Types</a></li>
+                            <li><a href="#_string_types">8.1.2. String Types</a></li>
+                            <li><a href="#_date_time_types">8.1.3. Date-Time Types</a></li>
+                            <li><a href="#_other_types">8.1.4. Other Types</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#_array_types_2">8.2. Array Types</a></li>
                     <li><a href="#_json_types">8.3. JSON Types</a></li>
-                    <li><a href="#_custom_type_mappings">8.4. Custom Type Mappings</a></li>
+                    <li><a href="#_custom_type_mappings">8.4. Custom Type Mappings</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_implementing_the_mappingtype_interface">8.4.1. Implementing the MappingType
+                                Interface</a></li>
+                            <li><a href="#_registering_custom_types">8.4.2. Registering Custom Types</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#_json_xml_codecs">8.5. JSON / XML Codecs</a></li>
                 </ul>
             </li>
             <li><a href="#_field_generators">9. Field Generators</a>
                 <ul class="sectlevel2">
-                    <li><a href="#_snowflake_generator">9.1. Snowflake Generator</a></li>
+                    <li><a href="#_snowflake_generator">9.1. Snowflake Generator</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_configuration_parameters">9.1.1. Configuration Parameters</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#_uuid_generator">9.2. UUID Generator</a></li>
-                    <li><a href="#_custom_generators">9.3. Custom Generators</a></li>
+                    <li><a href="#_custom_generators">9.3. Custom Generators</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_implementing_the_fieldgenerator_interface">9.3.1. Implementing the
+                                FieldGenerator Interface</a></li>
+                            <li><a href="#_registering_a_generator_factory">9.3.2. Registering a Generator Factory</a>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </li>
             <li><a href="#_spring_integration">10. Spring Integration</a>
                 <ul class="sectlevel2">
-                    <li><a href="#_sessionfactory_bean_configuration">10.1. SessionFactory Bean Configuration</a></li>
-                    <li><a href="#_spring_transaction_management">10.2. Spring Transaction Management</a></li>
+                    <li><a href="#_sessionfactory_bean_configuration">10.1. SessionFactory Bean Configuration</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_blocking_mode_2">10.1.1. Blocking Mode</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#_spring_transaction_management">10.2. Spring Transaction Management</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_blocking_transaction_manager">10.2.1. Blocking Transaction Manager</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#_declarative_transactions">10.3. Declarative Transactions</a></li>
                     <li><a href="#_datasource_integration">10.4. DataSource Integration</a></li>
                 </ul>
@@ -186,7 +649,13 @@
                 <ul class="sectlevel2">
                     <li><a href="#_reserved_fields_reference">16.1. Reserved Fields Reference</a></li>
                     <li><a href="#_database_support_matrix">16.2. Database Support Matrix</a></li>
-                    <li><a href="#_version_history">16.3. Version History</a></li>
+                    <li><a href="#_version_history">16.3. Version History</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_0_6_8_snapshot_current">16.3.1. 0.6.8-SNAPSHOT (Current)</a></li>
+                            <li><a href="#_0_6_6">16.3.2. 0.6.6</a></li>
+                            <li><a href="#_0_6_0">16.3.3. 0.6.0</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#_related_resources">16.4. Related Resources</a></li>
                     <li><a href="#_license">16.5. License</a></li>
                 </ul>
@@ -329,11 +798,18 @@
                     <h4 id="_core_dependency"><a class="anchor" href="#_core_dependency"></a>2.1.1. Core Dependency</h4>
                     <div class="listingblock">
                         <div class="content">
-<pre class="CodeRay highlight nowrap"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
-    <span class="tag">&lt;groupId&gt;</span>io.qinarmy<span class="tag">&lt;/groupId&gt;</span>
-    <span class="tag">&lt;artifactId&gt;</span>army-jdbc<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>0.6.8-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
-<span class="tag">&lt;/dependency&gt;</span></code></pre>
+<pre class="CodeRay highlight nowrap"><code data-lang="xml"><span class="tag">&lt;dependencies&gt;</span>
+    <span class="tag">&lt;dependency&gt;</span>
+        <span class="tag">&lt;groupId&gt;</span>io.qinarmy<span class="tag">&lt;/groupId&gt;</span>
+        <span class="tag">&lt;artifactId&gt;</span>army-jdbc<span class="tag">&lt;/artifactId&gt;</span>
+        <span class="tag">&lt;version&gt;</span>0.6.6<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;/dependency&gt;</span>
+    <span class="tag">&lt;dependency&gt;</span>
+        <span class="tag">&lt;groupId&gt;</span>io.qinarmy<span class="tag">&lt;/groupId&gt;</span>
+        <span class="tag">&lt;artifactId&gt;</span>army-postgre<span class="tag">&lt;/artifactId&gt;</span>
+        <span class="tag">&lt;version&gt;</span>0.6.6<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;/dependency&gt;</span>
+<span class="tag">&lt;/dependencies&gt;</span></code></pre>
                         </div>
                     </div>
                 </div>
@@ -461,11 +937,20 @@
 <span class="directive">public</span> <span class="directive">abstract</span> <span class="type">class</span> <span
             class="class">Stock_</span> {
 
-    <span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> TableMeta&lt;Stock&gt; T;
+        <span class="directive">private</span> Stock_(){
+                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="exception">UnsupportedOperationException</span>();
+        }
 
-    <span class="directive">static</span> {
-        T =  _TableMetaFactory.getTableMeta(Stock.class);
-    }
+        <span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> SimpleTableMeta&lt;Stock&gt; T;
+
+        <span class="directive">static</span> {
+                T = _TableMetaFactory.getSimpleTableMeta(Stock.class);
+
+                <span class="directive">final</span> <span class="type">int</span> fieldSize = T.fieldList().size();
+                <span class="keyword">if</span>(fieldSize != <span class="integer">11</span>){
+                        <span class="keyword">throw</span> _TableMetaFactory.tableFiledSizeError(Stock.class,fieldSize);
+                }
+        }
 
     <span class="comment">// Field name constants (type-safe references)</span>
     <span class="directive">public</span> <span class="directive">static</span> <span
@@ -485,8 +970,8 @@
     <span class="comment">// ... other fields</span>
 
     <span class="comment">// Field metadata</span>
-    <span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> FieldMeta&lt;Stock&gt; name = T.getField(NAME);
-    <span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> FieldMeta&lt;Stock&gt; offerPrice = T.getField(OFFER_PRICE);
+    <span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> FieldMeta&lt;Stock&gt; name = T.field(NAME);
+    <span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> FieldMeta&lt;Stock&gt; offerPrice = T.field(OFFER_PRICE);
     <span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> PrimaryFieldMeta&lt;Stock&gt; id = T.id();
     <span class="comment">// ... other field metadata</span>
 }</code></pre>
@@ -525,9 +1010,8 @@
     sessionFactory = SyncFactoryBuilder.builder()
             .name(<span class="string"><span class="delimiter">&quot;</span><span class="content">army-test</span><span
             class="delimiter">&quot;</span></span>)
-            .packagesToScan(<span class="predefined-type">Collections</span>.singletonList(<span class="string"><span
-            class="delimiter">&quot;</span><span class="content">io.army.example.stock.domain</span><span
-            class="delimiter">&quot;</span></span>))
+            .packagesToScan(<span class="predefined-type">List</span>.of(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">io.army.example.stock.domain</span><span class="delimiter">&quot;</span></span>))
             .datasource(dataSource)
             .environment(StandardEnvironment.from(envMap))
             .build();
@@ -4127,8 +4611,8 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
                     Composite Type (PostgreSQL Row Types)</h3>
                 <div class="paragraph">
                     <p><code>io.army.mapping.CompositeType</code> maps POJOs annotated with <code>@DefinedType</code> to
-                        PostgreSQL &lt;&lt;<a href="https://www.postgresql.org/docs/current/rowtypes.html" class="bare">https://www.postgresql.org/docs/current/rowtypes.html</a>,
-                        composite (row) types&gt;&gt;.
+                        PostgreSQL <a href="#https://www.postgresql.org/docs/current/rowtypes.html">composite (row)
+                            types</a>.
                         The POJO&#8217;s fields (annotated with <code>@Column</code>) become the composite type&#8217;s
                         attributes, serialized as <code>(val1,val2,&#8230;&#8203;)</code>.</p>
                 </div>
@@ -4440,31 +4924,25 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
                         <td class="tableblock halign-left valign-top"><p class="tableblock"><code>JsonType</code></p>
                         </td>
                         <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code>, <code>Map</code>,
-                            <code>List</code>, <code>Set</code></p></td>
+                            <code>List</code>, <code>Set</code>,<code>POJO</code></p></td>
                         <td class="tableblock halign-left valign-top"><p class="tableblock">Always maps to vanilla
                             <code>JSON</code> (MySQL <code>JSON</code>, PostgreSQL <code>JSON</code>)</p></td>
                     </tr>
                     <tr>
                         <td class="tableblock halign-left valign-top"><p class="tableblock">
                             <code>PreferredJsonbType</code></p></td>
-                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code>, <code>Map&lt;String,Object&gt;</code>,
-                            <code>List</code>, <code>Set</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code>, <code>Map</code>,
+                            <code>List</code>, <code>Set</code>,<code>POJO</code></p></td>
                         <td class="tableblock halign-left valign-top"><p class="tableblock">Maps to <code>JSONB</code>
                             on PostgreSQL, falls back to <code>JSON</code> on MySQL</p></td>
                     </tr>
                     <tr>
                         <td class="tableblock halign-left valign-top"><p class="tableblock"><code>JsonbType</code></p>
                         </td>
-                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code>, <code>Map</code>,
+                            <code>List</code>, <code>Set</code>,<code>POJO</code></p></td>
                         <td class="tableblock halign-left valign-top"><p class="tableblock">Strictly maps to
                             <code>JSONB</code> (PostgreSQL-only, throws on other dialects)</p></td>
-                    </tr>
-                    <tr>
-                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ArmyJsonType</code>
-                        </p></td>
-                        <td class="tableblock halign-left valign-top"><p class="tableblock">(abstract base)</p></td>
-                        <td class="tableblock halign-left valign-top"><p class="tableblock">Base class for all JSON
-                            types; provides auto-expansion of Map/List generics</p></td>
                     </tr>
                     </tbody>
                 </table>
@@ -5337,19 +5815,124 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
             <div class="sect2">
                 <h3 id="_standard_criteria_api"><a class="anchor" href="#_standard_criteria_api"></a>5.1. Standard
                     Criteria API</h3>
+                <div class="paragraph">
+                    <p>The Standard Criteria API is Army&#8217;s database-agnostic SQL construction layer.
+                        It generates an internal statement tree through a type-safe Java DSL, which the dialect parser
+                        then translates into native SQL for your target database.</p>
+                </div>
+                <table class="tableblock frame-all grid-all stretch">
+                    <colgroup>
+                        <col style="width: 20%;">
+                        <col style="width: 40%;">
+                        <col style="width: 40%;">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th class="tableblock halign-left valign-top">Concept</th>
+                        <th class="tableblock halign-left valign-top">Interface (design)</th>
+                        <th class="tableblock halign-left valign-top">Implementation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">Entry point</p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>SQLs</code> (utility
+                            class)</p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><a
+                                href="../army-core/src/main/java/io/army/criteria/impl/SQLs.java" class="extern"><code>criteria/impl/SQLs.java</code></a>
+                        </p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">Statement specs</p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><a
+                                href="../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java"
+                                class="extern"><code>standard/StandardInsert</code></a><br>
+                            <a href="../army-core/src/main/java/io/army/criteria/standard/StandardQuery.java"
+                               class="extern"><code>standard/StandardQuery</code></a><br>
+                            <a href="../army-core/src/main/java/io/army/criteria/standard/StandardUpdate.java"
+                               class="extern"><code>standard/StandardUpdate</code></a><br>
+                            <a href="../army-core/src/main/java/io/army/criteria/standard/StandardDelete.java"
+                               class="extern"><code>standard/StandardDelete</code></a></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><a
+                                href="../army-core/src/main/java/io/army/criteria/impl/StandardInserts.java"
+                                class="extern"><code>impl/StandardInserts</code></a><br>
+                            <a href="../army-core/src/main/java/io/army/criteria/impl/StandardQueries.java"
+                               class="extern"><code>impl/StandardQueries</code></a><br>
+                            <a href="../army-core/src/main/java/io/army/criteria/impl/StandardUpdates.java"
+                               class="extern"><code>impl/StandardUpdates</code></a><br>
+                            <a href="../army-core/src/main/java/io/army/criteria/impl/StandardDeletes.java"
+                               class="extern"><code>impl/StandardDeletes</code></a></p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">Standard functions</p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><a
+                                href="../army-core/src/main/java/io/army/criteria/standard/SQLFunction.java"
+                                class="extern"><code>standard/SQLFunction</code></a></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><a
+                                href="../army-core/src/main/java/io/army/criteria/impl/Functions.java"
+                                class="extern"><code>impl/Functions</code></a></p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">Window functions</p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><a
+                                href="../army-core/src/main/java/io/army/criteria/dialect/Window.java"
+                                class="extern"><code>dialect/Window</code></a></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><a
+                                href="../army-core/src/main/java/io/army/criteria/impl/Windows.java"
+                                class="extern"><code>impl/Windows</code></a></p></td>
+                    </tr>
+                    </tbody>
+                </table>
                 <div class="sect3">
                     <h4 id="_the_sqls_utility_class"><a class="anchor" href="#_the_sqls_utility_class"></a>5.1.1. The
                         SQLs Utility Class</h4>
                     <div class="paragraph">
-                        <p><code>SQLs</code> is the unified entry point for building standard SQL statements.
-                            All standard operations (SELECT, INSERT, UPDATE, DELETE) begin with <code>SQLs</code>.</p>
+                        <p><code>SQLs</code> (<a href="../army-core/src/main/java/io/army/criteria/impl/SQLs.java"
+                                                 class="bare extern">../army-core/src/main/java/io/army/criteria/impl/SQLs.java</a>)
+                            is the unified entry point.
+                            Internally, its static factory methods delegate to <code>StandardInserts</code>, <code>StandardQueries</code>,
+                            <code>StandardUpdates</code>, and <code>StandardDeletes</code>:</p>
+                    </div>
+                    <div class="listingblock">
+                        <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// SELECT entry</span>
+Select stmt = SQLs.query()...asQuery();
+
+<span class="comment">// INSERT entry</span>
+Insert stmt = SQLs.singleInsert()...asInsert();
+
+<span class="comment">// UPDATE entry</span>
+Update stmt = SQLs.singleUpdate()...asUpdate();
+
+<span class="comment">// DELETE entry</span>
+Delete stmt = SQLs.singleDelete()...asDelete();
+
+<span class="comment">// Domain UPDATE entry (no table alias required)</span>
+Update stmt = SQLs.domainUpdate()...asUpdate();
+
+<span class="comment">// Domain DELETE entry</span>
+Delete stmt = SQLs.domainDelete()...asDelete();</code></pre>
+                        </div>
+                    </div>
+                    <div class="paragraph">
+                        <p>Each returns a type-safe chain that exposes only the clauses valid for that statement
+                            type.</p>
                     </div>
                 </div>
                 <div class="sect3">
                     <h4 id="_select_statements"><a class="anchor" href="#_select_statements"></a>5.1.2. SELECT
                         Statements</h4>
-                    <div class="listingblock">
-                        <div class="content">
+                    <div class="paragraph">
+                        <p><code>SQLs.query()</code> enters the SELECT chain.
+                            Internally it calls <a
+                                    href="../army-core/src/main/java/io/army/criteria/impl/StandardQueries.java"
+                                    class="extern"><code>StandardQueries#simpleQuery</code></a>, which returns a <code>StandardQuery.WithSpec</code>.
+                        </p>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_basic_select"><a class="anchor" href="#_basic_select"></a>Basic SELECT</h5>
+                        <div class="listingblock">
+                            <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="directive">final</span> Select stmt;
 stmt = SQLs.query()
         .select(Stock_.id, Stock_.name, Stock_.offerPrice)
@@ -5357,66 +5940,1268 @@ stmt = SQLs.query()
             class="content">s</span><span class="delimiter">&quot;</span></span>)
         .where(Stock_.name.equal(<span class="string"><span class="delimiter">&quot;</span><span
             class="content">Tesla</span><span class="delimiter">&quot;</span></span>))
-        .and(Stock_.createTime.less( LocalDateTime.now().minusDays(<span class="integer">1</span>)))
+        .and(Stock_.createTime.less(LocalDateTime.now().minusDays(<span class="integer">1</span>)))
         .limit(<span class="integer">1</span>)
         .asQuery();</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_full_clause_chain"><a class="anchor" href="#_full_clause_chain"></a>Full Clause Chain
+                        </h5>
+                        <div class="paragraph">
+                            <p>The SELECT chain follows SQL clause order:</p>
+                        </div>
+                        <div class="olist arabic">
+                            <ol class="arabic">
+                                <li>
+                                    <p><code>WITH &#8230;&#8203; AS</code> — CTE prefix (via <code>with(name).as(&#8230;&#8203;)</code>)
+                                    </p>
+                                </li>
+                                <li>
+                                    <p><code>SELECT</code> — <code>select(&#8230;&#8203;)</code> / <code>selectDistinct(&#8230;&#8203;)</code>
+                                    </p>
+                                </li>
+                                <li>
+                                    <p><code>FROM</code> — <code>from(table, AS, alias)</code> / nested <code>from(function)</code>
+                                    </p>
+                                </li>
+                                <li>
+                                    <p><code>JOIN</code> — <code>join(&#8230;&#8203;) / leftJoin(&#8230;&#8203;) /
+                                        rightJoin(&#8230;&#8203;) / crossJoin(&#8230;&#8203;)</code></p>
+                                </li>
+                                <li>
+                                    <p><code>WHERE</code> — <code>where(predicate).and(predicate)&#8230;&#8203;</code>
+                                    </p>
+                                </li>
+                                <li>
+                                    <p><code>GROUP BY</code> — <code>groupBy(&#8230;&#8203;)</code></p>
+                                </li>
+                                <li>
+                                    <p><code>HAVING</code> — <code>having(predicate)</code></p>
+                                </li>
+                                <li>
+                                    <p><code>WINDOW</code> — <code>window(name).as(&#8230;&#8203;)</code> (named window
+                                        definitions)</p>
+                                </li>
+                                <li>
+                                    <p><code>ORDER BY</code> — <code>orderBy(&#8230;&#8203;)</code></p>
+                                </li>
+                                <li>
+                                    <p><code>LIMIT / OFFSET</code> — <code>limit(n).offset(n)</code></p>
+                                </li>
+                                <li>
+                                    <p><code>FOR UPDATE</code> — <code>lock(&#8230;&#8203;)</code> for row-level locking
+                                    </p>
+                                </li>
+                                <li>
+                                    <p><code>UNION / INTERSECT / EXCEPT</code> — set operations via <code>union(&#8230;&#8203;)</code>,
+                                        etc.</p>
+                                </li>
+                                <li>
+                                    <p><code>asQuery()</code> — terminal method, returns <code>Select</code></p>
+                                </li>
+                            </ol>
+                        </div>
+                        <div class="paragraph">
+                            <p>Each clause method returns the next narrow interface in the chain, so the compiler
+                                enforces correct SQL clause ordering.</p>
                         </div>
                     </div>
                 </div>
                 <div class="sect3">
                     <h4 id="_insert_statements"><a class="anchor" href="#_insert_statements"></a>5.1.3. INSERT
                         Statements</h4>
-                    <div class="listingblock">
-                        <div class="content">
-<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="directive">final</span> Insert stmt;
-stmt = SQLs.singleInsert()   <span class="comment">// single table insert</span>
-        .insertInto(Stock_.T)
-        .defaultValue(Stock_.status, StockStatus.NORMAL)
-        .values(stockList)
-        .asInsert();</code></pre>
+                    <div class="sect4">
+                        <h5 id="_single_table_insert"><a class="anchor" href="#_single_table_insert"></a>Single Table
+                            INSERT</h5>
+                        <div class="paragraph">
+                            <p><code>SQLs.singleInsert()</code> returns <a
+                                    href="../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java"
+                                    class="extern"><code>StandardInsert._PrimaryOptionSpec&lt;Insert&gt;</code></a>.
+                                Internally it calls <a
+                                        href="../army-core/src/main/java/io/army/criteria/impl/StandardInserts.java"
+                                        class="extern"><code>StandardInserts#singleInsert</code></a>.</p>
                         </div>
+                        <div class="paragraph">
+                            <p><strong>Domain mode</strong> — pass domain objects directly.
+                                Defined in <a href="../army-core/src/main/java/io/army/criteria/InsertStatement.java"
+                                              class="extern"><code>InsertStatement._DomainValuesClause</code></a><br>
+                                <a href="../army-core/src/main/java/io/army/criteria/InsertStatement.java"
+                                   class="extern"><code>InsertStatement._DomainValueClause</code></a><br>
+                                <a href="../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java"
+                                   class="extern"><code>_ValuesColumnDefaultSpec</code></a>:</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// (A) Single domain object</span>
+<span class="comment">//     &lt;TS extends T&gt; R value(TS domain)  →  returns _DmlInsertClause&lt;Insert&gt;</span>
+<span class="directive">final</span> Insert stmt1;
+stmt1 = SQLs.singleInsert()
+        .insertInto(Stock_.T)                               <span class="comment">// → _ColumnListSpec</span>
+        .value(<span class="keyword">new</span> Stock(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">GOOGL</span><span class="delimiter">&quot;</span></span>, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">Alphabet</span><span
+            class="delimiter">&quot;</span></span>))               <span class="comment">// → _DmlInsertClause&lt;Insert&gt;</span>
+        .asInsert();                                        <span class="comment">// → Insert</span>
+
+<span class="comment">// (B) List of domain objects (multi-row)</span>
+<span class="comment">//     &lt;TS extends T&gt; R values(List&lt;TS&gt; domainList)</span>
+<span class="directive">final</span> Insert stmt2;
+stmt2 = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .defaultValue(Stock_.status, StockStatus.NORMAL)    <span class="comment">// optional column default</span>
+        .values(stockList)                                   <span
+            class="comment">// → _DmlInsertClause&lt;Insert&gt;</span>
+        .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <table class="tableblock frame-all grid-all stretch">
+                            <colgroup>
+                                <col style="width: 16.6666%;">
+                                <col style="width: 50%;">
+                                <col style="width: 33.3334%;">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th class="tableblock halign-left valign-top">Method</th>
+                                <th class="tableblock halign-left valign-top">Interface signature</th>
+                                <th class="tableblock halign-left valign-top">Returns</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>value(TS
+                                    domain)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;TS extends
+                                    T&gt; R value(TS domain)</code> in <code>_DomainValueClause&lt;T,R&gt;</code></p>
+                                </td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_DmlInsertClause&lt;I&gt;</code>
+                                    → <code>.asInsert()</code></p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>values(List&lt;TS&gt;)</code>
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;TS extends
+                                    T&gt; R values(List&lt;TS&gt; domainList)</code> in <code>_DomainValuesClause&lt;T,R&gt;</code>
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_DmlInsertClause&lt;I&gt;</code>
+                                    → <code>.asInsert()</code></p></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="paragraph">
+                            <p><strong>Value mode — Static (single row / multi-row)</strong></p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Requires <code>.values()</code> (no-arg) first — this bridges
+                                <code>_ColumnListSpec</code> via <code>_StaticValuesClause</code> to
+                                <a href="../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java"
+                                   class="extern"><code>StandardInsert._StandardValuesParensClause</code></a>,
+                                which extends <a href="../army-core/src/main/java/io/army/criteria/InsertStatement.java"
+                                                 class="extern"><code>InsertStatement._ValuesParensClause</code></a>.
+                            </p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Each <code>parens()</code> call adds one VALUES row. All columns are referenced via
+                                <code>FieldMeta</code> constants.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><em>Single row:</em></p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// .values() → _StandardValuesParensClause</span>
+<span class="comment">// .parens(Consumer&lt;_StaticValueSpaceClause&gt;) → _ValuesParensCommaSpec → .asInsert()</span>
+<span class="directive">final</span> Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values()                                           <span
+            class="comment">// _StaticValuesClause.values() no-arg</span>
+        .parens(row -&gt; row                                  <span class="comment">// Consumer&lt;_StaticValueSpaceClause&lt;Stock&gt;&gt;</span>
+                .space(Stock_.exchange, <span class="string"><span class="delimiter">&quot;</span><span class="content">NYSE</span><span
+            class="delimiter">&quot;</span></span>)             <span class="comment">//   space(FieldMeta&lt;T&gt;, @Nullable Object)</span>
+                .comma(Stock_.code, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">AAPL</span><span class="delimiter">&quot;</span></span>)                 <span
+            class="comment">//   comma(FieldMeta&lt;T&gt;, @Nullable Object)</span>
+                .comma(Stock_.name, SQLs::param, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">Alphabet</span><span class="delimiter">&quot;</span></span>)<span class="comment">//   comma(FieldMeta, BiFunction, E) — binding</span>
+                .ifComma(Stock_.offerPrice, offerValue)     <span class="comment">//   conditional comma — skipped when null</span>
+        )
+        .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <table class="tableblock frame-all grid-all stretch">
+                            <caption class="title">Table 1. _StaticValueSpaceClause methods:</caption>
+                            <colgroup>
+                                <col style="width: 25%;">
+                                <col style="width: 75%;">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th class="tableblock halign-left valign-top">Method</th>
+                                <th class="tableblock halign-left valign-top">Signature</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>space(field,
+                                    value)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">First pair; <code>value</code>
+                                    can be literal, <code>Expression</code>, <code>null</code>, or
+                                    <code>SQLs.DEFAULT</code></p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>space(field,
+                                    funcRef, value)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">First pair with
+                                    binding: <code>SQLs::param</code>, <code>SQLs::literalValue</code>, etc.</p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>spaceIf(field,
+                                    value)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">Conditional first
+                                    pair — skipped when <code>value</code> is <code>null</code></p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>spaceIf(field,
+                                    funcRef, value)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">Conditional first
+                                    pair with binding</p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>comma(field,
+                                    value)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">Subsequent pair</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>comma(field,
+                                    funcRef, value)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">Subsequent pair with
+                                    binding</p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ifComma(field,
+                                    value)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">Conditional
+                                    subsequent pair</p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ifComma(field,
+                                    funcRef, value)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">Conditional
+                                    subsequent pair with binding</p></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="paragraph">
+                            <p><em>Multi-row — chain via <code>.comma()</code>:</em></p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// .parens() → _ValuesParensCommaSpec  →  .comma() loops back</span>
+<span class="comment">// _ValuesParensCommaSpec extends _CommaClause&lt;_StandardValuesParensClause&gt;</span>
+<span class="directive">final</span> Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values()
+        .parens(r -&gt; r                                   <span class="comment">// row 1</span>
+                .space(Stock_.exchange, <span class="string"><span class="delimiter">&quot;</span><span class="content">NYSE</span><span
+            class="delimiter">&quot;</span></span>)
+                .comma(Stock_.code, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">AAPL</span><span class="delimiter">&quot;</span></span>)
+                .comma(Stock_.name, <span class="string"><span class="delimiter">&quot;</span><span class="content">Apple Inc.</span><span
+            class="delimiter">&quot;</span></span>)
+        )
+        .comma()                                           <span class="comment">// → back to _StandardValuesParensClause</span>
+        .parens(r -&gt; r                                    <span class="comment">// row 2</span>
+                .space(Stock_.exchange, <span class="string"><span class="delimiter">&quot;</span><span class="content">NASDAQ</span><span
+            class="delimiter">&quot;</span></span>)
+                .comma(Stock_.code, <span class="string"><span class="delimiter">&quot;</span><span class="content">GOOGL</span><span
+            class="delimiter">&quot;</span></span>)
+                .comma(Stock_.name, SQLs::param, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">Alphabet</span><span class="delimiter">&quot;</span></span>)
+        )
+        .comma()
+        .parens(r -&gt; r                                    <span
+            class="comment">// row 3 (conditional first column)</span>
+                .spaceIf(Stock_.exchange, exchangeValue)   <span
+            class="comment">// skipped if exchangeValue == null</span>
+                .comma(Stock_.code, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">MSFT</span><span class="delimiter">&quot;</span></span>)
+                .comma(Stock_.name, <span class="string"><span class="delimiter">&quot;</span><span class="content">Microsoft</span><span
+            class="delimiter">&quot;</span></span>)
+        )
+        .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>Value mode — Dynamic (multi-row via <code>ValuesConstructor</code>)</strong></p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Defined in <a href="../army-core/src/main/java/io/army/criteria/InsertStatement.java"
+                                             class="extern"><code>InsertStatement._DynamicValuesClause</code></a>:
+                                <code>values(Consumer&lt;ValuesConstructor&lt;T&gt;&gt;)</code>. Returns <code>_DmlInsertClause&lt;I&gt;</code>.
+                            </p>
+                        </div>
+                        <div class="paragraph">
+                            <p><a href="../army-core/src/main/java/io/army/criteria/ValuesConstructor.java"
+                                  class="extern"><code>ValuesConstructor&lt;T&gt;</code></a>
+                                extends <a href="../army-core/src/main/java/io/army/criteria/InsertStatement.java"
+                                           class="extern"><code>_ValuesParensClause&lt;T</a>.
+                                Each <code>parens()</code> returns a comma clause; <code>.comma()</code> chains back to
+                                <code>ValuesConstructor</code>.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Inside <code>parens()</code>, there are <strong>two</strong> sub-modes:</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><em>Static row — type-safe via <code>FieldMeta</code> (same
+                                <code>_StaticValueSpaceClause</code> as above):</em></p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="directive">final</span> Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values(rows -&gt; rows                                <span class="comment">// Consumer&lt;ValuesConstructor&lt;Stock&gt;&gt;</span>
+                .parens(r -&gt; r                           <span class="comment">// Consumer&lt;_StaticValueSpaceClause&lt;Stock&gt;&gt;</span>
+                        .space(Stock_.exchange, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">NYSE</span><span class="delimiter">&quot;</span></span>)    <span class="comment">//   space(FieldMeta&lt;T&gt;, Object)</span>
+                        .comma(Stock_.code, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">AAPL</span><span class="delimiter">&quot;</span></span>)
+                        .comma(Stock_.name, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">Apple Inc.</span><span class="delimiter">&quot;</span></span>)
+                )
+                .comma()                                    <span class="comment">// → back to ValuesConstructor</span>
+               .parens(SQLs.SPACE,s-&gt; {   <span class="comment">// row 2   dynamic column</span>
+                        s.set(Stock_.exchange, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">NASDAQ</span><span class="delimiter">&quot;</span></span>);
+                        s.set(Stock_.code, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">GOOGL</span><span class="delimiter">&quot;</span></span>);
+                        s.set(Stock_.name, SQLs::param, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">Alphabet</span><span class="delimiter">&quot;</span></span>); <span class="comment">// set with binding</span>
+                })
+        )
+        .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><em>Dynamic row — via <code>Assignments</code> (uses <code>set()</code> instead of <code>space()</code>/<code>comma()</code>):</em>
+                            </p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="directive">final</span> Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values(rows -&gt; rows                                <span class="comment">// Consumer&lt;ValuesConstructor&lt;Stock&gt;&gt;</span>
+                .parens(s -&gt; s                  <span
+            class="comment">// Consumer&lt;Assignments&lt;Stock&gt;&gt;</span>
+                        .space(Stock_.exchange, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">NYSE</span><span class="delimiter">&quot;</span></span>)       <span class="comment">//   space(FieldMeta&lt;T&gt;, @Nullable Object)</span>
+                        .comma(Stock_.code, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">AAPL</span><span class="delimiter">&quot;</span></span>)           <span class="comment">//   each set() returns Assignments&lt;T&gt;</span>
+                        .comma(Stock_.name, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">Apple Inc.</span><span class="delimiter">&quot;</span></span>)
+                        .ifComma(Stock_.offerPrice, offer)    <span
+            class="comment">//   conditional — skipped when null</span>
+                )
+                .comma()
+                .parens(SQLs.SPACE,s-&gt; {   <span class="comment">// row 2   dynamic column</span>
+                        s.set(Stock_.exchange, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">NASDAQ</span><span class="delimiter">&quot;</span></span>);
+                        s.set(Stock_.code, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">GOOGL</span><span class="delimiter">&quot;</span></span>);
+                        s.set(Stock_.name, SQLs::param, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">Alphabet</span><span class="delimiter">&quot;</span></span>); <span class="comment">// set with binding</span>
+                })
+        )
+        .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><code>Assignments</code> extends <a
+                                    href="../army-core/src/main/java/io/army/criteria/InsertStatement.java"
+                                    class="extern"><code>InsertStatement._StaticAssignmentSetClause</code></a>:</p>
+                        </div>
+                        <table class="tableblock frame-all grid-all stretch">
+                            <colgroup>
+                                <col style="width: 25%;">
+                                <col style="width: 75%;">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th class="tableblock halign-left valign-top">Method</th>
+                                <th class="tableblock halign-left valign-top">Signature</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>set(field,
+                                    value)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>R
+                                    set(FieldMeta&lt;T&gt;, @Nullable Object)</code> — literal, Expression, or null</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>set(field,
+                                    funcRef, value)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;E&gt; R
+                                    set(FieldMeta&lt;T&gt;, BiFunction&lt;&#8230;&#8203;,Expression&gt;, @Nullable
+                                    E)</code> — with binding</p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ifSet(field,
+                                    value)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>R
+                                    ifSet(FieldMeta&lt;T&gt;, @Nullable Object)</code> — conditional, skipped when null
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ifSet(field,
+                                    funcRef, value)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;E&gt; R
+                                    ifSet(FieldMeta&lt;T&gt;, BiFunction&lt;&#8230;&#8203;,Expression&gt;, @Nullable
+                                    E)</code> — conditional with binding</p></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="admonitionblock tip">
+                            <table>
+                                <tr>
+                                    <td class="icon">
+                                        <i class="fa icon-tip" title="Tip"></i>
+                                    </td>
+                                    <td class="content">
+                                        The <em>Static row</em> sub-mode uses the same <code><em>StaticValueSpaceClause</code>
+                                        lambdas as the non-Dynamic path.
+                                        The _Dynamic row</em> sub-mode uses <code>Assignments.set()</code> which is
+                                        useful when columns are added in a loop or conditionally.
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>Query mode</strong> — insert from a subquery.
+                                Defined in <a href="../army-core/src/main/java/io/army/criteria/InsertStatement.java"
+                                              class="extern"><code>InsertStatement._QueryInsertSpaceClause</code></a><br>
+                                <a href="../army-core/src/main/java/io/army/criteria/InsertStatement.java"
+                                   class="extern"><code>InsertStatement._ColumnListParensClause</code></a>.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><code>_ColumnListParensClause</code> has two <code>parens()</code> overloads for
+                                specifying the target column list.
+                                <code>_QueryInsertSpaceClause</code> has three <code>space()</code> overloads for
+                                providing the subquery source.</p>
+                        </div>
+                        <table class="tableblock frame-all grid-all stretch">
+                            <colgroup>
+                                <col style="width: 16.6666%;">
+                                <col style="width: 50%;">
+                                <col style="width: 33.3334%;">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th class="tableblock halign-left valign-top">Signal</th>
+                                <th class="tableblock halign-left valign-top">Method</th>
+                                <th class="tableblock halign-left valign-top">Returns</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">static columns</p>
+                                </td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>parens(Consumer&lt;_StaticColumnSpaceClause&lt;T&gt;&gt;)</code>
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_ComplexColumnDefaultSpec</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">dynamic columns</p>
+                                </td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>parens(SQLs.SymbolSpace,
+                                    Consumer&lt;Consumer&lt;FieldMeta&lt;T&gt;&gt;&gt;)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_ComplexColumnDefaultSpec</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">pre-built
+                                    subquery</p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>space(Supplier&lt;SubQuery&gt;)</code>
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_DmlInsertClause&lt;I&gt;</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">inline via
+                                    function</p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>space(Function&lt;SelectSpec,
+                                    _DmlInsertClause&lt;I&gt;&gt;)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_DmlInsertClause&lt;I&gt;</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">bare
+                                    <code>space()</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>T
+                                    space()</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>SelectSpec&lt;_DmlInsertClause&lt;I&gt;&gt;</code>
+                                    → chain <code>.asInsert()</code></p></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="paragraph">
+                            <p><em>Form 1 — Static columns + pre-built SubQuery:</em></p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// _StaticColumnSpaceClause: space(f1,f2) — 1/2/4 column params supported</span>
+<span class="directive">final</span> Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .parens(cols -&gt; cols                                <span class="comment">// Consumer&lt;_StaticColumnSpaceClause&lt;Stock&gt;&gt;</span>
+                .space(Stock_.exchange, Stock_.code)        <span class="comment">//   space(FieldMeta, FieldMeta) → _StaticColumnDualClause</span>
+                .comma(Stock_.name)                         <span class="comment">//   comma(FieldMeta)</span>
+        )
+        .space(subQuery)                                    <span class="comment">// Supplier&lt;SubQuery&gt; → _DmlInsertClause</span>
+        .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><em>Form 2 — Dynamic columns + Supplier&lt;SubQuery&gt;:</em></p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Dynamic column list: each accept(field) adds one column</span>
+<span class="directive">final</span> Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .parens(SQLs.SPACE, list -&gt; {                       <span class="comment">// Consumer&lt;Consumer&lt;FieldMeta&lt;Stock&gt;&gt;&gt;</span>
+                list.accept(Stock_.exchange);                <span
+            class="comment">//   accept(FieldMeta&lt;T&gt;)</span>
+                list.accept(Stock_.code);
+                list.accept(Stock_.name);
+        })
+        .space(() -&gt; subQuery)                              <span class="comment">// Supplier&lt;SubQuery&gt;</span>
+        .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><em>Form 3 — No column list (subquery determines columns):</em></p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Direct .space(subQuery) on _ComplexColumnDefaultSpec — no parens() needed</span>
+<span class="directive">final</span> Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .space(subQuery)                                    <span class="comment">// _QueryInsertSpaceClause.space(Supplier)</span>
+        .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><em>Form 4 — No-arg <code>space()</code> returns <code>SelectSpec</code> (advanced):</em>
+                            </p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// space() no-arg → SelectSpec&lt;_DmlInsertClause&lt;Insert&gt;&gt;</span>
+<span class="comment">// Build subquery inline, chain ends with .asInsert()</span>
+<span class="directive">final</span> Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .parens(cols -&gt; cols.space(Stock_.exchange, Stock_.code, Stock_.name, Stock_.status))
+        .space()                                            <span class="comment">// T space() → SelectSpec</span>
+        .select(Stock_.exchange, Stock_.code, Stock_.name)
+        .from(NasdaqTable_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">n</span><span class="delimiter">&quot;</span></span>)
+        .where(NasdaqTable_.listed.equal(<span class="predefined-constant">true</span>))
+        .asInsert();</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_child_insert_parent_child_hierarchy"><a class="anchor"
+                                                                         href="#_child_insert_parent_child_hierarchy"></a>Child
+                            INSERT (Parent-Child Hierarchy)</h5>
+                        <div class="paragraph">
+                            <p>When using <code>@Inheritance</code> single-table inheritance, a <strong>parent
+                                insert</strong> must be followed by a <strong>child insert</strong>.
+                                This is enforced at the interface level:
+                                <code>insertInto(ParentTableMeta)</code> returns a chain that ends with
+                                <code>child()</code> to enter the child table&#8217;s insert.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Internally, <code>StandardInserts</code> handles this via <a
+                                    href="../army-core/src/main/java/io/army/criteria/impl/StandardInserts.java"
+                                    class="extern"><code>_ChildInsertIntoClause</code></a>
+                                and <a href="../army-core/src/main/java/io/army/criteria/InsertStatement.java"
+                                       class="extern"><code>InsertStatement._ParentInsert20</code></a>:</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span
+        class="comment">// Parent insert → child insert chain</span>
+<span class="directive">final</span> Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(ParentUser_.T)         <span class="comment">// ParentTableMeta — returns _ParentInsert20</span>
+        .defaultValue(ParentUser_.status, UserStatus.ADMIN)
+        .values(parentUserList)
+        .child()                            <span class="comment">// enters child insert context</span>
+        .insertInto(Admin_.T)              <span class="comment">// ChildTableMeta — returns _ColumnListSpec</span>
+        .values(adminUserList)
+        .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <div class="admonitionblock tip">
+                            <table>
+                                <tr>
+                                    <td class="icon">
+                                        <i class="fa icon-tip" title="Tip"></i>
+                                    </td>
+                                    <td class="content">
+                                        <div class="paragraph">
+                                            <p>The <code>child()</code> method is only available when the previous
+                                                <code>insertInto()</code> received a <code>ParentTableMeta</code>.
+                                                Army generates separate <code>INSERT</code> statements for parent and
+                                                child tables internally.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_insert_options"><a class="anchor" href="#_insert_options"></a>INSERT Options</h5>
+                        <table class="tableblock frame-all grid-all stretch">
+                            <colgroup>
+                                <col style="width: 16.6666%;">
+                                <col style="width: 50%;">
+                                <col style="width: 33.3334%;">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th class="tableblock halign-left valign-top">Option</th>
+                                <th class="tableblock halign-left valign-top">Interface (from
+                                    <code>InsertStatement</code>)
+                                </th>
+                                <th class="tableblock halign-left valign-top">Chain position</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>literalMode(mode)</code>
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_PreferLiteralClause</code>
+                                    — reduce placeholders for large batches</p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">before <code>insertInto()</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>nullMode(mode)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_NullOptionClause</code>
+                                    — control NULL handling</p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">before <code>insertInto()</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>migration()</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_MigrationOptionClause</code>
+                                    — migration mode for schema transfer</p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">before <code>insertInto()</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ignoreReturnIds()</code>
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_IgnoreReturnIdsOptionClause</code>
+                                    — skip ID return for conflict clauses</p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">before <code>insertInto()</code>
+                                </p></td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <div class="sect3">
                     <h4 id="_update_statements"><a class="anchor" href="#_update_statements"></a>5.1.4. UPDATE
                         Statements</h4>
-                    <div class="listingblock">
-                        <div class="content">
+                    <div class="sect4">
+                        <h5 id="_single_table_update"><a class="anchor" href="#_single_table_update"></a>Single Table
+                            UPDATE</h5>
+                        <div class="paragraph">
+                            <p><code>SQLs.singleUpdate()</code> enters the UPDATE chain.
+                                Internally it calls <a
+                                        href="../army-core/src/main/java/io/army/criteria/impl/StandardUpdates.java"
+                                        class="extern"><code>StandardUpdates#singleUpdate</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="directive">final</span> Update stmt;
-stmt = SQLs.singleUpdate()   <span class="comment">// single table update</span>
+stmt = SQLs.singleUpdate()
         .update(Stock_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
-            class="content">s</span><span class="delimiter">&quot;</span></span>)
+            class="content">s</span><span class="delimiter">&quot;</span></span>)         <span class="comment">// SingleTableMeta — requires alias</span>
         .set(Stock_.name, <span class="string"><span class="delimiter">&quot;</span><span
             class="content">Tesla</span><span class="delimiter">&quot;</span></span>)
-        .set(Stock_.offerPrice, SQLs::plusEqual,  addPrice)
+        .set(Stock_.offerPrice, SQLs::plusEqual, addPrice)
         .where(Stock_.id.between(map.get(<span class="string"><span class="delimiter">&quot;</span><span
             class="content">firstId</span><span class="delimiter">&quot;</span></span>), SQLs.AND, map.get(<span
             class="string"><span class="delimiter">&quot;</span><span class="content">secondId</span><span
             class="delimiter">&quot;</span></span>)))
         .asUpdate();</code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p>The <code>set()</code> method comes from <a
+                                    href="../army-core/src/main/java/io/army/criteria/UpdateStatement.java"
+                                    class="extern"><code>UpdateStatement._StaticSetClause</code></a>.
+                                It supports value operators like <code>SQLs::plusEqual</code>,
+                                <code>SQLs::minusEqual</code>, etc., and <code>setRow()</code> for multi-column subquery
+                                assignment.</p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_domain_update"><a class="anchor" href="#_domain_update"></a>Domain UPDATE</h5>
+                        <div class="paragraph">
+                            <p><code>SQLs.domainUpdate()</code> is for updating domain objects directly — no table alias
+                                needed.
+                                Internally it calls <a
+                                        href="../army-core/src/main/java/io/army/criteria/impl/StandardUpdates.java"
+                                        class="extern"><code>StandardUpdates#simpleDomain</code></a>, which implements
+                                <a href="../army-core/src/main/java/io/army/criteria/standard/StandardUpdate.java"
+                                   class="extern"><code>StandardUpdate._DomainUpdateClause</code></a>:</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="directive">final</span> Update stmt;
+stmt = SQLs.domainUpdate()
+        .update(Stock_.T, <span class="string"><span class="delimiter">&quot;</span><span class="content">s</span><span
+            class="delimiter">&quot;</span></span>)             <span
+            class="comment">// TableMeta — no AS keyword</span>
+        .set(Stock_.name, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">Tesla</span><span class="delimiter">&quot;</span></span>)
+        .where(Stock_.id.equal(<span class="integer">100L</span>))
+        .asUpdate();</code></pre>
+                            </div>
+                        </div>
+                        <table class="tableblock frame-all grid-all stretch">
+                            <colgroup>
+                                <col style="width: 25%;">
+                                <col style="width: 75%;">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th class="tableblock halign-left valign-top">Entry Point</th>
+                                <th class="tableblock halign-left valign-top">Description</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>SQLs.singleUpdate()</code>
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">Standard UPDATE with
+                                    table alias; <code>update(SingleTableMeta, AS, alias)</code></p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>SQLs.domainUpdate()</code>
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">Domain UPDATE
+                                    without <code>AS</code> keyword; <code>update(TableMeta, alias)</code> — supports
+                                    <code>ChildTableMeta</code></p></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_batch_update"><a class="anchor" href="#_batch_update"></a>Batch UPDATE</h5>
+                        <div class="paragraph">
+                            <p>For batch operations with named parameters:</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="directive">final</span> BatchUpdate stmt;
+stmt = SQLs.batchSingleUpdate()
+        .update(Stock_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">s</span><span class="delimiter">&quot;</span></span>)
+        .sets(pairs -&gt; pairs
+                .setSpace(Stock_.name, SQLs::namedParam)      <span class="comment">// named param placeholder</span>
+                .setSpace(Stock_.offerPrice, SQLs::namedLiteral) <span
+            class="comment">// named literal placeholder</span>
+        )
+        .where(Stock_.id.spaceEqual(SQLs::namedParam))       <span
+            class="comment">// space* methods for named params</span>
+        .asUpdate();
+
+<span class="comment">// Execute with named parameter list</span>
+<span class="predefined-type">List</span>&lt;<span class="predefined-type">Map</span>&lt;<span class="predefined-type">String</span>, <span
+            class="predefined-type">Object</span>&gt;&gt; paramList = <span class="predefined-type">List</span>.of(
+    <span class="predefined-type">Map</span>.of(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">name</span><span class="delimiter">&quot;</span></span>, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">Tesla</span><span
+            class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">offerPrice</span><span class="delimiter">&quot;</span></span>, <span
+            class="integer">250</span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">id</span><span
+            class="delimiter">&quot;</span></span>, <span class="integer">1</span>),
+    <span class="predefined-type">Map</span>.of(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">name</span><span class="delimiter">&quot;</span></span>, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">Apple</span><span
+            class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">offerPrice</span><span class="delimiter">&quot;</span></span>, <span
+            class="integer">180</span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">id</span><span
+            class="delimiter">&quot;</span></span>, <span class="integer">2</span>)
+);
+<span class="type">long</span> rows = session.update(stmt.namedParamList(paramList));</code></pre>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="sect3">
                     <h4 id="_delete_statements"><a class="anchor" href="#_delete_statements"></a>5.1.5. DELETE
                         Statements</h4>
-                    <div class="listingblock">
-                        <div class="content">
+                    <div class="sect4">
+                        <h5 id="_single_table_delete"><a class="anchor" href="#_single_table_delete"></a>Single Table
+                            DELETE</h5>
+                        <div class="paragraph">
+                            <p><code>SQLs.singleDelete()</code> enters the DELETE chain.
+                                Internally it calls <a
+                                        href="../army-core/src/main/java/io/army/criteria/impl/StandardDeletes.java"
+                                        class="extern"><code>StandardDeletes#singleDelete</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="directive">final</span> Delete stmt;
 stmt = SQLs.singleDelete()
         .deleteFrom(Stock_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
-            class="content">s</span><span class="delimiter">&quot;</span></span>)
+            class="content">s</span><span class="delimiter">&quot;</span></span>)      <span class="comment">// SingleTableMeta — requires alias</span>
         .where(Stock_.status.equal(StockStatus.DELISTED))
         .asDelete();</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_domain_delete"><a class="anchor" href="#_domain_delete"></a>Domain DELETE</h5>
+                        <div class="paragraph">
+                            <p><code>SQLs.domainDelete()</code> supports <code>TableMeta</code> — no <code>AS</code>
+                                keyword or alias required.
+                                Internally it calls <a
+                                        href="../army-core/src/main/java/io/army/criteria/impl/StandardDeletes.java"
+                                        class="extern"><code>StandardDeletes#domainDelete</code></a>, which implements
+                                <a href="../army-core/src/main/java/io/army/criteria/standard/StandardDelete.java"
+                                   class="extern"><code>StandardDelete._DomainDeleteClause</code></a>:</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="directive">final</span> Delete stmt;
+stmt = SQLs.domainDelete()
+        .deleteFrom(Stock_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">s</span><span class="delimiter">&quot;</span></span>)      <span class="comment">// TableMeta — any table type</span>
+        .where(Stock_.visible.equal(<span class="predefined-constant">false</span>))
+        .asDelete();</code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p>All base interfaces for DELETE are defined in <a
+                                    href="../army-core/src/main/java/io/army/criteria/DeleteStatement.java"
+                                    class="extern"><code>DeleteStatement</code></a>:</p>
+                        </div>
+                        <table class="tableblock frame-all grid-all stretch">
+                            <colgroup>
+                                <col style="width: 33.3333%;">
+                                <col style="width: 66.6667%;">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th class="tableblock halign-left valign-top">Clause</th>
+                                <th class="tableblock halign-left valign-top">Interface</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">Single-table</p>
+                                </td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_SingleDeleteFromClause</code>
+                                    / <code>_SingleDeleteClause</code></p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">Parent table</p>
+                                </td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_DeleteParentClause</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">Child table</p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>_DeleteChildClause</code>
+                                </p></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="sect3">
+                    <h4 id="_standard_functions"><a class="anchor" href="#_standard_functions"></a>5.1.6. Standard
+                        Functions</h4>
+                    <div class="paragraph">
+                        <p>Army provides standard SQL functions through the <code>Functions</code> utility class (<a
+                                href="../army-core/src/main/java/io/army/criteria/impl/Functions.java"
+                                class="extern"><code>impl/Functions.java</code></a>).
+                            All standard function interfaces are declared in <a
+                                    href="../army-core/src/main/java/io/army/criteria/standard/SQLFunction.java"
+                                    class="extern"><code>standard/SQLFunction.java</code></a>.</p>
+                    </div>
+                    <div class="paragraph">
+                        <p>Functions can be used anywhere an <code>Expression</code> is expected — in
+                            <code>SELECT</code>, <code>WHERE</code>, <code>ORDER BY</code>, <code>GROUP BY</code>, and
+                            <code>HAVING</code>.</p>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_aggregate_functions"><a class="anchor" href="#_aggregate_functions"></a>Aggregate
+                            Functions</h5>
+                        <table class="tableblock frame-all grid-all stretch">
+                            <colgroup>
+                                <col style="width: 25%;">
+                                <col style="width: 75%;">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th class="tableblock halign-left valign-top">Function</th>
+                                <th class="tableblock halign-left valign-top">Signature</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>COUNT(*)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Functions.countAsterisk()</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>COUNT(expr)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Functions.count(expr)</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>COUNT(DISTINCT
+                                    expr)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Functions.count(SQLs.DISTINCT,
+                                    expr)</code></p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>SUM(expr)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Functions.sum(expr)</code>,
+                                    <code>Functions.sum(SQLs.DISTINCT, expr)</code></p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>AVG(expr)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Functions.avg(expr)</code>,
+                                    <code>Functions.avg(SQLs.DISTINCT, expr)</code></p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>MIN(expr)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Functions.min(expr)</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>MAX(expr)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Functions.max(expr)</code>
+                                </p></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Aggregate in SELECT</span>
+stmt = SQLs.query()
+        .select(Stock_.exchange, Functions.countAsterisk())
+        .from(Stock_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">s</span><span class="delimiter">&quot;</span></span>)
+        .groupBy(Stock_.exchange)
+        .asQuery();
+
+<span class="comment">// Aggregate in HAVING</span>
+stmt = SQLs.query()
+        .select(Stock_.exchange, Functions.countAsterisk())
+        .from(Stock_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">s</span><span class="delimiter">&quot;</span></span>)
+        .groupBy(Stock_.exchange)
+        .having(Functions.countAsterisk().greater(SQLs::literalValue, <span class="integer">100</span>))
+        .asQuery();</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_scalar_functions"><a class="anchor" href="#_scalar_functions"></a>Scalar Functions</h5>
+                        <div class="paragraph">
+                            <p>Army provides the full range of standard SQL scalar functions:</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>Math functions</strong> — <code>acos</code>, <code>asin</code>, <code>atan</code>,
+                                <code>atan2</code>, <code>ceil</code>, <code>cos</code>, <code>floor</code>,
+                                <code>ln</code>, <code>log</code>, <code>mod</code>, <code>power</code>,
+                                <code>round</code>, <code>sign</code>, <code>sqrt</code>, <code>truncate</code>, etc.
+                            </p>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>String functions</strong> — <code>concat</code>, <code>length</code>,
+                                <code>lower</code>, <code>upper</code>, <code>trim</code>, <code>substring</code>,
+                                <code>replace</code>, <code>reverse</code>, <code>position</code>, etc.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>Datetime functions</strong> — <code>currentDate</code>, <code>currentTime</code>,
+                                <code>currentTimestamp</code>, <code>localTime</code>, <code>localTimestamp</code>,
+                                <code>extract</code>, <code>dateAdd</code>, <code>dateSub</code>, <code>dateDiff</code>,
+                                <code>datediff</code>, <code>timestampAdd</code>, <code>timestampDiff</code>, etc.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>Conditional functions</strong> — <code>coalesce</code>, <code>nullif</code>,
+                                <code>greatest</code>, <code>least</code>, <code>ifNull</code>, <code>if</code></p>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>CASE expression</strong> — <code>Functions.cases()</code> / <code>Functions.cases(expr)</code>
+                                +
+                                <code>.when(&#8230;&#8203;).then(&#8230;&#8203;).elseValue(&#8230;&#8203;).end(type)</code>
+                            </p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Math: ROUND(offer_price, 2) &gt; 100</span>
+Stock_.offerPrice.greater(Functions.round(Stock_.offerPrice, SQLs::literalValue, <span class="integer">2</span>))
+
+<span class="comment">// String: CONCAT(exchange, '-', code)</span>
+Functions.concat(Stock_.exchange, SQLs::literalValue, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">-</span><span class="delimiter">&quot;</span></span>, Stock_.code)
+
+<span class="comment">// Datetime: EXTRACT(YEAR FROM create_time)</span>
+Functions.extract(SQLs.WordYear.YEAR, Stock_.createTime)
+
+<span class="comment">// CASE: price category</span>
+Functions.cases()
+         .when(Stock_.offerPrice.greater(SQLs::literalValue, <span class="integer">1000</span>)).then(SQLs::literalValue, <span
+            class="string"><span class="delimiter">&quot;</span><span class="content">HIGH</span><span
+            class="delimiter">&quot;</span></span>)
+         .when(Stock_.offerPrice.greater(SQLs::literalValue, <span class="integer">100</span>)).then(SQLs::literalValue, <span
+            class="string"><span class="delimiter">&quot;</span><span class="content">MID</span><span class="delimiter">&quot;</span></span>)
+         .elseValue(SQLs::literalValue, <span class="string"><span class="delimiter">&quot;</span><span class="content">LOW</span><span
+            class="delimiter">&quot;</span></span>)
+         .end(StandardInfer.STRING)</code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p>For the complete function reference, see <a
+                                    href="../army-core/src/main/java/io/army/criteria/impl/Functions.java"
+                                    class="extern"><code>Functions.java</code></a>.</p>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="sect2">
-                <h3 id="_expression_building"><a class="anchor" href="#_expression_building"></a>5.2. Expression
-                    Building</h3>
                 <div class="sect3">
-                    <h4 id="_conditional_expressions"><a class="anchor" href="#_conditional_expressions"></a>5.2.1.
+                    <h4 id="_standard_window_functions"><a class="anchor" href="#_standard_window_functions"></a>5.1.7.
+                        Standard Window Functions</h4>
+                    <div class="paragraph">
+                        <p>Window functions are provided through the <code>Windows</code> utility class (<a
+                                href="../army-core/src/main/java/io/army/criteria/impl/Windows.java"
+                                class="extern"><code>impl/Windows.java</code></a>), implementing <a
+                                href="../army-core/src/main/java/io/army/criteria/dialect/Window.java"
+                                class="extern"><code>dialect/Window</code></a>.</p>
+                    </div>
+                    <div class="paragraph">
+                        <p>Unlike aggregate functions, window functions require an <code>OVER</code> clause which
+                            specifies partitioning, ordering, and framing.</p>
+                    </div>
+                    <table class="tableblock frame-all grid-all stretch">
+                        <colgroup>
+                            <col style="width: 20%;">
+                            <col style="width: 40%;">
+                            <col style="width: 40%;">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th class="tableblock halign-left valign-top">Function</th>
+                            <th class="tableblock halign-left valign-top">Signature</th>
+                            <th class="tableblock halign-left valign-top">Return Type</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                <code>ROW_NUMBER()</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Windows.rowNumber()</code>
+                            </p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LongType</code>
+                            </p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>RANK()</code></p>
+                            </td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">(use dialect API)</p>
+                            </td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">—</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                <code>DENSE_RANK()</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Windows.denseRank()</code>
+                            </p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LongType</code>
+                            </p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>NTILE(n)</code>
+                            </p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                <code>Windows.ntile(n)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LongType</code>
+                            </p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>CUME_DIST()</code>
+                            </p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                <code>Windows.cumeDist()</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>DoubleType</code>
+                            </p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LAG(expr)</code>
+                            </p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                <code>Windows.lag(expr)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">Same as
+                                <code>expr</code></p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LAG(expr,
+                                n)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Windows.lag(expr,
+                                n)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">Same as
+                                <code>expr</code></p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LAG(expr, n,
+                                default)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Windows.lag(expr,
+                                n, default)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">Same as
+                                <code>expr</code></p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LEAD(expr)</code>
+                            </p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                <code>Windows.lead(expr)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">Same as
+                                <code>expr</code></p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LEAD(expr,
+                                n)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Windows.lead(expr,
+                                n)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">Same as
+                                <code>expr</code></p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LEAD(expr, n,
+                                default)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Windows.lead(expr,
+                                n, default)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">Same as
+                                <code>expr</code></p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                <code>FIRST_VALUE(expr)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Windows.firstValue(expr)</code>
+                            </p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">Same as
+                                <code>expr</code></p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                <code>LAST_VALUE(expr)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Windows.lastValue(expr)</code>
+                            </p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">Same as
+                                <code>expr</code></p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>NTH_VALUE(expr,
+                                n)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Windows.nthValue(expr,
+                                n)</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">Same as
+                                <code>expr</code></p></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="paragraph">
+                        <p>Each window function returns a <code>Windows._OverSpec</code> (or <code>Windows._WindowAggSpec</code>
+                            for aggregate windows), which exposes the <code>over()</code> methods defined by <a
+                                    href="../army-core/src/main/java/io/army/criteria/dialect/Window.java"
+                                    class="extern"><code>Window._OverWindowClause</code></a>:</p>
+                    </div>
+                    <div class="listingblock">
+                        <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Simple OVER()</span>
+Windows.rowNumber().over()
+
+<span class="comment">// OVER with named window definition</span>
+Windows.rowNumber().over(<span class="string"><span class="delimiter">&quot;</span><span class="content">w</span><span
+            class="delimiter">&quot;</span></span>)
+
+<span class="comment">// OVER with inline PARTITION BY + ORDER BY</span>
+Windows.rowNumber().over(w -&gt; w
+        .partitionBy(Stock_.exchange)
+        .orderBy(Stock_.offerPrice.desc())
+)
+
+<span class="comment">// LAG with offset and default</span>
+Windows.lag(Stock_.offerPrice, SQLs::literalValue, <span class="integer">1</span>, SQLs::literalValue, <span
+            class="integer">0</span>)
+     .over(w -&gt; w.partitionBy(Stock_.exchange).orderBy(Stock_.createTime.asc()))
+
+<span class="comment">// Aggregate window: SUM over a sliding frame</span>
+Functions.sum(Stock_.offerPrice)
+         .over(w -&gt; w
+                 .partitionBy(Stock_.exchange)
+                 .orderBy(Stock_.createTime.asc())
+                 .rowsBetween(
+                         <span class="predefined-type">Window</span>._FrameUnit.UNBOUNDED_PRECEDING,
+                         <span class="predefined-type">Window</span>._FrameUnit.CURRENT_ROW
+                 )
+         )</code></pre>
+                        </div>
+                    </div>
+                    <div class="admonitionblock note">
+                        <table>
+                            <tr>
+                                <td class="icon">
+                                    <i class="fa icon-note" title="Note"></i>
+                                </td>
+                                <td class="content">
+                                    <div class="paragraph">
+                                        <p><strong>Aggregate functions as window functions:</strong> <code>Functions.sum(expr)</code>,
+                                            <code>Functions.avg(expr)</code>, etc.
+                                            can also be used with <code>.over(&#8230;&#8203;)</code> — they become
+                                            window aggregates.
+                                            When used without <code>.over()</code>, they remain standard aggregates
+                                            (require <code>GROUP BY</code>).</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="sect3">
+                    <h4 id="_conditional_expressions"><a class="anchor" href="#_conditional_expressions"></a>5.1.8.
                         Conditional Expressions</h4>
                     <div class="ulist">
                         <ul>
@@ -5443,7 +7228,7 @@ stmt = SQLs.singleDelete()
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_logical_operators"><a class="anchor" href="#_logical_operators"></a>5.2.2. Logical
+                    <h4 id="_logical_operators"><a class="anchor" href="#_logical_operators"></a>5.1.9. Logical
                         Operators</h4>
                     <div class="ulist">
                         <ul>
@@ -5460,36 +7245,12 @@ stmt = SQLs.singleDelete()
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_aggregate_functions"><a class="anchor" href="#_aggregate_functions"></a>5.2.3. Aggregate
-                        Functions</h4>
-                    <div class="ulist">
-                        <ul>
-                            <li>
-                                <p><code>COUNT</code> / <code>SUM</code> / <code>AVG</code> / <code>MAX</code> / <code>MIN</code>
-                                </p>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="sect3">
-                    <h4 id="_window_functions"><a class="anchor" href="#_window_functions"></a>5.2.4. Window Functions
-                    </h4>
-                    <div class="ulist">
-                        <ul>
-                            <li>
-                                <p><code>ROW_NUMBER()</code> / <code>RANK()</code> / <code>DENSE_RANK()</code> / <code>NTILE()</code>
-                                </p>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="sect3">
-                    <h4 id="_default_parameter_binding"><a class="anchor" href="#_default_parameter_binding"></a>5.2.5.
+                    <h4 id="_default_parameter_binding"><a class="anchor" href="#_default_parameter_binding"></a>5.1.10.
                         Default Parameter Binding</h4>
                     <div class="paragraph">
                         <p>When you write predicates like <code>field.equal(value)</code>, Army automatically wraps the
-                            right-hand
-                            value into a parameterized SQL expression. Here&#8217;s how it works under the hood.</p>
+                            right-hand value into a parameterized SQL expression.
+                            Here&#8217;s how it works under the hood.</p>
                     </div>
                     <div class="sect4">
                         <h5 id="_the_default_path_field_equalvalue"><a class="anchor"
@@ -5506,78 +7267,83 @@ stmt = SQLs.singleDelete()
                         <div class="paragraph">
                             <p>What happens inside Army when this line executes?</p>
                         </div>
-                        <table class="tableblock frame-all grid-all stretch">
-                            <colgroup>
-                                <col style="width: 20%;">
-                                <col style="width: 80%;">
-                            </colgroup>
-                            <thead>
-                            <tr>
-                                <th class="tableblock halign-left valign-top">Step</th>
-                                <th class="tableblock halign-left valign-top">What Army does</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock">1. Call <code>equal(Object)</code>
-                                </p></td>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock">
-                                    <code>Stock_.status</code> is an <code>OperationTypedField</code> (extends <code>OperationTypedExpression</code>,
-                                    which extends
-                                    <code>OperationExpression</code>). It calls <a
-                                        href="../army-core/src/main/java/io/army/criteria/impl/OperationExpression.java"
-                                        class="extern"><code>OperationExpression#equal(Object)</code></a>:
-                                    +&#8201;&#8212;&#8201;[source,java]
-                                    ----
-                                    return Expressions.biPredicate(this, DualBooleanOperator.EQUAL, operand);
-                                    ----&#8201;&#8212;&#8201;</p></td>
-                            </tr>
-                            <tr>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock">2.
-                                    <code>biPredicate</code> → <code>wrapRight</code></p></td>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock"><a
-                                        href="../army-core/src/main/java/io/army/criteria/impl/Expressions.java"
-                                        class="extern"><code>Expressions#biPredicate</code></a>
-                                    calls <a href="../army-core/src/main/java/io/army/criteria/impl/Expressions.java"
-                                             class="extern"><code>Expressions#wrapRight(left</a>
-                                    to decide how to wrap the right operand <code>StockStatus.NORMAL</code>.</p></td>
-                            </tr>
-                            <tr>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock">3.
-                                    <code>wrapRight</code> checks <code>left</code> type</p></td>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock">Because
-                                    <code>left</code> (i.e. <code>Stock_.status</code>) implements
-                                    <code>TypedExpression</code>, <code>wrapRight</code> enters:
-                                    +&#8201;&#8212;&#8201;[source,java]
-                                    ----
-                                    else if (left instanceof TypedExpression) {
-                                    rightExp = wrapValue((TypedExpression) left, right);
-                                    }
-                                    ----&#8201;&#8212;&#8201;It passes the left operand&#8217;s <code>MappingType</code>
-                                    to <code>wrapValue</code>.</p></td>
-                            </tr>
-                            <tr>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock">4.
-                                    <code>wrapValue</code> checks <code>LiteralMode</code></p></td>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock">By default (<code>LiteralMode.DEFAULT</code>),
-                                    it creates a parameterized value:
-                                    +&#8201;&#8212;&#8201;[source,java]
-                                    ----
-                                    case DEFAULT:
-                                    valueExp = SQLs.param(infer, value); // → JDBC ?
-                                    ----&#8201;&#8212;&#8201;</p></td>
-                            </tr>
-                            <tr>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock">5. Result</p></td>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock">The generated SQL
-                                    looks like:
-                                    +&#8201;&#8212;&#8201;[source,sql]
-                                    ----
-                                    status = ? &#8201;&#8212;&#8201;with bound value: StockStatus.NORMAL
-                                    ----&#8201;&#8212;&#8201;</p></td>
-                            </tr>
-                            </tbody>
-                        </table>
+                        <div class="olist arabic">
+                            <ol class="arabic">
+                                <li>
+                                    <p>Step 1 — Call <code>equal(Object)</code></p>
+                                    <div class="paragraph">
+                                        <p><code>Stock_.status</code> is an <code>OperationTypedField</code> (extends
+                                            <code>OperationTypedExpression</code>, which extends
+                                            <code>OperationExpression</code>). It calls <a
+                                                    href="../army-core/src/main/java/io/army/criteria/impl/OperationExpression.java"
+                                                    class="extern"><code>OperationExpression#equal(Object)</code></a>:
+                                        </p>
+                                    </div>
+                                    <div class="listingblock">
+                                        <div class="content">
+                                            <pre class="CodeRay highlight nowrap"><code data-lang="java"><span
+                                                    class="keyword">return</span> Expressions.biPredicate(<span
+                                                    class="local-variable">this</span>, DualBooleanOperator.EQUAL, operand);</code></pre>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Step 2 — <code>biPredicate</code> → <code>wrapRight</code></p>
+                                    <div class="paragraph">
+                                        <p><a href="../army-core/src/main/java/io/army/criteria/impl/Expressions.java"
+                                              class="extern"><code>Expressions#biPredicate</code></a>
+                                            calls <a
+                                                    href="../army-core/src/main/java/io/army/criteria/impl/Expressions.java"
+                                                    class="extern"><code>Expressions#wrapRight(left</a>
+                                            to decide how to wrap the right operand <code>StockStatus.NORMAL</code>.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Step 3 — <code>wrapRight</code> checks <code>left</code> type</p>
+                                    <div class="paragraph">
+                                        <p>Because <code>left</code> (i.e. <code>Stock_.status</code>) implements <code>TypedExpression</code>,
+                                            <code>wrapRight</code> enters:</p>
+                                    </div>
+                                    <div class="listingblock">
+                                        <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="keyword">else</span> <span
+        class="keyword">if</span> (left <span class="keyword">instanceof</span> TypedExpression) {
+    rightExp = wrapValue((TypedExpression) left, right);
+}</code></pre>
+                                        </div>
+                                    </div>
+                                    <div class="paragraph">
+                                        <p>It passes the left operand&#8217;s <code>MappingType</code> to <code>wrapValue</code>.
+                                        </p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Step 4 — <code>wrapValue</code> checks <code>LiteralMode</code></p>
+                                    <div class="paragraph">
+                                        <p>By default (<code>LiteralMode.DEFAULT</code>), it creates a parameterized
+                                            value:</p>
+                                    </div>
+                                    <div class="listingblock">
+                                        <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="keyword">case</span> DEFAULT:
+    valueExp = SQLs.param(infer, value);  <span class="comment">// → JDBC ?</span></code></pre>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Step 5 — Result</p>
+                                    <div class="paragraph">
+                                        <p>The generated SQL looks like:</p>
+                                    </div>
+                                    <div class="listingblock">
+                                        <div class="content">
+                                            <pre class="CodeRay highlight nowrap"><code data-lang="sql">status = <span
+                                                    class="error">?</span>   <span class="comment">-- with bound value: StockStatus.NORMAL</span></code></pre>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
                         <div class="admonitionblock note">
                             <table>
                                 <tr>
@@ -5587,9 +7353,9 @@ stmt = SQLs.singleDelete()
                                     <td class="content">
                                         <div class="paragraph">
                                             <p>In the default path, Army <strong>never writes the value directly into
-                                                the SQL string</strong> — it always uses
-                                                JDBC <code>?</code> parameters. This is the safe, recommended default
-                                                for nearly all application code.</p>
+                                                the SQL string</strong> — it always uses JDBC <code>?</code> parameters.
+                                                This is the safe, recommended default for nearly all application code.
+                                            </p>
                                         </div>
                                     </td>
                                 </tr>
@@ -5601,8 +7367,8 @@ stmt = SQLs.singleDelete()
                                                                              href="#_what_happens_with_different_value_types"></a>What
                             happens with different value types</h5>
                         <div class="paragraph">
-                            <p><code>wrapRight</code> has more branches. Let&#8217;s see what happens when you pass
-                                different kinds of right operands.</p>
+                            <p><code>wrapRight</code> has more branches.
+                                Let&#8217;s see what happens when you pass different kinds of right operands.</p>
                         </div>
                         <div class="sect5">
                             <h6 id="_right_operand_is_already_an_expression"><a class="anchor"
@@ -5621,9 +7387,8 @@ Stock_.id.in(subQueryExpr)
                             </div>
                             <div class="paragraph">
                                 <p>When the right operand is already an <code>Expression</code> instance (e.g. another
-                                    field,
-                                    a subquery, a scalar expression), <code>wrapRight</code> simply passes it through
-                                    without any wrapping.</p>
+                                    field, a subquery, a scalar expression), <code>wrapRight</code> simply passes it
+                                    through without any wrapping.</p>
                             </div>
                         </div>
                         <div class="sect5">
@@ -5666,8 +7431,8 @@ Stock_.id.in(subQueryExpr)
                             </div>
                             <div class="paragraph">
                                 <p>This is why <code>$refField(&#8230;&#8203;).greater(new BigDecimal("100.00"))</code>
-                                    still works — Army matches the
-                                    Java class to a built-in <code>MappingType</code>.</p>
+                                    still works — Army matches the Java class to a built-in <code>MappingType</code>.
+                                </p>
                             </div>
                         </div>
                         <div class="sect5">
@@ -5693,8 +7458,7 @@ Stock_.offerPrice.greater(SQLs.ABSENT)  <span class="comment">// right operand c
                             <p>Once <code>wrapValue</code> is called, a <strong>global</strong> <code>LiteralMode</code>
                                 configuration (property key
                                 <code>expression.literal.mode</code>) determines whether the value is rendered as <code>?</code>
-                                or
-                                written directly into the SQL string.</p>
+                                or written directly into the SQL string.</p>
                         </div>
                         <div class="paragraph">
                             <p>The four modes and their effect:</p>
@@ -5727,24 +7491,28 @@ Stock_.offerPrice.greater(SQLs.ABSENT)  <span class="comment">// right operand c
                             <tr>
                                 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LITERAL</code>
                                 </p></td>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>status =
-                                    'NORMAL'</code>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>listingDate =
+                                    DATE '1970-01-01'</code>
                                     ,br
-                                    (the value is embedded in the SQL string)</p></td>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock">Use only when you
-                                    control the value (e.g. constants).
+                                    (the value is embedded together with its <strong>literal type</strong> —
+                                    e.g. <code>DATE</code>, <code>TIME</code>, <code>TIMESTAMP</code> in standard SQL;
+                                    PostgreSQL additionally supports <code>::type</code> cast syntax, e.g. <code>0::decimal</code>)
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">Use when you control
+                                    the value and want to ensure the database
+                                    interprets it with the correct type.
                                     Avoid for user-provided values — SQL injection risk.</p></td>
                             </tr>
                             <tr>
                                 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>CONST</code>
                                 </p></td>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>status =
-                                    'NORMAL'</code>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>listingDate =
+                                    '1970-01-01'</code>
                                     ,br
-                                    (same as <code>LITERAL</code> but semantically marks the value as a database
-                                    constant)</p></td>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock">Rarely needed.
-                                    Mainly for dialect-level optimizations.</p></td>
+                                    (the raw value is embedded <strong>without</strong> any literal type prefix —
+                                    same as <code>LITERAL</code> minus the type annotation)</p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">Rarely needed. Use
+                                    when literal type coercion is not required.</p></td>
                             </tr>
                             <tr>
                                 <td class="tableblock halign-left valign-top"><p class="tableblock">
@@ -5773,14 +7541,18 @@ LiteralMode.DEFAULT:
   status = ?          -- param: NORMAL
 
 LiteralMode.LITERAL:
-  offer_price &gt; <span class="float">100.00</span>   -- embedded in SQL
+  offer_price &gt; <span class="float">100.00</span>               -- numeric literal with type
   status = <span class="string"><span class="delimiter">'</span><span class="content">NORMAL</span><span
-            class="delimiter">'</span></span>      -- embedded in SQL
+            class="delimiter">'</span></span>                  -- string literal with type
+  listingDate = DATE <span class="string"><span class="delimiter">'</span><span class="content">1970-01-01</span><span
+            class="delimiter">'</span></span>    -- with DATE literal type prefix
 
 LiteralMode.CONST:
-  offer_price &gt; <span class="float">100.00</span>   -- embedded in SQL (marked as constant)
+  offer_price &gt; <span class="float">100.00</span>               -- raw value, no type annotation
   status = <span class="string"><span class="delimiter">'</span><span class="content">NORMAL</span><span
-            class="delimiter">'</span></span>      -- embedded in SQL (marked as constant)
+            class="delimiter">'</span></span>                  -- raw value, no type annotation
+  listingDate = <span class="string"><span class="delimiter">'</span><span class="content">1970-01-01</span><span
+            class="delimiter">'</span></span>         -- without DATE prefix
 
 LiteralMode.PREFERENCE:
   offer_price &gt; <span class="float">100.00</span>   -- <span class="predefined-type">BigDecimal</span> <span
@@ -5797,9 +7569,9 @@ LiteralMode.PREFERENCE:
                                     <td class="content">
                                         <div class="paragraph">
                                             <p>The <code>LiteralMode</code> applies <strong>globally</strong> to ALL
-                                                expressions built in the same JVM — it is read once
-                                                from <code>army.properties</code> at class-load time. You cannot mix
-                                                modes within a single query.</p>
+                                                expressions built in the same JVM — it is read once from <code>army.properties</code>
+                                                at class-load time.
+                                                You cannot mix modes within a single query.</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -5812,9 +7584,8 @@ LiteralMode.PREFERENCE:
                             binding with BiFunction overloads</h5>
                         <div class="paragraph">
                             <p>If you need to override the default binding for a <strong>specific</strong> predicate —
-                                regardless of the
-                                global <code>LiteralMode</code> — use the two-argument overloads that accept a <code>BiFunction</code>.
-                            </p>
+                                regardless of the global <code>LiteralMode</code> — use the two-argument overloads that
+                                accept a <code>BiFunction</code>.</p>
                         </div>
                         <div class="paragraph">
                             <p>These overloads are defined in <code>OperationTypedExpression</code> and <code>OperationTypedField</code>.
@@ -5871,8 +7642,9 @@ Stock_.status.in(SQLs::namedParam, <span class="predefined-type">Set</span>.of(S
                                 </p></td>
                                 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>(TypedField,
                                     String) → Expression</code></p></td>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock">
-                                    <code>SQLs::param</code> receives the field name for named parameters</p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>SQLs::namedParam</code>,
+                                    <code>SQLs::namedLiteral</code> — uses <code>TypedField#fieldName()</code> as the
+                                    named parameter key</p></td>
                             </tr>
                             </tbody>
                         </table>
@@ -5888,16 +7660,15 @@ Stock_.status.in(SQLs::namedParam, <span class="predefined-type">Set</span>.of(S
                                         </div>
                                         <div class="paragraph">
                                             <p>In everyday application code with normal domain fields (like <code>Stock_.status</code>),
-                                                you almost never
-                                                need explicit binding — the <code>DEFAULT</code> mode is safe and
-                                                correct.</p>
+                                                you almost never need explicit binding — the <code>DEFAULT</code> mode
+                                                is safe and correct.</p>
                                         </div>
                                         <div class="paragraph">
                                             <p>Explicit binding becomes useful in edge cases:
-                                                - CTE ref-fields where the left operand has no type information
-                                                - Force-literal for infrastructure tables (e.g.
-                                                <code>sys_config.code</code>) where injection is not a concern
-                                                - Custom <code>BiFunction</code> implementations for special parameter
+                                                - CTE ref-fields where the left operand has no type information -
+                                                Force-literal for infrastructure tables (e.g.
+                                                <code>sys_config.code</code>) where injection is not a concern - Custom
+                                                <code>BiFunction</code> implementations for special parameter
                                                 conventions</p>
                                         </div>
                                     </td>
@@ -5913,11 +7684,16 @@ Stock_.status.in(SQLs::namedParam, <span class="predefined-type">Set</span>.of(S
                                     <td class="content">
                                         <div class="paragraph">
                                             <p>The <code>space*</code> prefix on <code>spaceEqual</code>,
-                                                <code>spaceIn</code>, etc. indicates "helper API" — these
-                                                methods are designed for internal use by generated code and advanced
-                                                scenarios. In normal
-                                                application code, prefer the non-<code>space</code> overloads (e.g.
-                                                <code>equal(value)</code>).</p>
+                                                <code>spaceIn</code>, etc. avoids method overload conflicts with the
+                                                base interface at the JVM level — these methods are designed for
+                                                <strong>batch operations</strong> (e.g. <code>batchUpdate</code>) where
+                                                each row&#8217;s parameter must carry a unique name.
+                                                They only accept named parameters or named literals (<code>SQLs::namedParam</code>,
+                                                <code>SQLs::namedLiteral</code>) because
+                                                <code>TypedField#fieldName()</code>
+                                                serves as the named parameter key.
+                                                In normal query operations, prefer the non-<code>space</code> overloads
+                                                (e.g. <code>equal(value)</code>).</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -5927,7 +7703,7 @@ Stock_.status.in(SQLs::namedParam, <span class="predefined-type">Set</span>.of(S
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_cte_common_table_expressions"><a class="anchor" href="#_cte_common_table_expressions"></a>5.3.
+                <h3 id="_cte_common_table_expressions"><a class="anchor" href="#_cte_common_table_expressions"></a>5.2.
                     CTE (Common Table Expressions)</h3>
                 <div class="listingblock">
                     <div class="content">
@@ -5951,9 +7727,9 @@ stmt = SQLs.query()
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_subqueries"><a class="anchor" href="#_subqueries"></a>5.4. Subqueries</h3>
+                <h3 id="_subqueries"><a class="anchor" href="#_subqueries"></a>5.3. Subqueries</h3>
                 <div class="sect3">
-                    <h4 id="_scalar_subquery"><a class="anchor" href="#_scalar_subquery"></a>5.4.1. Scalar Subquery</h4>
+                    <h4 id="_scalar_subquery"><a class="anchor" href="#_scalar_subquery"></a>5.3.1. Scalar Subquery</h4>
                     <div class="listingblock">
                         <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java">SQLs.scalarSubQuery()
@@ -5990,7 +7766,7 @@ stmt = SQLs.query()
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_table_subquery"><a class="anchor" href="#_table_subquery"></a>5.4.2. Table Subquery</h4>
+                    <h4 id="_table_subquery"><a class="anchor" href="#_table_subquery"></a>5.3.2. Table Subquery</h4>
                     <div class="listingblock">
                         <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java">SQLs.subQuery()
@@ -6005,9 +7781,9 @@ stmt = SQLs.query()
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_mysql_dialect_api"><a class="anchor" href="#_mysql_dialect_api"></a>5.5. MySQL Dialect API</h3>
+                <h3 id="_mysql_dialect_api"><a class="anchor" href="#_mysql_dialect_api"></a>5.4. MySQL Dialect API</h3>
                 <div class="sect3">
-                    <h4 id="_the_mysqls_utility_class"><a class="anchor" href="#_the_mysqls_utility_class"></a>5.5.1.
+                    <h4 id="_the_mysqls_utility_class"><a class="anchor" href="#_the_mysqls_utility_class"></a>5.4.1.
                         The MySQLs Utility Class</h4>
                     <div class="paragraph">
                         <p>MySQL-specific SQL construction entry point: <code>MySQLs.singleInsert()</code>, <code>MySQLs.query()</code>,
@@ -6015,7 +7791,7 @@ stmt = SQLs.query()
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_mysql_specific_features"><a class="anchor" href="#_mysql_specific_features"></a>5.5.2.
+                    <h4 id="_mysql_specific_features"><a class="anchor" href="#_mysql_specific_features"></a>5.4.2.
                         MySQL-Specific Features</h4>
                     <div class="ulist">
                         <ul>
@@ -6050,10 +7826,10 @@ stmt = MySQLs.singleInsert()
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_postgresql_dialect_api"><a class="anchor" href="#_postgresql_dialect_api"></a>5.6. PostgreSQL
+                <h3 id="_postgresql_dialect_api"><a class="anchor" href="#_postgresql_dialect_api"></a>5.5. PostgreSQL
                     Dialect API</h3>
                 <div class="sect3">
-                    <h4 id="_the_postgres_utility_class"><a class="anchor" href="#_the_postgres_utility_class"></a>5.6.1.
+                    <h4 id="_the_postgres_utility_class"><a class="anchor" href="#_the_postgres_utility_class"></a>5.5.1.
                         The Postgres Utility Class</h4>
                     <div class="paragraph">
                         <p>PostgreSQL-specific SQL construction entry point: <code>Postgres.singleInsert()</code>,
@@ -6061,7 +7837,7 @@ stmt = MySQLs.singleInsert()
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_postgresql_specific_features"><a class="anchor" href="#_postgresql_specific_features"></a>5.6.2.
+                    <h4 id="_postgresql_specific_features"><a class="anchor" href="#_postgresql_specific_features"></a>5.5.2.
                         PostgreSQL-Specific Features</h4>
                     <div class="ulist">
                         <ul>
@@ -7385,7 +9161,7 @@ envMap.put(ArmyKey.SQL_LOG_EXECUTION_TAKE_TIME.name, <span class="predefined-con
 <div id="footer">
     <div id="footer-text">
         Version 0.6.8-SNAPSHOT<br>
-        Last updated 2026-06-03 07:57:55 +0800
+        Last updated 2026-06-04 01:58:12 +0800
     </div>
 </div>
 </body>

@@ -1,0 +1,181 @@
+<style>
+    /* ── Header link icons (top-right corner) ── */
+    #header {
+        position: relative;
+    }
+
+    #header .army-header-links {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: flex;
+        gap: 10px;
+        padding: 6px 12px;
+    }
+
+    #header .army-header-links a {
+        color: #999;
+        font-size: 26px;
+        text-decoration: none;
+        transition: color 0.2s;
+        line-height: 1;
+    }
+
+    #header .army-header-links a:hover {
+        color: #555;
+    }
+
+    /* ── Collapsible TOC styles ── */
+    #toc ul {
+        list-style: none;
+        padding-left: 1.2em;
+    }
+
+    /* Toggle indicator: ▶ collapsed, ▼ expanded */
+    #toc .toc-toggle {
+        cursor: pointer;
+        display: inline-block;
+        width: 1.0em;
+        margin-right: 0.2em;
+        text-align: center;
+        user-select: none;
+        font-size: 0.85em;
+        color: #666;
+        vertical-align: baseline;
+    }
+
+    #toc .toc-toggle:hover {
+        color: #333;
+    }
+
+    /* Hide children when collapsed */
+    #toc li.collapsed > ul {
+        display: none;
+    }
+
+    /* Leaf nodes (no children) — no toggle icon */
+    #toc li.leaf > .toc-toggle {
+        visibility: hidden;
+    }
+
+    /* ── Expand / Collapse All toggle button ── */
+    #toc .toc-actions {
+        margin-bottom: 0.4em;
+    }
+
+    #toc .toc-toggle-all {
+        cursor: pointer;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        background: #f5f5f5;
+        color: #555;
+        font-size: 0.75em;
+        padding: 1px 6px;
+        line-height: 1.4;
+        user-select: none;
+    }
+
+    #toc .toc-toggle-all:hover {
+        background: #e8e8e8;
+        color: #333;
+    }
+</style>
+
+<script>
+    (function () {
+        document.addEventListener('DOMContentLoaded', function () {
+            // ── Inject header link icons ──
+            var header = document.getElementById('header');
+            if (header) {
+                var links = document.createElement('div');
+                links.className = 'army-header-links';
+                links.innerHTML =
+                    '<a href="https://github.com/PillArmy/army" target="_blank" title="GitHub">' +
+                    '<i class="fa fa-github"></i></a>' +
+                    '<a href="https://mvnrepository.com/artifact/io.qinarmy" target="_blank" title="Maven Central">' +
+                    '<i class="fa fa-cube"></i></a>';
+                header.appendChild(links);
+            }
+
+            var toc = document.getElementById('toc');
+            if (!toc) return;
+            var ul = toc.querySelector('ul.sectlevel1');
+            if (!ul) return;
+            makeCollapsible(ul);
+
+            // ── Insert single Expand / Collapse All toggle after #toctitle ──
+            var titleEl = toc.querySelector('#toctitle');
+            if (titleEl) {
+                var actions = document.createElement('div');
+                actions.className = 'toc-actions';
+                var toggleAllBtn = document.createElement('span');
+                toggleAllBtn.className = 'toc-toggle-all';
+                toggleAllBtn.textContent = '\u229F';          // ⊟
+                toggleAllBtn.setAttribute('title', '\u6536\u8D77\u5168\u90E8');  // 收起全部
+
+                toggleAllBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    toggleAll(toc, toggleAllBtn);
+                });
+
+                actions.appendChild(toggleAllBtn);
+                toc.insertBefore(actions, titleEl.nextSibling);
+            }
+        });
+
+        function toggleAll(toc, btn) {
+            var toggles = toc.querySelectorAll('.toc-toggle');
+            // If any node is expanded → collapse all, else → expand all
+            var anyExpanded = false;
+            toggles.forEach(function (toggle) {
+                if (!toggle.parentNode.classList.contains('collapsed')) {
+                    anyExpanded = true;
+                }
+            });
+            var collapse = anyExpanded;
+            toggles.forEach(function (toggle) {
+                var li = toggle.parentNode;
+                if (collapse) {
+                    li.classList.add('collapsed');
+                    toggle.textContent = '\u25B6';  // ▶
+                } else {
+                    li.classList.remove('collapsed');
+                    toggle.textContent = '\u25BC';  // ▼
+                }
+            });
+            btn.textContent = collapse ? '\u229E' : '\u229F';  // ⊞ or ⊟
+            btn.setAttribute('title', collapse ? '\u5C55\u5F00\u5168\u90E8' : '\u6536\u8D77\u5168\u90E8');
+        }
+
+        function makeCollapsible(ul) {
+            var items = ul.querySelectorAll(':scope > li');
+            items.forEach(function (li) {
+                var childUl = li.querySelector(':scope > ul');
+                if (childUl) {
+                    // Has children — insert toggle indicator
+                    var a = li.querySelector(':scope > a');
+                    var toggle = document.createElement('span');
+                    toggle.className = 'toc-toggle';
+                    toggle.textContent = '\u25BC'; // ▼ expanded by default
+
+                    toggle.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        var isCollapsed = li.classList.toggle('collapsed');
+                        toggle.textContent = isCollapsed ? '\u25B6' : '\u25BC'; // ▶ collapsed, ▼ expanded
+                    });
+
+                    if (a) {
+                        a.parentNode.insertBefore(toggle, a);
+                    }
+
+                    // Recursively process child ul
+                    makeCollapsible(childUl);
+                } else {
+                    // Leaf node — no children
+                    li.classList.add('leaf');
+                }
+            });
+        }
+    })();
+</script>

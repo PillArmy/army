@@ -631,8 +631,8 @@ abstract class MySQLInserts extends InsertSupports {
         }
 
         @Override
-        public MySQLInsert._OnDuplicateKeyUpdateSpec<I, T> space(Supplier<SubQuery> supplier) {
-            return this.spaceQueryEnd(supplier.get());
+        public MySQLInsert._OnDuplicateKeyUpdateSpec<I, T> space(SubQuery subQuery) {
+            return this.spaceQueryEnd(subQuery);
         }
 
         @Override

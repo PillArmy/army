@@ -304,8 +304,8 @@ abstract class StandardInserts extends InsertSupports {
         }
 
         @Override
-        public Statement._DmlInsertClause<I> space(Supplier<SubQuery> supplier) {
-            return this.spaceQueryEnd(supplier.get());
+        public Statement._DmlInsertClause<I> space(SubQuery subQuery) {
+            return this.spaceQueryEnd(subQuery);
         }
 
         @Override

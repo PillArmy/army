@@ -163,7 +163,7 @@ public interface InsertStatement extends DmlStatement {
 
         R space(Function<T, R> function);
 
-        R space(Supplier<SubQuery> supplier);
+        R space(SubQuery subQuery);
 
     }
 

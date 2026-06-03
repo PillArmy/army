@@ -5,7 +5,7 @@
 :revdate: {docdate}
 :revremark: Snapshot
 :toc: left
-# :toclevels: 4
+:toclevels: 4
 :sectnums:
 :icons: font
 :source-highlighter: prettify
@@ -2422,90 +2422,92 @@ Each clause method returns the next narrow interface in the chain, so the compil
 
 ===== Single Table INSERT
 
-`SQLs.singleInsert()` enters the INSERT chain.
-Internally it calls link:../army-core/src/main/java/io/army/criteria/impl/StandardInserts.java[`StandardInserts#singleInsert20`,role="extern"], which returns link:../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java[`StandardInsert._PrimaryInsertInto20Clause`,role="extern"].
-
-After `insertInto(SimpleTableMeta)`, the chain enters link:../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java[`StandardInsert._ColumnListSpec`,role="extern"], which extends link:../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java[`_ComplexColumnDefaultSpec`,role="extern"].
-This is the *junction point* where all value modes branch off:
-
-[cols="1,2,3",options="header"]
-|===
-| Mode | Entry method on `_ColumnListSpec` | Source interface
-| Domain | `.value(domain)` / `.values(domainList)` | `InsertStatement._DomainValuesClause`
-| Value (static) | `.values()` (no-arg) → `.parens(Consumer)` | `InsertStatement._StaticValuesClause` → `_ValuesParensClause`
-| Value (dynamic) | `.values(Consumer<ValuesConstructor>)` | `InsertStatement._DynamicValuesClause`
-| Query | `.parens(Consumer<_StaticColumnSpaceClause>)` or `.space(subQuery)` directly | `InsertStatement._ColumnListParensClause` / `_QueryInsertSpaceClause`
-|===
-
-Below each mode is detailed with verified interface signatures.
+`SQLs.singleInsert()` returns link:../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java[`StandardInsert._PrimaryOptionSpec<Insert>`,role="extern"].
+Internally it calls link:../army-core/src/main/java/io/army/criteria/impl/StandardInserts.java[`StandardInserts#singleInsert`,role="extern"].
 
 *Domain mode* — pass domain objects directly.
 Defined in link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._DomainValuesClause`,role="extern"] +
-link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._DomainValueClause`,role="extern"]:
+link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._DomainValueClause`,role="extern"] +
+link:../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java[`_ValuesColumnDefaultSpec`,role="extern"]:
 
 [source,java]
 ----
-// (A) Single domain object — returns _DmlInsertClause, chain ends with asInsert()
+// (A) Single domain object
+//     <TS extends T> R value(TS domain)  →  returns _DmlInsertClause<Insert>
 final Insert stmt1;
 stmt1 = SQLs.singleInsert()
-        .insertInto(Stock_.T)
-        .value(new Stock("GOOGL", "Alphabet"))          // <TS extends T> R value(TS domain)
-        .asInsert();
+        .insertInto(Stock_.T)                               // → _ColumnListSpec
+        .value(new Stock("GOOGL", "Alphabet"))               // → _DmlInsertClause<Insert>
+        .asInsert();                                        // → Insert
 
-// (B) Multiple domain objects — List<T>
-final Insert stmt3;
-stmt3 = SQLs.singleInsert()
+// (B) List of domain objects (multi-row)
+//     <TS extends T> R values(List<TS> domainList)
+final Insert stmt2;
+stmt2 = SQLs.singleInsert()
         .insertInto(Stock_.T)
-        .defaultValue(Stock_.status, StockStatus.NORMAL) // optional column default
-        .values(stockList)                                // <TS extends T> R values(List<TS> domainList)
+        .defaultValue(Stock_.status, StockStatus.NORMAL)    // optional column default
+        .values(stockList)                                   // → _DmlInsertClause<Insert>
         .asInsert();
-
 ----
 
-[cols="1,2,3",options="header"]
+[cols="1,3,2",options="header"]
 |===
 | Method | Interface signature | Returns
-| `value(TS domain)` | `_DomainValueClause<T,R>` | `R` → `_DmlInsertClause<I>`
-| `value(Supplier<TS>)` | `_DomainValueClause<T,R>` | `R` → `_DmlInsertClause<I>`
-| `values(List<TS>)` | `_DomainValuesClause<T,R>` | `R` → `_DmlInsertClause<I>`
-| `values(Supplier<List<TS>>)` | `_DomainValuesClause<T,R>` | `R` → `_DmlInsertClause<I>`
+| `value(TS domain)` | `<TS extends T> R value(TS domain)` in `_DomainValueClause<T,R>` | `_DmlInsertClause<I>` → `.asInsert()`
+| `values(List<TS>)` | `<TS extends T> R values(List<TS> domainList)` in `_DomainValuesClause<T,R>` | `_DmlInsertClause<I>` → `.asInsert()`
 |===
 
 *Value mode — Static (single row / multi-row)*
 
-Static Value mode requires calling `.values()` (no-arg) first — this bridges from `_ColumnListSpec` to
+Requires `.values()` (no-arg) first — this bridges `_ColumnListSpec` via `_StaticValuesClause` to
 link:../army-core/src/main/java/io/army/criteria/standard/StandardInsert.java[`StandardInsert._StandardValuesParensClause`,role="extern"], which extends link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._ValuesParensClause`,role="extern"].
 
-Each `parens()` call adds one row.
-All column references use `FieldMeta` constants for compile-time safety.
+Each `parens()` call adds one VALUES row.
+All columns are referenced via `FieldMeta` constants.
 
 _Single row:_
 
 [source,java]
 ----
-// One parens(...) → one row
+// .values() → _StandardValuesParensClause
+// .parens(Consumer<_StaticValueSpaceClause>) → _ValuesParensCommaSpec → .asInsert()
 final Insert stmt;
 stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
-        .values()                                          // → _StandardValuesParensClause
-        .parens(r -> r                                 // parens(Consumer<_StaticValueSpaceClause>)
-                .space(Stock_.exchange, "NYSE")            //   space(FieldMeta<T>, Object)
-                .comma(Stock_.code, "AAPL")                //   comma(FieldMeta<T>, Object)
-                .comma(Stock_.name, "Apple Inc.") // comma(FieldMeta<T>, BiFunction, E)
-                .ifComma(Stock_.offerPrice, priceSupplier.get()) // ifComma — skipped when null
+        .values()                                           // _StaticValuesClause.values() no-arg
+        .parens(row -> row                                  // Consumer<_StaticValueSpaceClause<Stock>>
+                .space(Stock_.exchange, "NYSE")             //   space(FieldMeta<T>, @Nullable Object)
+                .comma(Stock_.code, "AAPL")                 //   comma(FieldMeta<T>, @Nullable Object)
+                .comma(Stock_.name, SQLs::param, "Alphabet")//   comma(FieldMeta, BiFunction, E) — binding
+                .ifComma(Stock_.offerPrice, offerValue)     //   conditional comma — skipped when null
         )
         .asInsert();
 ----
 
-_Multi-row:_
+._StaticValueSpaceClause methods:
+[cols="1,3",options="header"]
+|===
+| Method | Signature
+| `space(field, value)` | First pair; `value` can be literal, `Expression`, `null`, or `SQLs.DEFAULT`
+| `space(field, funcRef, value)` | First pair with binding: `SQLs::param`, `SQLs::literalValue`, etc.
+| `spaceIf(field, value)` | Conditional first pair — skipped when `value` is `null`
+| `spaceIf(field, funcRef, value)` | Conditional first pair with binding
+| `comma(field, value)` | Subsequent pair
+| `comma(field, funcRef, value)` | Subsequent pair with binding
+| `ifComma(field, value)` | Conditional subsequent pair
+| `ifComma(field, funcRef, value)` | Conditional subsequent pair with binding
+|===
+
+_Multi-row — chain via `.comma()`:_
 
 [source,java]
 ----
-// Chain parens() via .comma() — each parens() adds another VALUES row
+// .parens() → _ValuesParensCommaSpec  →  .comma() loops back
+// _ValuesParensCommaSpec extends _CommaClause<_StandardValuesParensClause>
 final Insert stmt;
 stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
-        .values()                                          // → _StandardValuesParensClause
+        .values()
         .parens(r -> r                                   // row 1
                 .space(Stock_.exchange, "NYSE")
                 .comma(Stock_.code, "AAPL")
@@ -2518,33 +2520,27 @@ stmt = SQLs.singleInsert()
                 .comma(Stock_.name, SQLs::param, "Alphabet")
         )
         .comma()
-        .parens(r -> r                                   // row 3
-                .spaceIf(Stock_.exchange, exchangeValue)   // conditional space: skipped when null
+        .parens(r -> r                                    // row 3 (conditional first column)
+                .spaceIf(Stock_.exchange, exchangeValue)   // skipped if exchangeValue == null
                 .comma(Stock_.code, "MSFT")
                 .comma(Stock_.name, "Microsoft")
         )
         .asInsert();
 ----
 
-[cols="1,2",options="header"]
-|===
-| Method (from `_StaticValueSpaceClause<T>`) | Signature
-| `space(field, value)` / `spaceIf(field, value)` | First column-value pair; `value` can be literal, `Expression`, or `null`
-| `space(field, funcRef, value)` / `spaceIf(field, funcRef, value)` | First pair with binding (e.g. `SQLs::literalValue`, `SQLs::param`)
-| `comma(field, value)` / `ifComma(field, value)` | Subsequent column-value pairs (from `_StaticColumnValueClause`)
-| `comma(field, funcRef, value)` / `ifComma(field, funcRef, value)` | Subsequent pair with binding
-|===
-
 *Value mode — Dynamic (multi-row via `ValuesConstructor`)*
 
-Defined in link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._DynamicValuesClause`,role="extern"], which provides `values(Consumer<ValuesConstructor<T>>)`.
+Defined in link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._DynamicValuesClause`,role="extern"]:
+`values(Consumer<ValuesConstructor<T>>)`.
+Returns `_DmlInsertClause<I>`.
 
-link:../army-core/src/main/java/io/army/criteria/ValuesConstructor.java[`ValuesConstructor`,role="extern"]
-extends `_ValuesParensClause<T, _CommaClause<ValuesConstructor<T>>>` — each `parens()` returns a comma clause, and `.comma()` chains back to `ValuesConstructor` for the next row.
+link:../army-core/src/main/java/io/army/criteria/ValuesConstructor.java[`ValuesConstructor<T>`,role="extern"]
+extends link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`_ValuesParensClause<T,_CommaClause<ValuesConstructor<T>>>`,role="extern"].
+Each `parens()` returns a comma clause; `.comma()` chains back to `ValuesConstructor`.
 
 Inside `parens()`, there are *two* sub-modes:
 
-_Static row — type-safe via `FieldMeta`:_
+_Static row — type-safe via `FieldMeta` (same `_StaticValueSpaceClause` as above):_
 
 [source,java]
 ----
@@ -2552,23 +2548,22 @@ final Insert stmt;
 stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
         .values(rows -> rows                                // Consumer<ValuesConstructor<Stock>>
-                .parens(r -> r                            // parens(Consumer<_StaticValueSpaceClause<Stock>>)
-                        .space(Stock_.exchange, "NYSE")    //   same _StaticValueSpaceClause as single-row
+                .parens(r -> r                           // Consumer<_StaticValueSpaceClause<Stock>>
+                        .space(Stock_.exchange, "NYSE")    //   space(FieldMeta<T>, Object)
                         .comma(Stock_.code, "AAPL")
                         .comma(Stock_.name, "Apple Inc.")
                 )
-                .comma()                                    // comma() → back to ValuesConstructor
-               .parens(SQLs.SPACE,s -> {    // row 2 — dynamic column
+                .comma()                                    // → back to ValuesConstructor
+               .parens(SQLs.SPACE,s-> {   // row 2   dynamic column
                         s.set(Stock_.exchange, "NASDAQ");
                         s.set(Stock_.code, "GOOGL");
-                        s.set(Stock_.name,  "Alphabet");
-                    }
-                )
+                        s.set(Stock_.name, SQLs::param, "Alphabet"); // set with binding
+                })
         )
         .asInsert();
 ----
 
-_Dynamic row — via `Assignments` (collections-style `set()`):_
+_Dynamic row — via `Assignments` (uses `set()` instead of `space()`/`comma()`):_
 
 [source,java]
 ----
@@ -2576,144 +2571,114 @@ final Insert stmt;
 stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
         .values(rows -> rows                                // Consumer<ValuesConstructor<Stock>>
-                .parens( s -> s                )
-                        .space(Stock_.exchange, "NYSE")       //   space(FieldMeta<T>, Expression) , return _StaticColumnValueClause
-                        .comma(Stock_.code, "AAPL")           //   comma(FieldMeta<T>, Expression)
+                .parens(s -> s                  // Consumer<Assignments<Stock>>
+                        .space(Stock_.exchange, "NYSE")       //   space(FieldMeta<T>, @Nullable Object)
+                        .comma(Stock_.code, "AAPL")           //   each set() returns Assignments<T>
                         .comma(Stock_.name, "Apple Inc.")
-                        .ifComma(Stock_.offerPrice, priceSupplier.get()) // conditional comma , fail -> default value
+                        .ifComma(Stock_.offerPrice, offer)    //   conditional — skipped when null
                 )
                 .comma()
-               .parens(SQLs.SPACE,s -> {    // row 2 — dynamic column
+                .parens(SQLs.SPACE,s-> {   // row 2   dynamic column
                         s.set(Stock_.exchange, "NASDAQ");
                         s.set(Stock_.code, "GOOGL");
-                        s.set(Stock_.name,  "Alphabet");
-                    }
-                )
+                        s.set(Stock_.name, SQLs::param, "Alphabet"); // set with binding
+                })
         )
         .asInsert();
 ----
 
-[cols="1,2",options="header"]
-|===
-| Row style | Method
-| Static (type-safe) | `parens(Consumer<_StaticValueSpaceClause<T>>)` — `space()`/`comma()` with `FieldMeta`
-| Dynamic (set-style) | `parens(SQLs.SymbolSpace, Consumer<Assignments<T>>)` — `set()`/`ifSet()` with `FieldMeta`
-|===
+`Assignments` extends link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._StaticAssignmentSetClause`,role="extern"]:
 
-Assignments methods (from `InsertStatement._StaticAssignmentSetClause`):
-
-[cols="1,2",options="header"]
+[cols="1,3",options="header"]
 |===
 | Method | Signature
-| `set(field, value)` | `R set(FieldMeta<T>, Expression)` — literal or expression
-| `set(field, supplier)` | `R set(FieldMeta<T>, Supplier<Expression>)` — lazy expression
-| `set(field, funcRef, value)` | `<E> R set(FieldMeta<T>, BiFunction<...,E,Expression>, @Nullable E)` — binding
-| `ifSet(field, supplier)` | Conditional — skipped when supplier returns `null`
-| `ifSet(field, funcRef, supplier)` | Conditional with binding
+| `set(field, value)` | `R set(FieldMeta<T>, @Nullable Object)` — literal, Expression, or null
+| `set(field, funcRef, value)` | `<E> R set(FieldMeta<T>, BiFunction<...,Expression>, @Nullable E)` — with binding
+| `ifSet(field, value)` | `R ifSet(FieldMeta<T>, @Nullable Object)` — conditional, skipped when null
+| `ifSet(field, funcRef, value)` | `<E> R ifSet(FieldMeta<T>, BiFunction<...,Expression>, @Nullable E)` — conditional with binding
 |===
 
-TIP: The static row uses the same `_StaticValueSpaceClause` as the single-row static mode.
-The dynamic row uses `Assignments`'s `set()` methods — useful when you need to add columns conditionally in a loop.
+TIP: The _Static row_ sub-mode uses the same `_StaticValueSpaceClause` lambdas as the non-Dynamic path.
+The _Dynamic row_ sub-mode uses `Assignments.set()` which is useful when columns are added in a loop or conditionally.
 
 *Query mode* — insert from a subquery.
+Defined in link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._QueryInsertSpaceClause`,role="extern"] +
+link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._ColumnListParensClause`,role="extern"].
 
-Defined in link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._QueryInsertSpaceClause`,role="extern"].
-The column list is specified via link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._ColumnListParensClause`,role="extern"].
+`_ColumnListParensClause` has two `parens()` overloads for specifying the target column list.
+`_QueryInsertSpaceClause` has three `space()` overloads for providing the subquery source.
 
-_Form 1 — Pre-built SubQuery with static column list:_
+[cols="1,3,2",options="header"]
+|===
+| Signal | Method | Returns
+| static columns | `parens(Consumer<_StaticColumnSpaceClause<T>>)` | `_ComplexColumnDefaultSpec`
+| dynamic columns | `parens(SQLs.SymbolSpace, Consumer<Consumer<FieldMeta<T>>>)` | `_ComplexColumnDefaultSpec`
+| pre-built subquery | `space(Supplier<SubQuery>)` | `_DmlInsertClause<I>`
+| inline via function | `space(Function<SelectSpec, _DmlInsertClause<I>>)` | `_DmlInsertClause<I>`
+| bare `space()` | `T space()` | `SelectSpec<_DmlInsertClause<I>>` → chain `.asInsert()`
+|===
+
+_Form 1 — Static columns + pre-built SubQuery:_
 
 [source,java]
 ----
-// Static column list via _StaticColumnSpaceClause + pre-built SubQuery
+// _StaticColumnSpaceClause: space(f1,f2) — 1/2/4 column params supported
 final Insert stmt;
 stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
-        .parens(cols -> cols                              // parens(Consumer<_StaticColumnSpaceClause<Stock>>)
-                .space(Stock_.exchange, Stock_.code)      //   space(field1, field2) — up to 4 columns
-                .comma(Stock_.name)                       //   comma(field) — add one more column
+        .parens(cols -> cols                                // Consumer<_StaticColumnSpaceClause<Stock>>
+                .space(Stock_.exchange, Stock_.code)        //   space(FieldMeta, FieldMeta) → _StaticColumnDualClause
+                .comma(Stock_.name)                         //   comma(FieldMeta)
         )
-        .space(subQuery)                                  // space(Supplier<SubQuery>)
+        .space(subQuery)                                    // Supplier<SubQuery> → _DmlInsertClause
         .asInsert();
 ----
 
-_Form 2 — Build SubQuery via `Supplier`:_
+_Form 2 — Dynamic columns + Supplier<SubQuery>:_
 
 [source,java]
 ----
-// Separate method builds the SubQuery, Supplier passes it
-SubQuery buildStockSubQuery() {
-    return SQLs.simpleQuery()
-            .select(Stock_.exchange, Stock_.code, Stock_.name, Stock_.status)
-            .from(Stock_.T, AS, "s")
-            .where(Stock_.listed.equal(true))
-            .asQuery();
-}
-
+// Dynamic column list: each accept(field) adds one column
 final Insert stmt;
 stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
-        .parens(cols -> cols
-                .space(Stock_.exchange, Stock_.code, Stock_.name, Stock_.status) // space(f1,f2,f3,f4) — 1/2/4 params supported
-        )
-        .space(() -> buildStockSubQuery())                // space(Supplier<SubQuery>)
-        .asInsert();
-----
-
-_Form 3 — No explicit column list (subquery determines columns):_
-
-[source,java]
-----
-// Skip parens() entirely — columns come from the subquery's SELECT list
-final Insert stmt;
-stmt = SQLs.singleInsert()
-        .insertInto(Stock_.T)
-        .space(subQuery)                                  // space() directly on _ComplexColumnDefaultSpec
-        .asInsert();
-----
-
-_Form 4 — Dynamic column list via Consumer callback:_
-
-[source,java]
-----
-// Dynamic column list: each accept(field) adds a column
-final Insert stmt;
-stmt = SQLs.singleInsert()
-        .insertInto(Stock_.T)
-        .parens(SQLs.SPACE, list -> {                     // parens(SQLs.SymbolSpace, Consumer<Consumer<FieldMeta<Stock>>>)
-                list.accept(Stock_.exchange);              //   accept(FieldMeta<T>)
-                list.accept(Stock_.code);                  //   useful when columns are determined at runtime
+        .parens(SQLs.SPACE, list -> {                       // Consumer<Consumer<FieldMeta<Stock>>>
+                list.accept(Stock_.exchange);                //   accept(FieldMeta<T>)
+                list.accept(Stock_.code);
                 list.accept(Stock_.name);
         })
-        .space(() -> subQuery)                             // Supplier<SubQuery>
+        .space(() -> subQuery)                              // Supplier<SubQuery>
         .asInsert();
 ----
 
-_Form 5 — No-arg `space()` returns `SelectSpec` (advanced):_
+_Form 3 — No column list (subquery determines columns):_
 
 [source,java]
 ----
-// space() no-arg returns SelectSpec for inline subquery building
-// After select/from/where, chain ends with asInsert()
+// Direct .space(subQuery) on _ComplexColumnDefaultSpec — no parens() needed
+final Insert stmt;
+stmt = SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .space(subQuery)                                    // _QueryInsertSpaceClause.space(Supplier)
+        .asInsert();
+----
+
+_Form 4 — No-arg `space()` returns `SelectSpec` (advanced):_
+
+[source,java]
+----
+// space() no-arg → SelectSpec<_DmlInsertClause<Insert>>
+// Build subquery inline, chain ends with .asInsert()
 final Insert stmt;
 stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
         .parens(cols -> cols.space(Stock_.exchange, Stock_.code, Stock_.name, Stock_.status))
-        .space()                                          // T space() — returns SelectSpec<_DmlInsertClause>
+        .space()                                            // T space() → SelectSpec
         .select(Stock_.exchange, Stock_.code, Stock_.name)
         .from(NasdaqTable_.T, AS, "n")
         .where(NasdaqTable_.listed.equal(true))
         .asInsert();
 ----
-
-[cols="1,2,3",options="header"]
-|===
-| Form | Method | Returns
-| `.space(subQuery)` | `R space(Supplier<SubQuery>)` | `_DmlInsertClause<I>`
-| `.space(() -> buildSubQuery())` | `R space(Supplier<SubQuery>)` — with method ref | `_DmlInsertClause<I>`
-| `.space()` | `T space()` | `SelectSpec<_DmlInsertClause<I>>` — chain `.asInsert()` to finish
-| `.parens(c -> c.space(f1, f2))` | static column list | `_ComplexColumnDefaultSpec`
-| `.parens(SQLs.SPACE, list -> list.accept(f1))` | dynamic column list | `_ComplexColumnDefaultSpec`
-|===
 
 ===== Child INSERT (Parent-Child Hierarchy)
 
@@ -2733,7 +2698,7 @@ stmt = SQLs.singleInsert()
         .defaultValue(ParentUser_.status, UserStatus.ADMIN)
         .values(parentUserList)
         .child()                            // enters child insert context
-        .insertInto(Admin_.T)              // ChildTableMeta
+        .insertInto(Admin_.T)              // ChildTableMeta — returns _ColumnListSpec
         .values(adminUserList)
         .asInsert();
 ----
@@ -2746,13 +2711,13 @@ Army generates separate `INSERT` statements for parent and child tables internal
 
 ===== INSERT Options
 
-[cols="1,2",options="header"]
+[cols="1,3,2",options="header"]
 |===
-| Option | Interface (from `InsertStatement`)
-| `literalMode(mode)` | `_PreferLiteralClause` — reduce placeholders for large batches
-| `nullMode(mode)` | `_NullOptionClause` — control NULL handling
-| `migration()` | `_MigrationOptionClause` — migration mode for schema transfer
-| `ignoreReturnIds()` | `_IgnoreReturnIdsOptionClause` — skip ID return for conflict clauses
+| Option | Interface (from `InsertStatement`) | Chain position
+| `literalMode(mode)` | `_PreferLiteralClause` — reduce placeholders for large batches | before `insertInto()`
+| `nullMode(mode)` | `_NullOptionClause` — control NULL handling | before `insertInto()`
+| `migration()` | `_MigrationOptionClause` — migration mode for schema transfer | before `insertInto()`
+| `ignoreReturnIds()` | `_IgnoreReturnIdsOptionClause` — skip ID return for conflict clauses | before `insertInto()`
 |===
 
 ==== UPDATE Statements

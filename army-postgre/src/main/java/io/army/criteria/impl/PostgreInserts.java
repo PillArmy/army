@@ -1061,8 +1061,8 @@ abstract class PostgreInserts extends InsertSupports {
         }
 
         @Override
-        public PostgreInsert._OnConflictSpec<T, I, Q> space(Supplier<SubQuery> supplier) {
-            return this.spaceQueryEnd(supplier.get());
+        public PostgreInsert._OnConflictSpec<T, I, Q> space(SubQuery subQuery) {
+            return this.spaceQueryEnd(subQuery);
         }
 
         @Override

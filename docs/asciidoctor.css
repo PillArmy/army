@@ -647,7 +647,7 @@ p a > code:hover {
     border-top: 1px solid #dddddf
 }
 
-#header > h1:only-child, body.toc2 #header > h1:nth-last-child(2) {
+#header > h1:only-child {
     border-bottom: 1px solid #dddddf;
     padding-bottom: 8px
 }
@@ -753,6 +753,11 @@ p a > code:hover {
     body.toc2 {
         padding-left: 15em;
         padding-right: 0
+    }
+
+    body.toc2 #header > h1:nth-last-child(2) {
+        border-bottom: 1px solid #dddddf;
+        padding-bottom: 8px
     }
 
     #toc.toc2 {
@@ -1029,14 +1034,6 @@ table.tableblock.fit-content > caption.title {
     border-radius: 4px
 }
 
-.exampleblock > .content > :first-child {
-    margin-top: 0
-}
-
-.exampleblock > .content > :last-child {
-    margin-bottom: 0
-}
-
 .sidebarblock {
     border: 1px solid #dbdbd6;
     margin-bottom: 1.25em;
@@ -1045,21 +1042,17 @@ table.tableblock.fit-content > caption.title {
     border-radius: 4px
 }
 
-.sidebarblock > :first-child {
-    margin-top: 0
-}
-
-.sidebarblock > :last-child {
-    margin-bottom: 0
-}
-
 .sidebarblock > .content > .title {
     color: #7a2518;
     margin-top: 0;
     text-align: center
 }
 
-.exampleblock > .content > :last-child > :last-child, .exampleblock > .content .olist > ol > li:last-child > :last-child, .exampleblock > .content .ulist > ul > li:last-child > :last-child, .exampleblock > .content .qlist > ol > li:last-child > :last-child, .sidebarblock > .content > :last-child > :last-child, .sidebarblock > .content .olist > ol > li:last-child > :last-child, .sidebarblock > .content .ulist > ul > li:last-child > :last-child, .sidebarblock > .content .qlist > ol > li:last-child > :last-child {
+.exampleblock > .content > :first-child, .sidebarblock > .content > :first-child {
+    margin-top: 0
+}
+
+.exampleblock > .content > :last-child, .exampleblock > .content > :last-child > :last-child, .exampleblock > .content .olist > ol > li:last-child > :last-child, .exampleblock > .content .ulist > ul > li:last-child > :last-child, .exampleblock > .content .qlist > ol > li:last-child > :last-child, .sidebarblock > .content > :last-child, .sidebarblock > .content > :last-child > :last-child, .sidebarblock > .content .olist > ol > li:last-child > :last-child, .sidebarblock > .content .ulist > ul > li:last-child > :last-child, .sidebarblock > .content .qlist > ol > li:last-child > :last-child {
     margin-bottom: 0
 }
 
@@ -1623,7 +1616,7 @@ sup.footnote a, sup.footnoteref a {
     text-decoration: none
 }
 
-sup.footnote a:active, sup.footnoteref a:active {
+sup.footnote a:active, sup.footnoteref a:active, #footnotes .footnote a:first-of-type:active {
     text-decoration: underline
 }
 
@@ -1908,7 +1901,7 @@ p strong, td.content strong, div.footnote strong {
     letter-spacing: -.005em
 }
 
-p, blockquote, dt, td.content, span.alt, summary {
+p, blockquote, dt, td.content, td.hdlist1, span.alt, summary {
     font-size: 1.0625rem
 }
 
