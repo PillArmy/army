@@ -19,7 +19,7 @@ ifdef::backend-pdf[]
 :pagenums:
 endif::[]
 
-(C) 2023-2027 The original authors.
+(C) 2023-present The original authors.
 
 NOTE: Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.
 
@@ -2332,9 +2332,9 @@ final Select stmt;
 stmt = SQLs.query()
         .select(Stock_.id, Stock_.name, Stock_.offerPrice)
         .from(Stock_.T, AS, "s")
-        .where(Stock_.name.equal(SQLs::param, "Tesla"))
-        .and(Stock_.createTime::less, SQLs::literal, LocalDateTime.now().minusDays(1))
-        .limit(SQLs::literal, 1)
+        .where(Stock_.name.equal("Tesla"))
+        .and(Stock_.createTime.less( LocalDateTime.now().minusDays(1)))
+        .limit(1)
         .asQuery();
 ----
 
@@ -2343,9 +2343,9 @@ stmt = SQLs.query()
 [source,java]
 ----
 final Insert stmt;
-stmt = SQLs.singleInsert()
+stmt = SQLs.singleInsert()   // single table insert
         .insertInto(Stock_.T)
-        .defaultValue(Stock_.status, SQLs::literal, StockStatus.NORMAL)
+        .defaultValue(Stock_.status, StockStatus.NORMAL)
         .values(stockList)
         .asInsert();
 ----
@@ -2355,11 +2355,11 @@ stmt = SQLs.singleInsert()
 [source,java]
 ----
 final Update stmt;
-stmt = SQLs.singleUpdate()
+stmt = SQLs.singleUpdate()   // single table update
         .update(Stock_.T, AS, "s")
-        .set(Stock_.name, SQLs::param, "Tesla Inc.")
-        .set(Stock_.offerPrice, SQLs::plusEqual, SQLs::param, addPrice)
-        .where(Stock_.id::between, SQLs::literal, map.get("firstId"), AND, map.get("secondId"))
+        .set(Stock_.name, "Tesla")
+        .set(Stock_.offerPrice, SQLs::plusEqual,  addPrice)
+        .where(Stock_.id.between(map.get("firstId"), SQLs.AND, map.get("secondId")))
         .asUpdate();
 ----
 
@@ -2370,7 +2370,7 @@ stmt = SQLs.singleUpdate()
 final Delete stmt;
 stmt = SQLs.singleDelete()
         .deleteFrom(Stock_.T, AS, "s")
-        .where(Stock_.status.equal(SQLs::literal, StockStatus.DELISTED))
+        .where(Stock_.status.equal(StockStatus.DELISTED))
         .asDelete();
 ----
 
@@ -2399,29 +2399,292 @@ stmt = SQLs.singleDelete()
 
 * `ROW_NUMBER()` / `RANK()` / `DENSE_RANK()` / `NTILE()`
 
+==== Default Parameter Binding
+
+When you write predicates like `field.equal(value)`, Army automatically wraps the right-hand value into a parameterized SQL expression.
+Here's how it works under the hood.
+
+===== The default path: `field.equal(value)`
+
+Take this simple predicate as an example:
+
+[source,java]
+----
+Stock_.status.equal(StockStatus.NORMAL)
+----
+
+What happens inside Army when this line executes?
+
+[cols="1,4",options="header"]
+|===
+| Step
+| What Army does
+
+| 1. Call `equal(Object)`
+| `Stock_.status` is an `OperationTypedField` (extends `OperationTypedExpression`, which extends
+`OperationExpression`). It calls link:../army-core/src/main/java/io/army/criteria/impl/OperationExpression.java[`OperationExpression#equal(Object)`,role="extern"]:
++
+--
+[source,java]
+----
+return Expressions.biPredicate(this, DualBooleanOperator.EQUAL, operand);
+----
+--
+
+| 2. `biPredicate` → `wrapRight`
+| link:../army-core/src/main/java/io/army/criteria/impl/Expressions.java[`Expressions#biPredicate`,role="extern"]
+calls link:../army-core/src/main/java/io/army/criteria/impl/Expressions.java[`Expressions#wrapRight(left,right)`,role="extern"]
+to decide how to wrap the right operand `StockStatus.NORMAL`.
+
+| 3. `wrapRight` checks `left` type
+| Because `left` (i.e. `Stock_.status`) implements `TypedExpression`, `wrapRight` enters:
++
+--
+[source,java]
+----
+else if (left instanceof TypedExpression) {
+    rightExp = wrapValue((TypedExpression) left, right);
+}
+----
+--
+It passes the left operand's `MappingType` to `wrapValue`.
+
+| 4. `wrapValue` checks `LiteralMode`
+| By default (`LiteralMode.DEFAULT`), it creates a parameterized value:
++
+--
+[source,java]
+----
+case DEFAULT:
+    valueExp = SQLs.param(infer, value);  // → JDBC ?
+----
+--
+
+| 5. Result
+| The generated SQL looks like:
++
+--
+[source,sql]
+----
+status = ?   -- with bound value: StockStatus.NORMAL
+----
+--
+|===
+
+[NOTE]
+====
+In the default path, Army **never writes the value directly into the SQL string** — it always uses JDBC `?` parameters.
+This is the safe, recommended default for nearly all application code.
+====
+
+===== What happens with different value types
+
+`wrapRight` has more branches.
+Let's see what happens when you pass different kinds of right operands.
+
+====== Right operand is already an `Expression`
+
+[source,java]
+----
+// Passing a field reference — already an Expression, used as-is
+Stock_.offerPrice.greater(Stock_.price)
+// SQL:  offer_price > price
+
+// Passing a subquery — already an Expression, used as-is
+Stock_.id.in(subQueryExpr)
+// SQL:  id IN (SELECT ...)
+----
+
+When the right operand is already an `Expression` instance (e.g. another field, a subquery, a scalar expression), `wrapRight` simply passes it through without any wrapping.
+
+====== Left operand has no type information
+
+[source,java]
+----
+// CTE ref-field — $refField returns a raw SqlField, not a TypedExpression
+$refField("normal_stock", Stock_.offerPrice).greater(new BigDecimal("100.00"))
+//                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//                                    This value will be wrapped via wrapNonNull(right)
+//                                    Auto-detection: BigDecimal → numeric MappingType → SQLs.param()
+----
+
+When the left operand is a raw `SqlField` (e.g. from CTE references via `$refField()`),
+`wrapRight` falls through to `wrapNonNull(right)`, which auto-detects the `MappingType` from
+`right.getClass()`:
+
+[source,java]
+----
+// Expressions#wrapNonNull
+static ArmyExpression wrapNonNull(final Object value) {
+    final MappingType type;
+    type = _MappingFactory.getDefaultIfMatch(value.getClass());
+    // BigDecimal → NumericMappingType
+    // String     → StringType
+    // Integer    → IntegerType
+    // ...
+    return wrapValue(type, value);
+}
+----
+
+This is why `$refField(...).greater(new BigDecimal("100.00"))` still works — Army matches the Java class to a built-in `MappingType`.
+
+====== Right operand could trigger an error
+
+[source,java]
+----
+// ❌ null — wrapRight throws NullPointerException
+Stock_.status.equal(null)  // right operand must be non-null
+
+// ❌ SQLs.ABSENT — wrapRight throws NPE
+Stock_.offerPrice.greater(SQLs.ABSENT)  // right operand couldn't be absent
+----
+
+===== Controlling the binding mode: LiteralMode
+
+Once `wrapValue` is called, a **global** `LiteralMode` configuration (property key
+`expression.literal.mode`) determines whether the value is rendered as `?` or written directly into the SQL string.
+
+The four modes and their effect:
+
+[cols="1,2,3",options="header"]
+|===
+| Mode
+| Generated SQL
+| When to use
+
+| `DEFAULT` (default)
+| `status = ?`
++,br+
+(the actual value is sent separately as a JDBC parameter)
+| **Always safe.** Recommended for 99% of predicates.
+Prevents SQL injection.
+
+| `LITERAL`
+| `status = 'NORMAL'`
++,br+
+(the value is embedded in the SQL string)
+| Use only when you control the value (e.g. constants).
+Avoid for user-provided values — SQL injection risk.
+
+| `CONST`
+| `status = 'NORMAL'`
++,br+
+(same as `LITERAL` but semantically marks the value as a database constant)
+| Rarely needed. Mainly for dialect-level optimizations.
+
+| `PREFERENCE`
+| Numeric/Boolean → `price = 100.00` (literal)
++,br+
+String → `status = ?` (param)
+| Automatically inlines safe types (numbers, booleans)
+and parameterizes string types. A middle ground between
+safety and readability.
+|===
+
+Here's how each mode translates a real predicate:
+
+[source,java]
+----
+// Java code:  Stock_.offerPrice.greater(new BigDecimal("100.00"))
+//             Stock_.status.equal(StockStatus.NORMAL)
+
+LiteralMode.DEFAULT:
+  offer_price > ?   -- param: 100.00
+  status = ?          -- param: NORMAL
+
+LiteralMode.LITERAL:
+  offer_price > 100.00   -- embedded in SQL
+  status = 'NORMAL'      -- embedded in SQL
+
+LiteralMode.CONST:
+  offer_price > 100.00   -- embedded in SQL (marked as constant)
+  status = 'NORMAL'      -- embedded in SQL (marked as constant)
+
+LiteralMode.PREFERENCE:
+  offer_price > 100.00   -- BigDecimal → _ArmyNoInjectionType → literal, safe
+  status = ?              -- enum/string → param, safe
+----
+
+[NOTE]
+====
+The `LiteralMode` applies **globally** to ALL expressions built in the same JVM — it is read once from `army.properties` at class-load time.
+You cannot mix modes within a single query.
+====
+
+===== Explicit binding with BiFunction overloads
+
+If you need to override the default binding for a *specific* predicate — regardless of the global `LiteralMode` — use the two-argument overloads that accept a `BiFunction`.
+
+These overloads are defined in `OperationTypedExpression` and `OperationTypedField`.
+They
+**bypass `wrapRight` entirely** by letting you specify the wrapping function directly:
+
+[source,java]
+----
+// ① Named-parameter binding — the BiFunction is called with (leftField, value)
+//    Useful when left operand has no type (CTE ref-field).
+$refField("normal_stock", Stock_.offerPrice).greaterEqual(SQLs::param, 5)
+// SQL:  normal_stock.offer_price >= ?   -- param name is derived from field
+
+// ② Force literal for a specific predicate, even if the global mode is DEFAULT.
+Stock_.status.equal(SQLs::literal, StockStatus.NORMAL)
+// SQL:  status = 'NORMAL'   -- embedded in SQL
+
+// ③ Use a custom BiFunction to compute the right operand.
+//    For example, wrap a collection for an IN clause.
+Stock_.status.in(SQLs::namedParam, Set.of(StockStatus.NORMAL, StockStatus.CLOSED))
+// SQL:  status IN (?, ?)
+----
+
+The BiFunction protocol:
+
+[cols="1,1,2",options="header"]
+|===
+| Overload context
+| BiFunction signature
+| Example
+
+| `field.equal(func, value)`
+| `(TypedExpression, T) → Expression`
+| `SQLs::param`, `SQLs::literal`
+
+| `field.spaceEqual(func)`
+| `(TypedField, String) → Expression`
+| `SQLs::param` receives the field name for named parameters
+|===
+
+[TIP]
+====
+**When should you care about explicit binding?**
+
+In everyday application code with normal domain fields (like `Stock_.status`), you almost never need explicit binding — the `DEFAULT` mode is safe and correct.
+
+Explicit binding becomes useful in edge cases:
+- CTE ref-fields where the left operand has no type information - Force-literal for infrastructure tables (e.g. `sys_config.code`) where injection is not a concern - Custom `BiFunction` implementations for special parameter conventions
+====
+
+[NOTE]
+====
+The ``space*`` prefix on `spaceEqual`, `spaceIn`, etc. indicates "helper API" — these methods are designed for internal use by generated code and advanced scenarios.
+In normal application code, prefer the non-``space`` overloads (e.g. `equal(value)`).
+====
+
 === CTE (Common Table Expressions)
 
 [source,java]
 ----
-final Insert stmt;
-stmt = Postgres.singleInsert()
-        .with("new_stock").as(s -> s
-                .insertInto(Stock_.T)
-                .values(stockList)
-                .returning(Stock_.id)
-                .asReturningInsert()
-        )
-        .comma("stock_row").as(s -> s
-                .select(ss -> ss
-                        .space(Postgres.rowNumber().over().as("rowNumber"))
-                        .comma(SQLs.refField("new_stock", Stock_.ID))
-                )
-                .from("new_stock")
+final Select stmt;
+stmt = SQLs.query()
+        .with("normal_stock").as(ws -> ws
+                .select(Stock_.id, Stock_.name, Stock_.offerPrice)
+                .from(Stock_.T, AS, "s")
+                .where(Stock_.status.equal(StockStatus.NORMAL))
                 .asQuery()
         )
-        .insertInto(Stock_.T)
-        .values(relatedStockList)
-        .asInsert();
+        .space()
+        .select(s -> s.space("normal_stock", PERIOD, ASTERISK))
+        .from("normal_stock")
+        .asQuery();
 ----
 
 === Subqueries
@@ -2431,20 +2694,28 @@ stmt = Postgres.singleInsert()
 [source,java]
 ----
 SQLs.scalarSubQuery()
-        .select(s -> s.space(SQLs.refField("s", Stock_.ID)))
-        .from("stock_row", AS, "s")
-        .where(SQLs.refField("s", "rowNumber")::equal, BATCH_NO_LITERAL)
+        .select(Stock_.id)
+        .from(Stock_.T, AS, "s")
+        .where(Stock_.exchange.equal("NYSE"))
+        .and(Stock_.code.equal("AAPL"))
         .asQuery()
 ----
+
+[IMPORTANT]
+====
+The final `asQuery()` at the end of the `SQLs.scalarSubQuery()` chain returns an `io.army.criteria.Expression` instance, *not* a `SubQuery`.
+It is used in contexts that require a scalar expression, such as `SELECT`, `WHERE`, and `HAVING` clauses.
+In contrast, the final `asQuery()` at the end of the `SQLs.subQuery()` chain returns a `SubQuery`, which is used in `FROM` clauses or with `IN` / `EXISTS` predicates.
+====
 
 ==== Table Subquery
 
 [source,java]
 ----
 SQLs.subQuery()
-        .select(s -> s.space("*"))
+        .select("s",PERIOD,Stock_.T)
         .from(Stock_.T, AS, "s")
-        .where(Stock_.status.equal(SQLs::literal, StockStatus.NORMAL))
+        .where(Stock_.status.equal(StockStatus.NORMAL))
         .asQuery()
 ----
 
