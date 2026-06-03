@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 
+/// Factory for creating type-safe object accessors for POJOs and maps.
 /// @since 0.6.0
 public abstract class ObjectAccessorFactory {
 

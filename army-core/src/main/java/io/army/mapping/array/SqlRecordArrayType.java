@@ -28,7 +28,6 @@ import io.army.mapping.optional._SqlRecordSupport;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
-import io.army.type.SqlRecord;
 import io.army.util.ArrayUtils;
 import io.army.util._Collections;
 
@@ -37,6 +36,8 @@ import java.util.List;
 import java.util.Objects;
 
 
+/// Array mapping type for {@link SqlRecord} elements.
+///
 /// @see SqlRecord
 /// @see io.army.mapping.optional.SqlRecordType
 public final class SqlRecordArrayType extends _SqlRecordSupport implements MappingType.SqlArray {

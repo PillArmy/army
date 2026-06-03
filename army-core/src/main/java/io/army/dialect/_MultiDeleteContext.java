@@ -16,6 +16,7 @@
 
 package io.army.dialect;
 
+/// Dialect context for multi-table DELETE statements.
 /// @since 0.6.0
 public interface _MultiDeleteContext extends _DeleteContext, _MultiTableStmtContext {
 

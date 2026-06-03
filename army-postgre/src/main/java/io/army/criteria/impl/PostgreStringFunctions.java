@@ -17,11 +17,11 @@
 package io.army.criteria.impl;
 
 import io.army.criteria.*;
+import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.mapping.array.TextArrayType;
 import io.army.mapping.postgre.PgRangeType;
 
-import io.army.lang.Nullable;
 import java.util.*;
 import java.util.function.BiFunction;
 
@@ -313,7 +313,7 @@ abstract class PostgreStringFunctions extends Functions {
 
     /// 
     /// The {@link MappingType} of function return type: the {@link MappingType} of string.
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( &#91;LEADING | TRAILING | BOTH&#93; &#91;FROM&#93; string text &#91;, characters text&#93; ) → text</a>
     public static SimpleExpression trim(Expression string) {
         return LiteralFunctions.oneArgFunc("TRIM", string);
     }
@@ -321,7 +321,7 @@ abstract class PostgreStringFunctions extends Functions {
     /// 
     /// The {@link MappingType} of function return type: the {@link MappingType} of string.
     /// @param from {@link SQLs#FROM}
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( &#91;LEADING | TRAILING | BOTH&#93; &#91;FROM&#93; string text &#91;, characters text&#93; ) → text</a>
     public static SimpleExpression trim(SQLs.WordFrom from, Expression string) {
         final String name = "TRIM";
         if (from != SQLs.FROM) {
@@ -342,7 +342,7 @@ abstract class PostgreStringFunctions extends Functions {
     /// 
     /// @param from     {@link SQLs#FROM}
     /// @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ characters text ] FROM string text ) → text</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( &#91;LEADING | TRAILING | BOTH&#93; &#91;characters text&#93; FROM string text ) → text</a>
     public static SimpleExpression trim(SQLs.TrimSpec position, SQLs.WordFrom from, Expression string) {
         final String name = "TRIM";
         if (string instanceof SqlValueParam.MultiParamValue) {
@@ -359,8 +359,8 @@ abstract class PostgreStringFunctions extends Functions {
     /// The {@link MappingType} of function return type: the {@link MappingType} of string.
     /// @param from {@link SQLs#FROM}
     /// @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ characters text ] FROM string text ) → text</a>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] bytesremoved bytea FROM bytes bytea ) → bytea</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( &#91;LEADING | TRAILING | BOTH&#93; &#91;characters text&#93; FROM string text ) → text</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( &#91;LEADING | TRAILING | BOTH&#93; bytesremoved bytea FROM bytes bytea ) → bytea</a>
     public static SimpleExpression trim(Expression characters, SQLs.WordFrom from, Expression string) {
         final String name = "TRIM";
         if (characters instanceof SqlValueParam.MultiParamValue) {
@@ -383,8 +383,8 @@ abstract class PostgreStringFunctions extends Functions {
     /// 
     /// @param from     {@link SQLs#FROM}
     /// @see #substring(Expression, SQLs.WordFrom, Expression, SQLs.WordFor, Expression)
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ characters text ] FROM string text ) → text</a>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] bytesremoved bytea FROM bytes bytea ) → bytea</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( &#91;LEADING | TRAILING | BOTH&#93; &#91;characters text&#93; FROM string text ) → text</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( &#91;LEADING | TRAILING | BOTH&#93; bytesremoved bytea FROM bytes bytea ) → bytea</a>
     public static SimpleExpression trim(SQLs.TrimSpec position, Expression characters, SQLs.WordFrom from, Expression string) {
         final String name = "TRIM";
         if (characters instanceof SqlValueParam.MultiParamValue) {
@@ -401,8 +401,8 @@ abstract class PostgreStringFunctions extends Functions {
 
     /// 
     /// The {@link MappingType} of function return type: the {@link MappingType} of string.
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] bytes bytea, bytesremoved bytea ) → bytea</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( &#91;LEADING | TRAILING | BOTH&#93; &#91;FROM&#93; string text &#91;, characters text&#93; ) → text</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( &#91;LEADING | TRAILING | BOTH&#93; &#91;FROM&#93; bytes bytea, bytesremoved bytea ) → bytea</a>
     public static SimpleExpression trim(Expression string, Expression characters) {
         final String name = "TRIM";
         if (string instanceof SqlValueParam.MultiParamValue) {
@@ -415,8 +415,8 @@ abstract class PostgreStringFunctions extends Functions {
 
     /// 
     /// The {@link MappingType} of function return type: the {@link MappingType} of string.
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] bytes bytea, bytesremoved bytea ) → bytea</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( &#91;LEADING | TRAILING | BOTH&#93; &#91;FROM&#93; string text &#91;, characters text&#93; ) → text</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( &#91;LEADING | TRAILING | BOTH&#93; &#91;FROM&#93; bytes bytea, bytesremoved bytea ) → bytea</a>
     public static SimpleExpression trim(SQLs.WordFrom from, Expression string, Expression characters) {
         final String name = "TRIM";
         if (from != SQLs.FROM) {
@@ -439,8 +439,8 @@ abstract class PostgreStringFunctions extends Functions {
     /// - {@link SQLs#BOTH}
     /// 
     /// @param from     {@link SQLs#FROM}
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] string text [, characters text ] ) → text</a>
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( [ LEADING | TRAILING | BOTH ] [ FROM ] bytes bytea, bytesremoved bytea ) → bytea</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-SQL">trim ( &#91;LEADING | TRAILING | BOTH&#93; &#91;FROM&#93; string text &#91;, characters text&#93; ) → text</a>
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-binarystring.html#FUNCTIONS-BINARYSTRING-SQL">trim ( &#91;LEADING | TRAILING | BOTH&#93; &#91;FROM&#93; bytes bytea, bytesremoved bytea ) → bytea</a>
     public static SimpleExpression trim(SQLs.TrimSpec position, SQLs.WordFrom from, Expression string, Expression characters) {
         final String name = "TRIM";
         if (string instanceof SqlValueParam.MultiParamValue) {
@@ -516,14 +516,14 @@ abstract class PostgreStringFunctions extends Functions {
     /// - {@link SQLs#rowParam(TypeInfer, Collection)}
     /// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
     /// - {@link SQLs#namedRowParam(TypeInfer, String, int)}
-    /// - {@link SQLs#namedRowLiteral(TypeInfer, String, int)}
+    /// - `SQLs#namedRowLiteral(TypeInfer, String, int)`
     /// 
     /// @param rest element possibly be multi param value:
     /// 
     /// - {@link SQLs#rowParam(TypeInfer, Collection)}
     /// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
     /// - {@link SQLs#namedRowParam(TypeInfer, String, int)}
-    /// - {@link SQLs#namedRowLiteral(TypeInfer, String, int)}
+    /// - `SQLs#namedRowLiteral(TypeInfer, String, int)`
     /// 
     /// @see #concatWs(Expression, List)
     /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">concat_ws ( sep text, val1 "any" [, val2 "any" [, ...] ] ) → text</a>
@@ -542,7 +542,7 @@ abstract class PostgreStringFunctions extends Functions {
     /// - {@link SQLs#rowParam(TypeInfer, Collection)}
     /// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
     /// - {@link SQLs#namedRowParam(TypeInfer, String, int)}
-    /// - {@link SQLs#namedRowLiteral(TypeInfer, String, int)}
+    /// - `SQLs#namedRowLiteral(TypeInfer, String, int)`
     /// 
     /// @see #concatWs(Expression, Expression, Expression...)
     /// @see <a href="https://www.postgresql.org/docs/current/functions-string.html#FUNCTIONS-STRING-OTHER">concat_ws ( sep text, val1 "any" [, val2 "any" [, ...] ] ) → text</a>

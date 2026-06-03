@@ -140,6 +140,7 @@ public interface MySQLReplace extends MySQLStatement {
 
     /// 
     /// This interface representing INTO clause that support only {@link SingleTableMeta}.
+    /// @param <I> the extending Item type
     interface _PrimarySingleIntoClause<I extends Item> {
 
         <T> _PartitionSpec<I, T> into(SingleTableMeta<T> table);
@@ -148,6 +149,7 @@ public interface MySQLReplace extends MySQLStatement {
 
     /// 
     /// This interface representing REPLACE INTO spec that support only {@link SingleTableMeta}.
+    /// @param <I> the extending Item type
     interface _PrimarySingleReplaceIntoSpec<I extends Item> extends _ReplaceClause<_PrimarySingleIntoClause<I>> {
 
         <T> _PartitionSpec<I, T> replaceInto(SingleTableMeta<T> table);
@@ -156,6 +158,7 @@ public interface MySQLReplace extends MySQLStatement {
 
     /// 
     /// This interface representing {@link LiteralMode} spec that support only {@link SingleTableMeta}.
+    /// @param <I> the extending Item type
     interface _PrimarySinglePreferLiteralSpec<I extends Item>
             extends InsertStatement._PreferLiteralClause<_PrimarySingleReplaceIntoSpec<I>>,
             _PrimarySingleReplaceIntoSpec<I> {
@@ -164,6 +167,7 @@ public interface MySQLReplace extends MySQLStatement {
 
     /// 
     /// This interface representing {@link NullMode} spec that support only {@link SingleTableMeta}.
+    /// @param <I> the extending Item type
     interface _PrimarySingleNullOptionSpec<I extends Item>
             extends InsertStatement._NullOptionClause<_PrimarySinglePreferLiteralSpec<I>>,
             _PrimarySinglePreferLiteralSpec<I> {
@@ -172,6 +176,7 @@ public interface MySQLReplace extends MySQLStatement {
 
     /// 
     /// This interface representing migration spec that support only {@link SingleTableMeta}.
+    /// @param <I> the extending Item type
     interface _PrimarySingleOptionSpec<I extends Item>
             extends InsertStatement._MigrationOptionClause<_PrimarySingleNullOptionSpec<I>>,
             InsertStatement._IgnoreReturnIdsOptionClause<_PrimarySingleNullOptionSpec<I>>,

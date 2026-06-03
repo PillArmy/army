@@ -16,6 +16,7 @@
 
 package io.army.criteria;
 
+/// A literal value identified by a name rather than positional index.
 /// @since 0.6.0
 public interface NamedLiteral extends SqlValueParam.NamedValue {
 

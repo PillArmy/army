@@ -21,6 +21,7 @@ import io.army.meta.TypeMeta;
 public interface TypeInfer extends Item {
 
 
+    /// Returns the type metadata for this inferable expression.
     TypeMeta typeMeta();
 
 

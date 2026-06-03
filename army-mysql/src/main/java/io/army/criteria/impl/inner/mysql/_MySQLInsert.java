@@ -22,6 +22,7 @@ import io.army.criteria.impl.inner._Insert;
 
 import java.util.List;
 
+/// Internal interface for MySQL-specific INSERT statement details.
 public interface _MySQLInsert extends _Insert, _Insert._ConflictActionClauseSpec, _Insert._SupportConflictClauseSpec {
 
     List<Hint> hintList();
@@ -55,10 +56,12 @@ public interface _MySQLInsert extends _Insert, _Insert._ConflictActionClauseSpec
 
     }
 
+    /// MySQL-specific assignment INSERT sub-interface.
     interface _MySQLAssignmentInsert extends _Insert._AssignmentInsert, _MySQLInsert {
 
     }
 
+    /// MySQL-specific child assignment INSERT sub-interface.
     interface _MySQLChildAssignmentInsert extends _Insert._ChildAssignmentInsert, _MySQLAssignmentInsert {
 
         @Override

@@ -22,33 +22,44 @@ import io.army.criteria.impl.inner._Statement;
 
 import java.util.List;
 
+/// Internal representation of a PostgreSQL SET or SHOW command.
 public interface _PostgreCommand extends _Statement {
 
 
+    /// SET command for modifying runtime parameters.
     interface _SetCommand extends _PostgreCommand {
 
+        /// The parameter-value pair.
         _ParamValue paramValuePair();
 
     }
 
+    /// A parameter name and its value list for SET commands.
     interface _ParamValue {
 
+        /// The variable scope (SESSION, LOCAL, etc.).
         SQLs.VarScope scope();
 
+        /// The parameter name.
         String name();
 
+        /// The value word (e.g. TO, =).
         Object word();
 
+        /// The list of values.
         List<Object> valueList();
 
     }
 
 
+    /// SHOW command for displaying runtime parameters.
     interface _ShowCommand extends _PostgreCommand {
 
+        /// The selection list.
         List<? extends Selection> selectionList();
 
 
+        /// The parameter to show.
         Object parameter();
 
     }

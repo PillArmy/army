@@ -70,8 +70,10 @@ import java.util.function.Predicate;
 abstract class ArmyParser implements DialectParser {
 
 
+    /// The dialect this parser is bound to.
     protected final Dialect dialect;
 
+    /// The database of the dialect.
     protected final Database dialectDatabase;
 
     protected final Database serverDatabase;
@@ -82,6 +84,7 @@ abstract class ArmyParser implements DialectParser {
 
     protected final EscapeMode literalEscapeMode;
 
+    /// The escape mode for SQL identifiers.
     protected final EscapeMode identifierEscapeMode;
 
     final boolean mockEnv;

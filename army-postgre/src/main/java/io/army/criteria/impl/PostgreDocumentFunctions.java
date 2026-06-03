@@ -1711,8 +1711,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
@@ -1736,8 +1736,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
@@ -1780,8 +1780,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// @param record valid type:
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
@@ -1804,8 +1804,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// @param record   valid type:
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @param lineFeed in most case {@link SQLs#TRUE} or {@link SQLs#FALSE}
@@ -1844,8 +1844,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
@@ -1870,16 +1870,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @param arg2 valid type:
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
@@ -1905,32 +1905,32 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @param arg2     valid type:
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @param arg3     valid type:
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @param variadic valid type:
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
@@ -1956,8 +1956,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
@@ -2001,8 +2001,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
@@ -2026,16 +2026,16 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @param arg2 valid type:
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
@@ -2060,32 +2060,32 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @param arg2     valid type:
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @param arg3     valid type:
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @param variadic valid type:
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
@@ -2111,8 +2111,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// 
     /// @throws CriteriaException throw when arg type error , but probably defer if arg is {@link SQLs#refField(String, String)}
@@ -2152,8 +2152,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// - {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)}
     /// 
@@ -2173,8 +2173,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// - {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)}
     /// 
@@ -2201,8 +2201,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// - {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)}
     /// 
@@ -2222,8 +2222,8 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - constant
     /// - {@link RowExpression}
     /// - {@link Expression}
-    /// -  {@link SQLs#row(Object)}
-    /// - {@link SQLs#row(Consumer)}
+    /// -  `SQLs#row(Object)`
+    /// - `SQLs#row(Consumer)`
     /// - {@link SQLs#space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)}
     /// - {@link SQLs#space(String, SQLs.SymbolDot, TableMeta)}
     /// 

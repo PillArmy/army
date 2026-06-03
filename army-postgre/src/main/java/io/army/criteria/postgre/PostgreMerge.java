@@ -84,6 +84,7 @@ public interface PostgreMerge extends PostgreStatement {
     ///     LOG.debug("{} row : {}", session.name(), rows);
     /// }
     /// ```
+    /// @param <T> the domain type of the target table
     interface MatchedMergeActionSpec<T> extends DoNothingClause<_EndFlag> {
 
         _MergeUpdateSetClause<T> update();

@@ -24,37 +24,47 @@ import io.army.lang.Nullable;
 
 import java.util.List;
 
+/// Internal representation of a PostgreSQL INSERT statement with ON CONFLICT support.
 public interface _PostgreInsert extends _Insert, _Insert._SupportConflictClauseSpec, _Insert._SupportWithClauseInsert,
         _Statement._ReturningListSpec {
 
+    /// The OVERRIDING SYSTEM VALUE / OVERRIDING USER VALUE tokens, nullable.
     @Nullable
     SQLToken overridingValueWords();
 
 
+    /// The ON CONFLICT action result.
     @Nullable
     _ConflictActionClauseResult getConflictActionResult();
 
 
+    /// Result of the ON CONFLICT clause with constraint and predicate details.
     interface _ConflictActionClauseResult extends _Insert._ConflictActionClauseSpec
             , _Insert._ConflictActionPredicateClauseSpec {
 
+        /// The constraint name, nullable.
         @Nullable
         String constraintName();
 
+        /// The list of conflict target items.
         List<_ConflictTargetItem> conflictTargetItemList();
 
 
+        /// The list of index predicates.
         List<_Predicate> indexPredicateList();
 
+        /// Whether the conflict action is DO NOTHING (ignorable).
         boolean isIgnorableConflict();
 
     }
 
+    /// PostgreSQL domain INSERT.
     interface _PostgreDomainInsert extends _Insert._DomainInsert, _PostgreInsert {
 
 
     }
 
+    /// PostgreSQL child domain INSERT.
     interface _PostgreChildDomainInsert extends _Insert._ChildDomainInsert, _PostgreDomainInsert {
 
         @Override
@@ -62,11 +72,13 @@ public interface _PostgreInsert extends _Insert, _Insert._SupportConflictClauseS
 
     }
 
+    /// PostgreSQL values INSERT.
     interface _PostgreValueInsert extends _Insert._ValuesInsert, _PostgreInsert {
 
 
     }
 
+    /// PostgreSQL child values INSERT.
     interface _PostgreChildValueInsert extends _Insert._ChildValuesInsert, _PostgreValueInsert {
 
         @Override
@@ -75,14 +87,17 @@ public interface _PostgreInsert extends _Insert, _Insert._SupportConflictClauseS
     }
 
 
+    /// PostgreSQL query INSERT (INSERT ... SELECT).
     interface _PostgreQueryInsert extends _Insert._QueryInsert, _PostgreInsert {
 
     }
 
+    /// PostgreSQL parent query INSERT.
     interface _PostgreParentQueryInsert extends _PostgreQueryInsert, _ParentQueryInsert {
 
     }
 
+    /// PostgreSQL child query INSERT.
     interface _PostgreChildQueryInsert extends _Insert._ChildQueryInsert, _PostgreQueryInsert {
 
         @Override

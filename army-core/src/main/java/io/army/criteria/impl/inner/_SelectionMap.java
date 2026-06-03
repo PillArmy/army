@@ -37,7 +37,8 @@ public interface _SelectionMap {
     /// 
     /// - {@link io.army.criteria.impl.inner._SelfDescribed#appendSql(StringBuilder, _SqlContext)}
     /// - {@link _Selection#appendSelectItem(StringBuilder, _SqlContext)}
-    /// 
+    ///
+    /// @param name selection name to lookup
     /// @return the {@link Selection} that couldn't be rendered.
     @Nullable
     Selection refSelection(String name);

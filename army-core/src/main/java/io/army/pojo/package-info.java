@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// POJO object accessor and reflection utilities.
 @io.army.lang.NonNullApi
 package io.army.pojo;

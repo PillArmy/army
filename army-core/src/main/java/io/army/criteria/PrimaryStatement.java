@@ -17,6 +17,7 @@
 package io.army.criteria;
 
 
+/// Root statement representing a primary (non-sub) SQL statement.
 /// @see SubStatement
 public interface PrimaryStatement extends Statement, Statement.StatementMockSpec {
 

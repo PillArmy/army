@@ -17,10 +17,11 @@
 package io.army.transaction;
 
 
+import io.army.lang.Nullable;
 import io.army.option.Option;
 
-import io.army.lang.Nullable;
-
+/// Transaction configuration options.
+///
 /// @see TransactionInfo
 /// @since 0.6.0
 public interface TransactionOption extends TransactionSpec {

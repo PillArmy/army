@@ -35,6 +35,9 @@ import java.util.function.Consumer;
 public interface DialectParser {
 
 
+    /// Parse an INSERT statement into an executable Stmt.
+    /// @param insert      the insert statement to parse
+    /// @param sessionSpec session specification
     /// @return one of :
     ///
     /// - {@link SimpleStmt}
@@ -43,18 +46,30 @@ public interface DialectParser {
     ///
     Stmt insert(InsertStatement insert, SessionSpec sessionSpec);
 
+    /// Parse an UPDATE statement into an executable Stmt.
+    /// @param update        the update statement to parse
+    /// @param useMultiStmt  whether to use multi-statement mode
+    /// @param sessionSpec   session specification
     /// @return one of
     /// - {@link SimpleStmt}
     /// - {@link io.army.stmt.BatchStmt}
     ///
     Stmt update(UpdateStatement update, boolean useMultiStmt, SessionSpec sessionSpec);
 
+    /// Parse a DELETE statement into an executable Stmt.
+    /// @param delete        the delete statement to parse
+    /// @param useMultiStmt  whether to use multi-statement mode
+    /// @param sessionSpec   session specification
     /// @return one of
     /// - {@link SimpleStmt}
     /// - {@link io.army.stmt.BatchStmt}
     ///
     Stmt delete(DeleteStatement delete, boolean useMultiStmt, SessionSpec sessionSpec);
 
+    /// Parse a SELECT statement into an executable Stmt.
+    /// @param select        the select statement to parse
+    /// @param useMultiStmt  whether to use multi-statement mode
+    /// @param sessionSpec   session specification
     /// @return one of
     /// - {@link SimpleStmt}
     /// - {@link io.army.stmt.BatchStmt}

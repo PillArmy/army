@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Java-to-SQL type mapping framework.
 @io.army.lang.NonNullApi
 package io.army.mapping;

@@ -26,6 +26,8 @@ import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
+/// Mapping type for PostgreSQL HSTORE key/value datatype.
+///
 /// @see <a href="https://www.postgresql.org/docs/current/hstore.html">hstore key/value datatype</a>
 public final class PgHstoreType extends _ArmyBuildInType implements MappingType.SqlExtension {
 

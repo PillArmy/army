@@ -32,6 +32,8 @@ import io.army.util.ArrayUtils;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
+/// Array mapping type for composite type elements.
+///
 /// @see io.army.mapping.CompositeType
 public class CompositeArrayType extends _ArmyBuildInArrayType {
 

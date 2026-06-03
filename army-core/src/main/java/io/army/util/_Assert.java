@@ -22,6 +22,7 @@ import io.army.lang.Nullable;
 
 import java.util.Collection;
 
+/// Internal assertion utility for validating method arguments.
 /// @since 0.6.0
 public abstract class _Assert {
 

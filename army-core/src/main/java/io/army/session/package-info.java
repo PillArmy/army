@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Session management for database connections.
 @io.army.lang.NonNullApi
 package io.army.session;

@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// PostgreSQL spatial type mappings.
 @io.army.lang.NonNullApi
 package io.army.mapping.postgre.spatial.postgre;

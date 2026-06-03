@@ -29,6 +29,8 @@ import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
+/// Array mapping type for blob ({@code byte[]}) elements.
+///
 /// @see BlobType
 public class BlobArrayType extends _ArmyBuildInArrayType {
 

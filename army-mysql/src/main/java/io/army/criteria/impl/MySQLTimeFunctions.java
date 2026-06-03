@@ -683,7 +683,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     /// 
     /// The {@link MappingType} of function return type:{@link LocalDateTimeType}
     /// @see #now(Object)
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_now">NOW([fsp])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_now">NOW(&#91;fsp&#93;)</a>
     public static SimpleExpression now() {
         return LiteralFunctions.zeroArgFunc("NOW");
     }
@@ -696,7 +696,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     /// 
     /// @throws CriteriaException throw when argument error
     /// @see #now()
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_now">NOW([fsp])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_now">NOW(&#91;fsp&#93;)</a>
     public static SimpleExpression now(Object fsp) {
         FuncExpUtils.assertIntExp(fsp);
         return LiteralFunctions.oneArgFunc("NOW", fsp);
@@ -704,7 +704,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
 
     /// The {@link MappingType} of function return type:{@link LocalDateTimeType}
     /// @see #sysDate(Object)
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_sysdate">SYSDATE([fsp])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_sysdate">SYSDATE(&#91;fsp&#93;)</a>
     public static SimpleExpression sysDate() {
         return LiteralFunctions.zeroArgFunc("SYSDATE");
     }
@@ -717,7 +717,7 @@ abstract class MySQLTimeFunctions extends MySQLStringFunctions {
     /// 
     /// @throws CriteriaException throw when argument error
     /// @see #sysDate()
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_sysdate">SYSDATE([fsp])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_sysdate">SYSDATE(&#91;fsp&#93;)</a>
     public static SimpleExpression sysDate(final Object fsp) {
         FuncExpUtils.assertIntExp(fsp);
         return LiteralFunctions.oneArgFunc("SYSDATE", fsp);

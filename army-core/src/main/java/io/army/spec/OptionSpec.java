@@ -16,12 +16,12 @@
 
 package io.army.spec;
 
+import io.army.lang.Nullable;
 import io.army.option.Option;
 import io.army.util._Exceptions;
 
-import io.army.lang.Nullable;
 
-
+/// Specification for accessing option values.
 /// @see IterableOptionSpec
 public interface OptionSpec {
 

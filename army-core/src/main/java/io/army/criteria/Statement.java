@@ -512,6 +512,8 @@ public interface Statement extends Item {
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
     /// @since 0.6.0
+    /// @param <FT> join target type for table reference
+    /// @param <FS> join target type for derived table
     interface _CrossJoinClause<FT, FS> {
 
         FT crossJoin(TableMeta<?> table, SQLs.WordAs wordAs, String tableAlias);
@@ -940,6 +942,7 @@ public interface Statement extends Item {
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
     /// @since 0.6.0
+    /// @param <R> return type of limit methods
     interface _RowCountLimitClause<R> extends Item {
 
         R limit(Object rowCount);
@@ -1542,6 +1545,7 @@ public interface Statement extends Item {
     ///     LOG.debug("{} row : {}", session.name(), rows);
     /// }
     /// ```
+    /// @param <R> return type of doNothing method
     interface DoNothingClause<R extends Item> {
 
         R doNothing();

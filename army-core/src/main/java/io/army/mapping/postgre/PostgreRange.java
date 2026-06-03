@@ -104,6 +104,7 @@ import io.army.type.DaoLayer;
 ///     }
 /// }//Int4Range
 /// ```
+/// @param <T> the range subtype
 /// @see RangeFunction
 /// @see <a href="https://www.postgresql.org/docs/15/rangetypes.html">Range Types</a>
 /// @since 0.6.0

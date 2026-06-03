@@ -22,29 +22,38 @@ import io.army.criteria.impl.inner._Cte;
 import io.army.criteria.impl.inner._SelfDescribed;
 import io.army.lang.Nullable;
 
+/// Internal representation of a PostgreSQL CTE (Common Table Expression) with search/cycle clauses.
 public interface _PostgreCte extends _Cte {
 
+    /// The materialization modifier (MATERIALIZED, NOT MATERIALIZED), nullable.
     @Nullable
     SQLs.WordMaterialized modifier();
 
+    /// The SEARCH clause, nullable.
     @Nullable
     _SearchClause searchClause();
 
+    /// The CYCLE clause.
     _CycleClause cycleClause();
 
 
+    /// SEARCH clause for depth-first or breadth-first ordering.
     interface _SearchClause extends _SelfDescribed {
 
+        /// The search sequence column selection.
         Selection searchSeqSelection();
 
 
     }
 
+    /// CYCLE clause for cycle detection.
     interface _CycleClause extends _SelfDescribed {
 
+        /// The cycle mark column selection.
         Selection cycleMarkSelection();
 
 
+        /// The cycle path column selection.
         Selection cyclePathSelection();
 
     }

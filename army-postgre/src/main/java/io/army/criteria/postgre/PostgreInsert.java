@@ -281,6 +281,7 @@ public interface PostgreInsert extends PostgreStatement {
 
     /// 
     /// This interface is used by in multi-statement api.
+    /// @param <I> the extending Item type
     interface _ComplexInsertIntoClause<I extends Item> extends Item {
 
         <T> _TableAliasSpec<T, I, I> insertInto(TableMeta<T> table);
@@ -363,6 +364,7 @@ public interface PostgreInsert extends PostgreStatement {
 
     /// 
     /// static sub-statement syntax forbid the WITH clause of cte insert,because it destroy the Readability of code.
+    /// @param <I> the extending Item type
     interface _StaticSubPreferLiteralSpec<I extends Item>
             extends InsertStatement._PreferLiteralClause<_CteInsertIntoClause<I>>,
             _CteInsertIntoClause<I> {
@@ -371,6 +373,7 @@ public interface PostgreInsert extends PostgreStatement {
 
     /// 
     /// static sub-statement syntax forbid the WITH clause of cte insert,because it destroy the Readability of code.
+    /// @param <I> the extending Item type
     interface _StaticSubNullOptionSpec<I extends Item>
             extends InsertStatement._NullOptionClause<_StaticSubPreferLiteralSpec<I>>,
             _StaticSubPreferLiteralSpec<I> {
@@ -379,6 +382,7 @@ public interface PostgreInsert extends PostgreStatement {
 
     /// 
     /// static sub-statement syntax forbid the WITH clause of cte insert,because it destroy the Readability of code.
+    /// @param <I> the extending Item type
     interface _StaticSubOptionSpec<I extends Item>
             extends InsertStatement._MigrationOptionClause<_StaticSubNullOptionSpec<I>>,
             _StaticSubNullOptionSpec<I> {

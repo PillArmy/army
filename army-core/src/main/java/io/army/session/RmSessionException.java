@@ -18,6 +18,7 @@ package io.army.session;
 
 import io.army.executor.DataAccessException;
 
+/// Exception thrown by the RmSession for XA resource manager errors.
 /// @see RmSession
 /// @since 0.6.0
 public class RmSessionException extends DataAccessException {

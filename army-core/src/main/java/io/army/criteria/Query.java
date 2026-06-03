@@ -21,11 +21,11 @@ import io.army.criteria.dialect.Hint;
 import io.army.criteria.impl.SQLs;
 import io.army.function.DialectBooleanOperator;
 import io.army.function.ExpressionOperator;
+import io.army.lang.Nullable;
 import io.army.meta.ComplexTableMeta;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TableMeta;
 
-import io.army.lang.Nullable;
 import java.util.List;
 import java.util.function.*;
 
@@ -40,12 +40,14 @@ import java.util.function.*;
 /// @since 0.6.0
 public interface Query extends RowSet {
 
+    /// Select modifier (e.g. ALL, DISTINCT) for query select clause.
     /// @see SQLs#ALL
     /// @see SQLs#DISTINCT
     interface SelectModifier extends SQLToken {
 
     }
 
+    /// Union modifier (e.g. ALL, DISTINCT) for set operations.
     /// @see SQLs#ALL
     /// @see SQLs#DISTINCT
     interface UnionModifier {

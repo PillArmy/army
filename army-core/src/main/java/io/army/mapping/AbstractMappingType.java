@@ -49,16 +49,21 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         permits _ArmyBuildInType, UserMappingType {
 
 
+    /// Error handler for parameter binding errors (deprecated).
     @Deprecated
     protected static final BiFunction<MappingType, Object, ArmyException> PARAM_ERROR_HANDLER_0 = AbstractMappingType::paramError0;
 
+    /// Error handler for data access errors (deprecated).
     @Deprecated
     protected static final BiFunction<MappingType, Object, ArmyException> DATA_ACCESS_ERROR_HANDLER_0 = AbstractMappingType::dataAccessError0;
 
+    /// Error handler for unsupported dialect mapping errors.
     protected static final BiFunction<MappingType, ServerMeta, UnsupportedDialectException> MAP_ERROR_HANDLER = AbstractMappingType::mapError;
 
+    /// Error handler for parameter binding errors.
     protected static final MappingSupport.ErrorHandler PARAM_ERROR_HANDLER = AbstractMappingType::paramError;
 
+    /// Error handler for data access errors.
     protected static final MappingSupport.ErrorHandler ACCESS_ERROR_HANDLER = AbstractMappingType::dataAccessError;
 
     /// package constructor
@@ -514,30 +519,35 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
     /*-------------------below private methods -------------------*/
 
 
+    /// Creates a NoMatchMappingException when compatible mapping is not found.
     protected static NoMatchMappingException noMatchCompatibleMapping(MappingType type, DataType dataType, Class<?> targetJavaType) {
         String m = String.format("%s not found match %s for DataType[%s] javaType[%s]", type, MappingType.class.getName(),
                 dataType.typeName(), targetJavaType.getName());
         return new NoMatchMappingException(m);
     }
 
+    /// Creates a CriteriaException indicating this type does not support array types.
     protected static CriteriaException dontSupportArrayType(AbstractMappingType type) {
         String m = String.format("%s don't support array type.", type);
         return new CriteriaException(m);
     }
 
 
+    /// Creates an UnsupportedDialectException for missing server mapping (deprecated).
     @Deprecated
     protected final UnsupportedDialectException noMappingError(ServerMeta serverMeta) {
         String m = String.format("No mapping from java type[%s] to Server[%s]", javaType(), serverMeta);
         return new UnsupportedDialectException(m);
     }
 
+    /// Creates an IllegalArgumentException for unsupported Java type.
     protected static IllegalArgumentException errorJavaType(
             Class<? extends AbstractMappingType> mappingMetaClass, Class<?> javaType) {
         return new IllegalArgumentException(
                 String.format("%s don't support java type[%s].", mappingMetaClass.getName(), javaType.getName()));
     }
 
+    /// Creates an IllegalArgumentException for value out of mapping range.
     protected static IllegalArgumentException valueOutOfMapping(final Object nonNull
             , Class<? extends AbstractMappingType> typeClass) {
         String m = String.format("value[%s] out of range of %s .", nonNull, typeClass.getName());
@@ -549,6 +559,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         return new CriteriaException(createConvertErrorMessage(type, nonNull));
     }
 
+    /// Creates a CriteriaException for parameter binding errors.
     public static CriteriaException paramError(final MappingType type, DataType dataType,
                                                final Object source, final @Nullable Throwable cause) {
         final CriteriaException e;
@@ -561,6 +572,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
     }
 
 
+    /// Creates a DataAccessException for data access errors.
     public static DataAccessException dataAccessError(final MappingType type, DataType dataType,
                                                       final Object source, final @Nullable Throwable cause) {
         final DataAccessException e;
@@ -576,6 +588,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         return new DataAccessException(createConvertErrorMessage(type, nonNull));
     }
 
+    /// Creates an UnsupportedDialectException for unsupported mapping type.
     public static UnsupportedDialectException mapError(final MappingType type, final ServerMeta meta) {
         String m = String.format("%s don't support %s", type, meta);
         return new UnsupportedDialectException(m);

@@ -16,13 +16,15 @@
 
 package io.army.function;
 
-import io.army.criteria.*;
+import io.army.criteria.RowExpression;
+import io.army.criteria.TypeInfer;
 import io.army.criteria.impl.SQLs;
 
 /// 
 /// - {@link SQLs#namedRowParam(TypeInfer, String, int)}
 /// - other custom method
-/// 
+///
+/// @param <E> the type infer expression type
 /// @since 0.6.0
 @FunctionalInterface
 public interface TeNamedParamsFunc<E extends TypeInfer> {

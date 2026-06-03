@@ -24,11 +24,13 @@ import io.army.criteria.impl.inner._Statement;
 
 import java.util.List;
 
+/// Internal interface for MySQL-specific DELETE statement details.
 public interface _MySQLDelete extends _Delete, DialectStatement, _Statement._WithClauseSpec {
 
-
+    /// Returns the list of hints for this DELETE statement.
     List<Hint> hintList();
 
+    /// Returns the list of MySQL-specific modifiers for this DELETE.
     List<MySQLs.Modifier> modifierList();
 
 

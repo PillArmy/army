@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Metadata interfaces for tables, fields, and types.
 package io.army.meta;
 

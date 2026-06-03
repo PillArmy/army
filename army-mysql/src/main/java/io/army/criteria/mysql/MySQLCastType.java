@@ -18,7 +18,9 @@ package io.army.criteria.mysql;
 
 import io.army.util._StringUtils;
 
-/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_cast">CAST(expr AS type [ARRAY])</a>
+/// MySQL CAST function target data types.
+///
+/// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_cast">CAST(expr AS type &#91;ARRAY&#93;)</a>
 public enum MySQLCastType {
 
 

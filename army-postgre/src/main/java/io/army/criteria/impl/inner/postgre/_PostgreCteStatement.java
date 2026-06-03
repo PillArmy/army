@@ -23,34 +23,46 @@ import io.army.lang.Nullable;
 
 import java.util.List;
 
+/// Internal representation of a PostgreSQL sub-statement with CTE search/cycle options.
 public interface _PostgreCteStatement extends SubStatement {
 
+    /// The materialization option, nullable.
     @Nullable
     SQLToken materializedOption();
 
+    /// The wrapped sub-statement.
     SubStatement subStatement();
 
 
+    /// Combined SEARCH and CYCLE specification for a CTE sub-statement.
     interface _SearchOptionClauseSpec extends _PostgreCteStatement {
 
+        /// The search option (BREADTH FIRST or DEPTH FIRST), nullable.
         @Nullable
         SQLToken searchOption();
 
+        /// The list of columns for FIRST BY.
         List<String> firstByList();
 
+        /// The search sequence column name.
         String searchSeqColumnName();
 
+        /// The list of cycle columns, nullable.
         @Nullable
         List<String> cycleColumnList();
 
+        /// The cycle mark column name.
         String cycleMarkColumnName();
 
+        /// The cycle mark value expression, nullable.
         @Nullable
         _Expression cycleMarkValue();
 
+        /// The cycle mark default expression, nullable.
         @Nullable
         _Expression cycleMarkDefault();
 
+        /// The cycle path column name.
         String cyclePathColumnName();
 
     }

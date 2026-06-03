@@ -28,6 +28,8 @@ import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
+/// Mapping type for PostgreSQL/MySQL jsonpath expressions.
+///
 /// @see <a href="https://www.postgresql.org/docs/current/datatype-json.html#DATATYPE-JSONPATH">PostgreSQL jsonpath</a>
 /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-SQLJSON-PATH">PostgreSQL JSON Path Language</a>
 /// @see <a href="https://dev.mysql.com/doc/refman/9.7/en/json.html#json-path-syntax">MySQL jsonpath</a>

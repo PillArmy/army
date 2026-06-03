@@ -29,6 +29,8 @@ import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
+/// Array mapping type for {@link Character} elements.
+///
 /// @see CharacterType
 public class CharacterArrayType extends _ArmyBuildInArrayType {
 

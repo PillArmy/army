@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.time.*;
 
 
+/// Enumeration of SQLite data types mapped to Java types.
 /// @see <a href="https://sqlite.org/datatype3.html">Datatypes In SQLite</a>
 /// @see <a href="https://sqlite.org/datatypes.html">Datatypes In SQLite Version 2</a>
 public enum SQLiteType implements SQLType {

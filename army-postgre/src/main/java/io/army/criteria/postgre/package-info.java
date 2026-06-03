@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// PostgreSQL dialect-specific criteria API interfaces.
 @io.army.lang.NonNullApi
 package io.army.criteria.postgre;

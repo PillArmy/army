@@ -35,6 +35,8 @@ import java.io.ObjectStreamException;
 import java.lang.reflect.Field;
 import java.util.*;
 
+/// Factory for creating composite field metadata from a {@link io.army.mapping.CompositeType}.
+///
 /// @see io.army.mapping.CompositeType
 public abstract class CompositeFieldFactory {
 

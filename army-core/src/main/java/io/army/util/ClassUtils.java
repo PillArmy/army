@@ -21,6 +21,7 @@ import io.army.lang.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/// Utility class for class loading and reflection operations.
 /// @since 0.6.0
 public abstract class ClassUtils {
 

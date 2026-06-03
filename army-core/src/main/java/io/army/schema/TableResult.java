@@ -22,6 +22,7 @@ import io.army.meta.TableMeta;
 
 import java.util.List;
 
+/// Result of table schema comparison during DDL generation.
 /// @see SchemaResult
 public interface TableResult {
 

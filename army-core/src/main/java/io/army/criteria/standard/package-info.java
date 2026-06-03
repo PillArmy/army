@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Standard SQL criteria builder interfaces.
 @io.army.lang.NonNullApi
 package io.army.criteria.standard;

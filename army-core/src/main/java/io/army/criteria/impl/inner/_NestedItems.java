@@ -20,6 +20,7 @@ import io.army.criteria.TabularItem;
 
 import java.util.List;
 
+/// Internal interface for nested table items in joins and subqueries.
 /// @since 0.6.0
 public interface _NestedItems extends TabularItem {
 

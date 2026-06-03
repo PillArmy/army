@@ -22,6 +22,8 @@ import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
+/// Mapping type for LONGBLOB ({@code byte[]}) columns.
+///
 /// @see TinyBlobType
 /// @see BlobType
 /// @see MediumBlobType

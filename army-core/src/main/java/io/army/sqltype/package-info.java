@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// SQL data type representations.
 @io.army.lang.NonNullApi
 package io.army.sqltype;

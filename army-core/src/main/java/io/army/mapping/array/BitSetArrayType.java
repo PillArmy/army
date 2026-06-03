@@ -32,6 +32,8 @@ import io.army.util._StringUtils;
 
 import java.util.BitSet;
 
+/// Array mapping type for {@link BitSet} elements.
+///
 /// @see BitSetType
 public class BitSetArrayType extends _ArmyBuildInArrayType {
 

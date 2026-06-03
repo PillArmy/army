@@ -21,13 +21,17 @@ import io.army.lang.Nullable;
 
 import java.util.List;
 
+/// Internal interface for MySQL index hint specification.
 public interface _IndexHint {
 
+    /// Returns the index hint command type (USE/IGNORE/FORCE).
     SQLToken command();
 
+    /// Returns the optional index hint purpose (JOIN/ORDER BY/GROUP BY).
     @Nullable
     SQLToken purpose();
 
+    /// Returns the list of index names for this hint.
     List<String> indexNameList();
 
 

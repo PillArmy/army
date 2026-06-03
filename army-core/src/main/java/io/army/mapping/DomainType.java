@@ -22,6 +22,7 @@ import io.army.executor.DataAccessException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
+/// Represents a PostgreSQL domain type.
 /// @see <a href="https://www.postgresql.org/docs/current/domains.html">Domain Types</a>
 /// @see <a href="https://www.postgresql.org/docs/current/sql-createdomain.html">CREATE DOMAIN</a>
 /// @see <a href="https://www.postgresql.org/docs/current/sql-alterdomain.html">ALTER DOMAIN</a>

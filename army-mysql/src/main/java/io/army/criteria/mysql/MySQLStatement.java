@@ -85,12 +85,14 @@ public interface MySQLStatement extends DialectStatement {
     }
 
 
+    /// MySQL join nested clause for parenthesized join expressions.
     /// @param <R> the java type that {@link _RightParenClause#rightParen()} return type
     interface _MySQLJoinNestedClause<R extends Item> extends _JoinNestedClause<_NestedLeftParenSpec<R>, R>,
             _StraightJoinNestedClause<_NestedLeftParenSpec<R>, R> {
 
     }
 
+    /// MySQL cross join nested clause for parenthesized join expressions.
     /// @param <R> the java type that {@link _RightParenClause#rightParen()} return type
     interface _MySQLCrossNestedClause<R extends Item> extends _CrossJoinNestedClause<_NestedLeftParenSpec<R>, R> {
 
@@ -111,12 +113,9 @@ public interface MySQLStatement extends DialectStatement {
     }
 
 
-    /// 
-    /// This interface representing the composite of below:
-    /// 
-    /// - {@link _JoinCteClause }
-    /// - {@link  _StraightJoinCteClause}
-    /// 
+    /// MySQL join CTE clause, combining standard and straight join CTE semantics.
+    ///
+    /// @param <JC> the join CTE clause type
     interface _MySQLJoinCteClause<JC> extends _JoinCteClause<JC>, _StraightJoinCteClause<JC> {
 
     }
@@ -156,8 +155,8 @@ public interface MySQLStatement extends DialectStatement {
     }
 
 
-
-
+    /// Index hint clause for specifying index names (USE/IGNORE/FORCE).
+    /// @param <R> return type after index hint clause
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/index-hints.html">Index Hints</a>
     interface _IndexHintIndexNameClause<R extends Item> {
 
@@ -200,6 +199,8 @@ public interface MySQLStatement extends DialectStatement {
     }
 
 
+    /// Index hint clause with FOR purpose specification.
+    /// @param <R> return type after index hint clause
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/index-hints.html">Index Hints</a>
     interface _IndexHintFoPurposeClause<R extends Item> extends _IndexHintIndexNameClause<R> {
 

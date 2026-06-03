@@ -19,11 +19,13 @@ package io.army.mapping;
 
 import io.army.sqltype.DataType;
 
+/// Base class for all built-in mapping types.
 public non-sealed abstract class _ArmyBuildInType extends AbstractMappingType {
 
-
+    /// Constant for SQL CREATE keyword used in DDL generation.
     protected static final String CREATE = "create";
 
+    /// Constructs a build-in type, validates the class is in army mapping package.
     protected _ArmyBuildInType() {
         final Class<?> thisClass = this.getClass();
         if (!thisClass.getName().startsWith("io.army.mapping.")) {

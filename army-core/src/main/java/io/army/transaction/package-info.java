@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Transaction management interfaces.
 @io.army.lang.NonNullApi
 package io.army.transaction;

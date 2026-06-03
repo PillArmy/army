@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Core criteria API for building type-safe SQL queries.
 @io.army.lang.NonNullApi
 package io.army.criteria;

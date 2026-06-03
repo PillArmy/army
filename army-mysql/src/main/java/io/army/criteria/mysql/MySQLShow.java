@@ -31,12 +31,14 @@ import java.util.function.Supplier;
 /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show.html">SHOW Statements</a>
 public interface MySQLShow extends MySQLStatement {
 
+    /// Specifies the LIMIT clause for SHOW BINLOG EVENTS.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-binlog-events.html">SHOW BINLOG EVENTS Statement</a>
     interface _BinLogEventsLimitSpec extends _LimitClause<_AsCommandClause<DqlStatement>>, _AsCommandClause<DqlStatement> {
 
 
     }
 
+    /// Specifies the FROM clause for SHOW BINLOG EVENTS.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-binlog-events.html">SHOW BINLOG EVENTS Statement</a>
     interface _BinLogEventsFromSpec extends _BinLogEventsLimitSpec {
 
@@ -51,6 +53,7 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
+    /// Specifies the IN clause for SHOW BINLOG EVENTS.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-binlog-events.html">SHOW BINLOG EVENTS Statement</a>
     interface _BinLogEventsInSpec extends _BinLogEventsFromSpec {
 
@@ -65,6 +68,7 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
+    /// Where clause extension for SHOW CHARACTER SET / COLLATION.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-character-set.html">SHOW CHARACTER SET Statement</a>
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-collation.html">SHOW COLLATION Statement</a>
@@ -73,6 +77,7 @@ public interface MySQLShow extends MySQLStatement {
 
     }
 
+    /// LIKE/WHERE clause spec for SHOW CHARACTER SET and related statements.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-character-set.html">SHOW CHARACTER SET Statement</a>
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-collation.html">SHOW COLLATION Statement</a>
@@ -88,6 +93,7 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
+    /// FROM/IN database spec for SHOW COLUMNS.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
     interface _ColumnsFromInDatabaseSpec extends _LikeWhereSpec {
 
@@ -101,6 +107,7 @@ public interface MySQLShow extends MySQLStatement {
 
     }
 
+    /// FROM/IN table clause for SHOW COLUMNS.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
     interface _ColumnsFromInTableClause {
 
@@ -110,6 +117,7 @@ public interface MySQLShow extends MySQLStatement {
 
     }
 
+    /// COLUMNS/FIELDS clause for SHOW COLUMNS.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
     interface _ColumnFieldClause {
 
@@ -120,6 +128,7 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
+    /// FULL option for SHOW COLUMNS.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
     interface _OptionFullSpec extends _ColumnFieldClause {
 
@@ -128,6 +137,7 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
+    /// EXTENDED option for SHOW COLUMNS.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-columns.html"> SHOW COLUMNS Statement</a>
     interface _OptionExtendedSpec extends _OptionFullSpec {
 
@@ -136,6 +146,7 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
+    /// IF NOT EXISTS clause for SHOW CREATE DATABASE.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show-create-database.html">SHOW CREATE DATABASE Statement</a>
     interface _IfNotExistsClause {
 
@@ -145,6 +156,7 @@ public interface MySQLShow extends MySQLStatement {
     }
 
 
+    /// Entry point for SHOW commands including BINLOG EVENTS, CHARACTER SET, COLUMNS, and more.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.3/en/show.html">SHOW Statements</a>
     interface _ShowCommandSpec extends _OptionExtendedSpec {
 

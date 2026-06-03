@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/// Snowflake ID generator implementation.
 @io.army.lang.NonNullApi
 package io.army.generator.snowflake;
 

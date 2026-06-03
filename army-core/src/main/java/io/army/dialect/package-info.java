@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// SQL dialect abstraction layer.
 @io.army.lang.NonNullApi
 package io.army.dialect;

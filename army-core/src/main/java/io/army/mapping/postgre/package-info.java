@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// PostgreSQL-specific type mappings.
 @io.army.lang.NonNullApi
 package io.army.mapping.postgre;

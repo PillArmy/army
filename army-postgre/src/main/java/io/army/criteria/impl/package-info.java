@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// PostgreSQL criteria implementation classes.
 @io.army.lang.NonNullApi
 package io.army.criteria.impl;

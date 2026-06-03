@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Internal interfaces for criteria implementation.
 @io.army.lang.NonNullApi
 package io.army.criteria.impl.inner;

@@ -22,6 +22,7 @@ import io.army.criteria.Values;
 import io.army.criteria.ValuesQuery;
 
 
+/// PostgreSQL-specific VALUES statement API extending {@link ValuesQuery} with Postgre dialect features.
 /// @see <a href="https://www.postgresql.org/docs/current/sql-values.html">VALUES Statement</a>
 public interface PostgreValues extends PostgreStatement, ValuesQuery {
 

@@ -17,6 +17,7 @@
 package io.army.criteria;
 
 
+/// Marker interface for items that can be used in ORDER BY clauses.
 /// @see Expression
 @FunctionalInterface
 public interface SortItem extends Item {

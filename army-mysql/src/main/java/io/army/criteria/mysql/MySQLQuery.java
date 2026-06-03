@@ -121,6 +121,7 @@ public interface MySQLQuery extends Query, MySQLStatement {
     /// **Note:**
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _LockSpec<I extends Item> extends _MinLockStrengthClause<_LockOfTableSpec<I>>,
             _DynamicLockClause<_DynamicLockStrengthClause, _LockSpec<I>>,
@@ -328,7 +329,7 @@ public interface MySQLQuery extends Query, MySQLStatement {
 
     }
 
-    /// VALUES statement don't support WITH clause.
+    /// @param <I> the extending Item type
     interface _QueryComplexSpec<I extends Item> extends _MySQLSelectClause<I>,
             _DynamicParensRowSetClause<_QueryWithComplexSpec<_UnionOrderBySpec<I>>, _UnionOrderBySpec<I>> {
 

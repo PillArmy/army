@@ -185,9 +185,11 @@ public interface PostgreQuery extends Query, PostgreStatement {
     }
 
 
+    /// PostgreSQL GROUP BY clause with CUBE, ROLLUP, and GROUPING SETS support.
     /// @see <a href="https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY">GROUP BY Clause</a>
     /// @see <a href="https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUP">The GROUP BY and HAVING Clauses</a>
     /// @see <a href="https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS">GROUPING SETS, CUBE, and ROLLUP</a>
+    /// @param <I> the extending Item type
     interface _GroupBySpec<I extends Item> extends _StaticGroupByClause<_GroupByCommaSpec<I>>,
             _DynamicGroupByClause<_HavingSpec<I>>,
             _WindowSpec<I> {
@@ -319,8 +321,10 @@ public interface PostgreQuery extends Query, PostgreStatement {
 
     }
 
+    /// CTE CYCLE clause for cycle detection in recursive queries.
     /// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
     /// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-CYCLE">Cycle Detection</a>
+    /// @param <I> the extending Item type
     interface _CteCycleClause<I extends Item> {
 
         I cycle(Consumer<_CteCycleColumnNameSpace> consumer);
@@ -343,8 +347,10 @@ public interface PostgreQuery extends Query, PostgreStatement {
 
     }
 
+    /// CTE SEARCH clause for specifying search order in recursive queries.
     /// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
     /// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
+    /// @param <I> the extending Item type
     interface _CteSearchClause<I extends Item> {
 
         I search(Consumer<_SearchBreadthDepthClause> consumer);
@@ -409,6 +415,7 @@ public interface PostgreQuery extends Query, PostgreStatement {
     /// 
     /// static sub-statement syntax forbid the WITH clause ,because it destroy the Readability of code.
     /// @since 0.6.0
+    /// @param <I> the extending Item type
     interface _StaticCteComplexCommandSpec<I extends Item>
             extends _StaticCteSelectSpec<_StaticCteSearchSpec<I>>,
             PostgreValues._PostgreValuesClause<_CteComma<I>>,
@@ -425,8 +432,8 @@ public interface PostgreQuery extends Query, PostgreStatement {
     }
 
 
-    /// primary-statement syntax support static WITH clause,it's simple and clear and free
-    /// This interface is public interface that developer can directly use.
+    /// Public entry point for PostgreSQL SELECT queries with WITH clause support.
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface WithSpec<I extends Item> extends _PostgreDynamicWithClause<_SelectSpec<I>>,
             _PostgreStaticWithClause<_SelectSpec<I>>,

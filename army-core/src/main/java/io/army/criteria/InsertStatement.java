@@ -59,6 +59,8 @@ public interface InsertStatement extends DmlStatement {
     /// **Note:**
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
+    /// Prefer literal mode clause for reducing placeholder count.
+    /// @param <R> return type of the literal mode method
     /// @since 0.6.0
     interface _PreferLiteralClause<R> {
 
@@ -68,6 +70,8 @@ public interface InsertStatement extends DmlStatement {
     }
 
 
+    /// Null mode option clause for INSERT statements.
+    /// @param <R> return type of the null mode method
     /// @since 0.6.0
     interface _NullOptionClause<R> {
 
@@ -195,6 +199,9 @@ public interface InsertStatement extends DmlStatement {
                                                  Function<K, V> function, K key);
     }
 
+    /// Static column default clause for INSERT statements.
+    /// @param <T> the table entity type
+    /// @param <R> return type of column default methods
     /// @since 0.6.0
     interface _StaticColumnDefaultClause<T, R extends _ColumnDefaultClause<T>> extends _ColumnDefaultClause<T> {
 
@@ -251,6 +258,9 @@ public interface InsertStatement extends DmlStatement {
         <TS extends T> R value(TS domain);
     }
 
+    /// Domain values clause for multi-row domain INSERT.
+    /// @param <T> the domain entity type
+    /// @param <R> return type of values methods
     /// @since 0.6.0
     interface _DomainValuesClause<T, R> extends _DomainValueClause<T, R> {
 
@@ -320,8 +330,9 @@ public interface InsertStatement extends DmlStatement {
     }
 
 
-    /// 
     /// This interface representing SET assignment_list clause in INSERT statement.
+    /// @param <T> the table entity type
+    /// @param <R> return type of set methods
     /// 
     /// **Note:**
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable

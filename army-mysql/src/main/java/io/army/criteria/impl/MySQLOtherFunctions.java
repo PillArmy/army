@@ -71,7 +71,7 @@ abstract class MySQLOtherFunctions extends MySQLMiscellaneousFunctions {
     /// @throws CriteriaException throw when invoking this method in non-statement context.
     /// @see #cast(Expression, SQLs.WordAs, MySQLCastType, Expression)
     /// @see #cast(Expression, SQLs.WordAs, MySQLCastType, Expression, Expression)
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/cast-functions.html#function_cast">CAST(expr AS type [ARRAY])</a>
+    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/cast-functions.html#function_cast">CAST(expr AS type &#91;ARRAY&#93;)</a>
     public static SimpleExpression cast(final Expression exp, final SQLs.WordAs as, final MySQLCastType type) {
         assert as == SQLs.AS;
         final List<Object> argList = new ArrayList<>(3);

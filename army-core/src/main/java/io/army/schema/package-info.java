@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Database schema representation and DDL generation.
 @io.army.lang.NonNullApi
 package io.army.schema;

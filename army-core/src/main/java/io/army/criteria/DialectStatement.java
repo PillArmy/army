@@ -206,6 +206,7 @@ public interface DialectStatement extends Statement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// @since 0.6.0
+    /// @param <FP> next clause java type
     interface _DialectCrossJoinClause<FP> {
 
         FP crossJoin(TableMeta<?> table);

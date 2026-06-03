@@ -28,11 +28,17 @@ import io.army.criteria.mysql.MySQLReplace;
 import io.army.criteria.mysql.MySQLSet;
 import io.army.dialect.Database;
 
+/// MySQL-specific SQL statement validation consultant.
 public abstract class _MySQLConsultant extends _SQLConsultant {
 
+    /// Constructs a MySQL consultant for validating MySQL dialect statements.
+    protected _MySQLConsultant() {
+    }
 
-    /// 
-    /// Assert insert is MySQL dialect {@link  InsertStatement} statement.
+
+    /// Asserts the given insert is a valid MySQL dialect INSERT statement.
+    ///
+    /// @param insert the insert statement to validate
     public static void assertInsert(final InsertStatement insert) {
         if (insert instanceof _Insert._DomainInsert || insert instanceof _Insert._ValuesInsert) {
             if (!(insert instanceof MySQLInserts.MySQLValueSyntaxStatement)) {
@@ -53,8 +59,8 @@ public abstract class _MySQLConsultant extends _SQLConsultant {
     }
 
 
-    /// 
-    /// Assert insert is MySQL dialect {@link  InsertStatement} statement.
+    /// Asserts the given replace is a valid MySQL dialect REPLACE statement.
+    /// @param replace the replace statement to validate
     public static void assertReplace(final MySQLReplace replace) {
         if (replace instanceof _Insert._DomainInsert) {
             if (!(replace instanceof MySQLReplaces.DomainReplaceStatement)) {
@@ -79,6 +85,7 @@ public abstract class _MySQLConsultant extends _SQLConsultant {
     }
 
 
+    /// Asserts the given update is a valid MySQL dialect UPDATE statement.
     public static void assertUpdate(final UpdateStatement update) {
         if (update instanceof _SingleUpdate) {
             if (!(update instanceof MySQLSingleUpdates)) {
@@ -90,6 +97,7 @@ public abstract class _MySQLConsultant extends _SQLConsultant {
 
     }
 
+    /// Asserts the given delete is a valid MySQL dialect DELETE statement.
     public static void assertDelete(final DeleteStatement delete) {
         if (delete instanceof _SingleDelete) {
             if (!(delete instanceof MySQLSingleDeletes)) {
@@ -100,6 +108,7 @@ public abstract class _MySQLConsultant extends _SQLConsultant {
         }
     }
 
+    /// Asserts the given query is a valid MySQL dialect SELECT statement.
     public static void assertQuery(final Query query) {
         if (query instanceof Select) {
             if (!(query instanceof MySQLQueries
@@ -122,6 +131,7 @@ public abstract class _MySQLConsultant extends _SQLConsultant {
     }
 
 
+    /// Asserts the given values query is a valid MySQL dialect VALUES statement.
     public static void assertValues(final ValuesQuery values) {
         if (!(values instanceof MySQLSimpleValues
                 || values instanceof MySQLSimpleValues.MySQLBracketValues
@@ -131,18 +141,21 @@ public abstract class _MySQLConsultant extends _SQLConsultant {
         }
     }
 
+    /// Asserts the given load data is a valid MySQL LOAD DATA statement.
     public static void assertMySQLLoad(final MySQLLoadData load) {
         if (!(load instanceof MySQLLoads.MySQLLoadDataStatement)) {
             throw nonArmyStatement(load);
         }
     }
 
+    /// Asserts the given hint is a valid MySQL hint.
     public static void assertHint(Hint hint) {
         if (!(hint instanceof MySQLHints)) {
             throw MySQLUtils.illegalHint(hint);
         }
     }
 
+    /// Asserts the given window is a valid MySQL window specification.
     public static void assertWindow(final Window window) {
         if (!(window instanceof MySQLSupports.MySQLWindowImpl || window instanceof SQLWindow.SimpleWindow)) {
             throw illegalWindow(window);
@@ -150,6 +163,7 @@ public abstract class _MySQLConsultant extends _SQLConsultant {
     }
 
 
+    /// Asserts the given nested items are valid MySQL nested joins.
     public static void assertNestedItems(final _NestedItems nestedItems) {
         if (!(nestedItems instanceof MySQLNestedJoins)) {
             throw illegalNestedItems(nestedItems, Database.MySQL);
@@ -157,6 +171,7 @@ public abstract class _MySQLConsultant extends _SQLConsultant {
 
     }
 
+    /// Asserts the given SET statement is a valid MySQL SET statement.
     public static void assertSetStmt(final MySQLSet stmt) {
         if (!(stmt instanceof MySQLSets)) {
             throw nonArmyStatement(stmt);

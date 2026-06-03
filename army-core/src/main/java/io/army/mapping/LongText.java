@@ -29,6 +29,8 @@ import io.army.util.ClassUtils;
 
 import java.io.Reader;
 
+/// Mapping type for LONGTEXT ({@link String}) columns.
+///
 /// @see TinyTextType
 /// @see TextType
 /// @see MediumTextType

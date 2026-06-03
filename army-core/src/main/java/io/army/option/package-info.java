@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Configuration option types and builders.
 @io.army.lang.NonNullApi
 package io.army.option;

@@ -18,6 +18,7 @@ package io.army.schema;
 
 import io.army.meta.FieldMeta;
 
+/// Result of field schema comparison during DDL generation.
 /// @see TableResult
 public interface FieldResult {
 

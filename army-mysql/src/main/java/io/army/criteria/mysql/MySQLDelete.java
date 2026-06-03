@@ -62,6 +62,7 @@ public interface MySQLDelete extends MySQLStatement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _LimitSpec<I extends Item> extends Statement._DmlRowCountLimitClause<_DmlDeleteSpec<I>>,
             _DmlDeleteSpec<I> {
@@ -83,6 +84,7 @@ public interface MySQLDelete extends MySQLStatement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _OrderBySpec<I extends Item> extends _StaticOrderByClause<_OrderByCommaSpec<I>>, _LimitSpec<I> {
 
@@ -99,6 +101,7 @@ public interface MySQLDelete extends MySQLStatement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _SingleWhereAndSpec<I extends Item> extends _WhereAndClause<_SingleWhereAndSpec<I>>, _OrderBySpec<I> {
 
@@ -111,6 +114,7 @@ public interface MySQLDelete extends MySQLStatement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _SingleWhereClause<I extends Item> extends _WhereClause<_OrderBySpec<I>, _SingleWhereAndSpec<I>> {
 
@@ -129,6 +133,7 @@ public interface MySQLDelete extends MySQLStatement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _SimpleSingleDeleteClause<I extends Item> extends _SingleDeleteClause<_SinglePartitionSpec<I>> {
 
@@ -147,6 +152,7 @@ public interface MySQLDelete extends MySQLStatement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _SingleWithSpec<I extends Item>
             extends _MySQLDynamicWithClause<_SimpleSingleDeleteClause<I>>,
@@ -170,6 +176,7 @@ public interface MySQLDelete extends MySQLStatement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _MultiWhereAndSpec<I extends Item> extends _WhereAndClause<_MultiWhereAndSpec<I>>, _DmlDeleteSpec<I> {
 
@@ -182,6 +189,7 @@ public interface MySQLDelete extends MySQLStatement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _MultiWhereClause<I extends Item> extends _WhereClause<_DmlDeleteSpec<I>, _MultiWhereAndSpec<I>> {
 
@@ -201,6 +209,7 @@ public interface MySQLDelete extends MySQLStatement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _MultiPartitionOnClause<I extends Item> extends _PartitionAsClause<_MultiIndexHintOnSpec<I>> {
 
@@ -217,6 +226,7 @@ public interface MySQLDelete extends MySQLStatement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _MultiJoinSpec<I extends Item>
             extends _MySQLJoinClause<_MultiIndexHintOnSpec<I>, _AsParensOnClause<_MultiJoinSpec<I>>>,
@@ -249,6 +259,7 @@ public interface MySQLDelete extends MySQLStatement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _MultiPartitionJoinClause<I extends Item> extends _PartitionAsClause<_MultiIndexHintJoinSpec<I>> {
 
@@ -308,6 +319,7 @@ public interface MySQLDelete extends MySQLStatement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _MySQLMultiDeleteClause<I extends Item> extends Item {
 
@@ -339,6 +351,7 @@ public interface MySQLDelete extends MySQLStatement {
     /// Application developer isn't allowed to directly use this interface,so you couldn't declare this interface type variable
     /// ,because army don't guarantee compatibility to future distribution.
     /// *
+    /// @param <I> the extending Item type
     /// @since 0.6.0
     interface _MultiWithSpec<I extends Item> extends _MySQLDynamicWithClause<_MySQLMultiDeleteClause<I>>,
             _MySQLStaticWithClause<_MySQLMultiDeleteClause<I>>,

@@ -25,6 +25,8 @@ import io.army.sqltype.DataType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+/// Mapping type for unsigned integer ({@link Integer}) values.
+///
 /// @see UnsignedSqlIntType
 /// @see UnsignedLongType
 public final class UnsignedIntegerType extends _ArmyNoInjectionType

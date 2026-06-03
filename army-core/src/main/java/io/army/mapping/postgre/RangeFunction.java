@@ -16,12 +16,13 @@
 
 package io.army.mapping.postgre;
 
-import io.army.type.DaoLayer;
-
 import io.army.lang.Nullable;
+import io.army.type.DaoLayer;
 
 /// 
 /// This interface representing the function that create postgre range instance.
+/// @param <T> the range subtype
+/// @param <R> the range return type
 /// 
 /// **NOTE** :This interface present only in DAO layer,not service layer,business layer,web layer.
 /// @see PgSingleRangeType

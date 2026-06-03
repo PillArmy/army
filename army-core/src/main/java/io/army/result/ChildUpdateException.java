@@ -19,6 +19,8 @@ package io.army.result;
 import io.army.executor.DataAccessException;
 import io.army.session.Session;
 
+/// Exception thrown when a child table update fails and the session must be rolled back.
+///
 /// @see Session#isRollbackOnly()
 /// @since 0.6.0
 public final class ChildUpdateException extends DataAccessException {

@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// MySQL-specific criteria interfaces for building type-safe MySQL SQL queries.
 @io.army.lang.NonNullApi
 package io.army.criteria.mysql;

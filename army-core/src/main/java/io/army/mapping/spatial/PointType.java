@@ -24,6 +24,8 @@ import io.army.mapping.MappingType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
+/// Mapping type for spatial POINT geometry per OGC Simple Feature Access.
+///
 /// @see <a href="https://www.ogc.org/standards/sfa">Simple Feature Access - Part 1: Common Architecture PDF</a>
 public final class PointType extends ArmyGeometryType implements MappingType.SqlPoint {
 

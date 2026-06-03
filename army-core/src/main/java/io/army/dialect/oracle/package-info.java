@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Oracle database dialect support.
 @io.army.lang.NonNullApi
 package io.army.dialect.oracle;

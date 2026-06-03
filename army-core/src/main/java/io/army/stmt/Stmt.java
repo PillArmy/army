@@ -19,6 +19,8 @@ package io.army.stmt;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+/// Root statement interface.
+///
 /// @see SimpleStmt
 /// @see PairStmt
 /// @see BatchStmt

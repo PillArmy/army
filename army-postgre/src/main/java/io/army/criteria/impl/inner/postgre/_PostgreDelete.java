@@ -23,6 +23,7 @@ import io.army.criteria.impl.inner._SingleDelete;
 import io.army.criteria.impl.inner._Statement;
 import io.army.lang.Nullable;
 
+/// Internal representation of a PostgreSQL DELETE statement with USING and RETURNING support.
 public interface _PostgreDelete extends _SingleDelete,
         _JoinableDelete,
         _DialectStatement,
@@ -30,9 +31,11 @@ public interface _PostgreDelete extends _SingleDelete,
         _Statement._ReturningListSpec,
         _Statement._WithDmlSpec {
 
+    /// The ONLY modifier for table inheritance, nullable.
     @Nullable
     SQLs.WordOnly modifier();
 
+    /// The table asterisk for referencing all columns, nullable.
     @Nullable
     SQLs.SymbolAsterisk symbolAsterisk();
 

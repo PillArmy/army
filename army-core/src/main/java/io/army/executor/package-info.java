@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// SQL statement execution framework.
 @io.army.lang.NonNullApi
 package io.army.executor;

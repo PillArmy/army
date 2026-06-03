@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Value generator interfaces for ID and field generation.
 @io.army.lang.NonNullApi
 package io.army.generator;

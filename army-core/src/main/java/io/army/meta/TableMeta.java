@@ -22,6 +22,8 @@ import io.army.util.SQLStmts;
 
 import java.util.List;
 
+/// Metadata representing a database table.
+/// @param <T> the domain entity type representing this table
 /// @see SchemaMeta
 /// @see FieldMeta
 /// @see IndexMeta

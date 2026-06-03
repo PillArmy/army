@@ -17,6 +17,7 @@
 package io.army.stmt;
 
 
+/// A pair statement containing two {@link SingleSqlStmt} instances.
 /// @see SingleSqlStmt
 /// @since 0.6.0
 public interface PairStmt extends Stmt.PairStmtSpec {

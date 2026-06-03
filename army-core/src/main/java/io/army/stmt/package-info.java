@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// SQL statement abstractions.
 @io.army.lang.NonNullApi
 package io.army.stmt;

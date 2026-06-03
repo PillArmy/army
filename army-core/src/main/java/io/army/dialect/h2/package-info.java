@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// H2 database dialect support.
 @io.army.lang.NonNullApi
 package io.army.dialect.h2;

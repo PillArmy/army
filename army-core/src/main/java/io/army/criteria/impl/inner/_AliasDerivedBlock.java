@@ -18,9 +18,10 @@ package io.army.criteria.impl.inner;
 
 import java.util.List;
 
+/// Internal interface for alias-aware derived table blocks.
 public interface _AliasDerivedBlock extends _TabularBlock, _SelectionMap {
 
-
+    /// Returns the list of column aliases for this derived block.
     List<String> columnAliasList();
 
 }

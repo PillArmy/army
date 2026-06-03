@@ -26,6 +26,8 @@ import io.army.sqltype.MySQLType;
 
 import java.util.BitSet;
 
+/// Mapping type for MySQL BIT columns, maps to {@link Long}.
+///
 /// @see Long
 public final class MySqlBitType extends _ArmyNoInjectionType {
 

@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// MySQL dialect-specific parsers and handler implementations.
 @io.army.lang.NonNullApi
 package io.army.dialect;

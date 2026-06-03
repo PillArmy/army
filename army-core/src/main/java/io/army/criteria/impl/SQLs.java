@@ -647,6 +647,7 @@ public abstract class SQLs extends SQLSyntax {
 
     }
 
+    /// Marker interface for SQL DISTINCT/ALL argument modifier.
     /// @see SQLs#DISTINCT
     public interface ArgDistinct extends SQLToken {
 

@@ -16,6 +16,7 @@
 
 package io.army.dialect;
 
+/// Base class for dialect-specific SQL parsers extending {@link ArmyParser}.
 public abstract class _ArmyDialectParser extends ArmyParser {
 
    protected _ArmyDialectParser(DialectEnv dialectEnv, Dialect dialect) {

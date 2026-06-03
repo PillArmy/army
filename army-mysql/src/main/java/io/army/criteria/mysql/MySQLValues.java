@@ -99,7 +99,7 @@ public interface MySQLValues extends MySQLStatement, RowSet {
     }
 
 
-    /// VALUES statement don't support WITH clause.
+    /// @param <I> the extending Item type
     interface _SelectComplexCommandSpec<I extends Item> extends MySQLQuery._MySQLSelectClause<I>,
             _DynamicParensRowSetClause<_ValueWithComplexSpec<_UnionOrderBySpec<I>>, _UnionOrderBySpec<I>> {
 

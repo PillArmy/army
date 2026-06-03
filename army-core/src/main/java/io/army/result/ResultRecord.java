@@ -16,10 +16,7 @@
 
 package io.army.result;
 
-import io.army.session.FactoryBuilder;
-
 import io.army.lang.Nullable;
-import java.util.function.Function;
 
 public interface ResultRecord extends DataRecord {
 
@@ -28,8 +25,8 @@ public interface ResultRecord extends DataRecord {
     /// 
     /// - {@link CurrentRecord#get(int)}
     /// - and convert column value to columnClass
-    /// 
-    /// @see FactoryBuilder#columnConverterFunc(Function)
+    ///
+    /// @see io.army.executor.ExecutorEnv#converterFunc()
     @Nullable
     @Override
     <T> T get(int indexBasedZero, Class<T> columnClass);

@@ -40,20 +40,28 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     DataType map(ServerMeta meta) throws UnsupportedDialectException;
 
+    /// Bind a Java value to its database representation for SQL parameters.
     /// @param dataType from {@link #map(ServerMeta)}
+    /// @param env      mapping environment with database metadata
     /// @param source   never null
     /// @return non-null, the instance of the type that {@link SQLType} allow.
     Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException;
 
+    /// Convert a database value to its Java representation after retrieval.
     /// @param dataType from {@link  StmtExecutor}
+    /// @param env      mapping environment with database metadata
     /// @param source   never null
     /// @return non-null, the instance of {@link #javaType()}.
 
     Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException;
 
 
+    /// Create an array mapping type for this element type.
     MappingType arrayTypeOfThis() throws CriteriaException;
 
+    /// Find a compatible mapping type for the given data type and target Java type.
+    ///
+    /// @throws NoMatchMappingException if no compatible mapping found
     <Z> MappingType compatibleFor(final DataType dataType, final Class<Z> targetType)
             throws NoMatchMappingException;
 
@@ -305,6 +313,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
+    /// Marker interface for composite (row) types.
     /// @see <a href="https://www.postgresql.org/docs/current/rowtypes.html">Composite Types</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-createtype.html">CREATE TYPE</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-altertype.html">ALTER TYPE</a>
@@ -315,6 +324,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
+    /// Marker interface for domain types.
     /// @see <a href="https://www.postgresql.org/docs/current/domains.html">Domain Types</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-createdomain.html">CREATE DOMAIN</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-alterdomain.html">ALTER DOMAIN</a>
@@ -338,6 +348,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
+    /// Marker interface for range types.
     /// @see <a href="https://www.postgresql.org/docs/current/rangetypes.html">Range Types</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-createtype.html">CREATE TYPE</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-altertype.html">ALTER TYPE</a>

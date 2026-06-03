@@ -18,6 +18,7 @@ package io.army.dialect;
 
 import io.army.stmt.SimpleStmt;
 
+/// Dialect context for VALUES clause in INSERT statements.
 /// @since 0.6.0
 public interface _ValuesContext extends PrimaryQueryContext {
 

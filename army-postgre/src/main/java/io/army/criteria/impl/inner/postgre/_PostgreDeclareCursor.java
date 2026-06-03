@@ -20,17 +20,22 @@ package io.army.criteria.impl.inner.postgre;
 import io.army.criteria.impl.inner._DeclareCursor;
 import io.army.lang.Nullable;
 
+/// Internal representation of a PostgreSQL DECLARE CURSOR statement.
 public interface _PostgreDeclareCursor extends _DeclareCursor {
 
 
+    /// Whether the cursor is binary.
     boolean isBinary();
 
+    /// The sensitive mode (SCROLL/NO SCROLL), nullable.
     @Nullable
     Boolean sensitiveMode();
 
+    /// The scroll mode (SCROLL/NO SCROLL), nullable.
     @Nullable
     Boolean scrollMode();
 
+    /// The hold mode (WITH HOLD/WITHOUT HOLD), nullable.
     @Nullable
     Boolean holdMode();
 

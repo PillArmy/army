@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Dialect-specific criteria extensions.
 @io.army.lang.NonNullApi
 package io.army.criteria.dialect;

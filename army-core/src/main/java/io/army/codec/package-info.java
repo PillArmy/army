@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Codec framework for encoding and decoding data types.
 @io.army.lang.NonNullApi
 package io.army.codec;

@@ -24,7 +24,6 @@ import io.army.meta.FieldMeta;
 import io.army.meta.SchemaMeta;
 import io.army.meta.ServerMeta;
 import io.army.result.ResultRecord;
-import io.army.session.FactoryBuilder;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -45,7 +44,6 @@ public interface ExecutorEnv {
     /// @return always same instance
     MappingEnv mappingEnv();
 
-    /// @see FactoryBuilder#columnConverterFunc(Function)
     /// @see ResultRecord#get(int, Class)
     @Nullable
     Function<Class<?>, Function<Object, ?>> converterFunc();

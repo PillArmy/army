@@ -19,6 +19,8 @@ package io.army.mapping.optional;
 import io.army.mapping.MappingType;
 import io.army.meta.DatabaseObject;
 
+/// Represents a field within a composite type.
+///
 /// @see io.army.mapping.CompositeType
 public interface CompositeField extends DatabaseObject.FieldObject {
 

@@ -21,10 +21,10 @@ import io.army.criteria.Item;
 import io.army.criteria.SimpleExpression;
 import io.army.criteria.Statement;
 import io.army.criteria.impl.SQLs;
+import io.army.lang.Nullable;
 import io.army.mapping.IntegerType;
 import io.army.mapping.LongType;
 
-import io.army.lang.Nullable;
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -156,6 +156,9 @@ public interface Window extends Item {
 
     }
 
+    /// Static frame unit ROWS clause for window function frame specification.
+    /// @param <RS> the frame unit row space spec type
+    /// @param <RB> return type of rows method (between clause)
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _StaticFrameUnitRowsClause<RS, RB> {
@@ -188,6 +191,9 @@ public interface Window extends Item {
     }
 
 
+    /// Static frame unit RANGE clause for window function frame specification.
+    /// @param <RS> the frame unit range space spec type
+    /// @param <RB> return type of range method (between clause)
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _StaticFrameUnitRangeClause<RS, RB> {
@@ -219,6 +225,9 @@ public interface Window extends Item {
 
     }
 
+    /// Static frame unit ROWS/RANGE specification for window functions.
+    /// @param <RS> the frame unit space spec type
+    /// @param <RB> return type of frame methods (between clause)
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _StaticFrameUnitRowsRangeSpec<RS, RB> extends _StaticFrameUnitRowsClause<RS, RB>,
@@ -226,6 +235,9 @@ public interface Window extends Item {
 
     }
 
+    /// Static frame unit GROUPS clause for PostgreSQL window function frame specification.
+    /// @param <RS> the frame unit groups space spec type
+    /// @param <RB> return type of groups method (between clause)
     /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _StaticFrameUnitGroupsClause<RS, RB> {
 
@@ -257,6 +269,9 @@ public interface Window extends Item {
     }
 
 
+    /// Static frame unit ROWS/RANGE/GROUPS specification for window functions.
+    /// @param <RS> the frame unit space spec type
+    /// @param <RB> return type of frame methods (between clause)
     /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _StaticFrameUnitRowsRangeGroupsSpec<RS, RB> extends _StaticFrameUnitRowsRangeSpec<RS, RB>,
             _StaticFrameUnitGroupsClause<RS, RB> {
@@ -291,6 +306,9 @@ public interface Window extends Item {
     }
 
 
+    /// Dynamic frame unit ROWS clause for window functions.
+    /// @param <T> the frame unit space spec type
+    /// @param <R> return type of ifRows method
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _DynamicFrameUnitRowsClause<T, R> {
@@ -300,6 +318,9 @@ public interface Window extends Item {
 
     }
 
+    /// Dynamic frame unit RANGE clause for window functions.
+    /// @param <T> the frame unit space spec type
+    /// @param <R> return type of ifRange method
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _DynamicFrameUnitRangeClause<T, R> {
@@ -309,6 +330,9 @@ public interface Window extends Item {
 
     }
 
+    /// Dynamic frame unit ROWS/RANGE clause for window functions.
+    /// @param <T> the frame unit space spec type
+    /// @param <R> return type of frame methods
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _DynamicFrameUnitRowsRangeClause<T, R> extends _DynamicFrameUnitRowsClause<T, R>,
@@ -318,6 +342,9 @@ public interface Window extends Item {
     }
 
 
+    /// Dynamic frame unit GROUPS clause for PostgreSQL window functions.
+    /// @param <T> the frame unit space spec type
+    /// @param <R> return type of ifGroups method
     /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _DynamicFrameUnitGroupsClause<T, R> {
 
@@ -326,6 +353,9 @@ public interface Window extends Item {
 
     }
 
+    /// Dynamic frame unit ROWS/RANGE/GROUPS clause for window functions.
+    /// @param <T> the frame unit space spec type
+    /// @param <R> return type of frame methods
     /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _DynamicFrameUnitRowsRangeGroupsClause<T, R> extends _DynamicFrameUnitRowsRangeClause<T, R>,
             _DynamicFrameUnitGroupsClause<T, R> {
@@ -361,6 +391,8 @@ public interface Window extends Item {
     }
 
 
+    /// Frame BETWEEN clause for window function frame specification.
+    /// @param <R> return type of between methods
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _FrameBetweenClause<R> {
@@ -440,6 +472,8 @@ public interface Window extends Item {
     }
 
 
+    /// Frame exclusion clause for PostgreSQL window functions.
+    /// @param <R> return type of exclusion methods
     /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS">Postgre Window Function Calls</a>
     interface _FrameExclusionClause<R> {
 

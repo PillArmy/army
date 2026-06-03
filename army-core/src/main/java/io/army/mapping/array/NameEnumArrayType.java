@@ -37,6 +37,8 @@ import io.army.util._Collections;
 import java.util.concurrent.ConcurrentMap;
 
 
+/// Array mapping type for {@link Enum} elements using {@link Enum#name()} values.
+///
 /// @see Enum
 /// @see NameEnumType
 public class NameEnumArrayType extends _ArmyBuildInArrayType {

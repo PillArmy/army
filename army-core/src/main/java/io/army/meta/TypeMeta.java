@@ -30,6 +30,7 @@ import io.army.mapping.MappingType;
 /// @see FieldMeta
 public interface TypeMeta extends Meta {
 
+    /// Returns the mapping type for this type meta.
     MappingType mappingType();
 
 

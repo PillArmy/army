@@ -53,6 +53,8 @@ public interface UpdateStatement extends NarrowDmlStatement {
 
     }
 
+    /// Set clause for static field type.
+    /// @param <F> the sql field type
     /// @param <SR> java type of next clause.
     interface _StaticSetClause<F extends SqlField, SR> extends Item {
 
@@ -71,7 +73,8 @@ public interface UpdateStatement extends NarrowDmlStatement {
     }
 
 
-
+    /// Batch set clause for static field type.
+    /// @param <F> the sql field type
     /// @param <SR> java type of next clause.
     interface _StaticBatchSetClause<F extends SqlField, SR> extends _StaticSetClause<F, SR> {
 

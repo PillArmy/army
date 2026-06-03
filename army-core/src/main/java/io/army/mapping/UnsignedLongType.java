@@ -25,6 +25,8 @@ import io.army.sqltype.DataType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+/// Mapping type for unsigned long ({@link Long}) values.
+///
 /// @see UnsignedBigintType
 /// @see UnsignedIntegerType
 public final class UnsignedLongType extends _ArmyNoInjectionType

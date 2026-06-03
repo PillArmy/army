@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Army environment configuration and runtime context.
 @io.army.lang.NonNullApi
 package io.army.env;

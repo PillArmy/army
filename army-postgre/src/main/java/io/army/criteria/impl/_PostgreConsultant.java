@@ -24,13 +24,16 @@ import io.army.criteria.postgre.PostgreMerge;
 import io.army.dialect.Database;
 import io.army.lang.Nullable;
 
+/// Type consultant for PostgreSQL dialect statements, verifying that criteria objects are valid Army-generated PostgreSQL implementations.
 public abstract class _PostgreConsultant extends _SQLConsultant {
 
 
+    /// Private constructor, prevent instantiation.
     private _PostgreConsultant() {
     }
 
 
+    /// Assert that the given INSERT statement is a valid PostgreSQL Army insert.
     public static void assertInsert(final InsertStatement insert) {
         if (insert instanceof _Insert._DomainInsert || insert instanceof _Insert._ValuesInsert) {
             if (!(insert instanceof PostgreInserts.PostgreValueSyntaxInsertStatement)) {
@@ -45,6 +48,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
         }
     }
 
+    /// Assert that the given sub INSERT statement is a valid PostgreSQL Army sub-insert.
     public static void assertSubInsert(final SubStatement insert) {
         if (insert instanceof _Insert._DomainInsert || insert instanceof _Insert._ValuesInsert) {
             if (!(insert instanceof PostgreInserts.PostgreValueSyntaxInsertStatement || insert instanceof PostgreMerges.MergeValuesSyntaxSubInsert)) {
@@ -59,6 +63,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
         }
     }
 
+    /// Assert that the given UPDATE statement is a valid PostgreSQL Army update.
     public static void assertUpdate(final UpdateStatement update) {
         if (update instanceof _ReturningDml) {
             if (!(update instanceof PostgreUpdates.PostgreUpdateWrapper)) {
@@ -70,6 +75,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
 
     }
 
+    /// Assert that the given sub UPDATE statement is a valid PostgreSQL Army sub-update.
     public static void assertSubUpdate(final SubStatement update) {
         if (update instanceof _ReturningDml) {
             if (!(update instanceof PostgreUpdates.PostgreSubReturningUpdate)) {
@@ -80,6 +86,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
         }
     }
 
+    /// Assert that the given DELETE statement is a valid PostgreSQL Army delete.
     public static void assertDelete(final DeleteStatement stmt) {
         if (stmt instanceof _ReturningDml) {
             if (!(stmt instanceof PostgreDeletes.PostgreReturningDeleteWrapper)) {
@@ -90,6 +97,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
         }
     }
 
+    /// Assert that the given sub DELETE statement is a valid PostgreSQL Army sub-delete.
     public static void assertSubDelete(final SubStatement stmt) {
         if (stmt instanceof _ReturningDml) {
             if (!(stmt instanceof PostgreDeletes.PostgreSubReturningDelete)) {
@@ -100,29 +108,34 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
         }
     }
 
+    /// Assert that the given MERGE statement is a valid PostgreSQL Army merge.
     public static void assertMerge(final PostgreMerge stmt) {
         if (!(stmt instanceof PostgreMerges.MergeInsertStatement)) {
             throw nonArmyStatement(stmt);
         }
     }
 
+    /// Assert that the given SET statement is a valid PostgreSQL Army SET command.
     public static void assertSetStmt(final _PostgreCommand._SetCommand stmt) {
         if (!(stmt instanceof PostgreSets)) {
             throw nonArmyStatement(stmt);
         }
     }
 
+    /// Assert that the given SHOW statement is a valid PostgreSQL Army SHOW command.
     public static void assertShowStmt(final _PostgreCommand._ShowCommand stmt) {
         if (!(stmt instanceof PostgreCommands.ShowCommand)) {
             throw nonArmyStatement(stmt);
         }
     }
 
+    /// Check whether the given insert statement is NOT a merge sub-insert.
     public static boolean isNotMergeSubInsert(final _Insert stmt) {
         return !(stmt instanceof PostgreMerges.MergeValuesSyntaxSubInsert);
     }
 
 
+    /// Assert that the given RowSet is a valid PostgreSQL Army row set.
     public static void assertRowSet(final RowSet rowSet) {
         if (!(rowSet instanceof Query)) {
             if (!(rowSet instanceof PostgreSimpleValues
@@ -150,18 +163,21 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
         }
     }
 
+    /// Assert that the given DECLARE CURSOR statement is a valid PostgreSQL Army cursor declaration.
     public static void assertDeclareCursor(final PostgreCursor stmt) {
         if (!(stmt instanceof PostgreDeclareCursors)) {
             throw nonArmyStatement(stmt);
         }
     }
 
+    /// Assert that the given CLOSE CURSOR statement is a valid PostgreSQL Army close cursor.
     public static void assertCloseCursor(final _CloseCursor stmt) {
         if (!(stmt instanceof PostgreSupports.CloseCursorStatement)) {
             throw nonArmyStatement(stmt);
         }
     }
 
+    /// Determine the query modifier level for DISTINCT/ALL.
     public static int queryModifier(final SQLToken modifier) {
         final int level;
         if (modifier == Postgres.DISTINCT || modifier == Postgres.ALL) {
@@ -172,24 +188,28 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
         return level;
     }
 
+    /// Assert that the given WINDOW clause is a valid PostgreSQL Army window implementation.
     public static void assertWindow(final @Nullable _Window window) {
         if (!(window instanceof PostgreSupports.PostgreWindowImpl || window instanceof SQLWindow.SimpleWindow)) {
             throw illegalWindow(window);
         }
     }
 
+    /// Assert that the given nested items are a valid PostgreSQL Army nested join.
     public static void assertNestedItems(final @Nullable _NestedItems nestedItems) {
         if (!(nestedItems instanceof PostgreNestedJoins)) {
             throw illegalNestedItems(nestedItems, Database.PostgreSQL);
         }
     }
 
+    /// Assert that the given CTE is a valid PostgreSQL Army CTE implementation.
     public static void assertPostgreCte(final @Nullable _Cte cte) {
         if (!(cte instanceof PostgreSupports.PostgreCte || cte instanceof CriteriaContexts.RecursiveCte)) {
             throw illegalCteImpl(cte);
         }
     }
 
+    /// Assert that the given SQL element is a valid PostgreSQL Army element.
     public static void assertSqlElement(final SQLElement element) {
         if (element instanceof _TableNameElement) {
             if (!(element instanceof PostgreFunctionUtils.TableNameExpression)) {

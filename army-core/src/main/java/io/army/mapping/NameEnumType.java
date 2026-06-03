@@ -36,6 +36,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/// Mapping type for Java {@code enum} constants that use {@link Enum#name()} as database value.
+///
 /// @see Enum
 /// @see TextEnumType
 public class NameEnumType extends _ArmyNoInjectionType {

@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// PostgreSQL array type mappings.
 @io.army.lang.NonNullApi
 package io.army.mapping.postgre.array;

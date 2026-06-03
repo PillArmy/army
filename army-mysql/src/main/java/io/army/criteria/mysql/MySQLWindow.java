@@ -20,6 +20,7 @@ import io.army.criteria.Item;
 import io.army.criteria.Statement;
 import io.army.criteria.dialect.Window;
 
+/// MySQL-specific window function clauses extending the standard {@link Window} interface.
 /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-named-windows.html">MySQL 8.0 Named Windows</a>
 /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-usage.html">Window Function Concepts and Syntax</a>
 /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions-frames.html">MySQL Window Function Frame Specification</a>

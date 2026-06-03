@@ -474,11 +474,11 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
     /// - {@link SQLs#literal(TypeInfer, Object)}
     /// - {@link SQLs#namedParam(TypeInfer, String)} ,used only in INSERT( or batch update/delete ) syntax
     /// - {@link SQLs#namedLiteral(TypeInfer, String)} ,used only in INSERT( or batch update/delete in multi-statement) syntax
-    /// - {@link SQLs#encodingParam(TypeInfer, Object)},used when only **this** is instance of {@link TableField} and {@link TableField#codec()} is true
-    /// - {@link SQLs#encodingLiteral(TypeInfer, Object)},used when only **this** is instance of {@link TableField} and {@link TableField#codec()} is true
-    /// - {@link SQLs#encodingNamedParam(TypeInfer, String)} ,used when only **this** is instance of {@link TableField} and {@link TableField#codec()} is true
+    /// - `SQLs#encodingParam(TypeInfer, Object)`,used when only **this** is instance of {@link TableField} and {@link TableField#codec()} is true
+    /// - `SQLs#encodingLiteral(TypeInfer, Object)`,used when only **this** is instance of {@link TableField} and {@link TableField#codec()} is true
+    /// - `SQLs#encodingNamedParam(TypeInfer, String)` ,used when only **this** is instance of {@link TableField} and {@link TableField#codec()} is true
     /// and in INSERT( or batch update/delete ) syntax
-    /// - {@link SQLs#encodingNamedLiteral(TypeInfer, String)} ,used when only **this** is instance of {@link TableField} and {@link TableField#codec()} is true
+    /// - `SQLs#encodingNamedLiteral(TypeInfer, String)` ,used when only **this** is instance of {@link TableField} and {@link TableField#codec()} is true
     /// and in INSERT( or batch update/delete in multi-statement) syntax
     /// - developer custom method
     /// .

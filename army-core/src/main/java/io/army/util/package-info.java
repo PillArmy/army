@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Utility classes and helpers.
 @io.army.lang.NonNullApi
 package io.army.util;

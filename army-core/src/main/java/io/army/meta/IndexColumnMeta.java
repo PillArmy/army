@@ -19,6 +19,7 @@ package io.army.meta;
 import io.army.annotation.NullsOrder;
 import io.army.annotation.SortOrder;
 
+/// Metadata for an index column, including collation, opclass, and sort order.
 /// @see io.army.annotation.IndexField
 public interface IndexColumnMeta {
 

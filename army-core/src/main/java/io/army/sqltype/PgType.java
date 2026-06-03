@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.time.*;
 import java.util.BitSet;
 
+/// Enumeration of PostgreSQL data types mapped to Java types.
 /// @see <a href="https://www.postgresql.org/docs/current/datatype.html">Postgre Data Types</a>
 public enum PgType implements SQLType {
 

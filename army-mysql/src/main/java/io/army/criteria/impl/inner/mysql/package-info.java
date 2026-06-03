@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
+/// Internal interfaces for MySQL-specific criteria implementation.
 @io.army.lang.NonNullApi
 package io.army.criteria.impl.inner.mysql;
