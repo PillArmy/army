@@ -5,7 +5,7 @@
 :revdate: {docdate}
 :revremark: Snapshot
 :toc: left
-:toclevels: 4
+:toclevels: 5
 :sectnums:
 :icons: font
 :source-highlighter: prettify
@@ -115,10 +115,21 @@ Map a Java class to a database table using annotations:
        comment = "stock")
 public class Stock {
 
+    //auto-increment primary key use below:
+    //  @Generator(type = GeneratorType.POST)
     @Generator(value = "io.army.generator.snowflake.Snowflake8Generator",
                params = @Param(name = "startTime", value = "1779012232202"))
     @Column
     public long id;
+
+    @Column
+    public LocalDateTime createTime;
+
+    @Column
+    public LocalDateTime updateTime;
+
+    @Column(comment = "version")
+    public int version;
 
     @Column(notNull = true, updatable = false, precision = 5, comment = "exchange code")
     public String exchange;
@@ -138,14 +149,6 @@ public class Stock {
     @Column(defaultValue = "DATE '1970-01-01'", comment = "listing date")
     public LocalDate listingDate;
 
-    @Column
-    public LocalDateTime createTime;
-
-    @Column
-    public LocalDateTime updateTime;
-
-    @Column(comment = "version")
-    public int version;
 }
 ----
 
@@ -170,7 +173,7 @@ public abstract class Stock_ {
 		T = _TableMetaFactory.getSimpleTableMeta(Stock.class);
 
 		final int fieldSize = T.fieldList().size();
-		if(fieldSize != 11){
+		if(fieldSize != 10){
 			throw _TableMetaFactory.tableFiledSizeError(Stock.class,fieldSize);
 		}
 	}
@@ -321,6 +324,18 @@ try (SyncLocalSession session = sessionFactory.localSession()) {
 }
 ----
 
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+INSERT INTO stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+VALUES (?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?)
+     , (?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?)  -- one row per Stock object
+     , ...
+----
+
 === Your First Query
 
 [source,java]
@@ -339,6 +354,14 @@ try (SyncLocalSession session = sessionFactory.localSession()) {
     stock = session.queryOne(stmt, Stock.class);
     System.out.println(stock);
 }
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT s.id, s.name, s.offer_price
+FROM stock AS s
+WHERE s.name = ?  -- param: 'Tesla'
 ----
 
 == Domain Model Definition
@@ -2398,6 +2421,16 @@ stmt = SQLs.query()
         .asQuery();
 ----
 
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT s.id, s.name, s.offer_price
+FROM stock AS s
+WHERE s.name = ?  -- param: 'Tesla'
+AND s.create_time < ?  -- param: now - 1 day
+LIMIT 1
+----
+
 ===== Full Clause Chain
 
 The SELECT chain follows SQL clause order:
@@ -2450,6 +2483,24 @@ stmt2 = SQLs.singleInsert()
         .asInsert();
 ----
 
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- (A) Single domain: columns follow field declaration order in the document's Stock:
+--     id(PRECEDE), create_time, update_time, version, exchange,
+--     code, name, status, offer_price, listing_date
+INSERT INTO stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+-- (B) List with defaultValue: status per-row;
+--     when Stock.status is null, 'NORMAL' is substituted
+INSERT INTO stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?),
+       (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+----
+
 [cols="1,3,2",options="header"]
 |===
 | Method | Interface signature | Returns
@@ -2482,6 +2533,19 @@ stmt = SQLs.singleInsert()
                 .ifComma(Stock_.offerPrice, offerValue)     //   conditional comma — skipped when null
         )
         .asInsert();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- Value mode always inserts ALL table columns; fields not explicitly set
+-- use DEFAULT (NullMode.DEFAULT→INSERT_DEFAULT for PostgreSQL)
+-- id, create_time, update_time, version are managed by Army
+INSERT INTO stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+VALUES (?, ?, ?, ?, ?, ?, ?, DEFAULT, ?,          -- offer_price uses DEFAULT when offerValue is null
+        DEFAULT)           -- listing_date uses DEFAULT
+-- params: id(snowflake), 'NYSE', 'AAPL', ?(param: 'Alphabet'), offerValue
 ----
 
 ._StaticValueSpaceClause methods:
@@ -2528,6 +2592,22 @@ stmt = SQLs.singleInsert()
         .asInsert();
 ----
 
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- Default mode: all table columns appear in the INSERT list.
+-- id, create_time, update_time, version managed by Army;
+-- unset nullable fields → DEFAULT (NullMode.DEFAULT→INSERT_DEFAULT for PostgreSQL)
+INSERT INTO stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+VALUES (?, ?, ?, ?, ?, ?, ?, DEFAULT, DEFAULT,
+        DEFAULT),         -- row 1: 'NYSE', 'AAPL', 'Apple Inc.'
+       (?, ?, ?, ?, ?, ?, ?, DEFAULT, DEFAULT,
+        DEFAULT),         -- row 2: 'NASDAQ', 'GOOGL', ? (param: 'Alphabet')
+       (?, ?, ?, ?, ?, ?, ?, DEFAULT, DEFAULT,
+        DEFAULT)          -- row 3: exchangeValue non-null→param, null→DEFAULT; 'MSFT', 'Microsoft'
+----
+
 *Value mode — Dynamic (multi-row via `ValuesConstructor`)*
 
 Defined in link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._DynamicValuesClause`,role="extern"]:
@@ -2563,6 +2643,17 @@ stmt = SQLs.singleInsert()
         .asInsert();
 ----
 
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+INSERT INTO stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+VALUES (?, ?, ?, ?, ?, ?, ?, DEFAULT, DEFAULT,
+        DEFAULT),        -- row 1: 'NYSE', 'AAPL', 'Apple Inc.'
+       (?, ?, ?, ?, ?, ?, ?, DEFAULT, DEFAULT,
+        DEFAULT)         -- row 2: 'NASDAQ', 'GOOGL', ? (param: 'Alphabet')
+----
+
 _Dynamic row — via `Assignments` (uses `set()` instead of `space()`/`comma()`):_
 
 [source,java]
@@ -2585,6 +2676,19 @@ stmt = SQLs.singleInsert()
                 })
         )
         .asInsert();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+INSERT INTO stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+VALUES (?, ?, ?, ?, ?, ?, ?, DEFAULT, ?,           -- row 1: offer_price uses DEFAULT when offer is null
+        DEFAULT),
+       (?, ?, ?, ?, ?, ?, ?, DEFAULT, DEFAULT,
+        DEFAULT)
+-- row 1: 'NYSE', 'AAPL', 'Apple Inc.', offer
+-- row 2: 'NASDAQ', 'GOOGL', ? (param: 'Alphabet')
 ----
 
 `Assignments` extends link:../army-core/src/main/java/io/army/criteria/InsertStatement.java[`InsertStatement._StaticAssignmentSetClause`,role="extern"]:
@@ -2634,6 +2738,13 @@ stmt = SQLs.singleInsert()
         .asInsert();
 ----
 
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+INSERT INTO stock (exchange, code, name)
+SELECT ...  -- subQuery SQL
+----
+
 _Form 2 — Dynamic columns + Supplier<SubQuery>:_
 
 [source,java]
@@ -2651,6 +2762,13 @@ stmt = SQLs.singleInsert()
         .asInsert();
 ----
 
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+INSERT INTO stock (exchange, code, name)
+SELECT ...  -- subQuery SQL
+----
+
 _Form 3 — No column list (subquery determines columns):_
 
 [source,java]
@@ -2661,6 +2779,13 @@ stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
         .space(subQuery)                                    // _QueryInsertSpaceClause.space(Supplier)
         .asInsert();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+INSERT INTO stock
+SELECT ...  -- subQuery determines all columns
 ----
 
 _Form 4 — No-arg `space()` returns `SelectSpec` (advanced):_
@@ -2678,6 +2803,15 @@ stmt = SQLs.singleInsert()
         .from(NasdaqTable_.T, AS, "n")
         .where(NasdaqTable_.listed.equal(true))
         .asInsert();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+INSERT INTO stock (exchange, code, name, status)
+SELECT n.exchange, n.code, n.name, DEFAULT
+FROM nasdaq_table AS n
+WHERE n.listed = ?  -- param: true
 ----
 
 ===== Child INSERT (Parent-Child Hierarchy)
@@ -2701,6 +2835,26 @@ stmt = SQLs.singleInsert()
         .insertInto(Admin_.T)              // ChildTableMeta — returns _ColumnListSpec
         .values(adminUserList)
         .asInsert();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- Statement 1: parent rows (no discriminator column)
+--     Columns follow field declaration order in ParentUser class
+INSERT INTO u_user (id, name, create_time, update_time, version)
+VALUES (?, ?, ?, ?, ?),
+       ...
+
+-- Statement 2: child rows (includes discriminator column)
+--     Columns follow field declaration order in Admin class;
+--     discriminator 'ADMIN' from @DiscriminatorValue is auto-injected
+INSERT INTO u_user (id, name, status, create_time, update_time, version)
+VALUES (?, ?, ?, ?, ?, ?),
+       ...
+
+-- NOTE: When id GeneratorType is POST (database auto-increment),
+--       the id column is NOT included in the column list.
 ----
 
 [TIP]
@@ -2738,6 +2892,17 @@ stmt = SQLs.singleUpdate()
         .asUpdate();
 ----
 
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+UPDATE stock AS s
+SET s.name = ?,
+    s.offer_price = s.offer_price + ?,
+    s.update_time = ?,
+    s.version = s.version + 1
+WHERE s.id BETWEEN ? AND ?
+----
+
 The `set()` method comes from link:../army-core/src/main/java/io/army/criteria/UpdateStatement.java[`UpdateStatement._StaticSetClause`,role="extern"].
 It supports value operators like `SQLs::plusEqual`, `SQLs::minusEqual`, etc., and `setRow()` for multi-column subquery assignment.
 
@@ -2754,6 +2919,16 @@ stmt = SQLs.domainUpdate()
         .set(Stock_.name, "Tesla")
         .where(Stock_.id.equal(100L))
         .asUpdate();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+UPDATE stock s
+SET s.name = ?,
+    s.update_time = ?,
+    s.version = s.version + 1
+WHERE s.id = ?  -- param: 100
 ----
 
 [cols="1,3",options="header"]
@@ -2787,6 +2962,21 @@ List<Map<String, Object>> paramList = List.of(
 long rows = session.update(stmt.namedParamList(paramList));
 ----
 
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- Batch 1: name='Tesla', offerPrice=250, id=1
+UPDATE stock AS s
+SET s.name = ?,
+    s.offer_price = 250,
+    s.update_time = ?,
+    s.version = s.version + 1
+WHERE s.id = ?
+
+-- Batch 2: name='Apple', offerPrice=180, id=2
+-- (same SQL structure, different parameter values)
+----
+
 ==== DELETE Statements
 
 ===== Single Table DELETE
@@ -2803,6 +2993,13 @@ stmt = SQLs.singleDelete()
         .asDelete();
 ----
 
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+DELETE FROM stock AS s
+WHERE s.status = ?  -- param: 'DELISTED'
+----
+
 ===== Domain DELETE
 
 `SQLs.domainDelete()` supports `TableMeta` — no `AS` keyword or alias required.
@@ -2815,6 +3012,13 @@ stmt = SQLs.domainDelete()
         .deleteFrom(Stock_.T, AS, "s")      // TableMeta — any table type
         .where(Stock_.visible.equal(false))
         .asDelete();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+DELETE FROM stock AS s
+WHERE s.visible = ?  -- param: false (0)
 ----
 
 All base interfaces for DELETE are defined in link:../army-core/src/main/java/io/army/criteria/DeleteStatement.java[`DeleteStatement`,role="extern"]:
@@ -2864,6 +3068,21 @@ stmt = SQLs.query()
         .groupBy(Stock_.exchange)
         .having(Functions.countAsterisk().greater(SQLs::literalValue, 100))
         .asQuery();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- Aggregate in SELECT
+SELECT s.exchange, COUNT(*)
+FROM stock AS s
+GROUP BY s.exchange
+
+-- Aggregate in HAVING
+SELECT s.exchange, COUNT(*)
+FROM stock AS s
+GROUP BY s.exchange
+HAVING COUNT(*) > 100
 ----
 
 ===== Scalar Functions
@@ -3268,6 +3487,18 @@ stmt = SQLs.query()
         .asQuery();
 ----
 
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+WITH normal_stock AS (
+    SELECT s.id, s.name, s.offer_price
+    FROM stock AS s
+    WHERE s.status = ?  -- param: 'NORMAL'
+)
+SELECT normal_stock.*
+FROM normal_stock
+----
+
 === Subqueries
 
 ==== Scalar Subquery
@@ -3280,6 +3511,17 @@ SQLs.scalarSubQuery()
         .where(Stock_.exchange.equal("NYSE"))
         .and(Stock_.code.equal("AAPL"))
         .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT s.id
+FROM stock AS s
+WHERE s.exchange = ?
+  AND s.code = ?
+-- params: 'NYSE', 'AAPL'
+-- asQuery() returns Expression, usable in SELECT / WHERE / HAVING
 ----
 
 [IMPORTANT]
@@ -3298,6 +3540,15 @@ SQLs.subQuery()
         .from(Stock_.T, AS, "s")
         .where(Stock_.status.equal(StockStatus.NORMAL))
         .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT s.*
+FROM stock AS s
+WHERE s.status = ?  -- param: 'NORMAL'
+-- asQuery() returns SubQuery, usable in FROM / IN / EXISTS
 ----
 
 === MySQL Dialect API
@@ -3323,6 +3574,20 @@ stmt = MySQLs.singleInsert()
         .onDuplicateKeyUpdate()
         .set(Stock_.offerPrice, SQLs::values, Stock_.offerPrice)
         .asInsert();
+----
+
+.Generated SQL (MySQL)
+[source,sql]
+----
+INSERT INTO stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+VALUES (?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?),
+       ...
+ON DUPLICATE KEY UPDATE
+    offer_price = VALUES(offer_price),
+    update_time = VALUES(update_time),
+    version = version + 1
 ----
 
 === PostgreSQL Dialect API
@@ -3351,6 +3616,22 @@ stmt = Postgres.singleInsert()
         .set(Stock_.offerPrice, SQLs::excluded, Stock_.offerPrice)
         .returning(Stock_.id, Stock_.name)
         .asInsert();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+INSERT INTO stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+VALUES (?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?),
+       ...
+ON CONFLICT (name)
+DO UPDATE SET
+    offer_price = EXCLUDED.offer_price,
+    update_time = ?,
+    version = version + 1
+RETURNING id, name
 ----
 
 == Session API — Executing SQL
