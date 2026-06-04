@@ -402,7 +402,7 @@ Don't worry about memorizing them now — each is explained in detail with real 
 NOTE: Many annotation attributes support **placeholders** (`+${DEFAULT}+`, `+${RUNTIME}+`, `+${OPTIONAL}+`, `+${DEFAULT_VALUE}+`) that are resolved at runtime from the configuration file `META-INF/army/TableMeta.properties` on the classpath.
 See <<TableMeta.properties — Runtime Configuration>> for details.
 
-=== @Table — Table Mapping
+=== @Table
 
 `@Table` is placed on a Java class to tell Army: "_this class maps to a database table._" It controls the table name, index definitions, DDL behavior, and more.
 At runtime, `++TableMetaUtils.tableName++` and `++TableMetaUtils.tableComment++` resolve its values; `++TableMetaUtils.schemaMeta++` handles `catalog`/`schema`, and `++TableMetaUtils.tableCreateDdl++` determines whether DDL is generated.
@@ -468,7 +468,7 @@ TIP: Use `++${DEFAULT_VALUE}++` as the index name to let the framework auto-gene
 Use `++${DEFAULT}++` only when you want to override the generated name via `META-INF/army/TableMeta.properties`.
 For most cases, `++${DEFAULT_VALUE}++` is the right choice.
 
-=== @Column — Column Mapping
+=== @Column
 
 `@Column` maps a Java field to a database column. **Without `@Column`, a field is just a plain Java field** — not persisted, not included in any SQL, not part of the table schema.
 The framework's `++TableMetaUtils.columnName++` resolves the column name, `++TableMetaUtils.columnPrecision/columnScale++` resolve numeric attributes, and `++FieldMetaUtils.columnComment++` resolves the comment text.
@@ -484,7 +484,7 @@ Army provides smart defaults for many `@Column` attributes — you only need to 
 | `comment` (not set) | Auto-generated for reserved fields | `id`→`"primary key"`, `createTime`→`"create time"`, `updateTime`→`"update time"`, `version`→`"version that's update counter of row"`, `visible`→`"visible for soft delete"`
 | `precision` (not set) | By Java type | `String`→`255`, `BigDecimal`→`16`, `Enum`→max label length + 5, `UUID`→`36`, `Vector`→`1024`
 | `scale` (not set) | By Java type | `BigDecimal`→`3`, temporal types (`LocalDateTime`/`OffsetDateTime`/`LocalTime`/`OffsetTime`)→`6` (microsecond precision)
-| `defaultValue` (not set) | By Java type | 数值类型→`"0"`, `String`→`"''"`, `LocalTime`→`"'00:00:00'"`, `LocalDate`→`"'1970-01-01'"`, `LocalDateTime`→`"'1970-01-01 00:00:00'"`
+| `defaultValue` (not set) | By Java type | Numeric types→`"0"`, `String`→`"''"`, `LocalTime`→`"'00:00:00'"`, `LocalDate`→`"'1970-01-01'"`, `LocalDateTime`→`"'1970-01-01 00:00:00'"`
 | `notNull` (not set) | `false` — except for reserved fields | `id`/`createTime`/`updateTime`/`version`/`visible` and discriminator fields are always `NOT NULL`
 | `collation` (not set) | Empty — no collation clause | Set explicitly only when needed, e.g., `"en_US.utf8"`
 |===
@@ -602,7 +602,7 @@ public LocalDate listingDate;
 public LocalDateTime createTime;
 ----
 
-=== @Generator / @GeneratorType — Field Value Generation
+=== @Generator
 
 `@Generator` controls **how a field's value is produced** — before INSERT (application-side, like Snowflake ID) or after INSERT (database auto-increment). `@GeneratorType` is the enum that tells the framework *when* to generate.
 
@@ -678,7 +678,7 @@ public long id;
 TIP: Each table should use a **different `startTime`** so Snowflake produces non-colliding ID ranges.
 This prevents primary key conflicts when joining data across tables.
 
-=== @Param / @FieldParam / @OverrideParams — Generator Parameters
+=== @Param
 
 These three annotations work together to pass and override generator configuration. `++FieldMetaUtils.getOrcreateFieldParmMap++` creates the parameter map; `++FieldMetaUtils.overrideParamMapIfNeed++` applies `@OverrideParams` overrides.
 
@@ -714,7 +714,7 @@ public class ChildEntity extends ParentEntity { }
 
 TIP: `@OverrideParams` is the recommended way to give subclasses **different Snowflake ID spaces** without redeclaring `@Generator`.
 
-=== @Mapping — Custom Type Mapping
+=== @Mapping
 
 `@Mapping` overrides Army's default Java↔SQL type inference.
 Armey's `++_MappingFactory++` automatically maps common types (String, Long, BigDecimal, LocalDateTime, etc.) to sensible SQL types.
@@ -754,7 +754,7 @@ public String fileHash;
 private List<Long> vectorIdList;
 ----
 
-=== @Index — Index Definitions
+=== @Index
 
 `@Index` defines a database index within `@Table#indexes`.
 At runtime, `++TableMetaUtils.createIndexList++` reads all `@Index` annotations, resolves index names and types, and builds `IndexMeta` objects.
@@ -835,7 +835,7 @@ For scenarios requiring per-column settings (collation, opclass, sort order), us
 | `nulls` (optional) | NULL ordering: `NullsOrder.NULLS_FIRST` / `NULLS_LAST` / `DEFAULT`
 |===
 
-=== @MappedSuperclass — The Base Domain Pattern
+=== @MappedSuperclass
 
 `@MappedSuperclass` marks a class whose `@Column`-annotated fields are **inherited by subclasses**, but which does **not** map to any database table.
 It's purely a field-template mechanism.
@@ -920,7 +920,7 @@ public class StockQuotes extends StockBaseDomain<StockQuotes> {
 4. You can nest `@MappedSuperclass` to build reusable inheritance chains.
 5. For small projects, skip `@MappedSuperclass` and declare all fields directly — it's entirely optional.
 
-=== @Inheritance / @DiscriminatorValue — Single-Table Inheritance
+=== @Inheritance
 
 While `@MappedSuperclass` shares field definitions, `@Inheritance` implements the **single-table inheritance** strategy: a parent class and its subclasses all live in one database table, with a discriminator column telling them apart.
 
@@ -960,7 +960,7 @@ TIP: `@Inheritance` and `@MappedSuperclass` serve different purposes.
 Use `@MappedSuperclass` when you just want to share field definitions.
 Use `@Inheritance` when you want polymorphic queries — storing different entity types in one table and filtering by discriminator.
 
-=== @DdlMode — DDL Generation Control
+=== @DdlMode
 
 Controls whether Army generates `CREATE TABLE` DDL during schema initialization.
 At runtime, `++TableMetaUtils.tableCreateDdl++` reads `@Table.ddlMode()`:
@@ -980,13 +980,13 @@ At runtime, `++TableMetaUtils.tableCreateDdl++` reads `@Table.ddlMode()`:
 public class LegacyData { }
 ----
 
-=== @Codec — Reserved for Future Use
+=== @Codec
 
 `@Codec` is a marker annotation with no current runtime effect.
 The `++TableFieldMeta++` constructor records its presence in `CODEC_MAP`, but the framework does not act on it yet.
 It is reserved as an extension point for future custom encode/decode interceptors.
 
-=== TableMeta.properties — Runtime Configuration
+=== TableMeta.properties
 
 `TableMeta.properties` is the **runtime override hub** of Army.
 Place this file at `META-INF/army/TableMeta.properties` on the classpath (typically +src/main/resources/META-INF/army/TableMeta.properties+).
@@ -1231,7 +1231,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE
 TIP: Start with an empty `TableMeta.properties` file and add entries only when you need to override defaults for a specific deployment environment.
 Most projects need only 2–5 entries (e.g., switching generator types, adjusting precisions, disabling DDL).
 
-== MappingType — Java-to-Database Type Mapping
+== MappingType
 
 Every domain field in Army must declare its *type mapping* — the rule that converts between a Java type and a database column type.
 This mapping is defined either implicitly (via default type inference) or explicitly (via the `@Mapping` annotation).
@@ -1343,7 +1343,7 @@ public enum StockStatus {
     UNKNOWN     // → stored as "UNKNOWN"
 }
 
-@Column(notNull = true, defaultValue = "'NORMAL'", comment = "股票在市场状态")
+@Column(notNull = true, defaultValue = "'NORMAL'", comment = "stock market status")
 public StockStatus status;
 
 // Default inference: StockStatus → NameEnumType → VARCHAR column
@@ -1386,7 +1386,7 @@ public enum QinArmy implements TextEnum {
     }
 }
 
-@Column(comment = "剑士名称")
+@Column(comment = "swordsman name")
 public QinArmy swordsman;  // → TextEnumType, stored as VARCHAR
 ----
 
@@ -1448,7 +1448,7 @@ public enum BankAccountType implements CodeEnum {
     }
 }
 
-@Column(comment = "账户类型")
+@Column(comment = "account type")
 public BankAccountType accountType;  // → CodeEnumType, stored as INT
 ----
 
@@ -1480,7 +1480,7 @@ public enum StockStatus {
     UNKNOWN
 }
 
-@Column(comment = "股票在市状态")
+@Column(comment = "stock listing status")
 public StockStatus status;
 
 // Without @DefinedType → VARCHAR
@@ -1583,7 +1583,7 @@ This is achieved by explicitly specifying `TextType`:
 
 [source,java]
 ----
-@Column(notNull = true, updatable = false, comment = "首次会话内容")
+@Column(notNull = true, updatable = false, comment = "first chat message content")
 @Mapping("io.army.mapping.TextType")
 private String firstContent;
 ----
@@ -1610,7 +1610,7 @@ Using `SqlCharType` enforces a `CHAR(44)` column:
 
 [source,java]
 ----
-@Column(precision = 44, comment = "文件哈希值,SHA‑256算法,标准base64")
+@Column(precision = 44, comment = "file hash, SHA-256 algorithm, standard base64")
 @Mapping("io.army.mapping.SqlCharType")
 public String fileHash;
 ----
@@ -1826,7 +1826,7 @@ Domain entities extend the parent class to define their table and indexes:
                 @Index(name = "${DEFAULT_VALUE}", fieldList = "conversationId"),
                 @Index(name = "${DEFAULT_VALUE}", type = "gin", fieldList = "metadata")
         },
-        comment = "股票聊天长期记忆向量存储")
+        comment = "stock chat long-term memory vector store")
 public class StockChatVectorStore extends SpringAiChatVectorStore {
 }
 
@@ -1839,7 +1839,7 @@ public class StockChatVectorStore extends SpringAiChatVectorStore {
                 @Index(name = "${DEFAULT_VALUE}", unique = true, fieldList = "documentId"),
                 @Index(name = "${DEFAULT_VALUE}", type = "gin", fieldList = "metadata")
         },
-        comment = "股票文档向量存储")
+        comment = "stock document vector store")
 public class StockDocumentVectorStore extends SpringAiVectorStore {
 }
 ----
@@ -1914,7 +1914,7 @@ The `io.army.example.stock.domain.UploadRecord.vectorIdList` field stores a `Lis
 
 [source,java]
 ----
-@Column(notNull = true, defaultValue = "'[]'", comment = "向量ID列表")
+@Column(notNull = true, defaultValue = "'[]'", comment = "vector ID list")
 @Mapping("io.army.mapping.PreferredJsonbType")
 private List<Long> vectorIdList;
 ----
@@ -1943,16 +1943,16 @@ Army distinguishes between three string storage strategies:
 [source,java]
 ----
 // VARCHAR — default inference for String, precision from @Column
-@Column(notNull = true, precision = 130, comment = "股票公司名称")
+@Column(notNull = true, precision = 130, comment = "stock company name")
 public String name;  // → StringType → VARCHAR(130)
 
 // CHAR — fixed-length, used for deterministic-length hashes
-@Column(precision = 44, comment = "文件哈希值")
+@Column(precision = 44, comment = "file hash")
 @Mapping("io.army.mapping.SqlCharType")
 public String fileHash;  // → SqlCharType → CHAR(44)
 
 // TEXT — unbounded, for long content
-@Column(notNull = true, comment = "首次会话内容")
+@Column(notNull = true, comment = "first chat message content")
 @Mapping("io.army.mapping.TextType")
 private String firstContent;  // → TextType → TEXT
 ----
@@ -2759,7 +2759,7 @@ stmt = SQLs.singleInsert()
                 list.accept(Stock_.code);
                 list.accept(Stock_.name);
         })
-        .space(subQuery)                              // Supplier<SubQuery>
+        .space(subQuery)                              // SQLs.subQuery()...asQuery()
         .asInsert();
 ----
 
@@ -2769,7 +2769,7 @@ stmt = SQLs.singleInsert()
 INSERT INTO stock (exchange, code, name, id, create_time,
                    update_time, version)
 SELECT ...  -- subQuery SQL; Army-managed fields (id, create_time, update_time, version)
--- are appended to column list, their values are generated by Army, not from subquery
+-- are appended to column list; all column values come from the subquery
 ----
 
 _Form 3 — No column list (subquery determines columns):_
@@ -2817,8 +2817,8 @@ SELECT n.exchange, n.code, n.name, DEFAULT, DEFAULT, DEFAULT,
        DEFAULT, DEFAULT
 FROM nasdaq_table AS n
 WHERE n.listed = ?  -- param: true
--- status: uses DB column default (not in SELECT)
--- id, create_time, update_time, version: generated by Army, not DB default
+-- status: DB column default (not in user SELECT)
+-- id, create_time, update_time, version: appended by Army, all values from the subquery
 ----
 
 ===== Child INSERT (Parent-Child Hierarchy)
@@ -2848,20 +2848,25 @@ stmt = SQLs.singleInsert()
 [source,sql]
 ----
 -- Statement 1: parent rows (no discriminator column)
---     Columns follow field declaration order in ParentUser class
-INSERT INTO u_user (id, name, create_time, update_time, version)
+--     Columns follow field declaration order in ParentUser class:
+--     1. Army managed fields: id, create_time, update_time, version
+--     2. Parent business fields: name
+INSERT INTO u_parent_user (id, create_time, update_time, version, name)
 VALUES (?, ?, ?, ?, ?),
        ...
 
 -- Statement 2: child rows (includes discriminator column)
---     Columns follow field declaration order in Admin class;
+--     Columns follow field declaration order in Admin class:
+--     1. id (mandatory, first position; child id always managed by Army)
+--     2. Child-specific fields: admin_level, role
 --     discriminator 'ADMIN' from @DiscriminatorValue is auto-injected
-INSERT INTO u_user (id, name, status, create_time, update_time, version)
-VALUES (?, ?, ?, ?, ?, ?),
+INSERT INTO u_admin (id, admin_level, role, status)
+VALUES (?, ?, ?, ?),
        ...
 
--- NOTE: When id GeneratorType is POST (database auto-increment),
---       the id column is NOT included in the column list.
+-- NOTE: For parent/simple tables, when id GeneratorType is POST (database
+--       auto-increment), the id column is NOT included in the column list.
+--       Child tables ALWAYS include id regardless of GeneratorType.
 ----
 
 [TIP]
@@ -2928,12 +2933,13 @@ _Child table domain UPDATE_ (primary use case):
 [source,java]
 ----
 // Admin child table inherits from User (see @Inheritance / @DiscriminatorValue)
-// Admin_.T is ChildTableMeta — shared table is u_user
+// Admin_.T is ChildTableMeta — mapped to u_admin
 final Update stmt;
 stmt = SQLs.domainUpdate()
-        .update(Admin_.T, AS, "a")        // ChildTableMeta — can reference parent fields
-        .set(ParentUser_.name, "Admin User")  // parent field: name
-        .set(ParentUser_.visible, false)        // parent field: visible (soft delete)
+        .update(Admin_.T, AS, "a")         // ChildTableMeta — can reference parent fields
+        .set(Admin_.adminLevel, 5)              // child-specific field: triggers CTE/multi-table path
+        .set(ParentUser_.name, "Admin User")    // parent field: name
+        .set(ParentUser_.visible, false)         // parent field: visible (soft delete)
         .where(Admin_.id.equal(1L))
         .asUpdate();
 ----
@@ -2941,14 +2947,45 @@ stmt = SQLs.domainUpdate()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
--- Child table UPDATE: shared table u_user, discriminator 'ADMIN' auto-filtered
-UPDATE u_user AS a
+-- Domain UPDATE on child table Admin_.T:
+-- PostgreSQL uses CTE-based two-stage update:
+--   1. CTE: UPDATE child table child-specific fields + RETURNING id
+--   2. Main: UPDATE parent table fields FROM cte
+WITH a_update_cte AS (
+    UPDATE u_admin AS a
+    SET admin_level = ?
+    FROM u_parent_user AS p_of_a
+    WHERE a.id = p_of_a.id         -- join condition (first)
+    AND p_of_a.id = ?  -- param: 1
+    AND p_of_a.status = 'ADMIN'  -- discriminator auto-injected
+    AND p_of_a.visible = true    -- visible auto-filtered
+    RETURNING a.id AS id
+)
+UPDATE u_parent_user AS p_of_a
 SET name = ?,
     visible = ?,
     update_time = ?,
-    version = a.version + 1
-WHERE a.status = 'ADMIN'  -- discriminator auto-injected
-AND a.id = ?  -- param: 1
+    version = p_of_a.version + 1
+FROM a_update_cte
+WHERE p_of_a.id = a_update_cte.id
+----
+
+.Generated SQL (MySQL)
+[source,sql]
+----
+-- Domain UPDATE on child table Admin_.T:
+-- MySQL uses multi-table UPDATE syntax:
+--   UPDATE <child> JOIN <parent> ON ... SET ...
+UPDATE u_admin AS a
+JOIN u_parent_user AS p_of_a ON a.id = p_of_a.id
+SET p_of_a.name = ?,
+    p_of_a.visible = ?,
+    a.admin_level = ?,
+    p_of_a.update_time = ?,
+    p_of_a.version = p_of_a.version + 1
+WHERE p_of_a.id = ?  -- param: 1
+AND p_of_a.status = 'ADMIN'  -- discriminator auto-injected
+AND p_of_a.visible = true    -- visible auto-filtered
 ----
 
 _Batch domain UPDATE (child table):_
@@ -2957,13 +2994,14 @@ _Batch domain UPDATE (child table):_
 ----
 final BatchUpdate stmt;
 List<Map<String, Object>> paramList = List.of(
-    Map.of("name", "Alice", "id", 1L),
-    Map.of("name", "Bob", "id", 2L)
+    Map.of("name", "Alice", "adminLevel", 5, "id", 1L),
+    Map.of("name", "Bob", "adminLevel", 3, "id", 2L)
 );
 stmt = SQLs.batchDomainUpdate()
         .update(Admin_.T, AS, "a")
         .sets(pairs -> pairs
                 .setSpace(ParentUser_.name, SQLs::namedParam)
+                .setSpace(Admin_.adminLevel, SQLs::namedParam)   -- child field → triggers CTE/multi-table
         )
         .where(Admin_.id.spaceEqual(SQLs::namedParam))
         .asUpdate()
@@ -2975,13 +3013,40 @@ long rows = session.update(stmt);
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
--- Batch: discriminator 'ADMIN' auto-filtered
-UPDATE u_user AS a
-SET name = ?,
+-- Batch domain UPDATE on child table Admin_.T:
+-- PostgreSQL uses CTE-based two-stage update
+WITH a_update_cte AS (
+    UPDATE u_admin AS a
+    SET admin_level = ?              -- batch param: adminLevel
+    FROM u_parent_user AS p_of_a
+    WHERE a.id = p_of_a.id           -- join condition (first)
+    AND p_of_a.id = ?              -- batch param: id (user WHERE before Army managed)
+    AND p_of_a.status = 'ADMIN'  -- discriminator auto-injected (appended)
+    AND p_of_a.visible = true      -- visible auto-filtered (appended)
+    RETURNING a.id AS id
+)
+UPDATE u_parent_user AS p_of_a
+SET name = ?,                       -- batch param: name
     update_time = ?,
-    version = a.version + 1
-WHERE a.status = 'ADMIN'
-AND a.id = ?  -- batch param: name
+    version = p_of_a.version + 1
+FROM a_update_cte
+WHERE p_of_a.id = a_update_cte.id
+----
+
+.Generated SQL (MySQL)
+[source,sql]
+----
+-- Batch domain UPDATE on child table Admin_.T:
+-- MySQL uses multi-table UPDATE syntax
+UPDATE u_admin AS a
+JOIN u_parent_user AS p_of_a ON a.id = p_of_a.id
+SET p_of_a.name = ?,               -- batch param: name
+    a.admin_level = ?,              -- batch param: adminLevel
+    p_of_a.update_time = ?,
+    p_of_a.version = p_of_a.version + 1
+WHERE p_of_a.id = ?                  -- batch param: id (user WHERE before Army managed)
+AND p_of_a.status = 'ADMIN'      -- discriminator auto-injected (appended)
+AND p_of_a.visible = true          -- visible auto-filtered (appended)
 ----
 
 _Single-table domain UPDATE_ (also supported):
@@ -3029,7 +3094,7 @@ stmt = SQLs.batchSingleUpdate()
         .update(Stock_.T, AS, "s")
         .sets(pairs -> pairs
                 .setSpace(Stock_.name, SQLs::namedParam)      // named param placeholder
-                .setSpace(Stock_.offerPrice, SQLs::namedLiteral) // named literal placeholder
+                .setSpace(Stock_.offerPrice, SQLs::namedParam) // named param placeholder
         )
         .where(Stock_.id.spaceEqual(SQLs::namedParam))       // space* methods for named params
         .asUpdate()
@@ -3045,7 +3110,7 @@ long rows = session.update(stmt);
 -- Batch 1: name='Tesla', offerPrice=250, id=1
 UPDATE stock AS s
 SET name = ?,
-    offer_price = 250,
+    offer_price = ?,
     update_time = ?,
     version = s.version + 1
 WHERE s.id = ?
@@ -3091,7 +3156,7 @@ _Child table domain DELETE_ (primary use case):
 
 [source,java]
 ----
-// Admin child table inherits from User — Admin_.T is ChildTableMeta
+// Admin child table inherits from User — Admin_.T is ChildTableMeta — mapped to u_admin
 final Delete stmt;
 stmt = SQLs.domainDelete()
         .deleteFrom(Admin_.T, AS, "a")     // ChildTableMeta
@@ -3102,10 +3167,38 @@ stmt = SQLs.domainDelete()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
--- Child table DELETE: discriminator 'ADMIN' auto-filtered
-DELETE FROM u_user AS a
-WHERE a.status = 'ADMIN'
-AND a.visible = ?  -- param: false (0)
+-- Domain DELETE on child table Admin_.T:
+-- PostgreSQL uses CTE-based two-stage delete:
+--   1. CTE: DELETE child rows + RETURNING child IDs
+--   2. Main: DELETE parent rows matched by returned IDs
+-- discriminator is applied in CTE WHERE on parent alias "p_of_a"
+WITH a_delete_cte AS (
+    DELETE FROM u_admin AS a
+    USING u_parent_user AS p_of_a
+    WHERE a.id = p_of_a.id         -- join condition (first)
+    AND p_of_a.visible = ?  -- param: false (0)
+    AND p_of_a.status = 'ADMIN'  -- discriminator auto-injected
+    AND p_of_a.visible = true    -- visible auto-filtered
+    RETURNING a.id AS id
+)
+DELETE FROM u_parent_user AS p_of_a
+USING a_delete_cte
+WHERE p_of_a.id = a_delete_cte.id
+----
+
+.Generated SQL (MySQL)
+[source,sql]
+----
+-- Domain DELETE on child table Admin_.T:
+-- MySQL uses multi-table DELETE syntax:
+--   DELETE <child_alias>, <parent_alias> FROM <child> JOIN <parent> WHERE ...
+-- discriminator is applied in WHERE on parent alias "p_of_a"
+DELETE a, p_of_a
+FROM u_admin AS a
+JOIN u_parent_user AS p_of_a ON a.id = p_of_a.id
+WHERE p_of_a.visible = ?  -- param: false (0)
+AND p_of_a.status = 'ADMIN'  -- discriminator auto-injected
+AND p_of_a.visible = true    -- visible auto-filtered
 ----
 
 _Batch domain DELETE (child table):_
@@ -3129,10 +3222,35 @@ long rows = session.update(stmt);
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
--- Batch domain DELETE: discriminator 'ADMIN' auto-filtered
-DELETE FROM u_user AS a
-WHERE a.status = 'ADMIN'
-AND a.id = ?  -- batch param: id
+-- Batch domain DELETE on child table Admin_.T:
+-- PostgreSQL uses CTE-based two-stage delete
+-- user WHERE condition contains named parameter "id"
+WITH a_delete_cte AS (
+    DELETE FROM u_admin AS a
+    USING u_parent_user AS p_of_a
+    WHERE a.id = p_of_a.id           -- join condition (first)
+    AND a.id = ?                   -- batch param: id (user WHERE before Army managed)
+    AND p_of_a.status = 'ADMIN'  -- discriminator auto-injected (appended)
+    AND p_of_a.visible = true      -- visible auto-filtered (appended)
+    RETURNING a.id AS id
+)
+DELETE FROM u_parent_user AS p_of_a
+USING a_delete_cte
+WHERE p_of_a.id = a_delete_cte.id
+----
+
+.Generated SQL (MySQL)
+[source,sql]
+----
+-- Batch domain DELETE on child table Admin_.T:
+-- MySQL uses multi-table DELETE syntax
+-- user WHERE condition contains named parameter "id"
+DELETE a, p_of_a
+FROM u_admin AS a
+JOIN u_parent_user AS p_of_a ON a.id = p_of_a.id
+WHERE a.id = ?                   -- batch param: id (user WHERE before Army managed)
+AND p_of_a.status = 'ADMIN'  -- discriminator auto-injected (appended)
+AND p_of_a.visible = true      -- visible auto-filtered (appended)
 ----
 
 _Single-table domain DELETE_ (also supported):
@@ -3175,7 +3293,7 @@ Functions can be used anywhere an `Expression` is expected — in `SELECT`, `WHE
 [cols="1,3",options="header"]
 |===
 | Function | Signature
-| `COUNT(*)` | `SQLs.countAsterisk()`
+| `COUNT(*)` | `SQLs.count(SQLs.ASTERISK)`
 | `COUNT(expr)` | `SQLs.count(expr)`
 | `COUNT(DISTINCT expr)` | `SQLs.count(SQLs.DISTINCT, expr)`
 | `SUM(expr)` | `SQLs.sum(expr)`, `SQLs.sum(SQLs.DISTINCT, expr)`
@@ -3188,17 +3306,17 @@ Functions can be used anywhere an `Expression` is expected — in `SELECT`, `WHE
 ----
 // Aggregate in SELECT
 stmt = SQLs.query()
-        .select(Stock_.exchange, SQLs.countAsterisk())
+        .select(Stock_.exchange, SQLs.count(SQLs.ASTERISK))
         .from(Stock_.T, AS, "s")
         .groupBy(Stock_.exchange)
         .asQuery();
 
 // Aggregate in HAVING
 stmt = SQLs.query()
-        .select(Stock_.exchange, SQLs.countAsterisk())
+        .select(Stock_.exchange, SQLs.count(SQLs.ASTERISK))
         .from(Stock_.T, AS, "s")
         .groupBy(Stock_.exchange)
-        .having(SQLs.countAsterisk().greater(100))
+        .having(SQLs.count(SQLs.ASTERISK).greater(100))
         .asQuery();
 ----
 
@@ -3316,6 +3434,8 @@ can also be used with `.over(...)` — they become window aggregates.
 When used without `.over()`, they remain standard aggregates (require `GROUP BY`).
 ====
 
+=== Expression
+
 ==== Conditional Expressions
 
 * Equality: `field.equal(...)`
@@ -3331,7 +3451,9 @@ When used without `.over()`, they remain standard aggregates (require `GROUP BY`
 * `OR` — Logical disjunction
 * `NOT` — Logical negation
 
-==== Default Parameter Binding
+=== Param Binding
+
+==== Default Binding
 
 When you write predicates like `field.equal(value)`, Army automatically wraps the right-hand value into a parameterized SQL expression.
 Here's how it works under the hood.
@@ -3406,7 +3528,7 @@ This is the safe, recommended default for nearly all application code.
 `wrapRight` has more branches.
 Let's see what happens when you pass different kinds of right operands.
 
-====== Right operand is already an `Expression`
+===== Right operand is already an `Expression`
 
 [source,java]
 ----
@@ -3421,18 +3543,18 @@ Stock_.id.in(subQueryExpr)
 
 When the right operand is already an `Expression` instance (e.g. another field, a subquery, a scalar expression), `wrapRight` simply passes it through without any wrapping.
 
-====== Left operand has no type information
+===== Left operand has no type information
 
 [source,java]
 ----
-// CTE ref-field — $refField returns a raw SqlField, not a TypedExpression
-$refField("normal_stock", Stock_.offerPrice).greater(new BigDecimal("100.00"))
+// CTE ref-field — refField returns a raw SqlField, not a TypedExpression
+SQLs.refField("normal_stock", "offer_price").greater(new BigDecimal("100.00"))
 //                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //                                    This value will be wrapped via wrapNonNull(right)
 //                                    Auto-detection: BigDecimal → numeric MappingType → SQLs.param()
 ----
 
-When the left operand is a raw `SqlField` (e.g. from CTE references via `$refField()`),
+When the left operand is a raw `SqlField` (e.g. from CTE references via `SQLs.refField()`),
 `wrapRight` falls through to `wrapNonNull(right)`, which auto-detects the `MappingType` from
 `right.getClass()`:
 
@@ -3450,14 +3572,19 @@ static ArmyExpression wrapNonNull(final Object value) {
 }
 ----
 
-This is why `$refField(...).greater(new BigDecimal("100.00"))` still works — Army matches the Java class to a built-in `MappingType`.
+This is why `SQLs.refField(...).greater(new BigDecimal("100.00"))` still works — Army matches the Java class to a built-in `MappingType`.
 
-====== Right operand could trigger an error
+===== Right operand could trigger an error
 
 [source,java]
 ----
-// ❌ null — wrapRight throws NullPointerException
-Stock_.status.equal(null)  // right operand must be non-null
+// ✅ null — allowed when left IS TypedExpression (Army knows the type)
+//    wrapValue(Stock_.status, null) → SQLs.param(Stock_.status, null) → "status = ?" (param: null)
+Stock_.status.equal(null)  // outputs: status = ?   -- param: null
+
+// ❌ null — throws "right operand must non-null" when left is NOT TypedExpression
+//    Army cannot infer the type of a bare null, so wrapRight throws at line 87 of Expressions.java
+SQLs.refField("cte", "col").equal(null)  // ERROR: type unknown for null
 
 // ❌ SQLs.ABSENT — wrapRight throws NPE
 Stock_.offerPrice.greater(SQLs.ABSENT)  // right operand couldn't be absent
@@ -3553,7 +3680,7 @@ They
 ----
 // ① Named-parameter binding — the BiFunction is called with (leftField, value)
 //    Useful when left operand has no type (CTE ref-field).
-$refField("normal_stock", Stock_.offerPrice).greaterEqual(SQLs::param, 5)
+SQLs.refField("normal_stock", "offer_price").greaterEqual(SQLs::param, 5)
 // SQL:  normal_stock.offer_price >= ?   -- param name is derived from field
 
 // ② Force literal for a specific predicate, even if the global mode is DEFAULT.
@@ -3601,7 +3728,813 @@ serves as the named parameter key.
 In normal query operations, prefer the non-``space`` overloads (e.g. `equal(value)`).
 ====
 
-=== CTE (Common Table Expressions)
+==== parameter
+
+When you need to pass a value as a JDBC `?` placeholder (the most common pattern in traditional ORMs like JPA/Hibernate), Army provides `SQLs.parameter()`, `SQLs.param()`, and `SQLs.namedParam()`.
+These methods always generate a `?` in the SQL — the value is sent separately via JDBC, guaranteeing SQL injection safety.
+
+===== parameter()
+
+SQLs.parameter(Object) Auto-detect `MappingType` from the value's Java class — the simplest form, similar to JPA `setParameter("name", value)`.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// Auto-detect type: BigDecimal → BigDecimalType
+Stock_.offerPrice.greater(SQLs.parameter(BigDecimal.valueOf(100)))
+// SQL (Standard):      offer_price > ?   -- param: BigDecimal(100)
+// SQL (PostgreSQL):    "offer_price" > ?   -- param: BigDecimal(100)
+// SQL (MySQL):         offer_price > ?   -- param: BigDecimal(100)
+
+// Any Java type works — Army has built-in MappingType for common types
+Stock_.status.equal(SQLs.parameter(StockStatus.NORMAL))   // enum → EnumType
+Stock_.name.equal(SQLs.parameter("hello"))                 // String → StringType
+Stock_.listingDate.greater(SQLs.parameter(LocalDate.now()))  // LocalDate → DateType
+----
+
+**How it works**: `SQLs.parameter(Object)` calls `_MappingFactory.getDefaultIfMatch(value.getClass())` to find the matching `MappingType`, then wraps the value as a `ParamExpression` that outputs `?`.
+
+===== param()
+
+SQLs.param(TypeInfer,Object) explicitly specify the `MappingType` — useful when Army cannot auto-detect the type (e.g. raw `Integer` in a CTE context) or when you want explicit control.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// Explicit type — guarantees the database receives an INTEGER parameter
+Stock_.offerPrice.greater(SQLs.param(IntegerType.INSTANCE, 100))
+// SQL:  offer_price > ?   -- param: Integer(100)
+
+// Use with CTE ref-field (no type info on left side):
+// SQLs.refField("cte", "offer_price").greater(SQLs.param(IntegerType.INSTANCE, 100))
+
+// param with explicit type
+Stock_.name.equal(SQLs.param(StringType.INSTANCE, randomString()))
+// SQL:  name = ?   -- param: generated string
+----
+
+**When to use `param` over `parameter`**:
+- Left operand has no type info (CTE ref-field, `SQLs.refField()`) - You need to override the default type inference
+
+**Method Reference Usage — with `TypedExpression` BiFunction overloads**:
+
+`SQLs.param(TypeInfer, Object)` can be used via method reference (`SQLs::param`) with `TypedExpression`'s BiFunction overloads to force a single predicate to use explicit parameterization (overriding the global `LiteralMode`):
+
+- **First parameter `TypeInfer`** is provided by the `TypedExpression` itself — the field expression on the left side of the dot (e.g., `Stock_.offerPrice`), whose `MappingType` the framework passes in, ensuring type matching
+- **Second parameter `Object`** is supplied by the user — the value inside parentheses on the right side of the dot
+
+[source,java]
+----
+// Force param mode (even when global mode is LITERAL)
+Stock_.offerPrice.greater(SQLs::param, new BigDecimal("100.00"))
+// Equivalent to: Stock_.offerPrice.greater(SQLs.param(Stock_.offerPrice, new BigDecimal("100.00")))
+// SQL:  offer_price > ?   -- param: 100.00
+
+// Also applies to other comparison operations
+Stock_.status.equal(SQLs::param, StockStatus.NORMAL)
+// SQL:  status = ?   -- param: NORMAL
+----
+
+===== namedParam()
+
+SQLs.namedParam(TypeInfer, String) designed for **batch operations** (INSERT … VALUES, batch UPDATE/DELETE) where each row carries different values.
+Similar to MyBatis' `#{name}`.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// namedParam in batch VALUES INSERT — each row provides its own value
+// The "code" key reads from each batch row's Map/bean getter
+SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values(stockList)
+        .asInsert();
+// With default values:
+//   .defaultValue(Stock_.code, SQLs.namedParam(StringType.INSTANCE, "code"))
+// SQL:  INSERT INTO stock(...) VALUES (?, ?, ...)  -- each ? resolved from batch row
+
+// As a standalone expression — outputs ? at generation, resolves at execution
+SQLs.namedParam(IntegerType.INSTANCE, "price")
+// SQL:  ?   -- param reads from batch row's "price" field
+
+// Note: At SQL generation level, namedParam always outputs "?".
+// The "name" is only used at execution time to read from the row data.
+----
+
+**`namedParam` vs `param` vs `parameter`**:
+- `parameter(Object)` — auto-detect type, single-row - `param(TypeInfer, Object)` — explicit type, single-row - `namedParam(TypeInfer, String)` — named key for batch rows
+
+**Method Reference Usage — `setSpace()` for SET clauses, `spaceEqual()` for WHERE clauses**:
+
+`SQLs.namedParam(TypeInfer, String)` can be used via method reference (`SQLs::namedParam`) with batch operations (`batchUpdate`/`batchDelete`) where each row carries independent parameter values:
+
+- **In SET clauses**: use `_StaticBatchSetClause.setSpace(field, SQLs::namedParam)` — the field itself provides `TypeInfer`, and `fieldName()` becomes the batch key
+- **In WHERE clauses**: use `field.spaceEqual(SQLs::namedParam)` — returns `IPredicate`, passed to `where(IPredicate)`
+- **`.set()` alone cannot accept `SQLs::namedParam`**: `set()` accepts `(field, Object)` or `(field, BiFunction, value)`, neither matches `BiFunction<F, String, Expression>`.
+The `setSpace()` method is purpose-built for named parameters.
+
+[source,java]
+----
+// batch UPDATE: each row carries independent params via fieldName as key
+// setSpace internally calls namedOperator.apply(field, field.fieldName())
+//   → SQLs.namedParam(Stock_.code, "code")  // TypeInfer=Stock_.code, String="code"
+// spaceEqual internally calls namedOperator.apply(this, this.fieldName())
+//   → SQLs.namedParam(Stock_.id, "id")      // TypeInfer=Stock_.id, String="id"
+batchUpdate.setSpace(Stock_.code, SQLs::namedParam)
+.setSpace(Stock_.name, SQLs::namedParam)
+.where(Stock_.id.spaceEqual(SQLs::namedParam))
+.asUpdate();
+// SQL:  UPDATE stock SET code = ?, name = ? WHERE id = ?
+//       each ? corresponds to the named key "code", "name", "id" in the batch row
+----
+
+===== rowParam()
+
+SQLs.rowParam(TypeInfer, Collection<?>) creates a **multi-value parameter expression** — outputs multiple `?` placeholders, one for each element in the collection.
+Designed for `IN` / `NOT IN` operators where you have a list of values to match.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// Standalone: outputs ? , ? , ? ... (each corresponds to one list element)
+SQLs.rowParam(IntegerType.INSTANCE, List.of(1, 2, 3))
+// outputs: ? , ? , ?   -- params: 1, 2, 3
+
+// Most common: method reference with IN operator
+// ChinaRegion_.id.in(SQLs::rowParam, idList)  →  SQLs.rowParam(ChinaRegion_.id, idList)
+ChinaRegion_.id.in(SQLs::rowParam, idList)
+// SQL:  id IN (?, ?, ? ...)   -- each ? maps to one element from idList
+
+// With explicit type — useful when left has no type info (CTE ref-field)
+SQLs.refField("cte", "col").in(SQLs.rowParam(IntegerType.INSTANCE, List.of(5, 10, 15)))
+// SQL:  col IN (?, ?, ?)   -- params: 5, 10, 15
+----
+
+**How it works**: `SQLs.rowParam(type, values)` calls `ArmyRowParamExpression.multi(type, values)`, which stores an immutable copy (`List.copyOf(values)`) internally.
+When the `IN` operator renders, `ArmyRowParamExpression.appendSql()` delegates to `context.appendParam(this)`, which iterates the stored list and appends `?` for each element.
+The `columnSize()` returns the element count.
++
+**Constraints**:
+- `values` must be non-null and non-empty — throws `CriteriaException` if empty - `type` must not return a codec `TableField` — throws if `type.typeMeta()` is a codec field
+
+**When to use `rowParam` over multiple `param` calls**:
+- You have a `Collection`/`List` of values for `IN`/`NOT IN`
+- You want a single expression representing multiple placeholders (not manually chaining `OR`) - Method reference `SQLs::rowParam` is shorter and cleaner than `SQLs::param` with `IN`
+
+===== namedRowParam()
+
+SQLs.namedRowParam(TypeInfer, String, int) creates a **named non-null multi-value parameter expression** for batch operations.
+Unlike `namedParam` (single `?`), this outputs multiple `?` placeholders — used when a batch row contains a `Collection` field that needs multiple binding positions.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// Standalone: named multi-parameter — outputs ? , ? , ? ..., keyed by name + index
+SQLs.namedRowParam(IntegerType.INSTANCE, "scores", 3)
+// outputs: ?:scores[0] , ?:scores[1] , ?:scores[2]
+// At execution, each ?[i] reads from batch row's "scores" collection at position i
+
+// Batch UPDATE example: scores is a Collection field in each batch row
+// namedRowParam has 3 params (type, name, size) — call directly, pass result to set(field, Object)
+batchUpdate.set(Student_.scores, SQLs.namedRowParam(IntegerType.INSTANCE, "scores", 3))
+.where(Student_.id.spaceEqual(SQLs::namedParam))
+.asUpdate();
+// SQL:  UPDATE student SET scores = ?, ?, ? WHERE id = ?
+//       scores ? placeholders indexed as scores[0], scores[1], scores[2] in each row
+
+// Batch VALUES INSERT with a collection-valued batch row field
+// namedRowParam has 3 params — call directly, pass result to comma(field, Object)
+SQLs.singleInsert()
+        .insertInto(Article_.T)
+        .values()
+        .parens(s -> s.space(Article_.id, SQLs::namedParam, "id")
+                .comma(Article_.tag, SQLs.namedRowParam(StringType.INSTANCE, "tags", 2))
+        )
+        .asInsert();
+// For row {"id":1, "tags":["java","spring"]}:
+//   INSERT INTO article(id, tag) VALUES (?, ?, ?)
+----
+
+**How it works**: `SQLs.namedRowParam(type, name, size)` calls `ArmyRowParamExpression.named(type, name, size)`, which creates an `ArmyNamedRowParam` storing the type, name, and element count.
+At execution time, the context reads the batch row data by `name` + index (`?:name[0]`, `?:name[1]`, ...). `columnSize()` returns the `size` parameter — fixed at creation time.
++
+**Constraints**:
+- `name` must have text — throws `CriteriaException` if empty or null - `size` must be >= 1 — throws if less than 1 - `type` must not return a codec `TableField`
+
+**`namedRowParam` vs `namedParam`**:
+- `namedParam(TypeInfer, String)` — single `?`, one value per batch row field - `namedRowParam(TypeInfer, String, int)` — multiple `?`, collection field in batch row
+
+===== UPDATE_TIME_PLACEHOLDER
+
+`SQLs.UPDATE_TIME_PLACEHOLDER` is designed for PostgreSQL-like `UPDATE`/`DELETE` statements that use **CTE to update child tables**, where the main statement itself has **no other SET fields** besides `updateTime`.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLs.java[`SQLs.java`,role="extern"].
+
+[source,java]
+----
+// Source definition
+public static final Expression UPDATE_TIME_PLACEHOLDER = NonOperationExpression.updateTimePlaceHolder();
+----
+
+**Correct usage** — only the `updateTime` field is updated in the main statement:
+
+[source,java]
+----
+// CTE updates child table; main statement only refreshes parent's updateTime
+Postgres.singleUpdate()
+        .with("child_cte").as(sw -> sw.update(ChinaProvince_.T, AS, "p")
+                .set(ChinaProvince_.governor, SQLs::param, randomPerson())
+                .from(ChinaRegion_.T, AS, "c")
+                .where(ChinaProvince_.id::equal, ChinaRegion_.id)
+                .returning(ChinaProvince_.id)
+                .asReturningUpdate()
+        ).space()
+        .update(ChinaRegion_.T, AS, "c")
+        .set(ChinaRegion_.updateTime, UPDATE_TIME_PLACEHOLDER)  // ← the only SET
+        .from("child_cte")
+        .where(ChinaRegion_.id::equal, SQLs.refField("child_cte", ChinaRegion_.ID))
+        .asUpdate();
+// SQL:  WITH child_cte AS ( UPDATE china_province ... RETURNING id )
+//       UPDATE china_region SET update_time = ? FROM child_cte WHERE id = child_cte.id
+----
+
+[WARNING]
+====
+Using `UPDATE_TIME_PLACEHOLDER` outside this specific CTE scenario (e.g. in a plain single-table UPDATE with other SET fields) has **no meaning** — use the automatic Domain UPDATE mechanism instead.
+====
+
+Army decides whether to output `update_time = ?` (param) or `update_time = CURRENT_TIMESTAMP` (literal) based on whether there are other params in the statement.
+
+===== BATCH_NO_PARAM
+
+For **batch operations** where you need the current batch row number as a JDBC parameter.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLs.java[`SQLs.java`,role="extern"].
+
+[source,java]
+----
+// Source definition
+public static final ParamExpression BATCH_NO_PARAM = SQLs.namedParam(IntegerType.INSTANCE, "$ARMY_BATCH_NO$");
+----
+
+[source,java]
+----
+// Common pattern: use batch row number in a scalar subquery's WHERE clause
+SQLs.singleInsert()
+        .with("cte").as(s -> s.select(ChinaRegion_.id, Windows.rowNumber().over().as("rowNumber"))
+                .from(ChinaRegion_.T, AS, "t")
+                .where(ChinaRegion_.id.in(SQLs::rowParam, regionIdList))
+                .orderBy(ChinaRegion_.id)
+                .asQuery()
+        ).space()
+        .insertInto(ChinaRegion_.T)
+        .parens(s -> s.space(ChinaRegion_.name, ChinaRegion_.regionGdp)
+                .comma(ChinaRegion_.parentId)
+        )
+        .defaultValue(ChinaRegion_.parentId, SQLs.scalarSubQuery()
+                .select(s -> s.space(SQLs.refField("cte", ChinaRegion_.ID)))
+                .from("cte")
+                .where(SQLs.refField("cte", "rowNumber").equal(SQLs.BATCH_NO_PARAM))
+                .asQuery()
+        )
+        .values(regionList)
+        .asInsert();
+// For each batch row, BATCH_NO_PARAM resolves to the current row number (1-based),
+// matching the CTE's rowNumber to pick the correct parent ID.
+----
+
+==== literal
+
+While `parameter` generates `?`, the `literal` family embeds the value **directly into the SQL string**.
+This is like writing `WHERE price > 100.00` (not `WHERE price > ?`).
+
+===== literalValue()
+
+SQLs.literalValue(Object) auto-detect `MappingType` from the value's Java class, then embed the value **with** its SQL type annotation directly in the SQL string.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// Auto-detect type — value embedded with type prefix in SQL
+Stock_.offerPrice.greater(SQLs.literalValue(100))
+// PostgreSQL:  "offer_price" > 100::INTEGER
+// MySQL:        offer_price > 100
+// Standard SQL: offer_price > 100
+
+Stock_.status.equal(SQLs.literalValue(StockStatus.NORMAL))
+// PostgreSQL:  status = 'NORMAL'::VARCHAR
+// MySQL:        status = 'NORMAL'
+
+Stock_.listingDate.greater(SQLs.literalValue(LocalDate.of(2024, 1, 1)))
+// PostgreSQL:  listing_date > DATE '2024-01-01'
+// MySQL:        listing_date > DATE '2024-01-01'
+----
+
+**How it works**: `SQLs.literalValue(Object)` calls `ArmyLiteralExpression.from(value, true)` — the `true` flag (`typeName`) tells the dialect to include the SQL type prefix (e.g. Postgre `::TYPE`, MySQL `DATE`/`TIME`/`TIMESTAMP` prefix).
+
+[IMPORTANT]
+====
+**Army literals are safe — they are NOT simple string concatenation.**
+
+Beginners often mistake "literal embedding in SQL" for direct string concatenation like `"WHERE price > " + userInput` (which leads to SQL injection attacks).
+In Army, things are completely different — literals are secured through the following mechanisms:
+
+1. **Type mapping protection**: Every value is checked by `MappingType`.
+Numeric types (`Integer`, `BigDecimal`, `Long`, etc.) extend `_ArmyNoInjectionType`, which eliminates SQL injection at the type level
+2. **`ArmyParser.safeLiteral()` security method**: All literals ultimately pass through `io.army.dialect.ArmyParser#safeLiteral(TypeMeta, Object, boolean, StringBuilder)` when output to SQL; string values undergo proper quote escaping, special characters are safely encoded, and SQL structure is never compromised
+3. **Not string concatenation**: Army's literal generation follows an AST (Abstract Syntax Tree) → SQL path; values are appended to a `StringBuilder`, not built via string template concatenation
+
+**Conclusion**: You can safely use `literal`/`const` for system constants, enum labels, configuration keys, and similar scenarios — they are just as safe as `?` parameterization, with the only difference being whether the value is embedded in SQL or passed via JDBC parameters.
+For ordinary business data, the default parameterized mode (`DEFAULT`) is recommended for better database execution plan caching.
+====
+
+===== literal()
+
+SQLs.literal(TypeInfer, Object) explicitly specify the `MappingType`, and embed the value **with** its SQL type annotation.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// Explicit type — value embedded with type prefix
+Stock_.offerPrice.greater(SQLs.literal(Stock_.offerPrice, new BigDecimal("100.00")))
+// PostgreSQL:  "offer_price" > 100.00::DECIMAL
+// MySQL:        offer_price > 100.00
+----
+
+**Method Reference Usage — with `TypedExpression` BiFunction overloads**:
+
+`SQLs.literal(TypeInfer, Object)` can be used via method reference (`SQLs::literal`) with `TypedExpression`'s BiFunction overloads to force a single predicate to use literal mode (overriding the global `LiteralMode`):
+
+- **First parameter `TypeInfer`** is provided by the `TypedExpression` itself — the `MappingType` of the field
+- **Second parameter `Object`** is supplied by the user — the value to embed in SQL (with type prefix)
+
+[source,java]
+----
+// Force literal mode (even when global mode is DEFAULT)
+Stock_.status.equal(SQLs::literal, StockStatus.NORMAL)
+// Equivalent to: Stock_.status.equal(SQLs.literal(Stock_.status, StockStatus.NORMAL))
+// PostgreSQL:  status = 'NORMAL'::VARCHAR
+// MySQL:        status = 'NORMAL'
+----
+
+===== namedLiteral()
+
+SQLs.namedLiteral(TypeInfer, String) for **batch VALUES INSERT** where each row's value is embedded directly in SQL (not as `?`).
+The value is resolved at SQL generation time from the batch row data.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// namedLiteral in batch VALUES INSERT — value embedded directly, with type prefix
+SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values()
+        .parens(s -> s.space(Stock_.code, SQLs.namedLiteral(StringType.INSTANCE, "code"))
+                .comma(Stock_.name, SQLs.namedLiteral(StringType.INSTANCE, "name"))
+        )
+        .asInsert();
+// For each row, namedLiteral reads "code" from the row data and embeds it:
+//   INSERT INTO stock(code, name) VALUES ('AAPL', 'Apple Inc.')
+// PostgreSQL with type prefix: VALUES ('AAPL'::VARCHAR, 'Apple Inc.'::VARCHAR)
+
+// As a standalone expression
+SQLs.namedLiteral(StringType.INSTANCE, "code")
+// Resolved at generation time from batch row → 'AAPL' (or 'AAPL'::VARCHAR in Postgre)
+----
+
+[IMPORTANT]
+====
+`namedLiteral` is designed **exclusively** for VALUES INSERT statements.
+Using it in a batch UPDATE or batch DELETE statement throws `CriteriaException` at runtime because named literals cannot resolve values from batch row data in non-INSERT contexts.
+
+If you need named values in batch UPDATE/DELETE, use `SQLs.namedParam()` instead — it outputs `?` placeholders that accept values from batch row data just like named literals, but via JDBC parameter binding.
+====
+
+**`namedLiteral` vs `namedParam`**:
+- `namedParam` — outputs `?`, value sent via JDBC (safe, parameterized) - `namedLiteral` — outputs the actual value directly in SQL (with type prefix)
+
+**Method Reference Usage — in VALUES row space* methods**:
+
+`SQLs.namedLiteral(TypeInfer, String)` can be used via method reference (`SQLs::namedLiteral`) with `_StaticValueSpaceClause.space()`'s BiFunction overload for VALUES INSERT rows where each row's value is embedded directly in SQL (with type prefix). Internally calls `funcRef.apply(field, key)` → `SQLs.namedLiteral(field, key)`:
+
+- **First parameter `FieldMeta`** is provided by `Stock_.code` — supplies the `TypeInfer` and table mapping info
+- **Second parameter `String`** is supplied by the user as `"code"` — the batch data's named key
+
+[source,java]
+----
+// batch VALUES INSERT: embed each row value in SQL with type prefix
+SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values()
+        .parens(s -> s.space(Stock_.code, SQLs::namedLiteral, "code")  // funcRef.apply(field, "code") → TypeInfer=field, key="code"
+                .comma(Stock_.name, SQLs::namedLiteral, "name")         // funcRef.apply(field, "name") → TypeInfer=field, key="name"
+        )
+        .asInsert();
+// PostgreSQL: INSERT INTO stock(code, name) VALUES ('AAPL'::VARCHAR, 'Apple Inc.'::VARCHAR)
+// MySQL:      INSERT INTO stock(code, name) VALUES ('AAPL', 'Apple Inc.')
+----
+
+===== rowLiteral()
+
+SQLs.rowLiteral(TypeInfer, Collection<?>) creates a **multi-value literal expression** — each element in the collection is embedded directly in SQL **with** its type annotation prefix.
+The counterpart of `rowParam` but for literal mode: values become part of the SQL string instead of `?` placeholders.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// Standalone: outputs LITERAL , LITERAL , LITERAL ... (with type prefix)
+SQLs.rowLiteral(Stock_.id, List.of(1, 2, 3))
+// PostgreSQL:  (1::INTEGER, 2::INTEGER, 3::INTEGER)
+// MySQL:       (1, 2, 3)
+
+// Most common: method reference with IN operator
+// ChinaRegion_.id.in(SQLs::rowLiteral, idList)  →  SQLs.rowLiteral(ChinaRegion_.id, idList)
+ChinaRegion_.id.in(SQLs::rowLiteral, idList)
+// SQL:  id IN (1, 2, 3, ...)   -- values embedded directly in SQL, with type prefix
+
+// With explicit type
+SQLs.refField("cte", "col").in(SQLs.rowLiteral(StringType.INSTANCE, List.of("A", "B", "C")))
+// PostgreSQL:  col IN ('A'::VARCHAR, 'B'::VARCHAR, 'C'::VARCHAR)
+// MySQL:       col IN ('A', 'B', 'C')
+----
+
+**How it works**: `SQLs.rowLiteral(type, values)` calls `ArmyRowLiteralExpression.multi(type, values, true)` — the `true` flag is `typeName`, the same flag that controls type annotation in `literal()`/`literalValue()`.
+Internally stores `List.copyOf(values)`.
+When rendering, `AnonymousRowLiteral.appendSql()` iterates values and calls `context.appendLiteral(type, value, true)` for each, embedding each element with its type prefix.
++
+**Constraints**:
+- `values` must be non-null and non-empty — throws `CriteriaException` if empty - `type` must not return a codec `TableField`
+
+**`rowLiteral` vs `rowParam`**:
+- `rowParam` — outputs `? , ? , ? ...`, values sent via JDBC (safe, parameterized) - `rowLiteral` — outputs actual values directly in SQL with type prefix
+
+===== namedRowLiteral()
+
+SQLs.namedRowLiteral(TypeInfer, String) creates a **named non-null multi-value literal expression** — for batch VALUES INSERT where each batch row contains a `Collection` field whose elements are embedded directly in SQL **with** type prefix.
+Unlike `namedRowParam`, there is no `size` parameter: the element count is resolved at SQL generation time from the batch row data.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// Standalone: named multi-literal — columnSize() returns -1 (unknown at creation)
+SQLs.namedRowLiteral(StringType.INSTANCE, "tags")
+// Resolved at generation from batch row → 'java' , 'spring' , 'army' (with type prefix)
+
+// Batch VALUES INSERT: each row's "tags" List field embedded as multiple literals
+SQLs.singleInsert()
+        .insertInto(Article_.T)
+        .values()
+        .parens(s -> s.space(Article_.id, SQLs::namedLiteral, "id")
+                .comma(Article_.tag, SQLs::namedRowLiteral, "tags")  // Collection field → multi literals
+        )
+        .asInsert();
+// For row {"id":1, "tags":["java","spring"]}:
+//   INSERT INTO article(id, tag) VALUES (1, 'java', 'spring')
+// PostgreSQL: VALUES (1::INTEGER, 'java'::VARCHAR, 'spring'::VARCHAR)
+----
+
+**How it works**: `SQLs.namedRowLiteral(type, name)` calls `ArmyRowLiteralExpression.named(type, name, true)` — the `true` flag means type prefix is included.
+Unlike anonymous `rowLiteral`, the named version has **no stored values at creation time** — `columnSize()` returns `-1`.
+At SQL generation, `ArmyNamedRowLiteral.appendSql()` delegates to `context.appendLiteral(this, true)`, which reads the batch row's collection by `name`, iterates elements, and embeds each with type prefix.
++
+[IMPORTANT]
+====
+`namedRowLiteral` is designed **exclusively** for VALUES INSERT statements.
+Using it in a batch UPDATE or batch DELETE statement throws `CriteriaException` at runtime — the named row literal cannot resolve multi-value collection data from batch rows in non-INSERT SQL contexts.
+This restriction is stated in the Javadoc of `SQLSyntax.java`.
+
+If you need named multi-value placeholders in batch UPDATE/DELETE, use `SQLs.namedRowParam(type, name, size)` instead — it outputs `?` placeholders and accepts the `size` parameter for explicit element count.
+====
+
+**`namedRowLiteral` vs `namedRowParam`**:
+- `namedRowParam(TypeInfer, String, int)` — outputs `?` placeholders, needs `size` param, used in batch UPDATE - `namedRowLiteral(TypeInfer, String)` — embeds values in SQL with type prefix, no `size` param, only VALUES INSERT
+
+===== Literal SQL output across dialects
+
+[cols="1,3,3",options="header"]
+|===
+| Value | Postgre `literalValue()` | MySQL `literalValue()`
+
+| `Intgeer(100)` | `100::INTEGER` | `100`
+| `BigDecimal("0.00")` | `0.00::DECIMAL` | `0.00`
+| `"hello"` | `'hello'::VARCHAR` | `'hello'`
+| `LocalDate` | `DATE '2024-01-01'` | `DATE '2024-01-01'`
+| `LocalDateTime` | `TIMESTAMP '2024-01-01 12:00:00'` | `TIMESTAMP '2024-01-01 12:00:00'`
+|===
+
+PostgreSQL appends `::TYPE` cast syntax for numbers and strings, while MySQL only adds explicit type prefixes for date/time types.
+
+See link:../army-postgre/src/main/java/io/army/dialect/PostgreParser.java[`PostgreParser.java`,role="extern"] and link:../army-mysql/src/main/java/io/army/dialect/MySQLParser.java[`MySQLParser.java`,role="extern"] for the full `bindLiteral` implementation.
+
+===== UPDATE_TIME_PLACEHOLDER
+
+Same `SQLs.UPDATE_TIME_PLACEHOLDER` described in <<UPDATE_TIME_PLACEHOLDER>> — designed for PostgreSQL CTE scenarios where the main statement has no other SET fields besides `updateTime`.
+Army decides between `?` and `CURRENT_TIMESTAMP` automatically.
+
+===== BATCH_NO_LITERAL
+
+For **batch operations** where you need the current batch row number embedded directly as a literal (with type prefix).
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLs.java[`SQLs.java`,role="extern"].
+
+[source,java]
+----
+// Source definition
+public static final LiteralExpression BATCH_NO_LITERAL = SQLs.namedLiteral(IntegerType.INSTANCE, "$ARMY_BATCH_NO$");
+----
+
+[source,java]
+----
+// Use BATCH_NO_LITERAL to embed batch row number in a subquery's WHERE clause
+SQLs.singleInsert()
+        .with("cte").as(s -> s.select(ChinaRegion_.id, Windows.rowNumber().over().as("rowNumber"))
+                .from(ChinaRegion_.T, AS, "t")
+                .where(ChinaRegion_.id.in(SQLs::rowParam, regionIdList))
+                .orderBy(ChinaRegion_.id)
+                .asQuery()
+        ).space()
+        .insertInto(ChinaRegion_.T)
+        .defaultValue(ChinaRegion_.parentId, SQLs.scalarSubQuery()
+                .select(s -> s.space(SQLs.refField("cte", ChinaRegion_.ID)))
+                .from("cte")
+                .where(SQLs.refField("cte", "rowNumber")::equal, BATCH_NO_LITERAL)
+                .asQuery()
+        )
+        .values(regionList)
+        .asInsert();
+// Batch row 1 → WHERE rowNumber = 1, batch row 2 → WHERE rowNumber = 2, ...
+// BATCH_NO_LITERAL outputs the row number directly in SQL (no ? placeholder)
+----
+
+==== const
+
+The `const` family is identical to `literal` in every way **except one**: it does NOT output the type annotation prefix in SQL.
+
+===== constValue()
+
+SQLs.constValue(Object) auto-detect `MappingType` from the value's Java class, then embed the value **without** any SQL type annotation.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// Auto-detect type — value embedded directly, NO type annotation
+Stock_.offerPrice.greater(SQLs.constValue(100))
+// PostgreSQL:  "offer_price" > 100          ← no ::INTEGER
+// MySQL:        offer_price > 100          ← same as literal
+// Standard SQL: offer_price > 100          ← same as literal
+
+Stock_.status.equal(SQLs.constValue(StockStatus.NORMAL))
+// PostgreSQL:  status = 'NORMAL'            ← no ::VARCHAR
+// MySQL:        status = 'NORMAL'
+
+Stock_.listingDate.greater(SQLs.constValue(LocalDate.of(2024, 1, 1)))
+// PostgreSQL:  listing_date > '2024-01-01'  ← no DATE prefix
+// MySQL:        listing_date > '2024-01-01' ← no DATE prefix
+----
+
+**How it works**: `SQLs.constValue(Object)` calls `ArmyLiteralExpression.from(value, false)` — the `false` flag (`typeName`) tells the dialect to **omit** the type prefix.
++
+[IMPORTANT]
+====
+`const` and `literal` share the same security mechanism: all literals ultimately pass through `io.army.dialect.ArmyParser#safeLiteral()` when output to SQL — not simple string concatenation.
+String values are properly escaped, and numeric types are inherently incapable of injecting SQL statements.
+See <<literal>> for the full security explanation.
+====
+
+===== constant()
+
+SQLs.constant(TypeInfer, Object) explicitly specify the `MappingType`, and embed the value **without** any SQL type annotation.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// Explicit type — value embedded directly, NO type annotation
+Stock_.offerPrice.greater(SQLs.constant(Stock_.offerPrice, new BigDecimal("100.00")))
+// PostgreSQL:  "offer_price" > 100.00        ← no ::DECIMAL
+// MySQL:        offer_price > 100.00       ← same as literal
+----
+
+**Method Reference Usage — with `TypedExpression` BiFunction overloads**:
+
+`SQLs.constant(TypeInfer, Object)` can be used via method reference (`SQLs::constant`) with `TypedExpression`'s BiFunction overloads to force a single predicate to use const mode (overriding the global `LiteralMode`):
+
+- **First parameter `TypeInfer`** is provided by the `TypedExpression` itself — the `MappingType` of the field
+- **Second parameter `Object`** is supplied by the user — the value to embed in SQL (without type prefix)
+
+[source,java]
+----
+// Force const mode (even when global mode is DEFAULT)
+Stock_.offerPrice.greater(SQLs::constant, new BigDecimal("100.00"))
+// Equivalent to: Stock_.offerPrice.greater(SQLs.constant(Stock_.offerPrice, new BigDecimal("100.00")))
+// SQL:  offer_price > 100.00   -- no ::DECIMAL in PostgreSQL
+----
+
+===== namedConst()
+
+SQLs.namedConst(TypeInfer, String) for **batch VALUES INSERT** where each row's value is embedded directly in SQL, **without** type annotation.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// namedConst in batch VALUES INSERT — value embedded directly, NO type prefix
+SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values()
+        .parens(s -> s.space(Stock_.code, SQLs.namedConst(StringType.INSTANCE, "code"))
+                .comma(Stock_.name, SQLs.namedConst(StringType.INSTANCE, "name"))
+        )
+        .asInsert();
+// For each row, namedConst reads "code" from the row data and embeds it:
+//   INSERT INTO stock(code, name) VALUES ('AAPL', 'Apple Inc.')
+// No ::VARCHAR in PostgreSQL — just raw values
+
+// As a standalone expression
+SQLs.namedConst(StringType.INSTANCE, "code")
+// Resolved at generation time from batch row → 'AAPL' (no ::VARCHAR even in Postgre)
+----
+
+[IMPORTANT]
+====
+`namedConst` is designed **exclusively** for VALUES INSERT statements — just like `namedLiteral`.
+Using it in a batch UPDATE or batch DELETE statement throws `CriteriaException` at runtime because named consts (like named literals) cannot resolve values from batch row data in non-INSERT contexts.
+
+If you need named values in batch UPDATE/DELETE, use `SQLs.namedParam()` instead.
+====
+
+**Method Reference Usage — in VALUES row space\* methods**:
+
+`SQLs.namedConst(TypeInfer, String)` can be used via method reference (`SQLs::namedConst`) with `_StaticValueSpaceClause.space()`'s BiFunction overload for VALUES INSERT rows where each row's value is embedded directly in SQL (without type prefix). Internally calls `funcRef.apply(field, key)` → `SQLs.namedConst(field, key)`:
+
+- **First parameter `FieldMeta`** is provided by `Stock_.code` — supplies the `TypeInfer` and table mapping info
+- **Second parameter `String`** is supplied by the user as `"code"` — the batch data's named key
+
+[source,java]
+----
+// batch VALUES INSERT: embed each row value in SQL without type prefix
+SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values()
+        .parens(s -> s.space(Stock_.code, SQLs::namedConst, "code")   // funcRef.apply(field, "code") → TypeInfer=field, key="code"
+                .comma(Stock_.name, SQLs::namedConst, "name")          // funcRef.apply(field, "name") → TypeInfer=field, key="name"
+        )
+        .asInsert();
+// INSERT INTO stock(code, name) VALUES ('AAPL', 'Apple Inc.')
+// Consistent across all dialects, no ::VARCHAR or other type prefixes
+----
+
+===== rowConst()
+
+SQLs.rowConst(TypeInfer, Collection<?>) creates a **multi-value const expression** — each element in the collection is embedded directly in SQL **without** any type annotation prefix.
+This is the multi-value counterpart of `constValue`/`constant`.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// Standalone: outputs value , value , value ... (no type prefix)
+SQLs.rowConst(Stock_.id, List.of(1, 2, 3))
+// PostgreSQL:  (1, 2, 3)              ← no ::INTEGER
+// MySQL:       (1, 2, 3)
+
+// Method reference with IN operator
+ChinaRegion_.id.in(SQLs::rowConst, idList)
+// SQL:  id IN (1, 2, 3, ...)   -- values embedded, no type prefix anywhere
+
+// With explicit type — NO type prefix in any dialect
+SQLs.refField("cte", "col").in(SQLs.rowConst(StringType.INSTANCE, List.of("A", "B", "C")))
+// PostgreSQL:  col IN ('A', 'B', 'C')      ← no ::VARCHAR (unlike rowLiteral)
+// MySQL:       col IN ('A', 'B', 'C')      ← same as rowLiteral
+----
+
+**How it works**: `SQLs.rowConst(type, values)` calls `ArmyRowLiteralExpression.multi(type, values, false)` — the `false` flag means `typeName` is off, so no type annotation.
+Internally stores `List.copyOf(values)`.
+When rendering, `AnonymousRowLiteral.appendSql()` iterates and calls `context.appendLiteral(type, value, false)` for each element, omitting the type prefix.
++
+**Constraints**:
+- `values` must be non-null and non-empty - `type` must not return a codec `TableField`
+
+**`rowConst` vs `rowLiteral`**:
+- `rowLiteral` — embeds with type prefix (e.g. `1::INTEGER` in Postgre) - `rowConst` — embeds without type prefix (plain `1` everywhere), relying on implicit type coercion
+
+===== namedRowConst()
+
+SQLs.namedRowConst(TypeInfer, String) creates a **named non-null multi-value const expression** — for batch VALUES INSERT where each batch row contains a `Collection` field whose elements are embedded directly in SQL **without** type prefix.
+The const counterpart of `namedRowLiteral`.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java[`SQLSyntax.java`,role="extern"].
+
+[source,java]
+----
+// Standalone: named multi-const — columnSize() returns -1 (unknown at creation)
+SQLs.namedRowConst(StringType.INSTANCE, "tags")
+// Resolved at generation from batch row → 'java' , 'spring' , 'army' (no type prefix)
+
+// Batch VALUES INSERT: each row's "tags" List field embedded as multiple literals, no type prefix
+SQLs.singleInsert()
+        .insertInto(Article_.T)
+        .values()
+        .parens(s -> s.space(Article_.id, SQLs::namedConst, "id")
+                .comma(Article_.tag, SQLs::namedRowConst, "tags")  // Collection field → multi consts
+        )
+        .asInsert();
+// For row {"id":1, "tags":["java","spring"]}:
+//   INSERT INTO article(id, tag) VALUES (1, 'java', 'spring')
+// No ::VARCHAR in PostgreSQL — consistent raw values across all dialects
+----
+
+**How it works**: `SQLs.namedRowConst(type, name)` calls `ArmyRowLiteralExpression.named(type, name, false)` — the `false` flag means no type prefix.
+Like `namedRowLiteral`, this named version has no stored values at creation (`columnSize()` returns `-1`).
+At SQL generation, values are read from batch row data by `name` and embedded without type annotation.
++
+[IMPORTANT]
+====
+`namedRowConst` is designed **exclusively** for VALUES INSERT statements — just like `namedRowLiteral`.
+Using it in a batch UPDATE or batch DELETE statement throws `CriteriaException` at runtime because named row consts (like named row literals) cannot resolve multi-value collection data from batch rows in non-INSERT SQL contexts.
+
+If you need named multi-value placeholders in batch UPDATE/DELETE, use `SQLs.namedRowParam(type, name, size)` instead.
+====
+
+**`namedRowConst` vs `namedRowLiteral`**:
+- `namedRowLiteral(TypeInfer, String)` — embeds with type prefix (Postgre `::TYPE`) - `namedRowConst(TypeInfer, String)` — embeds without type prefix, consistent across dialects
+
+===== literal vs const: the SQL difference
+
+[cols="1,3,3",options="header"]
+|===
+| Value | `literal` (with type prefix) | `const` (without type prefix)
+
+| `Integer(100)` | `100::INTEGER` (Postgre) / `100` (MySQL) | `100` (all databases)
+| `BigDecimal("0.00")` | `0.00::DECIMAL` (Postgre) / `0.00` (MySQL) | `0.00` (all databases)
+| `LocalDate` | `DATE '2024-01-01'` | `'2024-01-01'`
+| `LocalDateTime` | `TIMESTAMP '2024-01-01 ...'` | `'2024-01-01T...'`
+| `String` | `'hello'::VARCHAR` (Postgre) / `'hello'` (MySQL) | `'hello'` (all databases)
+|===
+
+The practical implication: `literal` guarantees the database interprets the value with the correct type (useful when type inference is ambiguous). `const` outputs the raw value and relies on the database's implicit type coercion.
+
+===== Naming design
+
+Why `constValue` instead of just `const`?
+Because `const` is a Java reserved keyword — it cannot be used as a method name.
+
+Why `constant` instead of reusing `constValue`?
+Because these two methods have different parameter structures:
+- `constValue(Object)` — auto-detect type, single parameter - `constant(TypeInfer, Object)` — explicit type, two parameters
+
+Overloading them with the same name would cause ambiguity at call sites.
+The distinct names make the API self-documenting.
+
+Similarly, `namedConst` is a concise abbreviation of `namedConstant` — it mirrors the naming pattern of `namedLiteral` while keeping the method name short.
+
+===== BATCH_NO_CONST
+
+For **batch operations** where you need the current batch row number embedded directly as a literal, **without** type annotation prefix.
+
+Source: link:../army-core/src/main/java/io/army/criteria/impl/SQLs.java[`SQLs.java`,role="extern"].
+
+[source,java]
+----
+// Source definition
+public static final LiteralExpression BATCH_NO_CONST = SQLs.namedConst(IntegerType.INSTANCE, "$ARMY_BATCH_NO$");
+----
+
+[source,java]
+----
+// Use BATCH_NO_CONST to embed batch row number (no type prefix)
+SQLs.singleInsert()
+        .with("cte").as(s -> s.select(ChinaRegion_.id, Windows.rowNumber().over().as("rowNumber"))
+                .from(ChinaRegion_.T, AS, "t")
+                .where(ChinaRegion_.id.in(SQLs::rowParam, regionIdList))
+                .orderBy(ChinaRegion_.id)
+                .asQuery()
+        ).space()
+        .insertInto(ChinaRegion_.T)
+        .defaultValue(ChinaRegion_.parentId, SQLs.scalarSubQuery()
+                .select(s -> s.space(SQLs.refField("cte", ChinaRegion_.ID)))
+                .from("cte")
+                .where(SQLs.refField("cte", "rowNumber").equal(SQLs.BATCH_NO_CONST))
+                .asQuery()
+        )
+        .values(regionList)
+        .asInsert();
+// Same as BATCH_NO_LITERAL but without type prefix:
+//   WHERE rowNumber = 1  (not 1::INTEGER in Postgre)
+----
+
+=== CTE
 
 [source,java]
 ----
@@ -3683,7 +4616,7 @@ WHERE s.status = ?  -- param: 'NORMAL'
 -- asQuery() returns SubQuery, usable in FROM / IN / EXISTS
 ----
 
-=== MySQL Dialect API
+=== MySQL API
 
 ==== The MySQLs Utility Class
 
@@ -3722,7 +4655,7 @@ ON DUPLICATE KEY UPDATE
     version = version + 1
 ----
 
-=== PostgreSQL Dialect API
+=== PostgreSQL API
 
 ==== The Postgres Utility Class
 

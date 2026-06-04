@@ -595,6 +595,7 @@ public abstract class TableMetaUtils {
         return new DomainPair(list, parentDomainClass);
     }
 
+
     /// Creates the **ordered list of field metadata** for all `@Column`-annotated fields
     /// in the domain class and its mapped superclasses.
     ///
@@ -613,13 +614,13 @@ public abstract class TableMetaUtils {
         Field[] fieldArray;
         Field field;
         Column column;
-        String columnName, key, configValue;
         for (Class<?> clazz = domainClass; clazz != null; clazz = clazz.getSuperclass()) {
 
             if (clazz != domainClass && clazz.getAnnotation(Inheritance.class) != null) {
                 if (inheritance) {
                     throw inheritanceDuplication(domainClass);
                 }
+                list.add(TableFieldMeta.createFieldMeta(tableMeta, findIdField(clazz), context));
                 break;
             }
 
@@ -1045,6 +1046,29 @@ public abstract class TableMetaUtils {
         }
         return clazz;
 
+    }
+
+    /// @see #createFieldMetaList(TableMeta, MetaContext)
+    private static Field findIdField(final Class<?> domainClass) {
+        Field targetField = null;
+        topLoop:
+        for (Class<?> clazz = domainClass; clazz != null; clazz = clazz.getSuperclass()) {
+            for (Field field : clazz.getDeclaredFields()) {
+                if (!field.getName().equals(_MetaBridge.ID)) {
+                    continue;
+                }
+                if (field.getAnnotation(Column.class) == null) {
+                    continue;
+                }
+                targetField = field;
+                break topLoop;
+            } // inner loop
+        } // top loop
+        if (targetField == null) {
+            String m = String.format("Not found %s in %s", _MetaBridge.ID, domainClass.getName());
+            throw new MetaException(m);
+        }
+        return targetField;
     }
 
     /// @see #columnCollation(Column, DatabaseObject.FieldObject, MetaContext)

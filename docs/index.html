@@ -16,6 +16,7 @@
         /* ── Header link icons (top-right corner) ── */
         #header {
             position: relative;
+            overflow: visible;
         }
 
         #header .army-header-links {
@@ -25,6 +26,7 @@
             display: flex;
             gap: 10px;
             padding: 6px 12px;
+            z-index: 10;
         }
 
         #header .army-header-links a {
@@ -124,8 +126,8 @@
                     actions.className = 'toc-actions';
                     var toggleAllBtn = document.createElement('span');
                     toggleAllBtn.className = 'toc-toggle-all';
-                    toggleAllBtn.textContent = '\u229F';          // ⊟
-                    toggleAllBtn.setAttribute('title', '\u6536\u8D77\u5168\u90E8');  // 收起全部
+                    toggleAllBtn.textContent = '\u229E';          // ⊞
+                    toggleAllBtn.setAttribute('title', '\u5C55\u5F00\u5168\u90E8');  // 展开全部
 
                     toggleAllBtn.addEventListener('click', function (e) {
                         e.stopPropagation();
@@ -170,7 +172,8 @@
                         var a = li.querySelector(':scope > a');
                         var toggle = document.createElement('span');
                         toggle.className = 'toc-toggle';
-                        toggle.textContent = '\u25BC'; // ▼ expanded by default
+                        toggle.textContent = '\u25B6'; // ▶ collapsed by default
+                        li.classList.add('collapsed');
 
                         toggle.addEventListener('click', function (e) {
                             e.stopPropagation();
@@ -207,7 +210,7 @@
         <span id="author" class="author">zoro&lt;zoro@qinarmy.io&gt;</span><br>
         <span id="email" class="email"><a href="mailto:zoro@qinarmy.io">zoro@qinarmy.io</a></span><br>
         <span id="revnumber">version 0.6.8-SNAPSHOT,</span>
-        <span id="revdate">2026-06-04</span>
+        <span id="revdate">2026-06-05</span>
         <br><span id="revremark">Snapshot</span>
     </div>
     <div id="toc" class="toc2">
@@ -246,13 +249,13 @@
             <li><a href="#_domain_model_definition">3. Domain Model Definition</a>
                 <ul class="sectlevel2">
                     <li><a href="#_annotation_overview">3.1. Annotation Overview</a></li>
-                    <li><a href="#_table_table_mapping">3.2. @Table — Table Mapping</a>
+                    <li><a href="#_table">3.2. @Table</a>
                         <ul class="sectlevel3">
                             <li><a href="#_attributes">3.2.1. Attributes</a></li>
                             <li><a href="#_examples_from_stock_data">3.2.2. Examples from stock-data</a></li>
                         </ul>
                     </li>
-                    <li><a href="#_column_column_mapping">3.3. @Column — Column Mapping</a>
+                    <li><a href="#_column">3.3. @Column</a>
                         <ul class="sectlevel3">
                             <li><a href="#_built_in_conventions_zero_config">3.3.1. Built-in Conventions
                                 (Zero-Config)</a></li>
@@ -263,8 +266,7 @@
                             <li><a href="#_examples_from_stock_data_2">3.3.5. Examples from stock-data</a></li>
                         </ul>
                     </li>
-                    <li><a href="#_generator_generatortype_field_value_generation">3.4. @Generator / @GeneratorType —
-                        Field Value Generation</a>
+                    <li><a href="#_generator">3.4. @Generator</a>
                         <ul class="sectlevel3">
                             <li><a href="#_generator_types">3.4.1. Generator Types</a></li>
                             <li><a href="#_override_via_tablemeta_properties_2">3.4.2. Override via
@@ -273,15 +275,14 @@
                             <li><a href="#_examples_from_stock_data_3">3.4.4. Examples from stock-data</a></li>
                         </ul>
                     </li>
-                    <li><a href="#_param_fieldparam_overrideparams_generator_parameters">3.5. @Param / @FieldParam /
-                        @OverrideParams — Generator Parameters</a></li>
-                    <li><a href="#_mapping_custom_type_mapping">3.6. @Mapping — Custom Type Mapping</a>
+                    <li><a href="#_param">3.5. @Param</a></li>
+                    <li><a href="#_mapping">3.6. @Mapping</a>
                         <ul class="sectlevel3">
                             <li><a href="#_attributes_4">3.6.1. Attributes</a></li>
                             <li><a href="#_examples_from_stock_data_4">3.6.2. Examples from stock-data</a></li>
                         </ul>
                     </li>
-                    <li><a href="#_index_index_definitions">3.7. @Index — Index Definitions</a>
+                    <li><a href="#_index">3.7. @Index</a>
                         <ul class="sectlevel3">
                             <li><a href="#_attributes_5">3.7.1. Attributes</a></li>
                             <li><a href="#_index_name_convention">3.7.2. Index Name Convention</a></li>
@@ -290,20 +291,17 @@
                                 Index Configuration</a></li>
                         </ul>
                     </li>
-                    <li><a href="#_mappedsuperclass_the_base_domain_pattern">3.8. @MappedSuperclass — The Base Domain
-                        Pattern</a>
+                    <li><a href="#_mappedsuperclass">3.8. @MappedSuperclass</a>
                         <ul class="sectlevel3">
                             <li><a href="#_the_inheritance_hierarchy">3.8.1. The Inheritance Hierarchy</a></li>
                             <li><a href="#_code_example">3.8.2. Code Example</a></li>
                             <li><a href="#_key_points">3.8.3. Key Points</a></li>
                         </ul>
                     </li>
-                    <li><a href="#_inheritance_discriminatorvalue_single_table_inheritance">3.9. @Inheritance /
-                        @DiscriminatorValue — Single-Table Inheritance</a></li>
-                    <li><a href="#_ddlmode_ddl_generation_control">3.10. @DdlMode — DDL Generation Control</a></li>
-                    <li><a href="#_codec_reserved_for_future_use">3.11. @Codec — Reserved for Future Use</a></li>
-                    <li><a href="#_tablemeta_properties_runtime_configuration">3.12. TableMeta.properties — Runtime
-                        Configuration</a>
+                    <li><a href="#_inheritance">3.9. @Inheritance</a></li>
+                    <li><a href="#_ddlmode">3.10. @DdlMode</a></li>
+                    <li><a href="#_codec">3.11. @Codec</a></li>
+                    <li><a href="#_tablemeta_properties">3.12. TableMeta.properties</a>
                         <ul class="sectlevel3">
                             <li><a href="#_placeholder_expressions_reference">3.12.1. Placeholder Expressions
                                 Reference</a></li>
@@ -317,7 +315,7 @@
                     </li>
                 </ul>
             </li>
-            <li><a href="#_mappingtype_java_to_database_type_mapping">4. MappingType — Java-to-Database Type Mapping</a>
+            <li><a href="#_mappingtype">4. MappingType</a>
                 <ul class="sectlevel2">
                     <li><a href="#_overview_mappingtype_interface">4.1. Overview: MappingType Interface</a></li>
                     <li><a href="#_default_type_inference">4.2. Default Type Inference</a>
@@ -439,48 +437,90 @@
                                 </ul>
                             </li>
                             <li><a href="#_standard_window_functions">5.1.7. Standard Window Functions</a></li>
-                            <li><a href="#_conditional_expressions">5.1.8. Conditional Expressions</a></li>
-                            <li><a href="#_logical_operators">5.1.9. Logical Operators</a></li>
-                            <li><a href="#_default_parameter_binding">5.1.10. Default Parameter Binding</a>
+                        </ul>
+                    </li>
+                    <li><a href="#_expression">5.2. Expression</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_conditional_expressions">5.2.1. Conditional Expressions</a></li>
+                            <li><a href="#_logical_operators">5.2.2. Logical Operators</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#_param_binding">5.3. Param Binding</a>
+                        <ul class="sectlevel3">
+                            <li><a href="#_default_binding">5.3.1. Default Binding</a>
                                 <ul class="sectlevel4">
                                     <li><a href="#_the_default_path_field_equalvalue">The default path: <code>field.equal(value)</code></a>
                                     </li>
                                     <li><a href="#_what_happens_with_different_value_types">What happens with different
-                                        value types</a>
-                                        <ul class="sectlevel5">
-                                            <li><a href="#_right_operand_is_already_an_expression">Right operand is
-                                                already an <code>Expression</code></a></li>
-                                            <li><a href="#_left_operand_has_no_type_information">Left operand has no
-                                                type information</a></li>
-                                            <li><a href="#_right_operand_could_trigger_an_error">Right operand could
-                                                trigger an error</a></li>
-                                        </ul>
-                                    </li>
+                                        value types</a></li>
+                                    <li><a href="#_right_operand_is_already_an_expression">Right operand is already an
+                                        <code>Expression</code></a></li>
+                                    <li><a href="#_left_operand_has_no_type_information">Left operand has no type
+                                        information</a></li>
+                                    <li><a href="#_right_operand_could_trigger_an_error">Right operand could trigger an
+                                        error</a></li>
                                     <li><a href="#_controlling_the_binding_mode_literalmode">Controlling the binding
                                         mode: LiteralMode</a></li>
                                     <li><a href="#_explicit_binding_with_bifunction_overloads">Explicit binding with
                                         BiFunction overloads</a></li>
                                 </ul>
                             </li>
+                            <li><a href="#_parameter">5.3.2. parameter</a>
+                                <ul class="sectlevel4">
+                                    <li><a href="#_parameter_2">parameter()</a></li>
+                                    <li><a href="#_param_2">param()</a></li>
+                                    <li><a href="#_namedparam">namedParam()</a></li>
+                                    <li><a href="#_rowparam">rowParam()</a></li>
+                                    <li><a href="#_namedrowparam">namedRowParam()</a></li>
+                                    <li><a href="#_update_time_placeholder">UPDATE_TIME_PLACEHOLDER</a></li>
+                                    <li><a href="#_batch_no_param">BATCH_NO_PARAM</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#_literal">5.3.3. literal</a>
+                                <ul class="sectlevel4">
+                                    <li><a href="#_literalvalue">literalValue()</a></li>
+                                    <li><a href="#_literal_2">literal()</a></li>
+                                    <li><a href="#_namedliteral">namedLiteral()</a></li>
+                                    <li><a href="#_rowliteral">rowLiteral()</a></li>
+                                    <li><a href="#_namedrowliteral">namedRowLiteral()</a></li>
+                                    <li><a href="#_literal_sql_output_across_dialects">Literal SQL output across
+                                        dialects</a></li>
+                                    <li><a href="#_update_time_placeholder_2">UPDATE_TIME_PLACEHOLDER</a></li>
+                                    <li><a href="#_batch_no_literal">BATCH_NO_LITERAL</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#_const">5.3.4. const</a>
+                                <ul class="sectlevel4">
+                                    <li><a href="#_constvalue">constValue()</a></li>
+                                    <li><a href="#_constant">constant()</a></li>
+                                    <li><a href="#_namedconst">namedConst()</a></li>
+                                    <li><a href="#_rowconst">rowConst()</a></li>
+                                    <li><a href="#_namedrowconst">namedRowConst()</a></li>
+                                    <li><a href="#_literal_vs_const_the_sql_difference">literal vs const: the SQL
+                                        difference</a></li>
+                                    <li><a href="#_naming_design">Naming design</a></li>
+                                    <li><a href="#_batch_no_const">BATCH_NO_CONST</a></li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
-                    <li><a href="#_cte_common_table_expressions">5.2. CTE (Common Table Expressions)</a></li>
-                    <li><a href="#_subqueries">5.3. Subqueries</a>
+                    <li><a href="#_cte">5.4. CTE</a></li>
+                    <li><a href="#_subqueries">5.5. Subqueries</a>
                         <ul class="sectlevel3">
-                            <li><a href="#_scalar_subquery">5.3.1. Scalar Subquery</a></li>
-                            <li><a href="#_table_subquery">5.3.2. Table Subquery</a></li>
+                            <li><a href="#_scalar_subquery">5.5.1. Scalar Subquery</a></li>
+                            <li><a href="#_table_subquery">5.5.2. Table Subquery</a></li>
                         </ul>
                     </li>
-                    <li><a href="#_mysql_dialect_api">5.4. MySQL Dialect API</a>
+                    <li><a href="#_mysql_api">5.6. MySQL API</a>
                         <ul class="sectlevel3">
-                            <li><a href="#_the_mysqls_utility_class">5.4.1. The MySQLs Utility Class</a></li>
-                            <li><a href="#_mysql_specific_features">5.4.2. MySQL-Specific Features</a></li>
+                            <li><a href="#_the_mysqls_utility_class">5.6.1. The MySQLs Utility Class</a></li>
+                            <li><a href="#_mysql_specific_features">5.6.2. MySQL-Specific Features</a></li>
                         </ul>
                     </li>
-                    <li><a href="#_postgresql_dialect_api">5.5. PostgreSQL Dialect API</a>
+                    <li><a href="#_postgresql_api">5.7. PostgreSQL API</a>
                         <ul class="sectlevel3">
-                            <li><a href="#_the_postgres_utility_class">5.5.1. The Postgres Utility Class</a></li>
-                            <li><a href="#_postgresql_specific_features">5.5.2. PostgreSQL-Specific Features</a></li>
+                            <li><a href="#_the_postgres_utility_class">5.7.1. The Postgres Utility Class</a></li>
+                            <li><a href="#_postgresql_specific_features">5.7.2. PostgreSQL-Specific Features</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -1561,16 +1601,15 @@ stmt = SQLs.singleInsert()
                                 (<code>${DEFAULT}</code>, <code>${RUNTIME}</code>, <code>${OPTIONAL}</code>, <code>${DEFAULT_VALUE}</code>)
                                 that are resolved at runtime from the configuration file <code>META-INF/army/TableMeta.properties</code>
                                 on the classpath.
-                                See <a href="#_tablemeta_properties_runtime_configuration">TableMeta.properties —
-                                Runtime Configuration</a> for details.
+                                See <a href="#TableMeta.properties — Runtime Configuration">[TableMeta.properties —
+                                Runtime Configuration]</a> for details.
                             </td>
                         </tr>
                     </table>
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_table_table_mapping"><a class="anchor" href="#_table_table_mapping"></a>3.2. @Table — Table
-                    Mapping</h3>
+                <h3 id="_table"><a class="anchor" href="#_table"></a>3.2. @Table</h3>
                 <div class="paragraph">
                     <p><code>@Table</code> is placed on a Java class to tell Army: "<em>this class maps to a database
                         table.</em>" It controls the table name, index definitions, DDL behavior, and more.
@@ -1724,8 +1763,7 @@ stmt = SQLs.singleInsert()
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_column_column_mapping"><a class="anchor" href="#_column_column_mapping"></a>3.3. @Column —
-                    Column Mapping</h3>
+                <h3 id="_column"><a class="anchor" href="#_column"></a>3.3. @Column</h3>
                 <div class="paragraph">
                     <p><code>@Column</code> maps a Java field to a database column. <strong>Without <code>@Column</code>,
                         a field is just a plain Java field</strong> — not persisted, not included in any SQL, not part
@@ -1796,8 +1834,8 @@ stmt = SQLs.singleInsert()
                             <td class="tableblock halign-left valign-top"><p class="tableblock">
                                 <code>defaultValue</code> (not set)</p></td>
                             <td class="tableblock halign-left valign-top"><p class="tableblock">By Java type</p></td>
-                            <td class="tableblock halign-left valign-top"><p class="tableblock">
-                                数值类型→<code>"0"</code>, <code>String</code>→<code>"''&#8220;, `LocalTime</code>→&#8221;'00:00:00'&#8220;,
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">Numeric
+                                types→<code>"0"</code>, <code>String</code>→<code>"''&#8220;, `LocalTime</code>→&#8221;'00:00:00'&#8220;,
                                 <code>LocalDate</code>→&#8221;'1970-01-01'&#8220;, <code>LocalDateTime</code>→&#8221;'1970-01-01
                                 00:00:00'"`</p></td>
                         </tr>
@@ -2082,9 +2120,7 @@ com.example.domain.Stock.name.Column.collation=en_US.utf8</code></pre>
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_generator_generatortype_field_value_generation"><a class="anchor"
-                                                                            href="#_generator_generatortype_field_value_generation"></a>3.4.
-                    @Generator / @GeneratorType — Field Value Generation</h3>
+                <h3 id="_generator"><a class="anchor" href="#_generator"></a>3.4. @Generator</h3>
                 <div class="paragraph">
                     <p><code>@Generator</code> controls <strong>how a field&#8217;s value is produced</strong> — before
                         INSERT (application-side, like Snowflake ID) or after INSERT (database auto-increment). <code>@GeneratorType</code>
@@ -2275,9 +2311,7 @@ com.example.domain.Stock.id.Mapping.value=io.army.mapping.SqlBigIntType</code></
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_param_fieldparam_overrideparams_generator_parameters"><a class="anchor"
-                                                                                  href="#_param_fieldparam_overrideparams_generator_parameters"></a>3.5.
-                    @Param / @FieldParam / @OverrideParams — Generator Parameters</h3>
+                <h3 id="_param"><a class="anchor" href="#_param"></a>3.5. @Param</h3>
                 <div class="paragraph">
                     <p>These three annotations work together to pass and override generator configuration. <code>FieldMetaUtils.getOrcreateFieldParmMap</code>
                         creates the parameter map; <code>FieldMetaUtils.overrideParamMapIfNeed</code> applies <code>@OverrideParams</code>
@@ -2358,8 +2392,7 @@ com.example.domain.Stock.id.Mapping.value=io.army.mapping.SqlBigIntType</code></
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_mapping_custom_type_mapping"><a class="anchor" href="#_mapping_custom_type_mapping"></a>3.6.
-                    @Mapping — Custom Type Mapping</h3>
+                <h3 id="_mapping"><a class="anchor" href="#_mapping"></a>3.6. @Mapping</h3>
                 <div class="paragraph">
                     <p><code>@Mapping</code> overrides Army&#8217;s default Java↔SQL type inference.
                         Armey&#8217;s <code>_MappingFactory</code> automatically maps common types (String, Long,
@@ -2452,8 +2485,7 @@ com.example.domain.Stock.id.Mapping.value=io.army.mapping.SqlBigIntType</code></
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_index_index_definitions"><a class="anchor" href="#_index_index_definitions"></a>3.7. @Index —
-                    Index Definitions</h3>
+                <h3 id="_index"><a class="anchor" href="#_index"></a>3.7. @Index</h3>
                 <div class="paragraph">
                     <p><code>@Index</code> defines a database index within <code>@Table#indexes</code>.
                         At runtime, <code>TableMetaUtils.createIndexList</code> reads all <code>@Index</code>
@@ -2660,9 +2692,7 @@ com.example.domain.Stock.id.Mapping.value=io.army.mapping.SqlBigIntType</code></
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_mappedsuperclass_the_base_domain_pattern"><a class="anchor"
-                                                                      href="#_mappedsuperclass_the_base_domain_pattern"></a>3.8.
-                    @MappedSuperclass — The Base Domain Pattern</h3>
+                <h3 id="_mappedsuperclass"><a class="anchor" href="#_mappedsuperclass"></a>3.8. @MappedSuperclass</h3>
                 <div class="paragraph">
                     <p><code>@MappedSuperclass</code> marks a class whose <code>@Column</code>-annotated fields are
                         <strong>inherited by subclasses</strong>, but which does <strong>not</strong> map to any
@@ -2807,9 +2837,7 @@ com.example.domain.Stock.id.Mapping.value=io.army.mapping.SqlBigIntType</code></
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_inheritance_discriminatorvalue_single_table_inheritance"><a class="anchor"
-                                                                                     href="#_inheritance_discriminatorvalue_single_table_inheritance"></a>3.9.
-                    @Inheritance / @DiscriminatorValue — Single-Table Inheritance</h3>
+                <h3 id="_inheritance"><a class="anchor" href="#_inheritance"></a>3.9. @Inheritance</h3>
                 <div class="paragraph">
                     <p>While <code>@MappedSuperclass</code> shares field definitions, <code>@Inheritance</code>
                         implements the <strong>single-table inheritance</strong> strategy: a parent class and its
@@ -2891,8 +2919,7 @@ com.example.domain.Stock.id.Mapping.value=io.army.mapping.SqlBigIntType</code></
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_ddlmode_ddl_generation_control"><a class="anchor" href="#_ddlmode_ddl_generation_control"></a>3.10.
-                    @DdlMode — DDL Generation Control</h3>
+                <h3 id="_ddlmode"><a class="anchor" href="#_ddlmode"></a>3.10. @DdlMode</h3>
                 <div class="paragraph">
                     <p>Controls whether Army generates <code>CREATE TABLE</code> DDL during schema initialization.
                         At runtime, <code>TableMetaUtils.tableCreateDdl</code> reads <code>@Table.ddlMode()</code>:</p>
@@ -2941,8 +2968,7 @@ com.example.domain.Stock.id.Mapping.value=io.army.mapping.SqlBigIntType</code></
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_codec_reserved_for_future_use"><a class="anchor" href="#_codec_reserved_for_future_use"></a>3.11.
-                    @Codec — Reserved for Future Use</h3>
+                <h3 id="_codec"><a class="anchor" href="#_codec"></a>3.11. @Codec</h3>
                 <div class="paragraph">
                     <p><code>@Codec</code> is a marker annotation with no current runtime effect.
                         The <code>TableFieldMeta</code> constructor records its presence in <code>CODEC_MAP</code>, but
@@ -2951,9 +2977,8 @@ com.example.domain.Stock.id.Mapping.value=io.army.mapping.SqlBigIntType</code></
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_tablemeta_properties_runtime_configuration"><a class="anchor"
-                                                                        href="#_tablemeta_properties_runtime_configuration"></a>3.12.
-                    TableMeta.properties — Runtime Configuration</h3>
+                <h3 id="_tablemeta_properties"><a class="anchor" href="#_tablemeta_properties"></a>3.12.
+                    TableMeta.properties</h3>
                 <div class="paragraph">
                     <p><code>TableMeta.properties</code> is the <strong>runtime override hub</strong> of Army.
                         Place this file at <code>META-INF/army/TableMeta.properties</code> on the classpath (typically
@@ -3663,9 +3688,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
         </div>
     </div>
     <div class="sect1">
-        <h2 id="_mappingtype_java_to_database_type_mapping"><a class="anchor"
-                                                               href="#_mappingtype_java_to_database_type_mapping"></a>4.
-            MappingType — Java-to-Database Type Mapping</h2>
+        <h2 id="_mappingtype"><a class="anchor" href="#_mappingtype"></a>4. MappingType</h2>
         <div class="sectionbody">
             <div class="paragraph">
                 <p>Every domain field in Army must declare its <strong>type mapping</strong> — the rule that converts
@@ -4030,7 +4053,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
 <span class="annotation">@Column</span>(notNull = <span class="predefined-constant">true</span>, defaultValue = <span
             class="string"><span class="delimiter">&quot;</span><span class="content">'NORMAL'</span><span
             class="delimiter">&quot;</span></span>, comment = <span class="string"><span class="delimiter">&quot;</span><span
-            class="content">股票在市场状态</span><span class="delimiter">&quot;</span></span>)
+            class="content">stock market status</span><span class="delimiter">&quot;</span></span>)
 <span class="directive">public</span> StockStatus status;
 
 <span class="comment">// Default inference: StockStatus → NameEnumType → VARCHAR column</span></code></pre>
@@ -4118,7 +4141,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
 }
 
 <span class="annotation">@Column</span>(comment = <span class="string"><span class="delimiter">&quot;</span><span
-            class="content">剑士名称</span><span class="delimiter">&quot;</span></span>)
+            class="content">swordsman name</span><span class="delimiter">&quot;</span></span>)
 <span class="directive">public</span> QinArmy swordsman;  <span
             class="comment">// → TextEnumType, stored as VARCHAR</span></code></pre>
                             </div>
@@ -4225,7 +4248,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
 }
 
 <span class="annotation">@Column</span>(comment = <span class="string"><span class="delimiter">&quot;</span><span
-            class="content">账户类型</span><span class="delimiter">&quot;</span></span>)
+            class="content">account type</span><span class="delimiter">&quot;</span></span>)
 <span class="directive">public</span> BankAccountType accountType;  <span class="comment">// → CodeEnumType, stored as INT</span></code></pre>
                             </div>
                         </div>
@@ -4298,7 +4321,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
 }
 
 <span class="annotation">@Column</span>(comment = <span class="string"><span class="delimiter">&quot;</span><span
-            class="content">股票在市状态</span><span class="delimiter">&quot;</span></span>)
+            class="content">stock listing status</span><span class="delimiter">&quot;</span></span>)
 <span class="directive">public</span> StockStatus status;
 
 <span class="comment">// Without @DefinedType → VARCHAR</span>
@@ -4490,8 +4513,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
 <pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="annotation">@Column</span>(notNull = <span
         class="predefined-constant">true</span>, updatable = <span
         class="predefined-constant">false</span>, comment = <span class="string"><span
-        class="delimiter">&quot;</span><span class="content">首次会话内容</span><span
-        class="delimiter">&quot;</span></span>)
+        class="delimiter">&quot;</span><span class="content">first chat message content</span><span class="delimiter">&quot;</span></span>)
 <span class="annotation">@Mapping</span>(<span class="string"><span class="delimiter">&quot;</span><span
             class="content">io.army.mapping.TextType</span><span class="delimiter">&quot;</span></span>)
 <span class="directive">private</span> <span class="predefined-type">String</span> firstContent;</code></pre>
@@ -4538,7 +4560,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
                         <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="annotation">@Column</span>(precision = <span
         class="integer">44</span>, comment = <span class="string"><span class="delimiter">&quot;</span><span
-        class="content">文件哈希值,SHA‑256算法,标准base64</span><span class="delimiter">&quot;</span></span>)
+        class="content">file hash, SHA-256 algorithm, standard base64</span><span class="delimiter">&quot;</span></span>)
 <span class="annotation">@Mapping</span>(<span class="string"><span class="delimiter">&quot;</span><span
             class="content">io.army.mapping.SqlCharType</span><span class="delimiter">&quot;</span></span>)
 <span class="directive">public</span> <span class="predefined-type">String</span> fileHash;</code></pre>
@@ -4907,8 +4929,8 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
             class="string"><span class="delimiter">&quot;</span><span class="content">metadata</span><span
             class="delimiter">&quot;</span></span>)
         },
-        comment = <span class="string"><span class="delimiter">&quot;</span><span
-            class="content">股票聊天长期记忆向量存储</span><span class="delimiter">&quot;</span></span>)
+        comment = <span class="string"><span class="delimiter">&quot;</span><span class="content">stock chat long-term memory vector store</span><span
+            class="delimiter">&quot;</span></span>)
 <span class="directive">public</span> <span class="type">class</span> <span
             class="class">StockChatVectorStore</span> <span class="directive">extends</span> SpringAiChatVectorStore {
 }
@@ -4936,8 +4958,8 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
             class="string"><span class="delimiter">&quot;</span><span class="content">metadata</span><span
             class="delimiter">&quot;</span></span>)
         },
-        comment = <span class="string"><span class="delimiter">&quot;</span><span
-            class="content">股票文档向量存储</span><span class="delimiter">&quot;</span></span>)
+        comment = <span class="string"><span class="delimiter">&quot;</span><span class="content">stock document vector store</span><span
+            class="delimiter">&quot;</span></span>)
 <span class="directive">public</span> <span class="type">class</span> <span
             class="class">StockDocumentVectorStore</span> <span class="directive">extends</span> SpringAiVectorStore {
 }</code></pre>
@@ -5075,7 +5097,7 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
 <pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="annotation">@Column</span>(notNull = <span
         class="predefined-constant">true</span>, defaultValue = <span class="string"><span
         class="delimiter">&quot;</span><span class="content">'[]'</span><span class="delimiter">&quot;</span></span>, comment = <span
-        class="string"><span class="delimiter">&quot;</span><span class="content">向量ID列表</span><span
+        class="string"><span class="delimiter">&quot;</span><span class="content">vector ID list</span><span
         class="delimiter">&quot;</span></span>)
 <span class="annotation">@Mapping</span>(<span class="string"><span class="delimiter">&quot;</span><span
             class="content">io.army.mapping.PreferredJsonbType</span><span class="delimiter">&quot;</span></span>)
@@ -5136,12 +5158,12 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
 <pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// VARCHAR — default inference for String, precision from @Column</span>
 <span class="annotation">@Column</span>(notNull = <span class="predefined-constant">true</span>, precision = <span
             class="integer">130</span>, comment = <span class="string"><span class="delimiter">&quot;</span><span
-            class="content">股票公司名称</span><span class="delimiter">&quot;</span></span>)
+            class="content">stock company name</span><span class="delimiter">&quot;</span></span>)
 <span class="directive">public</span> <span class="predefined-type">String</span> name;  <span class="comment">// → StringType → VARCHAR(130)</span>
 
 <span class="comment">// CHAR — fixed-length, used for deterministic-length hashes</span>
 <span class="annotation">@Column</span>(precision = <span class="integer">44</span>, comment = <span
-            class="string"><span class="delimiter">&quot;</span><span class="content">文件哈希值</span><span
+            class="string"><span class="delimiter">&quot;</span><span class="content">file hash</span><span
             class="delimiter">&quot;</span></span>)
 <span class="annotation">@Mapping</span>(<span class="string"><span class="delimiter">&quot;</span><span
             class="content">io.army.mapping.SqlCharType</span><span class="delimiter">&quot;</span></span>)
@@ -5149,8 +5171,8 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
 
 <span class="comment">// TEXT — unbounded, for long content</span>
 <span class="annotation">@Column</span>(notNull = <span class="predefined-constant">true</span>, comment = <span
-            class="string"><span class="delimiter">&quot;</span><span class="content">首次会话内容</span><span
-            class="delimiter">&quot;</span></span>)
+            class="string"><span class="delimiter">&quot;</span><span
+            class="content">first chat message content</span><span class="delimiter">&quot;</span></span>)
 <span class="annotation">@Mapping</span>(<span class="string"><span class="delimiter">&quot;</span><span
             class="content">io.army.mapping.TextType</span><span class="delimiter">&quot;</span></span>)
 <span class="directive">private</span> <span class="predefined-type">String</span> firstContent;  <span class="comment">// → TextType → TEXT</span></code></pre>
@@ -6651,7 +6673,7 @@ stmt = SQLs.singleInsert()
                 list.accept(Stock_.code);
                 list.accept(Stock_.name);
         })
-        .space(subQuery)                              <span class="comment">// Supplier&lt;SubQuery&gt;</span>
+        .space(subQuery)                              <span class="comment">// SQLs.subQuery()...asQuery()</span>
         .asInsert();</code></pre>
                             </div>
                         </div>
@@ -6662,7 +6684,7 @@ stmt = SQLs.singleInsert()
         class="class">INTO</span> stock (exchange, code, name, id, create_time,
                    update_time, version)
 <span class="class">SELECT</span> ...  <span class="comment">-- subQuery SQL; Army-managed fields (id, create_time, update_time, version)</span>
-<span class="comment">-- are appended to column list, their values are generated by Army, not from subquery</span></code></pre>
+<span class="comment">-- are appended to column list; all column values come from the subquery</span></code></pre>
                             </div>
                         </div>
                         <div class="paragraph">
@@ -6717,8 +6739,8 @@ stmt = SQLs.singleInsert()
        <span class="directive">DEFAULT</span>, <span class="directive">DEFAULT</span>
 <span class="keyword">FROM</span> nasdaq_table <span class="keyword">AS</span> n
 <span class="keyword">WHERE</span> n.listed = <span class="error">?</span>  <span class="comment">-- param: true</span>
-<span class="comment">-- status: uses DB column default (not in SELECT)</span>
-<span class="comment">-- id, create_time, update_time, version: generated by Army, not DB default</span></code></pre>
+<span class="comment">-- status: DB column default (not in user SELECT)</span>
+<span class="comment">-- id, create_time, update_time, version: appended by Army, all values from the subquery</span></code></pre>
                             </div>
                         </div>
                     </div>
@@ -6759,23 +6781,27 @@ stmt = SQLs.singleInsert()
                             <div class="title">Generated SQL (PostgreSQL)</div>
                             <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Statement 1: parent rows (no discriminator column)</span>
-<span class="comment">--     Columns follow field declaration order in ParentUser class</span>
-<span class="class">INSERT</span> <span class="class">INTO</span> u_user (id, name, create_time, update_time, version)
+<span class="comment">--     Columns follow field declaration order in ParentUser class:</span>
+<span class="comment">--     1. Army managed fields: id, create_time, update_time, version</span>
+<span class="comment">--     2. Parent business fields: name</span>
+<span class="class">INSERT</span> <span class="class">INTO</span> u_parent_user (id, create_time, update_time, version, name)
 <span class="keyword">VALUES</span> (<span class="error">?</span>, <span class="error">?</span>, <span
             class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>),
        ...
 
 <span class="comment">-- Statement 2: child rows (includes discriminator column)</span>
-<span class="comment">--     Columns follow field declaration order in Admin class;</span>
+<span class="comment">--     Columns follow field declaration order in Admin class:</span>
+<span class="comment">--     1. id (mandatory, first position; child id always managed by Army)</span>
+<span class="comment">--     2. Child-specific fields: admin_level, role</span>
 <span class="comment">--     discriminator 'ADMIN' from @DiscriminatorValue is auto-injected</span>
-<span class="class">INSERT</span> <span class="class">INTO</span> u_user (id, name, status, create_time, update_time, version)
+<span class="class">INSERT</span> <span class="class">INTO</span> u_admin (id, admin_level, role, status)
 <span class="keyword">VALUES</span> (<span class="error">?</span>, <span class="error">?</span>, <span
-            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
-            class="error">?</span>),
+            class="error">?</span>, <span class="error">?</span>),
        ...
 
-<span class="comment">-- NOTE: When id GeneratorType is POST (database auto-increment),</span>
-<span class="comment">--       the id column is NOT included in the column list.</span></code></pre>
+<span class="comment">-- NOTE: For parent/simple tables, when id GeneratorType is POST (database</span>
+<span class="comment">--       auto-increment), the id column is NOT included in the column list.</span>
+<span class="comment">--       Child tables ALWAYS include id regardless of GeneratorType.</span></code></pre>
                             </div>
                         </div>
                         <div class="admonitionblock tip">
@@ -6927,14 +6953,15 @@ stmt = SQLs.singleUpdate()
                         <div class="listingblock">
                             <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Admin child table inherits from User (see @Inheritance / @DiscriminatorValue)</span>
-<span class="comment">// Admin_.T is ChildTableMeta — shared table is u_user</span>
+<span class="comment">// Admin_.T is ChildTableMeta — mapped to u_admin</span>
 <span class="directive">final</span> Update stmt;
 stmt = SQLs.domainUpdate()
         .update(Admin_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
-            class="content">a</span><span class="delimiter">&quot;</span></span>)        <span class="comment">// ChildTableMeta — can reference parent fields</span>
+            class="content">a</span><span class="delimiter">&quot;</span></span>)         <span class="comment">// ChildTableMeta — can reference parent fields</span>
+        .set(Admin_.adminLevel, <span class="integer">5</span>)              <span class="comment">// child-specific field: triggers CTE/multi-table path</span>
         .set(ParentUser_.name, <span class="string"><span class="delimiter">&quot;</span><span class="content">Admin User</span><span
-            class="delimiter">&quot;</span></span>)  <span class="comment">// parent field: name</span>
-        .set(ParentUser_.visible, <span class="predefined-constant">false</span>)        <span class="comment">// parent field: visible (soft delete)</span>
+            class="delimiter">&quot;</span></span>)    <span class="comment">// parent field: name</span>
+        .set(ParentUser_.visible, <span class="predefined-constant">false</span>)         <span class="comment">// parent field: visible (soft delete)</span>
         .where(Admin_.id.equal(<span class="integer">1L</span>))
         .asUpdate();</code></pre>
                             </div>
@@ -6942,16 +6969,49 @@ stmt = SQLs.domainUpdate()
                         <div class="listingblock">
                             <div class="title">Generated SQL (PostgreSQL)</div>
                             <div class="content">
-<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Child table UPDATE: shared table u_user, discriminator 'ADMIN' auto-filtered</span>
-<span class="class">UPDATE</span> u_user <span class="keyword">AS</span> a
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Domain UPDATE on child table Admin_.T:</span>
+<span class="comment">-- PostgreSQL uses CTE-based two-stage update:</span>
+<span class="comment">--   1. CTE: UPDATE child table child-specific fields + RETURNING id</span>
+<span class="comment">--   2. Main: UPDATE parent table fields FROM cte</span>
+WITH a_update_cte <span class="keyword">AS</span> (
+    <span class="class">UPDATE</span> u_admin <span class="keyword">AS</span> a
+    <span class="class">SET</span> admin_level = <span class="error">?</span>
+    <span class="keyword">FROM</span> u_parent_user <span class="keyword">AS</span> p_of_a
+    <span class="keyword">WHERE</span> a.id = p_of_a.id         <span class="comment">-- join condition (first)</span>
+    <span class="keyword">AND</span> p_of_a.id = <span class="error">?</span>  <span class="comment">-- param: 1</span>
+    <span class="keyword">AND</span> p_of_a.status = <span class="string"><span class="delimiter">'</span><span
+            class="content">ADMIN</span><span class="delimiter">'</span></span>  <span class="comment">-- discriminator auto-injected</span>
+    <span class="keyword">AND</span> p_of_a.visible = <span class="predefined-constant">true</span>    <span
+            class="comment">-- visible auto-filtered</span>
+    RETURNING a.id <span class="keyword">AS</span> id
+)
+<span class="class">UPDATE</span> u_parent_user <span class="keyword">AS</span> p_of_a
 <span class="class">SET</span> name = <span class="error">?</span>,
     visible = <span class="error">?</span>,
     update_time = <span class="error">?</span>,
-    version = a.version + <span class="integer">1</span>
-<span class="keyword">WHERE</span> a.status = <span class="string"><span class="delimiter">'</span><span
+    version = p_of_a.version + <span class="integer">1</span>
+<span class="keyword">FROM</span> a_update_cte
+<span class="keyword">WHERE</span> p_of_a.id = a_update_cte.id</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (MySQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Domain UPDATE on child table Admin_.T:</span>
+<span class="comment">-- MySQL uses multi-table UPDATE syntax:</span>
+<span class="comment">--   UPDATE &lt;child&gt; JOIN &lt;parent&gt; ON ... SET ...</span>
+<span class="class">UPDATE</span> u_admin <span class="keyword">AS</span> a
+<span class="keyword">JOIN</span> u_parent_user <span class="keyword">AS</span> p_of_a <span class="keyword">ON</span> a.id = p_of_a.id
+<span class="class">SET</span> p_of_a.name = <span class="error">?</span>,
+    p_of_a.visible = <span class="error">?</span>,
+    a.admin_level = <span class="error">?</span>,
+    p_of_a.update_time = <span class="error">?</span>,
+    p_of_a.version = p_of_a.version + <span class="integer">1</span>
+<span class="keyword">WHERE</span> p_of_a.id = <span class="error">?</span>  <span class="comment">-- param: 1</span>
+<span class="keyword">AND</span> p_of_a.status = <span class="string"><span class="delimiter">'</span><span
             class="content">ADMIN</span><span class="delimiter">'</span></span>  <span class="comment">-- discriminator auto-injected</span>
-<span class="keyword">AND</span> a.id = <span class="error">?</span>  <span
-            class="comment">-- param: 1</span></code></pre>
+<span class="keyword">AND</span> p_of_a.visible = <span class="predefined-constant">true</span>    <span
+            class="comment">-- visible auto-filtered</span></code></pre>
                             </div>
                         </div>
                         <div class="paragraph">
@@ -6966,11 +7026,15 @@ stmt = SQLs.domainUpdate()
             class="content">name</span><span class="delimiter">&quot;</span></span>, <span class="string"><span
             class="delimiter">&quot;</span><span class="content">Alice</span><span
             class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">adminLevel</span><span class="delimiter">&quot;</span></span>, <span
+            class="integer">5</span>, <span class="string"><span class="delimiter">&quot;</span><span
             class="content">id</span><span class="delimiter">&quot;</span></span>, <span class="integer">1L</span>),
     <span class="predefined-type">Map</span>.of(<span class="string"><span class="delimiter">&quot;</span><span
             class="content">name</span><span class="delimiter">&quot;</span></span>, <span class="string"><span
             class="delimiter">&quot;</span><span class="content">Bob</span><span class="delimiter">&quot;</span></span>, <span
-            class="string"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>, <span
+            class="string"><span class="delimiter">&quot;</span><span class="content">adminLevel</span><span
+            class="delimiter">&quot;</span></span>, <span class="integer">3</span>, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>, <span
             class="integer">2L</span>)
 );
 stmt = SQLs.batchDomainUpdate()
@@ -6978,6 +7042,7 @@ stmt = SQLs.batchDomainUpdate()
             class="content">a</span><span class="delimiter">&quot;</span></span>)
         .sets(pairs -&gt; pairs
                 .setSpace(ParentUser_.name, SQLs::namedParam)
+                .setSpace(Admin_.adminLevel, SQLs::namedParam)   -- child field <span class="error">→</span> triggers CTE/multi-table
         )
         .where(Admin_.id.spaceEqual(SQLs::namedParam))
         .asUpdate()
@@ -6989,14 +7054,44 @@ stmt = SQLs.batchDomainUpdate()
                         <div class="listingblock">
                             <div class="title">Generated SQL (PostgreSQL)</div>
                             <div class="content">
-<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Batch: discriminator 'ADMIN' auto-filtered</span>
-<span class="class">UPDATE</span> u_user <span class="keyword">AS</span> a
-<span class="class">SET</span> name = <span class="error">?</span>,
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Batch domain UPDATE on child table Admin_.T:</span>
+<span class="comment">-- PostgreSQL uses CTE-based two-stage update</span>
+WITH a_update_cte <span class="keyword">AS</span> (
+    <span class="class">UPDATE</span> u_admin <span class="keyword">AS</span> a
+    <span class="class">SET</span> admin_level = <span class="error">?</span>              <span class="comment">-- batch param: adminLevel</span>
+    <span class="keyword">FROM</span> u_parent_user <span class="keyword">AS</span> p_of_a
+    <span class="keyword">WHERE</span> a.id = p_of_a.id           <span class="comment">-- join condition (first)</span>
+    <span class="keyword">AND</span> p_of_a.id = <span class="error">?</span>              <span class="comment">-- batch param: id (user WHERE before Army managed)</span>
+    <span class="keyword">AND</span> p_of_a.status = <span class="string"><span class="delimiter">'</span><span
+            class="content">ADMIN</span><span class="delimiter">'</span></span>  <span class="comment">-- discriminator auto-injected (appended)</span>
+    <span class="keyword">AND</span> p_of_a.visible = <span class="predefined-constant">true</span>      <span
+            class="comment">-- visible auto-filtered (appended)</span>
+    RETURNING a.id <span class="keyword">AS</span> id
+)
+<span class="class">UPDATE</span> u_parent_user <span class="keyword">AS</span> p_of_a
+<span class="class">SET</span> name = <span class="error">?</span>,                       <span class="comment">-- batch param: name</span>
     update_time = <span class="error">?</span>,
-    version = a.version + <span class="integer">1</span>
-<span class="keyword">WHERE</span> a.status = <span class="string"><span class="delimiter">'</span><span
-            class="content">ADMIN</span><span class="delimiter">'</span></span>
-<span class="keyword">AND</span> a.id = <span class="error">?</span>  <span class="comment">-- batch param: name</span></code></pre>
+    version = p_of_a.version + <span class="integer">1</span>
+<span class="keyword">FROM</span> a_update_cte
+<span class="keyword">WHERE</span> p_of_a.id = a_update_cte.id</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (MySQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Batch domain UPDATE on child table Admin_.T:</span>
+<span class="comment">-- MySQL uses multi-table UPDATE syntax</span>
+<span class="class">UPDATE</span> u_admin <span class="keyword">AS</span> a
+<span class="keyword">JOIN</span> u_parent_user <span class="keyword">AS</span> p_of_a <span class="keyword">ON</span> a.id = p_of_a.id
+<span class="class">SET</span> p_of_a.name = <span class="error">?</span>,               <span class="comment">-- batch param: name</span>
+    a.admin_level = <span class="error">?</span>,              <span class="comment">-- batch param: adminLevel</span>
+    p_of_a.update_time = <span class="error">?</span>,
+    p_of_a.version = p_of_a.version + <span class="integer">1</span>
+<span class="keyword">WHERE</span> p_of_a.id = <span class="error">?</span>                  <span class="comment">-- batch param: id (user WHERE before Army managed)</span>
+<span class="keyword">AND</span> p_of_a.status = <span class="string"><span class="delimiter">'</span><span
+            class="content">ADMIN</span><span class="delimiter">'</span></span>      <span class="comment">-- discriminator auto-injected (appended)</span>
+<span class="keyword">AND</span> p_of_a.visible = <span class="predefined-constant">true</span>          <span
+            class="comment">-- visible auto-filtered (appended)</span></code></pre>
                             </div>
                         </div>
                         <div class="paragraph">
@@ -7093,8 +7188,7 @@ stmt = SQLs.batchSingleUpdate()
             class="content">s</span><span class="delimiter">&quot;</span></span>)
         .sets(pairs -&gt; pairs
                 .setSpace(Stock_.name, SQLs::namedParam)      <span class="comment">// named param placeholder</span>
-                .setSpace(Stock_.offerPrice, SQLs::namedLiteral) <span
-            class="comment">// named literal placeholder</span>
+                .setSpace(Stock_.offerPrice, SQLs::namedParam) <span class="comment">// named param placeholder</span>
         )
         .where(Stock_.id.spaceEqual(SQLs::namedParam))       <span
             class="comment">// space* methods for named params</span>
@@ -7111,7 +7205,7 @@ stmt = SQLs.batchSingleUpdate()
 <pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Batch 1: name='Tesla', offerPrice=250, id=1</span>
 <span class="class">UPDATE</span> stock <span class="keyword">AS</span> s
 <span class="class">SET</span> name = <span class="error">?</span>,
-    offer_price = <span class="integer">250</span>,
+    offer_price = <span class="error">?</span>,
     update_time = <span class="error">?</span>,
     version = s.version + <span class="integer">1</span>
 <span class="keyword">WHERE</span> s.id = <span class="error">?</span>
@@ -7180,7 +7274,7 @@ stmt = SQLs.singleDelete()
                         </div>
                         <div class="listingblock">
                             <div class="content">
-<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Admin child table inherits from User — Admin_.T is ChildTableMeta</span>
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Admin child table inherits from User — Admin_.T is ChildTableMeta — mapped to u_admin</span>
 <span class="directive">final</span> Delete stmt;
 stmt = SQLs.domainDelete()
         .deleteFrom(Admin_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
@@ -7192,12 +7286,42 @@ stmt = SQLs.domainDelete()
                         <div class="listingblock">
                             <div class="title">Generated SQL (PostgreSQL)</div>
                             <div class="content">
-<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Child table DELETE: discriminator 'ADMIN' auto-filtered</span>
-<span class="class">DELETE</span> <span class="keyword">FROM</span> u_user <span class="keyword">AS</span> a
-<span class="keyword">WHERE</span> a.status = <span class="string"><span class="delimiter">'</span><span
-            class="content">ADMIN</span><span class="delimiter">'</span></span>
-<span class="keyword">AND</span> a.visible = <span class="error">?</span>  <span
-            class="comment">-- param: false (0)</span></code></pre>
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Domain DELETE on child table Admin_.T:</span>
+<span class="comment">-- PostgreSQL uses CTE-based two-stage delete:</span>
+<span class="comment">--   1. CTE: DELETE child rows + RETURNING child IDs</span>
+<span class="comment">--   2. Main: DELETE parent rows matched by returned IDs</span>
+<span class="comment">-- discriminator is applied in CTE WHERE on parent alias &quot;p_of_a&quot;</span>
+WITH a_delete_cte <span class="keyword">AS</span> (
+    <span class="class">DELETE</span> <span class="keyword">FROM</span> u_admin <span class="keyword">AS</span> a
+    <span class="keyword">USING</span> u_parent_user <span class="keyword">AS</span> p_of_a
+    <span class="keyword">WHERE</span> a.id = p_of_a.id         <span class="comment">-- join condition (first)</span>
+    <span class="keyword">AND</span> p_of_a.visible = <span class="error">?</span>  <span class="comment">-- param: false (0)</span>
+    <span class="keyword">AND</span> p_of_a.status = <span class="string"><span class="delimiter">'</span><span
+            class="content">ADMIN</span><span class="delimiter">'</span></span>  <span class="comment">-- discriminator auto-injected</span>
+    <span class="keyword">AND</span> p_of_a.visible = <span class="predefined-constant">true</span>    <span
+            class="comment">-- visible auto-filtered</span>
+    RETURNING a.id <span class="keyword">AS</span> id
+)
+<span class="class">DELETE</span> <span class="keyword">FROM</span> u_parent_user <span class="keyword">AS</span> p_of_a
+<span class="keyword">USING</span> a_delete_cte
+<span class="keyword">WHERE</span> p_of_a.id = a_delete_cte.id</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (MySQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Domain DELETE on child table Admin_.T:</span>
+<span class="comment">-- MySQL uses multi-table DELETE syntax:</span>
+<span class="comment">--   DELETE &lt;child_alias&gt;, &lt;parent_alias&gt; FROM &lt;child&gt; JOIN &lt;parent&gt; WHERE ...</span>
+<span class="comment">-- discriminator is applied in WHERE on parent alias &quot;p_of_a&quot;</span>
+<span class="class">DELETE</span> a, p_of_a
+<span class="keyword">FROM</span> u_admin <span class="keyword">AS</span> a
+<span class="keyword">JOIN</span> u_parent_user <span class="keyword">AS</span> p_of_a <span class="keyword">ON</span> a.id = p_of_a.id
+<span class="keyword">WHERE</span> p_of_a.visible = <span class="error">?</span>  <span class="comment">-- param: false (0)</span>
+<span class="keyword">AND</span> p_of_a.status = <span class="string"><span class="delimiter">'</span><span
+            class="content">ADMIN</span><span class="delimiter">'</span></span>  <span class="comment">-- discriminator auto-injected</span>
+<span class="keyword">AND</span> p_of_a.visible = <span class="predefined-constant">true</span>    <span
+            class="comment">-- visible auto-filtered</span></code></pre>
                             </div>
                         </div>
                         <div class="paragraph">
@@ -7226,12 +7350,39 @@ stmt = SQLs.batchDomainDelete()
                         <div class="listingblock">
                             <div class="title">Generated SQL (PostgreSQL)</div>
                             <div class="content">
-<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Batch domain DELETE: discriminator 'ADMIN' auto-filtered</span>
-<span class="class">DELETE</span> <span class="keyword">FROM</span> u_user <span class="keyword">AS</span> a
-<span class="keyword">WHERE</span> a.status = <span class="string"><span class="delimiter">'</span><span
-            class="content">ADMIN</span><span class="delimiter">'</span></span>
-<span class="keyword">AND</span> a.id = <span class="error">?</span>  <span
-            class="comment">-- batch param: id</span></code></pre>
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Batch domain DELETE on child table Admin_.T:</span>
+<span class="comment">-- PostgreSQL uses CTE-based two-stage delete</span>
+<span class="comment">-- user WHERE condition contains named parameter &quot;id&quot;</span>
+WITH a_delete_cte <span class="keyword">AS</span> (
+    <span class="class">DELETE</span> <span class="keyword">FROM</span> u_admin <span class="keyword">AS</span> a
+    <span class="keyword">USING</span> u_parent_user <span class="keyword">AS</span> p_of_a
+    <span class="keyword">WHERE</span> a.id = p_of_a.id           <span class="comment">-- join condition (first)</span>
+    <span class="keyword">AND</span> a.id = <span class="error">?</span>                   <span class="comment">-- batch param: id (user WHERE before Army managed)</span>
+    <span class="keyword">AND</span> p_of_a.status = <span class="string"><span class="delimiter">'</span><span
+            class="content">ADMIN</span><span class="delimiter">'</span></span>  <span class="comment">-- discriminator auto-injected (appended)</span>
+    <span class="keyword">AND</span> p_of_a.visible = <span class="predefined-constant">true</span>      <span
+            class="comment">-- visible auto-filtered (appended)</span>
+    RETURNING a.id <span class="keyword">AS</span> id
+)
+<span class="class">DELETE</span> <span class="keyword">FROM</span> u_parent_user <span class="keyword">AS</span> p_of_a
+<span class="keyword">USING</span> a_delete_cte
+<span class="keyword">WHERE</span> p_of_a.id = a_delete_cte.id</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (MySQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Batch domain DELETE on child table Admin_.T:</span>
+<span class="comment">-- MySQL uses multi-table DELETE syntax</span>
+<span class="comment">-- user WHERE condition contains named parameter &quot;id&quot;</span>
+<span class="class">DELETE</span> a, p_of_a
+<span class="keyword">FROM</span> u_admin <span class="keyword">AS</span> a
+<span class="keyword">JOIN</span> u_parent_user <span class="keyword">AS</span> p_of_a <span class="keyword">ON</span> a.id = p_of_a.id
+<span class="keyword">WHERE</span> a.id = <span class="error">?</span>                   <span class="comment">-- batch param: id (user WHERE before Army managed)</span>
+<span class="keyword">AND</span> p_of_a.status = <span class="string"><span class="delimiter">'</span><span
+            class="content">ADMIN</span><span class="delimiter">'</span></span>  <span class="comment">-- discriminator auto-injected (appended)</span>
+<span class="keyword">AND</span> p_of_a.visible = <span class="predefined-constant">true</span>      <span
+            class="comment">-- visible auto-filtered (appended)</span></code></pre>
                             </div>
                         </div>
                         <div class="paragraph">
@@ -7328,7 +7479,7 @@ stmt = SQLs.domainDelete()
                             <tr>
                                 <td class="tableblock halign-left valign-top"><p class="tableblock">
                                     <code>COUNT(*)</code></p></td>
-                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>SQLs.countAsterisk()</code>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>SQLs.count(SQLs.ASTERISK)</code>
                                 </p></td>
                             </tr>
                             <tr>
@@ -7373,7 +7524,7 @@ stmt = SQLs.domainDelete()
                             <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Aggregate in SELECT</span>
 stmt = SQLs.query()
-        .select(Stock_.exchange, SQLs.countAsterisk())
+        .select(Stock_.exchange, SQLs.count(SQLs.ASTERISK))
         .from(Stock_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
             class="content">s</span><span class="delimiter">&quot;</span></span>)
         .groupBy(Stock_.exchange)
@@ -7381,11 +7532,11 @@ stmt = SQLs.query()
 
 <span class="comment">// Aggregate in HAVING</span>
 stmt = SQLs.query()
-        .select(Stock_.exchange, SQLs.countAsterisk())
+        .select(Stock_.exchange, SQLs.count(SQLs.ASTERISK))
         .from(Stock_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
             class="content">s</span><span class="delimiter">&quot;</span></span>)
         .groupBy(Stock_.exchange)
-        .having(SQLs.countAsterisk().greater(<span class="integer">100</span>))
+        .having(SQLs.count(SQLs.ASTERISK).greater(<span class="integer">100</span>))
         .asQuery();</code></pre>
                             </div>
                         </div>
@@ -7663,8 +7814,11 @@ SQLs.sum(Stock_.offerPrice)
                         </table>
                     </div>
                 </div>
+            </div>
+            <div class="sect2">
+                <h3 id="_expression"><a class="anchor" href="#_expression"></a>5.2. Expression</h3>
                 <div class="sect3">
-                    <h4 id="_conditional_expressions"><a class="anchor" href="#_conditional_expressions"></a>5.1.8.
+                    <h4 id="_conditional_expressions"><a class="anchor" href="#_conditional_expressions"></a>5.2.1.
                         Conditional Expressions</h4>
                     <div class="ulist">
                         <ul>
@@ -7691,7 +7845,7 @@ SQLs.sum(Stock_.offerPrice)
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_logical_operators"><a class="anchor" href="#_logical_operators"></a>5.1.9. Logical
+                    <h4 id="_logical_operators"><a class="anchor" href="#_logical_operators"></a>5.2.2. Logical
                         Operators</h4>
                     <div class="ulist">
                         <ul>
@@ -7707,9 +7861,11 @@ SQLs.sum(Stock_.offerPrice)
                         </ul>
                     </div>
                 </div>
+            </div>
+            <div class="sect2">
+                <h3 id="_param_binding"><a class="anchor" href="#_param_binding"></a>5.3. Param Binding</h3>
                 <div class="sect3">
-                    <h4 id="_default_parameter_binding"><a class="anchor" href="#_default_parameter_binding"></a>5.1.10.
-                        Default Parameter Binding</h4>
+                    <h4 id="_default_binding"><a class="anchor" href="#_default_binding"></a>5.3.1. Default Binding</h4>
                     <div class="paragraph">
                         <p>When you write predicates like <code>field.equal(value)</code>, Army automatically wraps the
                             right-hand value into a parameterized SQL expression.
@@ -7833,12 +7989,13 @@ SQLs.sum(Stock_.offerPrice)
                             <p><code>wrapRight</code> has more branches.
                                 Let&#8217;s see what happens when you pass different kinds of right operands.</p>
                         </div>
-                        <div class="sect5">
-                            <h6 id="_right_operand_is_already_an_expression"><a class="anchor"
-                                                                                href="#_right_operand_is_already_an_expression"></a>Right
-                                operand is already an <code>Expression</code></h6>
-                            <div class="listingblock">
-                                <div class="content">
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_right_operand_is_already_an_expression"><a class="anchor"
+                                                                            href="#_right_operand_is_already_an_expression"></a>Right
+                            operand is already an <code>Expression</code></h5>
+                        <div class="listingblock">
+                            <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Passing a field reference — already an Expression, used as-is</span>
 Stock_.offerPrice.greater(Stock_.price)
 <span class="comment">// SQL:  offer_price &gt; price</span>
@@ -7846,39 +8003,40 @@ Stock_.offerPrice.greater(Stock_.price)
 <span class="comment">// Passing a subquery — already an Expression, used as-is</span>
 Stock_.id.in(subQueryExpr)
 <span class="comment">// SQL:  id IN (SELECT ...)</span></code></pre>
-                                </div>
-                            </div>
-                            <div class="paragraph">
-                                <p>When the right operand is already an <code>Expression</code> instance (e.g. another
-                                    field, a subquery, a scalar expression), <code>wrapRight</code> simply passes it
-                                    through without any wrapping.</p>
                             </div>
                         </div>
-                        <div class="sect5">
-                            <h6 id="_left_operand_has_no_type_information"><a class="anchor"
-                                                                              href="#_left_operand_has_no_type_information"></a>Left
-                                operand has no type information</h6>
-                            <div class="listingblock">
-                                <div class="content">
-<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// CTE ref-field — $refField returns a raw SqlField, not a TypedExpression</span>
-<span class="error">$</span>refField(<span class="string"><span class="delimiter">&quot;</span><span class="content">normal_stock</span><span
-            class="delimiter">&quot;</span></span>, Stock_.offerPrice).greater(<span class="keyword">new</span> <span
-            class="predefined-type">BigDecimal</span>(<span class="string"><span class="delimiter">&quot;</span><span
-            class="content">100.00</span><span class="delimiter">&quot;</span></span>))
+                        <div class="paragraph">
+                            <p>When the right operand is already an <code>Expression</code> instance (e.g. another
+                                field, a subquery, a scalar expression), <code>wrapRight</code> simply passes it through
+                                without any wrapping.</p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_left_operand_has_no_type_information"><a class="anchor"
+                                                                          href="#_left_operand_has_no_type_information"></a>Left
+                            operand has no type information</h5>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// CTE ref-field — refField returns a raw SqlField, not a TypedExpression</span>
+SQLs.refField(<span class="string"><span class="delimiter">&quot;</span><span class="content">normal_stock</span><span
+            class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">offer_price</span><span class="delimiter">&quot;</span></span>).greater(<span
+            class="keyword">new</span> <span class="predefined-type">BigDecimal</span>(<span class="string"><span
+            class="delimiter">&quot;</span><span class="content">100.00</span><span
+            class="delimiter">&quot;</span></span>))
 <span class="comment">//                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
 <span class="comment">//                                    This value will be wrapped via wrapNonNull(right)</span>
 <span class="comment">//                                    Auto-detection: BigDecimal → numeric MappingType → SQLs.param()</span></code></pre>
-                                </div>
                             </div>
-                            <div class="paragraph">
-                                <p>When the left operand is a raw <code>SqlField</code> (e.g. from CTE references via
-                                    <code>$refField()</code>),
-                                    <code>wrapRight</code> falls through to <code>wrapNonNull(right)</code>, which
-                                    auto-detects the <code>MappingType</code> from
-                                    <code>right.getClass()</code>:</p>
-                            </div>
-                            <div class="listingblock">
-                                <div class="content">
+                        </div>
+                        <div class="paragraph">
+                            <p>When the left operand is a raw <code>SqlField</code> (e.g. from CTE references via <code>SQLs.refField()</code>),
+                                <code>wrapRight</code> falls through to <code>wrapNonNull(right)</code>, which
+                                auto-detects the <code>MappingType</code> from
+                                <code>right.getClass()</code>:</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Expressions#wrapNonNull</span>
 <span class="directive">static</span> ArmyExpression wrapNonNull(<span class="directive">final</span> <span
             class="predefined-type">Object</span> value) {
@@ -7890,26 +8048,32 @@ Stock_.id.in(subQueryExpr)
     <span class="comment">// ...</span>
     <span class="keyword">return</span> wrapValue(type, value);
 }</code></pre>
-                                </div>
-                            </div>
-                            <div class="paragraph">
-                                <p>This is why <code>$refField(&#8230;&#8203;).greater(new BigDecimal("100.00"))</code>
-                                    still works — Army matches the Java class to a built-in <code>MappingType</code>.
-                                </p>
                             </div>
                         </div>
-                        <div class="sect5">
-                            <h6 id="_right_operand_could_trigger_an_error"><a class="anchor"
-                                                                              href="#_right_operand_could_trigger_an_error"></a>Right
-                                operand could trigger an error</h6>
-                            <div class="listingblock">
-                                <div class="content">
-<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// ❌ null — wrapRight throws NullPointerException</span>
-Stock_.status.equal(<span class="predefined-constant">null</span>)  <span class="comment">// right operand must be non-null</span>
+                        <div class="paragraph">
+                            <p>This is why <code>SQLs.refField(&#8230;&#8203;).greater(new BigDecimal("100.00"))</code>
+                                still works — Army matches the Java class to a built-in <code>MappingType</code>.</p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_right_operand_could_trigger_an_error"><a class="anchor"
+                                                                          href="#_right_operand_could_trigger_an_error"></a>Right
+                            operand could trigger an error</h5>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// ✅ null — allowed when left IS TypedExpression (Army knows the type)</span>
+<span class="comment">//    wrapValue(Stock_.status, null) → SQLs.param(Stock_.status, null) → &quot;status = ?&quot; (param: null)</span>
+Stock_.status.equal(<span class="predefined-constant">null</span>)  <span class="comment">// outputs: status = ?   -- param: null</span>
+
+<span class="comment">// ❌ null — throws &quot;right operand must non-null&quot; when left is NOT TypedExpression</span>
+<span class="comment">//    Army cannot infer the type of a bare null, so wrapRight throws at line 87 of Expressions.java</span>
+SQLs.refField(<span class="string"><span class="delimiter">&quot;</span><span class="content">cte</span><span
+            class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">col</span><span class="delimiter">&quot;</span></span>).equal(<span
+            class="predefined-constant">null</span>)  <span class="comment">// ERROR: type unknown for null</span>
 
 <span class="comment">// ❌ SQLs.ABSENT — wrapRight throws NPE</span>
 Stock_.offerPrice.greater(SQLs.ABSENT)  <span class="comment">// right operand couldn't be absent</span></code></pre>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -8060,9 +8224,10 @@ LiteralMode.PREFERENCE:
                             <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// ① Named-parameter binding — the BiFunction is called with (leftField, value)</span>
 <span class="comment">//    Useful when left operand has no type (CTE ref-field).</span>
-<span class="error">$</span>refField(<span class="string"><span class="delimiter">&quot;</span><span class="content">normal_stock</span><span
-            class="delimiter">&quot;</span></span>, Stock_.offerPrice).greaterEqual(SQLs::param, <span
-            class="integer">5</span>)
+SQLs.refField(<span class="string"><span class="delimiter">&quot;</span><span class="content">normal_stock</span><span
+            class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">offer_price</span><span
+            class="delimiter">&quot;</span></span>).greaterEqual(SQLs::param, <span class="integer">5</span>)
 <span class="comment">// SQL:  normal_stock.offer_price &gt;= ?   -- param name is derived from field</span>
 
 <span class="comment">// ② Force literal for a specific predicate, even if the global mode is DEFAULT.</span>
@@ -8164,10 +8329,1476 @@ Stock_.status.in(SQLs::namedParam, <span class="predefined-type">Set</span>.of(S
                         </div>
                     </div>
                 </div>
+                <div class="sect3">
+                    <h4 id="_parameter"><a class="anchor" href="#_parameter"></a>5.3.2. parameter</h4>
+                    <div class="paragraph">
+                        <p>When you need to pass a value as a JDBC <code>?</code> placeholder (the most common pattern
+                            in traditional ORMs like JPA/Hibernate), Army provides <code>SQLs.parameter()</code>, <code>SQLs.param()</code>,
+                            and <code>SQLs.namedParam()</code>. These methods always generate a <code>?</code> in the
+                            SQL — the value is sent separately via JDBC, guaranteeing SQL injection safety.</p>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_parameter_2"><a class="anchor" href="#_parameter_2"></a>parameter()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.parameter(Object) Auto-detect <code>MappingType</code> from the value&#8217;s Java
+                                class — the simplest form, similar to JPA <code>setParameter("name", value)</code>.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Auto-detect type: BigDecimal → BigDecimalType</span>
+Stock_.offerPrice.greater(SQLs.parameter(<span class="predefined-type">BigDecimal</span>.valueOf(<span class="integer">100</span>)))
+<span class="comment">// SQL (Standard):      offer_price &gt; ?   -- param: BigDecimal(100)</span>
+<span class="comment">// SQL (PostgreSQL):    &quot;offer_price&quot; &gt; ?   -- param: BigDecimal(100)</span>
+<span class="comment">// SQL (MySQL):         offer_price &gt; ?   -- param: BigDecimal(100)</span>
+
+<span class="comment">// Any Java type works — Army has built-in MappingType for common types</span>
+Stock_.status.equal(SQLs.parameter(StockStatus.NORMAL))   <span class="comment">// enum → EnumType</span>
+Stock_.name.equal(SQLs.parameter(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">hello</span><span class="delimiter">&quot;</span></span>))                 <span
+            class="comment">// String → StringType</span>
+Stock_.listingDate.greater(SQLs.parameter(LocalDate.now()))  <span class="comment">// LocalDate → DateType</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>How it works</strong>: <code>SQLs.parameter(Object)</code> calls <code>_MappingFactory.getDefaultIfMatch(value.getClass())</code>
+                                to find the matching <code>MappingType</code>, then wraps the value as a <code>ParamExpression</code>
+                                that outputs <code>?</code>.</p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_param_2"><a class="anchor" href="#_param_2"></a>param()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.param(TypeInfer,Object) explicitly specify the <code>MappingType</code> — useful
+                                when Army cannot auto-detect the type (e.g. raw <code>Integer</code> in a CTE context)
+                                or when you want explicit control.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Explicit type — guarantees the database receives an INTEGER parameter</span>
+Stock_.offerPrice.greater(SQLs.param(IntegerType.INSTANCE, <span class="integer">100</span>))
+<span class="comment">// SQL:  offer_price &gt; ?   -- param: Integer(100)</span>
+
+<span class="comment">// Use with CTE ref-field (no type info on left side):</span>
+<span class="comment">// SQLs.refField(&quot;cte&quot;, &quot;offer_price&quot;).greater(SQLs.param(IntegerType.INSTANCE, 100))</span>
+
+<span class="comment">// param with explicit type</span>
+Stock_.name.equal(SQLs.param(StringType.INSTANCE, randomString()))
+<span class="comment">// SQL:  name = ?   -- param: generated string</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>When to use <code>param</code> over <code>parameter</code></strong>:
+                                - Left operand has no type info (CTE ref-field, <code>SQLs.refField()</code>)
+                                - You need to override the default type inference</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>Method Reference Usage — with <code>TypedExpression</code> BiFunction
+                                overloads</strong>:</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><code>SQLs.param(TypeInfer, Object)</code> can be used via method reference (<code>SQLs::param</code>)
+                                with <code>TypedExpression&#8217;s BiFunction overloads to force a single predicate to
+                                    use explicit parameterization (overriding the global `LiteralMode</code>):</p>
+                        </div>
+                        <div class="ulist">
+                            <ul>
+                                <li>
+                                    <p><strong>First parameter <code>TypeInfer</code></strong> is provided by the <code>TypedExpression</code>
+                                        itself — the field expression on the left side of the dot (e.g., <code>Stock_.offerPrice</code>),
+                                        whose <code>MappingType</code> the framework passes in, ensuring type matching
+                                    </p>
+                                </li>
+                                <li>
+                                    <p><strong>Second parameter <code>Object</code></strong> is supplied by the user —
+                                        the value inside parentheses on the right side of the dot</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Force param mode (even when global mode is LITERAL)</span>
+Stock_.offerPrice.greater(SQLs::param, <span class="keyword">new</span> <span class="predefined-type">BigDecimal</span>(<span
+            class="string"><span class="delimiter">&quot;</span><span class="content">100.00</span><span
+            class="delimiter">&quot;</span></span>))
+<span class="comment">// Equivalent to: Stock_.offerPrice.greater(SQLs.param(Stock_.offerPrice, new BigDecimal(&quot;100.00&quot;)))</span>
+<span class="comment">// SQL:  offer_price &gt; ?   -- param: 100.00</span>
+
+<span class="comment">// Also applies to other comparison operations</span>
+Stock_.status.equal(SQLs::param, StockStatus.NORMAL)
+<span class="comment">// SQL:  status = ?   -- param: NORMAL</span></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_namedparam"><a class="anchor" href="#_namedparam"></a>namedParam()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.namedParam(TypeInfer, String) designed for <strong>batch operations</strong> (INSERT
+                                … VALUES, batch UPDATE/DELETE) where each row carries different values. Similar to
+                                MyBatis' <code>#{name}</code>.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// namedParam in batch VALUES INSERT — each row provides its own value</span>
+<span class="comment">// The &quot;code&quot; key reads from each batch row's Map/bean getter</span>
+SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values(stockList)
+        .asInsert();
+<span class="comment">// With default values:</span>
+<span class="comment">//   .defaultValue(Stock_.code, SQLs.namedParam(StringType.INSTANCE, &quot;code&quot;))</span>
+<span class="comment">// SQL:  INSERT INTO stock(...) VALUES (?, ?, ...)  -- each ? resolved from batch row</span>
+
+<span class="comment">// As a standalone expression — outputs ? at generation, resolves at execution</span>
+SQLs.namedParam(IntegerType.INSTANCE, <span class="string"><span class="delimiter">&quot;</span><span class="content">price</span><span
+            class="delimiter">&quot;</span></span>)
+<span class="comment">// SQL:  ?   -- param reads from batch row's &quot;price&quot; field</span>
+
+<span class="comment">// Note: At SQL generation level, namedParam always outputs &quot;?&quot;.</span>
+<span class="comment">// The &quot;name&quot; is only used at execution time to read from the row data.</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong><code>namedParam</code> vs <code>param</code> vs <code>parameter</code></strong>:
+                                - <code>parameter(Object)</code> — auto-detect type, single-row
+                                - <code>param(TypeInfer, Object)</code> — explicit type, single-row
+                                - <code>namedParam(TypeInfer, String)</code> — named key for batch rows</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>Method Reference Usage — <code>setSpace()</code> for SET clauses, <code>spaceEqual()</code>
+                                for WHERE clauses</strong>:</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><code>SQLs.namedParam(TypeInfer, String)</code> can be used via method reference (<code>SQLs::namedParam</code>)
+                                with batch operations (<code>batchUpdate</code>/<code>batchDelete</code>) where each row
+                                carries independent parameter values:</p>
+                        </div>
+                        <div class="ulist">
+                            <ul>
+                                <li>
+                                    <p><strong>In SET clauses</strong>: use <code>_StaticBatchSetClause.setSpace(field,
+                                        SQLs::namedParam)</code> — the field itself provides <code>TypeInfer</code>, and
+                                        <code>fieldName()</code> becomes the batch key</p>
+                                </li>
+                                <li>
+                                    <p><strong>In WHERE clauses</strong>: use
+                                        <code>field.spaceEqual(SQLs::namedParam)</code> — returns
+                                        <code>IPredicate</code>, passed to <code>where(IPredicate)</code></p>
+                                </li>
+                                <li>
+                                    <p><strong><code>.set()</code> alone cannot accept
+                                        <code>SQLs::namedParam</code></strong>: <code>set()</code> accepts <code>(field,
+                                        Object)</code> or <code>(field, BiFunction, value)</code>, neither matches
+                                        <code>BiFunction&lt;F, String, Expression&gt;</code>. The
+                                        <code>setSpace()</code> method is purpose-built for named parameters.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// batch UPDATE: each row carries independent params via fieldName as key</span>
+<span class="comment">// setSpace internally calls namedOperator.apply(field, field.fieldName())</span>
+<span class="comment">//   → SQLs.namedParam(Stock_.code, &quot;code&quot;)  // TypeInfer=Stock_.code, String=&quot;code&quot;</span>
+<span class="comment">// spaceEqual internally calls namedOperator.apply(this, this.fieldName())</span>
+<span class="comment">//   → SQLs.namedParam(Stock_.id, &quot;id&quot;)      // TypeInfer=Stock_.id, String=&quot;id&quot;</span>
+batchUpdate.setSpace(Stock_.code, SQLs::namedParam)
+.setSpace(Stock_.name, SQLs::namedParam)
+.where(Stock_.id.spaceEqual(SQLs::namedParam))
+.asUpdate();
+<span class="comment">// SQL:  UPDATE stock SET code = ?, name = ? WHERE id = ?</span>
+<span class="comment">//       each ? corresponds to the named key &quot;code&quot;, &quot;name&quot;, &quot;id&quot; in the batch row</span></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_rowparam"><a class="anchor" href="#_rowparam"></a>rowParam()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.rowParam(TypeInfer, Collection&lt;?&gt;) creates a <strong>multi-value parameter
+                                expression</strong> — outputs multiple <code>?</code> placeholders, one for each element
+                                in the collection. Designed for <code>IN</code> / <code>NOT IN</code> operators where
+                                you have a list of values to match.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Standalone: outputs ? , ? , ? ... (each corresponds to one list element)</span>
+SQLs.rowParam(IntegerType.INSTANCE, <span class="predefined-type">List</span>.of(<span class="integer">1</span>, <span
+            class="integer">2</span>, <span class="integer">3</span>))
+<span class="comment">// outputs: ? , ? , ?   -- params: 1, 2, 3</span>
+
+<span class="comment">// Most common: method reference with IN operator</span>
+<span class="comment">// ChinaRegion_.id.in(SQLs::rowParam, idList)  →  SQLs.rowParam(ChinaRegion_.id, idList)</span>
+ChinaRegion_.id.in(SQLs::rowParam, idList)
+<span class="comment">// SQL:  id IN (?, ?, ? ...)   -- each ? maps to one element from idList</span>
+
+<span class="comment">// With explicit type — useful when left has no type info (CTE ref-field)</span>
+SQLs.refField(<span class="string"><span class="delimiter">&quot;</span><span class="content">cte</span><span
+            class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">col</span><span class="delimiter">&quot;</span></span>).in(SQLs.rowParam(IntegerType.INSTANCE, <span
+            class="predefined-type">List</span>.of(<span class="integer">5</span>, <span
+            class="integer">10</span>, <span class="integer">15</span>)))
+<span class="comment">// SQL:  col IN (?, ?, ?)   -- params: 5, 10, 15</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>How it works</strong>: <code>SQLs.rowParam(type, values)</code> calls <code>ArmyRowParamExpression.multi(type,
+                                values)</code>, which stores an immutable copy (<code>List.copyOf(values)</code>)
+                                internally. When the <code>IN</code> operator renders, <code>ArmyRowParamExpression.appendSql()</code>
+                                delegates to <code>context.appendParam(this)</code>, which iterates the stored list and
+                                appends <code>?</code> for each element. The <code>columnSize()</code> returns the
+                                element count.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>+
+                                <strong>Constraints</strong>:
+                                - <code>values</code> must be non-null and non-empty — throws
+                                <code>CriteriaException</code> if empty
+                                - <code>type</code> must not return a codec <code>TableField</code> — throws if <code>type.typeMeta()</code>
+                                is a codec field</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>When to use <code>rowParam</code> over multiple <code>param</code> calls</strong>:
+                                - You have a <code>Collection</code>/<code>List</code> of values for
+                                <code>IN</code>/<code>NOT IN</code>
+                                - You want a single expression representing multiple placeholders (not manually chaining
+                                <code>OR</code>)
+                                - Method reference <code>SQLs::rowParam</code> is shorter and cleaner than <code>SQLs::param</code>
+                                with <code>IN</code></p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_namedrowparam"><a class="anchor" href="#_namedrowparam"></a>namedRowParam()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.namedRowParam(TypeInfer, String, int) creates a <strong>named non-null multi-value
+                                parameter expression</strong> for batch operations. Unlike <code>namedParam</code>
+                                (single <code>?</code>), this outputs multiple <code>?</code> placeholders — used when a
+                                batch row contains a <code>Collection</code> field that needs multiple binding
+                                positions.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Standalone: named multi-parameter — outputs ? , ? , ? ..., keyed by name + index</span>
+SQLs.namedRowParam(IntegerType.INSTANCE, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">scores</span><span class="delimiter">&quot;</span></span>, <span class="integer">3</span>)
+<span class="comment">// outputs: ?:scores[0] , ?:scores[1] , ?:scores[2]</span>
+<span class="comment">// At execution, each ?[i] reads from batch row's &quot;scores&quot; collection at position i</span>
+
+<span class="comment">// Batch UPDATE example: scores is a Collection field in each batch row</span>
+<span class="comment">// namedRowParam has 3 params (type, name, size) — call directly, pass result to set(field, Object)</span>
+batchUpdate.set(Student_.scores, SQLs.namedRowParam(IntegerType.INSTANCE, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">scores</span><span class="delimiter">&quot;</span></span>, <span class="integer">3</span>))
+.where(Student_.id.spaceEqual(SQLs::namedParam))
+.asUpdate();
+<span class="comment">// SQL:  UPDATE student SET scores = ?, ?, ? WHERE id = ?</span>
+<span class="comment">//       scores ? placeholders indexed as scores[0], scores[1], scores[2] in each row</span>
+
+<span class="comment">// Batch VALUES INSERT with a collection-valued batch row field</span>
+<span class="comment">// namedRowParam has 3 params — call directly, pass result to comma(field, Object)</span>
+SQLs.singleInsert()
+        .insertInto(Article_.T)
+        .values()
+        .parens(s -&gt; s.space(Article_.id, SQLs::namedParam, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>)
+                .comma(Article_.tag, SQLs.namedRowParam(StringType.INSTANCE, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">tags</span><span class="delimiter">&quot;</span></span>, <span
+            class="integer">2</span>))
+        )
+        .asInsert();
+<span class="comment">// For row {&quot;id&quot;:1, &quot;tags&quot;:[&quot;java&quot;,&quot;spring&quot;]}:</span>
+<span class="comment">//   INSERT INTO article(id, tag) VALUES (?, ?, ?)</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>How it works</strong>: <code>SQLs.namedRowParam(type, name, size)</code> calls
+                                <code>ArmyRowParamExpression.named(type, name, size)</code>, which creates an <code>ArmyNamedRowParam</code>
+                                storing the type, name, and element count. At execution time, the context reads the
+                                batch row data by <code>name</code> + index (<code>?:name[0]</code>,
+                                <code>?:name[1]</code>, &#8230;&#8203;). <code>columnSize()</code> returns the <code>size</code>
+                                parameter — fixed at creation time.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>+
+                                <strong>Constraints</strong>:
+                                - <code>name</code> must have text — throws <code>CriteriaException</code> if empty or
+                                null
+                                - <code>size</code> must be &gt;= 1 — throws if less than 1
+                                - <code>type</code> must not return a codec <code>TableField</code></p>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong><code>namedRowParam</code> vs <code>namedParam</code></strong>:
+                                - <code>namedParam(TypeInfer, String)</code> — single <code>?</code>, one value per
+                                batch row field
+                                - <code>namedRowParam(TypeInfer, String, int)</code> — multiple <code>?</code>,
+                                collection field in batch row</p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_update_time_placeholder"><a class="anchor" href="#_update_time_placeholder"></a>UPDATE_TIME_PLACEHOLDER
+                        </h5>
+                        <div class="paragraph">
+                            <p><code>SQLs.UPDATE_TIME_PLACEHOLDER</code> is designed for PostgreSQL-like
+                                <code>UPDATE</code>/<code>DELETE</code> statements that use <strong>CTE to update child
+                                    tables</strong>, where the main statement itself has <strong>no other SET
+                                    fields</strong> besides <code>updateTime</code>.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLs.java"
+                                          class="extern"><code>SQLs.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Source definition</span>
+<span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> <span
+            class="predefined-type">Expression</span> UPDATE_TIME_PLACEHOLDER = NonOperationExpression.updateTimePlaceHolder();</code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>Correct usage</strong> — only the <code>updateTime</code> field is updated in the
+                                main statement:</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// CTE updates child table; main statement only refreshes parent's updateTime</span>
+Postgres.singleUpdate()
+        .with(<span class="string"><span class="delimiter">&quot;</span><span class="content">child_cte</span><span
+            class="delimiter">&quot;</span></span>).as(sw -&gt; sw.update(ChinaProvince_.T, AS, <span
+            class="string"><span class="delimiter">&quot;</span><span class="content">p</span><span class="delimiter">&quot;</span></span>)
+                .set(ChinaProvince_.governor, SQLs::param, randomPerson())
+                .from(ChinaRegion_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">c</span><span class="delimiter">&quot;</span></span>)
+                .where(ChinaProvince_.id::equal, ChinaRegion_.id)
+                .returning(ChinaProvince_.id)
+                .asReturningUpdate()
+        ).space()
+        .update(ChinaRegion_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">c</span><span class="delimiter">&quot;</span></span>)
+        .set(ChinaRegion_.updateTime, UPDATE_TIME_PLACEHOLDER)  <span class="comment">// ← the only SET</span>
+        .from(<span class="string"><span class="delimiter">&quot;</span><span class="content">child_cte</span><span
+            class="delimiter">&quot;</span></span>)
+        .where(ChinaRegion_.id::equal, SQLs.refField(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">child_cte</span><span class="delimiter">&quot;</span></span>, ChinaRegion_.ID))
+        .asUpdate();
+<span class="comment">// SQL:  WITH child_cte AS ( UPDATE china_province ... RETURNING id )</span>
+<span class="comment">//       UPDATE china_region SET update_time = ? FROM child_cte WHERE id = child_cte.id</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="admonitionblock warning">
+                            <table>
+                                <tr>
+                                    <td class="icon">
+                                        <i class="fa icon-warning" title="Warning"></i>
+                                    </td>
+                                    <td class="content">
+                                        <div class="paragraph">
+                                            <p>Using <code>UPDATE_TIME_PLACEHOLDER</code> outside this specific CTE
+                                                scenario (e.g. in a plain single-table UPDATE with other SET fields) has
+                                                <strong>no meaning</strong> — use the automatic Domain UPDATE mechanism
+                                                instead.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="paragraph">
+                            <p>Army decides whether to output <code>update_time = ?</code> (param) or <code>update_time
+                                = CURRENT_TIMESTAMP</code> (literal) based on whether there are other params in the
+                                statement.</p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_batch_no_param"><a class="anchor" href="#_batch_no_param"></a>BATCH_NO_PARAM</h5>
+                        <div class="paragraph">
+                            <p>For <strong>batch operations</strong> where you need the current batch row number as a
+                                JDBC parameter.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLs.java"
+                                          class="extern"><code>SQLs.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Source definition</span>
+<span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> ParamExpression BATCH_NO_PARAM = SQLs.namedParam(IntegerType.INSTANCE, <span
+            class="string"><span class="delimiter">&quot;</span><span class="content">$ARMY_BATCH_NO$</span><span
+            class="delimiter">&quot;</span></span>);</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Common pattern: use batch row number in a scalar subquery's WHERE clause</span>
+SQLs.singleInsert()
+        .with(<span class="string"><span class="delimiter">&quot;</span><span class="content">cte</span><span
+            class="delimiter">&quot;</span></span>).as(s -&gt; s.select(ChinaRegion_.id, Windows.rowNumber().over().as(<span
+            class="string"><span class="delimiter">&quot;</span><span class="content">rowNumber</span><span
+            class="delimiter">&quot;</span></span>))
+                .from(ChinaRegion_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">t</span><span class="delimiter">&quot;</span></span>)
+                .where(ChinaRegion_.id.in(SQLs::rowParam, regionIdList))
+                .orderBy(ChinaRegion_.id)
+                .asQuery()
+        ).space()
+        .insertInto(ChinaRegion_.T)
+        .parens(s -&gt; s.space(ChinaRegion_.name, ChinaRegion_.regionGdp)
+                .comma(ChinaRegion_.parentId)
+        )
+        .defaultValue(ChinaRegion_.parentId, SQLs.scalarSubQuery()
+                .select(s -&gt; s.space(SQLs.refField(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">cte</span><span class="delimiter">&quot;</span></span>, ChinaRegion_.ID)))
+                .from(<span class="string"><span class="delimiter">&quot;</span><span class="content">cte</span><span
+            class="delimiter">&quot;</span></span>)
+                .where(SQLs.refField(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">cte</span><span class="delimiter">&quot;</span></span>, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">rowNumber</span><span
+            class="delimiter">&quot;</span></span>).equal(SQLs.BATCH_NO_PARAM))
+                .asQuery()
+        )
+        .values(regionList)
+        .asInsert();
+<span class="comment">// For each batch row, BATCH_NO_PARAM resolves to the current row number (1-based),</span>
+<span class="comment">// matching the CTE's rowNumber to pick the correct parent ID.</span></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sect3">
+                    <h4 id="_literal"><a class="anchor" href="#_literal"></a>5.3.3. literal</h4>
+                    <div class="paragraph">
+                        <p>While <code>parameter</code> generates <code>?</code>, the <code>literal</code> family embeds
+                            the value <strong>directly into the SQL string</strong>. This is like writing <code>WHERE
+                                price &gt; 100.00</code> (not <code>WHERE price &gt; ?</code>).</p>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_literalvalue"><a class="anchor" href="#_literalvalue"></a>literalValue()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.literalValue(Object) auto-detect <code>MappingType</code> from the value&#8217;s
+                                Java class, then embed the value <strong>with</strong> its SQL type annotation directly
+                                in the SQL string.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Auto-detect type — value embedded with type prefix in SQL</span>
+Stock_.offerPrice.greater(SQLs.literalValue(<span class="integer">100</span>))
+<span class="comment">// PostgreSQL:  &quot;offer_price&quot; &gt; 100::INTEGER</span>
+<span class="comment">// MySQL:        offer_price &gt; 100</span>
+<span class="comment">// Standard SQL: offer_price &gt; 100</span>
+
+Stock_.status.equal(SQLs.literalValue(StockStatus.NORMAL))
+<span class="comment">// PostgreSQL:  status = 'NORMAL'::VARCHAR</span>
+<span class="comment">// MySQL:        status = 'NORMAL'</span>
+
+Stock_.listingDate.greater(SQLs.literalValue(LocalDate.of(<span class="integer">2024</span>, <span
+            class="integer">1</span>, <span class="integer">1</span>)))
+<span class="comment">// PostgreSQL:  listing_date &gt; DATE '2024-01-01'</span>
+<span class="comment">// MySQL:        listing_date &gt; DATE '2024-01-01'</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>How it works</strong>: <code>SQLs.literalValue(Object)</code> calls <code>ArmyLiteralExpression.from(value,
+                                true)</code> — the <code>true</code> flag (<code>typeName</code>) tells the dialect to
+                                include the SQL type prefix (e.g. Postgre <code>::TYPE</code>, MySQL
+                                <code>DATE</code>/<code>TIME</code>/<code>TIMESTAMP</code> prefix).</p>
+                        </div>
+                        <div class="admonitionblock important">
+                            <table>
+                                <tr>
+                                    <td class="icon">
+                                        <i class="fa icon-important" title="Important"></i>
+                                    </td>
+                                    <td class="content">
+                                        <div class="paragraph">
+                                            <p><strong>Army literals are safe — they are NOT simple string
+                                                concatenation.</strong></p>
+                                        </div>
+                                        <div class="paragraph">
+                                            <p>Beginners often mistake "literal embedding in SQL" for direct string
+                                                concatenation like <code><span class="menuseq"><b class="menu">WHERE price</b>&#160;<i
+                                                        class="fa fa-angle-right caret"></i> <b
+                                                        class="menuitem"></b></span> + userInput</code> (which leads to
+                                                SQL injection attacks). In Army, things are completely different —
+                                                literals are secured through the following mechanisms:</p>
+                                        </div>
+                                        <div class="olist arabic">
+                                            <ol class="arabic">
+                                                <li>
+                                                    <p><strong>Type mapping protection</strong>: Every value is checked
+                                                        by <code>MappingType</code>. Numeric types (<code>Integer</code>,
+                                                        <code>BigDecimal</code>, <code>Long</code>, etc.) extend <code>_ArmyNoInjectionType</code>,
+                                                        which eliminates SQL injection at the type level</p>
+                                                </li>
+                                                <li>
+                                                    <p><strong><code>ArmyParser.safeLiteral()</code> security
+                                                        method</strong>: All literals ultimately pass through <code>io.army.dialect.ArmyParser#safeLiteral(TypeMeta,
+                                                        Object, boolean, StringBuilder)</code> when output to SQL;
+                                                        string values undergo proper quote escaping, special characters
+                                                        are safely encoded, and SQL structure is never compromised</p>
+                                                </li>
+                                                <li>
+                                                    <p><strong>Not string concatenation</strong>: Army&#8217;s literal
+                                                        generation follows an AST (Abstract Syntax Tree) → SQL path;
+                                                        values are appended to a <code>StringBuilder</code>, not built
+                                                        via string template concatenation</p>
+                                                </li>
+                                            </ol>
+                                        </div>
+                                        <div class="paragraph">
+                                            <p><strong>Conclusion</strong>: You can safely use
+                                                <code>literal</code>/<code>const</code> for system constants, enum
+                                                labels, configuration keys, and similar scenarios — they are just as
+                                                safe as <code>?</code> parameterization, with the only difference being
+                                                whether the value is embedded in SQL or passed via JDBC parameters. For
+                                                ordinary business data, the default parameterized mode
+                                                (<code>DEFAULT</code>) is recommended for better database execution plan
+                                                caching.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_literal_2"><a class="anchor" href="#_literal_2"></a>literal()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.literal(TypeInfer, Object) explicitly specify the <code>MappingType</code>, and
+                                embed the value <strong>with</strong> its SQL type annotation.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Explicit type — value embedded with type prefix</span>
+Stock_.offerPrice.greater(SQLs.literal(Stock_.offerPrice, <span class="keyword">new</span> <span
+            class="predefined-type">BigDecimal</span>(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">100.00</span><span class="delimiter">&quot;</span></span>)))
+<span class="comment">// PostgreSQL:  &quot;offer_price&quot; &gt; 100.00::DECIMAL</span>
+<span class="comment">// MySQL:        offer_price &gt; 100.00</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>Method Reference Usage — with <code>TypedExpression</code> BiFunction
+                                overloads</strong>:</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><code>SQLs.literal(TypeInfer, Object)</code> can be used via method reference (<code>SQLs::literal</code>)
+                                with <code>TypedExpression&#8217;s BiFunction overloads to force a single predicate to
+                                    use literal mode (overriding the global `LiteralMode</code>):</p>
+                        </div>
+                        <div class="ulist">
+                            <ul>
+                                <li>
+                                    <p><strong>First parameter <code>TypeInfer</code></strong> is provided by the <code>TypedExpression</code>
+                                        itself — the <code>MappingType</code> of the field</p>
+                                </li>
+                                <li>
+                                    <p><strong>Second parameter <code>Object</code></strong> is supplied by the user —
+                                        the value to embed in SQL (with type prefix)</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Force literal mode (even when global mode is DEFAULT)</span>
+Stock_.status.equal(SQLs::literal, StockStatus.NORMAL)
+<span class="comment">// Equivalent to: Stock_.status.equal(SQLs.literal(Stock_.status, StockStatus.NORMAL))</span>
+<span class="comment">// PostgreSQL:  status = 'NORMAL'::VARCHAR</span>
+<span class="comment">// MySQL:        status = 'NORMAL'</span></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_namedliteral"><a class="anchor" href="#_namedliteral"></a>namedLiteral()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.namedLiteral(TypeInfer, String) for <strong>batch VALUES INSERT</strong> where each
+                                row&#8217;s value is embedded directly in SQL (not as <code>?</code>). The value is
+                                resolved at SQL generation time from the batch row data.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// namedLiteral in batch VALUES INSERT — value embedded directly, with type prefix</span>
+SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values()
+        .parens(s -&gt; s.space(Stock_.code, SQLs.namedLiteral(StringType.INSTANCE, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">code</span><span class="delimiter">&quot;</span></span>))
+                .comma(Stock_.name, SQLs.namedLiteral(StringType.INSTANCE, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">name</span><span class="delimiter">&quot;</span></span>))
+        )
+        .asInsert();
+<span class="comment">// For each row, namedLiteral reads &quot;code&quot; from the row data and embeds it:</span>
+<span class="comment">//   INSERT INTO stock(code, name) VALUES ('AAPL', 'Apple Inc.')</span>
+<span class="comment">// PostgreSQL with type prefix: VALUES ('AAPL'::VARCHAR, 'Apple Inc.'::VARCHAR)</span>
+
+<span class="comment">// As a standalone expression</span>
+SQLs.namedLiteral(StringType.INSTANCE, <span class="string"><span class="delimiter">&quot;</span><span class="content">code</span><span
+            class="delimiter">&quot;</span></span>)
+<span class="comment">// Resolved at generation time from batch row → 'AAPL' (or 'AAPL'::VARCHAR in Postgre)</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="admonitionblock important">
+                            <table>
+                                <tr>
+                                    <td class="icon">
+                                        <i class="fa icon-important" title="Important"></i>
+                                    </td>
+                                    <td class="content">
+                                        <div class="paragraph">
+                                            <p><code>namedLiteral</code> is designed <strong>exclusively</strong> for
+                                                VALUES INSERT statements. Using it in a batch UPDATE or batch DELETE
+                                                statement throws <code>CriteriaException</code> at runtime because named
+                                                literals cannot resolve values from batch row data in non-INSERT
+                                                contexts.</p>
+                                        </div>
+                                        <div class="paragraph">
+                                            <p>If you need named values in batch UPDATE/DELETE, use <code>SQLs.namedParam()</code>
+                                                instead — it outputs <code>?</code> placeholders that accept values from
+                                                batch row data just like named literals, but via JDBC parameter binding.
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong><code>namedLiteral</code> vs <code>namedParam</code></strong>:
+                                - <code>namedParam</code> — outputs <code>?</code>, value sent via JDBC (safe,
+                                parameterized)
+                                - <code>namedLiteral</code> — outputs the actual value directly in SQL (with type
+                                prefix)</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>Method Reference Usage — in VALUES row space* methods</strong>:</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><code>SQLs.namedLiteral(TypeInfer, String)</code> can be used via method reference
+                                (<code>SQLs::namedLiteral</code>) with <code>_StaticValueSpaceClause.space()&#8217;s
+                                    BiFunction overload for VALUES INSERT rows where each row&#8217;s value is embedded
+                                    directly in SQL (with type prefix). Internally calls `funcRef.apply(field,
+                                    key)</code> → <code>SQLs.namedLiteral(field, key)</code>:</p>
+                        </div>
+                        <div class="ulist">
+                            <ul>
+                                <li>
+                                    <p><strong>First parameter <code>FieldMeta</code></strong> is provided by <code>Stock_.code</code>
+                                        — supplies the <code>TypeInfer</code> and table mapping info</p>
+                                </li>
+                                <li>
+                                    <p><strong>Second parameter <code>String</code></strong> is supplied by the user as
+                                        <code>"code"</code> — the batch data&#8217;s named key</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// batch VALUES INSERT: embed each row value in SQL with type prefix</span>
+SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values()
+        .parens(s -&gt; s.space(Stock_.code, SQLs::namedLiteral, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">code</span><span class="delimiter">&quot;</span></span>)  <span
+            class="comment">// funcRef.apply(field, &quot;code&quot;) → TypeInfer=field, key=&quot;code&quot;</span>
+                .comma(Stock_.name, SQLs::namedLiteral, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">name</span><span class="delimiter">&quot;</span></span>)         <span class="comment">// funcRef.apply(field, &quot;name&quot;) → TypeInfer=field, key=&quot;name&quot;</span>
+        )
+        .asInsert();
+<span class="comment">// PostgreSQL: INSERT INTO stock(code, name) VALUES ('AAPL'::VARCHAR, 'Apple Inc.'::VARCHAR)</span>
+<span class="comment">// MySQL:      INSERT INTO stock(code, name) VALUES ('AAPL', 'Apple Inc.')</span></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_rowliteral"><a class="anchor" href="#_rowliteral"></a>rowLiteral()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.rowLiteral(TypeInfer, Collection&lt;?&gt;) creates a <strong>multi-value literal
+                                expression</strong> — each element in the collection is embedded directly in SQL
+                                <strong>with</strong> its type annotation prefix. The counterpart of
+                                <code>rowParam</code> but for literal mode: values become part of the SQL string instead
+                                of <code>?</code> placeholders.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Standalone: outputs LITERAL , LITERAL , LITERAL ... (with type prefix)</span>
+SQLs.rowLiteral(Stock_.id, <span class="predefined-type">List</span>.of(<span class="integer">1</span>, <span
+            class="integer">2</span>, <span class="integer">3</span>))
+<span class="comment">// PostgreSQL:  (1::INTEGER, 2::INTEGER, 3::INTEGER)</span>
+<span class="comment">// MySQL:       (1, 2, 3)</span>
+
+<span class="comment">// Most common: method reference with IN operator</span>
+<span class="comment">// ChinaRegion_.id.in(SQLs::rowLiteral, idList)  →  SQLs.rowLiteral(ChinaRegion_.id, idList)</span>
+ChinaRegion_.id.in(SQLs::rowLiteral, idList)
+<span class="comment">// SQL:  id IN (1, 2, 3, ...)   -- values embedded directly in SQL, with type prefix</span>
+
+<span class="comment">// With explicit type</span>
+SQLs.refField(<span class="string"><span class="delimiter">&quot;</span><span class="content">cte</span><span
+            class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">col</span><span class="delimiter">&quot;</span></span>).in(SQLs.rowLiteral(StringType.INSTANCE, <span
+            class="predefined-type">List</span>.of(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">A</span><span class="delimiter">&quot;</span></span>, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">B</span><span
+            class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">C</span><span class="delimiter">&quot;</span></span>)))
+<span class="comment">// PostgreSQL:  col IN ('A'::VARCHAR, 'B'::VARCHAR, 'C'::VARCHAR)</span>
+<span class="comment">// MySQL:       col IN ('A', 'B', 'C')</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>How it works</strong>: <code>SQLs.rowLiteral(type, values)</code> calls <code>ArmyRowLiteralExpression.multi(type,
+                                values, true)</code> — the <code>true</code> flag is <code>typeName</code>, the same
+                                flag that controls type annotation in <code>literal()</code>/<code>literalValue()</code>.
+                                Internally stores <code>List.copyOf(values)</code>. When rendering, <code>AnonymousRowLiteral.appendSql()</code>
+                                iterates values and calls <code>context.appendLiteral(type, value, true)</code> for
+                                each, embedding each element with its type prefix.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>+
+                                <strong>Constraints</strong>:
+                                - <code>values</code> must be non-null and non-empty — throws
+                                <code>CriteriaException</code> if empty
+                                - <code>type</code> must not return a codec <code>TableField</code></p>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong><code>rowLiteral</code> vs <code>rowParam</code></strong>:
+                                - <code>rowParam</code> — outputs <code>? , ? , ? &#8230;&#8203;</code>, values sent via
+                                JDBC (safe, parameterized)
+                                - <code>rowLiteral</code> — outputs actual values directly in SQL with type prefix</p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_namedrowliteral"><a class="anchor" href="#_namedrowliteral"></a>namedRowLiteral()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.namedRowLiteral(TypeInfer, String) creates a <strong>named non-null multi-value
+                                literal expression</strong> — for batch VALUES INSERT where each batch row contains a
+                                <code>Collection</code> field whose elements are embedded directly in SQL
+                                <strong>with</strong> type prefix. Unlike <code>namedRowParam</code>, there is no <code>size</code>
+                                parameter: the element count is resolved at SQL generation time from the batch row data.
+                            </p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Standalone: named multi-literal — columnSize() returns -1 (unknown at creation)</span>
+SQLs.namedRowLiteral(StringType.INSTANCE, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">tags</span><span class="delimiter">&quot;</span></span>)
+<span class="comment">// Resolved at generation from batch row → 'java' , 'spring' , 'army' (with type prefix)</span>
+
+<span class="comment">// Batch VALUES INSERT: each row's &quot;tags&quot; List field embedded as multiple literals</span>
+SQLs.singleInsert()
+        .insertInto(Article_.T)
+        .values()
+        .parens(s -&gt; s.space(Article_.id, SQLs::namedLiteral, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>)
+                .comma(Article_.tag, SQLs::namedRowLiteral, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">tags</span><span class="delimiter">&quot;</span></span>)  <span
+            class="comment">// Collection field → multi literals</span>
+        )
+        .asInsert();
+<span class="comment">// For row {&quot;id&quot;:1, &quot;tags&quot;:[&quot;java&quot;,&quot;spring&quot;]}:</span>
+<span class="comment">//   INSERT INTO article(id, tag) VALUES (1, 'java', 'spring')</span>
+<span class="comment">// PostgreSQL: VALUES (1::INTEGER, 'java'::VARCHAR, 'spring'::VARCHAR)</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>How it works</strong>: <code>SQLs.namedRowLiteral(type, name)</code> calls <code>ArmyRowLiteralExpression.named(type,
+                                name, true)</code> — the <code>true</code> flag means type prefix is included. Unlike
+                                anonymous <code>rowLiteral</code>, the named version has <strong>no stored values at
+                                    creation time</strong> — <code>columnSize()</code> returns <code>-1</code>. At SQL
+                                generation, <code>ArmyNamedRowLiteral.appendSql()</code> delegates to <code>context.appendLiteral(this,
+                                    true)</code>, which reads the batch row&#8217;s collection by <code>name</code>,
+                                iterates elements, and embeds each with type prefix.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>+</p>
+                        </div>
+                        <div class="admonitionblock important">
+                            <table>
+                                <tr>
+                                    <td class="icon">
+                                        <i class="fa icon-important" title="Important"></i>
+                                    </td>
+                                    <td class="content">
+                                        <div class="paragraph">
+                                            <p><code>namedRowLiteral</code> is designed <strong>exclusively</strong> for
+                                                VALUES INSERT statements. Using it in a batch UPDATE or batch DELETE
+                                                statement throws <code>CriteriaException</code> at runtime — the named
+                                                row literal cannot resolve multi-value collection data from batch rows
+                                                in non-INSERT SQL contexts. This restriction is stated in the Javadoc of
+                                                <code>SQLSyntax.java</code>.</p>
+                                        </div>
+                                        <div class="paragraph">
+                                            <p>If you need named multi-value placeholders in batch UPDATE/DELETE, use
+                                                <code>SQLs.namedRowParam(type, name, size)</code> instead — it outputs
+                                                <code>?</code> placeholders and accepts the <code>size</code> parameter
+                                                for explicit element count.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong><code>namedRowLiteral</code> vs <code>namedRowParam</code></strong>:
+                                - <code>namedRowParam(TypeInfer, String, int)</code> — outputs <code>?</code>
+                                placeholders, needs <code>size</code> param, used in batch UPDATE
+                                - <code>namedRowLiteral(TypeInfer, String)</code> — embeds values in SQL with type
+                                prefix, no <code>size</code> param, only VALUES INSERT</p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_literal_sql_output_across_dialects"><a class="anchor"
+                                                                        href="#_literal_sql_output_across_dialects"></a>Literal
+                            SQL output across dialects</h5>
+                        <table class="tableblock frame-all grid-all stretch">
+                            <colgroup>
+                                <col style="width: 14.2857%;">
+                                <col style="width: 42.8571%;">
+                                <col style="width: 42.8572%;">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th class="tableblock halign-left valign-top">Value</th>
+                                <th class="tableblock halign-left valign-top">Postgre <code>literalValue()</code></th>
+                                <th class="tableblock halign-left valign-top">MySQL <code>literalValue()</code></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>Intgeer(100)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>100::INTEGER</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>100</code></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>BigDecimal("0.00")</code>
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>0.00::DECIMAL</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>0.00</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>"hello"</code>
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>'hello'::VARCHAR</code>
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>'hello'</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>LocalDate</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>DATE
+                                    '2024-01-01'</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>DATE
+                                    '2024-01-01'</code></p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>LocalDateTime</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>TIMESTAMP
+                                    '2024-01-01 12:00:00'</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>TIMESTAMP
+                                    '2024-01-01 12:00:00'</code></p></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="paragraph">
+                            <p>PostgreSQL appends <code>::TYPE</code> cast syntax for numbers and strings, while MySQL
+                                only adds explicit type prefixes for date/time types.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>See <a href="../army-postgre/src/main/java/io/army/dialect/PostgreParser.java"
+                                      class="extern"><code>PostgreParser.java</code></a> and <a
+                                    href="../army-mysql/src/main/java/io/army/dialect/MySQLParser.java"
+                                    class="extern"><code>MySQLParser.java</code></a> for the full
+                                <code>bindLiteral</code> implementation.</p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_update_time_placeholder_2"><a class="anchor" href="#_update_time_placeholder_2"></a>UPDATE_TIME_PLACEHOLDER
+                        </h5>
+                        <div class="paragraph">
+                            <p>Same <code>SQLs.UPDATE_TIME_PLACEHOLDER</code> described in <a
+                                    href="#_update_time_placeholder">UPDATE_TIME_PLACEHOLDER</a> — designed for
+                                PostgreSQL CTE scenarios where the main statement has no other SET fields besides <code>updateTime</code>.
+                                Army decides between <code>?</code> and <code>CURRENT_TIMESTAMP</code> automatically.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_batch_no_literal"><a class="anchor" href="#_batch_no_literal"></a>BATCH_NO_LITERAL</h5>
+                        <div class="paragraph">
+                            <p>For <strong>batch operations</strong> where you need the current batch row number
+                                embedded directly as a literal (with type prefix).</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLs.java"
+                                          class="extern"><code>SQLs.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Source definition</span>
+<span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> LiteralExpression BATCH_NO_LITERAL = SQLs.namedLiteral(IntegerType.INSTANCE, <span
+            class="string"><span class="delimiter">&quot;</span><span class="content">$ARMY_BATCH_NO$</span><span
+            class="delimiter">&quot;</span></span>);</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Use BATCH_NO_LITERAL to embed batch row number in a subquery's WHERE clause</span>
+SQLs.singleInsert()
+        .with(<span class="string"><span class="delimiter">&quot;</span><span class="content">cte</span><span
+            class="delimiter">&quot;</span></span>).as(s -&gt; s.select(ChinaRegion_.id, Windows.rowNumber().over().as(<span
+            class="string"><span class="delimiter">&quot;</span><span class="content">rowNumber</span><span
+            class="delimiter">&quot;</span></span>))
+                .from(ChinaRegion_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">t</span><span class="delimiter">&quot;</span></span>)
+                .where(ChinaRegion_.id.in(SQLs::rowParam, regionIdList))
+                .orderBy(ChinaRegion_.id)
+                .asQuery()
+        ).space()
+        .insertInto(ChinaRegion_.T)
+        .defaultValue(ChinaRegion_.parentId, SQLs.scalarSubQuery()
+                .select(s -&gt; s.space(SQLs.refField(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">cte</span><span class="delimiter">&quot;</span></span>, ChinaRegion_.ID)))
+                .from(<span class="string"><span class="delimiter">&quot;</span><span class="content">cte</span><span
+            class="delimiter">&quot;</span></span>)
+                .where(SQLs.refField(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">cte</span><span class="delimiter">&quot;</span></span>, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">rowNumber</span><span
+            class="delimiter">&quot;</span></span>)::equal, BATCH_NO_LITERAL)
+                .asQuery()
+        )
+        .values(regionList)
+        .asInsert();
+<span class="comment">// Batch row 1 → WHERE rowNumber = 1, batch row 2 → WHERE rowNumber = 2, ...</span>
+<span class="comment">// BATCH_NO_LITERAL outputs the row number directly in SQL (no ? placeholder)</span></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sect3">
+                    <h4 id="_const"><a class="anchor" href="#_const"></a>5.3.4. const</h4>
+                    <div class="paragraph">
+                        <p>The <code>const</code> family is identical to <code>literal</code> in every way <strong>except
+                            one</strong>: it does NOT output the type annotation prefix in SQL.</p>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_constvalue"><a class="anchor" href="#_constvalue"></a>constValue()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.constValue(Object) auto-detect <code>MappingType</code> from the value&#8217;s Java
+                                class, then embed the value <strong>without</strong> any SQL type annotation.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Auto-detect type — value embedded directly, NO type annotation</span>
+Stock_.offerPrice.greater(SQLs.constValue(<span class="integer">100</span>))
+<span class="comment">// PostgreSQL:  &quot;offer_price&quot; &gt; 100          ← no ::INTEGER</span>
+<span class="comment">// MySQL:        offer_price &gt; 100          ← same as literal</span>
+<span class="comment">// Standard SQL: offer_price &gt; 100          ← same as literal</span>
+
+Stock_.status.equal(SQLs.constValue(StockStatus.NORMAL))
+<span class="comment">// PostgreSQL:  status = 'NORMAL'            ← no ::VARCHAR</span>
+<span class="comment">// MySQL:        status = 'NORMAL'</span>
+
+Stock_.listingDate.greater(SQLs.constValue(LocalDate.of(<span class="integer">2024</span>, <span
+            class="integer">1</span>, <span class="integer">1</span>)))
+<span class="comment">// PostgreSQL:  listing_date &gt; '2024-01-01'  ← no DATE prefix</span>
+<span class="comment">// MySQL:        listing_date &gt; '2024-01-01' ← no DATE prefix</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>How it works</strong>: <code>SQLs.constValue(Object)</code> calls <code>ArmyLiteralExpression.from(value,
+                                false)</code> — the <code>false</code> flag (<code>typeName</code>) tells the dialect to
+                                <strong>omit</strong> the type prefix.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>+</p>
+                        </div>
+                        <div class="admonitionblock important">
+                            <table>
+                                <tr>
+                                    <td class="icon">
+                                        <i class="fa icon-important" title="Important"></i>
+                                    </td>
+                                    <td class="content">
+                                        <div class="paragraph">
+                                            <p><code>const</code> and <code>literal</code> share the same security
+                                                mechanism: all literals ultimately pass through <code>io.army.dialect.ArmyParser#safeLiteral()</code>
+                                                when output to SQL — not simple string concatenation. String values are
+                                                properly escaped, and numeric types are inherently incapable of
+                                                injecting SQL statements. See <a href="#literal">[literal]</a> for the
+                                                full security explanation.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_constant"><a class="anchor" href="#_constant"></a>constant()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.constant(TypeInfer, Object) explicitly specify the <code>MappingType</code>, and
+                                embed the value <strong>without</strong> any SQL type annotation.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Explicit type — value embedded directly, NO type annotation</span>
+Stock_.offerPrice.greater(SQLs.constant(Stock_.offerPrice, <span class="keyword">new</span> <span
+            class="predefined-type">BigDecimal</span>(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">100.00</span><span class="delimiter">&quot;</span></span>)))
+<span class="comment">// PostgreSQL:  &quot;offer_price&quot; &gt; 100.00        ← no ::DECIMAL</span>
+<span class="comment">// MySQL:        offer_price &gt; 100.00       ← same as literal</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>Method Reference Usage — with <code>TypedExpression</code> BiFunction
+                                overloads</strong>:</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><code>SQLs.constant(TypeInfer, Object)</code> can be used via method reference (<code>SQLs::constant</code>)
+                                with <code>TypedExpression&#8217;s BiFunction overloads to force a single predicate to
+                                    use const mode (overriding the global `LiteralMode</code>):</p>
+                        </div>
+                        <div class="ulist">
+                            <ul>
+                                <li>
+                                    <p><strong>First parameter <code>TypeInfer</code></strong> is provided by the <code>TypedExpression</code>
+                                        itself — the <code>MappingType</code> of the field</p>
+                                </li>
+                                <li>
+                                    <p><strong>Second parameter <code>Object</code></strong> is supplied by the user —
+                                        the value to embed in SQL (without type prefix)</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Force const mode (even when global mode is DEFAULT)</span>
+Stock_.offerPrice.greater(SQLs::constant, <span class="keyword">new</span> <span
+            class="predefined-type">BigDecimal</span>(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">100.00</span><span class="delimiter">&quot;</span></span>))
+<span class="comment">// Equivalent to: Stock_.offerPrice.greater(SQLs.constant(Stock_.offerPrice, new BigDecimal(&quot;100.00&quot;)))</span>
+<span class="comment">// SQL:  offer_price &gt; 100.00   -- no ::DECIMAL in PostgreSQL</span></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_namedconst"><a class="anchor" href="#_namedconst"></a>namedConst()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.namedConst(TypeInfer, String) for <strong>batch VALUES INSERT</strong> where each
+                                row&#8217;s value is embedded directly in SQL, <strong>without</strong> type annotation.
+                            </p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// namedConst in batch VALUES INSERT — value embedded directly, NO type prefix</span>
+SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values()
+        .parens(s -&gt; s.space(Stock_.code, SQLs.namedConst(StringType.INSTANCE, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">code</span><span class="delimiter">&quot;</span></span>))
+                .comma(Stock_.name, SQLs.namedConst(StringType.INSTANCE, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">name</span><span class="delimiter">&quot;</span></span>))
+        )
+        .asInsert();
+<span class="comment">// For each row, namedConst reads &quot;code&quot; from the row data and embeds it:</span>
+<span class="comment">//   INSERT INTO stock(code, name) VALUES ('AAPL', 'Apple Inc.')</span>
+<span class="comment">// No ::VARCHAR in PostgreSQL — just raw values</span>
+
+<span class="comment">// As a standalone expression</span>
+SQLs.namedConst(StringType.INSTANCE, <span class="string"><span class="delimiter">&quot;</span><span class="content">code</span><span
+            class="delimiter">&quot;</span></span>)
+<span class="comment">// Resolved at generation time from batch row → 'AAPL' (no ::VARCHAR even in Postgre)</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="admonitionblock important">
+                            <table>
+                                <tr>
+                                    <td class="icon">
+                                        <i class="fa icon-important" title="Important"></i>
+                                    </td>
+                                    <td class="content">
+                                        <div class="paragraph">
+                                            <p><code>namedConst</code> is designed <strong>exclusively</strong> for
+                                                VALUES INSERT statements — just like <code>namedLiteral</code>. Using it
+                                                in a batch UPDATE or batch DELETE statement throws <code>CriteriaException</code>
+                                                at runtime because named consts (like named literals) cannot resolve
+                                                values from batch row data in non-INSERT contexts.</p>
+                                        </div>
+                                        <div class="paragraph">
+                                            <p>If you need named values in batch UPDATE/DELETE, use <code>SQLs.namedParam()</code>
+                                                instead.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>Method Reference Usage — in VALUES row space\* methods</strong>:</p>
+                        </div>
+                        <div class="paragraph">
+                            <p><code>SQLs.namedConst(TypeInfer, String)</code> can be used via method reference (<code>SQLs::namedConst</code>)
+                                with <code>_StaticValueSpaceClause.space()&#8217;s BiFunction overload for VALUES INSERT
+                                    rows where each row&#8217;s value is embedded directly in SQL (without type prefix).
+                                    Internally calls `funcRef.apply(field, key)</code> → <code>SQLs.namedConst(field,
+                                    key)</code>:</p>
+                        </div>
+                        <div class="ulist">
+                            <ul>
+                                <li>
+                                    <p><strong>First parameter <code>FieldMeta</code></strong> is provided by <code>Stock_.code</code>
+                                        — supplies the <code>TypeInfer</code> and table mapping info</p>
+                                </li>
+                                <li>
+                                    <p><strong>Second parameter <code>String</code></strong> is supplied by the user as
+                                        <code>"code"</code> — the batch data&#8217;s named key</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// batch VALUES INSERT: embed each row value in SQL without type prefix</span>
+SQLs.singleInsert()
+        .insertInto(Stock_.T)
+        .values()
+        .parens(s -&gt; s.space(Stock_.code, SQLs::namedConst, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">code</span><span class="delimiter">&quot;</span></span>)   <span
+            class="comment">// funcRef.apply(field, &quot;code&quot;) → TypeInfer=field, key=&quot;code&quot;</span>
+                .comma(Stock_.name, SQLs::namedConst, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">name</span><span class="delimiter">&quot;</span></span>)          <span class="comment">// funcRef.apply(field, &quot;name&quot;) → TypeInfer=field, key=&quot;name&quot;</span>
+        )
+        .asInsert();
+<span class="comment">// INSERT INTO stock(code, name) VALUES ('AAPL', 'Apple Inc.')</span>
+<span class="comment">// Consistent across all dialects, no ::VARCHAR or other type prefixes</span></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_rowconst"><a class="anchor" href="#_rowconst"></a>rowConst()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.rowConst(TypeInfer, Collection&lt;?&gt;) creates a <strong>multi-value const
+                                expression</strong> — each element in the collection is embedded directly in SQL
+                                <strong>without</strong> any type annotation prefix. This is the multi-value counterpart
+                                of <code>constValue</code>/<code>constant</code>.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Standalone: outputs value , value , value ... (no type prefix)</span>
+SQLs.rowConst(Stock_.id, <span class="predefined-type">List</span>.of(<span class="integer">1</span>, <span
+            class="integer">2</span>, <span class="integer">3</span>))
+<span class="comment">// PostgreSQL:  (1, 2, 3)              ← no ::INTEGER</span>
+<span class="comment">// MySQL:       (1, 2, 3)</span>
+
+<span class="comment">// Method reference with IN operator</span>
+ChinaRegion_.id.in(SQLs::rowConst, idList)
+<span class="comment">// SQL:  id IN (1, 2, 3, ...)   -- values embedded, no type prefix anywhere</span>
+
+<span class="comment">// With explicit type — NO type prefix in any dialect</span>
+SQLs.refField(<span class="string"><span class="delimiter">&quot;</span><span class="content">cte</span><span
+            class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">col</span><span class="delimiter">&quot;</span></span>).in(SQLs.rowConst(StringType.INSTANCE, <span
+            class="predefined-type">List</span>.of(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">A</span><span class="delimiter">&quot;</span></span>, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">B</span><span
+            class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">C</span><span class="delimiter">&quot;</span></span>)))
+<span class="comment">// PostgreSQL:  col IN ('A', 'B', 'C')      ← no ::VARCHAR (unlike rowLiteral)</span>
+<span class="comment">// MySQL:       col IN ('A', 'B', 'C')      ← same as rowLiteral</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>How it works</strong>: <code>SQLs.rowConst(type, values)</code> calls <code>ArmyRowLiteralExpression.multi(type,
+                                values, false)</code> — the <code>false</code> flag means <code>typeName</code> is off,
+                                so no type annotation. Internally stores <code>List.copyOf(values)</code>. When
+                                rendering, <code>AnonymousRowLiteral.appendSql()</code> iterates and calls <code>context.appendLiteral(type,
+                                    value, false)</code> for each element, omitting the type prefix.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>+
+                                <strong>Constraints</strong>:
+                                - <code>values</code> must be non-null and non-empty
+                                - <code>type</code> must not return a codec <code>TableField</code></p>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong><code>rowConst</code> vs <code>rowLiteral</code></strong>:
+                                - <code>rowLiteral</code> — embeds with type prefix (e.g. <code>1::INTEGER</code> in
+                                Postgre)
+                                - <code>rowConst</code> — embeds without type prefix (plain <code>1</code> everywhere),
+                                relying on implicit type coercion</p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_namedrowconst"><a class="anchor" href="#_namedrowconst"></a>namedRowConst()</h5>
+                        <div class="paragraph">
+                            <p>SQLs.namedRowConst(TypeInfer, String) creates a <strong>named non-null multi-value const
+                                expression</strong> — for batch VALUES INSERT where each batch row contains a <code>Collection</code>
+                                field whose elements are embedded directly in SQL <strong>without</strong> type prefix.
+                                The const counterpart of <code>namedRowLiteral</code>.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLSyntax.java"
+                                          class="extern"><code>SQLSyntax.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Standalone: named multi-const — columnSize() returns -1 (unknown at creation)</span>
+SQLs.namedRowConst(StringType.INSTANCE, <span class="string"><span class="delimiter">&quot;</span><span class="content">tags</span><span
+            class="delimiter">&quot;</span></span>)
+<span class="comment">// Resolved at generation from batch row → 'java' , 'spring' , 'army' (no type prefix)</span>
+
+<span class="comment">// Batch VALUES INSERT: each row's &quot;tags&quot; List field embedded as multiple literals, no type prefix</span>
+SQLs.singleInsert()
+        .insertInto(Article_.T)
+        .values()
+        .parens(s -&gt; s.space(Article_.id, SQLs::namedConst, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>)
+                .comma(Article_.tag, SQLs::namedRowConst, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">tags</span><span class="delimiter">&quot;</span></span>)  <span
+            class="comment">// Collection field → multi consts</span>
+        )
+        .asInsert();
+<span class="comment">// For row {&quot;id&quot;:1, &quot;tags&quot;:[&quot;java&quot;,&quot;spring&quot;]}:</span>
+<span class="comment">//   INSERT INTO article(id, tag) VALUES (1, 'java', 'spring')</span>
+<span class="comment">// No ::VARCHAR in PostgreSQL — consistent raw values across all dialects</span></code></pre>
+                            </div>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong>How it works</strong>: <code>SQLs.namedRowConst(type, name)</code> calls <code>ArmyRowLiteralExpression.named(type,
+                                name, false)</code> — the <code>false</code> flag means no type prefix. Like <code>namedRowLiteral</code>,
+                                this named version has no stored values at creation (<code>columnSize()</code> returns
+                                <code>-1</code>). At SQL generation, values are read from batch row data by
+                                <code>name</code> and embedded without type annotation.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>+</p>
+                        </div>
+                        <div class="admonitionblock important">
+                            <table>
+                                <tr>
+                                    <td class="icon">
+                                        <i class="fa icon-important" title="Important"></i>
+                                    </td>
+                                    <td class="content">
+                                        <div class="paragraph">
+                                            <p><code>namedRowConst</code> is designed <strong>exclusively</strong> for
+                                                VALUES INSERT statements — just like <code>namedRowLiteral</code>. Using
+                                                it in a batch UPDATE or batch DELETE statement throws <code>CriteriaException</code>
+                                                at runtime because named row consts (like named row literals) cannot
+                                                resolve multi-value collection data from batch rows in non-INSERT SQL
+                                                contexts.</p>
+                                        </div>
+                                        <div class="paragraph">
+                                            <p>If you need named multi-value placeholders in batch UPDATE/DELETE, use
+                                                <code>SQLs.namedRowParam(type, name, size)</code> instead.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="paragraph">
+                            <p><strong><code>namedRowConst</code> vs <code>namedRowLiteral</code></strong>:
+                                - <code>namedRowLiteral(TypeInfer, String)</code> — embeds with type prefix (Postgre
+                                <code>::TYPE</code>)
+                                - <code>namedRowConst(TypeInfer, String)</code> — embeds without type prefix, consistent
+                                across dialects</p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_literal_vs_const_the_sql_difference"><a class="anchor"
+                                                                         href="#_literal_vs_const_the_sql_difference"></a>literal
+                            vs const: the SQL difference</h5>
+                        <table class="tableblock frame-all grid-all stretch">
+                            <colgroup>
+                                <col style="width: 14.2857%;">
+                                <col style="width: 42.8571%;">
+                                <col style="width: 42.8572%;">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th class="tableblock halign-left valign-top">Value</th>
+                                <th class="tableblock halign-left valign-top"><code>literal</code> (with type prefix)
+                                </th>
+                                <th class="tableblock halign-left valign-top"><code>const</code> (without type prefix)
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>Integer(100)</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>100::INTEGER</code> (Postgre) / <code>100</code> (MySQL)</p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>100</code>
+                                    (all databases)</p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>BigDecimal("0.00")</code>
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>0.00::DECIMAL</code> (Postgre) / <code>0.00</code> (MySQL)</p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>0.00</code>
+                                    (all databases)</p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>LocalDate</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>DATE
+                                    '2024-01-01'</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>'2024-01-01'</code></p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock">
+                                    <code>LocalDateTime</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>TIMESTAMP
+                                    '2024-01-01 &#8230;&#8203;'</code></p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>'2024-01-01T&#8230;&#8203;'</code>
+                                </p></td>
+                            </tr>
+                            <tr>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code>
+                                </p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>'hello'::VARCHAR</code>
+                                    (Postgre) / <code>'hello'</code> (MySQL)</p></td>
+                                <td class="tableblock halign-left valign-top"><p class="tableblock"><code>'hello'</code>
+                                    (all databases)</p></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="paragraph">
+                            <p>The practical implication: <code>literal</code> guarantees the database interprets the
+                                value with the correct type (useful when type inference is ambiguous).
+                                <code>const</code> outputs the raw value and relies on the database&#8217;s implicit
+                                type coercion.</p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_naming_design"><a class="anchor" href="#_naming_design"></a>Naming design</h5>
+                        <div class="paragraph">
+                            <p>Why <code>constValue</code> instead of just <code>const</code>? Because
+                                <code>const</code> is a Java reserved keyword — it cannot be used as a method name.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Why <code>constant</code> instead of reusing <code>constValue</code>? Because these two
+                                methods have different parameter structures:
+                                - <code>constValue(Object)</code> — auto-detect type, single parameter
+                                - <code>constant(TypeInfer, Object)</code> — explicit type, two parameters</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Overloading them with the same name would cause ambiguity at call sites. The distinct
+                                names make the API self-documenting.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Similarly, <code>namedConst</code> is a concise abbreviation of
+                                <code>namedConstant</code> — it mirrors the naming pattern of <code>namedLiteral</code>
+                                while keeping the method name short.</p>
+                        </div>
+                    </div>
+                    <div class="sect4">
+                        <h5 id="_batch_no_const"><a class="anchor" href="#_batch_no_const"></a>BATCH_NO_CONST</h5>
+                        <div class="paragraph">
+                            <p>For <strong>batch operations</strong> where you need the current batch row number
+                                embedded directly as a literal, <strong>without</strong> type annotation prefix.</p>
+                        </div>
+                        <div class="paragraph">
+                            <p>Source: <a href="../army-core/src/main/java/io/army/criteria/impl/SQLs.java"
+                                          class="extern"><code>SQLs.java</code></a>.</p>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Source definition</span>
+<span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> LiteralExpression BATCH_NO_CONST = SQLs.namedConst(IntegerType.INSTANCE, <span
+            class="string"><span class="delimiter">&quot;</span><span class="content">$ARMY_BATCH_NO$</span><span
+            class="delimiter">&quot;</span></span>);</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="comment">// Use BATCH_NO_CONST to embed batch row number (no type prefix)</span>
+SQLs.singleInsert()
+        .with(<span class="string"><span class="delimiter">&quot;</span><span class="content">cte</span><span
+            class="delimiter">&quot;</span></span>).as(s -&gt; s.select(ChinaRegion_.id, Windows.rowNumber().over().as(<span
+            class="string"><span class="delimiter">&quot;</span><span class="content">rowNumber</span><span
+            class="delimiter">&quot;</span></span>))
+                .from(ChinaRegion_.T, AS, <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">t</span><span class="delimiter">&quot;</span></span>)
+                .where(ChinaRegion_.id.in(SQLs::rowParam, regionIdList))
+                .orderBy(ChinaRegion_.id)
+                .asQuery()
+        ).space()
+        .insertInto(ChinaRegion_.T)
+        .defaultValue(ChinaRegion_.parentId, SQLs.scalarSubQuery()
+                .select(s -&gt; s.space(SQLs.refField(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">cte</span><span class="delimiter">&quot;</span></span>, ChinaRegion_.ID)))
+                .from(<span class="string"><span class="delimiter">&quot;</span><span class="content">cte</span><span
+            class="delimiter">&quot;</span></span>)
+                .where(SQLs.refField(<span class="string"><span class="delimiter">&quot;</span><span
+            class="content">cte</span><span class="delimiter">&quot;</span></span>, <span class="string"><span
+            class="delimiter">&quot;</span><span class="content">rowNumber</span><span
+            class="delimiter">&quot;</span></span>).equal(SQLs.BATCH_NO_CONST))
+                .asQuery()
+        )
+        .values(regionList)
+        .asInsert();
+<span class="comment">// Same as BATCH_NO_LITERAL but without type prefix:</span>
+<span class="comment">//   WHERE rowNumber = 1  (not 1::INTEGER in Postgre)</span></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="sect2">
-                <h3 id="_cte_common_table_expressions"><a class="anchor" href="#_cte_common_table_expressions"></a>5.2.
-                    CTE (Common Table Expressions)</h3>
+                <h3 id="_cte"><a class="anchor" href="#_cte"></a>5.4. CTE</h3>
                 <div class="listingblock">
                     <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java"><span class="directive">final</span> Select stmt;
@@ -8203,9 +9834,9 @@ stmt = SQLs.query()
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_subqueries"><a class="anchor" href="#_subqueries"></a>5.3. Subqueries</h3>
+                <h3 id="_subqueries"><a class="anchor" href="#_subqueries"></a>5.5. Subqueries</h3>
                 <div class="sect3">
-                    <h4 id="_scalar_subquery"><a class="anchor" href="#_scalar_subquery"></a>5.3.1. Scalar Subquery</h4>
+                    <h4 id="_scalar_subquery"><a class="anchor" href="#_scalar_subquery"></a>5.5.1. Scalar Subquery</h4>
                     <div class="listingblock">
                         <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java">SQLs.scalarSubQuery()
@@ -8253,7 +9884,7 @@ stmt = SQLs.query()
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_table_subquery"><a class="anchor" href="#_table_subquery"></a>5.3.2. Table Subquery</h4>
+                    <h4 id="_table_subquery"><a class="anchor" href="#_table_subquery"></a>5.5.2. Table Subquery</h4>
                     <div class="listingblock">
                         <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="java">SQLs.subQuery()
@@ -8278,9 +9909,9 @@ stmt = SQLs.query()
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_mysql_dialect_api"><a class="anchor" href="#_mysql_dialect_api"></a>5.4. MySQL Dialect API</h3>
+                <h3 id="_mysql_api"><a class="anchor" href="#_mysql_api"></a>5.6. MySQL API</h3>
                 <div class="sect3">
-                    <h4 id="_the_mysqls_utility_class"><a class="anchor" href="#_the_mysqls_utility_class"></a>5.4.1.
+                    <h4 id="_the_mysqls_utility_class"><a class="anchor" href="#_the_mysqls_utility_class"></a>5.6.1.
                         The MySQLs Utility Class</h4>
                     <div class="paragraph">
                         <p>MySQL-specific SQL construction entry point: <code>MySQLs.singleInsert()</code>, <code>MySQLs.query()</code>,
@@ -8288,7 +9919,7 @@ stmt = SQLs.query()
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_mysql_specific_features"><a class="anchor" href="#_mysql_specific_features"></a>5.4.2.
+                    <h4 id="_mysql_specific_features"><a class="anchor" href="#_mysql_specific_features"></a>5.6.2.
                         MySQL-Specific Features</h4>
                     <div class="ulist">
                         <ul>
@@ -8340,10 +9971,9 @@ stmt = MySQLs.singleInsert()
                 </div>
             </div>
             <div class="sect2">
-                <h3 id="_postgresql_dialect_api"><a class="anchor" href="#_postgresql_dialect_api"></a>5.5. PostgreSQL
-                    Dialect API</h3>
+                <h3 id="_postgresql_api"><a class="anchor" href="#_postgresql_api"></a>5.7. PostgreSQL API</h3>
                 <div class="sect3">
-                    <h4 id="_the_postgres_utility_class"><a class="anchor" href="#_the_postgres_utility_class"></a>5.5.1.
+                    <h4 id="_the_postgres_utility_class"><a class="anchor" href="#_the_postgres_utility_class"></a>5.7.1.
                         The Postgres Utility Class</h4>
                     <div class="paragraph">
                         <p>PostgreSQL-specific SQL construction entry point: <code>Postgres.singleInsert()</code>,
@@ -8351,7 +9981,7 @@ stmt = MySQLs.singleInsert()
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_postgresql_specific_features"><a class="anchor" href="#_postgresql_specific_features"></a>5.5.2.
+                    <h4 id="_postgresql_specific_features"><a class="anchor" href="#_postgresql_specific_features"></a>5.7.2.
                         PostgreSQL-Specific Features</h4>
                     <div class="ulist">
                         <ul>
@@ -9694,7 +11324,7 @@ envMap.put(ArmyKey.SQL_LOG_EXECUTION_TAKE_TIME.name, <span class="predefined-con
 <div id="footer">
     <div id="footer-text">
         Version 0.6.8-SNAPSHOT<br>
-        Last updated 2026-06-04 23:41:03 +0800
+        Last updated 2026-06-05 07:55:38 +0800
     </div>
 </div>
 </body>

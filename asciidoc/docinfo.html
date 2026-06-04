@@ -2,6 +2,7 @@
     /* ── Header link icons (top-right corner) ── */
     #header {
         position: relative;
+        overflow: visible;
     }
 
     #header .army-header-links {
@@ -11,6 +12,7 @@
         display: flex;
         gap: 10px;
         padding: 6px 12px;
+        z-index: 10;
     }
 
     #header .army-header-links a {
@@ -110,8 +112,8 @@
                 actions.className = 'toc-actions';
                 var toggleAllBtn = document.createElement('span');
                 toggleAllBtn.className = 'toc-toggle-all';
-                toggleAllBtn.textContent = '\u229F';          // ⊟
-                toggleAllBtn.setAttribute('title', '\u6536\u8D77\u5168\u90E8');  // 收起全部
+                toggleAllBtn.textContent = '\u229E';          // ⊞
+                toggleAllBtn.setAttribute('title', '\u5C55\u5F00\u5168\u90E8');  // 展开全部
 
                 toggleAllBtn.addEventListener('click', function (e) {
                     e.stopPropagation();
@@ -156,7 +158,8 @@
                     var a = li.querySelector(':scope > a');
                     var toggle = document.createElement('span');
                     toggle.className = 'toc-toggle';
-                    toggle.textContent = '\u25BC'; // ▼ expanded by default
+                    toggle.textContent = '\u25B6'; // ▶ collapsed by default
+                    li.classList.add('collapsed');
 
                     toggle.addEventListener('click', function (e) {
                         e.stopPropagation();

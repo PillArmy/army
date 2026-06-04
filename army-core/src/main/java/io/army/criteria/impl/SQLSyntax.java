@@ -31,8 +31,9 @@ import java.util.function.Supplier;
 
 import static io.army.dialect.Database.PostgreSQL;
 
-/// 
+///
 /// Package class,this class is base class of {@link SQLs}.
+///
 /// @see SQLs
 /// @since 0.6.0
 abstract class SQLSyntax extends Functions {
@@ -43,6 +44,7 @@ abstract class SQLSyntax extends Functions {
     }
 
     /// Get default {@link MappingType} of javaType,if not found,throw {@link CriteriaException}
+    ///
     /// @return non-null
     /// @throws CriteriaException throw when not found default {@link MappingType} of javaType
     public static MappingType mappingTypeOf(final Class<?> javaType) {
@@ -56,6 +58,7 @@ abstract class SQLSyntax extends Functions {
     }
 
     /// Get default {@link MappingType} of javaType,if not found,return null
+    ///
     /// @return nullable
     @Nullable
     public static MappingType getMappingTypeOf(final Class<?> javaType) {
@@ -67,9 +70,9 @@ abstract class SQLSyntax extends Functions {
     }
 
 
-    /// 
+    ///
     /// Value must be below types:
-    /// 
+    ///
     /// - {@link Boolean}
     /// - {@link String}
     /// - {@link Integer}
@@ -96,7 +99,7 @@ abstract class SQLSyntax extends Functions {
     /// - {@link java.time.Year}
     /// - {@link java.time.YearMonth}
     /// - {@link java.time.MonthDay}
-    /// 
+    ///
     /// @param value non-null
     /// @return parameter expression
     /// @see #literalValue(Object)
@@ -105,38 +108,67 @@ abstract class SQLSyntax extends Functions {
     }
 
 
-    /// 
+    ///
     /// Create parameter expression, parameter expression output parameter placeholder({@code ?})
+    ///
     /// @param value nullable,if value is instance of {@link Supplier},then {@link Supplier#get()} will be invoked.
     /// @throws io.army.criteria.CriteriaException throw when infer is codec {@link FieldMeta}.
     /// @see #param(TypeInfer, Object)
     /// @see #literal(TypeInfer, Object)
     public static ParamExpression param(final TypeInfer type, final @Nullable Object value) {
-        final ParamExpression result;
-        if (value instanceof Supplier) {
-            result = ArmyParamExpression.single(type, ((Supplier<?>) value).get());
-        } else {
-            result = ArmyParamExpression.single(type, value);
-        }
-        return result;
+        return ArmyParamExpression.single(type, value);
     }
 
 
-    /// 
+    ///
     /// Create named non-null parameter expression for batch update(delete) and values insert.
+    ///
     /// @throws CriteriaException throw when
     /// - infer is codec {@link FieldMeta}.
     /// - name have no text
-    /// 
     /// @see #namedLiteral(TypeInfer, String)
     public static ParamExpression namedParam(final TypeInfer type, final String name) {
         return ArmyParamExpression.named(type, name);
     }
 
 
-    /// 
+    /// Create multi parameter expression, multi parameter expression will output multi parameter placeholders like below:
+    /// ? , ? , ? ...
+    /// but as right operand of  IN(or NOT IN) operator, will output (  ? , ? , ? ... )
+    ///
+    /// @param type   non-null,the type of element of values.
+    /// @param values non-null and non-empty
+    /// @throws CriteriaException throw when
+    /// - values is empty
+    /// - infer return codec {@link TableField}
+    /// @see #rowLiteral(TypeInfer, Collection)
+    public static RowParamExpression rowParam(final TypeInfer type, final Collection<?> values) {
+        return ArmyRowParamExpression.multi(type, values);
+    }
+
+    ///
+    /// Create named non-null multi parameter expression, multi parameter expression will output multi parameter placeholders like below:
+    /// ? , ? , ? ...
+    /// but as right operand of  IN(or NOT IN) operator, will output (  ? , ? , ? ... )
+    ///
+    /// Named multi parameter expression is used in batch update(or delete) and values insert.
+    ///
+    /// @param type non-null,the type of element of {@link Collection}
+    /// @param name non-null,the key name of {@link Map} or the field name of java bean.
+    /// @param size positive,the size of {@link Collection}
+    /// @return named non-null multi parameter expression
+    /// @throws CriteriaException throw when
+    /// - name have no text
+    /// - size less than 1
+    /// - infer return codec {@link TableField}
+    /// @see #namedRowLiteral(TypeInfer, String)
+    public static RowParamExpression namedRowParam(final TypeInfer type, final String name, final int size) {
+        return ArmyRowParamExpression.named(type, name, size);
+    }
+
+    ///
     /// Value must be below types:
-    /// 
+    ///
     /// - {@link Boolean}
     /// - {@link String}
     /// - {@link Integer}
@@ -163,7 +195,7 @@ abstract class SQLSyntax extends Functions {
     /// - {@link java.time.Year}
     /// - {@link java.time.YearMonth}
     /// - {@link java.time.MonthDay}
-    /// 
+    ///
     /// @param value non-null
     /// @return literal expression
     /// @see SQLs#parameter(Object)
@@ -173,9 +205,10 @@ abstract class SQLSyntax extends Functions {
     }
 
 
-    /// 
+    ///
     /// Create literal expression with nonNullValue.
     /// This method is similar to {@link SQLs#literalValue(Object)},except that two exceptions :
+    ///
     /// @param nonNullValue non-null value
     /// @see SQLs#literalValue(Object)
     public static LiteralExpression constValue(final Object nonNullValue) {
@@ -183,72 +216,39 @@ abstract class SQLSyntax extends Functions {
     }
 
 
-    /// 
+    ///
     /// Create literal expression,literal expression will output literal of value
+    ///
     /// @param type  non-null
     /// @param value nullable,if value is instance of {@link Supplier},then {@link Supplier#get()} will invoked.
     /// @see #param(TypeInfer, Object)
     /// @see #literal(TypeInfer, Object)
     public static LiteralExpression literal(final TypeInfer type, final @Nullable Object value) {
-        final LiteralExpression result;
-        if (value instanceof Supplier) {
-            result = ArmyLiteralExpression.single(type, ((Supplier<?>) value).get(), true);
-        } else {
-            result = ArmyLiteralExpression.single(type, value, true);
-        }
-        return result;
-    }
-
-    public static LiteralExpression constant(final TypeInfer type, final @Nullable Object value) {
-        final LiteralExpression result;
-        if (value instanceof Supplier) {
-            result = ArmyLiteralExpression.single(type, ((Supplier<?>) value).get(), false);
-        } else {
-            result = ArmyLiteralExpression.single(type, value, false);
-        }
-        return result;
+        return ArmyLiteralExpression.single(type, value, true);
     }
 
 
-    /// 
+    ///
     /// Create named non-null literal expression. This expression can only be used in values insert statement.
-    /// 
+    ///
     /// Note: this method couldn't be used in batch update(delete) statement.
+    ///
     /// @param type non-null
     /// @param name non-null and non-empty
     /// @return non-null named literal expression
     /// @throws CriteriaException throw when
     /// - infer is codec {@link TableField}.
     /// - name have no text
-    /// 
     /// @see #namedParam(TypeInfer, String)
     public static LiteralExpression namedLiteral(final TypeInfer type, final String name) {
         return ArmyLiteralExpression.named(type, name, true);
     }
 
-    public static LiteralExpression namedConst(final TypeInfer type, final String name) {
-        return ArmyLiteralExpression.named(type, name, false);
-    }
-
-
-    /// Create multi parameter expression, multi parameter expression will output multi parameter placeholders like below:
-    /// ? , ? , ? ...
-    /// but as right operand of  IN(or NOT IN) operator, will output (  ? , ? , ? ... )
-    /// @param type   non-null,the type of element of values.
-    /// @param values non-null and non-empty
-    /// @throws CriteriaException throw when
-    /// - values is empty
-    /// - infer return codec {@link TableField}
-    /// 
-    /// @see #rowLiteral(TypeInfer, Collection)
-    public static RowParamExpression rowParam(final TypeInfer type, final Collection<?> values) {
-        return ArmyRowParamExpression.multi(type, values);
-    }
-
-    /// 
+    ///
     /// Create multi literal expression, multi literal expression will output multi LITERAL like below:
     /// LITERAL , LITERAL , LITERAL ...
     /// but as right operand of  IN(or NOT IN) operator, will output (  LITERAL , LITERAL , LITERAL ... )
+    ///
     /// @param type   non-null,the type of element of values.
     /// @param values non-null and non-empty
     /// @see #rowParam(TypeInfer, Collection)
@@ -256,36 +256,13 @@ abstract class SQLSyntax extends Functions {
         return ArmyRowLiteralExpression.multi(type, values, true);
     }
 
-    public static RowLiteralExpression rowConst(final TypeInfer type, final Collection<?> values) {
-        return ArmyRowLiteralExpression.multi(type, values, false);
-    }
-
-    /// 
-    /// Create named non-null multi parameter expression, multi parameter expression will output multi parameter placeholders like below:
-    /// ? , ? , ? ...
-    /// but as right operand of  IN(or NOT IN) operator, will output (  ? , ? , ? ... )
-    /// 
-    /// Named multi parameter expression is used in batch update(or delete) and values insert.
-    /// @param type non-null,the type of element of {@link Collection}
-    /// @param name non-null,the key name of {@link Map} or the field name of java bean.
-    /// @param size positive,the size of {@link Collection}
-    /// @return named non-null multi parameter expression
-    /// @throws CriteriaException throw when
-    /// - name have no text
-    /// - size less than 1
-    /// - infer return codec {@link TableField}
-    /// 
-    /// @see #namedRowLiteral(TypeInfer, String)
-    public static RowParamExpression namedRowParam(final TypeInfer type, final String name, final int size) {
-        return ArmyRowParamExpression.named(type, name, size);
-    }
-
-    /// 
+    ///
     /// Create named non-null multi literal expression, multi literal expression will output multi LITERAL like below:
     /// LITERAL , LITERAL , LITERAL ...
     /// but as right operand of  IN(or NOT IN) operator, will output (  LITERAL , LITERAL , LITERAL ... )
-    /// 
+    ///
     /// This expression can only be used in values insert statement,this method couldn't be used in batch update(delete) statement.
+    ///
     /// @param type non-null,the type of element of {@link Collection}
     /// @param name non-null,the key name of {@link Map} or the field name of java bean.
     /// @return named non-null multi literal expression
@@ -293,6 +270,21 @@ abstract class SQLSyntax extends Functions {
     public static RowLiteralExpression namedRowLiteral(final TypeInfer type, final String name) {
         return ArmyRowLiteralExpression.named(type, name, true);
     }
+
+
+    public static LiteralExpression constant(final TypeInfer type, final @Nullable Object value) {
+        return ArmyLiteralExpression.single(type, value, false);
+    }
+
+    public static LiteralExpression namedConst(final TypeInfer type, final String name) {
+        return ArmyLiteralExpression.named(type, name, false);
+    }
+
+
+    public static RowLiteralExpression rowConst(final TypeInfer type, final Collection<?> values) {
+        return ArmyRowLiteralExpression.multi(type, values, false);
+    }
+
 
     public static RowLiteralExpression namedRowConst(final TypeInfer type, final String name) {
         return ArmyRowLiteralExpression.named(type, name, false);
@@ -309,7 +301,7 @@ abstract class SQLSyntax extends Functions {
     }
 
 
-    /// 
+    ///
     /// @see #space(String, SQLs.SymbolDot, TableMeta)
     /// @see #space(String, SQLs.SymbolDot, SQLs.SymbolAsterisk)
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/row-constructor-optimization.html">MySQL Row Constructor Expression Optimization</a>
@@ -334,18 +326,20 @@ abstract class SQLSyntax extends Functions {
     }
 
 
-    /// 
+    ///
     /// Get a {@link QualifiedField}. You don't need a {@link QualifiedField},if no self-join in statement.
+    ///
     /// @throws CriteriaException throw when
     /// - current statement don't support this method,eg: single-table UPDATE statement
     /// - qualified field don't exists,here always is deferred,because army validate qualified field when statement end.
-    /// 
+    ///
     public static <T> QualifiedField<T> field(String tableAlias, FieldMeta<T> field) {
         return ContextStack.peek().field(tableAlias, field);
     }
 
-    /// 
+    ///
     /// Reference a derived field from current statement.
+    ///
     /// @param derivedAlias   derived table alias,
     /// @param selectionAlias derived field alias
     /// @throws CriteriaException            throw when current statement don't support derived field (eg: single-table UPDATE statement).
@@ -354,8 +348,9 @@ abstract class SQLSyntax extends Functions {
         return ContextStack.peek().refField(derivedAlias, selectionAlias);
     }
 
-    /// 
+    ///
     /// Reference a derived field from current statement.
+    ///
     /// @param derivedAlias   derived table alias,
     /// @param selectionAlias derived field alias
     /// @throws CriteriaException            throw when current statement don't support derived field (eg: single-table UPDATE statement).
@@ -372,28 +367,30 @@ abstract class SQLSyntax extends Functions {
     }
 
 
-    /// 
+    ///
     /// Reference a {@link  Selection} of current statement ,eg: ORDER BY clause.
     /// The {@link Expression} returned don't support {@link Expression#as(String)} method.
-    /// 
+    ///
     /// **NOTE** : override,if selection alias duplication.
+    ///
     /// @throws CriteriaException then when
     /// - current statement don't support this method,eg: UPDATE statement
     /// - the {@link Selection} not exists,here possibly is deferred,if you invoke this method before SELECT clause end. eg: postgre DISTINCT ON clause
-    /// 
+    ///
     public static Expression refSelection(String selectionAlias) {
         return ContextStack.peek().refSelection(selectionAlias);
     }
 
-    /// 
+    ///
     /// Reference a {@link  Selection} of current statement ,eg: ORDER BY clause.
     /// The {@link Expression} returned don't support {@link Expression#as(String)} method.
+    ///
     /// @param selectionOrdinal based 1 .
     /// @throws CriteriaException throw when
     /// - selectionOrdinal less than 1
     /// - the {@link Selection} not exists,here possibly is deferred,if you invoke this method before SELECT clause end. eg: postgre DISTINCT ON clause
     /// - current statement don't support this method,eg: UPDATE statement
-    /// 
+    ///
     public static Expression refSelection(int selectionOrdinal) {
         return ContextStack.peek().refSelection(selectionOrdinal);
     }
