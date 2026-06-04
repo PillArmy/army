@@ -65,10 +65,21 @@
         comment = "stock")
 public class Stock {
 
+    //auto-increment primary key use below:
+    //  @Generator(type = GeneratorType.POST)    
     @Generator(value = "io.army.generator.snowflake.Snowflake8Generator",
             params = @Param(name = "startTime", value = "1779012232202"))
     @Column
     public long id;
+
+    @Column
+    public LocalDateTime createTime;
+
+    @Column
+    public LocalDateTime updateTime;
+
+    @Column(comment = "version")
+    public int version;
 
     @Column(notNull = true, updatable = false, precision = 5, comment = "exchange code")
     public String exchange;
@@ -88,14 +99,7 @@ public class Stock {
     @Column(defaultValue = "DATE '1970-01-01'", comment = "listing date")
     public LocalDate listingDate;
 
-    @Column
-    public LocalDateTime createTime;
 
-    @Column
-    public LocalDateTime updateTime;
-
-    @Column(comment = "version")
-    public int version;
 }
 
 

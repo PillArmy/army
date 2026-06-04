@@ -6631,12 +6631,13 @@ stmt = SQLs.singleInsert()
                             <div class="title">Generated SQL (PostgreSQL)</div>
                             <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">INSERT</span> <span
-        class="class">INTO</span> stock (exchange, code, name)
-<span class="class">SELECT</span> ...  <span class="comment">-- subQuery SQL</span></code></pre>
+        class="class">INTO</span> stock (exchange, code, name, id, create_time,
+                   update_time, version)
+<span class="class">SELECT</span> ...  <span class="comment">-- subQuery SQL; Army-managed fields (id, create_time, update_time, version) use DEFAULT</span></code></pre>
                             </div>
                         </div>
                         <div class="paragraph">
-                            <p><em>Form 2 — Dynamic columns + Supplier&lt;SubQuery&gt;:</em></p>
+                            <p><em>Form 2 — Dynamic columns + pre-built SubQuery:</em></p>
                         </div>
                         <div class="listingblock">
                             <div class="content">
@@ -6650,7 +6651,7 @@ stmt = SQLs.singleInsert()
                 list.accept(Stock_.code);
                 list.accept(Stock_.name);
         })
-        .space(() -&gt; subQuery)                              <span class="comment">// Supplier&lt;SubQuery&gt;</span>
+        .space(subQuery)                              <span class="comment">// Supplier&lt;SubQuery&gt;</span>
         .asInsert();</code></pre>
                             </div>
                         </div>
@@ -6658,8 +6659,9 @@ stmt = SQLs.singleInsert()
                             <div class="title">Generated SQL (PostgreSQL)</div>
                             <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">INSERT</span> <span
-        class="class">INTO</span> stock (exchange, code, name)
-<span class="class">SELECT</span> ...  <span class="comment">-- subQuery SQL</span></code></pre>
+        class="class">INTO</span> stock (exchange, code, name, id, create_time,
+                   update_time, version)
+<span class="class">SELECT</span> ...  <span class="comment">-- subQuery SQL; Army-managed fields (id, create_time, update_time, version) use DEFAULT</span></code></pre>
                             </div>
                         </div>
                         <div class="paragraph">
@@ -9519,7 +9521,7 @@ envMap.put(ArmyKey.SQL_LOG_EXECUTION_TAKE_TIME.name, <span class="predefined-con
 <div id="footer">
     <div id="footer-text">
         Version 0.6.8-SNAPSHOT<br>
-        Last updated 2026-06-04 21:48:44 +0800
+        Last updated 2026-06-04 22:19:52 +0800
     </div>
 </div>
 </body>
