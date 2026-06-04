@@ -446,7 +446,16 @@
                                     <li><a href="#_the_default_path_field_equalvalue">The default path: <code>field.equal(value)</code></a>
                                     </li>
                                     <li><a href="#_what_happens_with_different_value_types">What happens with different
-                                        value types</a></li>
+                                        value types</a>
+                                        <ul class="sectlevel5">
+                                            <li><a href="#_right_operand_is_already_an_expression">Right operand is
+                                                already an <code>Expression</code></a></li>
+                                            <li><a href="#_left_operand_has_no_type_information">Left operand has no
+                                                type information</a></li>
+                                            <li><a href="#_right_operand_could_trigger_an_error">Right operand could
+                                                trigger an error</a></li>
+                                        </ul>
+                                    </li>
                                     <li><a href="#_controlling_the_binding_mode_literalmode">Controlling the binding
                                         mode: LiteralMode</a></li>
                                     <li><a href="#_explicit_binding_with_bifunction_overloads">Explicit binding with
@@ -864,6 +873,8 @@
             class="delimiter">&quot;</span></span>)
 <span class="directive">public</span> <span class="type">class</span> <span class="class">Stock</span> {
 
+    <span class="comment">//auto-increment primary key use below:</span>
+    <span class="comment">//  @Generator(type = GeneratorType.POST)</span>
     <span class="annotation">@Generator</span>(value = <span class="string"><span class="delimiter">&quot;</span><span
             class="content">io.army.generator.snowflake.Snowflake8Generator</span><span class="delimiter">&quot;</span></span>,
                params = <span class="annotation">@Param</span>(name = <span class="string"><span class="delimiter">&quot;</span><span
@@ -872,6 +883,16 @@
             class="delimiter">&quot;</span></span>))
     <span class="annotation">@Column</span>
     <span class="directive">public</span> <span class="type">long</span> id;
+
+    <span class="annotation">@Column</span>
+    <span class="directive">public</span> LocalDateTime createTime;
+
+    <span class="annotation">@Column</span>
+    <span class="directive">public</span> LocalDateTime updateTime;
+
+    <span class="annotation">@Column</span>(comment = <span class="string"><span class="delimiter">&quot;</span><span
+            class="content">version</span><span class="delimiter">&quot;</span></span>)
+    <span class="directive">public</span> <span class="type">int</span> version;
 
     <span class="annotation">@Column</span>(notNull = <span class="predefined-constant">true</span>, updatable = <span
             class="predefined-constant">false</span>, precision = <span class="integer">5</span>, comment = <span
@@ -910,15 +931,6 @@
             class="content">listing date</span><span class="delimiter">&quot;</span></span>)
     <span class="directive">public</span> LocalDate listingDate;
 
-    <span class="annotation">@Column</span>
-    <span class="directive">public</span> LocalDateTime createTime;
-
-    <span class="annotation">@Column</span>
-    <span class="directive">public</span> LocalDateTime updateTime;
-
-    <span class="annotation">@Column</span>(comment = <span class="string"><span class="delimiter">&quot;</span><span
-            class="content">version</span><span class="delimiter">&quot;</span></span>)
-    <span class="directive">public</span> <span class="type">int</span> version;
 }</code></pre>
                     </div>
                 </div>
@@ -953,7 +965,7 @@
                 T = _TableMetaFactory.getSimpleTableMeta(Stock.class);
 
                 <span class="directive">final</span> <span class="type">int</span> fieldSize = T.fieldList().size();
-                <span class="keyword">if</span>(fieldSize != <span class="integer">11</span>){
+                <span class="keyword">if</span>(fieldSize != <span class="integer">10</span>){
                         <span class="keyword">throw</span> _TableMetaFactory.tableFiledSizeError(Stock.class,fieldSize);
                 }
         }
@@ -1325,6 +1337,24 @@ stmt = SQLs.singleInsert()
 }</code></pre>
                     </div>
                 </div>
+                <div class="listingblock">
+                    <div class="title">Generated SQL (PostgreSQL)</div>
+                    <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">INSERT</span> <span
+        class="class">INTO</span> stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+<span class="keyword">VALUES</span> (<span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>,
+        <span class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>)
+     , (<span class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>,
+        <span class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>)  <span
+            class="comment">-- one row per Stock object</span>
+     , ...</code></pre>
+                    </div>
+                </div>
             </div>
             <div class="sect2">
                 <h3 id="_your_first_query"><a class="anchor" href="#_your_first_query"></a>2.6. Your First Query</h3>
@@ -1347,6 +1377,14 @@ stmt = SQLs.singleInsert()
     stock = session.queryOne(stmt, Stock.class);
     <span class="predefined-type">System</span>.out.println(stock);
 }</code></pre>
+                    </div>
+                </div>
+                <div class="listingblock">
+                    <div class="title">Generated SQL (PostgreSQL)</div>
+                    <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">SELECT</span> s.id, s.name, s.offer_price
+<span class="keyword">FROM</span> stock <span class="keyword">AS</span> s
+<span class="keyword">WHERE</span> s.name = <span class="error">?</span>  <span class="comment">-- param: 'Tesla'</span></code></pre>
                     </div>
                 </div>
             </div>
@@ -5951,6 +5989,16 @@ stmt = SQLs.query()
         .asQuery();</code></pre>
                             </div>
                         </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">SELECT</span> s.id, s.name, s.offer_price
+<span class="keyword">FROM</span> stock <span class="keyword">AS</span> s
+<span class="keyword">WHERE</span> s.name = <span class="error">?</span>  <span class="comment">-- param: 'Tesla'</span>
+<span class="keyword">AND</span> s.create_time &lt; <span class="error">?</span>  <span class="comment">-- param: now - 1 day</span>
+LIMIT <span class="integer">1</span></code></pre>
+                            </div>
+                        </div>
                     </div>
                     <div class="sect4">
                         <h5 id="_full_clause_chain"><a class="anchor" href="#_full_clause_chain"></a>Full Clause Chain
@@ -6062,6 +6110,33 @@ stmt2 = SQLs.singleInsert()
         .asInsert();</code></pre>
                             </div>
                         </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- (A) Single domain: columns follow field declaration order in the document's Stock:</span>
+<span class="comment">--     id(PRECEDE), create_time, update_time, version, exchange,</span>
+<span class="comment">--     code, name, status, offer_price, listing_date</span>
+<span class="class">INSERT</span> <span class="class">INTO</span> stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+<span class="keyword">VALUES</span> (<span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>)
+
+<span class="comment">-- (B) List with defaultValue: status per-row;</span>
+<span class="comment">--     when Stock.status is null, 'NORMAL' is substituted</span>
+<span class="class">INSERT</span> <span class="class">INTO</span> stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+<span class="keyword">VALUES</span> (<span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>),
+       (<span class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>)</code></pre>
+                            </div>
+                        </div>
                         <table class="tableblock frame-all grid-all stretch">
                             <colgroup>
                                 <col style="width: 16.6666%;">
@@ -6134,6 +6209,23 @@ stmt = SQLs.singleInsert()
                 .ifComma(Stock_.offerPrice, offerValue)     <span class="comment">//   conditional comma — skipped when null</span>
         )
         .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Value mode always inserts ALL table columns; fields not explicitly set</span>
+<span class="comment">-- use DEFAULT (NullMode.DEFAULT→INSERT_DEFAULT for PostgreSQL)</span>
+<span class="comment">-- id, create_time, update_time, version are managed by Army</span>
+<span class="class">INSERT</span> <span class="class">INTO</span> stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+<span class="keyword">VALUES</span> (<span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="directive">DEFAULT</span>, <span
+            class="error">?</span>,          <span
+            class="comment">-- offer_price uses DEFAULT when offerValue is null</span>
+        <span class="directive">DEFAULT</span>)           <span class="comment">-- listing_date uses DEFAULT</span>
+<span class="comment">-- params: id(snowflake), 'NYSE', 'AAPL', ?(param: 'Alphabet'), offerValue</span></code></pre>
                             </div>
                         </div>
                         <table class="tableblock frame-all grid-all stretch">
@@ -6241,6 +6333,30 @@ stmt = SQLs.singleInsert()
         .asInsert();</code></pre>
                             </div>
                         </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Default mode: all table columns appear in the INSERT list.</span>
+<span class="comment">-- id, create_time, update_time, version managed by Army;</span>
+<span class="comment">-- unset nullable fields → DEFAULT (NullMode.DEFAULT→INSERT_DEFAULT for PostgreSQL)</span>
+<span class="class">INSERT</span> <span class="class">INTO</span> stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+<span class="keyword">VALUES</span> (<span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="directive">DEFAULT</span>, <span
+            class="directive">DEFAULT</span>,
+        <span class="directive">DEFAULT</span>),         <span
+            class="comment">-- row 1: 'NYSE', 'AAPL', 'Apple Inc.'</span>
+       (<span class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="directive">DEFAULT</span>, <span class="directive">DEFAULT</span>,
+        <span class="directive">DEFAULT</span>),         <span class="comment">-- row 2: 'NASDAQ', 'GOOGL', ? (param: 'Alphabet')</span>
+       (<span class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="directive">DEFAULT</span>, <span class="directive">DEFAULT</span>,
+        <span class="directive">DEFAULT</span>)          <span class="comment">-- row 3: exchangeValue non-null→param, null→DEFAULT; 'MSFT', 'Microsoft'</span></code></pre>
+                            </div>
+                        </div>
                         <div class="paragraph">
                             <p><strong>Value mode — Dynamic (multi-row via <code>ValuesConstructor</code>)</strong></p>
                         </div>
@@ -6292,6 +6408,24 @@ stmt = SQLs.singleInsert()
         .asInsert();</code></pre>
                             </div>
                         </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">INSERT</span> <span
+        class="class">INTO</span> stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+<span class="keyword">VALUES</span> (<span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="directive">DEFAULT</span>, <span
+            class="directive">DEFAULT</span>,
+        <span class="directive">DEFAULT</span>),        <span
+            class="comment">-- row 1: 'NYSE', 'AAPL', 'Apple Inc.'</span>
+       (<span class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="directive">DEFAULT</span>, <span class="directive">DEFAULT</span>,
+        <span class="directive">DEFAULT</span>)         <span class="comment">-- row 2: 'NASDAQ', 'GOOGL', ? (param: 'Alphabet')</span></code></pre>
+                            </div>
+                        </div>
                         <div class="paragraph">
                             <p><em>Dynamic row — via <code>Assignments</code> (uses <code>set()</code> instead of <code>space()</code>/<code>comma()</code>):</em>
                             </p>
@@ -6324,6 +6458,25 @@ stmt = SQLs.singleInsert()
                 })
         )
         .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">INSERT</span> <span
+        class="class">INTO</span> stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+<span class="keyword">VALUES</span> (<span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="directive">DEFAULT</span>, <span
+            class="error">?</span>,           <span class="comment">-- row 1: offer_price uses DEFAULT when offer is null</span>
+        <span class="directive">DEFAULT</span>),
+       (<span class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="directive">DEFAULT</span>, <span class="directive">DEFAULT</span>,
+        <span class="directive">DEFAULT</span>)
+<span class="comment">-- row 1: 'NYSE', 'AAPL', 'Apple Inc.', offer</span>
+<span class="comment">-- row 2: 'NASDAQ', 'GOOGL', ? (param: 'Alphabet')</span></code></pre>
                             </div>
                         </div>
                         <div class="paragraph">
@@ -6474,6 +6627,14 @@ stmt = SQLs.singleInsert()
         .asInsert();</code></pre>
                             </div>
                         </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">INSERT</span> <span
+        class="class">INTO</span> stock (exchange, code, name)
+<span class="class">SELECT</span> ...  <span class="comment">-- subQuery SQL</span></code></pre>
+                            </div>
+                        </div>
                         <div class="paragraph">
                             <p><em>Form 2 — Dynamic columns + Supplier&lt;SubQuery&gt;:</em></p>
                         </div>
@@ -6493,6 +6654,14 @@ stmt = SQLs.singleInsert()
         .asInsert();</code></pre>
                             </div>
                         </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">INSERT</span> <span
+        class="class">INTO</span> stock (exchange, code, name)
+<span class="class">SELECT</span> ...  <span class="comment">-- subQuery SQL</span></code></pre>
+                            </div>
+                        </div>
                         <div class="paragraph">
                             <p><em>Form 3 — No column list (subquery determines columns):</em></p>
                         </div>
@@ -6504,6 +6673,14 @@ stmt = SQLs.singleInsert()
         .insertInto(Stock_.T)
         .space(subQuery)                                    <span class="comment">// _QueryInsertSpaceClause.space(Supplier)</span>
         .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">INSERT</span> <span
+        class="class">INTO</span> stock
+<span class="class">SELECT</span> ...  <span class="comment">-- subQuery determines all columns</span></code></pre>
                             </div>
                         </div>
                         <div class="paragraph">
@@ -6524,6 +6701,16 @@ stmt = SQLs.singleInsert()
             class="content">n</span><span class="delimiter">&quot;</span></span>)
         .where(NasdaqTable_.listed.equal(<span class="predefined-constant">true</span>))
         .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">INSERT</span> <span
+        class="class">INTO</span> stock (exchange, code, name, status)
+<span class="class">SELECT</span> n.exchange, n.code, n.name, <span class="directive">DEFAULT</span>
+<span class="keyword">FROM</span> nasdaq_table <span class="keyword">AS</span> n
+<span class="keyword">WHERE</span> n.listed = <span class="error">?</span>  <span class="comment">-- param: true</span></code></pre>
                             </div>
                         </div>
                     </div>
@@ -6558,6 +6745,29 @@ stmt = SQLs.singleInsert()
         .insertInto(Admin_.T)              <span class="comment">// ChildTableMeta — returns _ColumnListSpec</span>
         .values(adminUserList)
         .asInsert();</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Statement 1: parent rows (no discriminator column)</span>
+<span class="comment">--     Columns follow field declaration order in ParentUser class</span>
+<span class="class">INSERT</span> <span class="class">INTO</span> u_user (id, name, create_time, update_time, version)
+<span class="keyword">VALUES</span> (<span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>),
+       ...
+
+<span class="comment">-- Statement 2: child rows (includes discriminator column)</span>
+<span class="comment">--     Columns follow field declaration order in Admin class;</span>
+<span class="comment">--     discriminator 'ADMIN' from @DiscriminatorValue is auto-injected</span>
+<span class="class">INSERT</span> <span class="class">INTO</span> u_user (id, name, status, create_time, update_time, version)
+<span class="keyword">VALUES</span> (<span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>),
+       ...
+
+<span class="comment">-- NOTE: When id GeneratorType is POST (database auto-increment),</span>
+<span class="comment">--       the id column is NOT included in the column list.</span></code></pre>
                             </div>
                         </div>
                         <div class="admonitionblock tip">
@@ -6660,6 +6870,19 @@ stmt = SQLs.singleUpdate()
         .asUpdate();</code></pre>
                             </div>
                         </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">UPDATE</span> stock <span
+        class="keyword">AS</span> s
+<span class="class">SET</span> s.name = <span class="error">?</span>,
+    s.offer_price = s.offer_price + <span class="error">?</span>,
+    s.update_time = <span class="error">?</span>,
+    s.version = s.version + <span class="integer">1</span>
+<span class="keyword">WHERE</span> s.id <span class="keyword">BETWEEN</span> <span class="error">?</span> <span
+            class="keyword">AND</span> <span class="error">?</span></code></pre>
+                            </div>
+                        </div>
                         <div class="paragraph">
                             <p>The <code>set()</code> method comes from <a
                                     href="../army-core/src/main/java/io/army/criteria/UpdateStatement.java"
@@ -6691,6 +6914,17 @@ stmt = SQLs.domainUpdate()
             class="content">Tesla</span><span class="delimiter">&quot;</span></span>)
         .where(Stock_.id.equal(<span class="integer">100L</span>))
         .asUpdate();</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">UPDATE</span> stock s
+<span class="class">SET</span> s.name = <span class="error">?</span>,
+    s.update_time = <span class="error">?</span>,
+    s.version = s.version + <span class="integer">1</span>
+<span class="keyword">WHERE</span> s.id = <span class="error">?</span>  <span
+            class="comment">-- param: 100</span></code></pre>
                             </div>
                         </div>
                         <table class="tableblock frame-all grid-all stretch">
@@ -6762,6 +6996,21 @@ stmt = SQLs.batchSingleUpdate()
 <span class="type">long</span> rows = session.update(stmt.namedParamList(paramList));</code></pre>
                             </div>
                         </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Batch 1: name='Tesla', offerPrice=250, id=1</span>
+<span class="class">UPDATE</span> stock <span class="keyword">AS</span> s
+<span class="class">SET</span> s.name = <span class="error">?</span>,
+    s.offer_price = <span class="integer">250</span>,
+    s.update_time = <span class="error">?</span>,
+    s.version = s.version + <span class="integer">1</span>
+<span class="keyword">WHERE</span> s.id = <span class="error">?</span>
+
+<span class="comment">-- Batch 2: name='Apple', offerPrice=180, id=2</span>
+<span class="comment">-- (same SQL structure, different parameter values)</span></code></pre>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="sect3">
@@ -6786,6 +7035,15 @@ stmt = SQLs.singleDelete()
         .asDelete();</code></pre>
                             </div>
                         </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">DELETE</span> <span
+        class="keyword">FROM</span> stock <span class="keyword">AS</span> s
+<span class="keyword">WHERE</span> s.status = <span class="error">?</span>  <span
+            class="comment">-- param: 'DELISTED'</span></code></pre>
+                            </div>
+                        </div>
                     </div>
                     <div class="sect4">
                         <h5 id="_domain_delete"><a class="anchor" href="#_domain_delete"></a>Domain DELETE</h5>
@@ -6806,6 +7064,15 @@ stmt = SQLs.domainDelete()
             class="content">s</span><span class="delimiter">&quot;</span></span>)      <span class="comment">// TableMeta — any table type</span>
         .where(Stock_.visible.equal(<span class="predefined-constant">false</span>))
         .asDelete();</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">DELETE</span> <span
+        class="keyword">FROM</span> stock <span class="keyword">AS</span> s
+<span class="keyword">WHERE</span> s.visible = <span class="error">?</span>  <span
+            class="comment">-- param: false (0)</span></code></pre>
                             </div>
                         </div>
                         <div class="paragraph">
@@ -6939,6 +7206,22 @@ stmt = SQLs.query()
         .groupBy(Stock_.exchange)
         .having(Functions.countAsterisk().greater(SQLs::literalValue, <span class="integer">100</span>))
         .asQuery();</code></pre>
+                            </div>
+                        </div>
+                        <div class="listingblock">
+                            <div class="title">Generated SQL (PostgreSQL)</div>
+                            <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="comment">-- Aggregate in SELECT</span>
+<span class="class">SELECT</span> s.exchange, <span class="predefined">COUNT</span>(*)
+<span class="keyword">FROM</span> stock <span class="keyword">AS</span> s
+<span class="keyword">GROUP</span> <span class="keyword">BY</span> s.exchange
+
+<span class="comment">-- Aggregate in HAVING</span>
+<span class="class">SELECT</span> s.exchange, <span class="predefined">COUNT</span>(*)
+<span class="keyword">FROM</span> stock <span class="keyword">AS</span> s
+<span class="keyword">GROUP</span> <span class="keyword">BY</span> s.exchange
+<span class="keyword">HAVING</span> <span class="predefined">COUNT</span>(*) &gt; <span
+            class="integer">100</span></code></pre>
                             </div>
                         </div>
                     </div>
@@ -7730,6 +8013,19 @@ stmt = SQLs.query()
         .asQuery();</code></pre>
                     </div>
                 </div>
+                <div class="listingblock">
+                    <div class="title">Generated SQL (PostgreSQL)</div>
+                    <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql">WITH normal_stock <span class="keyword">AS</span> (
+    <span class="class">SELECT</span> s.id, s.name, s.offer_price
+    <span class="keyword">FROM</span> stock <span class="keyword">AS</span> s
+    <span class="keyword">WHERE</span> s.status = <span class="error">?</span>  <span
+            class="comment">-- param: 'NORMAL'</span>
+)
+<span class="class">SELECT</span> normal_stock.*
+<span class="keyword">FROM</span> normal_stock</code></pre>
+                    </div>
+                </div>
             </div>
             <div class="sect2">
                 <h3 id="_subqueries"><a class="anchor" href="#_subqueries"></a>5.3. Subqueries</h3>
@@ -7746,6 +8042,17 @@ stmt = SQLs.query()
         .and(Stock_.code.equal(<span class="string"><span class="delimiter">&quot;</span><span
             class="content">AAPL</span><span class="delimiter">&quot;</span></span>))
         .asQuery()</code></pre>
+                        </div>
+                    </div>
+                    <div class="listingblock">
+                        <div class="title">Generated SQL (PostgreSQL)</div>
+                        <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">SELECT</span> s.id
+<span class="keyword">FROM</span> stock <span class="keyword">AS</span> s
+<span class="keyword">WHERE</span> s.exchange = <span class="error">?</span>
+  <span class="keyword">AND</span> s.code = <span class="error">?</span>
+<span class="comment">-- params: 'NYSE', 'AAPL'</span>
+<span class="comment">-- asQuery() returns Expression, usable in SELECT / WHERE / HAVING</span></code></pre>
                         </div>
                     </div>
                     <div class="admonitionblock important">
@@ -7781,6 +8088,16 @@ stmt = SQLs.query()
             class="content">s</span><span class="delimiter">&quot;</span></span>)
         .where(Stock_.status.equal(StockStatus.NORMAL))
         .asQuery()</code></pre>
+                        </div>
+                    </div>
+                    <div class="listingblock">
+                        <div class="title">Generated SQL (PostgreSQL)</div>
+                        <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">SELECT</span> s.*
+<span class="keyword">FROM</span> stock <span class="keyword">AS</span> s
+<span class="keyword">WHERE</span> s.status = <span class="error">?</span>  <span
+            class="comment">-- param: 'NORMAL'</span>
+<span class="comment">-- asQuery() returns SubQuery, usable in FROM / IN / EXISTS</span></code></pre>
                         </div>
                     </div>
                 </div>
@@ -7826,6 +8143,23 @@ stmt = MySQLs.singleInsert()
         .onDuplicateKeyUpdate()
         .set(Stock_.offerPrice, SQLs::values, Stock_.offerPrice)
         .asInsert();</code></pre>
+                        </div>
+                    </div>
+                    <div class="listingblock">
+                        <div class="title">Generated SQL (MySQL)</div>
+                        <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">INSERT</span> <span
+        class="class">INTO</span> stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+<span class="keyword">VALUES</span> (<span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>,
+        <span class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>),
+       ...
+<span class="keyword">ON</span> DUPLICATE <span class="type">KEY</span> <span class="class">UPDATE</span>
+    offer_price = <span class="keyword">VALUES</span>(offer_price),
+    update_time = <span class="keyword">VALUES</span>(update_time),
+    version = version + <span class="integer">1</span></code></pre>
                         </div>
                     </div>
                 </div>
@@ -7877,6 +8211,25 @@ stmt = Postgres.singleInsert()
         .set(Stock_.offerPrice, SQLs::excluded, Stock_.offerPrice)
         .returning(Stock_.id, Stock_.name)
         .asInsert();</code></pre>
+                        </div>
+                    </div>
+                    <div class="listingblock">
+                        <div class="title">Generated SQL (PostgreSQL)</div>
+                        <div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="sql"><span class="class">INSERT</span> <span
+        class="class">INTO</span> stock (id, create_time, update_time, version, exchange,
+                   code, name, status, offer_price, listing_date)
+<span class="keyword">VALUES</span> (<span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>,
+        <span class="error">?</span>, <span class="error">?</span>, <span class="error">?</span>, <span
+            class="error">?</span>, <span class="error">?</span>),
+       ...
+<span class="keyword">ON</span> CONFLICT (name)
+DO <span class="class">UPDATE</span> <span class="class">SET</span>
+    offer_price = EXCLUDED.offer_price,
+    update_time = <span class="error">?</span>,
+    version = version + <span class="integer">1</span>
+RETURNING id, name</code></pre>
                         </div>
                     </div>
                 </div>
@@ -9166,7 +9519,7 @@ envMap.put(ArmyKey.SQL_LOG_EXECUTION_TAKE_TIME.name, <span class="predefined-con
 <div id="footer">
     <div id="footer-text">
         Version 0.6.8-SNAPSHOT<br>
-        Last updated 2026-06-04 02:31:27 +0800
+        Last updated 2026-06-04 21:48:44 +0800
     </div>
 </div>
 </body>
