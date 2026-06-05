@@ -3434,26 +3434,3147 @@ can also be used with `.over(...)` — they become window aggregates.
 When used without `.over()`, they remain standard aggregates (require `GROUP BY`).
 ====
 
-=== Expression
+=== Expression(s)
 
-==== Conditional Expressions
+In Army, "everything" is an `Expression` — a design philosophy where every participant in SQL statement construction shares this single interface.
+Whether it is a literal value, a bound parameter, a table column, a function call, or a subquery, they all conform to the `Expression` contract, enabling uniform composition, type inference, and SQL generation.
 
-* Equality: `field.equal(...)`
-* Inequality: `field.notEqual(...)`
-* Greater / Less than: `field.greater(...)` / `field.less(...)`
-* Between: `field.between(...)`
-* Inclusion: `field.in(...)`
-* Null check: `field.isNull()` / `field.isNotNull()`
+The following all implement `Expression`:
 
-==== Logical Operators
+- Plain `Expression` objects (the interface itself) — the polymorphic root
+- JDBC `?` parameters (`SQLs.param(field, value)`) — see <<Parameter Binding>>
+- Literal values (`SQLs.literalValue(100)`, `SQLs.constValue("text")`) — see <<Literal Binding>>
+- SQL functions (`SQLs.sum(expr)`, `SQLs.length(expr)`) — see <<Scalar Functions>>
+- Identifiers (`SQLs.identifier("alias")`)
+- Table columns — metamodel fields such as `Stock_.offerPrice`
+- Composite type fields (`compositeExpr.dot("field_name")`)
+- Row (`SQLs.row()`)
+- Array expressions (`scores.slice(1, SQLs.COLON, 5)`)
+- Scalar subqueries (`SQLs.scalarSubQuery()`)
 
-* `AND` — Logical conjunction
-* `OR` — Logical disjunction
-* `NOT` — Logical negation
+The `Expression` interface declares all operations a SQL expression can participate in — comparison, arithmetic, bitwise, pattern matching, array slicing, type casting, sorting, and more.
+
+==== Expression
+
+===== equal
+
+The `=` operator.
+The right side can be a Java literal, another `Expression`, or `null`.
+
+[source,java]
+----
+Stock_.status.equal(StockStatus.NORMAL)
+Stock_.name.equal(Stock_.exchange)     // field-to-field comparison
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"status" = ?              -- param: NORMAL
+"name" = "exchange"
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== notEqual
+
+The `<>` operator.
+
+[source,java]
+----
+Stock_.code.notEqual("000001")
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"code" <> ?               -- param: '000001'
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== nullSafeEqual
+
+`IS NOT DISTINCT FROM` — treats `NULL` as a comparable value (`@Support({MySQL, PostgreSQL, H2})`).
+
+[source,java]
+----
+Stock_.offerPrice.nullSafeEqual(SQLs.NULL)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" IS NOT DISTINCT FROM NULL
+----
+
+[TIP]
+====
+`SQLs.NULL` is an `Expression` — no implicit wrapping occurs.
+For null-as-parameter use `field.nullSafeEqual(SQLs::param, null)` (`TypedExpression`).
+See <<parameter()>> for parameterized null binding.
+====
+
+.Generated SQL (MySQL)
+[source,sql]
+----
+offer_price <=> NULL
+----
+
+===== less
+
+The `<` operator.
+
+[source,java]
+----
+Stock_.offerPrice.less(new BigDecimal("100.00"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" < ?             -- param: 100.00
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== lessEqual
+
+The `<=` operator.
+
+[source,java]
+----
+Stock_.version.lessEqual(10)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" <= ?             -- param: 10
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== greater
+
+The `>` operator.
+
+[source,java]
+----
+Stock_.offerPrice.greater(new BigDecimal("100.00"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" > ?             -- param: 100.00
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== greaterEqual
+
+The `>=` operator.
+
+[source,java]
+----
+Stock_.listingDate.greaterEqual(LocalDate.of(2024, 1, 1))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"listing_date" >= ?            -- param: 2024-01-01
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== between
+
+`BETWEEN ... AND ...` range comparison.
+PostgreSQL additionally supports `SYMMETRIC` / `ASYMMETRIC` modifier overloads.
+
+[source,java]
+----
+// Basic usage
+Stock_.offerPrice.between(new BigDecimal("10.00"), SQLs.AND, new BigDecimal("100.00"))
+
+// PostgreSQL SYMMETRIC — auto-swaps bounds so lower <= upper
+Stock_.offerPrice.between(SQLs.SYMMETRIC, new BigDecimal("100.00"),
+        SQLs.AND, new BigDecimal("10.00"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" BETWEEN ? AND ?            -- params: 10.00, 100.00
+"offer_price" BETWEEN SYMMETRIC ? AND ?  -- params: 100.00, 10.00 (auto-swapped)
+----
+
+[TIP]
+====
+Both bound values are implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing JDBC `?` placeholders.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== notBetween
+
+`NOT BETWEEN ... AND ...` range exclusion.
+Also supports `SYMMETRIC` / `ASYMMETRIC` modifiers.
+
+[source,java]
+----
+Stock_.offerPrice.notBetween(new BigDecimal("10.00"), SQLs.AND, new BigDecimal("100.00"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" NOT BETWEEN ? AND ?         -- params: 10.00, 100.00
+----
+
+[TIP]
+====
+Both bound values are implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing JDBC `?` placeholders.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== is
+
+`IS` boolean test — accepts `BoolTestWord` (`TRUE`/`FALSE`/`UNKNOWN`/`NULL`) or PostgreSQL's `IsComparisonWord` (`DISTINCT FROM`).
+
+[source,java]
+----
+// Boolean test
+SQLs.exists(subQuery).is(SQLs.TRUE)
+
+// PostgreSQL: IS DISTINCT FROM
+Stock_.name.is(SQLs.DISTINCT_FROM, SQLs.parameter(null))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+EXISTS (SELECT ...) IS TRUE
+"name" IS DISTINCT FROM ?    -- param: null
+----
+
+[TIP]
+====
+`BoolTestWord` values (`TRUE`/`FALSE`/`UNKNOWN`/`NULL`) are `Expression` instances — no implicit wrapping occurs. `IsComparisonWord` operands (e.g. `SQLs.DISTINCT_FROM` + value) go through `wrapRight`; for null use `SQLs.NULL` instead of `SQLs.parameter(null)`.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== isNot
+
+`IS NOT` boolean test — the negated counterpart of `is`.
+
+[source,java]
+----
+SQLs.exists(subQuery).isNot(SQLs.FALSE)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+EXISTS (SELECT ...) IS NOT FALSE
+----
+
+[TIP]
+====
+`BoolTestWord` operands are already `Expression` instances — no implicit wrapping.
+See <<parameter()>> for explicit parameter binding.
+====
+
+===== isNull
+
+`IS NULL`.
+
+[source,java]
+----
+Stock_.offerPrice.isNull()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" IS NULL
+----
+
+===== isNotNull
+
+`IS NOT NULL`.
+
+[source,java]
+----
+Stock_.name.isNotNull()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"name" IS NOT NULL
+----
+
+===== like
+
+`LIKE` pattern matching.
+Supports `ESCAPE` clause for escaping wildcards.
+
+[source,java]
+----
+// Basic fuzzy match
+Stock_.name.like("%Apple%")
+
+// With ESCAPE
+Stock_.code.like("100\\_%", SQLs.ESCAPE, "\\")
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"name" LIKE ?               -- param: '%Apple%'
+"code" LIKE ? ESCAPE ?      -- params: '100\_%', '\'
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== notLike
+
+`NOT LIKE` negated pattern matching.
+Also supports `ESCAPE`.
+
+[source,java]
+----
+Stock_.name.notLike("%invalid%")
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"name" NOT LIKE ?           -- param: '%invalid%'
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== similarTo
+
+PostgreSQL `SIMILAR TO` — SQL-standard regex matching (`@Support({PostgreSQL})`).
+Supports `ESCAPE` clause.
+
+[source,java]
+----
+Stock_.code.similarTo("(SH\\|SZ)[0-9]{6}")
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"code" SIMILAR TO ?         -- param: '(SH|SZ)[0-9]{6}'
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== notSimilarTo
+
+PostgreSQL `NOT SIMILAR TO` (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+Stock_.name.notSimilarTo("%invalid%", SQLs.ESCAPE, "\\")
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"name" NOT SIMILAR TO ? ESCAPE ?  -- params: '%invalid%', '\'
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== equalAny
+
+`= ANY(...)` — true if equal to any row in the subquery.
+
+[source,java]
+----
+Stock_.offerPrice.equalAny(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" = ANY (SELECT ...)
+----
+
+===== equalSome
+
+`= SOME(...)` — semantically identical to `equalAny`.
+
+[source,java]
+----
+Stock_.offerPrice.equalSome(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" = SOME (SELECT ...)
+----
+
+===== equalAll
+
+`= ALL(...)` — true if equal to every row in the subquery.
+
+[source,java]
+----
+Stock_.offerPrice.equalAll(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" = ALL (SELECT ...)
+----
+
+===== notEqualAny
+
+`<> ANY(...)`.
+
+[source,java]
+----
+Stock_.offerPrice.notEqualAny(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" <> ANY (SELECT ...)
+----
+
+===== notEqualSome
+
+`<> SOME(...)` — semantically identical to `notEqualAny`.
+
+[source,java]
+----
+Stock_.offerPrice.notEqualSome(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" <> SOME (SELECT ...)
+----
+
+===== notEqualAll
+
+`<> ALL(...)`.
+
+[source,java]
+----
+Stock_.offerPrice.notEqualAll(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" <> ALL (SELECT ...)
+----
+
+===== lessAny
+
+`< ANY(...)`.
+
+[source,java]
+----
+Stock_.offerPrice.lessAny(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" < ANY (SELECT ...)
+----
+
+===== lessSome
+
+`< SOME(...)` — semantically identical to `lessAny`.
+
+[source,java]
+----
+Stock_.offerPrice.lessSome(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" < SOME (SELECT ...)
+----
+
+===== lessAll
+
+`< ALL(...)`.
+
+[source,java]
+----
+Stock_.offerPrice.lessAll(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" < ALL (SELECT ...)
+----
+
+===== lessEqualAny
+
+`<= ANY(...)`.
+
+[source,java]
+----
+Stock_.offerPrice.lessEqualAny(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" <= ANY (SELECT ...)
+----
+
+===== lessEqualSome
+
+`<= SOME(...)`.
+
+[source,java]
+----
+Stock_.offerPrice.lessEqualSome(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" <= SOME (SELECT ...)
+----
+
+===== lessEqualAll
+
+`<= ALL(...)`.
+
+[source,java]
+----
+Stock_.offerPrice.lessEqualAll(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" <= ALL (SELECT ...)
+----
+
+===== greaterAny
+
+`> ANY(...)`.
+
+[source,java]
+----
+Stock_.offerPrice.greaterAny(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" > ANY (SELECT ...)
+----
+
+===== greaterSome
+
+`> SOME(...)` — semantically identical to `greaterAny`.
+
+[source,java]
+----
+Stock_.offerPrice.greaterSome(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" > SOME (SELECT ...)
+----
+
+===== greaterAll
+
+`> ALL(...)`.
+
+[source,java]
+----
+Stock_.offerPrice.greaterAll(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" > ALL (SELECT ...)
+----
+
+===== greaterEqualAny
+
+`>= ANY(...)`.
+
+[source,java]
+----
+Stock_.offerPrice.greaterEqualAny(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" >= ANY (SELECT ...)
+----
+
+===== greaterEqualSome
+
+`>= SOME(...)`.
+
+[source,java]
+----
+Stock_.offerPrice.greaterEqualSome(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" >= SOME (SELECT ...)
+----
+
+===== greaterEqualAll
+
+`>= ALL(...)`.
+
+[source,java]
+----
+Stock_.offerPrice.greaterEqualAll(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" >= ALL (SELECT ...)
+----
+
+===== in
+
+`IN (...)` inclusion operator.
+The right-hand side is a `SQLValueList`, typically provided via `SQLs.rowParam()` or a subquery.
+
+[source,java]
+----
+Stock_.status.in(SQLs::rowParam, List.of(StockStatus.NORMAL, StockStatus.CLOSED))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"status" IN (?, ?)                -- params: NORMAL, CLOSED
+----
+
+===== notIn
+
+`NOT IN (...)`.
+The right-hand side is a `SQLValueList`, typically provided via `SQLs.rowParam()` or a subquery.
+
+[source,java]
+----
+Stock_.id.notIn(subQuery)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"id" NOT IN (SELECT id FROM ...)
+----
+
+===== mod
+
+`%` modulo operation.
+
+[source,java]
+----
+Stock_.version.mod(10)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" % ?                 -- param: 10
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== times
+
+`*` multiplication.
+
+[source,java]
+----
+Stock_.offerPrice.times(new BigDecimal("1.1"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" * ?             -- param: 1.1
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== plus
+
+`+` addition.
+
+[source,java]
+----
+Stock_.offerPrice.plus(new BigDecimal("5"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" + ?             -- param: 5
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== minus
+
+`-` subtraction.
+
+[source,java]
+----
+Stock_.offerPrice.minus(new BigDecimal("1.00"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" - ?             -- param: 1.00
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== divide
+
+`/` division.
+
+[source,java]
+----
+Stock_.offerPrice.divide(new BigDecimal("2"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" / ?             -- param: 2
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== bitwiseAnd
+
+`&` bitwise AND.
+Returns a `BigInteger` typed expression.
+
+[source,java]
+----
+Stock_.version.bitwiseAnd(0xFF)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" & ?      -- param: 255
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== bitwiseOr
+
+`|` bitwise OR.
+
+[source,java]
+----
+Stock_.version.bitwiseOr(0x0F)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" | ?      -- param: 15
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== bitwiseXor
+
+`#` bitwise XOR (PostgreSQL XOR operator).
+
+[source,java]
+----
+Stock_.version.bitwiseXor(0x55)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" # ?      -- param: 85
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== rightShift
+
+`>>` right bit shift.
+Returns a `BigInteger` typed expression.
+
+[source,java]
+----
+Stock_.version.rightShift(2)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" >> ?     -- param: 2
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== leftShift
+
+`<<` left bit shift.
+
+[source,java]
+----
+Stock_.version.leftShift(3)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" << ?     -- param: 3
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== slice
+
+Array slicing — accesses a slice of a PostgreSQL/H2 array (`@Support({H2, PostgreSQL})`).
+Multiple overloads support 1D and 2D slicing; bounds can be expressions, literals, or `SQLs.ABSENT` (omitted bound).
+
+[source,java]
+----
+// 1D slice: arr[lower:upper]
+scores.slice(1, SQLs.COLON, 5)
+
+// Omit lower: arr[:5]
+scores.slice(SQLs.COLON, 5)
+
+// Omit both ends: arr[:]
+scores.slice(SQLs.COLON)
+
+// 2D slice: arr[lower:upper][lower1:upper1]
+matrix.slice(1, SQLs.COLON, 3, 1, SQLs.COLON, 3)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+scores[1:5]
+scores[:5]
+scores[:]
+matrix[1:3][1:3]
+----
+
+===== sliceAtSubs
+
+Array slicing via a `List` specifying nD slice bounds (`@Support({H2, PostgreSQL})`).
+
+[source,java]
+----
+// nD slice: even-sized List of expression/literal/ABSENT elements
+expr.sliceAtSubs(List.of(1, SQLs.COLON, 5, 1, SQLs.COLON, 3))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+expr[1:5][1:3]
+----
+
+===== dot
+
+Dot operator — accesses fields of a composite type (Row Type), generating `(expr).fieldName` syntax.
+Multiple overloads support 1–5 levels of nesting.
+
+[source,java]
+----
+// Single-level access
+compositeExpr.dot("field_name")
+
+// Nested access
+compositeExpr.dot("level1", "level2")
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+(composite_expr)."field_name"
+((composite_expr)."level1")."level2"
+----
+
+===== dots
+
+Dot operator via a `List` for multi-level nesting.
+
+[source,java]
+----
+expr.dots(List.of("a", "b", "c"))  // → (((expr)."a")."b")."c"
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+(((expr)."a")."b")."c"
+----
+
+===== bracket
+
+Bracket operator — JSONB subscript access (`@Support({H2, PostgreSQL})`).
+`bracket(key)` generates `['key']`.
+Multiple overloads support 1–5 levels of nesting and `BiFunction` binding.
+
+[source,java]
+----
+// Single-level JSONB access
+jsonbExpr.bracket("name")
+
+// Nested access
+jsonbExpr.bracket("address", "city")
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+jsonb_column['name']
+jsonb_column['address']['city']
+----
+
+===== brackets
+
+Bracket operator via a `List` for multi-level JSONB paths, supporting `BiFunction` binding.
+
+[source,java]
+----
+expr.brackets(List.of("config", "timeout"))  // → ['config']['timeout']
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+expr['config']['timeout']
+----
+
+===== l1Distance
+
+PostgreSQL `pgvector` L1 distance (Manhattan distance) (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.l1Distance(queryVector)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+embedding <+> ?       -- param: query vector
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== l2Distance
+
+PostgreSQL `pgvector` L2 distance (Euclidean distance) (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.l2Distance(queryVector)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+embedding <-> ?       -- param: query vector
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== cosineDistance
+
+PostgreSQL `pgvector` cosine distance (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.cosineDistance(queryVector)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+embedding <=> ?       -- param: query vector
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== hammingDistance
+
+PostgreSQL `pgvector` Hamming distance (binary vector) (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.hammingDistance(queryVector)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+embedding <~> ?       -- param: query vector
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== jaccardDistance
+
+PostgreSQL `pgvector` Jaccard distance (binary vector) (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.jaccardDistance(queryVector)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+embedding <%> ?       -- param: query vector
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== negDot
+
+PostgreSQL `pgvector` negative dot product `<#>` (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.negDot(queryVector)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+embedding <#> ?       -- param: query vector
+----
+
+[TIP]
+====
+The right-hand value is implicitly parameterized via `wrapRight` -> `SQLs.param(field, value)`
+(DEFAULT mode), producing a JDBC `?` placeholder.
+See <<parameter()>>, <<literalValue()>>, <<constValue()>> for explicit binding modes.
+====
+
+===== mapTo
+
+Maps the expression to a known `MappingType` — does not change SQL output, only informs the Army type system of the target type.
+
+[source,java]
+----
+SQLs.scalarSubQuery(subQuery).mapTo(IntegerType.INSTANCE)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- Does not change SQL output; only affects Army's internal type inference
+(SELECT count(*) FROM ...)
+----
+
+===== mapToArray
+
+Maps the expression to an array type.
+
+[source,java]
+----
+someExpr.mapToArray(ArrayMappingType.of(StringType.INSTANCE))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- Does not change SQL output
+some_expr
+----
+
+===== castTo
+
+SQL `CAST` — generates `CAST(expr AS type)` (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+Stock_.version.castTo(IntegerType.INSTANCE)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+CAST("version" AS INTEGER)
+----
+
+===== castToArray
+
+SQL `CAST` to array — generates `CAST(expr AS type[])`.
+
+[source,java]
+----
+someExpr.castToArray(ArrayMappingType.of(IntegerType.INSTANCE))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+CAST(some_expr AS INTEGER[])
+----
+
+===== asSortItem
+
+Returns the expression itself as a `SortItem` (identity operation), for use in `ORDER BY`.
+
+[source,java]
+----
+Stock_.offerPrice.asSortItem()       // equivalent to asc() (default ascending)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" ASC
+----
+
+===== asc
+
+Ascending sort `ASC`.
+
+[source,java]
+----
+Stock_.offerPrice.asc()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" ASC
+----
+
+===== desc
+
+Descending sort `DESC`.
+
+[source,java]
+----
+Stock_.name.desc()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"name" DESC
+----
+
+===== ascSpace
+
+Ascending + NULL ordering control.
+Accepts `SQLs.NULLS_FIRST` / `SQLs.NULLS_LAST` or `null`.
+
+[source,java]
+----
+Stock_.listingDate.ascSpace(SQLs.NULLS_FIRST)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"listing_date" ASC NULLS FIRST
+----
+
+===== descSpace
+
+Descending + NULL ordering control.
+
+[source,java]
+----
+Stock_.offerPrice.descSpace(SQLs.NULLS_LAST)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" DESC NULLS LAST
+----
+
+===== space
+
+Dialect operator entry point — allows calling dual and binary operators beyond standard SQL.
+The three-parameter overload supports modifiers.
+
+[source,java]
+----
+// DualOperator overload — returns Expression
+expr.space(someDualOperator, rightExpr)
+
+// BiOperator overload — returns IPredicate
+expr.space(someBiOperator, rightExpr)
+
+// With modifier overload
+expr.space(someBiOperator, rightExpr, modifier, optionalExpr)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- SQL output depends on the dialect operator definition; shown here for illustration only
+expr <dialect_op> right_expr
+expr <dialect_op> right_expr
+expr <dialect_op> right_expr MODIFIER optional_expr
+----
+
+==== TypedExpression
+
+[source,java]
+----
+public interface TypedExpression extends Expression, TypeInfer {
+----
+
+`TypedExpression` extends link:../army-core/src/main/java/io/army/criteria/Expression.java[`Expression`,role="extern"]
+AND link:../army-core/src/main/java/io/army/criteria/TypeInfer.java[`TypeInfer`,role="extern"] — it carries a known `MappingType`, which enables Army to infer the SQL type of the right operand without value-class auto-detection.
+
+Every metamodel field (e.g. `Stock_.name`) and every predicate (`IPredicate`) is a `TypedExpression` in practice.
+
+[TIP]
+====
+Every method below takes `BiFunction<TypedExpression, T, Expression>` as its first parameter — a method reference to one of:
+
+- `SQLs::param` — JDBC `?` placeholder (safe default)
+- `SQLs::literal` — embeds value in SQL with type annotation (e.g. `DATE '...'`)
+- `SQLs::constant` — embeds value without type prefix
+- `SQLs::namedParam`, `SQLs::namedLiteral`, `SQLs::namedConst` — named variants for batch DML
+
+See <<Parameter Binding>> and <<Literal Binding>> for full details.
+====
+
+===== equal
+
+`=` operator with explicit binding control — always produces the chosen binding regardless of the global `LiteralMode`.
+
+[source,java]
+----
+Stock_.name.equal(SQLs::param, "ABC")
+Stock_.regionType.equal(SQLs::literal, RegionType.PROVINCE)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"name" = ?              -- param: 'ABC'
+"region_type" = 1        -- literal: PROVINCE (enum ordinal)
+----
+
+===== notEqual
+
+`<>` operator with explicit binding.
+
+[source,java]
+----
+Stock_.code.notEqual(SQLs::param, "000001")
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"code" <> ?              -- param: '000001'
+----
+
+===== nullSafeEqual
+
+`IS NOT DISTINCT FROM` with explicit binding — the **only** safe way to pass `null`.
+`Expression.nullSafeEqual(null)` throws because the single-arg `Object` overload cannot infer the type of a bare `null`.
+`TypedExpression.nullSafeEqual(SQLs::param, null)` works because Army knows the
+`MappingType` from the left operand.
+
+[source,java]
+----
+Stock_.offerPrice.nullSafeEqual(SQLs::param, null)
+Stock_.offerPrice.nullSafeEqual(SQLs::param, new BigDecimal("100.00"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" IS NOT DISTINCT FROM ?      -- param: null
+"offer_price" IS NOT DISTINCT FROM ?      -- param: 100.00
+----
+
+===== less
+
+`<` operator with explicit binding.
+
+[source,java]
+----
+Stock_.offerPrice.less(SQLs::param, new BigDecimal("100.00"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" < ?        -- param: 100.00
+----
+
+===== lessEqual
+
+`<=` operator with explicit binding.
+
+[source,java]
+----
+Stock_.version.lessEqual(SQLs::param, 10)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" <= ?           -- param: 10
+----
+
+===== greater
+
+`>` operator with explicit binding.
+
+[source,java]
+----
+Stock_.offerPrice.greater(SQLs::param, new BigDecimal("100.00"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" > ?        -- param: 100.00
+----
+
+===== greaterEqual
+
+`>=` operator with explicit binding.
+
+[source,java]
+----
+Stock_.listingDate.greaterEqual(SQLs::param, LocalDate.of(2024, 1, 1))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"listing_date" >= ?      -- param: 2024-01-01
+----
+
+===== between
+
+`BETWEEN ... AND ...` with **per-bound binding control**.
+Four overloads:
+
+1. Single `BiFunction` for both bounds.
+2. Independent `BiFunction` per bound — mix param and literal.
+3-4. Same as above plus `SQLs.SYMMETRIC` / `SQLs.ASYMMETRIC` modifier (`@Support({PostgreSQL, H2})`).
+
+[source,java]
+----
+// Single binding for both
+Stock_.offerPrice.between(SQLs::param,
+        new BigDecimal("10.00"), SQLs.AND, new BigDecimal("100.00"))
+
+// Different binding per bound
+Stock_.offerPrice.between(SQLs::literal, new BigDecimal("10.00"),
+        SQLs.AND, SQLs::param, new BigDecimal("100.00"))
+
+// With SYMMETRIC modifier (PostgreSQL/H2)
+Stock_.offerPrice.between(SQLs.SYMMETRIC, SQLs::param,
+        new BigDecimal("100.00"), SQLs.AND, new BigDecimal("10.00"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" BETWEEN ? AND ?              -- params: 10.00, 100.00
+"offer_price" BETWEEN 10.00 AND ?           -- literal: 10.00 | param: 100.00
+"offer_price" BETWEEN SYMMETRIC ? AND ?     -- params: 100.00, 10.00 (auto-swapped)
+----
+
+===== notBetween
+
+`NOT BETWEEN ... AND ...` — same four overloads as `between`.
+
+[source,java]
+----
+Stock_.offerPrice.notBetween(SQLs::param,
+        new BigDecimal("200.00"), SQLs.AND, new BigDecimal("500.00"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" NOT BETWEEN ? AND ?          -- params: 200.00, 500.00
+----
+
+===== is
+
+`IS` with an `SQLs.IsComparisonWord` (e.g. `SQLs.DISTINCT_FROM`) and explicit binding (`@Support({PostgreSQL, H2})`).
+
+[source,java]
+----
+Stock_.offerPrice.is(SQLs.DISTINCT_FROM, SQLs::param, null)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" IS DISTINCT FROM ?           -- param: null
+----
+
+===== isNot
+
+`IS NOT` with an `SQLs.IsComparisonWord` (`@Support({PostgreSQL, H2})`).
+
+[source,java]
+----
+Stock_.offerPrice.isNot(SQLs.DISTINCT_FROM, SQLs::param, new BigDecimal("100.00"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" IS NOT DISTINCT FROM ?       -- param: 100.00
+----
+
+===== in
+
+`IN (...)` with explicit binding.
+Two overloads:
+
+1. Collection-based — `BiFunction` converts the collection to a `RowExpression`.
+2. Named-params — `TeNamedParamsFunc` for batch DML with a fixed parameter count.
+
+[source,java]
+----
+// Collection binding
+Stock_.status.in(SQLs::param, List.of(StockStatus.NORMAL, StockStatus.SUSPENDED))
+Stock_.status.in(SQLs::literal, List.of(StockStatus.NORMAL, StockStatus.SUSPENDED))
+
+// Named params for batch (size = 2)
+Stock_.status.in(SQLs::namedParam, "statusList", 2)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"status" IN (?, ?)          -- params: NORMAL, SUSPENDED
+"status" IN (0, 1)           -- literals: enum ordinals
+"status" IN (:statusList)    -- named: statusList (batch)
+----
+
+===== notIn
+
+`NOT IN (...)` — same two overloads as `in`.
+
+[source,java]
+----
+Stock_.status.notIn(SQLs::param, List.of(StockStatus.DELISTED))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"status" NOT IN (?)          -- param: DELISTED
+----
+
+===== mod
+
+`%` (modulo) — returns `Expression`.
+
+[source,java]
+----
+Stock_.version.mod(SQLs::param, 10)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" % ?              -- param: 10
+----
+
+===== times
+
+`*` (multiplication) — returns `Expression`.
+
+[source,java]
+----
+Stock_.offerPrice.times(SQLs::param, new BigDecimal("2"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" * ?          -- param: 2
+----
+
+===== plus
+
+`+` (addition) — returns `Expression`.
+
+[source,java]
+----
+Stock_.offerPrice.plus(SQLs::param, new BigDecimal("10.00"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" + ?          -- param: 10.00
+----
+
+===== minus
+
+`-` (subtraction) — returns `Expression`.
+
+[source,java]
+----
+Stock_.offerPrice.minus(SQLs::param, new BigDecimal("5.00"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" - ?          -- param: 5.00
+----
+
+===== divide
+
+`/` (division) — returns `Expression`.
+
+[source,java]
+----
+Stock_.offerPrice.divide(SQLs::param, new BigDecimal("2"))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"offer_price" / ?          -- param: 2
+----
+
+===== bitwiseAnd
+
+`&` (bitwise AND) — returns `Expression` (`BigInteger`).
+
+[source,java]
+----
+Stock_.version.bitwiseAnd(SQLs::param, 0xFF)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" & ?              -- param: 255
+----
+
+===== bitwiseOr
+
+`|` (bitwise OR) — returns `Expression` (`BigInteger`).
+
+[source,java]
+----
+Stock_.version.bitwiseOr(SQLs::param, 0x01)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" | ?              -- param: 1
+----
+
+===== bitwiseXor
+
+`#` (bitwise XOR) — returns `Expression` (`BigInteger`).
+
+[source,java]
+----
+Stock_.version.bitwiseXor(SQLs::param, 0x0F)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" # ?              -- param: 15
+----
+
+===== rightShift
+
+`>>` (right shift) — returns `Expression` (`BigInteger`).
+
+[source,java]
+----
+Stock_.version.rightShift(SQLs::param, 4)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" >> ?             -- param: 4
+----
+
+===== leftShift
+
+`<<` (left shift) — returns `Expression` (`BigInteger`).
+
+[source,java]
+----
+Stock_.version.leftShift(SQLs::param, 4)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"version" << ?             -- param: 4
+----
+
+===== like
+
+`LIKE` with explicit binding.
+Two overloads: basic and with `ESCAPE`.
+
+[source,java]
+----
+Stock_.name.like(SQLs::param, "%ABC%")
+Stock_.name.like(SQLs::literal, "%ABC%")
+Stock_.name.like(SQLs::param, "%100\\%%", SQLs.ESCAPE, '\\')
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"name" LIKE ?                -- param: '%ABC%'
+"name" LIKE '%ABC%'          -- literal
+"name" LIKE ? ESCAPE '\\'    -- param: '%100\\%%'
+----
+
+===== notLike
+
+`NOT LIKE` — same two overloads as `like`.
+
+[source,java]
+----
+Stock_.name.notLike(SQLs::param, "%DELETED%")
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"name" NOT LIKE ?           -- param: '%DELETED%'
+----
+
+===== similarTo
+
+`SIMILAR TO` (`@Support({PostgreSQL})`).
+Two overloads: basic and with `ESCAPE`.
+
+[source,java]
+----
+Stock_.name.similarTo(SQLs::param, "%(A|B)%")
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"name" SIMILAR TO ?         -- param: '%(A|B)%'
+----
+
+===== notSimilarTo
+
+`NOT SIMILAR TO` (`@Support({PostgreSQL})`).
+Same two overloads.
+
+[source,java]
+----
+Stock_.name.notSimilarTo(SQLs::param, "%(X|Y)%")
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"name" NOT SIMILAR TO ?     -- param: '%(X|Y)%'
+----
+
+===== l1Distance
+
+`<+>` (L1 distance) for pgvector (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.l1Distance(SQLs::param, queryVector)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"embedding" <+> ?           -- param: vector
+----
+
+===== l2Distance
+
+`<->` (L2 distance) for pgvector (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.l2Distance(SQLs::param, queryVector)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"embedding" <-> ?           -- param: vector
+----
+
+===== cosineDistance
+
+`<=>` (cosine distance) for pgvector (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.cosineDistance(SQLs::param, queryVector)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"embedding" <=> ?           -- param: vector
+----
+
+===== hammingDistance
+
+`<~>` (Hamming distance) for pgvector binary vectors (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.hammingDistance(SQLs::param, queryVector)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"embedding" <~> ?           -- param: vector
+----
+
+===== jaccardDistance
+
+`<%>` (Jaccard distance) for pgvector binary vectors (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.jaccardDistance(SQLs::param, queryVector)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"embedding" <%> ?           -- param: vector
+----
+
+===== negDot
+
+`<#>` (negative inner product) for pgvector (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.negDot(SQLs::param, queryVector)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"embedding" <#> ?           -- param: vector
+----
+
+===== space
+
+Dialect operator entry point — three overloads:
+
+1. `space(DualOperator, funcRef, value)` — returns `Expression`.
+2. `space(BiOperator, funcRef, value)` — returns `IPredicate`.
+3. `space(BiOperator, funcRef, value, modifier, optionalExp)` — with modifier.
+
+[source,java]
+----
+expr.space(someDialectDualOp, SQLs::param, rightValue)
+expr.space(someDialectBiOp, SQLs::param, rightValue)
+expr.space(someDialectBiOp, SQLs::param, rightValue, SQLs.ESCAPE, '\\')
+----
+
+==== TypedField
+
+[source,java]
+----
+public interface TypedField extends SqlField, TypedExpression, SimpleExpression {
+----
+
+`TypedField` is the base interface for all typed fields — it inherits from
+`SqlField` (carries a field name), `TypedExpression` (carries a `MappingType`), and `SimpleExpression`.
+
+Its two main implementation families:
+
+- link:../army-core/src/main/java/io/army/criteria/TableField.java[`TableField`,role="extern"] — metamodel fields bound to real table columns (e.g. `Stock_.name`, `Stock_.price`)
+- link:../army-core/src/main/java/io/army/criteria/TypedDerivedField.java[`TypedDerivedField`,role="extern"] — derived fields from subqueries, expressions, functions
+
+===== Why `space` prefix
+
+`TypedField` inherits from `Expression` (via `TypedExpression`), which already declares methods like `equal(Object)`, `less(Object)`, `like(Object)`, and so on.
+If `TypedField`
+were to declare `equal(BiFunction<TypedField, String, Expression>)` directly, the JVM would face ambiguous overload resolution — the parameter types of the inherited and newly-declared methods overlap in ways that defeat Java's method dispatch.
+
+By prefixing every batch-oriented method with `space`, `TypedField` avoids overloading the inherited `Expression` methods entirely, guaranteeing correct JVM method resolution regardless of how lambdas or method references are passed at the call site.
+
+===== Designed for batch DML
+
+All `space*` methods are designed for **batch insert**, **batch update**, and
+**batch delete** statements.
+In a batch context, each row in the domain collection supplies its own values — the named binding (e.g. `SQLs::namedParam`) acts as a per-row resolver rather than a single static value.
+
+[TIP]
+====
+Every `space*` method takes `BiFunction<TypedField, String, Expression>` as its first parameter.
+The `String` is the field's own name, auto-supplied by the framework.
+
+This is the implementation pattern (from
+link:../army-core/src/main/java/io/army/criteria/TypedField.java[`TypedField`,role="extern"] javadoc):
+
+[source,java]
+----
+// spaceEqual is equivalent to:
+IPredicate spaceEqual(BiFunction<TypedField, String, Expression> namedOperator) {
+    return this.equal(namedOperator.apply(this, this.fieldName()));
+}
+----
+
+The `namedOperator` argument is a method reference to a **named** binding factory:
+
+- `SQLs::namedParam` — named JDBC `?` parameter
+- `SQLs::namedLiteral` — named literal with type annotation
+- `SQLs::namedConst` — named literal without type prefix
+- `SQLs::namedRowLiteral`, `SQLs::namedRowConst`, `SQLs::namedRowParam` — named row bindings for `spaceIn`/`spaceNotIn`
+
+The name becomes the key for value resolution in batch contexts — each domain object supplies its own value for that named binding.
+====
+
+===== spaceEqual
+
+Batch-compatible `=` comparison.
+
+[source,java]
+----
+Stock_.name.spaceEqual(SQLs::namedParam)
+Stock_.regionType.spaceEqual(SQLs::namedLiteral)
+----
+
+===== spaceNotEqual
+
+Batch-compatible `<>` comparison.
+
+[source,java]
+----
+Stock_.code.spaceNotEqual(SQLs::namedParam)
+----
+
+===== spaceNullSafeEqual
+
+Batch-compatible `IS NOT DISTINCT FROM`.
+
+[source,java]
+----
+Stock_.offerPrice.spaceNullSafeEqual(SQLs::namedParam)
+----
+
+===== spaceLess
+
+Batch-compatible `<` comparison.
+
+[source,java]
+----
+Stock_.offerPrice.spaceLess(SQLs::namedParam)
+----
+
+===== spaceLessEqual
+
+Batch-compatible `<=` comparison.
+
+[source,java]
+----
+Stock_.version.spaceLessEqual(SQLs::namedParam)
+----
+
+===== spaceGreater
+
+Batch-compatible `>` comparison.
+
+[source,java]
+----
+Stock_.offerPrice.spaceGreater(SQLs::namedParam)
+----
+
+===== spaceGreaterEqual
+
+Batch-compatible `>=` comparison.
+
+[source,java]
+----
+Stock_.listingDate.spaceGreaterEqual(SQLs::namedParam)
+----
+
+===== spaceLike
+
+Batch-compatible `LIKE`.
+Two overloads: basic and with `ESCAPE`.
+
+[source,java]
+----
+Stock_.name.spaceLike(SQLs::namedParam)
+Stock_.name.spaceLike(SQLs::namedLiteral, SQLs.ESCAPE, '\\')
+----
+
+===== spaceNotLike
+
+Batch-compatible `NOT LIKE`.
+Same two overloads.
+
+[source,java]
+----
+Stock_.name.spaceNotLike(SQLs::namedParam)
+----
+
+===== spaceSimilarTo
+
+Batch-compatible `SIMILAR TO` (`@Support({PostgreSQL})`).
+Two overloads.
+
+[source,java]
+----
+Stock_.name.spaceSimilarTo(SQLs::namedParam)
+Stock_.name.spaceSimilarTo(SQLs::namedLiteral, SQLs.ESCAPE, '\\')
+----
+
+===== spaceNotSimilarTo
+
+Batch-compatible `NOT SIMILAR TO` (`@Support({PostgreSQL})`).
+Two overloads.
+
+[source,java]
+----
+Stock_.name.spaceNotSimilarTo(SQLs::namedParam)
+----
+
+===== spaceIn
+
+Batch-compatible `IN (...)` with named row binding.
+Two overloads:
+
+1. `BiFunction<TypedField, String, RowExpression>` — for `namedRowLiteral` / `namedRowConst`.
+2. `TeNamedParamsFunc<TypedField>` — for `namedRowParam` with explicit parameter count.
+
+[source,java]
+----
+// Named row literal — values resolved per row
+Stock_.status.spaceIn(SQLs::namedRowLiteral)
+
+// Named row param — fixed-size param list per row
+Stock_.status.spaceIn(SQLs::namedRowParam, 3)
+----
+
+===== spaceNotIn
+
+Batch-compatible `NOT IN (...)` — same two overloads as `spaceIn`.
+
+[source,java]
+----
+Stock_.status.spaceNotIn(SQLs::namedRowLiteral)
+----
+
+===== spaceMod
+
+Batch-compatible `%` (modulo) — returns `Expression`.
+
+[source,java]
+----
+Stock_.version.spaceMod(SQLs::namedParam)
+----
+
+===== spacePlus
+
+Batch-compatible `+` (addition) — returns `Expression`.
+
+[source,java]
+----
+Stock_.offerPrice.spacePlus(SQLs::namedParam)
+----
+
+===== spaceMinus
+
+Batch-compatible `-` (subtraction) — returns `Expression`.
+
+[source,java]
+----
+Stock_.offerPrice.spaceMinus(SQLs::namedParam)
+----
+
+===== spaceTimes
+
+Batch-compatible `*` (multiplication) — returns `Expression`.
+
+[source,java]
+----
+Stock_.offerPrice.spaceTimes(SQLs::namedParam)
+----
+
+===== spaceDivide
+
+Batch-compatible `/` (division) — returns `Expression`.
+
+[source,java]
+----
+Stock_.offerPrice.spaceDivide(SQLs::namedParam)
+----
+
+===== spaceBitwiseAnd
+
+Batch-compatible `&` (bitwise AND) — returns `Expression`.
+
+[source,java]
+----
+Stock_.version.spaceBitwiseAnd(SQLs::namedParam)
+----
+
+===== spaceBitwiseOr
+
+Batch-compatible `|` (bitwise OR) — returns `Expression`.
+
+[source,java]
+----
+Stock_.version.spaceBitwiseOr(SQLs::namedParam)
+----
+
+===== spaceXor
+
+Batch-compatible `#` (bitwise XOR) — returns `Expression`.
+
+[source,java]
+----
+Stock_.version.spaceXor(SQLs::namedParam)
+----
+
+===== spaceRightShift
+
+Batch-compatible `>>` (right shift) — returns `Expression`.
+
+[source,java]
+----
+Stock_.version.spaceRightShift(SQLs::namedParam)
+----
+
+===== spaceLeftShift
+
+Batch-compatible `<<` (left shift) — returns `Expression`.
+
+[source,java]
+----
+Stock_.version.spaceLeftShift(SQLs::namedParam)
+----
+
+===== spaceL1Distance
+
+Batch-compatible `<+>` (L1 distance) for pgvector (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.spaceL1Distance(SQLs::namedParam)
+----
+
+===== spaceL2Distance
+
+Batch-compatible `<->` (L2 distance) for pgvector (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.spaceL2Distance(SQLs::namedParam)
+----
+
+===== spaceCosineDistance
+
+Batch-compatible `<=>` (cosine distance) for pgvector (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.spaceCosineDistance(SQLs::namedParam)
+----
+
+===== spaceHammingDistance
+
+Batch-compatible `<~>` (Hamming distance) for pgvector binary vectors (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.spaceHammingDistance(SQLs::namedParam)
+----
+
+===== spaceJaccardDistance
+
+Batch-compatible `<%>` (Jaccard distance) for pgvector binary vectors (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.spaceJaccardDistance(SQLs::namedParam)
+----
+
+===== spaceNegDot
+
+Batch-compatible `<#>` (negative inner product) for pgvector (`@Support({PostgreSQL})`).
+
+[source,java]
+----
+embedding.spaceNegDot(SQLs::namedParam)
+----
+
+===== spaceSpace
+
+Batch-compatible dialect operator entry point — three overloads:
+
+1. `spaceSpace(DualOperator, namedOperator)` — returns `Expression`.
+2. `spaceSpace(BiOperator, namedOperator)` — returns `IPredicate`.
+3. `spaceSpace(BiOperator, namedOperator, modifier, optionalExp)` — with modifier.
+
+[source,java]
+----
+expr.spaceSpace(someDialectDualOp, SQLs::namedParam)
+expr.spaceSpace(someDialectBiOp, SQLs::namedParam)
+expr.spaceSpace(someDialectBiOp, SQLs::namedParam, SQLs.ESCAPE, '\\')
+----
+
+==== FieldMeta
+
+[source,java]
+----
+public interface FieldMeta<T> extends TypedTableField<T>, DatabaseObject.FieldObject {
+----
+
+`FieldMeta` is the **runtime metadata interface** for a domain class field mapped to a table column.
+Unlike `TableField` (which represents the field in Criteria API expressions), `FieldMeta` carries **structural metadata** — constraints, defaults, comments, generator configuration — consumed by the framework's DDL generation, codec registration, and schema introspection pipelines.
+
+Every army metamodel field implements both `TableField` (for expression usage) and
+`FieldMeta` (for metadata access):
+
+- `Stock_.id` is a `TableField` when used in `Stock_.id.equal(1)`
+- `Stock_.id` is a `FieldMeta` when the framework asks `isPrimaryField()`, `comment()`,
+`generator()`, or needs the column's `defaultValue()` for DDL generation
+
+FieldMeta extends `TypedTableField<T>` (which extends `TableField`), so it inherits all expression-side methods plus adds metadata methods below.
+
+===== isPrimaryField
+
+Returns `true` if this field is the primary key column.
+
+[source,java]
+----
+boolean isPrimaryField()
+----
+
+===== isUniqueField
+
+Returns `true` if this field has a `UNIQUE` constraint.
+
+[source,java]
+----
+boolean isUniqueField()
+----
+
+===== isIndexField
+
+Returns `true` if this field participates in at least one index.
+
+[source,java]
+----
+boolean isIndexField()
+----
+
+===== generator
+
+If this field represents `_MetaBridge.ID`, returns the
+link:../army-core/src/main/java/io/army/meta/GeneratorMeta.java[`GeneratorMeta`,role="extern"] for ID generation; otherwise returns `null`.
+
+[source,java]
+----
+@Nullable
+GeneratorMeta generator()
+----
+
+`GeneratorMeta` itself declares:
+
+- `field()` — the owning `FieldMeta`
+- `javaType()` — the generated ID's Java type
+- `params()` — an immutable map of generator parameters (e.g. `startTime` for Snowflake)
+
+===== dependField
+
+Returns a depended-on field, or `null`.
+Used when a field's value is derived from another field (e.g., a generator may depend on a sequence column, or a computed column may reference a source column).
+
+[source,java]
+----
+@Nullable
+FieldMeta<?> dependField()
+----
+
+===== defaultValue
+
+Returns the column's SQL `DEFAULT` value expression as a string.
+For example:
+
+- Number fields → `"0"`
+- String fields → `"''"`
+- `LocalDate` → `"'1970-01-01'"`
+- `LocalDateTime` → `"'1970-01-01 00:00:00'"`
+
+[source,java]
+----
+String defaultValue()
+----
+
+===== elementTypes
+
+If `javaType()` is a collection type (`List`, `Set`, `Collection`, `Map`), returns the element Java types; otherwise returns `void.class`.
+
+[source,java]
+----
+List<Class<?>> elementTypes()
+----
+
+===== isSerial
+
+Returns `true` if the column is a `SERIAL` / `BIGSERIAL` (auto-incrementing integer) column, commonly used in PostgreSQL.
+
+[source,java]
+----
+boolean isSerial()
+----
+
+===== comment
+
+Returns the column comment text.
+
+[source,java]
+----
+String comment()
+----
+
+==== RowExpression
+
+[source,java]
+----
+public interface RowExpression extends Expression, SQLValueList {
+----
+
+`RowExpression` represents a **SQL row constructor** — a parenthesized list of values treated as a single row value.
+In SQL standards, row constructors are used in:
+
+- Row-wise comparison: `WHERE (a, b) = (1, 2)`
+- `INSERT ... VALUES ROW(...)`
+- `IN` / `NOT IN` with multi-column subqueries
+
+`RowExpression` extends `Expression` (so it participates in all expression operations) and `SQLValueList` (marking it as a multi-value right operand for comparisons).
+
+===== columnSize
+
+Returns the number of columns in this row expression.
+Returns a negative value if the size is unknown (e.g., for named row literal/const expressions whose value set is resolved at batch execution time).
+
+[source,java]
+----
+/// @return negative : unknown
+int columnSize()
+----
+
+===== Related: SQLs.row()
+
+Three overloads construct `RowExpression` instances:
+
+*Empty row* (`@Support({PostgreSQL})`) — PostgreSQL supports `ROW()` as a comparison placeholder; MySQL does not support empty row constructors.
+
+[source,java]
+----
+SQLs.row()                         // ROW()
+----
+
+*Row from subquery* — wraps a `SubQuery` as a single-element row.
+
+[source,java]
+----
+SQLs.row(subQuery)                 // ROW( SELECT ... )
+----
+
+*Row from column list* — the most common form; creates a row from any mix of
+`Expression`, `SubQuery`, or `RowElement` elements.
+
+[source,java]
+----
+SQLs.row(List.of(column1, column2))
+// generates:  ROW(col1, col2)
+----
+
+[TIP]
+====
+Army validates column count at parse time: when a `RowExpression` is compared against another `RowExpression` or `SubQuery`, both sides must have matching column counts (unless one side is a named expression whose size is resolved later).
+====
+
+==== ArrayExpression
+
+[source,java]
+----
+public interface ArrayExpression extends TypedExpression, SQLValueList {
+----
+
+`ArrayExpression` represents a **SQL array constructor** — an ordered collection of values that can be used as a single expression value.
+It extends `TypedExpression`
+(carrying a `MappingType` for the array element type) and `SQLValueList`.
+
+`ArrayExpression` itself declares **no additional methods**; it is a marker interface whose type semantics are defined by its parent interfaces and the factory methods that produce it.
+
+In Army, array expressions are PostgreSQL-specific (standard SQL does not have an `ARRAY[...]` syntax).
+They are constructed via `Postgres.array()`:
+
+===== Related: Postgres.array()
+
+Three overloads:
+
+*Empty array* — must be type-cast before use, or the database will reject it.
+
+[source,java]
+----
+Postgres.array()                              // ARRAY[]
+Postgres.array().castTo(PostgresType.INTEGER) // ARRAY[]::integer[]
+----
+
+*Array from element list* — each element can be an `Expression` or a literal value.
+
+[source,java]
+----
+Postgres.array(List.of(SQLs.literalValue(1),
+                       SQLs.literalValue(2)))
+// generates:  ARRAY[1, 2]
+----
+
+*Array from subquery* — produces an array from the result of a scalar subquery.
+
+[source,java]
+----
+Postgres.array(subQuery)
+// generates:  ARRAY( SELECT ... )
+----
+
+==== IPredicate
+
+`IPredicate` represents a **SQL predicate** — the boolean-valued expression that appears in `WHERE` or `HAVING` clauses.
+All comparison methods on `Expression`
+(e.g. `equal()`, `greater()`, `like()`) return `IPredicate`, which then provides
+**logical combination operators** (`or`/`and`) to build compound conditions.
+
+[TIP]
+====
+The interface is named `IPredicate` rather than `Predicate` to avoid a naming conflict with `java.util.function.Predicate`.
+====
+
+[source,java]
+----
+public interface IPredicate extends TypedExpression, Statement._WhereAndClause<IPredicate> {
+
+    // typeMeta() always returns BooleanType.INSTANCE
+    BooleanType typeMeta();
+
+    // ── OR operators ──
+    IPredicate or(IPredicate predicate);
+    <T> IPredicate or(Function<T, IPredicate> expOperator, T operand);
+
+    // ── OR-group (parenthesized) ──
+    IPredicate orGroup(Consumer<Consumer<IPredicate>> consumer);
+    IPredicate orGroup(IPredicate t, IPredicate u);
+    IPredicate orGroup(IPredicate t, IPredicate u, IPredicate v);
+
+    // ── Conditional OR ──
+    IPredicate ifOrGroup(Consumer<Consumer<IPredicate>> consumer);
+    IPredicate ifOr(Supplier<IPredicate> supplier);
+    <T> IPredicate ifOr(Function<T, IPredicate> expOperator, @Nullable T value);
+
+    // ── AND / ifAnd ── inherited from Statement._WhereAndClause
+    // IPredicate and(IPredicate predicate);
+    // IPredicate ifAnd(Supplier<IPredicate> supplier);
+    // <T> IPredicate and(Function<T, IPredicate> expOperator, T operand);
+    // <T> IPredicate ifAnd(Function<T, IPredicate> expOperator, @Nullable T value);
+}
+----
+
+[IMPORTANT]
+====
+`IPredicate` itself extends `TypedExpression`, so it _is_ an `Expression` of
+`BooleanType`.
+This means you can pass an `IPredicate` wherever an `Expression`
+is expected — for example, in `CASE WHEN` or as a `SELECT` column.
+====
+
+`IPredicate` has two sub-interfaces that classify predicates by their structural role:
+
+- `SimplePredicate` — a **leaf** or **simple** predicate: `TRUE`, `FALSE`, bracket-wrapped sub-predicates (`(a > 1 OR b < 2)`), and function-call predicates.
+Extends `IPredicate` without adding any additional methods.
+- `LogicalPredicate` — a predicate resulting from a **logical operator** like `NOT`
+or dialect-specific operators.
+Extends both `IPredicate` and `SimplePredicate`.
+- `CompoundPredicate` — a predicate that is a **compound** of multiple sub-predicates (e.g. `AND`/`OR` chains).
+Extends `IPredicate`.
+
+===== or
+
+Combine two predicates with `OR`. `or(Function, T)` is the lambda form — the function receives `T` and returns an `IPredicate`.
+
+[source,java]
+----
+// Direct predicate
+Stock_.status.equal(StockStatus.NORMAL).or(Stock_.version.greater(10))
+
+// Lambda form
+Stock_.status.equal(StockStatus.NORMAL)
+        .or(Stock_.status::equal, StockStatus.CLOSED)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"status" = ? OR "status" = ?
+-- params: 'NORMAL', 'CLOSED'
+----
+
+===== orGroup
+
+Wrap a group of predicates in parentheses and OR-join them to the current predicate: `p OR (q1 AND q2 AND ...)`.
+Three overloads:
+
+- `orGroup(Consumer<Consumer<IPredicate>>)` — dynamic, pass predicates via a consumer callback.
+- `orGroup(IPredicate t, IPredicate u)` — exactly two predicates.
+- `orGroup(IPredicate t, IPredicate u, IPredicate v)` — exactly three predicates.
+
+[source,java]
+----
+// Dynamic — use when predicates are conditional
+Stock_.status.equal(StockStatus.NORMAL)
+        .orGroup(g -> {
+            g.accept(Stock_.offerPrice.greater(new BigDecimal("100")));
+            g.accept(Stock_.version.less(5));
+        })
+
+// Fixed two-predicate
+Stock_.code.equal("000001")
+        .orGroup(
+            Stock_.status.equal(StockStatus.NORMAL),
+            Stock_.version.greater(1)
+        )
+
+// Fixed three-predicate
+Stock_.code.equal("000001")
+        .orGroup(
+            Stock_.status.equal(StockStatus.NORMAL),
+            Stock_.version.greater(1),
+            Stock_.offerPrice.less(new BigDecimal("200"))
+        )
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"code" = ?
+OR (
+    "status" = ?
+    AND "version" > ?
+    AND "offer_price" < ?
+)
+-- params: '000001', 'NORMAL', 1, 200
+----
+
+[TIP]
+====
+`orGroup` always puts the sub-predicates inside parentheses connected by `AND`.
+Use `and()` before `orGroup()` to control left-associativity.
+====
+
+===== ifOrGroup
+
+Conditional variant of `orGroup` — if the consumer produces an empty group, the original predicate is returned unchanged (no `OR (...)` clause appended).
+
+[source,java]
+----
+Stock_.code.equal("000001")
+        .ifOrGroup(g -> {
+            if (includeOfferPrice) {
+                g.accept(Stock_.offerPrice.greater(new BigDecimal("100")));
+            }
+            if (includeStatus) {
+                g.accept(Stock_.status.equal(StockStatus.NORMAL));
+            }
+        })
+// If no condition is set, the group is silently omitted.
+----
+
+===== ifOr
+
+Conditional `OR` — if the supplied value (or supplier result) is `null`, the original predicate is returned unchanged.
+
+[source,java]
+----
+// Supplier form — most common
+Stock_.status.equal(StockStatus.NORMAL)
+        .ifOr(() -> {
+            return condition ? Stock_.version.greater(10) : null;
+        })
+
+// Function form — null value triggers omission
+Stock_.status.equal(StockStatus.NORMAL)
+        .ifOr(Stock_.status::equal, nullableStatus)
+// If nullableStatus is null → no OR clause appended
+----
+
+.Generated SQL (PostgreSQL) — when supplier returns non-null
+[source,sql]
+----
+"status" = ? OR "version" > ?
+-- params: 'NORMAL', 10
+----
+
+===== and
+
+Combine two predicates with `AND`.
+Inherited from `Statement._WhereAndClause`.
+
+[source,java]
+----
+// Direct predicate
+Stock_.code.equal("000001").and(Stock_.status.equal(StockStatus.NORMAL))
+
+// Lambda form
+Stock_.code.equal("000001")
+        .and(Stock_.status::equal, StockStatus.NORMAL)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+"code" = ? AND "status" = ?
+-- params: '000001', 'NORMAL'
+----
+
+===== ifAnd
+
+Conditional `AND` — if the supplier returns `null` (or the function value is
+`null`), the original predicate is returned unchanged.
+
+[source,java]
+----
+// Supplier form
+Stock_.code.equal("000001")
+        .ifAnd(() -> {
+            return optionalCondition ? Stock_.status.equal(StockStatus.NORMAL) : null;
+        })
+
+// Function form
+Stock_.code.equal("000001")
+        .ifAnd(Stock_.status::equal, nullableStatus)
+// If nullableStatus is null → no AND clause appended
+----
+
+.Generated SQL (PostgreSQL) — when supplier returns non-null
+[source,sql]
+----
+"code" = ? AND "status" = ?
+-- params: '000001', 'NORMAL'
+----
+
+[TIP]
+====
+`ifAnd` / `ifOr` are particularly useful in dynamic query construction where some filter conditions depend on user input.
+Instead of building if-else chains outside the query expression, embed the logic directly in the fluent API.
+====
+
+===== Related: SQLs.not()
+
+`SQLs.not(IPredicate)` wraps a predicate with the `NOT` logical operator.
+Returns a `LogicalPredicate`.
+
+[source,java]
+----
+// Source definition
+/// @param predicate non-null
+public static IPredicate not(IPredicate predicate) {
+    return OperationPredicate.notPredicate(predicate);
+}
+----
+
+[source,java]
+----
+// Invert a predicate
+SQLs.not(Stock_.status.equal(StockStatus.NORMAL))
+// SQL: NOT ("status" = ?)
+
+// Double NOT — cancels out (parenthesized)
+SQLs.not(SQLs.not(Stock_.code.equal("000001")))
+// SQL: NOT (NOT ("code" = ?))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+NOT ("status" = ?)
+-- param: 'NORMAL'
+----
+
+===== Related: SQLs.bracket()
+
+`SQLs.bracket(IPredicate)` wraps a predicate in parentheses, making it a
+**grouped** sub-predicate.
+Returns a `SimplePredicate`.
+Useful for controlling operator precedence without changing logical semantics.
+
+[source,java]
+----
+// Source definition
+/// @param predicate non-null
+public static SimplePredicate bracket(IPredicate predicate) {
+    return OperationPredicate.bracketPredicate(predicate);
+}
+----
+
+[source,java]
+----
+// Explicit grouping
+SQLs.bracket(
+    Stock_.code.equal("000001").or(Stock_.code.equal("000002"))
+)
+// SQL: ("code" = ? OR "code" = ?)
+
+// Combine with NOT
+SQLs.not(SQLs.bracket(
+    Stock_.status.equal(StockStatus.NORMAL)
+        .and(Stock_.version.greater(5))
+))
+// SQL: NOT ("status" = ? AND "version" > ?)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+("code" = ? OR "code" = ?)
+-- params: '000001', '000002'
+----
+
+[TIP]
+====
+Unlike `orGroup` which adds `OR` to the _current_ predicate, `bracket()` is a standalone wrapper.
+Use `bracket()` when you need explicit parentheses (e.g. already inside an `orGroup` callback or for visual clarity in complex expressions).
+====
+
+===== Related: SQLs.exists() / SQLs.notExists()
+
+`SQLs.exists(SubQuery)` and `SQLs.notExists(SubQuery)` produce `EXISTS` and
+`NOT EXISTS` predicates from a subquery.
+Both return `IPredicate`.
+
+[source,java]
+----
+// Source definitions
+/// @param subQuery non-null
+public static IPredicate exists(SubQuery subQuery) {
+    return Expressions.existsPredicate(false, subQuery);
+}
+
+/// @param subQuery non-null
+public static IPredicate notExists(SubQuery subQuery) {
+    return Expressions.existsPredicate(true, subQuery);
+}
+----
+
+[source,java]
+----
+// EXISTS — check if a subquery returns any rows
+SQLs.exists(SQLs.subQuery()
+    .select(s -> s.space(SQLs.LITERAL_1))
+    .from(Stock_.T, AS, "s")
+    .where(Stock_.code.equal("000001"))
+    .asQuery()
+)
+
+// NOT EXISTS — check if a subquery returns no rows
+SQLs.notExists(SQLs.subQuery()
+    .select(s -> s.space(SQLs.LITERAL_1))
+    .from(Stock_.T, AS, "s")
+    .where(Stock_.code.equal("000001"))
+    .asQuery()
+)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- exists()
+EXISTS (SELECT 1 FROM "stock" AS s WHERE s."code" = ?)
+
+-- notExists()
+NOT EXISTS (SELECT 1 FROM "stock" AS s WHERE s."code" = ?)
+----
+
+==== special expression
+
+`SQLs` provides a set of **special constant expressions** that represent SQL keywords and symbols.
+These are singletons (or functionally equivalent) that can be used wherever an `Expression` is expected — in `WHERE`, `HAVING`,
+`VALUES`, `SET` clauses, and as function arguments.
+
+Unlike regular expressions built from field comparisons, special expressions carry no type metadata from domain fields and are rendered directly as their corresponding SQL keyword or symbol.
+
+===== SQLs.NULL
+
+`SQLs.NULL` represents the SQL `NULL` keyword.
+It is an `Expression` of
+`NullType` and also serves as a `BoolTestWord` (usable in `IS NULL`/`IS NOT NULL`
+boolean tests) and a `NullOption`.
+
+[source,java]
+----
+// Source definition
+public static final WordNull NULL = NonOperationExpression.nullWord();
+----
+
+[source,java]
+----
+// Factory method (returns singleton)
+/// @see SQLs#NULL
+static SQLs.WordNull nullWord() {
+    return NullWord.INSTANCE;
+}
+----
+
+`WordNull` is a sealed interface extending `BoolTestWord`, `Expression`, and
+`NullOption`:
+
+[source,java]
+----
+public sealed interface WordNull extends BoolTestWord, Expression, NullOption
+        permits NonOperationExpression.NullWord {
+}
+----
+
+The implementation `NullWord` is a private singleton that renders as ` NULL` and throws an error for any operator call:
+
+[source,java]
+----
+@Override
+String operationErrorMessage() {
+    return "SQL key word NULL don't support operator";
+}
+----
+
+[source,java]
+----
+// Use as right-hand operand — already an Expression, no wrapping needed
+Stock_.offerPrice.nullSafeEqual(SQLs.NULL)
+
+// Use in VALUES clause
+SQLs.singleInsert()
+    .insertInto(Stock_.T)
+    .values()
+    .parens(r -> r
+        .space(Stock_.exchange, "NYSE")
+        .comma(Stock_.code, "AAPL")
+        .comma(Stock_.offerPrice, SQLs.NULL)  // explicit NULL
+    )
+    .asInsert()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- nullSafeEqual
+"offer_price" IS NOT DISTINCT FROM NULL
+
+-- explicit NULL in VALUES
+INSERT INTO stock (...) VALUES (?, ?, NULL)
+-- params: 'NYSE', 'AAPL'
+----
+
+[TIP]
+====
+When you need to compare a field against `NULL`, use the dedicated methods
+`isNull()` / `isNotNull()` instead of `equal(SQLs.NULL)`. `SQLs.NULL` is primarily for places where `Expression` is expected as a value (e.g. `VALUES`,
+`UPDATE SET`, function arguments).
+====
+
+===== SQLs.DEFAULT
+
+`SQLs.DEFAULT` represents the SQL `DEFAULT` keyword.
+It is an `Expression`
+used in `INSERT VALUES` and `UPDATE SET` clauses to instruct the database to use the column's default value.
+
+[source,java]
+----
+// Source definition
+public static final WordDefault DEFAULT = new DefaultWord();
+----
+
+`WordDefault` is a simple interface extending `Expression`:
+
+[source,java]
+----
+public interface WordDefault extends Expression {
+}
+----
+
+The implementation `DefaultWord` extends `NonOperationExpression` and renders as ` DEFAULT`.
+Note that unlike `NULL`, `DEFAULT` does _not_ implement
+`SingleAnonymousValue` — it is purely a keyword expression.
+
+[source,java]
+----
+// Use in VALUES — let database apply the column default
+SQLs.singleInsert()
+    .insertInto(Stock_.T)
+    .values()
+    .parens(r -> r
+        .space(Stock_.exchange, "NYSE")
+        .comma(Stock_.code, "AAPL")
+        .comma(Stock_.offerPrice, SQLs.DEFAULT)
+    )
+    .asInsert()
+// SQL: INSERT INTO stock (...) VALUES (?, ?, DEFAULT)
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+INSERT INTO stock (...) VALUES (?, ?, DEFAULT)
+-- params: 'NYSE', 'AAPL'
+----
+
+===== SQLs.ASTERISK
+
+`SQLs.ASTERISK` represents the SQL `*` symbol.
+It is an `Expression` used primarily as the argument to `COUNT(*)` in aggregate and window functions.
+
+[source,java]
+----
+// Source definition
+public static final SymbolAsterisk ASTERISK = new LiteralSymbolAsterisk();
+----
+
+`SymbolAsterisk` is a sealed interface extending `Expression` and `SQLToken`:
+
+[source,java]
+----
+public sealed interface SymbolAsterisk extends Expression, SQLToken
+        permits LiteralSymbolAsterisk {
+}
+----
+
+The implementation `LiteralSymbolAsterisk` extends `NonOperationExpression` and also implements `FunctionArg.SingleFunctionArg`, allowing it to be used as a function argument.
+It renders as ` *`.
+
+[source,java]
+----
+// COUNT(*) — the primary use case
+SQLs.query()
+    .select(Stock_.exchange, SQLs.count(SQLs.ASTERISK))
+    .from(Stock_.T, AS, "s")
+    .groupBy(Stock_.exchange)
+    .asQuery()
+
+// COUNT(*) in HAVING
+SQLs.query()
+    .select(Stock_.exchange, SQLs.count(SQLs.ASTERISK))
+    .from(Stock_.T, AS, "s")
+    .groupBy(Stock_.exchange)
+    .having(SQLs.count(SQLs.ASTERISK).greater(100))
+    .asQuery()
+
+// COUNT(*) as window function
+Windows.count().over(w -> w.partitionBy(Stock_.exchange))
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- COUNT(*) in SELECT
+SELECT s.exchange, COUNT(*)
+FROM stock AS s
+GROUP BY s.exchange
+
+-- COUNT(*) in HAVING
+SELECT s.exchange, COUNT(*)
+FROM stock AS s
+GROUP BY s.exchange
+HAVING COUNT(*) > 100
+
+-- COUNT(*) window function
+COUNT(*) OVER (PARTITION BY "exchange")
+----
+
+===== SQLs.TRUE
+
+`SQLs.TRUE` is a constant `SimplePredicate` representing the SQL boolean literal `TRUE`.
+It can be used directly in `WHERE` or `HAVING` clauses, or as the second operand of `IS`/`IS NOT` boolean tests.
+
+[source,java]
+----
+// Source definition
+public static final WordBoolean TRUE = OperationPredicate.booleanWord(true);
+----
+
+`SQLs.TRUE` is declared as type `WordBoolean` — a sealed interface that extends
+`BoolTestWord`, `SimplePredicate`, and `LiteralExpression`:
+
+[source,java]
+----
+public sealed interface WordBoolean extends BoolTestWord, SimplePredicate, LiteralExpression
+        permits OperationPredicate.BooleanWord {
+}
+----
+
+[source,java]
+----
+// Use TRUE as a standalone WHERE clause (matches all rows)
+SQLs.query()
+    .from(Stock_.T)
+    .where(SQLs.TRUE)
+    .asQuery()
+
+// Use in IS boolean test
+Stock_.status.is(SQLs.TRUE)
+// SQL: "status" IS TRUE
+
+// Use in a compound condition
+Stock_.code.equal("000001").and(SQLs.TRUE)
+// SQL: "code" = ? AND TRUE
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- standalone WHERE TRUE
+SELECT * FROM "stock" WHERE TRUE
+
+-- IS TRUE
+"status" IS TRUE
+
+-- compound
+"code" = ? AND TRUE
+-- param: '000001'
+----
+
+===== SQLs.FALSE
+
+`SQLs.FALSE` is a constant `SimplePredicate` representing the SQL boolean literal `FALSE`.
+It is the counterpart of `SQLs.TRUE`.
+
+[source,java]
+----
+// Source definition
+public static final WordBoolean FALSE = OperationPredicate.booleanWord(false);
+----
+
+The `booleanWord` factory method creates the corresponding singleton:
+
+[source,java]
+----
+/// @see SQLs#TRUE
+/// @see SQLs#FALSE
+static SQLs.WordBoolean booleanWord(final boolean value) {
+    return value ? BooleanWord.TRUE : BooleanWord.FALSE;
+}
+----
+
+Internally, `BooleanWord` is a private `OperationSimplePredicate` subclass that renders as ` TRUE` or ` FALSE` (with a leading space for SQL formatting).
+
+[source,java]
+----
+// Exclude all rows with FALSE in WHERE
+SQLs.query()
+    .from(Stock_.T)
+    .where(SQLs.FALSE)
+    .asQuery()
+
+// IS NOT FALSE boolean test
+Stock_.status.isNot(SQLs.FALSE)
+// SQL: "status" IS NOT FALSE
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+-- standalone WHERE FALSE
+SELECT * FROM "stock" WHERE FALSE
+
+-- IS NOT FALSE
+"status" IS NOT FALSE
+----
 
 === Param Binding
 
-==== Default Binding
+==== Implicit Binding
 
 When you write predicates like `field.equal(value)`, Army automatically wraps the right-hand value into a parameterized SQL expression.
 Here's how it works under the hood.
@@ -4536,6 +7657,51 @@ SQLs.singleInsert()
 
 === CTE
 
+A *Common Table Expression* (CTE) is a named temporary result set that exists within the scope of a single SQL statement.
+CTEs make complex queries more readable by breaking them into logical steps, and they are also required for recursive queries.
+
+Army provides full CTE support for `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and
+`MERGE` statements via two usage styles:
+
+- *Static WITH clause* — fluent, chained syntax for one or more CTEs.
+Best for a fixed number of CTEs known at compile time.
+- *Dynamic WITH clause* — callback-based syntax that receives a `CteBuilder`.
+Best for programmatic CTE construction.
+
+Both styles support `with()` for non-recursive CTEs and `withRecursive()` for recursive CTEs, plus conditional variants `ifWith()` / `ifWithRecursive()`.
+
+==== Static WITH Clause
+
+The static style follows a declarative chain:
+
+[source,java]
+----
+SQLs.query()
+    .with("cte_name")                  // (1) start CTE
+        .parens("col1", "col2")        // (2) optional column aliases
+        .as(fn)                        // (3) sub-statement → returns comma/space
+    .comma("another_cte")              // (4) more CTEs (optional)
+        .parens("col")
+        .as(fn)
+    .space()                           // (5) end WITH clause → main query
+    // ... main query ...
+----
+
+Each step:
+
+. `with("name")` or `withRecursive("name")` — names the CTE and opens the definition chain.
+. `parens(...)` — optionally provides column aliases for the CTE result.
+If omitted, column names are derived from the sub-statement's `SELECT` list.
+. `as(fn)` — supplies the CTE body via a `Function` that receives a sub-statement builder.
+The function returns a `Item` whose type carries the next CTE or
+`space()`/`comma()` hook.
+. `comma("name")` — adds another CTE to the chain.
+Repeat for multiple CTEs.
+. `space()` — terminates the WITH clause and returns to the main statement builder.
+
+===== Static CTE — Query
+
+[[_static_cte_query]]
 [source,java]
 ----
 final Select stmt;
@@ -4545,8 +7711,7 @@ stmt = SQLs.query()
                 .from(Stock_.T, AS, "s")
                 .where(Stock_.status.equal(StockStatus.NORMAL))
                 .asQuery()
-        )
-        .space()
+        ).space()
         .select(s -> s.space("normal_stock", PERIOD, ASTERISK))
         .from("normal_stock")
         .asQuery();
@@ -4564,47 +7729,753 @@ SELECT normal_stock.*
 FROM normal_stock
 ----
 
-=== Subqueries
+[TIP]
+====
+After `with(name).as(fn)`, the chain returns a type with `comma(name)` and `space()`.
+Calling `comma(name)` adds another CTE; calling `space()` closes the WITH clause.
+In static mode, `comma(name)` creates the next CTE *in line*, and you must add it via `.parens(...).as(fn)` before calling `space()`.
+====
 
-==== Scalar Subquery
+===== Static CTE — UPDATE
 
 [source,java]
 ----
-SQLs.scalarSubQuery()
-        .select(Stock_.id)
-        .from(Stock_.T, AS, "s")
-        .where(Stock_.exchange.equal("NYSE"))
-        .and(Stock_.code.equal("AAPL"))
-        .asQuery()
+final Update stmt;
+stmt = MySQLs.singleUpdate()
+        .with("cte").as(c -> c.select(ChinaRegion_.id)
+                .from(ChinaRegion_.T, AS, "c")
+                .where(ChinaRegion_.id.in(SQLs::rowParam, idList))
+                .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.NONE))
+                .asQuery()
+        ).space()
+        .update(ChinaRegion_.T, AS, "c")
+        .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, gdpAmount)
+        .where(ChinaRegion_.id::in, SQLs.subQuery()
+                .select(s -> s.space(SQLs.refField("cte", ChinaRegion_.ID)))
+                .from("cte")
+                .asQuery()
+        )
+        .and(ChinaRegion_.createTime.between(SQLs::param, start, AND, end))
+        .asUpdate();
+----
+
+.Generated SQL (MySQL)
+[source,sql]
+----
+WITH cte AS (
+    SELECT c.id
+    FROM china_region AS c
+    WHERE c.id IN ( ?, ?, ?, ... )
+      AND c.region_type = ?  -- param: 'NONE'
+)
+UPDATE china_region AS c
+SET c.region_gdp = c.region_gdp + ?  -- param: gdpAmount
+WHERE c.id IN (
+    SELECT cte.id FROM cte
+)
+  AND c.create_time BETWEEN ? AND ?
+----
+
+===== Static CTE — Multiple CTEs
+
+[[_static_cte_multiple]]
+[source,java]
+----
+final Select stmt;
+stmt = SQLs.query()
+        .with("first_cte").as(s -> s.select(Stock_.id, Stock_.name)
+                .from(Stock_.T, AS, "s")
+                .where(Stock_.status.equal(StockStatus.NORMAL))
+                .asQuery()
+        ).comma("second_cte").as(s -> s.select(Stock_.id, Stock_.offerPrice)
+                .from(Stock_.T, AS, "t")
+                .where(Stock_.offerPrice.greater(new BigDecimal("100.00")))
+                .asQuery()
+        ).space()
+        .select(s -> s.space("first_cte", PERIOD, ASTERISK))
+        .from("first_cte")
+        .join("second_cte").on(
+                SQLs.refField("first_cte", Stock_.ID)::equal,
+                SQLs.refField("second_cte", Stock_.ID)
+        )
+        .asQuery();
 ----
 
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT s.id
+WITH first_cte AS (
+    SELECT s.id, s.name
+    FROM stock AS s
+    WHERE s.status = ?  -- param: 'NORMAL'
+),
+second_cte AS (
+    SELECT t.id, t.offer_price
+    FROM stock AS t
+    WHERE t.offer_price > ?  -- param: 100.00
+)
+SELECT first_cte.*
+FROM first_cte
+JOIN second_cte ON first_cte.id = second_cte.id
+----
+
+==== Dynamic WITH Clause
+
+The dynamic style uses a `Consumer<B>` callback where `B` is dialect-specific:
+
+- `StandardCtes` — for `SQLs.*` / standard dialect
+- `MySQLCtes` — for `MySQLs.*` / MySQL dialect
+- `PostgreCtes` — for `Postgres.*` / PostgreSQL dialect
+
+[source,java]
+----
+SQLs.query()
+    .with(cteBuilder -> cteBuilder.subQuery("cte_name")
+            .as(fn)
+    )
+    // ... main query ...
+----
+
+Each `Ctes` builder provides factory methods that start a new CTE:
+
+- `subQuery(String name)` — CTE backed by a `SELECT` statement (all dialects)
+- `subValues(String name)` — CTE backed by a `VALUES` clause (MySQL)
+- `subSingleInsert(String name)` — CTE backed by an `INSERT` (PostgreSQL)
+- `subSingleUpdate(String name)` — CTE backed by an `UPDATE` (PostgreSQL)
+- `subSingleDelete(String name)` — CTE backed by a `DELETE` (PostgreSQL)
+
+===== Dynamic CTE — Equivalent to Static Style
+
+This is the dynamic equivalent of the static UPDATE example above:
+
+[source,java]
+----
+final Update stmt;
+stmt = MySQLs.singleUpdate()
+        .with(w -> w.subQuery("cte")
+                .as(s -> s.select(ChinaRegion_.id)
+                        .from(ChinaRegion_.T, AS, "c")
+                        .where(ChinaRegion_.id.in(SQLs::rowParam, idList))
+                        .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.NONE))
+                        .asQuery()
+                )
+        )
+        .update(ChinaRegion_.T, AS, "c")
+        .set(ChinaRegion_.regionGdp, SQLs::plusEqual, SQLs::param, gdpAmount)
+        .where(ChinaRegion_.id::in, SQLs.subQuery()
+                .select(s -> s.space(SQLs.refField("cte", ChinaRegion_.ID)))
+                .from("cte")
+                .asQuery()
+        )
+        .asUpdate();
+----
+
+.Generated SQL (MySQL)
+[source,sql]
+----
+WITH cte AS (
+    SELECT c.id
+    FROM china_region AS c
+    WHERE c.id IN ( ?, ?, ?, ... )
+      AND c.region_type = ?  -- param: 'NONE'
+)
+UPDATE china_region AS c
+SET c.region_gdp = c.region_gdp + ?  -- param: gdpAmount
+WHERE c.id IN (
+    SELECT cte.id FROM cte
+)
+----
+
+===== Dynamic CTE — Multiple with Conditional
+
+[source,java]
+----
+final Select stmt;
+stmt = SQLs.query()
+        .with(c -> {
+            c.subQuery("cte1").as(s -> s.select(Stock_.id)
+                    .from(Stock_.T, AS, "s")
+                    .asQuery()
+            );
+            if (includeSecondCte) {
+                c.subQuery("cte2").as(s -> s.select(Stock_.offerPrice)
+                        .from(Stock_.T, AS, "t")
+                        .asQuery()
+                );
+            }
+        })
+        .select(s -> s.space(Stock_.id))
+        .from("cte1")
+        .asQuery();
+----
+
+[TIP]
+====
+Use `ifWith(consumer)` / `ifWithRecursive(consumer)` when you need to *conditionally*
+add a WITH clause — the consumer is only executed when you've added at least one CTE.
+If the consumer adds zero CTEs, the entire WITH clause is silently omitted from the final SQL.
+In contrast, `with(consumer)` / `withRecursive(consumer)` throws an error if no CTE is added.
+====
+
+==== Recursive CTE
+
+A *recursive CTE* is a CTE that references itself, used for hierarchical data (org charts, category trees) or iterative computation (number series, graph traversal).
+It consists of two parts:
+
+1. *Non-recursive part* — the base case, executed once
+2. *Recursive part* — references the CTE's own name via `UNION` / `UNION ALL`
+
+In Army, recursive CTEs are declared with `withRecursive()` (or `.withRecursive("name")`
+in the static style).
+Within the `as(fn)` body, reference the CTE columns using
+`SQLs.refField(cteName, "column")`.
+
+===== Recursive CTE — Number Series
+
+[[_recursive_cte_number]]
+[source,java]
+----
+final Select stmt;
+stmt = SQLs.query()
+        .withRecursive("cte").parens("n").as(s ->
+                // Non-recursive part — base case
+                s.select(SQLs.literalValue(1)::as, "n")
+                 .union()
+                 // Recursive part — references itself via refField
+                 .select(cs -> cs.space(
+                         SQLs.refField("cte", "n").plus(SQLs.literalValue(1))::as, "n")
+                 )
+                 .from("cte")
+                 .where(SQLs.refField("cte", "n").less(SQLs.literalValue(10)))
+                 .asQuery()
+        ).space()
+        .select(s -> s.space(SQLs.refField("cte", "n")))
+        .from("cte")
+        .asQuery();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+WITH RECURSIVE cte(n) AS (
+    SELECT 1 AS n
+    UNION
+    SELECT cte.n + 1 AS n
+    FROM cte
+    WHERE cte.n < 10
+)
+SELECT cte.n
+FROM cte
+----
+
+[IMPORTANT]
+====
+A recursive CTE *must* contain at least one non-recursive part (base case).
+Army validates this at parse time — if the recursive part appears without a non-recursive anchor, a `NotExistsNonRecursiveException` is thrown.
+====
+
+===== Recursive CTE — Hierarchical Query
+
+[[_recursive_cte_hierarchical]]
+[source,java]
+----
+final Select stmt;
+stmt = SQLs.query()
+        .withRecursive("category_tree").parens("id", "parent_id", "name", "level")
+        .as(s ->
+                // Non-recursive part — root nodes (parent_id IS NULL)
+                s.select(Category_.id, Category_.parentId, Category_.name,
+                         SQLs.literalValue(1)::as, "level")
+                 .from(Category_.T, AS, "c")
+                 .where(Category_.parentId.isNull())
+                 .asQuery()
+        ).comma("union", s -> s.select(Category_.id, Category_.parentId,
+                                       Category_.name,
+                                       SQLs.refField("category_tree", "level")
+                                           .plus(SQLs.literalValue(1))::as, "level")
+                 .from(Category_.T, AS, "c")
+                 .join("category_tree").on(
+                         Category_.parentId::equal,
+                         SQLs.refField("category_tree", Category_.ID)
+                 )
+                 .asQuery()
+        ).space()
+        .select(s -> s.space("category_tree", PERIOD, ASTERISK))
+        .from("category_tree")
+        .orderBy(SQLs.refField("category_tree", "level")::asc,
+                 SQLs.refField("category_tree", Category_.ID)::asc)
+        .asQuery();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+WITH RECURSIVE category_tree(id, parent_id, name, level) AS (
+    SELECT c.id, c.parent_id, c.name, 1 AS level
+    FROM category AS c
+    WHERE c.parent_id IS NULL
+    UNION ALL
+    SELECT c.id, c.parent_id, c.name, category_tree.level + 1 AS level
+    FROM category AS c
+    JOIN category_tree ON c.parent_id = category_tree.id
+)
+SELECT category_tree.*
+FROM category_tree
+ORDER BY category_tree.level ASC, category_tree.id ASC
+----
+
+==== Referencing CTEs
+
+Once a CTE is defined, there are two ways to reference it in the main statement:
+
+===== FROM / JOIN a CTE
+
+Use the CTE name directly in the `FROM` or `JOIN` clause — just like a table name:
+
+[source,java]
+----
+.from("cte_name")                           // bare CTE
+.from("cte_name", AS, "alias")               // CTE with alias
+.from(SQLs.MATERIALIZED, "cte_name", AS, "a") // CTE with materialization hint (PostgreSQL)
+.join("cte_name").on(...)                    // JOIN CTE
+.leftJoin("cte_name", AS, "alias").on(...)   // LEFT JOIN CTE with alias
+----
+
+===== Accessing CTE Columns via refField
+
+Use `SQLs.refField(cteAlias, selectionAlias)` to reference a specific CTE column in `SELECT`, `WHERE`, `JOIN ... ON`, or `ORDER BY`:
+
+[source,java]
+----
+// Reference a CTE column by its selection alias (string form)
+SQLs.refField("cte", "id")       // cte.id
+
+// Reference a CTE column by its metamodel field name
+SQLs.refField("cte", ChinaRegion_.ID)  // cte.id, with type info
+----
+
+[TIP]
+====
+`SQLs.refField()` returns a `DerivedField` (no type info) or `TypedDerivedField`
+(with full `MappingType`).
+Use `SQLs.refTypedField()` to get a typed reference when you need `TypedExpression` methods.
+
+When the left operand has no type (e.g., `SQLs.refField("cte", "id")`), prefer the two-argument form of expression operators to explicitly provide the type:
+
+[source,java]
+----
+SQLs.refField("cte", "n").less(SQLs::param, 10)   // ✅ explicit type
+SQLs.refField("cte", "n").less(10)                // ❌ may fail at parse time
+----
+====
+
+==== CTE with VALUES
+
+A CTE can also be defined from a `VALUES` clause, useful for providing inline data to a query without a real table:
+
+[source,java]
+----
+final Select stmt;
+stmt = SQLs.query()
+        .with("data").as(sw -> sw.values()
+                .row(s -> s.space(1))
+                .comma()
+                .row(s -> s.space(2))
+                .comma()
+                .row(s -> s.space(3))
+                .asValues()
+        ).space()
+        .select(Stock_.id, Stock_.name)
+        .from(Stock_.T, AS, "s")
+        .crossJoin("data")
+        .where(Stock_.id.in(SQLs::rowLiteral, List.of(1, 2, 3)))
+        .asQuery();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+WITH data AS (
+    VALUES (1),
+           (2),
+           (3)
+)
+SELECT s.id, s.name
 FROM stock AS s
-WHERE s.exchange = ?
-  AND s.code = ?
--- params: 'NYSE', 'AAPL'
--- asQuery() returns Expression, usable in SELECT / WHERE / HAVING
+CROSS JOIN data
+WHERE s.id IN ( 1, 2, 3 )
+----
+
+==== CTE in DML — DELETE with CTE
+
+[[_cte_delete]]
+[source,java]
+----
+final Delete stmt;
+stmt = MySQLs.singleDelete()
+        .with("idListCte").as(c -> c.select(ChinaRegion_.id)
+                .from(ChinaRegion_.T, AS, "t")
+                .where(ChinaRegion_.id.in(SQLs::rowParam, idList))
+                .and(ChinaRegion_.regionType.equal(SQLs::param, RegionType.NONE))
+                .asQuery()
+        ).space()
+        .deleteFrom(ChinaRegion_.T, AS, "c")
+        .where(ChinaRegion_.id::in, SQLs.subQuery()
+                .select(s -> s.space(SQLs.refField("cte", ChinaRegion_.ID)))
+                .from("idListCte", AS, "cte")
+                .asQuery()
+        )
+        .and(ChinaRegion_.createTime.between(SQLs::param, start, AND, end))
+        .asDelete();
+----
+
+.Generated SQL (MySQL)
+[source,sql]
+----
+WITH idListCte AS (
+    SELECT t.id
+    FROM china_region AS t
+    WHERE t.id IN ( ?, ?, ?, ... )
+      AND t.region_type = ?  -- param: 'NONE'
+)
+DELETE FROM china_region AS c
+WHERE c.id IN (
+    SELECT cte.id FROM idListCte AS cte
+)
+  AND c.create_time BETWEEN ? AND ?
+----
+
+==== PostgreSQL-Specific CTE Features
+
+PostgreSQL extends standard CTE syntax with materialization control and recursive search/cycle clauses.
+
+===== MATERIALIZED / NOT_MATERIALIZED
+
+Control whether PostgreSQL materializes (caches) the CTE result or merges it into the main query each time it's referenced:
+
+[source,java]
+----
+// Force materialization — useful when the CTE is expensive and referenced multiple times
+Postgres.query()
+    .with("cte").as(SQLs.MATERIALIZED, ws -> ws
+            .select(Stock_.id)
+            .from(Stock_.T, AS, "s")
+            .asQuery()
+    ).space()
+    .select(s -> s.space("cte", PERIOD, ASTERISK))
+    .from("cte")
+    .asQuery();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+WITH cte AS MATERIALIZED (
+    SELECT s.id
+    FROM stock AS s
+)
+SELECT cte.*
+FROM cte
+----
+
+Use `SQLs.NOT_MATERIALIZED` to prefer inline merging.
+
+===== SEARCH and CYCLE
+
+PostgreSQL supports `SEARCH BREADTH FIRST` / `SEARCH DEPTH FIRST` and `CYCLE`
+clauses for recursive CTEs.
+These are available via the `Postgres.*` API:
+
+[source,java]
+----
+final Select stmt;
+stmt = Postgres.query()
+        .withRecursive("tree").parens("id", "parent_id", "depth")
+        .as(s -> s.select(Category_.id, Category_.parentId,
+                          SQLs.literalValue(0)::as, "depth")
+                .from(Category_.T, AS, "c")
+                .where(Category_.parentId.isNull())
+                .unionAll()
+                .select(c -> c.space(Category_.id, Category_.parentId,
+                                     SQLs.refField("tree", "depth")
+                                             .plus(SQLs.literalValue(1))::as, "depth"))
+                .from(Category_.T, AS, "c")
+                .join("tree").on(
+                        Category_.parentId::equal,
+                        SQLs.refField("tree", Category_.ID)
+                )
+                .asQuery()
+        ).search(s -> s.depthFirst().by(Category_.id).set("search_seq"))
+        .cycle(Category_.id).set("is_cycle").using("cycle_path")
+        .space()
+        .select(s -> s.space("tree", PERIOD, ASTERISK))
+        .from("tree")
+        .where(SQLs.refField("tree", "is_cycle").equal(false))
+        .asQuery();
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+WITH RECURSIVE tree(id, parent_id, depth) AS (
+    SELECT c.id, c.parent_id, 0 AS depth
+    FROM category AS c
+    WHERE c.parent_id IS NULL
+    UNION ALL
+    SELECT c.id, c.parent_id, tree.depth + 1 AS depth
+    FROM category AS c
+    JOIN tree ON c.parent_id = tree.id
+) SEARCH DEPTH FIRST BY id SET search_seq
+  CYCLE id SET is_cycle USING cycle_path
+SELECT tree.*
+FROM tree
+WHERE tree.is_cycle = FALSE
+----
+
+[TIP]
+====
+`search()` and `cycle()` are available in both static and dynamic WITH styles for PostgreSQL.
+In the static style, the search/cycle clauses appear between
+`.as(fn)` and `.space()`.
+Use `ifSearch()` / `ifCycle()` for conditional application.
+
+Complete API:
+
+- `.search(s -> s.breadthFirst().by(col).set("seqCol"))` — breadth-first
+- `.search(s -> s.depthFirst().by(col).set("seqCol"))` — depth-first
+- `.cycle(col1, col2).set("mark").using("path")` — cycle detection
+- `.ifSearch(...)` / `.ifCycle(...)` — conditional application
+====
+
+==== Static vs Dynamic — When to Use Which
+
+[cols="2,3,3",options="header"]
+|===
+| Scenario | Static Style | Dynamic Style
+
+| *Single, fixed CTE*
+| `.with("cte").as(fn).space()`
++
+Short and readable.
+| `.with(c -> c.subQuery("cte").as(fn))`
++
+Slightly more verbose.
+
+| *Multiple, fixed CTEs*
+| `.with("c1").as(f1).comma("c2").as(f2).space()`
++
+Natural chaining.
+| `.with(c -> { c.subQuery("c1").as(f1); c.subQuery("c2").as(f2); })`
++
+Grouped in one callback.
+
+| *Conditional CTE inclusion*
+| Not available — all CTEs in the chain are mandatory.
+| `.ifWith(c -> { if (cond) c.subQuery("c1").as(f1); })`
++
+CTE silently omitted when cond is false.
+
+| *Programmatic CTE generation*
+| Awkward — must construct the chain
+programmatically.
+| Natural — build the CTE list inside the
+consumer with loops and conditionals.
+
+| *Need `space*` bindings in CTE*
+| Batch domain UPDATE/DELETE:
+`.with("cte").as(sw -> sw.select(...).where(field::spaceEqual, SQLs::namedParam))`
+| Same as static.
+|===
+
+=== Subqueries
+
+==== Scalar Subquery
+
+A **scalar subquery** returns a single column and at most one row — it acts as a scalar `Expression` in `SELECT`, `WHERE`, or `HAVING` clauses.
+
+[IMPORTANT]
+====
+A `SubQuery` cannot exist independently — it must always be embedded within an
+_outer statement_ (a top-level `SELECT`/`INSERT`/`UPDATE`/`DELETE`).
+The outer context is captured at construction time via `ContextStack.peek()`.
+Without an outer statement, `ContextStack.peek()` throws a `CriteriaException`.
+====
+
+`SQLs.scalarSubQuery()` is the standard entry point:
+
+[source,java]
+----
+// Source definition — SQLs.java
+public static StandardQuery.WithSpec<Expression> scalarSubQuery() {
+    return StandardQueries.subQuery(StandardDialect.STANDARD20,
+            ContextStack.peek(), SCALAR_SUB_QUERY);
+}
+----
+
+**Dialect entry points** provide the same API but bind to a specific database dialect, enabling dialect-specific features (e.g. `FOR UPDATE`, `LIMIT`, modifiers) within the subquery:
+
+[source,java]
+----
+// MySQL dialect scalar subquery
+MySQLs.scalarSubQuery()   // → MySQLQuery.WithSpec<Expression>
+
+// PostgreSQL dialect scalar subquery
+Postgres.scalarSubQuery() // → PostgreQuery.WithSpec<Expression>
+----
+
+The `SCALAR_SUB_QUERY` constant wraps the subquery result via
+`Expressions.scalarExpression`:
+
+[source,java]
+----
+// SQLs.java
+static final Function<SubQuery, Expression> SCALAR_SUB_QUERY
+        = Expressions::scalarExpression;
+----
+
+`Expressions.scalarExpression` validates that the subquery has exactly one selection and returns a `ScalarExpression` wrapper:
+
+[source,java]
+----
+// Expressions.java
+static SimpleExpression scalarExpression(final SubQuery subQuery) {
+    validateScalarSubQuery(subQuery);  // throws if selection count != 1
+    return new ScalarExpression(subQuery);
+}
+----
+
+Scalar subqueries are most commonly used in `SELECT` clauses to embed a lookup value:
+
+[source,java]
+----
+// Embed a scalar subquery in SELECT — returns Expression, not SubQuery
+SQLs.query()
+    .select(SQLs.scalarSubQuery()
+            .select(PillUser_.nickName)
+            .from(PillUser_.T, AS, "u")
+            .where(PillUser_.id.equal(SQLs::param, 1))
+            .asQuery()      // → Expression (not SubQuery)
+            .as("r")
+    )
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT (SELECT u.nick_name
+        FROM pill_user AS u
+        WHERE u.id = ?) AS r
+-- param: 1
+----
+
+Scalar subqueries can also appear in `WHERE` clauses:
+
+[source,java]
+----
+// Scalar subquery in WHERE — compare a field against a subquery result
+SQLs.query()
+    .select(Stock_.code)
+    .from(Stock_.T, AS, "s")
+    .where(Stock_.offerPrice.greater(
+        SQLs.scalarSubQuery()
+            .select(SQLs.avg(Stock_.offerPrice))
+            .from(Stock_.T, AS, "s2")
+            .asQuery()
+    ))
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT s.code
+FROM stock AS s
+WHERE s.offer_price > (SELECT AVG(s2.offer_price)
+                       FROM stock AS s2)
 ----
 
 [IMPORTANT]
 ====
 The final `asQuery()` at the end of the `SQLs.scalarSubQuery()` chain returns an `io.army.criteria.Expression` instance, *not* a `SubQuery`.
-It is used in contexts that require a scalar expression, such as `SELECT`, `WHERE`, and `HAVING` clauses.
-In contrast, the final `asQuery()` at the end of the `SQLs.subQuery()` chain returns a `SubQuery`, which is used in `FROM` clauses or with `IN` / `EXISTS` predicates.
+It is used in contexts that require a scalar expression, such as `SELECT`, `WHERE`, and
+`HAVING` clauses.
+
+In contrast, the final `asQuery()` at the end of the `SQLs.subQuery()` chain returns a `SubQuery`, which is used in `FROM` clauses or with `IN` / `EXISTS`
+predicates.
 ====
 
 ==== Table Subquery
 
+A **table subquery** (or derived table) returns a result set that can be used in `FROM` clauses, `JOIN` sources, or as the operand of `IN` / `EXISTS` / `= ANY`
+predicates.
+
+[IMPORTANT]
+====
+A `SubQuery` cannot exist independently — it must always be embedded within an
+_outer statement_ (a top-level `SELECT`/`INSERT`/`UPDATE`/`DELETE`).
+The outer context is captured at construction time via `ContextStack.peek()`.
+Without an outer statement, `ContextStack.peek()` throws a `CriteriaException`.
+====
+
+`SQLs.subQuery()` is the standard entry point:
+
 [source,java]
 ----
+// Source definition — SQLs.java
+public static StandardQuery.WithSpec<SubQuery> subQuery() {
+    return StandardQueries.subQuery(StandardDialect.STANDARD20,
+            ContextStack.peek(), SUB_QUERY_IDENTITY);
+}
+----
+
+**Dialect entry points** provide the same API but bind to a specific database dialect, enabling dialect-specific clauses (e.g. `FOR UPDATE`, `LIMIT`) within the subquery:
+
+[source,java]
+----
+// MySQL dialect table subquery
+MySQLs.subQuery()   // → MySQLQuery.WithSpec<SubQuery>
+
+// PostgreSQL dialect table subquery
+Postgres.subQuery() // → PostgreQuery.WithSpec<SubQuery>
+----
+
+The `SUB_QUERY_IDENTITY` constant is simply the identity function:
+
+[source,java]
+----
+// SQLs.java
+static final UnaryOperator<SubQuery> SUB_QUERY_IDENTITY = SQLs::identity;
+----
+
+`SubQuery` extends multiple interfaces to support diverse usage contexts:
+
+[source,java]
+----
+// SubQuery.java
+public interface SubQuery extends DerivedTable, Query, SubStatement,
+                                   SQLValueList, RowElement {
+}
+----
+
+- `DerivedTable` — allows the subquery to appear in `FROM` and `JOIN`
+- `Query` — the subquery itself is a query statement
+- `SubStatement` — marks it as a sub-statement (not top-level)
+- `SQLValueList` — allows usage with `IN` / `= ANY` predicates
+- `RowElement` — allows row-level operations
+
+Table subqueries appear in three main contexts: `FROM`/`JOIN`, `EXISTS`, and `IN`.
+
+*In FROM clause (derived table):*
+
+[source,java]
+----
+// Select all columns from a filtered subquery
 SQLs.subQuery()
-        .select("s",PERIOD,Stock_.T)
-        .from(Stock_.T, AS, "s")
-        .where(Stock_.status.equal(StockStatus.NORMAL))
-        .asQuery()
+    .select("s", PERIOD, Stock_.T)
+    .from(Stock_.T, AS, "s")
+    .where(Stock_.status.equal(StockStatus.NORMAL))
+    .asQuery()      // → SubQuery
 ----
 
 .Generated SQL (PostgreSQL)
@@ -4612,8 +8483,1155 @@ SQLs.subQuery()
 ----
 SELECT s.*
 FROM stock AS s
-WHERE s.status = ?  -- param: 'NORMAL'
--- asQuery() returns SubQuery, usable in FROM / IN / EXISTS
+WHERE s.status = ?
+-- param: 'NORMAL'
+-- asQuery() returns SubQuery, usable in FROM / JOIN / IN / EXISTS
+----
+
+*In JOIN as a derived table:*
+
+[source,java]
+----
+// Join a subquery as a derived table source
+SQLs.query()
+    .select("bu", PERIOD, PillUser_.T)
+    .from(PillUser_.T, AS, "bu")
+    .join(SQLs.subQuery()
+            .select(ChinaProvince_.id)
+            .from(ChinaProvince_.T, AS, "p")
+            .asQuery()
+    ).as("ps").on(PillUser_.id.equal(SQLs.refField("ps", ChinaProvince_.ID)))
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT bu.*
+FROM pill_user AS bu
+JOIN (SELECT p.id
+      FROM china_province AS p) AS ps
+  ON bu.id = ps.id
+----
+
+*In EXISTS predicate:*
+
+[source,java]
+----
+// EXISTS — check whether a related row exists
+SQLs.query()
+    .select("u", PERIOD, PillUser_.T)
+    .from(PillUser_.T, AS, "u")
+    .where(PillUser_.nickName.equal(SQLs::param, "蛮吉"))
+    .and(SQLs::exists, SQLs.subQuery()
+            .select(ChinaProvince_.id)
+            .from(ChinaProvince_.T, AS, "p")
+            .join(ChinaRegion_.T, AS, "r")
+                .on(ChinaProvince_.id::equal, ChinaRegion_.id)
+            .where(ChinaProvince_.governor::equal,
+                   SQLs.field("u", PillUser_.nickName))
+            .asQuery()
+    )
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT u.*
+FROM pill_user AS u
+WHERE u.nick_name = ?
+  AND EXISTS (SELECT p.id
+              FROM china_province AS p
+              JOIN china_region AS r ON p.id = r.id
+              WHERE p.governor = u.nick_name)
+-- param: '蛮吉'
+----
+
+*In IN predicate:*
+
+[source,java]
+----
+// IN — filter by a subquery result set
+SQLs.query()
+    .select("p", PERIOD, PillPerson_.T)
+    .from(PillPerson_.T, AS, "p")
+    .join(PillUser_.T, AS, "u")
+        .on(PillUser_.id::equal, PillPerson_.id)
+    .where(PillPerson_.id.equal(SQLs::literal, 1))
+    .and(PillUser_.id::in, SQLs.subQuery()
+            .select(RegisterRecord_.userId)
+            .from(RegisterRecord_.T, AS, "r")
+            .where(RegisterRecord_.createTime.between(
+                SQLs::literal, LocalDateTime.now().minusDays(1),
+                AND, LocalDateTime.now()))
+            .asQuery()
+    )
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT p.*
+FROM pill_person AS p
+JOIN pill_user AS u ON u.id = p.id
+WHERE p.id = 1
+  AND u.id IN (SELECT r.user_id
+               FROM register_record AS r
+               WHERE r.create_time BETWEEN ? AND ?)
+-- params: 1, '2026-06-04T...', '2026-06-05T...'
+----
+
+=== Clause(s)
+
+Army's query API is built on a strict fluent chain where each clause method returns the next narrow interface, enforcing correct SQL clause ordering at compile time.
+The full chain order is:
+
+`WITH` → `SELECT` → `FROM` → `JOIN` → `WHERE` → `GROUP BY` → `HAVING` → `WINDOW` → `ORDER BY` → `LIMIT` → `UNION` → `asQuery()`
+
+==== SELECT
+
+The `select()` method defines the output columns.
+Army provides *three forms* of SELECT clause, each suited to a different scenario:
+
+[cols="1,2,2,3",options="header"]
+|===
+| Form | Selection Timing | Derived Table Reference | API Entry
+
+| *Static* | Compile-time (fixed) | Not needed
+| `select(Selection)`, `comma(Selection)`
+
+| *Delay* | Compile-time (known) | Required (refField)
+| `select(Consumer<_DeferSelectSpaceClause>)`
+
+| *Dynamic* | Runtime (conditional) | Required or not
+| `selects(Consumer<SelectionConsumer>)`
+|===
+
+===== Static Select
+
+When selections are *known at compile time* and *do not reference derived table columns*, use the static form: pass `Selection` objects directly to `select()`
+or `comma()`.
+
+[source,java]
+----
+// Query._StaticSelectClause (Query.java L73-L97) — via StandardQuery.SelectSpec
+interface _StaticSelectClause<SR> {
+    SR select(Selection selection);                     // single
+    SR select(Selection s1, Selection s2);              // two
+    SR select(SqlField f1, SqlField f2, SqlField f3);  // three fields
+    SR select(String alias, SQLs.SymbolDot dot,
+              TableMeta<?> table);                      // wildcard
+    ...
+}
+----
+
+*How it works:* The `Selection` objects (fields, expressions, wildcards) are captured immediately as the SELECT clause is built.
+No deferred resolution is needed because the selections don't depend on any FROM/JOIN aliases.
+
+*Single selection (wildcard):*
+
+[source,java]
+----
+SQLs.query()
+    .select("u", PERIOD, PillUser_.T)     // u.*  — domain wildcard
+    .from(PillUser_.T, AS, "u")
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT u.*
+FROM pill_user AS u
+----
+
+*Multiple selections with `comma()`:*
+
+[source,java]
+----
+SQLs.query()
+    .select(ChinaRegion_.population.plus(SQLs::param, 1).as("populationPlus"))
+    .comma("c", PERIOD, ChinaRegion_.T,
+           "p", PERIOD, ChinaProvince_.T)
+    .from(ChinaProvince_.T, AS, "p")
+    .join(ChinaRegion_.T, AS, "c")
+        .on(ChinaProvince_.id::equal, ChinaRegion_.id)
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT c.population + ? AS "populationPlus",
+       c.*, p.*
+FROM china_province AS p
+JOIN china_region AS c ON p.id = c.id
+----
+
+===== Defer Select
+
+When selections are *known at compile time* but *need to reference derived table columns* (e.g., a subquery's output columns via `refField()`), you must use the delay form.
+Pass a `Consumer<_DeferSelectSpaceClause>` lambda — the lambda is not executed immediately.
+Instead, it is *registered as a deferred command* and executed *after* the FROM clause has been processed, when derived table aliases are fully resolved.
+
+[source,java]
+----
+// Query._DynamicSelectClause (Query.java L55-L61)
+interface _DynamicSelectClause<SD> {
+    SD select(Consumer<_DeferSelectSpaceClause> consumer);
+    SD selects(Consumer<SelectionConsumer> consumer);
+}
+
+// Implementation — SimpleQueries.java L229
+public final SD select(Consumer<_DeferSelectSpaceClause> consumer) {
+    this.context.registerDeferCommandClause(
+        () -> consumer.accept(new SelectionConsumerImpl(this.context))
+    );
+    return (SD) this;
+}
+----
+
+[WARNING]
+====
+`SQLs.refField(derivedAlias, fieldName)` is **not allowed** in static SELECT clauses.
+If you try, you'll get:
+
+    SQLs.refField("us","one") isn't allowed in static SELECT clause for ...
+
+You *must* switch to the delay form to use `refField()`.
+====
+
+*Example — delay form referencing a derived table alias:*
+
+[source,java]
+----
+// SELECT references "us.one" and "us.*" — derived table alias `us` requires delay
+SQLs.query()
+    .select(s -> s.space(SQLs.refField("us", "one"))
+            .comma("us", PERIOD, ASTERISK)
+    )
+    .from(SQLs.subQuery()
+            .select(SQLs.literalValue(1)::as, "one")
+            .comma("u", PERIOD, PillUser_.T)
+            .from(PillUser_.T, AS, "u")
+            .limit(SQLs::literal, 0, 10)
+            .asQuery()
+    ).as("us")
+    .where(SQLs.refField("us", "one").equal(SQLs.parameter(1)))
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT us."one", us.*
+FROM (SELECT 1 AS "one", u.*
+      FROM pill_user AS u
+      LIMIT 10 OFFSET 0) AS us
+WHERE us."one" = ?
+-- param: 1
+----
+
+===== Dynamic Select
+
+When selections are *determined at runtime* (e.g., different columns based on conditions), use `selects(Consumer<SelectionConsumer>)`. `SelectionConsumer` is a more flexible builder that allows conditional branching inside the lambda.
+
+[source,java]
+----
+// Query._DynamicSelectClause (Query.java L59)
+SD selects(Consumer<SelectionConsumer> consumer);
+
+// SelectionConsumer.java
+public interface SelectionConsumer extends Statement._DeferContextSpec {
+    SelectionConsumer selection(Selection selection);
+    SelectionConsumer selection(Selection s1, Selection s2);
+    SelectionConsumer selection(SqlField f1, SqlField f2, SqlField f3);
+    SelectionConsumer selection(String alias, SQLs.SymbolDot dot,
+                                TableMeta<?> table);
+    ...
+}
+----
+
+*How it works:* Like the delay form, the lambda is registered as a deferred command.
+Inside the lambda, you call `consumer.selection(...)` repeatedly — each call appends a column.
+You can use `if`/`else` to dynamically decide which columns to include.
+
+*Example — conditional column selection:*
+
+[source,java]
+----
+// Dynamically pick columns based on distance type
+SQLs.query()
+    .selects(s -> {
+        s.selection(this.documentId, this.content, this.metadata);
+        if (distanceType == NEG_DOT) {
+            s.selection(SQLs.LITERAL_1.plus(
+                this.embedding.space(distanceOp, queryEmbedding)
+            ).as("distance"));
+        } else {
+            s.selection(this.embedding.space(
+                distanceOp, queryEmbedding
+            ).as("distance"));
+        }
+    })
+    .from(this.tableMeta, AS, "t")
+    .orderBy(SQLs.refSelection("distance"))
+    .limit(topK)
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL) — NEG_DOT branch
+[source,sql]
+----
+SELECT t.document_id, t.content, t.metadata,
+       1 + (t.embedding <-> ?) AS "distance"
+FROM doc_store AS t
+ORDER BY "distance"
+LIMIT 5
+-- param: {embedding vector}
+----
+
+[TIP]
+====
+*When to use which form:*
+
+- *Static* — you know the list of columns and they're all from `SqlField`
+references or literal expressions (most common case).
+- *Delay* — you know the list of columns but some come from a derived table (subquery) alias, so you need `refField("alias", "col")`.
+- *Dynamic* — the column list depends on runtime conditions (different branches add different columns), or you need the `SelectionConsumer` API for programmatic column building.
+====
+
+==== FROM
+
+The `from()` method specifies the data source.
+Army provides *five forms* of FROM clause, each corresponding to a different SQL `FROM` source kind:
+
+[cols="1,3,3",options="header"]
+|===
+| Form | SQL Equivalent | Core Interface
+
+| *Table* | `FROM table_name AS alias`
+| `_FromClause.from(TableMeta, AS, alias)`
+
+| *Derived Table* | `FROM (SELECT ...) AS alias`
+| `_FromClause.from(DerivedTable)`
+
+| *CTE* | `FROM cte_name` / `FROM cte_name AS alias`
+| `_FromCteClause.from(String)`
+
+| *Table Function* | `FROM func(args) AS alias(col_def)`
+| `_FromUndoneFunctionClause.from(UndoneFunction)`
+
+| *Nested* | `FROM (table1, table2, ...)`
+| `_FromNestedClause.from(Function)`
+|===
+
+Each form supports an optional *modifier*:
+
+- `SQLs.TableModifier` — e.g. `SQLs.ONLY` (PostgreSQL ONLY for inheritance)
+- `SQLs.DerivedModifier` — e.g. `SQLs.LATERAL` (lateral subquery/function)
+
+===== Source Interfaces
+
+The API exposes the following interface hierarchy in the SELECT chain (`StandardQuery._FromSpec`):
+
+[source,java]
+----
+// _FromClause — table & derived table (Statement.java L267-L275)
+interface _FromClause<FT, FS> {
+    FT from(TableMeta<?> table, SQLs.WordAs as, String tableAlias);
+    FS from(DerivedTable derivedTable);
+    <T extends DerivedTable> FS from(Supplier<T> supplier);
+}
+
+// _FromModifierTabularClause — derived table modifier (Statement.java L277-L282)
+interface _FromModifierTabularClause<FT, FS> extends _FromClause<FT, FS> {
+    FS from(@Nullable SQLs.DerivedModifier modifier, DerivedTable derivedTable);
+    <T extends DerivedTable> FS from(@Nullable SQLs.DerivedModifier modifier, Supplier<T> supplier);
+}
+
+// _FromModifierClause — table modifier (Statement.java L284-L288)
+interface _FromModifierClause<FT, FS> extends _FromModifierTabularClause<FT, FS> {
+    FT from(@Nullable SQLs.TableModifier modifier, TableMeta<?> table,
+            SQLs.WordAs as, String tableAlias);
+}
+
+// _FromCteClause — CTE by name (Statement.java L307-L313)
+interface _FromCteClause<R> {
+    R from(String cteName);
+    R from(String cteName, SQLs.WordAs as, String alias);
+}
+
+// _FromUndoneFunctionClause — table function (Statement.java L323-L326)
+interface _FromUndoneFunctionClause<R> {
+    R from(UndoneFunction func);                  // e.g. json_to_recordset()
+}
+
+// _FromNestedClause — comma-separated items in parentheses (Statement.java L290-L294)
+interface _FromNestedClause<T extends Item, R extends Item> {
+    R from(Function<T, R> function);              // lambda wrapping multiple items
+}
+----
+
+===== Table
+
+Pass a `TableMeta` constant with an alias via `AS`:
+
+[source,java]
+----
+SQLs.query()
+    .select("s", PERIOD, Stock_.T)
+    .from(Stock_.T, AS, "s")
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT s.*
+FROM stock AS s
+----
+
+*With `SQLs.TableModifier` (e.g. PostgreSQL `ONLY`):*
+
+[source,java]
+----
+// PostgreSQL: ONLY skips descendant tables in inheritance hierarchy
+SQLs.query(PillPerson_.id)
+    .from(SQLs.ONLY, PillPerson_.T, AS, "p")
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT p.id
+FROM ONLY pill_person AS p
+----
+
+===== Derived Table (Subquery)
+
+Pass a `DerivedTable` (from `subQuery()`) directly, or use a `Supplier` for lazy construction:
+
+*Direct subquery:*
+
+[source,java]
+----
+SQLs.query()
+    .select(s -> s.space(SQLs.refField("us", "one"))
+            .comma("us", PERIOD, ASTERISK)
+    )
+    .from(SQLs.subQuery()
+            .select(SQLs.literalValue(1)::as, "one")
+            .comma("u", PERIOD, PillUser_.T)
+            .from(PillUser_.T, AS, "u")
+            .limit(SQLs::literal, 0, 10)
+            .asQuery()
+    ).as("us")
+    .where(SQLs.refField("us", "one").equal(SQLs.parameter(1)))
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT us."one", us.*
+FROM (SELECT 1 AS "one", u.*
+      FROM pill_user AS u
+      LIMIT 10 OFFSET 0) AS us
+WHERE us."one" = ?
+-- param: 1
+----
+
+*Lazy subquery (Supplier):*
+
+[source,java]
+----
+// from(Supplier<DerivedTable>) — lambda for lazy construction
+SQLs.query()
+    .select("bu", PERIOD, PillUser_.T)
+    .from(PillUser_.T, AS, "bu")
+    .join(() -> SQLs.subQuery()
+            .select(ChinaProvince_.id)
+            .from(ChinaProvince_.T, AS, "p")
+            .asQuery()
+    ).as("ps")
+        .on(PillUser_.id::equal, SQLs.refField("ps", ChinaProvince_.ID))
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT bu.*
+FROM pill_user AS bu
+JOIN (SELECT p.id
+      FROM china_province AS p) AS ps
+  ON bu.id = ps.id
+----
+
+*With `SQLs.LATERAL` modifier:*
+
+[source,java]
+----
+// PostgreSQL LATERAL subquery — references outer table columns
+Postgres.query()
+    .select("u", PERIOD, PillUser_.T, "latest", PERIOD, ASTERISK)
+    .from(PillUser_.T, AS, "u")
+    .join(SQLs.LATERAL, SQLs.subQuery()
+            .select(BankAccount_.id, BankAccount_.balance)
+            .from(BankAccount_.T, AS, "a")
+            .where(BankAccount_.userId::equal, SQLs.refField("u", PillUser_.ID))
+            .orderBy(BankAccount_.createTime::desc)
+            .limit(SQLs::literal, 1)
+            .asQuery()
+    ).as("latest")
+        .on(SQLs.LITERAL_TRUE)
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT u.*, latest.*
+FROM pill_user AS u
+JOIN LATERAL (SELECT a.id, a.balance
+              FROM bank_account AS a
+              WHERE a.user_id = u.id
+              ORDER BY a.create_time DESC
+              LIMIT 1) AS latest ON TRUE
+----
+
+===== CTE (Common Table Expression)
+
+Reference a named CTE defined earlier in the `WITH` clause:
+
+[source,java]
+----
+// from(String cteName) — reference "active_stocks" CTE
+SQLs.query()
+    .with("active_stocks").as(w -> w.query()
+            .select(Stock_.id, Stock_.name, Stock_.offerPrice)
+            .from(Stock_.T, AS, "s")
+            .where(Stock_.status.equal(SQLs::param, StockStatus.ACTIVE))
+            .asQuery()
+    )
+    .select("ats", PERIOD, ASTERISK)
+    .from("active_stocks", AS, "ats")
+    .where(SQLs.refField("ats", "offer_price")
+            .greater(SQLs::param, new BigDecimal("100.00")))
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+WITH active_stocks AS (
+    SELECT s.id, s.name, s.offer_price
+    FROM stock AS s
+    WHERE s.status = ?
+)
+SELECT ats.*
+FROM active_stocks AS ats
+WHERE ats.offer_price > ?
+-- params: ACTIVE, 100.00
+----
+
+===== Table Function (Set-Returning Function)
+
+PostgreSQL supports set-returning functions (SRF) in the FROM clause.
+`UndoneFunction` represents a function whose output columns are defined separately via a `.parens(...)` clause after `.as(alias)`:
+
+[source,java]
+----
+// _FromUndoneFunctionClause — PostgreSQL dialect only
+// PostgreStatement.java, via PostgreQuery._FromSpec
+interface _FromUndoneFunctionClause<R> {
+    R from(UndoneFunction func);
+}
+
+// UndoneFunction.java
+interface UndoneFunction extends TabularItem, SQLFunction {
+}
+----
+
+*Example — `json_to_recordset()`:*
+
+[source,java]
+----
+// jsonToRecordSet() returns UndoneFunction;
+// .as("jtr").parens(...) defines output column types
+Postgres.query()
+    .select("jtr", PERIOD, ASTERISK)
+    .from(jsonToRecordSet(SQLs.literal(JsonType.TEXT,
+            "[{\"a\":1,\"b\":\"foo\"}, {\"a\":2,\"c\":\"bar\"}]")))
+    .as("jtr").parens(c -> c.space("a", IntegerType.INSTANCE)
+            .comma("b", TextType.INSTANCE)
+    )
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT jtr.*
+FROM JSON_TO_RECORDSET(?::JSON) AS jtr("a" INTEGER, "b" TEXT)
+-- param: [{"a":1,"b":"foo"},{"a":2,"c":"bar"}]
+----
+
+Other table functions include `generate_series()`, `jsonb_each()`,
+`jsonb_populate_recordset()`, `jsonb_path_query()`, etc.
+All are available as `UndoneFunction`-returning static methods on dialect entry classes (e.g. `Postgres.generateSeries(...)`, `Postgres.jsonbEach(...)`).
+
+===== Nested (Comma-Separated Items)
+
+When you need a comma-separated list of tables/joins in parentheses — i.e.
+`FROM (t1, t2 JOIN t3 ON ...)` — use the `from(Function)` lambda form.
+Inside the lambda, `leftParen(...)` starts the parenthesized group and
+`rightParen()` closes it:
+
+[source,java]
+----
+// _FromNestedClause.from(Function) wraps multiple items in (...)
+SQLs.query()
+    .select("up", PERIOD, ASTERISK, "u", PERIOD, ASTERISK)
+    .from(s -> s.leftParen(BankPerson_.T, AS, "up")
+            .join(BankUser_.T, AS, "u")
+                .on(BankPerson_.id::equal, BankUser_.id)
+            .rightParen()
+    )
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT up.*, u.*
+FROM (bank_person AS up
+JOIN bank_user AS u ON up.id = u.id)
+----
+
+You can also nest further levels via nested `leftParen(...)` calls, creating deeply parenthesized join trees.
+
+==== JOIN (INNER JOIN)
+
+The `join()` method adds an `INNER JOIN` source.
+After specifying the join target,
+`.on()` defines the join condition.
+
+[source,java]
+----
+// Statement._JoinClause (Statement.java L429-L433)
+interface _JoinClause<JT, JS> {
+    JT join(TableMeta<?> table, SQLs.WordAs as, String alias);
+    JS join(DerivedTable derivedTable);
+    <T extends DerivedTable> JS join(Supplier<T> supplier);
+}
+----
+
+*Join a table:*
+
+[source,java]
+----
+// INNER JOIN with ON clause
+SQLs.query()
+    .select("u", PERIOD, PillUser_.T, "p", PERIOD, PillPerson_.T)
+    .from(PillPerson_.T, AS, "p")
+    .join(PillUser_.T, AS, "u")
+        .on(PillUser_.id::equal, PillPerson_.id)
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT u.*, p.*
+FROM pill_person AS p
+JOIN pill_user AS u ON u.id = p.id
+----
+
+*Join a derived table (subquery):*
+
+[source,java]
+----
+// JOIN a subquery as a derived table
+SQLs.query()
+    .select("bu", PERIOD, PillUser_.T)
+    .from(PillUser_.T, AS, "bu")
+    .join(() -> SQLs.subQuery()
+            .select(ChinaProvince_.id)
+            .from(ChinaProvince_.T, AS, "p")
+            .asQuery()
+    ).as("ps")
+        .on(PillUser_.id::equal, SQLs.refField("ps", ChinaProvince_.ID))
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT bu.*
+FROM pill_user AS bu
+JOIN (SELECT p.id
+      FROM china_province AS p) AS ps
+  ON bu.id = ps.id
+----
+
+==== LEFT JOIN
+
+`leftJoin()` produces a `LEFT OUTER JOIN`.
+The API signature mirrors `join()`.
+
+[source,java]
+----
+// Statement._JoinClause (Statement.java L423-L427)
+interface _JoinClause<JT, JS> {
+    JT leftJoin(TableMeta<?> table, SQLs.WordAs as, String alias);
+    JS leftJoin(DerivedTable derivedTable);
+    <T extends DerivedTable> JS leftJoin(Supplier<T> supplier);
+}
+----
+
+[source,java]
+----
+// LEFT JOIN — preserve all rows from left table
+SQLs.query()
+    .select("u", PERIOD, PillUser_.T,
+           "a", PERIOD, BankAccount_.T)
+    .from(PillUser_.T, AS, "u")
+    .leftJoin(BankAccount_.T, AS, "a")
+        .on(PillUser_.id::equal, BankAccount_.userId)
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT u.*, a.*
+FROM pill_user AS u
+LEFT JOIN bank_account AS a ON u.id = a.user_id
+----
+
+==== RIGHT JOIN
+
+`rightJoin()` produces a `RIGHT OUTER JOIN`.
+
+[source,java]
+----
+// Statement._JoinClause (Statement.java L435-L440)
+JT rightJoin(TableMeta<?> table, SQLs.WordAs as, String alias);
+JS rightJoin(DerivedTable derivedTable);
+<T extends DerivedTable> JS rightJoin(Supplier<T> supplier);
+----
+
+[source,java]
+----
+// RIGHT JOIN — preserve all rows from right table
+SQLs.query()
+    .select("u", PERIOD, PillUser_.T,
+           "a", PERIOD, BankAccount_.T)
+    .from(PillUser_.T, AS, "u")
+    .rightJoin(BankAccount_.T, AS, "a")
+        .on(PillUser_.id::equal, BankAccount_.userId)
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT u.*, a.*
+FROM pill_user AS u
+RIGHT JOIN bank_account AS a ON u.id = a.user_id
+----
+
+==== FULL JOIN
+
+`fullJoin()` produces a `FULL OUTER JOIN`.
+
+[source,java]
+----
+// Statement._JoinClause (Statement.java L442-L446)
+JT fullJoin(TableMeta<?> table, SQLs.WordAs as, String alias);
+JS fullJoin(DerivedTable derivedTable);
+<T extends DerivedTable> JS fullJoin(Supplier<T> supplier);
+----
+
+[source,java]
+----
+// FULL JOIN — preserve all rows from both sides
+SQLs.query()
+    .select("u", PERIOD, PillUser_.T,
+           "a", PERIOD, BankAccount_.T)
+    .from(PillUser_.T, AS, "u")
+    .fullJoin(BankAccount_.T, AS, "a")
+        .on(PillUser_.id::equal, BankAccount_.userId)
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT u.*, a.*
+FROM pill_user AS u
+FULL JOIN bank_account AS a ON u.id = a.user_id
+----
+
+==== WHERE
+
+The `where()` method adds a filter predicate.
+After `where()`, `and()` appends additional conditions with `AND`.
+
+[source,java]
+----
+// Statement._WhereClause (Statement.java L792-L816)
+interface _WhereClause<WR, WA> {
+    WA where(IPredicate predicate);                         // single predicate → and chain
+    <T> WA where(Function<T, IPredicate> expOp, T value);  // method reference style
+    WR where(Consumer<Consumer<IPredicate>> consumer);     // dynamic multi-predicate
+}
+
+// Statement._WhereAndClause (Statement.java L851-L875)
+interface _WhereAndClause<WA> {
+    WA and(IPredicate predicate);
+    <T> WA and(Function<T, IPredicate> expOp, T value);
+}
+----
+
+[source,java]
+----
+// WHERE with method-reference style and chained AND
+SQLs.query()
+    .select("u", PERIOD, PillUser_.T, "p", PERIOD, PillPerson_.T)
+    .from(PillPerson_.T, AS, "p")
+    .join(PillUser_.T, AS, "u")
+        .on(PillUser_.id::equal, PillPerson_.id)
+    .where(PillPerson_.id.equal(SQLs::literal, 1))
+    .and(PillUser_.nickName.equal(SQLs::param, "脉兽秀秀"))
+    .and(PillUser_.createTime.notBetween(
+        SQLs::literal, LocalDateTime.now().minusDays(1),
+        AND, LocalDateTime.now()))
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT u.*, p.*
+FROM pill_person AS p
+JOIN pill_user AS u ON u.id = p.id
+WHERE p.id = 1
+  AND u.nick_name = ?
+  AND u.create_time NOT BETWEEN ? AND ?
+-- params: 1, '脉兽秀秀', '2026-06-04T...', '2026-06-05T...'
+----
+
+==== GROUP BY
+
+The `groupBy()` method adds a `GROUP BY` clause.
+It accepts `GroupByItem` objects (which are also `Expression` instances, as `Expression` extends `GroupByItem`).
+
+[source,java]
+----
+// Query._StaticGroupByClause (Query.java L285-L296)
+interface _StaticGroupByClause<R> {
+    R groupBy(GroupByItem item);
+    R groupBy(GroupByItem item1, GroupByItem item2);
+    R groupBy(GroupByItem item1, GroupByItem item2, GroupByItem item3);
+    R groupBy(GroupByItem item1, ..., GroupByItem item4);
+}
+----
+
+[source,java]
+----
+// GROUP BY a single column
+SQLs.query()
+    .select(ChinaRegion_.id, ChinaRegion_.name)
+    .from(ChinaRegion_.T, AS, "c")
+    .groupBy(ChinaRegion_.regionType)
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT c.id, c.name
+FROM china_region AS c
+GROUP BY c.region_type
+----
+
+==== HAVING
+
+The `having()` method adds a `HAVING` clause — a filter applied after aggregation.
+Like `where()`, it accepts `IPredicate` and can chain with `and()`.
+
+[source,java]
+----
+// StandardQuery._HavingSpec
+interface _HavingSpec<I> extends _StaticHavingClause<_HavingAndSpec<I>>,
+        _DynamicHavingClause<_WindowSpec<I>>, _WindowSpec<I> { ... }
+----
+
+[source,java]
+----
+// GROUP BY + HAVING with aggregate function
+SQLs.query()
+    .select(ChinaRegion_.id, ChinaRegion_.name)
+    .from(ChinaRegion_.T, AS, "c")
+    .groupBy(ChinaRegion_.regionType)
+    .having(SQLs.min(ChinaRegion_.regionGdp)
+            .greater(SQLs.literalValue(new BigDecimal("88888.66"))))
+    .spaceAnd(ChinaRegion_.createTime.between(
+        SQLs::literal, now.minusDays(49), AND, now))
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT c.id, c.name
+FROM china_region AS c
+GROUP BY c.region_type
+HAVING MIN(c.region_gdp) > 88888.66
+   AND c.create_time BETWEEN '2026-04-17T...' AND '2026-06-05T...'
+----
+
+==== WINDOW
+
+The `window()` method defines a named window for use by window functions in
+`SELECT` or `ORDER BY` clauses.
+
+[source,java]
+----
+// StandardQuery._WindowSpec (StandardQuery.java L163-L168)
+interface _WindowSpec<I> extends _OrderBySpec<I>,
+        Window._DynamicWindowClause<Window._StandardPartitionBySpec, _OrderBySpec<I>> {
+
+    Window._WindowAsClause<..., _WindowCommaSpec<I>> window(String windowName);
+}
+----
+
+[source,java]
+----
+// Named window used by SUM() in SELECT
+SQLs.query()
+    .select(Windows.sum(ChinaRegion_.regionGdp).over("w").as("gdpSum"))
+    .from(ChinaRegion_.T, AS, "c")
+    .window("w").as(s -> s
+        .partitionBy(ChinaRegion_.name)
+        .orderBy(ChinaRegion_.regionGdp::desc)
+        .rows(UNBOUNDED_PRECEDING)
+    )
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT SUM(c.region_gdp) OVER w AS "gdpSum"
+FROM china_region AS c
+WINDOW w AS (PARTITION BY c.name
+             ORDER BY c.region_gdp DESC
+             ROWS UNBOUNDED PRECEDING)
+----
+
+==== ORDER BY
+
+The `orderBy()` method adds an `ORDER BY` clause.
+It accepts `SortItem` objects:
+fields (default `ASC`), method references like `Field::desc`, or `SortOrder` pairs.
+
+[source,java]
+----
+// Statement._StaticOrderByClause (Statement.java L897-L908)
+interface _StaticOrderByClause<R> {
+    R orderBy(SortItem sortItem);
+    R orderBy(SortItem sortItem1, SortItem sortItem2);
+    R orderBy(SortItem sortItem1, SortItem sortItem2, SortItem sortItem3);
+    R orderBy(SortItem sortItem1, ..., SortItem sortItem4);
+}
+----
+
+[source,java]
+----
+// ORDER BY with mixed sort directions
+SQLs.query()
+    .select("u", PERIOD, PillUser_.T)
+    .from(PillUser_.T, AS, "u")
+    .orderBy(PillUser_.id::desc)
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT u.*
+FROM pill_user AS u
+ORDER BY u.id DESC
+----
+
+Multiple sort items can be combined:
+
+[source,java]
+----
+// Multiple ORDER BY items
+SQLs.query()
+    .select("c", PERIOD, ChinaRegion_.T)
+    .from(ChinaRegion_.T, AS, "c")
+    .orderBy(ChinaRegion_.createTime::desc,
+             ChinaRegion_.version::asc)
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT c.*
+FROM china_region AS c
+ORDER BY c.create_time DESC, c.version ASC
+----
+
+==== LIMIT
+
+The `limit()` method restricts the number of returned rows.
+An offset can be specified inline.
+
+[source,java]
+----
+// Statement._LimitClause (Statement.java L1184-L1203)
+interface _LimitClause<LR> extends _RowCountLimitClause<LR> {
+    LR limit(Expression offset, Expression rowCount);
+    LR limit(BiFunction<MappingType, Number, Expression> op,
+             long offset, long rowCount);           // literal/param inline
+}
+----
+
+[source,java]
+----
+// LIMIT with offset using method reference (literal value)
+SQLs.query()
+    .select("u", PERIOD, PillUser_.T)
+    .from(PillUser_.T, AS, "u")
+    .orderBy(PillUser_.id::desc)
+    .limit(SQLs::literal, 0, 10)   // offset=0, rowCount=10
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT u.*
+FROM pill_user AS u
+ORDER BY u.id DESC
+LIMIT 10 OFFSET 0
+----
+
+`limit()` also supports dynamic value lookup via `Supplier`:
+
+[source,java]
+----
+// LIMIT with Supplier for dynamic offset/rowCount
+Map<String, Object> criteria = new HashMap<>();
+criteria.put("offset", 0L);
+criteria.put("rowCount", 100L);
+
+SQLs.query()
+    .select("u", PERIOD, PillUser_.T)
+    .from(PillUser_.T, AS, "u")
+    .limit(SQLs::literal, criteria::get, "offset", "rowCount")
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT u.*
+FROM pill_user AS u
+LIMIT 100 OFFSET 0
+----
+
+==== UNION
+
+The `union()` / `unionAll()` / `unionDistinct()` methods combine result sets from multiple queries.
+They return a `SelectSpec` so the chain can continue with another `select()`/`from()` or finish with `asQuery()`.
+
+[source,java]
+----
+// StandardQuery._UnionClause (StandardQuery.java L32-L52)
+interface _UnionClause<I> extends _StaticUnionClause<SelectSpec<I>> {
+    // union(), unionAll(), unionDistinct()
+    // intersect(), intersectAll(), intersectDistinct()
+    // except(), exceptAll(), exceptDistinct(), minus(), minusAll()
+}
+----
+
+[source,java]
+----
+// UNION — combine two result sets, removing duplicates
+SQLs.query()
+    .select("c", PERIOD, ChinaRegion_.T)
+    .from(ChinaRegion_.T, AS, "c")
+    .where(ChinaRegion_.id.in(SQLs::rowParam, firstIdList))
+    .union()
+    .parens(s -> s.select("c2", PERIOD, ChinaRegion_.T)
+            .from(ChinaRegion_.T, AS, "c2")
+            .where(ChinaRegion_.id.in(SQLs::rowParam, secondIdList))
+            .asQuery()
+    )
+    .orderBy(SQLs.refSelection(ChinaRegion_.ID))
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+SELECT c.*
+FROM china_region AS c
+WHERE c.id IN (?, ?, ?)
+UNION
+(SELECT c2.*
+ FROM china_region AS c2
+ WHERE c2.id IN (?, ?, ?))
+ORDER BY id
+-- params: 1, 2, 3, 4, 5, 6
+----
+
+`unionAll()` preserves duplicates and is typically more performant:
+
+[source,java]
+----
+// UNION ALL — combine without deduplication
+SQLs.query()
+    .parens(s -> s.select(PillUser_.id)
+            .from(PillUser_.T, AS, "p")
+            .where(PillUser_.id.equal(SQLs::literal, 1))
+            .asQuery()
+    )
+    .unionAll()
+    .parens(s -> s.select(PillUser_.id)
+            .from(PillUser_.T, AS, "p")
+            .where(PillUser_.id.equal(SQLs::literal, 2))
+            .asQuery()
+    )
+    .orderBy(PillUser_.id::desc)
+    .limit(SQLs::literal, 0, 10)
+    .asQuery()
+----
+
+.Generated SQL (PostgreSQL)
+[source,sql]
+----
+(SELECT p.id
+ FROM pill_user AS p
+ WHERE p.id = 1)
+UNION ALL
+(SELECT p.id
+ FROM pill_user AS p
+ WHERE p.id = 2)
+ORDER BY id DESC
+LIMIT 10 OFFSET 0
+-- params: 1, 2
 ----
 
 === MySQL API

@@ -549,6 +549,53 @@ stmt = Postgres.singleInsert()
         .asInsert();
 ```
 
+### ❌ 错误：在 Expression 接口节使用 TypedExpression 专属方法
+
+```java
+// Expression 接口的方法签名：
+//   IPredicate nullSafeEqual(Object operand)       ← 单参，接受 Object
+// TypedExpression 接口的方法签名：
+//   <T> IPredicate nullSafeEqual(BiFunction<..., @Nullable T>)  ← BiFunction 重载
+
+// ❌ 错误：在 Expression 节用 TypedExpression 的 BiFunction 重载
+Stock_.offerPrice.nullSafeEqual(SQLs::param, null)  // ❌ 这是 TypedExpression 的方法
+```
+
+### ✅ 正确：使用 Expression 接口声明的方法
+
+```java
+// ✅ 正确：Expression.nullSafeEqual(Object operand)，用 SQLs.NULL 表示 null
+Stock_.offerPrice.nullSafeEqual(SQLs.NULL)
+```
+
+**规则**：文档中描述 `Expression` 接口的节（如 `==== Expression` 下的子节），只能使用 `Expression` 接口声明的方法签名，
+不能使用 `TypedExpression` 或 `TypedField` 的方法（如 BiFunction 重载、`space*` 方法等）。
+
+### ❌ 错误：`SQLs.parameter/literalValue/constValue` 传入 null
+
+```java
+// 这三个单参自动推导方法均要求 non-null 值：
+// - SQLs.parameter(final Object value)       → @param value non-null
+// - SQLs.literalValue(final Object value)     → @param value non-null
+// - SQLs.constValue(final Object nonNullValue)→ 参数名即 nonNullValue
+
+// ❌ 全部错误：传入 null
+Stock_.offerPrice.equal(SQLs.parameter(null))      // ❌
+Stock_.offerPrice.equal(SQLs.literalValue(null))   // ❌
+Stock_.offerPrice.equal(SQLs.constValue(null))     // ❌
+```
+
+### ✅ 正确：需要 null 时用 `SQLs.NULL`
+
+```java
+// SQLs.NULL 渲染为 SQL 关键字 NULL（非参数化）
+Stock_.offerPrice.nullSafeEqual(SQLs.NULL)          // ✅
+Stock_.offerPrice.is(SQLs.DISTINCT_FROM, SQLs.NULL) // ✅
+
+// 或使用接受 @Nullable 的双参版本
+Stock_.offerPrice.nullSafeEqual(SQLs::param, null)  // ✅ TypedExpression 方法，@Nullable T value
+```
+
 ### ❌ 错误：INSERT 语句混淆列清单 `parens()` 与值行 `parens()`
 
 ```java
@@ -606,6 +653,8 @@ SQLs.singleInsert()
 - [ ] `namedRowParam` 的 `size` 参数 >= 1 — see Rule 12
 - [ ] literal 和 const 的语义已正确区分（literal 带类型前缀，const 不带）— see Rule 12
 - [ ] 示例代码可以编译通过（Java 语法无误）
+- [ ] `Expression` 接口节未使用 `TypedExpression`/`TypedField` 专属方法（BiFunction 重载、`space*` 方法）
+- [ ] `SQLs.parameter()`/`SQLs.literalValue()`/`SQLs.constValue()` 未传入 null — 需要 null 时用 `SQLs.NULL`
 - [ ] INSERT 语句 `.parens()` 语义正确：列清单 `parens()` 仅含 `FieldMeta`（不可绑定值），值行 `parens()` 必须在 `.values()`
   之后
 
