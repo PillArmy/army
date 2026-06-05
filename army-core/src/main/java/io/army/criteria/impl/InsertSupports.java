@@ -32,7 +32,9 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 
 import java.util.*;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 /// This class hold the base class(interface) of the implementation of all insert syntax interfaces.
 /// Below is chines signature:
@@ -819,12 +821,9 @@ abstract class InsertSupports {
         }
 
         @Override
-        public final DR defaultValue(final FieldMeta<T> field, final @Nullable Expression value) {
-            if (!(value instanceof ArmyExpression)) {
-                throw ContextStack.nonArmyExp(this.context);
-            }
+        public final DR defaultValue(final FieldMeta<T> field, final @Nullable Object value) {
             final ArmyExpression valueExp;
-            valueExp = (ArmyExpression) value;
+            valueExp = (ArmyExpression) Expressions.wrapRight(field, value);
             this.validateField(field, valueExp);
 
             Map<FieldMeta<?>, _Expression> commonExpMap = this.commonExpMap;
@@ -841,70 +840,29 @@ abstract class InsertSupports {
         }
 
         @Override
-        public final DR defaultValue(FieldMeta<T> field, Supplier<Expression> supplier) {
-            return this.defaultValue(field, supplier.get());
-        }
-
-        @Override
-        public final DR defaultValue(FieldMeta<T> field, Function<FieldMeta<T>, Expression> function) {
-            return this.defaultValue(field, function.apply(field));
-        }
-
-        @Override
         public final <E> DR defaultValue(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> operator,
                                          @Nullable E value) {
             return this.defaultValue(field, operator.apply(field, value));
         }
 
         @Override
-        public final <E> DR defaultValue(FieldMeta<T> field, SQLs.SymbolSpace space,
-                                         BiFunction<FieldMeta<T>, E, Expression> operator, Supplier<E> supplier) {
-            return this.defaultValue(field, operator.apply(field, supplier.get()));
-        }
-
-        @Override
-        public final <K, V> DR defaultValue(FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> operator,
-                                            Function<K, V> function, K key) {
-            return this.defaultValue(field, operator.apply(field, function.apply(key)));
-        }
-
-        @Override
-        public final DR ifDefault(FieldMeta<T> field, Supplier<Expression> supplier) {
-            final Expression expression;
-            if ((expression = supplier.get()) != null) {
-                this.defaultValue(field, expression);
+        public final DR ifDefault(FieldMeta<T> field, @Nullable Object value) {
+            if (value != null) {
+                this.defaultValue(field, value);
             }
             return (DR) this;
         }
 
-        @Override
-        public final DR ifDefault(FieldMeta<T> field, Function<FieldMeta<T>, Expression> function) {
-            final Expression expression;
-            if ((expression = function.apply(field)) != null) {
-                this.defaultValue(field, expression);
-            }
-            return (DR) this;
-        }
 
         @Override
         public final <E> DR ifDefault(FieldMeta<T> field, BiFunction<FieldMeta<T>, E, Expression> operator,
-                                      Supplier<E> supplier) {
-            final E value;
-            if ((value = supplier.get()) != null) {
+                                      @Nullable E value) {
+            if (value != null) {
                 this.defaultValue(field, operator.apply(field, value));
             }
             return (DR) this;
         }
 
-        @Override
-        public final <K, V> DR ifDefault(FieldMeta<T> field, BiFunction<FieldMeta<T>, V, Expression> operator,
-                                         Function<K, V> function, K key) {
-            final V value;
-            if ((value = function.apply(key)) != null) {
-                this.defaultValue(field, operator.apply(field, value));
-            }
-            return (DR) this;
-        }
 
         @Override
         public final Map<FieldMeta<?>, _Expression> defaultValueMap() {
