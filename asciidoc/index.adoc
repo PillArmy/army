@@ -8912,7 +8912,7 @@ SELECT p.id
 FROM ONLY pill_person AS p
 ----
 
-===== Derived Table (Subquery)
+===== Derived Table
 
 Pass a `DerivedTable` (from `subQuery()`) directly, or use a `Supplier` to access local variables in lambda:
 
@@ -9013,7 +9013,7 @@ JOIN LATERAL (SELECT a.id, a.balance
               LIMIT 1) AS latest ON TRUE
 ----
 
-===== CTE (Common Table Expression)
+===== CTE
 
 Reference a named CTE defined earlier in the `WITH` clause:
 
@@ -9048,7 +9048,7 @@ WHERE ats.offer_price > ?
 -- params: ACTIVE, 100.00
 ----
 
-===== Table Function (Set-Returning Function)
+===== Table Function
 
 PostgreSQL supports set-returning functions (SRF) in the FROM clause.
 `UndoneFunction` represents a function whose output columns are defined separately via a `.parens(...)` clause after `.as(alias)`:
@@ -9093,7 +9093,7 @@ Other table functions include `generate_series()`, `jsonb_each()`,
 `jsonb_populate_recordset()`, `jsonb_path_query()`, etc.
 All are available as `UndoneFunction`-returning static methods on dialect entry classes (e.g. `Postgres.generateSeries(...)`, `Postgres.jsonbEach(...)`).
 
-===== Nested (Comma-Separated Items)
+===== Nested
 
 When you need a comma-separated list of tables/joins in parentheses — i.e.
 `FROM (t1, t2 JOIN t3 ON ...)` — use the `from(Function)` lambda form.
@@ -9123,7 +9123,7 @@ JOIN bank_user AS u ON up.id = u.id)
 
 You can also nest further levels via nested `leftParen(...)` calls, creating deeply parenthesized join trees.
 
-==== JOIN (INNER JOIN)
+==== JOIN
 
 The `join()` method adds an `INNER JOIN` source.
 After specifying the join target,

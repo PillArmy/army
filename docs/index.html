@@ -759,14 +759,13 @@
                                 <ul class="sectlevel4">
                                     <li><a href="#_source_interfaces">Source Interfaces</a></li>
                                     <li><a href="#_table_2">Table</a></li>
-                                    <li><a href="#_derived_table_subquery">Derived Table (Subquery)</a></li>
-                                    <li><a href="#_cte_common_table_expression">CTE (Common Table Expression)</a></li>
-                                    <li><a href="#_table_function_set_returning_function">Table Function (Set-Returning
-                                        Function)</a></li>
-                                    <li><a href="#_nested_comma_separated_items">Nested (Comma-Separated Items)</a></li>
+                                    <li><a href="#_derived_table">Derived Table</a></li>
+                                    <li><a href="#_cte_2">CTE</a></li>
+                                    <li><a href="#_table_function">Table Function</a></li>
+                                    <li><a href="#_nested">Nested</a></li>
                                 </ul>
                             </li>
-                            <li><a href="#_join_inner_join">5.6.3. JOIN (INNER JOIN)</a></li>
+                            <li><a href="#_join">5.6.3. JOIN</a></li>
                             <li><a href="#_left_join">5.6.4. LEFT JOIN</a></li>
                             <li><a href="#_right_join">5.6.5. RIGHT JOIN</a></li>
                             <li><a href="#_full_join">5.6.6. FULL JOIN</a></li>
@@ -16917,8 +16916,7 @@ Postgres.query(PillPerson_.id)
                         </div>
                     </div>
                     <div class="sect4">
-                        <h5 id="_derived_table_subquery"><a class="anchor" href="#_derived_table_subquery"></a>Derived
-                            Table (Subquery)</h5>
+                        <h5 id="_derived_table"><a class="anchor" href="#_derived_table"></a>Derived Table</h5>
                         <div class="paragraph">
                             <p>Pass a <code>DerivedTable</code> (from <code>subQuery()</code>) directly, or use a <code>Supplier</code>
                                 to access local variables in lambda:</p>
@@ -17063,9 +17061,7 @@ Postgres.query()
                         </div>
                     </div>
                     <div class="sect4">
-                        <h5 id="_cte_common_table_expression"><a class="anchor"
-                                                                 href="#_cte_common_table_expression"></a>CTE (Common
-                            Table Expression)</h5>
+                        <h5 id="_cte_2"><a class="anchor" href="#_cte_2"></a>CTE</h5>
                         <div class="paragraph">
                             <p>Reference a named CTE defined earlier in the <code>WITH</code> clause:</p>
                         </div>
@@ -17111,9 +17107,7 @@ SQLs.query()
                         </div>
                     </div>
                     <div class="sect4">
-                        <h5 id="_table_function_set_returning_function"><a class="anchor"
-                                                                           href="#_table_function_set_returning_function"></a>Table
-                            Function (Set-Returning Function)</h5>
+                        <h5 id="_table_function"><a class="anchor" href="#_table_function"></a>Table Function</h5>
                         <div class="paragraph">
                             <p>PostgreSQL supports set-returning functions (SRF) in the FROM clause.
                                 <code>UndoneFunction</code> represents a function whose output columns are defined
@@ -17185,9 +17179,7 @@ Postgres.query()
                         </div>
                     </div>
                     <div class="sect4">
-                        <h5 id="_nested_comma_separated_items"><a class="anchor"
-                                                                  href="#_nested_comma_separated_items"></a>Nested
-                            (Comma-Separated Items)</h5>
+                        <h5 id="_nested"><a class="anchor" href="#_nested"></a>Nested</h5>
                         <div class="paragraph">
                             <p>When you need a comma-separated list of tables/joins in parentheses — i.e.
                                 <code>FROM (t1, t2 JOIN t3 ON &#8230;&#8203;)</code> — use the
@@ -17228,8 +17220,7 @@ SQLs.query()
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_join_inner_join"><a class="anchor" href="#_join_inner_join"></a>5.6.3. JOIN (INNER JOIN)
-                    </h4>
+                    <h4 id="_join"><a class="anchor" href="#_join"></a>5.6.3. JOIN</h4>
                     <div class="paragraph">
                         <p>The <code>join()</code> method adds an <code>INNER JOIN</code> source.
                             After specifying the join target,
@@ -19282,7 +19273,7 @@ envMap.put(ArmyKey.SQL_LOG_EXECUTION_TAKE_TIME.name, <span class="predefined-con
 <div id="footer">
     <div id="footer-text">
         Version 0.6.8-SNAPSHOT<br>
-        Last updated 2026-06-07 00:36:59 +0800
+        Last updated 2026-06-07 04:58:20 +0800
     </div>
 </div>
 </body>
