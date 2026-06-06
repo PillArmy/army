@@ -41,8 +41,6 @@ public abstract class TypeDataSourceUtils {
             return com.mysql.cj.jdbc.Driver.class.getName();
         } else if (url.startsWith("jdbc:postgresql:")) {
             return org.postgresql.Driver.class.getName();
-        } else if (url.startsWith("jdbc:sqlite:")) {
-            return org.sqlite.JDBC.class.getName();
         } else {
             throw new IllegalArgumentException();
         }

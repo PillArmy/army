@@ -1,8 +1,6 @@
 package io.army.example.type.domain;
 
 import io.army.annotation.*;
-import io.army.generator.snowflake.Snowflake8Generator;
-import io.army.mapping.optional.SqlRecordType;
 import io.army.pojo.FieldAccessPojo;
 import io.army.type.SqlRecord;
 
@@ -13,13 +11,18 @@ import java.util.UUID;
 
 
 @Table(name = "postgre_types", comment = "postgre types for army example")
-public class Postgre extends TypeBaseDomain<Postgre> implements FieldAccessPojo {
+public class Postgre implements FieldAccessPojo {
 
-    public static final long SNOWFLAKE_START_TIME = 1779201880496L;
 
-    @Generator(value = SNOWFLAKE8, params = @Param(name = Snowflake8Generator.START_TIME, value = "" + SNOWFLAKE_START_TIME))
+    @Generator(type = GeneratorType.POST)
     @Column
     public Long id;
+
+    @Column
+    public LocalDateTime createTime;
+
+    @Column
+    public LocalDateTime updateTime;
 
     // ------------- 数值类型 -------------
     @Column(comment = "boolean type")
@@ -207,7 +210,7 @@ public class Postgre extends TypeBaseDomain<Postgre> implements FieldAccessPojo 
     @Column(comment = "aclitem type")
     public String aclitem;
 
-    @Mapping(io.army.mapping.CompositeType.class)
+    @Mapping("io.army.mapping.CompositeType")
     @Column(comment = "product info composite type")
     public ProductInfo productInfo;
 
@@ -308,7 +311,7 @@ public class Postgre extends TypeBaseDomain<Postgre> implements FieldAccessPojo 
     @Column(comment = "aclitem array type")
     public String[] aclitemArray;
 
-    @Mapping(io.army.mapping.array.CompositeArrayType.class)
+    @Mapping("io.army.mapping.array.CompositeArrayType")
     @Column(comment = "product info composite array type")
     public ProductInfo[] productInfoArray;
 
@@ -316,13 +319,30 @@ public class Postgre extends TypeBaseDomain<Postgre> implements FieldAccessPojo 
     @Column(comment = "vector array type")
     public float[][] vectorArray;
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
 
     public Postgre setId(Long id) {
         this.id = id;
+        return this;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public Postgre setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+        return this;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public Postgre setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
         return this;
     }
 

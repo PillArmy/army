@@ -3,11 +3,13 @@ package io.army.example.type;
 import io.army.dialect.Database;
 import io.army.dialect.PostgreDialect;
 import io.army.env.*;
-import io.army.session.FactoryBuilder;
+import io.army.generator.StandaloneFieldGeneratorFactory;
+import io.army.session.DdlMode;
+import io.army.session.SyncFactoryBuilder;
 import io.army.session.SyncSessionFactory;
 import io.army.util._Collections;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public abstract class TypeFactoryUtils {
@@ -17,12 +19,12 @@ public abstract class TypeFactoryUtils {
 
     public static SyncSessionFactory createArmyTypeSyncFactory(final Database database) {
 
-        return FactoryBuilder.builder()
+        return SyncFactoryBuilder.builder()
                 .name(mapDatabaseToFactoryName(database))
-                .packagesToScan(Collections.singletonList("io.army.example.type.domain"))
+                .packagesToScan(List.of("io.army.example.type.domain"))
                 .datasource(TypeDataSourceUtils.createDataSource(database))
                 .environment(createEnvironment(database))
-                .fieldGeneratorFactory(new TypeFieldGeneratorFactory())
+                .fieldGeneratorFactory(StandaloneFieldGeneratorFactory.getInstance())
                 .build();
     }
 

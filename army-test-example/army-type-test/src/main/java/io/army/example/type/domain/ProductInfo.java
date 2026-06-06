@@ -2,49 +2,74 @@ package io.army.example.type.domain;
 
 import io.army.annotation.Column;
 import io.army.struct.DefinedType;
-import io.army.struct.TypeCategory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
-@DefinedType(name = "product_info", category = TypeCategory.COMPOSITE, fieldOrder = {"productId", "productName", "price", "available", "releaseDate"})
+@DefinedType(name = "product_info",
+        fieldOrder = {"productId", "productName", "price", "available", "releaseDate"})
 public final class ProductInfo {
 
     @Column
-    private final Long productId;
+    private Long productId;
 
     @Column
-    private final String productName;
+    private String productName;
 
     @Column
-    private final BigDecimal price;
+    private BigDecimal price;
 
     @Column
-    private final Boolean available;
+    private Boolean available;
 
     @Column
-    private final LocalDate releaseDate;
+    private LocalDate releaseDate;
 
 
     public Long getProductId() {
         return productId;
     }
 
+    public ProductInfo setProductId(Long productId) {
+        this.productId = productId;
+        return this;
+    }
+
     public String getProductName() {
         return productName;
+    }
+
+    public ProductInfo setProductName(String productName) {
+        this.productName = productName;
+        return this;
     }
 
     public BigDecimal getPrice() {
         return price;
     }
 
+    public ProductInfo setPrice(BigDecimal price) {
+        this.price = price;
+        return this;
+    }
+
     public Boolean getAvailable() {
         return available;
     }
 
+    public ProductInfo setAvailable(Boolean available) {
+        this.available = available;
+        return this;
+    }
+
     public LocalDate getReleaseDate() {
         return releaseDate;
+    }
+
+    public ProductInfo setReleaseDate(LocalDate releaseDate) {
+        this.releaseDate = releaseDate;
+        return this;
     }
 
     @Override
