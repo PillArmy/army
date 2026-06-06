@@ -6,6 +6,17 @@
 
 ### 核心文件
 
+#### 主要类
+- **TypeApplication** - Spring Boot 主应用类
+- **Postgre** - PostgreSQL 类型测试实体类，支持所有常用的 PostgreSQL 类型
+- **ProductInfo** - 复合类型示例
+- **PostgreService** - Postgre 类型 CRUD 服务
+- **PostgreTypeController** - REST API 控制器
+
+#### 配置
+- **TypeDataSourceConfig** - 数据源和 Army SessionFactory 配置
+- **TypeWebConfiguration** - Web MVC 配置
+
 ### 主要功能
 
 1. **Postgre - PostgreSQL 类型测试实体类，支持所有常用的 PostgreSQL 类型
@@ -86,6 +97,29 @@ mvn test
 ### 数组类型
 
 所有基础类型都支持数组类型。
+
+## Maven 依赖
+
+此项目包含以下主要依赖：
+- **Army ORM**: army-jdbc, army-postgre, army-spring
+- **Spring Boot**: spring-boot-starter-web, spring-boot-starter-jdbc, spring-boot-starter-log4j2
+- **数据库**: postgresql, druid
+- **测试**: spring-boot-starter-test, junit-jupiter, testng
+
+## 启动应用
+
+### Spring Boot 启动
+
+```bash
+cd army-type-test
+mvn spring-boot:run
+```
+
+### 访问应用
+
+应用启动后，通过以下地址访问：
+- 主页: http://localhost:8080
+- API 文档: http://localhost:8080/api/postgre-types
 
 ## 如何使用
 
