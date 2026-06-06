@@ -23,6 +23,7 @@ import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.function.DecodeLiteralFunc;
 import io.army.function.SafeLiteralFunc;
+import io.army.mapping.array.CompositeArrayType;
 import io.army.meta.CompositeField;
 import io.army.meta.ServerMeta;
 import io.army.pojo.ObjectAccessor;
@@ -122,6 +123,11 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
     @Override
     public String objectName() {
         return this.typeName;
+    }
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return CompositeArrayType.from(ArrayUtils.arrayClassOf(this.javaType));
     }
 
     @Override
@@ -250,7 +256,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
             }
 
             //TODO add decode literal
-           // literal = this.decodeFunc.decodeLiteral(type, literal);
+            // literal = this.decodeFunc.decodeLiteral(type, literal);
 
             final Object value;
             value = type.afterGet(type.map(this.serverMeta), this.env, literal);

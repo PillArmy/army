@@ -93,9 +93,7 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType {
         final DataType elementDataType;
         elementDataType = this.underlyingType.map(env.serverMeta());
         final BiConsumer<Object, StringBuilder> consumer;
-        consumer = (element, sqlBuilder) -> {
-            CompositeType.bindToLiteral(this.underlyingType, elementDataType, env, element, sqlBuilder);
-        };
+        consumer = (element, sqlBuilder) -> CompositeType.bindToLiteral(this.underlyingType, elementDataType, env, element, sqlBuilder);
         return PostgreArrays.arrayBeforeBind(source, consumer, dataType, this);
     }
 
@@ -110,11 +108,7 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        final Class<?> javaType = this.arrayClass;
-        if (javaType == Object.class) { // unlimited dimension array
-            return this;
-        }
-        return from(ArrayUtils.arrayClassOf(javaType));
+        return from(ArrayUtils.arrayClassOf(this.arrayClass));
     }
 
     @Override
@@ -124,15 +118,12 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public MappingType elementType() {
-        final Class<?> javaType = this.arrayClass, componentType;
+        final Class<?> componentType;
         final MappingType instance;
-
-        if (javaType == Object.class) {
-            instance = this;
-        } else if ((componentType = javaType.getComponentType()).isArray()) {
+        if ((componentType = this.arrayClass.getComponentType()).isArray()) {
             instance = from(componentType);
         } else {
-            instance = CompositeType.from(componentType);
+            instance = this.underlyingType;
         }
         return instance;
     }
