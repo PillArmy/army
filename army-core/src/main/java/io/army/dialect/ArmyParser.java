@@ -2077,7 +2077,7 @@ abstract class ArmyParser implements DialectParser {
 
         final StringBuilder schemaTableBuilder;
         final NameMode nameMode;
-        if (object instanceof DatabaseObject.TypeObject) {
+        if (object instanceof TypeObject) {
             nameMode = this.tableNameMode;
 
             final String schemaName;

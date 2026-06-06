@@ -22,10 +22,10 @@ import io.army.criteria.TypeItem;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.executor.StmtExecutor;
-import io.army.mapping.optional.CompositeField;
-import io.army.meta.DatabaseObject;
+import io.army.meta.CompositeField;
 import io.army.meta.ServerMeta;
 import io.army.meta.TypeMeta;
+import io.army.meta.TypeObject;
 import io.army.sqltype.DataType;
 import io.army.sqltype.SQLType;
 
@@ -293,7 +293,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     /// SqlUserDefined does not inherit from {@link MappingType}, because {@link MappingType} is a sealed interface.
     /// User defined type must override {@link #hashCode()} and {@link #equals(Object)}.
-    interface SqlUserDefined extends DatabaseObject.TypeObject {
+    interface SqlUserDefined extends TypeObject {
 
         /// @return upper case object name(type name)
         String objectName();

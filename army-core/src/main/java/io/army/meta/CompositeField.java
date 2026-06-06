@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package io.army.mapping.optional;
+package io.army.meta;
 
 import io.army.mapping.MappingType;
-import io.army.meta.DatabaseObject;
 
 /// Represents a field within a composite type.
 ///
 /// @see io.army.mapping.CompositeType
-public interface CompositeField extends DatabaseObject.FieldObject {
+public interface CompositeField extends FieldObject {
 
     MappingType.SqlComposite compositeType();
 

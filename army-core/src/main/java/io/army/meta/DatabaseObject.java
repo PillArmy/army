@@ -18,7 +18,6 @@ package io.army.meta;
 
 import io.army.criteria.SQLElement;
 import io.army.criteria.TableField;
-import io.army.mapping.MappingType;
 
 ///
 /// This interface representing database object ,this interface is base interface of below:
@@ -26,7 +25,7 @@ import io.army.mapping.MappingType;
 /// - {@link  TableMeta}
 /// - {@link  TableField}
 /// - {@link  io.army.mapping.MappingType.SqlUserDefined}
-/// - {@link io.army.mapping.optional.CompositeField}
+/// - {@link CompositeField}
 ///
 /// @since 0.6.0
 public interface DatabaseObject extends SQLElement {
@@ -39,38 +38,6 @@ public interface DatabaseObject extends SQLElement {
 
     default String comment() {
         return "";
-    }
-
-    interface TypeObject extends DatabaseObject {
-
-    }
-
-    interface FieldObject extends DatabaseObject {
-
-
-
-        String fieldName();
-
-
-        String columnName();
-
-
-        MappingType mappingType();
-
-
-        String collation();
-
-        /// (Optional) The columnSize for a decimal (exact numeric)
-        /// column. (Applies only if a decimal column is used.)
-        /// Value must be set by developer if used when generating
-        /// the DDL for the column.
-        int precision();
-
-        /// (Optional) The scale for a decimal (exact numeric) column.
-        /// (Applies only if a decimal column is used.)
-        int scale();
-
-
     }
 
 }

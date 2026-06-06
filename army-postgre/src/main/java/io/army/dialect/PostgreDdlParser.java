@@ -20,7 +20,6 @@ import io.army.annotation.GeneratorType;
 import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
 import io.army.mapping.TextType;
-import io.army.mapping.optional.CompositeField;
 import io.army.meta.*;
 import io.army.schema.FieldResult;
 import io.army.schema.TypeResult;
@@ -471,7 +470,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
 
 
     @Override
-    protected void dataType(final DatabaseObject.FieldObject field, final DataType dataType, final StringBuilder builder) {
+    protected void dataType(final FieldObject field, final DataType dataType, final StringBuilder builder) {
         builder.append(_Constant.SPACE);
 
         if (!(dataType instanceof PgType)) {
@@ -629,8 +628,8 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     }
 
 
-    /// @see #dataType(DatabaseObject.FieldObject, DataType, StringBuilder)
-    private void appendTimeDateType(final DatabaseObject.FieldObject field, final DataType dataType, final StringBuilder builder) {
+    /// @see #dataType(FieldObject, DataType, StringBuilder)
+    private void appendTimeDateType(final FieldObject field, final DataType dataType, final StringBuilder builder) {
         String safeTypeName;
         safeTypeName = dataType.name();
         final int index;
@@ -646,8 +645,8 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         }
     }
 
-    /// @see #dataType(DatabaseObject.FieldObject, DataType, StringBuilder)
-    private void appendDecimalDateType(final DatabaseObject.FieldObject field, final DataType dataType, final StringBuilder builder) {
+    /// @see #dataType(FieldObject, DataType, StringBuilder)
+    private void appendDecimalDateType(final FieldObject field, final DataType dataType, final StringBuilder builder) {
         int precision, scale;
         precision = field.precision();
         scale = field.scale();

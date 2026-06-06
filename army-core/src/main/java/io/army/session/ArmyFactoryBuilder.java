@@ -35,7 +35,6 @@ import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.UserMappingType;
 import io.army.mapping._ArmyBuildInType;
-import io.army.mapping.optional.CompositeField;
 import io.army.meta.*;
 import io.army.option.Option;
 import io.army.schema.FieldResult;

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package io.army.mapping.optional;
+package io.army.mapping;
 
 import io.army.annotation.Column;
 import io.army.annotation.MappedSuperclass;
 import io.army.criteria.impl.MetaContext;
 import io.army.criteria.impl.TableMetaUtils;
 import io.army.criteria.impl._TableMetaFactory;
-import io.army.mapping.MappingType;
-import io.army.mapping._MappingFactory;
+import io.army.meta.CompositeField;
 import io.army.meta.MetaException;
 import io.army.struct.DefinedType;
 import io.army.util._Assert;

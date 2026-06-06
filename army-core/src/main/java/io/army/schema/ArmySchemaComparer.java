@@ -19,7 +19,6 @@ package io.army.schema;
 
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
-import io.army.mapping.optional.CompositeField;
 import io.army.meta.*;
 import io.army.sqltype.DataType;
 import io.army.struct.TypeCategory;
