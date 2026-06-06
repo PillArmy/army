@@ -28,6 +28,7 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.struct.DefinedType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -35,7 +36,7 @@ import java.util.function.BiConsumer;
 /// Array mapping type for composite type elements.
 ///
 /// @see io.army.mapping.CompositeType
-public class CompositeArrayType extends _ArmyBuildInArrayType {
+public final class CompositeArrayType extends _ArmyBuildInArrayType {
 
     public static CompositeArrayType from(final Class<?> arrayClass) {
         if (!arrayClass.isArray()) {
@@ -48,12 +49,7 @@ public class CompositeArrayType extends _ArmyBuildInArrayType {
     }
 
 
-    private static final ClassValue<CompositeArrayType> CLASS_VALUE = new ClassValue<>() {
-        @Override
-        protected CompositeArrayType computeValue(Class<?> type) {
-            return new CompositeArrayType(type);
-        }
-    };
+    private static final ClassValue<CompositeArrayType> CLASS_VALUE = FuncClassValue.create(CompositeArrayType::new);
 
 
     private final Class<?> arrayClass;
@@ -116,11 +112,7 @@ public class CompositeArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        final Class<?> javaType = this.arrayClass;
-        if (javaType == Object.class) { // unlimited dimension array
-            return this;
-        }
-        return from(ArrayUtils.arrayClassOf(javaType));
+        return from(ArrayUtils.arrayClassOf(this.arrayClass));
     }
 
     @Override
@@ -130,15 +122,12 @@ public class CompositeArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public MappingType elementType() {
-        final Class<?> javaType = this.arrayClass, componentType;
+        final Class<?> componentType;
         final MappingType instance;
-
-        if (javaType == Object.class) {
-            instance = this;
-        } else if ((componentType = javaType.getComponentType()).isArray()) {
+        if ((componentType = this.arrayClass.getComponentType()).isArray()) {
             instance = from(componentType);
         } else {
-            instance = CompositeType.from(componentType);
+            instance = this.underlyingType;
         }
         return instance;
     }
