@@ -17,12 +17,16 @@
 package io.army.criteria;
 
 
-/// 
+import io.army.meta.TableMeta;
+
+///
 /// This interface representing qualified field , output format: tableAlias.column .
 /// You don't need a {@link QualifiedField},if no self-join in statement.
 /// @param <T> java type domain.
-public interface QualifiedField<T> extends TypedTableField<T> {
+public interface QualifiedField<T> extends TableField {
 
+    @Override
+    TableMeta<T> tableMeta();
 
     String tableAlias();
 

@@ -47,15 +47,6 @@ public interface Query extends RowSet {
 
     }
 
-    /// Union modifier (e.g. ALL, DISTINCT) for set operations.
-    /// @see SQLs#ALL
-    /// @see SQLs#DISTINCT
-    interface UnionModifier {
-
-    }
-
-
-
 
     /*-------------------below clause interfaces -------------------*/
 
@@ -74,25 +65,16 @@ public interface Query extends RowSet {
 
         SR select(Selection selection);
 
-        SR select(Function<String, Selection> function, String alias);
-
         SR select(Selection selection1, Selection selection2);
 
-        SR select(Function<String, Selection> function, String alias, Selection selection);
+        SR select(TableField field1, TableField field2, TableField field3);
 
-        SR select(Selection selection, Function<String, Selection> function, String alias);
-
-        SR select(Function<String, Selection> function1, String alias1, Function<String, Selection> function2, String alias2);
-
-        SR select(SqlField field1, SqlField field2, SqlField field3);
-
-        SR select(SqlField field1, SqlField field2, SqlField field3, SqlField field4);
+        SR select(TableField field1, TableField field2, TableField field3, TableField field4);
 
         SR select(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table);
 
         <P> SR select(String parenAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent,
                       String childAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child);
-
 
     }
 
@@ -101,19 +83,11 @@ public interface Query extends RowSet {
 
         SR space(Selection selection);
 
-        SR space(Function<String, Selection> function, String alias);
-
         SR space(Selection selection1, Selection selection2);
 
-        SR space(Function<String, Selection> function, String alias, Selection selection);
+        SR space(TableField field1, TableField field2, TableField field3);
 
-        SR space(Selection selection, Function<String, Selection> function, String alias);
-
-        SR space(Function<String, Selection> function1, String alias1, Function<String, Selection> function2, String alias2);
-
-        SR space(SqlField field1, SqlField field2, SqlField field3);
-
-        SR space(SqlField field1, SqlField field2, SqlField field3, SqlField field4);
+        SR space(TableField field1, TableField field2, TableField field3, TableField field4);
 
         SR space(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table);
 
@@ -184,19 +158,11 @@ public interface Query extends RowSet {
 
         SR comma(Selection selection);
 
-        SR comma(Function<String, Selection> function, String alias);
-
         SR comma(Selection selection1, Selection selection2);
 
-        SR comma(Function<String, Selection> function, String alias, Selection selection);
+        SR comma(TableField field1, TableField field2, TableField field3);
 
-        SR comma(Selection selection, Function<String, Selection> function, String alias);
-
-        SR comma(Function<String, Selection> function1, String alias1, Function<String, Selection> function2, String alias2);
-
-        SR comma(SqlField field1, SqlField field2, SqlField field3);
-
-        SR comma(SqlField field1, SqlField field2, SqlField field3, SqlField field4);
+        SR comma(TableField field1, TableField field2, TableField field3, TableField field4);
 
         SR comma(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table);
 

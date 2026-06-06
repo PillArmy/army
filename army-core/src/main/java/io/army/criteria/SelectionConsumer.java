@@ -21,25 +21,15 @@ import io.army.meta.ComplexTableMeta;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TableMeta;
 
-import java.util.function.Function;
-
 public interface SelectionConsumer extends Statement._DeferContextSpec {
 
     SelectionConsumer selection(Selection selection);
 
-    SelectionConsumer selection(Function<String, Selection> function, String alias);
-
     SelectionConsumer selection(Selection selection1, Selection selection2);
 
-    SelectionConsumer selection(Function<String, Selection> function, String alias, Selection selection);
+    SelectionConsumer selection(TableField field1, TableField field2, TableField field3);
 
-    SelectionConsumer selection(Selection selection, Function<String, Selection> function, String alias);
-
-    SelectionConsumer selection(Function<String, Selection> function1, String alias1, Function<String, Selection> function2, String alias2);
-
-    SelectionConsumer selection(SqlField field1, SqlField field2, SqlField field3);
-
-    SelectionConsumer selection(SqlField field1, SqlField field2, SqlField field3, SqlField field4);
+    SelectionConsumer selection(TableField field1, TableField field2, TableField field3, TableField field4);
 
     SelectionConsumer selection(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table);
 

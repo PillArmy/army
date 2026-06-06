@@ -38,8 +38,9 @@ import java.util.List;
 import java.util.function.*;
 
 
-/// 
+///
 /// This class is base class of all simple SELECT query.
+///
 /// @since 0.6.0
 @SuppressWarnings("unchecked")
 abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extends Item, W extends Query.SelectModifier, SR extends Item, SD, FT, FS, FC, FF, JT, JS, JC, JF, WR, WA, GR, GD, HR, HD, OR, OD, LR, LO, LF, SP>
@@ -128,12 +129,6 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final SR select(Function<String, Selection> function, String alias) {
-        this.context.onAddSelectItem(function.apply(alias));
-        return (SR) this;
-    }
-
-    @Override
     public final SR select(Selection selection1, Selection selection2) {
         this.context.onAddSelectItem(selection1)
                 .onAddSelectItem(selection2);
@@ -141,29 +136,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final SR select(Function<String, Selection> function, String alias, Selection selection) {
-        this.context.onAddSelectItem(function.apply(alias))
-                .onAddSelectItem(selection);
-        return (SR) this;
-    }
-
-    @Override
-    public final SR select(Selection selection, Function<String, Selection> function, String alias) {
-        this.context.onAddSelectItem(selection)
-                .onAddSelectItem(function.apply(alias));
-        return (SR) this;
-    }
-
-    @Override
-    public final SR select(Function<String, Selection> function1, String alias1, Function<String, Selection> function2,
-                           String alias2) {
-        this.context.onAddSelectItem(function1.apply(alias1))
-                .onAddSelectItem(function2.apply(alias2));
-        return (SR) this;
-    }
-
-    @Override
-    public final SR select(SqlField field1, SqlField field2, SqlField field3) {
+    public final SR select(TableField field1, TableField field2, TableField field3) {
         this.context.onAddSelectItem(field1)
                 .onAddSelectItem(field2)
                 .onAddSelectItem(field3);
@@ -171,7 +144,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final SR select(SqlField field1, SqlField field2, SqlField field3, SqlField field4) {
+    public final SR select(TableField field1, TableField field2, TableField field3, TableField field4) {
         this.context.onAddSelectItem(field1)
                 .onAddSelectItem(field2)
                 .onAddSelectItem(field3)
@@ -292,12 +265,6 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final SR space(Function<String, Selection> function, String alias) {
-        this.context.onAddSelectItem(function.apply(alias));
-        return (SR) this;
-    }
-
-    @Override
     public final SR space(Selection selection1, Selection selection2) {
         this.context.onAddSelectItem(selection1)
                 .onAddSelectItem(selection2);
@@ -305,29 +272,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final SR space(Function<String, Selection> function, String alias, Selection selection) {
-        this.context.onAddSelectItem(function.apply(alias))
-                .onAddSelectItem(selection);
-        return (SR) this;
-    }
-
-    @Override
-    public final SR space(Selection selection, Function<String, Selection> function, String alias) {
-        this.context.onAddSelectItem(selection)
-                .onAddSelectItem(function.apply(alias));
-        return (SR) this;
-    }
-
-    @Override
-    public final SR space(Function<String, Selection> function1, String alias1, Function<String, Selection> function2,
-                          String alias2) {
-        this.context.onAddSelectItem(function1.apply(alias1))
-                .onAddSelectItem(function2.apply(alias2));
-        return (SR) this;
-    }
-
-    @Override
-    public final SR space(SqlField field1, SqlField field2, SqlField field3) {
+    public final SR space(TableField field1, TableField field2, TableField field3) {
         this.context.onAddSelectItem(field1)
                 .onAddSelectItem(field2)
                 .onAddSelectItem(field3);
@@ -335,7 +280,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final SR space(SqlField field1, SqlField field2, SqlField field3, SqlField field4) {
+    public final SR space(TableField field1, TableField field2, TableField field3, TableField field4) {
         this.context.onAddSelectItem(field1)
                 .onAddSelectItem(field2)
                 .onAddSelectItem(field3)
@@ -365,12 +310,6 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final SR comma(Function<String, Selection> function, String alias) {
-        this.context.onAddSelectItem(function.apply(alias));
-        return (SR) this;
-    }
-
-    @Override
     public final SR comma(Selection selection1, Selection selection2) {
         this.context.onAddSelectItem(selection1)
                 .onAddSelectItem(selection2);
@@ -378,29 +317,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final SR comma(Function<String, Selection> function, String alias, Selection selection) {
-        this.context.onAddSelectItem(function.apply(alias))
-                .onAddSelectItem(selection);
-        return (SR) this;
-    }
-
-    @Override
-    public final SR comma(Selection selection, Function<String, Selection> function, String alias) {
-        this.context.onAddSelectItem(selection)
-                .onAddSelectItem(function.apply(alias));
-        return (SR) this;
-    }
-
-    @Override
-    public final SR comma(Function<String, Selection> function1, String alias1, Function<String, Selection> function2,
-                          String alias2) {
-        this.context.onAddSelectItem(function1.apply(alias1))
-                .onAddSelectItem(function2.apply(alias2));
-        return (SR) this;
-    }
-
-    @Override
-    public final SR comma(SqlField field1, SqlField field2, SqlField field3) {
+    public final SR comma(TableField field1, TableField field2, TableField field3) {
         this.context.onAddSelectItem(field1)
                 .onAddSelectItem(field2)
                 .onAddSelectItem(field3);
@@ -408,7 +325,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final SR comma(SqlField field1, SqlField field2, SqlField field3, SqlField field4) {
+    public final SR comma(TableField field1, TableField field2, TableField field3, TableField field4) {
         this.context.onAddSelectItem(field1)
                 .onAddSelectItem(field2)
                 .onAddSelectItem(field3)
@@ -1749,11 +1666,11 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         /// @param name        window name
         /// @param function    end function
         /// @param constructor constructor of window. arguments:
-        /// 
+        ///
         /// - first : window name
         /// - second : {@link CriteriaContext}
         /// - third : nullable existingWindowName
-        /// 
+        ///
         NamedWindowAsClause(CriteriaContext context, String name, Function<ArmyWindow, R> function,
                             TeFunction<String, CriteriaContext, String, T> constructor) {
             this.context = context;
@@ -1811,38 +1728,17 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public final SR select(Function<String, Selection> function, String alias) {
-            return this.createSelectClause().select(function, alias);
-        }
-
-        @Override
         public final SR select(Selection selection1, Selection selection2) {
             return this.createSelectClause().select(selection1, selection2);
         }
 
         @Override
-        public final SR select(Function<String, Selection> function, String alias, Selection selection) {
-            return this.createSelectClause().select(function, alias, selection);
-        }
-
-        @Override
-        public final SR select(Selection selection, Function<String, Selection> function, String alias) {
-            return this.createSelectClause().select(selection, function, alias);
-        }
-
-        @Override
-        public final SR select(Function<String, Selection> function1, String alias1,
-                               Function<String, Selection> function2, String alias2) {
-            return this.createSelectClause().select(function1, alias1, function2, alias2);
-        }
-
-        @Override
-        public final SR select(SqlField field1, SqlField field2, SqlField field3) {
+        public final SR select(TableField field1, TableField field2, TableField field3) {
             return this.createSelectClause().select(field1, field2, field3);
         }
 
         @Override
-        public final SR select(SqlField field1, SqlField field2, SqlField field3, SqlField field4) {
+        public final SR select(TableField field1, TableField field2, TableField field3, TableField field4) {
             return this.createSelectClause().select(field1, field2, field3, field4);
         }
 
@@ -2169,16 +2065,6 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public _DeferSelectCommaSpace space(Function<String, Selection> function, String alias) {
-            if (this.spaceFirst) {
-                throw CriteriaUtils.spaceMethodNotFirst();
-            }
-            this.spaceFirst = true;
-            this.context.onAddSelectItem(function.apply(alias));
-            return this;
-        }
-
-        @Override
         public _DeferSelectCommaSpace space(Selection selection1, Selection selection2) {
             if (this.spaceFirst) {
                 throw CriteriaUtils.spaceMethodNotFirst();
@@ -2190,41 +2076,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public _DeferSelectCommaSpace space(Function<String, Selection> function, String alias, Selection selection) {
-            if (this.spaceFirst) {
-                throw CriteriaUtils.spaceMethodNotFirst();
-            }
-            this.spaceFirst = true;
-            this.context.onAddSelectItem(function.apply(alias))
-                    .onAddSelectItem(selection);
-            return this;
-        }
-
-        @Override
-        public _DeferSelectCommaSpace space(Selection selection, Function<String, Selection> function, String alias) {
-            if (this.spaceFirst) {
-                throw CriteriaUtils.spaceMethodNotFirst();
-            }
-            this.spaceFirst = true;
-            this.context.onAddSelectItem(selection)
-                    .onAddSelectItem(function.apply(alias));
-            return this;
-        }
-
-        @Override
-        public _DeferSelectCommaSpace space(Function<String, Selection> function1, String alias1,
-                                            Function<String, Selection> function2, String alias2) {
-            if (this.spaceFirst) {
-                throw CriteriaUtils.spaceMethodNotFirst();
-            }
-            this.spaceFirst = true;
-            this.context.onAddSelectItem(function1.apply(alias1))
-                    .onAddSelectItem(function2.apply(alias2));
-            return this;
-        }
-
-        @Override
-        public _DeferSelectCommaSpace space(SqlField field1, SqlField field2, SqlField field3) {
+        public _DeferSelectCommaSpace space(TableField field1, TableField field2, TableField field3) {
             if (this.spaceFirst) {
                 throw CriteriaUtils.spaceMethodNotFirst();
             }
@@ -2236,7 +2088,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public _DeferSelectCommaSpace space(SqlField field1, SqlField field2, SqlField field3, SqlField field4) {
+        public _DeferSelectCommaSpace space(TableField field1, TableField field2, TableField field3, TableField field4) {
             if (this.spaceFirst) {
                 throw CriteriaUtils.spaceMethodNotFirst();
             }
@@ -2291,12 +2143,6 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public _DeferSelectCommaSpace comma(Function<String, Selection> function, String alias) {
-            this.context.onAddSelectItem(function.apply(alias));
-            return this;
-        }
-
-        @Override
         public _DeferSelectCommaSpace comma(Selection selection1, Selection selection2) {
             this.context.onAddSelectItem(selection1)
                     .onAddSelectItem(selection2);
@@ -2304,29 +2150,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public _DeferSelectCommaSpace comma(Function<String, Selection> function, String alias, Selection selection) {
-            this.context.onAddSelectItem(function.apply(alias))
-                    .onAddSelectItem(selection);
-            return this;
-        }
-
-        @Override
-        public _DeferSelectCommaSpace comma(Selection selection, Function<String, Selection> function, String alias) {
-            this.context.onAddSelectItem(selection)
-                    .onAddSelectItem(function.apply(alias));
-            return this;
-        }
-
-        @Override
-        public _DeferSelectCommaSpace comma(Function<String, Selection> function1, String alias1,
-                                            Function<String, Selection> function2, String alias2) {
-            this.context.onAddSelectItem(function1.apply(alias1))
-                    .onAddSelectItem(function2.apply(alias2));
-            return this;
-        }
-
-        @Override
-        public _DeferSelectCommaSpace comma(SqlField field1, SqlField field2, SqlField field3) {
+        public _DeferSelectCommaSpace comma(TableField field1, TableField field2, TableField field3) {
             this.context.onAddSelectItem(field1)
                     .onAddSelectItem(field2)
                     .onAddSelectItem(field3);
@@ -2334,7 +2158,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public _DeferSelectCommaSpace comma(SqlField field1, SqlField field2, SqlField field3, SqlField field4) {
+        public _DeferSelectCommaSpace comma(TableField field1, TableField field2, TableField field3, TableField field4) {
             this.context.onAddSelectItem(field1)
                     .onAddSelectItem(field2)
                     .onAddSelectItem(field3)
@@ -2372,12 +2196,6 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public SelectionConsumer selection(Function<String, Selection> function, String alias) {
-            this.context.onAddSelectItem(function.apply(alias));
-            return this;
-        }
-
-        @Override
         public SelectionConsumer selection(Selection selection1, Selection selection2) {
             this.context.onAddSelectItem(selection1)
                     .onAddSelectItem(selection2);
@@ -2385,29 +2203,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public SelectionConsumer selection(Function<String, Selection> function, String alias, Selection selection) {
-            this.context.onAddSelectItem(function.apply(alias))
-                    .onAddSelectItem(selection);
-            return this;
-        }
-
-        @Override
-        public SelectionConsumer selection(Selection selection, Function<String, Selection> function, String alias) {
-            this.context.onAddSelectItem(selection)
-                    .onAddSelectItem(function.apply(alias));
-            return this;
-        }
-
-        @Override
-        public SelectionConsumer selection(Function<String, Selection> function1, String alias1,
-                                           Function<String, Selection> function2, String alias2) {
-            this.context.onAddSelectItem(function1.apply(alias1))
-                    .onAddSelectItem(function2.apply(alias2));
-            return this;
-        }
-
-        @Override
-        public SelectionConsumer selection(SqlField field1, SqlField field2, SqlField field3) {
+        public SelectionConsumer selection(TableField field1, TableField field2, TableField field3) {
             this.context.onAddSelectItem(field1)
                     .onAddSelectItem(field2)
                     .onAddSelectItem(field3);
@@ -2415,7 +2211,7 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public SelectionConsumer selection(SqlField field1, SqlField field2, SqlField field3, SqlField field4) {
+        public SelectionConsumer selection(TableField field1, TableField field2, TableField field3, TableField field4) {
             this.context.onAddSelectItem(field1)
                     .onAddSelectItem(field2)
                     .onAddSelectItem(field3)
