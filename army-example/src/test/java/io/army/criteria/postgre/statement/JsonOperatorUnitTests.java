@@ -50,7 +50,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
                         .space(ARROW, SQLs.literalValue(2)).as("jsonElement")
                 )
                 .comma(literal(JsonbType.TEXT, jsonText)
-                        .space(ARROW, SQLs.literalValue(-3))::as, "jsonbElement"
+                        .space(ARROW, SQLs.literalValue(-3)).as("jsonbElement")
                 )
                 .asQuery();
 
@@ -69,9 +69,9 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
         final String jsonText = "[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]";
         final Select stmt;
         stmt = Postgres.query()
-                .select(literal(JsonType.TEXT, jsonText).space(DARROW, SQLs.literalValue(2))::as, "jsonElement"
+                .select(literal(JsonType.TEXT, jsonText).space(DARROW, SQLs.literalValue(2)).as("jsonElement")
                 )
-                .comma(literal(JsonbType.TEXT, jsonText).space(DARROW, SQLs.literalValue(-3))::as, "jsonbElement"
+                .comma(literal(JsonbType.TEXT, jsonText).space(DARROW, SQLs.literalValue(-3)).as("jsonbElement")
                 )
                 .asQuery();
 
@@ -90,9 +90,9 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
         final String jsonText = "{\"a\": {\"b\": [\"foo\",\"bar\"]}}";
         final Select stmt;
         stmt = Postgres.query()
-                .select(literal(JsonType.TEXT, jsonText).space(POUND_GT, literal(TextArrayType.LINEAR, "{a,b,1}"))::as, "jsonElement"
+                .select(literal(JsonType.TEXT, jsonText).space(POUND_GT, literal(TextArrayType.LINEAR, "{a,b,1}")).as("jsonElement")
                 )
-                .comma(literal(JsonbType.TEXT, jsonText).space(POUND_GT, literal(TextArrayType.LINEAR, "{a,b,1}"))::as, "jsonbElement"
+                .comma(literal(JsonbType.TEXT, jsonText).space(POUND_GT, literal(TextArrayType.LINEAR, "{a,b,1}")).as("jsonbElement")
                 )
                 .asQuery();
 
@@ -112,10 +112,10 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
         final Select stmt;
         stmt = Postgres.query()
                 .select(literal(JsonType.TEXT, jsonText)
-                        .space(POUND_GT_GT, literal(TextArrayType.LINEAR, "{a,b,1}"))::as, "jsonElement"
+                        .space(POUND_GT_GT, literal(TextArrayType.LINEAR, "{a,b,1}")).as("jsonElement")
                 )
                 .comma(literal(JsonbType.TEXT, jsonText)
-                        .space(POUND_GT_GT, literal(TextArrayType.LINEAR, "{a,b,1}"))::as, "jsonbElement"
+                        .space(POUND_GT_GT, literal(TextArrayType.LINEAR, "{a,b,1}")).as("jsonbElement")
                 )
                 .asQuery();
 
@@ -137,7 +137,7 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
         final Select stmt;
         stmt = Postgres.query()
                 .select(literal(JsonbType.TEXT, firstJson)
-                        .space(AT_GT, literal(JsonbType.TEXT, secondJson))::as, "match"
+                        .space(AT_GT, literal(JsonbType.TEXT, secondJson)).as("match")
                 )
                 .asQuery();
 
@@ -212,9 +212,9 @@ public class JsonOperatorUnitTests extends PostgreUnitTests {
         final Select stmt;
         stmt = Postgres.query()
                 .select(literal(JsonbType.TEXT, leftArray)
-                        .space(CONCAT, SQLs::literal, rightArray)::as, "concatArray"
+                        .space(CONCAT, SQLs::literal, rightArray).as("concatArray")
                 ).comma(literal(JsonbType.TEXT, leftObject)
-                        .space(CONCAT, SQLs::literal, rightObject)::as, "concatObject"
+                        .space(CONCAT, SQLs::literal, rightObject).as("concatObject")
                 )
                 .asQuery();
 

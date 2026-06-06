@@ -55,11 +55,11 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     public void toJsonFunc() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space(toJson(SQLs.literalValue("Fred said \"Hi.\""))::as, "json1")
-                        .comma(toJsonb(SQLs.literalValue("Fred said \"Hi.\""))::as, "json2")
-                        .comma(toJson(row(List.of(1, SQLs.literalValue(1), SQLs.literalValue(2), row(List.of(randomPerson())))))::as, "json3")
-                        .comma(toJsonb(row(List.of(SQLs.literalValue(1), SQLs.literalValue(2), row(List.of(SQLs.literalValue(randomPerson()))))))::as, "json4")
-                        .comma(toJsonb(SQLs.space("b", PERIOD, ASTERISK))::as, "json5")
+                .select(s -> s.space(toJson(SQLs.literalValue("Fred said \"Hi.\"")).as("json1")
+                        .comma(toJsonb(SQLs.literalValue("Fred said \"Hi.\"")).as("json2")
+                        .comma(toJson(row(List.of(1, SQLs.literalValue(1), SQLs.literalValue(2), row(List.of(randomPerson()))))).as("json3")
+                        .comma(toJsonb(row(List.of(SQLs.literalValue(1), SQLs.literalValue(2), row(List.of(SQLs.literalValue(randomPerson())))))).as("json4")
+                        .comma(toJsonb(SQLs.space("b", PERIOD, ASTERISK)).as("json5")
                 )
                 .from(Postgres.subQuery()
                         .select(ChinaRegion_.id, ChinaRegion_.name)
@@ -82,9 +82,9 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
         final int[][] intArray = {{1, 5}, {99, 100}};
         final Select stmt;
         stmt = Postgres.query()
-                .select(arrayToJson(SQLs.literal(arrayType, intArray))::as, "json1")
-                .comma(arrayToJson(SQLs.literal(arrayType, arrayLiteral))::as, "json2")
-                .comma(arrayToJson(SQLs.literal(arrayType, arrayLiteral), TRUE)::as, "json3")
+                .select(arrayToJson(SQLs.literal(arrayType, intArray)).as("json1")
+                .comma(arrayToJson(SQLs.literal(arrayType, arrayLiteral)).as("json2")
+                .comma(arrayToJson(SQLs.literal(arrayType, arrayLiteral), TRUE).as("json3")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -118,17 +118,17 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space(jsonBuildArray(SQLs.literalValue(1), SQLs.literalValue("zoro"))::as, "json1")
-                        .comma(jsonbBuildArray(SQLs.literalValue(2), SQLs.literalValue("zoro"))::as, "json3")
-                        .comma(jsonBuildArray(space("b", PERIOD, ASTERISK))::as, "json10")
-                        .comma(jsonbBuildArray(space("b", PERIOD, ASTERISK))::as, "json12")
+                .select(s -> s.space(jsonBuildArray(SQLs.literalValue(1), SQLs.literalValue("zoro")).as("json1")
+                        .comma(jsonbBuildArray(SQLs.literalValue(2), SQLs.literalValue("zoro")).as("json3")
+                        .comma(jsonBuildArray(space("b", PERIOD, ASTERISK)).as("json10")
+                        .comma(jsonbBuildArray(space("b", PERIOD, ASTERISK)).as("json12")
                         .comma(jsonbBuildArray(c -> {
 
                         }).as("json13"))
                 )
                 .from(ChinaRegion_.T, AS, "c")
                 .join(Postgres.subQuery()
-                        .select(SQLs.literalValue(5)::as, "id")
+                        .select(SQLs.literalValue(5).as("id")
                         .asQuery()
                 ).as("b").on(SQLs.refField("b", "id")::equal, ChinaRegion_.id)
                 .asQuery();
@@ -147,7 +147,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     public void jsonBuildObjectFunc() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space(jsonBuildObject()::as, "json1")
+                .select(s -> s.space(jsonBuildObject().as("json1")
                         .comma(jsonBuildObject(c -> c.space("name", SQLs.literalValue("zoro"))
                                         .comma("region", ChinaRegion_.name)
                                         .comma("row", row(List.of(SQLs.literalValue(1), SQLs.literalValue("happy"))))
@@ -160,7 +160,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
                                         .accept("derivedFields", space("b", PERIOD, ASTERISK))
                                         .accept("regionFields", jsonBuildObject("c", PERIOD, ChinaRegion_.T))
                                 ).as("json4")
-                        ).comma(jsonbBuildObject()::as, "json5")
+                        ).comma(jsonbBuildObject().as("json5")
                         .comma(jsonbBuildObject(c -> c.space("name", SQLs.literalValue("zoro"))
                                         .comma("region", ChinaRegion_.name)
                                         .comma("row", row(List.of(SQLs.literalValue(1), SQLs.literalValue("happy"))))
@@ -177,7 +177,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
                 )
                 .from(ChinaRegion_.T, AS, "c")
                 .join(Postgres.subQuery()
-                        .select(SQLs.literalValue(5)::as, "id")
+                        .select(SQLs.literalValue(5).as("id")
                         ::asQuery
                 ).as("b").on(SQLs.refField("b", "id")::equal, ChinaRegion_.id)
                 .asQuery();
@@ -195,24 +195,24 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
     public void jsonObjectFunc() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonObject(SQLs.literal(TextArrayType.LINEAR, Arrays.asList("name", "zoro")))::as, "json1")
+                .select(jsonObject(SQLs.literal(TextArrayType.LINEAR, Arrays.asList("name", "zoro"))).as("json1")
                 .comma(jsonObject(SQLs::literal, c -> c.space("name", "zoro")
                                 .comma("region", "china")
                                 .comma("hobby", "drinking")
-                        )::as, "json2"
+                        ).as("json2"
                 ).comma(jsonObject(SPACE, SQLs::literal, c -> c.accept("name", "zoro")
                                 .accept("region", "china")
                                 .accept("hobby", "drinking")
-                        )::as, "json3"
-                ).comma(jsonbObject(SQLs.literal(TextArrayType.LINEAR, Arrays.asList("name", "zoro")))::as, "json4")
+                        ).as("json3"
+                ).comma(jsonbObject(SQLs.literal(TextArrayType.LINEAR, Arrays.asList("name", "zoro"))).as("json4")
                 .comma(jsonbObject(SQLs::literal, c -> c.space("name", "zoro")
                                 .comma("region", "china")
                                 .comma("hobby", "drinking")
-                        )::as, "json5"
+                        ).as("json5"
                 ).comma(jsonbObject(SPACE, SQLs::literal, c -> c.accept("name", "zoro")
                                 .accept("region", "china")
                                 .accept("hobby", "drinking")
-                        )::as, "json6"
+                        ).as("json6"
                 )
                 .asQuery();
 
@@ -228,7 +228,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
         json = "[1,true, [2,false]]";
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonArrayElements(SQLs::literal, json)::as, "json1")
+                .select(jsonArrayElements(SQLs::literal, json).as("json1")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -242,7 +242,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
         json = "[1,true, [2,false]]";
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonbArrayElements(SQLs::literal, json)::as, "json1")
+                .select(jsonbArrayElements(SQLs::literal, json).as("json1")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -279,7 +279,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
         json = "[\"foo\", \"bar\"]";
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonArrayElementsText(SQLs::literal, json)::as, "text1")
+                .select(jsonArrayElementsText(SQLs::literal, json).as("text1")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -294,7 +294,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
         json = "[\"foo\", \"bar\"]";
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonbArrayElementsText(SQLs::literal, json)::as, "json1")
+                .select(jsonbArrayElementsText(SQLs::literal, json).as("json1")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -330,8 +330,8 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
         json = "[1,2,3,{\"f1\":1,\"f2\":[5,6]},4]";
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonArrayLength(SQLs.literal(JsonType.TEXT, json))::as, "json1")
-                .comma(jsonbArrayLength(SQLs.literal(JsonbType.TEXT, json))::as, "json2")
+                .select(jsonArrayLength(SQLs.literal(JsonType.TEXT, json)).as("json1")
+                .comma(jsonbArrayLength(SQLs.literal(JsonbType.TEXT, json)).as("json2")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -402,32 +402,32 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonExtractPath(SQLs.literal(JsonType.TEXT, json), SQLs.literal(NoCastTextType.INSTANCE, "f4"), SQLs.literal(NoCastTextType.INSTANCE, "f6"))::as, "json1")
-                // .comma(jsonExtractPath(SQLs.literal(JsonType.TEXT, json), SQLs::multiLiteral, "f4", "f6")::as, "json2")  //TODO
+                .select(jsonExtractPath(SQLs.literal(JsonType.TEXT, json), SQLs.literal(NoCastTextType.INSTANCE, "f4"), SQLs.literal(NoCastTextType.INSTANCE, "f6")).as("json1")
+                // .comma(jsonExtractPath(SQLs.literal(JsonType.TEXT, json), SQLs::multiLiteral, "f4", "f6").as("json2")  //TODO
                 .comma(jsonExtractPath(SQLs.literal(JsonType.TEXT, json), c -> {
                             c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f4"));
                             c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f6"));
-                        })::as, "json3"
+                        }).as("json3"
                 )
 //                .comma(jsonExtractPath(SQLs.literal(JsonType.TEXT, json), SQLs::multiLiteral, c -> {
 //                            c.accept("f4");
 //                            c.accept("f6");
-//                        })::as, "json4"
+//                        }).as("json4"
 //                )
-                // .comma(jsonExtractPath(SQLs::literal, json, SQLs::multiLiteral, "f4", "f6")::as, "json5")
-                .comma(jsonbExtractPath(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(NoCastTextType.INSTANCE, "f4"), SQLs.literal(NoCastTextType.INSTANCE, "f6"))::as, "json6")
-                // .comma(jsonbExtractPath(SQLs.literal(JsonbType.TEXT, json), SQLs::multiLiteral, "f4", "f6")::as, "json7")
+                // .comma(jsonExtractPath(SQLs::literal, json, SQLs::multiLiteral, "f4", "f6").as("json5")
+                .comma(jsonbExtractPath(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(NoCastTextType.INSTANCE, "f4"), SQLs.literal(NoCastTextType.INSTANCE, "f6")).as("json6")
+                // .comma(jsonbExtractPath(SQLs.literal(JsonbType.TEXT, json), SQLs::multiLiteral, "f4", "f6").as("json7")
                 .comma(jsonbExtractPath(SQLs.literal(JsonbType.TEXT, json), c -> {
                             c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f4"));
                             c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f6"));
-                        })::as, "json8"
+                        }).as("json8"
                 )
                 //.comma(jsonbExtractPath(SQLs.literal(JsonbType.TEXT, json), SQLs::multiLiteral, c -> {
 //                            c.accept("f4");
 //                            c.accept("f6");
-//                        })::as, "json9"
+//                        }).as("json9"
 //                )
-                //.comma(jsonbExtractPath(SQLs::literal, json, SQLs::multiLiteral, "f4", "f6")::as, "json10")
+                //.comma(jsonbExtractPath(SQLs::literal, json, SQLs::multiLiteral, "f4", "f6").as("json10")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -450,31 +450,31 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonExtractPathText(SQLs.literal(JsonType.TEXT, json), SQLs.literal(NoCastTextType.INSTANCE, "f4"), SQLs.literal(NoCastTextType.INSTANCE, "f6"))::as, "json1")
-                // .comma(jsonExtractPathText(SQLs.literal(JsonType.TEXT, json), SQLs::multiLiteral, "f4", "f6")::as, "json2")
+                .select(jsonExtractPathText(SQLs.literal(JsonType.TEXT, json), SQLs.literal(NoCastTextType.INSTANCE, "f4"), SQLs.literal(NoCastTextType.INSTANCE, "f6")).as("json1")
+                // .comma(jsonExtractPathText(SQLs.literal(JsonType.TEXT, json), SQLs::multiLiteral, "f4", "f6").as("json2")
                 .comma(jsonExtractPathText(SQLs.literal(JsonType.TEXT, json), c -> {
                             c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f4"));
                             c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f6"));
-                        })::as, "json3"
+                        }).as("json3"
                 )
 //                .comma(jsonExtractPathText(SQLs.literal(JsonType.TEXT, json), SQLs::multiLiteral, c -> {
 //                            c.accept("f4");
 //                            c.accept("f6");
-//                        })::as, "json4"
-//                ).comma(jsonExtractPathText(SQLs::literal, json, SQLs::multiLiteral, "f4", "f6")::as, "json5")
+//                        }).as("json4"
+//                ).comma(jsonExtractPathText(SQLs::literal, json, SQLs::multiLiteral, "f4", "f6").as("json5")
 
-                // .comma(jsonbExtractPathText(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(NoCastTextType.INSTANCE, "f4"), SQLs.literal(NoCastTextType.INSTANCE, "f6"))::as, "json6")
-                //   .comma(jsonbExtractPathText(SQLs.literal(JsonbType.TEXT, json), SQLs::multiLiteral, "f4", "f6")::as, "json7")
+                // .comma(jsonbExtractPathText(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(NoCastTextType.INSTANCE, "f4"), SQLs.literal(NoCastTextType.INSTANCE, "f6")).as("json6")
+                //   .comma(jsonbExtractPathText(SQLs.literal(JsonbType.TEXT, json), SQLs::multiLiteral, "f4", "f6").as("json7")
                 .comma(jsonbExtractPathText(SQLs.literal(JsonbType.TEXT, json), c -> {
                             c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f4"));
                             c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f6"));
-                        })::as, "json8"
+                        }).as("json8"
                 )
 //                .comma(jsonbExtractPathText(SQLs.literal(JsonbType.TEXT, json), SQLs::multiLiteral, c -> {
 //                            c.accept("f4");
 //                            c.accept("f6");
-//                        })::as, "json9"
-//                ).comma(jsonbExtractPathText(SQLs::literal, json, SQLs::multiLiteral, "f4", "f6")::as, "json10")
+//                        }).as("json9"
+//                ).comma(jsonbExtractPathText(SQLs::literal, json, SQLs::multiLiteral, "f4", "f6").as("json10")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -492,10 +492,10 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space(jsonObjectKeys(SQLs.literal(JsonType.TEXT, json))::as, "json1")
-                        .comma(jsonObjectKeys(SQLs::literal, json)::as, "json2")
-                        .comma(jsonbObjectKeys(SQLs.literal(JsonbType.TEXT, json))::as, "json3")
-                        .comma(jsonbObjectKeys(SQLs::literal, json)::as, "json4")
+                .select(s -> s.space(jsonObjectKeys(SQLs.literal(JsonType.TEXT, json)).as("json1")
+                        .comma(jsonObjectKeys(SQLs::literal, json).as("json2")
+                        .comma(jsonbObjectKeys(SQLs.literal(JsonbType.TEXT, json)).as("json3")
+                        .comma(jsonbObjectKeys(SQLs::literal, json).as("json4")
                         .comma("jt", PERIOD, ASTERISK)
                 )
                 .from(jsonObjectKeys(SQLs.literal(JsonType.TEXT, json))).as("jt").parens("value")
@@ -657,12 +657,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonbPathExists(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(JsonPathType.INSTANCE, path))::as, "json1")
-                .comma(jsonbPathExists(SQLs.literal(JsonbType.TEXT, json), SQLs::literal, path)::as, "json2")
-                .comma(jsonbPathExists(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars))::as, "json3")
-                .comma(jsonbPathExists(SQLs.literal(JsonbType.TEXT, json), SQLs::literal, varPath, SQLs::literal, vars)::as, "json4")
-                .comma(jsonbPathExists(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE)::as, "json5")
-                .comma(jsonbPathExists(SQLs.literal(JsonbType.TEXT, json), SQLs::literal, varPath, SQLs::literal, vars, TRUE)::as, "json6")
+                .select(jsonbPathExists(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(JsonPathType.INSTANCE, path)).as("json1")
+                .comma(jsonbPathExists(SQLs.literal(JsonbType.TEXT, json), SQLs::literal, path).as("json2")
+                .comma(jsonbPathExists(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars)).as("json3")
+                .comma(jsonbPathExists(SQLs.literal(JsonbType.TEXT, json), SQLs::literal, varPath, SQLs::literal, vars).as("json4")
+                .comma(jsonbPathExists(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE).as("json5")
+                .comma(jsonbPathExists(SQLs.literal(JsonbType.TEXT, json), SQLs::literal, varPath, SQLs::literal, vars, TRUE).as("json6")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -685,12 +685,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonbPathMatch(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(JsonPathType.INSTANCE, path))::as, "json1")
-                .comma(jsonbPathMatch(SQLs.literal(JsonbType.TEXT, json), SQLs::literal, path)::as, "json2")
-                .comma(jsonbPathMatch(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars))::as, "json3")
-                .comma(jsonbPathMatch(SQLs.literal(JsonbType.TEXT, json), SQLs::literal, varPath, SQLs::literal, vars)::as, "json4")
-                .comma(jsonbPathMatch(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE)::as, "json5")
-                .comma(jsonbPathMatch(SQLs.literal(JsonbType.TEXT, json), SQLs::literal, varPath, SQLs::literal, vars, TRUE)::as, "json6")
+                .select(jsonbPathMatch(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(JsonPathType.INSTANCE, path)).as("json1")
+                .comma(jsonbPathMatch(SQLs.literal(JsonbType.TEXT, json), SQLs::literal, path).as("json2")
+                .comma(jsonbPathMatch(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars)).as("json3")
+                .comma(jsonbPathMatch(SQLs.literal(JsonbType.TEXT, json), SQLs::literal, varPath, SQLs::literal, vars).as("json4")
+                .comma(jsonbPathMatch(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE).as("json5")
+                .comma(jsonbPathMatch(SQLs.literal(JsonbType.TEXT, json), SQLs::literal, varPath, SQLs::literal, vars, TRUE).as("json6")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -719,12 +719,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space(jsonbPathQuery(jsonField, pathExp)::as, "json1")
-                        .comma(jsonbPathQuery(jsonField, SQLs::literal, path)::as, "json2")
-                        .comma(jsonbPathQuery(jsonField, varPathExp, varExp)::as, "json3")
-                        .comma(jsonbPathQuery(jsonField, SQLs::literal, varPath, SQLs::literal, vars)::as, "json4")
-                        .comma(jsonbPathQuery(jsonField, varPathExp, varExp, TRUE)::as, "json5")
-                        .comma(jsonbPathQuery(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE)::as, "json6")
+                .select(s -> s.space(jsonbPathQuery(jsonField, pathExp).as("json1")
+                        .comma(jsonbPathQuery(jsonField, SQLs::literal, path).as("json2")
+                        .comma(jsonbPathQuery(jsonField, varPathExp, varExp).as("json3")
+                        .comma(jsonbPathQuery(jsonField, SQLs::literal, varPath, SQLs::literal, vars).as("json4")
+                        .comma(jsonbPathQuery(jsonField, varPathExp, varExp, TRUE).as("json5")
+                        .comma(jsonbPathQuery(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE).as("json6")
                         .comma("jt1", PERIOD, ASTERISK)
                         .comma("jt2", PERIOD, ASTERISK)
                         .comma("jt3", PERIOD, ASTERISK)
@@ -778,12 +778,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonbPathQueryArray(jsonField, pathExp)::as, "json1")
-                .comma(jsonbPathQueryArray(jsonField, SQLs::literal, path)::as, "json2")
-                .comma(jsonbPathQueryArray(jsonField, varPathExp, varExp)::as, "json3")
-                .comma(jsonbPathQueryArray(jsonField, SQLs::literal, varPath, SQLs::literal, vars)::as, "json4")
-                .comma(jsonbPathQueryArray(jsonField, varPathExp, varExp, TRUE)::as, "json5")
-                .comma(jsonbPathQueryArray(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE)::as, "json6")
+                .select(jsonbPathQueryArray(jsonField, pathExp).as("json1")
+                .comma(jsonbPathQueryArray(jsonField, SQLs::literal, path).as("json2")
+                .comma(jsonbPathQueryArray(jsonField, varPathExp, varExp).as("json3")
+                .comma(jsonbPathQueryArray(jsonField, SQLs::literal, varPath, SQLs::literal, vars).as("json4")
+                .comma(jsonbPathQueryArray(jsonField, varPathExp, varExp, TRUE).as("json5")
+                .comma(jsonbPathQueryArray(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE).as("json6")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -808,12 +808,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
         jsonField = SQLs.literal(JsonbType.TEXT, json);
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonbPathQueryFirst(jsonField, SQLs.literal(JsonPathType.INSTANCE, path))::as, "json1")
-                .comma(jsonbPathQueryFirst(jsonField, SQLs::literal, path)::as, "json2")
-                .comma(jsonbPathQueryFirst(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars))::as, "json3")
-                .comma(jsonbPathQueryFirst(jsonField, SQLs::literal, varPath, SQLs::literal, vars)::as, "json4")
-                .comma(jsonbPathQueryFirst(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE)::as, "json5")
-                .comma(jsonbPathQueryFirst(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE)::as, "json6")
+                .select(jsonbPathQueryFirst(jsonField, SQLs.literal(JsonPathType.INSTANCE, path)).as("json1")
+                .comma(jsonbPathQueryFirst(jsonField, SQLs::literal, path).as("json2")
+                .comma(jsonbPathQueryFirst(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars)).as("json3")
+                .comma(jsonbPathQueryFirst(jsonField, SQLs::literal, varPath, SQLs::literal, vars).as("json4")
+                .comma(jsonbPathQueryFirst(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE).as("json5")
+                .comma(jsonbPathQueryFirst(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE).as("json6")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -839,12 +839,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
         jsonField = SQLs.literal(JsonbType.TEXT, json);
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonbPathExistsTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, path))::as, "json1")
-                .comma(jsonbPathExistsTz(jsonField, SQLs::literal, path)::as, "json2")
-                .comma(jsonbPathExistsTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars))::as, "json3")
-                .comma(jsonbPathExistsTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars)::as, "json4")
-                .comma(jsonbPathExistsTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE)::as, "json5")
-                .comma(jsonbPathExistsTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE)::as, "json6")
+                .select(jsonbPathExistsTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, path)).as("json1")
+                .comma(jsonbPathExistsTz(jsonField, SQLs::literal, path).as("json2")
+                .comma(jsonbPathExistsTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars)).as("json3")
+                .comma(jsonbPathExistsTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars).as("json4")
+                .comma(jsonbPathExistsTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE).as("json5")
+                .comma(jsonbPathExistsTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE).as("json6")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -869,12 +869,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
         jsonField = SQLs.literal(JsonbType.TEXT, json);
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonbPathMatchTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, path))::as, "json1")
-                .comma(jsonbPathMatchTz(jsonField, SQLs::literal, path)::as, "json2")
-                .comma(jsonbPathMatchTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars))::as, "json3")
-                .comma(jsonbPathMatchTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars)::as, "json4")
-                .comma(jsonbPathMatchTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE)::as, "json5")
-                .comma(jsonbPathMatchTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE)::as, "json6")
+                .select(jsonbPathMatchTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, path)).as("json1")
+                .comma(jsonbPathMatchTz(jsonField, SQLs::literal, path).as("json2")
+                .comma(jsonbPathMatchTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars)).as("json3")
+                .comma(jsonbPathMatchTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars).as("json4")
+                .comma(jsonbPathMatchTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE).as("json5")
+                .comma(jsonbPathMatchTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE).as("json6")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -911,12 +911,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space(jsonbPathQueryTz(jsonField, pathExp)::as, "json1")
-                        .comma(jsonbPathQueryTz(jsonField, SQLs::literal, path)::as, "json2")
-                        .comma(jsonbPathQueryTz(jsonField, varPathExp, varExp)::as, "json3")
-                        .comma(jsonbPathQueryTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars)::as, "json4")
-                        .comma(jsonbPathQueryTz(jsonField, varPathExp, varExp, TRUE)::as, "json5")
-                        .comma(jsonbPathQueryTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE)::as, "json6")
+                .select(s -> s.space(jsonbPathQueryTz(jsonField, pathExp).as("json1")
+                        .comma(jsonbPathQueryTz(jsonField, SQLs::literal, path).as("json2")
+                        .comma(jsonbPathQueryTz(jsonField, varPathExp, varExp).as("json3")
+                        .comma(jsonbPathQueryTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars).as("json4")
+                        .comma(jsonbPathQueryTz(jsonField, varPathExp, varExp, TRUE).as("json5")
+                        .comma(jsonbPathQueryTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE).as("json6")
                         .comma("jt1", PERIOD, ASTERISK)
                         .comma("jt2", PERIOD, ASTERISK)
                         .comma("jt3", PERIOD, ASTERISK)
@@ -975,12 +975,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonbPathQueryArrayTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, path))::as, "json1")
-                .comma(jsonbPathQueryArrayTz(jsonField, SQLs::literal, path)::as, "json2")
-                .comma(jsonbPathQueryArrayTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars))::as, "json3")
-                .comma(jsonbPathQueryArrayTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars)::as, "json4")
-                .comma(jsonbPathQueryArrayTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE)::as, "json5")
-                .comma(jsonbPathQueryArrayTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE)::as, "json6")
+                .select(jsonbPathQueryArrayTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, path)).as("json1")
+                .comma(jsonbPathQueryArrayTz(jsonField, SQLs::literal, path).as("json2")
+                .comma(jsonbPathQueryArrayTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars)).as("json3")
+                .comma(jsonbPathQueryArrayTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars).as("json4")
+                .comma(jsonbPathQueryArrayTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE).as("json5")
+                .comma(jsonbPathQueryArrayTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE).as("json6")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -1014,12 +1014,12 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonbPathQueryFirstTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, path))::as, "json1")
-                .comma(jsonbPathQueryFirstTz(jsonField, SQLs::literal, path)::as, "json2")
-                .comma(jsonbPathQueryFirstTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars))::as, "json3")
-                .comma(jsonbPathQueryFirstTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars)::as, "json4")
-                .comma(jsonbPathQueryFirstTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE)::as, "json5")
-                .comma(jsonbPathQueryFirstTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE)::as, "json6")
+                .select(jsonbPathQueryFirstTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, path)).as("json1")
+                .comma(jsonbPathQueryFirstTz(jsonField, SQLs::literal, path).as("json2")
+                .comma(jsonbPathQueryFirstTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars)).as("json3")
+                .comma(jsonbPathQueryFirstTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars).as("json4")
+                .comma(jsonbPathQueryFirstTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, varPath), SQLs.literal(JsonbType.TEXT, vars), TRUE).as("json5")
+                .comma(jsonbPathQueryFirstTz(jsonField, SQLs::literal, varPath, SQLs::literal, vars, TRUE).as("json6")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -1032,7 +1032,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
         json = "[{\"f1\":1,\"f2\":null}, 2]";
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonbPretty(SQLs.literal(JsonbType.TEXT, json))::as, "json")
+                .select(jsonbPretty(SQLs.literal(JsonbType.TEXT, json)).as("json")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -1046,7 +1046,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
         json = "[{\"f1\":1,\"f2\":null}, 2]";
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonTypeOf(SQLs.literal(JsonType.TEXT, json))::as, "json")
+                .select(jsonTypeOf(SQLs.literal(JsonType.TEXT, json)).as("json")
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -1060,7 +1060,7 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
         json = "[{\"f1\":1,\"f2\":null}, 2]";
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonbTypeOf(SQLs.literal(JsonbType.TEXT, json))::as, "json")
+                .select(jsonbTypeOf(SQLs.literal(JsonbType.TEXT, json)).as("json")
                 .asQuery();
 
         printStmt(LOG, stmt);

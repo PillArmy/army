@@ -58,11 +58,11 @@ public class FuncUnitTests extends PostgreUnitTests {
     public void coalesceFunc() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(coalesce(SQLs.literalValue(1), SQLs.literalValue(2))::as, "a")
+                .select(coalesce(SQLs.literalValue(1), SQLs.literalValue(2)).as("a"))
                 .comma(coalesce(c -> {
                     c.accept(SQLs.literalValue(1));
                     c.accept(SQLs.literalValue(3));
-                })::as, "b")
+                }).as("b"))
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -73,7 +73,7 @@ public class FuncUnitTests extends PostgreUnitTests {
     public void nullIfFunc() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(nullIf(SQLs.literalValue(1), SQLs.literalValue(2))::as, "a")
+                .select(nullIf(SQLs.literalValue(1), SQLs.literalValue(2)).as("a"))
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -85,11 +85,11 @@ public class FuncUnitTests extends PostgreUnitTests {
     public void greatestFunc() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(greatest(SQLs.literalValue(1), SQLs.literalValue(2))::as, "a")
+                .select(greatest(SQLs.literalValue(1), SQLs.literalValue(2)).as("a"))
                 .comma(greatest(c -> {
                     c.accept(SQLs.literalValue(1));
                     c.accept(SQLs.literalValue(3));
-                })::as, "b")
+                }).as("b"))
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -101,11 +101,11 @@ public class FuncUnitTests extends PostgreUnitTests {
     public void leastFunc() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(least(SQLs.literalValue(1), SQLs.literalValue(2))::as, "a")
+                .select(least(SQLs.literalValue(1), SQLs.literalValue(2)).as("a"))
                 .comma(least(c -> {
                     c.accept(SQLs.literalValue(1));
                     c.accept(SQLs.literalValue(3));
-                })::as, "b")
+                }).as("b"))
                 .asQuery();
 
         printStmt(LOG, stmt);

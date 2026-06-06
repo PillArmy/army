@@ -43,7 +43,7 @@ public class QueryUnitTests extends PostgreUnitTests {
                 .selectsDistinctOn(s -> {
                             s.accept(SQLs.refSelection("aa\\nbb"));
                             SQLs.refSelection(2);
-                        }, s -> s.selection(SQLs.literalValue("aa'")::as, "aa\\nbb", PillUser_.id)
+                        }, s -> s.selection(SQLs.literalValue("aa'").as("aa\\nbb"), PillUser_.id)
                 ).from(PillUser_.T, SQLs.AS, "u")
                 .orderBy(PillUser_.id)
                 .offset(SQLs::literal, 1, ROWS)
@@ -57,7 +57,7 @@ public class QueryUnitTests extends PostgreUnitTests {
     public void dynamicWindow() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(SQLs.literalValue(1)::as, "r")
+                .select(SQLs.literalValue(1).as("r"))
                 .from(PillUser_.T, SQLs.AS, "u")
                 .windows(w -> {
                     w.window("w1").as(s -> s.partitionBy(PillUser_.userType).orderBy(PillUser_.id));
@@ -89,9 +89,9 @@ public class QueryUnitTests extends PostgreUnitTests {
         jsonField = SQLs.literal(JsonbType.TEXT, json);
         final Select stmt;
         stmt = Postgres.query()
-                .select(s -> s.space(SQLs.refField("func", "value")::as, "json1")
-                        .comma(SQLs.refField("func2", "value")::as, "json2")
-                        .comma(SQLs.refField("func2", "ordinal")::as, "json3")
+                .select(s -> s.space(SQLs.refField("func", "value").as("json1"))
+                        .comma(SQLs.refField("func2", "value").as("json2"))
+                        .comma(SQLs.refField("func2", "ordinal").as("json3"))
                 )
                 .from(jsonbPathQueryTz(jsonField, SQLs.literal(JsonPathType.INSTANCE, path)))
                 .as("func").parens("value")
@@ -120,7 +120,7 @@ public class QueryUnitTests extends PostgreUnitTests {
         final Expression jsonField;
         jsonField = SQLs.literal(JsonbType.TEXT, json);
         Postgres.query()
-                .select(s -> s.space(SQLs.refField("func", "myFunc")::as, "json1")) // func.myFunc not exists
+                .select(s -> s.space(SQLs.refField("func", "myFunc").as("json1"))) // func.myFunc not exists
                 .from(jsonbPathQueryTz(jsonField, SQLs::literal, path))
                 .as("func").parens("value")
                 .asQuery();

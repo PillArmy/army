@@ -276,6 +276,62 @@ Postgres.query(PillPerson_.id)
 
 ---
 
+#### 错误 5：json_to_recordset() 示例的生成 SQL 错误（3 处）
+
+**错误 1 — JSON 键名不匹配**：
+```json
+-- ❌ 第二个对象使用键 "c"，但列定义只有 "a" 和 "b"
+[{"a":1,"b":"foo"}, {"a":2,"c":"bar"}]
+
+-- ✅ 所有对象键必须与列定义匹配
+[{"a":1,"b":"foo"}, {"a":2,"b":"bar"}]
+```
+
+**错误 2 — SQLs.literal() 被错误渲染为参数占位符 `?`**：
+```sql
+-- ❌ literal 不应出现 ? 参数占位符和 -- param: 注释
+FROM json_to_recordset(?::json) AS jtr("a"::INTEGER, "b"::TEXT)
+-- param: [{"a":1,"b":"foo"},{"a":2,"b":"bar"}]
+
+-- ✅ literal 应内联到 SQL 中
+FROM json_to_recordset('[{"a":1,"b":"foo"},{"a":2,"b":"bar"}]'::json) AS jtr("a"::INTEGER, "b"::TEXT)
+```
+
+**错误原因**:
+- Java 代码使用 `SQLs.literal(JsonType.TEXT, jsonString)` — `literal` 会将值直接嵌入 SQL，不经过 JDBC `?` 参数绑定
+- 源码验证：`ArmyLiteralExpression.appendSql()` → `context.appendLiteral(...)` → `parser.safeLiteral(...)` → `bindUserDefinedLiteral(...)` → `stringEscape(value) + "::" + typeName`
+- 对比：`SQLs.param()` / DEFAULT 模式才会生成 `?` + `-- param:`
+
+**注意事项**:
+- 编写生成的 SQL 示例时，**必须根据 Java 代码使用的绑定方式决定 SQL 中是否出现 `?`**：
+  - `SQLs::param` / 默认参数模式 → SQL 显示 `?` + `-- param:`
+  - `SQLs::literal` / `SQLs.literal(...)` → SQL 显示内联的字面量值
+- **`between`/`notBetween` 单 BiFunction 形式**：`between(SQLs::literal, v1, AND, v2)` 的单 BiFunction 两个边界都适用，因此 **两个边界都应内联**。
+  - ❌ `BETWEEN ? AND ?` — 两个 `?` 都是错误的
+  - ✅ `BETWEEN '2026-06-04T...'::timestamp AND '2026-06-05T...'::timestamp`
+- 此规则适用于所有 generated SQL 示例
+- **`-- params:` 注释仅应列出真正作为 JDBC `?` 参数的绑定值**，不应包含 literal 值
+
+**发现时间**: 2025-06-06
+**发现来源**: 用户报告，asciidoc/index.adoc 文档
+
+---
+
+#### 错误 6：json_to_recordset() 列类型为 `::TYPE` 格式（已验证正确）
+
+**确认**: PostgreSQL `json_to_recordset()` 的 AS 子句列类型使用 `::TYPE` 语法：
+```sql
+-- ✅ 正确！PostgreSQL 表函数 AS 列定义使用 :: 类型转换
+AS jtr("a"::INTEGER, "b"::TEXT)
+```
+
+**注意**: 此处的 `::` 是 PostgreSQL 类型注解语法，应与规则 R13 保持一致。
+
+**发现时间**: 2025-06-06
+**发现来源**: 用户确认
+
+---
+
 ### 3.2 核心规则速查
 
 | 规则 ID | 规则内容 | 验证方式 |
@@ -292,6 +348,8 @@ Postgres.query(PillPerson_.id)
 | R10 | INSERT 语句的列清单 parens() 仅含 FieldMeta | 值行 parens() 必须在 .values() 之后 |
 | R11 | literal 带 SQL 类型前缀，const 不带类型前缀 | 理解两者区别，正确使用 |
 | R12 | 方言特有接口必须使用对应方言入口类 | `SQLs.query()` 不支持 TableModifier，必须用 `Postgres.query()` |
+| R13 | PostgreSQL 表函数列类型必须使用 `::` 语法 | `("a"::INTEGER, "b"::TEXT)` 而非 `("a" INTEGER, "b" TEXT)` |
+| R14 | 生成 SQL 必须根据绑定方式决定是否出现 `?` | `SQLs::literal` → 内联字面量；`SQLs::param` → `?` + `-- param:` |
 
 ---
 
@@ -521,6 +579,10 @@ army/
 | 2025-06-06 | 新增规则 R12：方言特有接口必须使用对应方言入口类 | 自我进化 | Army-agent |
 | 2025-06-06 | 修复 Clause(s) 小节 3 处错误（::as 弃用 + TableModifier） | Army Agent 检查文档 | asciidoc/index.adoc Clause(s) 小节 |
 | 2025-06-06 | 修正：`PERIOD, ASTERISK` 在 Defer Select 中是合法的 | 用户指正 | asciidoc/index.adoc Clause(s) 小节 |
+| 2025-06-06 | 修复 json_to_recordset 示例 SQL 列类型语法（`::TYPE`）及 JSON 键名匹配 | 用户报告 | asciidoc/index.adoc json_to_recordset 小节 |
+| 2025-06-06 | 新增错误 5 + 规则 R13：PostgreSQL 表函数列类型语法 | 自我进化 | Army-agent |
+| 2025-06-06 | 修正错误 5：literal 被错误渲染为 `?` 参数（应内联字面量）；新增错误 6 + R14 | 用户报告 | asciidoc/index.adoc json_to_recordset 小节 |
+| 2025-06-06 | 补充错误 5：between/notBetween 单 BiFunction literal 绑定、-- params: 不应含 literal 值 | 用户报告 | asciidoc/index.adoc between/notBetween 示例 |
 
 ---
 
@@ -540,6 +602,10 @@ army/
 - [ ] 没有使用 `countAsterisk()`，已用 `count(SQLs.ASTERISK)` 替换
 - [ ] `namedLiteral`/`namedConst`/`namedRowLiteral`/`namedRowConst` 仅在 VALUES INSERT 中使用
 - [ ] 方言特有语法（如 PostgreSQL ONLY）必须使用对应方言入口类（如 Postgres.query()）
+- [ ] PostgreSQL 表函数（如 json_to_recordset）列类型使用 `::TYPE` 语法（如 `"a"::INTEGER`）
+- [ ] 生成 SQL 中 `?` 参数占位符与 Java 绑定方式一致：literal → 内联值，param/DEFAULT → `?`
+- [ ] `between`/`notBetween` 单 BiFunction 形式中，绑定函数适用于两个边界（如 `SQLs::literal` → 两个边界均内联）
+- [ ] `-- params:` 注释仅列出 `?` 参数绑定的值，不包含 literal 内联值
 - [ ] 示例代码语法正确，可以编译通过
 
 ### 技能更新检查清单

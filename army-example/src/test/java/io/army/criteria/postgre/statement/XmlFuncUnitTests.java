@@ -68,8 +68,8 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
     public void xmlPiFunc() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(Postgres.xmlPi(NAME, "java", SQLs::literal, "echo \"hello world\";")::as, "xml1")
-                .comma(Postgres.xmlPi(NAME, "java")::as, "xml2")
+                .select(Postgres.xmlPi(NAME, "java", SQLs::literal, "echo \"hello world\";").as("xml1"))
+                .comma(Postgres.xmlPi(NAME, "java").as("xml2"))
                 .asQuery();
         printStmt(LOG, stmt);
     }
@@ -96,7 +96,7 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
         final Select stmt;
         stmt = Postgres.query()
                 .select(Postgres.xmlExists(SQLs.literalValue("//town[text() = 'Toronto']"), PASSING, BY_VALUE,
-                        SQLs.literal(XmlType.TEXT, "<towns><town>Toronto</town><town>Ottawa</town></towns>"), BY_VALUE)::as, "match"
+                        SQLs.literal(XmlType.TEXT, "<towns><town>Toronto</town><town>Ottawa</town></towns>"), BY_VALUE).as("match")
                 )
                 .asQuery();
         printStmt(LOG, stmt);
@@ -166,7 +166,7 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
     public void tableToXmlFunc() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(tableToXml(ChinaRegion_.T, FALSE, FALSE, SQLs.literalValue(""))::as, "chinaRegionXml")
+                .select(tableToXml(ChinaRegion_.T, FALSE, FALSE, SQLs.literalValue("")).as("chinaRegionXml"))
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -184,7 +184,7 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
                 .asQuery();
 
         stmt = Postgres.query()
-                .select(queryToXml(query, FALSE, FALSE, SQLs.literalValue(""))::as, "chinaRegionXml")
+                .select(queryToXml(query, FALSE, FALSE, SQLs.literalValue("")).as("chinaRegionXml"))
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -196,8 +196,8 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
     public void xmlParseFunc() {
         final Select stmt;
         stmt = Postgres.query()
-                .select(xmlParse(CONTENT, SQLs::literal, "abc<foo>bar</foo><bar>foo</bar>")::as, "contentXml")
-                .comma(xmlParse(DOCUMENT, SQLs::literal, "<?xml version=\"1.0\"?><book><title>Manual</title><chapter>...</chapter></book>")::as, "documentXml")
+                .select(xmlParse(CONTENT, SQLs::literal, "abc<foo>bar</foo><bar>foo</bar>").as("contentXml"))
+                .comma(xmlParse(DOCUMENT, SQLs::literal, "<?xml version=\"1.0\"?><book><title>Manual</title><chapter>...</chapter></book>").as("documentXml"))
                 .asQuery();
 
         printStmt(LOG, stmt);
@@ -209,9 +209,9 @@ public class XmlFuncUnitTests extends PostgreUnitTests {
         final String xml = "<?xml version=\"1.0\"?><book><title>Manual</title><chapter>...</chapter></book>";
         final Select stmt;
         stmt = Postgres.query()
-                .select(xmlSerialize(CONTENT, SQLs.literal(XmlType.TEXT, xml), AS, TextType.INSTANCE)::as, "contentXml"
+                .select(xmlSerialize(CONTENT, SQLs.literal(XmlType.TEXT, xml), AS, TextType.INSTANCE).as("contentXml")
                 )
-                .comma(xmlSerialize(DOCUMENT, SQLs.literal(XmlType.TEXT, xml), AS, TextType.INSTANCE)::as, "documentXml"
+                .comma(xmlSerialize(DOCUMENT, SQLs.literal(XmlType.TEXT, xml), AS, TextType.INSTANCE).as("documentXml")
                 )
                 .asQuery();
 

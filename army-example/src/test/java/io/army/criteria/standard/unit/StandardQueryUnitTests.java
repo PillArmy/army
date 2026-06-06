@@ -297,7 +297,7 @@ public class StandardQueryUnitTests extends StandardUnitTests {
                 .select(s -> s.space(SQLs.refField("us", "one"))
                         .comma("us", PERIOD, ASTERISK)
                 ).from(SQLs.subQuery()
-                        .select(SQLs.literalValue(1)::as, "one")
+                        .select(SQLs.literalValue(1).as("one"))
                         .comma("u", PERIOD, PillUser_.T)
                         .from(PillUser_.T, AS, "u")
                         .where(PillUser_.createTime.equal(SQLs::literal, LocalDateTime.now()))
@@ -315,9 +315,8 @@ public class StandardQueryUnitTests extends StandardUnitTests {
     public void nestedJoin() {
         final Select stmt;
         stmt = SQLs.query()
-                .select(s -> s.space(BankPerson_.id::as, "userId", refField("cr", "id")::as, "regionId")
-                        .comma(SQLs.refField("cr", "name")::as, "regionName")
-                )
+                .select(s -> s.space(BankPerson_.id.as("userId"), refField("cr", "id").as("regionId"))
+                        .comma(SQLs.refField("cr", "name").as("regionName")))
                 .from(s -> s.leftParen(BankPerson_.T, AS, "up")
                         .join(BankUser_.T, AS, "u").on(BankPerson_.id::equal, BankUser_.id)
                         .rightParen()
@@ -338,7 +337,7 @@ public class StandardQueryUnitTests extends StandardUnitTests {
     public void dynamicJoin() {
         final Select stmt;
         stmt = SQLs.query()
-                .select(s -> s.space(BankPerson_.id::as, "userId", refField("cr", "id")::as, "regionId"))
+                .select(s -> s.space(BankPerson_.id.as("userId"), refField("cr", "id").as("regionId")))
                 .from(s -> s.leftParen(BankPerson_.T, AS, "up")
                         .join(BankUser_.T, AS, "u").on(BankPerson_.id::equal, BankUser_.id)
                         .rightParen()

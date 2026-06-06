@@ -7939,11 +7939,11 @@ final Select stmt;
 stmt = SQLs.query()
         .withRecursive("cte").parens("n").as(s ->
                 // Non-recursive part — base case
-                s.select(SQLs.literalValue(1)::as, "n")
+                s.select(SQLs.literalValue(1).as("n"))
                  .union()
                  // Recursive part — references itself via refField
                  .select(cs -> cs.space(
-                         SQLs.refField("cte", "n").plus(SQLs.literalValue(1))::as, "n")
+                         SQLs.refField("cte", "n").plus(SQLs.literalValue(1)).as("n"))
                  )
                  .from("cte")
                  .where(SQLs.refField("cte", "n").less(SQLs.literalValue(10)))
@@ -7985,14 +7985,14 @@ stmt = SQLs.query()
         .as(s ->
                 // Non-recursive part — root nodes (parent_id IS NULL)
                 s.select(Category_.id, Category_.parentId, Category_.name,
-                         SQLs.literalValue(1)::as, "level")
+                         SQLs.literalValue(1).as("level"))
                  .from(Category_.T, AS, "c")
                  .where(Category_.parentId.isNull())
                  .asQuery()
         ).comma("union", s -> s.select(Category_.id, Category_.parentId,
                                        Category_.name,
                                        SQLs.refField("category_tree", "level")
-                                           .plus(SQLs.literalValue(1))::as, "level")
+                                           .plus(SQLs.literalValue(1)).as("level"))
                  .from(Category_.T, AS, "c")
                  .join("category_tree").on(
                          Category_.parentId::equal,
@@ -8192,13 +8192,13 @@ final Select stmt;
 stmt = Postgres.query()
         .withRecursive("tree").parens("id", "parent_id", "depth")
         .as(s -> s.select(Category_.id, Category_.parentId,
-                          SQLs.literalValue(0)::as, "depth")
+                          SQLs.literalValue(0).as("depth"))
                 .from(Category_.T, AS, "c")
                 .where(Category_.parentId.isNull())
                 .unionAll()
                 .select(c -> c.space(Category_.id, Category_.parentId,
                                      SQLs.refField("tree", "depth")
-                                             .plus(SQLs.literalValue(1))::as, "depth"))
+                                             .plus(SQLs.literalValue(1)).as("depth")))
                 .from(Category_.T, AS, "c")
                 .join("tree").on(
                         Category_.parentId::equal,
@@ -8579,8 +8579,7 @@ JOIN pill_user AS u ON u.id = p.id
 WHERE p.id = 1
   AND u.id IN (SELECT r.user_id
                FROM register_record AS r
-               WHERE r.create_time BETWEEN ? AND ?)
--- params: 1, '2026-06-04T...', '2026-06-05T...'
+               WHERE r.create_time BETWEEN '2026-06-04T...'::timestamp AND '2026-06-05T...'::timestamp)
 ----
 
 === Clause(s)
@@ -9076,7 +9075,7 @@ interface UndoneFunction extends TabularItem, SQLFunction {
 Postgres.query()
     .select("jtr", PERIOD, ASTERISK)
     .from(jsonToRecordSet(SQLs.literal(JsonType.TEXT,
-            "[{\"a\":1,\"b\":\"foo\"}, {\"a\":2,\"c\":\"bar\"}]")))
+            "[{\"a\":1,\"b\":\"foo\"}, {\"a\":2,\"b\":\"bar\"}]")))
     .as("jtr").parens(c -> c.space("a", IntegerType.INSTANCE)
             .comma("b", TextType.INSTANCE)
     )
@@ -9087,8 +9086,7 @@ Postgres.query()
 [source,sql]
 ----
 SELECT jtr.*
-FROM JSON_TO_RECORDSET(?::JSON) AS jtr("a" INTEGER, "b" TEXT)
--- param: [{"a":1,"b":"foo"},{"a":2,"c":"bar"}]
+FROM json_to_recordset('[{"a":1,"b":"foo"},{"a":2,"b":"bar"}]'::json) AS jtr("a"::INTEGER, "b"::TEXT)
 ----
 
 Other table functions include `generate_series()`, `jsonb_each()`,
@@ -9338,8 +9336,8 @@ FROM pill_person AS p
 JOIN pill_user AS u ON u.id = p.id
 WHERE p.id = 1
   AND u.nick_name = ?
-  AND u.create_time NOT BETWEEN ? AND ?
--- params: 1, '脉兽秀秀', '2026-06-04T...', '2026-06-05T...'
+  AND u.create_time NOT BETWEEN '2026-06-05T...'::timestamp AND ?
+-- params: '脉兽秀秀', '2026-06-06T...'
 ----
 
 ==== GROUP BY
@@ -9646,7 +9644,6 @@ UNION ALL
  WHERE p.id = 2)
 ORDER BY id DESC
 LIMIT 10 OFFSET 0
--- params: 1, 2
 ----
 
 === MySQL API
