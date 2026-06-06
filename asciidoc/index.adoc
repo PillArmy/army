@@ -7725,7 +7725,7 @@ WITH normal_stock AS (
     FROM stock AS s
     WHERE s.status = ?  -- param: 'NORMAL'
 )
-SELECT normal_stock.*
+SELECT normal_stock.id, normal_stock.name, normal_stock.status, ...
 FROM normal_stock
 ----
 
@@ -7814,7 +7814,7 @@ second_cte AS (
     FROM stock AS t
     WHERE t.offer_price > ?  -- param: 100.00
 )
-SELECT first_cte.*
+SELECT first_cte.id, first_cte.name, ...
 FROM first_cte
 JOIN second_cte ON first_cte.id = second_cte.id
 ----
@@ -8019,7 +8019,7 @@ WITH RECURSIVE category_tree(id, parent_id, name, level) AS (
     FROM category AS c
     JOIN category_tree ON c.parent_id = category_tree.id
 )
-SELECT category_tree.*
+SELECT category_tree.id, category_tree.name, category_tree.level, ...
 FROM category_tree
 ORDER BY category_tree.level ASC, category_tree.id ASC
 ----
@@ -8174,7 +8174,7 @@ WITH cte AS MATERIALIZED (
     SELECT s.id
     FROM stock AS s
 )
-SELECT cte.*
+SELECT cte.id, cte.name, ...
 FROM cte
 ----
 
@@ -8227,7 +8227,7 @@ WITH RECURSIVE tree(id, parent_id, depth) AS (
     JOIN tree ON c.parent_id = tree.id
 ) SEARCH DEPTH FIRST BY id SET search_seq
   CYCLE id SET is_cycle USING cycle_path
-SELECT tree.*
+SELECT tree.id, tree.name, tree.is_cycle, ...
 FROM tree
 WHERE tree.is_cycle = FALSE
 ----
@@ -8481,7 +8481,7 @@ SQLs.subQuery()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT s.*
+SELECT s.id, s.name, s.status, ...
 FROM stock AS s
 WHERE s.status = ?
 -- param: 'NORMAL'
@@ -8507,7 +8507,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT bu.*
+SELECT bu.id, bu.name, bu.email, ...
 FROM pill_user AS bu
 JOIN (SELECT p.id
       FROM china_province AS p) AS ps
@@ -8538,7 +8538,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT u.*
+SELECT u.id, u.name, u.email, ...
 FROM pill_user AS u
 WHERE u.nick_name = ?
   AND EXISTS (SELECT p.id
@@ -8573,7 +8573,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT p.*
+SELECT p.id, p.name, p.age, ...
 FROM pill_person AS p
 JOIN pill_user AS u ON u.id = p.id
 WHERE p.id = 1
@@ -8643,7 +8643,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT u.*
+SELECT u.id, u.name, u.email, ...
 FROM pill_user AS u
 ----
 
@@ -8652,12 +8652,12 @@ FROM pill_user AS u
 [source,java]
 ----
 SQLs.query()
-    .select(ChinaRegion_.population.plus(SQLs::param, 1).as("populationPlus"))
-    .comma("c", PERIOD, ChinaRegion_.T,
-           "p", PERIOD, ChinaProvince_.T)
+    .select(ChinaRegion_.population.plus(1).as("populationPlus"))
+    .comma("c", PERIOD, ChinaRegion_.T)
+    .comma("p", PERIOD, ChinaProvince_.T)
     .from(ChinaProvince_.T, AS, "p")
     .join(ChinaRegion_.T, AS, "c")
-        .on(ChinaProvince_.id::equal, ChinaRegion_.id)
+        .on(ChinaProvince_.id.equal(ChinaRegion_.id))
     .asQuery()
 ----
 
@@ -8665,7 +8665,8 @@ SQLs.query()
 [source,sql]
 ----
 SELECT c.population + ? AS "populationPlus",
-       c.*, p.*
+       c.id, c.name, c.population, ...,
+       p.id, p.name, p.province_code, ...
 FROM china_province AS p
 JOIN china_region AS c ON p.id = c.id
 ----
@@ -8713,13 +8714,13 @@ SQLs.query()
             .comma("us", PERIOD, ASTERISK)
     )
     .from(SQLs.subQuery()
-            .select(SQLs.literalValue(1)::as, "one")
+            .select(SQLs.literalValue(1).as("one"))
             .comma("u", PERIOD, PillUser_.T)
             .from(PillUser_.T, AS, "u")
             .limit(SQLs::literal, 0, 10)
             .asQuery()
     ).as("us")
-    .where(SQLs.refField("us", "one").equal(SQLs.parameter(1)))
+    .where(SQLs.refField("us", "one").equal(1))
     .asQuery()
 ----
 
@@ -8727,7 +8728,7 @@ SQLs.query()
 [source,sql]
 ----
 SELECT us."one", us.*
-FROM (SELECT 1 AS "one", u.*
+FROM (SELECT 1 AS "one", u.id, u.name, u.email, ...
       FROM pill_user AS u
       LIMIT 10 OFFSET 0) AS us
 WHERE us."one" = ?
@@ -8890,7 +8891,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT s.*
+SELECT s.id, s.name, s.offer_price, ...
 FROM stock AS s
 ----
 
@@ -8899,7 +8900,8 @@ FROM stock AS s
 [source,java]
 ----
 // PostgreSQL: ONLY skips descendant tables in inheritance hierarchy
-SQLs.query(PillPerson_.id)
+// Note: Only Postgres.query() supports TableModifier, not SQLs.query()
+Postgres.query(PillPerson_.id)
     .from(SQLs.ONLY, PillPerson_.T, AS, "p")
     .asQuery()
 ----
@@ -8913,7 +8915,9 @@ FROM ONLY pill_person AS p
 
 ===== Derived Table (Subquery)
 
-Pass a `DerivedTable` (from `subQuery()`) directly, or use a `Supplier` for lazy construction:
+Pass a `DerivedTable` (from `subQuery()`) directly, or use a `Supplier` to access local variables in lambda:
+
+NOTE: `Supplier` is NOT for "lazy" construction; it exists to let you declare/use local variables in lambda. Keep lambdas simple to avoid losing readability.
 
 *Direct subquery:*
 
@@ -8924,13 +8928,13 @@ SQLs.query()
             .comma("us", PERIOD, ASTERISK)
     )
     .from(SQLs.subQuery()
-            .select(SQLs.literalValue(1)::as, "one")
+            .select(SQLs.literalValue(1).as("one"))
             .comma("u", PERIOD, PillUser_.T)
             .from(PillUser_.T, AS, "u")
             .limit(SQLs::literal, 0, 10)
             .asQuery()
     ).as("us")
-    .where(SQLs.refField("us", "one").equal(SQLs.parameter(1)))
+    .where(SQLs.refField("us", "one").equal(1))
     .asQuery()
 ----
 
@@ -8938,26 +8942,31 @@ SQLs.query()
 [source,sql]
 ----
 SELECT us."one", us.*
-FROM (SELECT 1 AS "one", u.*
+FROM (SELECT 1 AS "one", u.id, u.name, u.email, ...
       FROM pill_user AS u
       LIMIT 10 OFFSET 0) AS us
 WHERE us."one" = ?
 -- param: 1
 ----
 
-*Lazy subquery (Supplier):*
+*Subquery with local variables (Supplier):*
 
 [source,java]
 ----
-// from(Supplier<DerivedTable>) — lambda for lazy construction
+// from(Supplier<DerivedTable>) — use lambda to access local variables
+// NOTE: This is NOT for "lazy" construction; the purpose is to let you declare/use local variables in lambda
+// Keep lambdas simple to avoid losing readability
 SQLs.query()
     .select("bu", PERIOD, PillUser_.T)
     .from(PillUser_.T, AS, "bu")
-    .join(() -> SQLs.subQuery()
+    .join(() -> {
+        // 可以在这里声明和使用局部变量
+        int someValue = 100;
+        return SQLs.subQuery()
             .select(ChinaProvince_.id)
             .from(ChinaProvince_.T, AS, "p")
-            .asQuery()
-    ).as("ps")
+            .asQuery();
+    }).as("ps")
         .on(PillUser_.id::equal, SQLs.refField("ps", ChinaProvince_.ID))
     .asQuery()
 ----
@@ -8965,7 +8974,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT bu.*
+SELECT bu.id, bu.name, bu.email, ...
 FROM pill_user AS bu
 JOIN (SELECT p.id
       FROM china_province AS p) AS ps
@@ -8978,7 +8987,8 @@ JOIN (SELECT p.id
 ----
 // PostgreSQL LATERAL subquery — references outer table columns
 Postgres.query()
-    .select("u", PERIOD, PillUser_.T, "latest", PERIOD, ASTERISK)
+    .select(s -> s.space("u", PERIOD, PillUser_.T)
+            .comma("latest", PERIOD, ASTERISK))
     .from(PillUser_.T, AS, "u")
     .join(SQLs.LATERAL, SQLs.subQuery()
             .select(BankAccount_.id, BankAccount_.balance)
@@ -8988,14 +8998,14 @@ Postgres.query()
             .limit(SQLs::literal, 1)
             .asQuery()
     ).as("latest")
-        .on(SQLs.LITERAL_TRUE)
+        .on(SQLs.TRUE)
     .asQuery()
 ----
 
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT u.*, latest.*
+SELECT u.id, u.name, u.email, ..., latest.id, latest.balance
 FROM pill_user AS u
 JOIN LATERAL (SELECT a.id, a.balance
               FROM bank_account AS a
@@ -9018,7 +9028,7 @@ SQLs.query()
             .where(Stock_.status.equal(SQLs::param, StockStatus.ACTIVE))
             .asQuery()
     )
-    .select("ats", PERIOD, ASTERISK)
+    .select(s -> s.space("ats", PERIOD, ASTERISK))
     .from("active_stocks", AS, "ats")
     .where(SQLs.refField("ats", "offer_price")
             .greater(SQLs::param, new BigDecimal("100.00")))
@@ -9033,7 +9043,7 @@ WITH active_stocks AS (
     FROM stock AS s
     WHERE s.status = ?
 )
-SELECT ats.*
+SELECT ats.id, ats.name, ats.offer_price, ...
 FROM active_stocks AS ats
 WHERE ats.offer_price > ?
 -- params: ACTIVE, 100.00
@@ -9108,7 +9118,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT up.*, u.*
+SELECT up.id, up.name, ..., u.id, u.name, ...
 FROM (bank_person AS up
 JOIN bank_user AS u ON up.id = u.id)
 ----
@@ -9147,24 +9157,29 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT u.*, p.*
+SELECT u.id, u.name, u.email, ..., p.id, p.name, p.age, ...
 FROM pill_person AS p
 JOIN pill_user AS u ON u.id = p.id
 ----
 
-*Join a derived table (subquery):*
+*Join a derived table (subquery) with local variables (Supplier):*
 
 [source,java]
 ----
 // JOIN a subquery as a derived table
+// NOTE: Use Supplier to access local variables in lambda; it's NOT for "lazy" construction
+// Keep lambdas simple to avoid losing readability
 SQLs.query()
     .select("bu", PERIOD, PillUser_.T)
     .from(PillUser_.T, AS, "bu")
-    .join(() -> SQLs.subQuery()
+    .join(() -> {
+        // 可以在这里声明和使用局部变量
+        int someValue = 100;
+        return SQLs.subQuery()
             .select(ChinaProvince_.id)
             .from(ChinaProvince_.T, AS, "p")
-            .asQuery()
-    ).as("ps")
+            .asQuery();
+    }).as("ps")
         .on(PillUser_.id::equal, SQLs.refField("ps", ChinaProvince_.ID))
     .asQuery()
 ----
@@ -9172,7 +9187,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT bu.*
+SELECT bu.id, bu.name, bu.email, ...
 FROM pill_user AS bu
 JOIN (SELECT p.id
       FROM china_province AS p) AS ps
@@ -9209,7 +9224,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT u.*, a.*
+SELECT u.id, u.name, u.email, ..., a.id, a.balance, a.user_id, ...
 FROM pill_user AS u
 LEFT JOIN bank_account AS a ON u.id = a.user_id
 ----
@@ -9241,7 +9256,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT u.*, a.*
+SELECT u.id, u.name, u.email, ..., a.id, a.balance, a.user_id, ...
 FROM pill_user AS u
 RIGHT JOIN bank_account AS a ON u.id = a.user_id
 ----
@@ -9273,7 +9288,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT u.*, a.*
+SELECT u.id, u.name, u.email, ..., a.id, a.balance, a.user_id, ...
 FROM pill_user AS u
 FULL JOIN bank_account AS a ON u.id = a.user_id
 ----
@@ -9318,7 +9333,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT u.*, p.*
+SELECT u.id, u.name, u.email, ..., p.id, p.name, p.age, ...
 FROM pill_person AS p
 JOIN pill_user AS u ON u.id = p.id
 WHERE p.id = 1
@@ -9466,7 +9481,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT u.*
+SELECT u.id, u.name, u.email, ...
 FROM pill_user AS u
 ORDER BY u.id DESC
 ----
@@ -9487,7 +9502,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT c.*
+SELECT c.id, c.name, c.create_time, c.version, ...
 FROM china_region AS c
 ORDER BY c.create_time DESC, c.version ASC
 ----
@@ -9521,7 +9536,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT u.*
+SELECT u.id, u.name, u.email, ...
 FROM pill_user AS u
 ORDER BY u.id DESC
 LIMIT 10 OFFSET 0
@@ -9546,7 +9561,7 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT u.*
+SELECT u.id, u.name, u.email, ...
 FROM pill_user AS u
 LIMIT 100 OFFSET 0
 ----
@@ -9586,11 +9601,11 @@ SQLs.query()
 .Generated SQL (PostgreSQL)
 [source,sql]
 ----
-SELECT c.*
+SELECT c.id, c.name, c.create_time, c.version, ...
 FROM china_region AS c
 WHERE c.id IN (?, ?, ?)
 UNION
-(SELECT c2.*
+(SELECT c2.id, c2.name, c2.create_time, c2.version, ...
  FROM china_region AS c2
  WHERE c2.id IN (?, ?, ?))
 ORDER BY id

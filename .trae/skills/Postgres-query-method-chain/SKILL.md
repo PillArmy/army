@@ -599,9 +599,10 @@ Postgres.query()
 ```java
 // 引用子查询中的导出列
 Postgres.query()
-    .select(s -> s.space(refField("sub", "value")::as, "val")
-                 .comma(refField("sub", "name")::as, "nm"))
-    .from(subQuery(...), AS, "sub")
+    .select(s -> s.space(refField("sub", "value").as("val"))
+                 .comma(refField("sub", "name").as("nm")))
+    .from(subQuery(...))
+    .as("sub")
     .asQuery()
 ```
 
@@ -653,7 +654,7 @@ Postgres.query()
 
 ```java
 Postgres.query()
-    .select(s -> s.space(refField("func", "value")::as, "json1"))
+    .select(s -> s.space(refField("func", "value").as("json1")))
     .from(jsonbPathQueryTz(jsonField, literal(path)))
     .as("func").parens("value")
     .asQuery()
@@ -723,7 +724,7 @@ Postgres.query()
 
 ```java
 Postgres.query()
-    .select(PillUser_.userType, count(ASTERISK)::as, "cnt")
+    .select(PillUser_.userType, count(ASTERISK).as("cnt"))
     .from(PillUser_.T, AS, "u")
     .groupBy(ALL, PillUser_.userType)  // PostgreSQL 特有：ALL 修饰符
     .asQuery()
@@ -873,7 +874,7 @@ stmt = Postgres.query()
                 s.accept(refSelection("aa\\nbb"));
                 refSelection(2);
             }, 
-            s -> s.selection(literalValue("aa'")::as, "aa\\nbb", PillUser_.id)
+            s -> s.selection(literalValue("aa'").as("aa\\nbb"), PillUser_.id)
         )
         .from(PillUser_.T, AS, "u")
         .orderBy(PillUser_.id)
@@ -887,7 +888,7 @@ stmt = Postgres.query()
 ```java
 final Select stmt;
 stmt = Postgres.query()
-        .select(literalValue(1)::as, "r")
+        .select(literalValue(1).as("r"))
         .from(PillUser_.T, AS, "u")
         .windows(w -> {
             w.window("w1").as(s -> s.partitionBy(PillUser_.userType).orderBy(PillUser_.id));
@@ -901,9 +902,9 @@ stmt = Postgres.query()
 ```java
 final Select stmt;
 stmt = Postgres.query()
-        .select(s -> s.space(refField("func", "value")::as, "json1")
-                     .comma(refField("func2", "value")::as, "json2")
-                     .comma(refField("func2", "ordinal")::as, "json3"))
+        .select(s -> s.space(refField("func", "value").as("json1"))
+                     .comma(refField("func2", "value").as("json2"))
+                     .comma(refField("func2", "ordinal").as("json3")))
         .from(jsonbPathQueryTz(jsonField, literal(path)))
         .as("func").parens("value")
         .crossJoin(jsonbPathQueryTz(jsonField, literal, varPath, literal, vars)::withOrdinality)

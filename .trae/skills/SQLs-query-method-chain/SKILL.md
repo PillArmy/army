@@ -77,7 +77,7 @@ SQLs.query()  →  StandardQuery.WithSpec<Select>
 │  │  ├─ .select(SqlField field1, SqlField field2, SqlField field3) → _StandardSelectCommaClause
 │  │  ├─ .select(SqlField field1, SqlField field2, SqlField field3, SqlField field4) → _StandardSelectCommaClause
 │  │  ├─ .select(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) → _StandardSelectCommaClause
-│  │  ├─ .select(String pAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent, String cAlias, SQLs.SymbolDot period2, ComplexTableMeta<P,?> child) → _StandardSelectCommaClause
+│  │  ├─ .select(String pAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent, String cAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child) → _StandardSelectCommaClause
 │  │  ├─ .select(Function<String,Selection> function, String alias) → _StandardSelectCommaClause
 │  │  ├─ .select(Function<String,Selection> function, String alias, Selection selection) → _StandardSelectCommaClause
 │  │  ├─ .select(Selection selection, Function<String,Selection> function, String alias) → _StandardSelectCommaClause
@@ -92,7 +92,7 @@ SQLs.query()  →  StandardQuery.WithSpec<Select>
 │  │  ├─ .space(SqlField field1, SqlField field2, SqlField field3) → _StandardSelectCommaClause
 │  │  ├─ .space(SqlField field1, SqlField field2, SqlField field3, SqlField field4) → _StandardSelectCommaClause
 │  │  ├─ .space(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) → _StandardSelectCommaClause
-│  │  ├─ .space(String pAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent, String cAlias, SQLs.SymbolDot period2, ComplexTableMeta<P,?> child) → _StandardSelectCommaClause
+│  │  ├─ .space(String pAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent, String cAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child) → _StandardSelectCommaClause
 │  │  ├─ .space(Function<String,Selection> function, String alias) → _StandardSelectCommaClause
 │  │  ├─ .space(Function<String,Selection> function, String alias, Selection selection) → _StandardSelectCommaClause
 │  │  ├─ .space(Selection selection, Function<String,Selection> function, String alias) → _StandardSelectCommaClause
@@ -103,7 +103,7 @@ SQLs.query()  →  StandardQuery.WithSpec<Select>
 │  │  ├─ .comma(SqlField field1, SqlField field2, SqlField field3) → _StandardSelectCommaClause
 │  │  ├─ .comma(SqlField field1, SqlField field2, SqlField field3, SqlField field4) → _StandardSelectCommaClause
 │  │  ├─ .comma(String tableAlias, SQLs.SymbolDot period, TableMeta<?> table) → _StandardSelectCommaClause
-│  │  ├─ .comma(String pAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent, String cAlias, SQLs.SymbolDot period2, ComplexTableMeta<P,?> child) → _StandardSelectCommaClause
+│  │  ├─ .comma(String pAlias, SQLs.SymbolDot period1, ParentTableMeta<P> parent, String cAlias, SQLs.SymbolDot period2, ComplexTableMeta<P, ?> child) → _StandardSelectCommaClause
 │  │  ├─ .comma(Function<String,Selection> function, String alias) → _StandardSelectCommaClause
 │  │  ├─ .comma(Function<String,Selection> function, String alias, Selection selection) → _StandardSelectCommaClause
 │  │  ├─ .comma(Selection selection, Function<String,Selection> function, String alias) → _StandardSelectCommaClause
@@ -111,7 +111,7 @@ SQLs.query()  →  StandardQuery.WithSpec<Select>
 │  ├─ [Defer] Consumer<_DeferSelectSpaceClause>，引用 FROM 导出表/列 → _FromSpec
 │  │  ├─ .select(Consumer<_DeferSelectSpaceClause> consumer)       → _FromSpec
 │  │  ├─ .select(SQLs.Modifier modifier, Consumer<_DeferSelectSpaceClause> consumer) → _FromSpec
-│  │  └─ Consumer 内可用: .space(Selection) / .comma(Selection) / .comma(alias,PERIOD,ASTERISK)
+│  │  └─ Consumer 内可用: .space(Selection) / .comma(Selection) / .space(derivedAlias, PERIOD, ASTERISK) / .comma(derivedAlias, PERIOD, ASTERISK)
 │  └─ [Dynamic] Consumer<SelectionConsumer>，不确定 selections → _FromSpec
 │     ├─ .selects(Consumer<SelectionConsumer> consumer)            → _FromSpec
 │     └─ .selects(SQLs.Modifier modifier, Consumer<SelectionConsumer> consumer) → _FromSpec
@@ -486,9 +486,9 @@ interface _StandardSelectClause<I extends Item>
 )
 
 // 带 alias 的列
-.select(s -> s.space(BankPerson_.id::as, "userId",
-        refField("cr", "id")::as, "regionId")
-        .comma(refField("cr", "name")::as, "regionName")
+.select(s -> s.space(BankPerson_.id.as("userId"))
+        .comma(refField("cr", "id").as("regionId"))
+        .comma(refField("cr", "name").as("regionName"))
 )
 ```
 

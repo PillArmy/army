@@ -467,9 +467,9 @@ interface _StandardSelectClause<I extends Item>
 )
 
 // 带 alias 的列
-.select(s -> s.space(BankPerson_.id::as, "userId",
-        refField("cr", "id")::as, "regionId")
-        .comma(refField("cr", "name")::as, "regionName")
+.select(s -> s.space(BankPerson_.id.as("userId"))
+        .comma(refField("cr", "id").as("regionId"))
+        .comma(refField("cr", "name").as("regionName"))
 )
 ```
 

@@ -460,12 +460,12 @@ MySQLs.scalarSubQuery()
 .select(PillUser_.id, PillUser_.nickName, PillUser_.status, PillUser_.createTime)
 
 // 带别名的列
-.select(PillUser_.nickName::as, "user_name")
+.select(PillUser_.nickName.as("user_name"))
 
 // 组合形式
-.select(PillUser_.id::as, "user_id", PillUser_.nickName)
-.select(PillUser_.id, PillUser_.nickName::as, "user_name")
-.select(PillUser_.id::as, "user_id", PillUser_.nickName::as, "user_name")
+.select(PillUser_.id.as("user_id"), PillUser_.nickName)
+.select(PillUser_.id, PillUser_.nickName.as("user_name"))
+.select(PillUser_.id.as("user_id"), PillUser_.nickName.as("user_name"))
 
 // 整表选择
 .select("u", SQLs.PERIOD, PillUser_.T)
@@ -494,8 +494,8 @@ MySQLs.scalarSubQuery()
 .select(s -> s.space(SQLs.refField("cte", ChinaRegion_.id)))
 
 .select(s -> s
-    .space(SQLs.refField("cte", ChinaRegion_.id)::as, "region_id")
-    .comma(SQLs.refField("cte", ChinaRegion_.name)::as, "region_name")
+    .space(SQLs.refField("cte", ChinaRegion_.id).as("region_id"))
+    .comma(SQLs.refField("cte", ChinaRegion_.name).as("region_name"))
 )
 
 // 带 modifier
@@ -524,7 +524,7 @@ MySQLs.scalarSubQuery()
 ```java
 // comma() 追加
 .comma(PillUser_.nickName)
-.comma(PillUser_.nickName::as, "user_name")
+.comma(PillUser_.nickName.as("user_name"))
 .comma(PillUser_.id, PillUser_.nickName)
 // ... 与 select() 相同的多种形式
 

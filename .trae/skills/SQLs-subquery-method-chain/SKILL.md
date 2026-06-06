@@ -449,9 +449,9 @@ interface _StandardSelectClause<I extends Item>
 )
 
 // 带 alias 的列
-.select(s -> s.space(BankPerson_.id::as, "userId",
-        refField("cr", "id")::as, "regionId")
-        .comma(refField("cr", "name")::as, "regionName")
+.select(s -> s.space(BankPerson_.id.as("userId"))
+        .comma(refField("cr", "id").as("regionId"))
+        .comma(refField("cr", "name").as("regionName"))
 )
 ```
 
@@ -1058,7 +1058,7 @@ SQLSyntax (SQLs extends)
 
 ```java
 .from(SQLs.subQuery()
-    .select(SQLs.literalValue(1)::as, "one")
+    .select(SQLs.literalValue(1).as("one"))
     .comma("u", PERIOD, PillUser_.T)
     .from(PillUser_.T, AS, "u")
     .where(PillUser_.createTime.equal(SQLs::literal, now))
