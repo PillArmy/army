@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: army-type-test
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: army_w
+    password: army123
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 5
+      max-active: 50
+      max-wait: 27000
+      test-while-idle: true
+      validation-query: SELECT 1
+
+logging:
+  level:
+    io.army: DEBUG
+    org.springframework: INFO
