@@ -98,9 +98,11 @@ public class CompositeArrayType extends _ArmyBuildInArrayType {
         elementDataType = this.underlyingType.map(env.serverMeta());
         final BiConsumer<Object, StringBuilder> consumer;
         consumer = (element, sqlBuilder) -> {
-            CompositeType.bindToLiteral(this.underlyingType, elementDataType, env, element, sqlBuilder);
+            final StringBuilder tempBuilder = new StringBuilder();
+            CompositeType.bindToLiteral(this.underlyingType, elementDataType, env, element, tempBuilder);
+            PostgreArrays.encodeElement(tempBuilder.toString(), sqlBuilder);
         };
-        return PostgreArrays.arrayBeforeBind(source, consumer, dataType, this);
+        return PostgreArrays.arrayBeforeBind(source, consumer, dataType, this, PARAM_ERROR_HANDLER);
     }
 
     @Override
@@ -109,7 +111,7 @@ public class CompositeArrayType extends _ArmyBuildInArrayType {
         elementDataType = this.underlyingType.map(env.serverMeta());
         final TextFunction<?> func;
         func = (text, offset, end) -> CompositeType.parseToPojo(this.underlyingType, elementDataType, env, text, offset, end);
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, func);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, false, func, ACCESS_ERROR_HANDLER);
     }
 
     @Override
