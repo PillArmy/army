@@ -19,15 +19,15 @@ package io.army.criteria;
 
 import io.army.criteria.dialect.Hint;
 import io.army.criteria.impl.SQLs;
-import io.army.function.DialectBooleanOperator;
-import io.army.function.ExpressionOperator;
 import io.army.lang.Nullable;
 import io.army.meta.ComplexTableMeta;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TableMeta;
 
 import java.util.List;
-import java.util.function.*;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /// 
 /// This interface representing query,is base interface of below:
@@ -102,11 +102,7 @@ public interface Query extends RowSet {
 
         _StaticSelectSpaceClause<SR> selectDistinctOn(Consumer<Consumer<Expression>> expConsumer);
 
-        _StaticSelectSpaceClause<SR> select(SQLs.WordDistinct distinct, SQLs.WordOn on, Consumer<Consumer<Expression>> expConsumer);
-
         _StaticSelectSpaceClause<SR> selectIfDistinctOn(Consumer<Consumer<Expression>> expConsumer);
-
-        _StaticSelectSpaceClause<SR> selectIf(@Nullable SQLs.WordDistinct distinct, SQLs.WordOn on, Consumer<Consumer<Expression>> expConsumer);
 
     }
 
@@ -116,23 +112,15 @@ public interface Query extends RowSet {
 
         SD selectsDistinctOn(Consumer<Consumer<Expression>> expConsumer, Consumer<SelectionConsumer> consumer);
 
-        SD select(SQLs.WordDistinct distinct, SQLs.WordOn on, Consumer<Consumer<Expression>> expConsumer, Consumer<_DeferSelectSpaceClause> consumer);
-
-        SD selects(SQLs.WordDistinct distinct, SQLs.WordOn on, Consumer<Consumer<Expression>> expConsumer, Consumer<SelectionConsumer> consumer);
-
         SD selectIfDistinctOn(Consumer<Consumer<Expression>> expConsumer, Consumer<_DeferSelectSpaceClause> consumer);
 
         SD selectsIfDistinctOn(Consumer<Consumer<Expression>> expConsumer, Consumer<SelectionConsumer> consumer);
 
-        SD selectIf(@Nullable SQLs.WordDistinct distinct, SQLs.WordOn on, Consumer<Consumer<Expression>> expConsumer, Consumer<_DeferSelectSpaceClause> consumer);
-
-        SD selectsIf(@Nullable SQLs.WordDistinct distinct, SQLs.WordOn on, Consumer<Consumer<Expression>> expConsumer, Consumer<SelectionConsumer> consumer);
     }
 
 
     interface _ModifierSelectClause<SR extends Item> extends _StaticSelectClause<SR> {
 
-        _StaticSelectSpaceClause<SR> selectAll();
 
         _StaticSelectSpaceClause<SR> selectDistinct();
 
@@ -273,32 +261,7 @@ public interface Query extends RowSet {
 
         R spaceAnd(IPredicate predicate);
 
-        R spaceAnd(Supplier<IPredicate> supplier);
-
-        <E> R spaceAnd(Function<E, IPredicate> operator, E value);
-
-        <K, V> R spaceAnd(Function<V, IPredicate> operator, Function<K, V> operand, K key);
-
-
-        <E> R spaceAnd(ExpressionOperator<TypedExpression, E, IPredicate> expOperator, BiFunction<TypedExpression, E, Expression> valueOperator, E value);
-
-        <E> R spaceAnd(DialectBooleanOperator<E> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                       BiFunction<TypedExpression, E, Expression> func, @Nullable E value);
-
-        <K, V> R spaceAnd(ExpressionOperator<TypedExpression, V, IPredicate> expOperator, BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function, K key);
-
-        <K, V> R spaceAnd(DialectBooleanOperator<V> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                          BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key);
-
-        <E> R ifSpaceAnd(ExpressionOperator<TypedExpression, E, IPredicate> expOperator, BiFunction<TypedExpression, E, Expression> valueOperator, Supplier<E> supplier);
-
-        <E> R ifSpaceAnd(DialectBooleanOperator<E> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                         BiFunction<TypedExpression, E, Expression> func, Supplier<E> supplier);
-
-        <K, V> R ifSpaceAnd(ExpressionOperator<TypedExpression, V, IPredicate> expOperator, BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function, K key);
-
-        <K, V> R ifSpaceAnd(DialectBooleanOperator<V> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                            BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key);
+        R ifSpaceAnd(@Nullable IPredicate predicate);
     }
 
 
@@ -306,34 +269,7 @@ public interface Query extends RowSet {
 
         R having(IPredicate predicate);
 
-        R having(Supplier<IPredicate> supplier);
-
-        <E> R having(Function<E, IPredicate> operator, E value);
-
-        <K, V> R having(Function<V, IPredicate> operator, Function<K, V> operand, K key);
-
-
-        <E> R having(ExpressionOperator<TypedExpression, E, IPredicate> expOperator, BiFunction<TypedExpression, E, Expression> valueOperator, E value);
-
-        <E> R having(DialectBooleanOperator<E> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                     BiFunction<TypedExpression, E, Expression> func, @Nullable E value);
-
-        <K, V> R having(ExpressionOperator<TypedExpression, V, IPredicate> expOperator, BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function, K key);
-
-        <K, V> R having(DialectBooleanOperator<V> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                        BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key);
-
-        <E> R ifHaving(ExpressionOperator<TypedExpression, E, IPredicate> expOperator, BiFunction<TypedExpression, E, Expression> valueOperator, Supplier<E> supplier);
-
-        <E> R ifHaving(DialectBooleanOperator<E> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                       BiFunction<TypedExpression, E, Expression> func, Supplier<E> supplier);
-
-        <K, V> R ifHaving(ExpressionOperator<TypedExpression, V, IPredicate> expOperator, BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function, K key);
-
-        <K, V> R ifHaving(DialectBooleanOperator<V> fieldOperator, BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                          BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key);
-
-
+        R havingIf(@Nullable IPredicate predicate);
     }
 
 
@@ -355,11 +291,13 @@ public interface Query extends RowSet {
 
         R of(String tableAlias1, String tableAlias2, String tableAlias3, String tableAlias4);
 
-        R of(String tableAlias1, String tableAlias2, String tableAlias3, String tableAlias4, String tableAlias5, String... restTableAlias);
+        R of(List<String> tableAliaslist);
 
         R of(Consumer<Consumer<String>> consumer);
 
         R ifOf(Consumer<Consumer<String>> consumer);
+
+        R ifOf(List<String> tableAliaslist);
 
     }
 
@@ -369,6 +307,8 @@ public interface Query extends RowSet {
         WR noWait();
 
         WR skipLocked();
+
+        WR ifNoWait(boolean yes);
 
         WR ifNoWait(BooleanSupplier predicate);
 

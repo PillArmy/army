@@ -20,8 +20,6 @@ import io.army.criteria.*;
 import io.army.criteria.dialect.Hint;
 import io.army.criteria.dialect.Window;
 import io.army.criteria.impl.inner.*;
-import io.army.function.DialectBooleanOperator;
-import io.army.function.ExpressionOperator;
 import io.army.function.TeFunction;
 import io.army.lang.Nullable;
 import io.army.meta.ComplexTableMeta;
@@ -35,7 +33,10 @@ import io.army.util._Exceptions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.*;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 
 ///
@@ -169,11 +170,6 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         return (SR) this;
     }
 
-    @Override
-    public final _StaticSelectSpaceClause<SR> selectAll() {
-        this.modifierList = _Collections.singletonList(this.allModifier());
-        return this;
-    }
 
     @Override
     public final _StaticSelectSpaceClause<SR> selectDistinct() {
@@ -444,116 +440,9 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final HR having(Supplier<IPredicate> supplier) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(supplier.get());
-        }
-        return (HR) this;
-    }
-
-
-    @Override
-    public final <E> HR having(Function<E, IPredicate> operator, E value) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(operator.apply(value));
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <K, V> HR having(Function<V, IPredicate> operator, Function<K, V> function, K key) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(operator.apply(function.apply(key)));
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <E> HR having(ExpressionOperator<TypedExpression, E, IPredicate> expOperator,
-                               BiFunction<TypedExpression, E, Expression> valueOperator, E value) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(expOperator.apply(valueOperator, value));
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <E> HR having(DialectBooleanOperator<E> fieldOperator,
-                               BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                               BiFunction<TypedExpression, E, Expression> func, @Nullable E value) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(fieldOperator.apply(operator, func, value));
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <K, V> HR having(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
-                                  BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function,
-                                  K key) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(expOperator.apply(valueOperator, function.apply(key)));
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <K, V> HR having(DialectBooleanOperator<V> fieldOperator,
-                                  BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                                  BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(fieldOperator.apply(operator, func, function.apply(key)));
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <E> HR ifHaving(ExpressionOperator<TypedExpression, E, IPredicate> expOperator,
-                                 BiFunction<TypedExpression, E, Expression> valueOperator, Supplier<E> supplier) {
-        if (this.groupByList != null) {
-            final E value;
-            if ((value = supplier.get()) != null) {
-                this.addHavingPredicate(expOperator.apply(valueOperator, value));
-            }
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <E> HR ifHaving(DialectBooleanOperator<E> fieldOperator,
-                                 BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                                 BiFunction<TypedExpression, E, Expression> func, Supplier<E> supplier) {
-        if (this.groupByList != null) {
-            final E value;
-            if ((value = supplier.get()) != null) {
-                this.addHavingPredicate(fieldOperator.apply(operator, func, value));
-            }
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <K, V> HR ifHaving(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
-                                    BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function,
-                                    K key) {
-        if (this.groupByList != null) {
-            final V value;
-            if ((value = function.apply(key)) != null) {
-                this.addHavingPredicate(expOperator.apply(valueOperator, value));
-            }
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <K, V> HR ifHaving(DialectBooleanOperator<V> fieldOperator,
-                                    BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                                    BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key) {
-        if (this.groupByList != null) {
-            final V value;
-            if ((value = function.apply(key)) != null) {
-                this.addHavingPredicate(fieldOperator.apply(operator, func, value));
-            }
+    public final HR havingIf(@Nullable IPredicate predicate) {
+        if (this.groupByList != null && predicate != null) {
+            this.addHavingPredicate(predicate);
         }
         return (HR) this;
     }
@@ -567,115 +456,9 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
     }
 
     @Override
-    public final HR spaceAnd(Supplier<IPredicate> supplier) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(supplier.get());
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <E> HR spaceAnd(Function<E, IPredicate> operator, E value) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(operator.apply(value));
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <K, V> HR spaceAnd(Function<V, IPredicate> operator, Function<K, V> operand, K key) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(operator.apply(operand.apply(key)));
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <E> HR spaceAnd(ExpressionOperator<TypedExpression, E, IPredicate> expOperator,
-                                 BiFunction<TypedExpression, E, Expression> valueOperator, E value) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(expOperator.apply(valueOperator, value));
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <E> HR spaceAnd(DialectBooleanOperator<E> fieldOperator,
-                                 BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                                 BiFunction<TypedExpression, E, Expression> func, @Nullable E value) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(fieldOperator.apply(operator, func, value));
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <K, V> HR spaceAnd(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
-                                    BiFunction<TypedExpression, V, Expression> valueOperator, Function<K, V> function,
-                                    K key) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(expOperator.apply(valueOperator, function.apply(key)));
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <K, V> HR spaceAnd(DialectBooleanOperator<V> fieldOperator,
-                                    BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                                    BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key) {
-        if (this.groupByList != null) {
-            this.addHavingPredicate(fieldOperator.apply(operator, func, function.apply(key)));
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <E> HR ifSpaceAnd(ExpressionOperator<TypedExpression, E, IPredicate> expOperator,
-                                   BiFunction<TypedExpression, E, Expression> valueOperator, Supplier<E> supplier) {
-        if (this.groupByList != null) {
-            final E value;
-            if ((value = supplier.get()) != null) {
-                this.addHavingPredicate(expOperator.apply(valueOperator, value));
-            }
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <E> HR ifSpaceAnd(DialectBooleanOperator<E> fieldOperator,
-                                   BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                                   BiFunction<TypedExpression, E, Expression> func, Supplier<E> supplier) {
-        if (this.groupByList != null) {
-            final E value;
-            if ((value = supplier.get()) != null) {
-                this.addHavingPredicate(fieldOperator.apply(operator, func, value));
-            }
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <K, V> HR ifSpaceAnd(ExpressionOperator<TypedExpression, V, IPredicate> expOperator,
-                                      BiFunction<TypedExpression, V, Expression> valueOperator,
-                                      Function<K, V> function, K key) {
-        if (this.groupByList != null) {
-            final V value;
-            if ((value = function.apply(key)) != null) {
-                this.addHavingPredicate(expOperator.apply(valueOperator, value));
-            }
-        }
-        return (HR) this;
-    }
-
-    @Override
-    public final <K, V> HR ifSpaceAnd(DialectBooleanOperator<V> fieldOperator,
-                                      BiFunction<TypedExpression, Expression, CompoundPredicate> operator,
-                                      BiFunction<TypedExpression, V, Expression> func, Function<K, V> function, K key) {
-        if (this.groupByList != null) {
-            final V value;
-            if ((value = function.apply(key)) != null) {
-                this.addHavingPredicate(fieldOperator.apply(operator, func, value));
-            }
+    public final HR ifSpaceAnd(@Nullable IPredicate predicate) {
+        if (this.groupByList != null && predicate != null) {
+            this.addHavingPredicate(predicate);
         }
         return (HR) this;
     }
@@ -1317,20 +1100,6 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
             return this;
         }
 
-        @Override
-        public final _StaticSelectSpaceClause<SR> select(SQLs.WordDistinct distinct, SQLs.WordOn on,
-                                                         Consumer<Consumer<Expression>> expConsumer) {
-            this.registerDistinctOn(true, distinct, expConsumer);
-            return this;
-        }
-
-        @Override
-        public final _StaticSelectSpaceClause<SR> selectIf(@Nullable SQLs.WordDistinct distinct, SQLs.WordOn on,
-                                                           Consumer<Consumer<Expression>> expConsumer) {
-            this.registerDistinctOn(false, distinct, expConsumer);
-            return this;
-        }
-
 
         @Override
         public final SD selectDistinctOn(Consumer<Consumer<Expression>> expConsumer, Consumer<_DeferSelectSpaceClause> consumer) {
@@ -1346,21 +1115,6 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
             return (SD) this;
         }
 
-        @Override
-        public final SD select(SQLs.WordDistinct distinct, SQLs.WordOn on, Consumer<Consumer<Expression>> expConsumer,
-                               Consumer<_DeferSelectSpaceClause> consumer) {
-            this.registerDistinctOn(true, distinct, expConsumer);
-            this.context.registerDeferCommandClause(() -> consumer.accept(new SelectionConsumerImpl(this.context)));
-            return (SD) this;
-        }
-
-        @Override
-        public final SD selectIf(@Nullable SQLs.WordDistinct distinct, SQLs.WordOn on,
-                                 Consumer<Consumer<Expression>> expConsumer, final Consumer<_DeferSelectSpaceClause> consumer) {
-            this.registerDistinctOn(false, distinct, expConsumer);
-            this.context.registerDeferCommandClause(() -> consumer.accept(new SelectionConsumerImpl(this.context)));
-            return (SD) this;
-        }
 
         @Override
         public final SD selectsDistinctOn(Consumer<Consumer<Expression>> expConsumer, Consumer<SelectionConsumer> consumer) {
@@ -1372,24 +1126,6 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         @Override
         public final SD selectsIfDistinctOn(Consumer<Consumer<Expression>> expConsumer, Consumer<SelectionConsumer> consumer) {
             this.registerDistinctOn(false, expConsumer);
-            this.context.registerDeferCommandClause(() -> consumer.accept(new SelectionConsumerImpl(this.context)));
-            return (SD) this;
-        }
-
-
-        @Override
-        public final SD selects(SQLs.WordDistinct distinct, SQLs.WordOn on, Consumer<Consumer<Expression>> expConsumer,
-                                Consumer<SelectionConsumer> consumer) {
-            this.registerDistinctOn(true, distinct, expConsumer);
-            this.context.registerDeferCommandClause(() -> consumer.accept(new SelectionConsumerImpl(this.context)));
-            return (SD) this;
-        }
-
-
-        @Override
-        public final SD selectsIf(@Nullable SQLs.WordDistinct distinct, SQLs.WordOn on,
-                                  Consumer<Consumer<Expression>> expConsumer, final Consumer<SelectionConsumer> consumer) {
-            this.registerDistinctOn(false, distinct, expConsumer);
             this.context.registerDeferCommandClause(() -> consumer.accept(new SelectionConsumerImpl(this.context)));
             return (SD) this;
         }
@@ -1554,13 +1290,14 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public final LT of(String tableAlias1, String tableAlias2, String tableAlias3, String tableAlias4,
-                           String tableAlias5, String... restTableAlias) {
+        public final LT of(List<String> tableAliaslist) {
             if (this.clauseEnd) {
                 throw ContextStack.clearStackAndCastCriteriaApi();
             }
-            this.tableAliasList = ArrayUtils.of(tableAlias1, tableAlias2, tableAlias3, tableAlias4,
-                    tableAlias5, restTableAlias);
+            if (_Collections.isEmpty(tableAliaslist)) {
+                throw CriteriaUtils.dontAddAnyItem();
+            }
+            this.tableAliasList = List.copyOf(tableAliaslist);
             return (LT) this;
         }
 
@@ -1582,6 +1319,16 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
             return (LT) this;
         }
 
+        @Override
+        public final LT ifOf(List<String> tableAliaslist) {
+            if (this.clauseEnd) {
+                throw ContextStack.clearStackAndCastCriteriaApi();
+            }
+            if (!_Collections.isEmpty(tableAliaslist)) {
+                this.tableAliasList = List.copyOf(tableAliaslist);
+            }
+            return (LT) this;
+        }
 
         @Override
         public final LW noWait() {
@@ -1598,6 +1345,18 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
                 throw ContextStack.clearStackAndCastCriteriaApi();
             }
             this.lockWaitOption = LockWaitOption.SKIP_LOCKED;
+            return (LW) this;
+        }
+
+        @Override
+        public final LW ifNoWait(boolean yes) {
+            if (this.clauseEnd) {
+                throw ContextStack.clearStackAndCastCriteriaApi();
+            } else if (yes) {
+                this.lockWaitOption = LockWaitOption.NOWAIT;
+            } else {
+                this.lockWaitOption = null;
+            }
             return (LW) this;
         }
 
@@ -1753,10 +1512,6 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
             return this.createSelectClause().select(parenAlias, period1, parent, childAlias, period2, child);
         }
 
-        @Override
-        public final _StaticSelectSpaceClause<SR> selectAll() {
-            return this.createSelectClause().selectAll();
-        }
 
         @Override
         public final _StaticSelectSpaceClause<SR> selectDistinct() {
@@ -1930,30 +1685,6 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         }
 
         @Override
-        public final _StaticSelectSpaceClause<SR> select(SQLs.WordDistinct distinct, SQLs.WordOn on, Consumer<Consumer<Expression>> expConsumer) {
-            return this.createSelectClause().select(distinct, on, expConsumer);
-        }
-
-
-        @Override
-        public final _StaticSelectSpaceClause<SR> selectIf(@Nullable SQLs.WordDistinct distinct, SQLs.WordOn on,
-                                                           Consumer<Consumer<Expression>> expConsumer) {
-            return this.createSelectClause().selectIf(distinct, on, expConsumer);
-        }
-
-        @Override
-        public final SD selectIf(@Nullable SQLs.WordDistinct distinct, SQLs.WordOn on,
-                                 Consumer<Consumer<Expression>> expConsumer, Consumer<_DeferSelectSpaceClause> consumer) {
-            return this.createSelectClause().selectIf(distinct, on, expConsumer, consumer);
-        }
-
-        @Override
-        public final SD selectsIf(@Nullable SQLs.WordDistinct distinct, SQLs.WordOn on,
-                                  Consumer<Consumer<Expression>> expConsumer, Consumer<SelectionConsumer> consumer) {
-            return this.createSelectClause().selectsIf(distinct, on, expConsumer, consumer);
-        }
-
-        @Override
         public final SD selectDistinctOn(Consumer<Consumer<Expression>> expConsumer, Consumer<_DeferSelectSpaceClause> consumer) {
             return this.createSelectClause().selectDistinctOn(expConsumer, consumer);
         }
@@ -1961,16 +1692,6 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
         @Override
         public final SD selectsDistinctOn(Consumer<Consumer<Expression>> expConsumer, Consumer<SelectionConsumer> consumer) {
             return this.createSelectClause().selectsDistinctOn(expConsumer, consumer);
-        }
-
-        @Override
-        public final SD select(SQLs.WordDistinct distinct, SQLs.WordOn on, Consumer<Consumer<Expression>> expConsumer, Consumer<_DeferSelectSpaceClause> consumer) {
-            return this.createSelectClause().select(distinct, on, expConsumer, consumer);
-        }
-
-        @Override
-        public final SD selects(SQLs.WordDistinct distinct, SQLs.WordOn on, Consumer<Consumer<Expression>> expConsumer, Consumer<SelectionConsumer> consumer) {
-            return this.createSelectClause().selects(distinct, on, expConsumer, consumer);
         }
 
         @Override
