@@ -66,7 +66,7 @@ final class DefaultTypeInfo implements TypeInfo {
 
 
     private DefaultTypeInfo(final DefaultBuilder builder) {
-        this.typeName = builder.typeName;
+        this.typeName = builder.typeName.toUpperCase(Locale.ROOT);
         this.typeCategory = builder.typeCategory;
 
         switch (this.typeCategory) {

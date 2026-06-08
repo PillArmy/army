@@ -79,7 +79,7 @@ final class ArmySyncFactoryBuilder
 
             // create DialectParser
             final DialectParser dialectParser;
-            dialectParser = createDialectParser(name, false, serverMeta, env, executorProvider);
+            dialectParser = createDialectParser(name, serverMeta, env, executorProvider);
 
             //  create SyncExecutorFactory
             final SyncExecutorFactory executorFactory;
@@ -146,19 +146,22 @@ final class ArmySyncFactoryBuilder
             final PreBootstrapParser preBootstrapParser;
             preBootstrapParser = parserFactory.createPreBootstrapParser(serverMeta);
 
-            final List<String> sqlList;
-            sqlList = preBootstrapParser.extensionStmts(this.extensionInCurrentSchema, this.extensionSchemaMap, this.extensionNameSet);
-
             final boolean debug = LOG.isDebugEnabled();
-            if (debug) {
-                LOG.debug("{}", ddlToSqlLog(sqlList));
+
+            final Set<String> extensionNameSet = this.extensionNameSet;
+
+            if (!extensionNameSet.isEmpty()) {
+                final List<String> sqlList;
+                sqlList = preBootstrapParser.extensionStmts(this.extensionInCurrentSchema, this.extensionSchemaMap, this.extensionNameSet);
+                if (debug) {
+                    LOG.debug("{}", ddlToSqlLog(sqlList));
+                }
+                executor.executeUpdate(sqlList);
             }
-            executor.executeUpdate(sqlList);
 
             final String sql;
             sql = preBootstrapParser.queryDefinedTypeSchema();
 
-            final Set<String> extensionNameSet = this.extensionNameSet;
             final Map<String, String> typeNameToSchemaMap = new HashMap<>();
             final Set<String> typeNameInExtensionSet = new HashSet<>();
 
@@ -224,20 +227,20 @@ final class ArmySyncFactoryBuilder
         }
     }
 
-    private DialectParser createDialectParser(String factoryName, boolean reactive, ServerMeta serverMeta,
+    private DialectParser createDialectParser(String factoryName, ServerMeta serverMeta,
                                               ArmyEnvironment env, SyncExecutorFactoryProvider provider) {
         final ParserFactory parserFactory;
         parserFactory = ParserFactories.createFactory(serverMeta);
 
         final Map<String, String> typeNameToSchemaMap;
-        if (this.extensionNameSet.isEmpty()) {
+        if (this.extensionNameSet.isEmpty() && this.definedTypeMap.isEmpty()) {
             typeNameToSchemaMap = Map.of();
         } else {
             typeNameToSchemaMap = createTypeNameToSchemaMap(serverMeta, parserFactory, provider);
         }
 
         final DialectEnv dialectEnv;
-        dialectEnv = createDialectEnv(factoryName, reactive, serverMeta, env, typeNameToSchemaMap);
+        dialectEnv = createDialectEnv(factoryName, false, serverMeta, env, typeNameToSchemaMap);
 
         final DialectParser dialectParser;
         this.dialectParser = dialectParser = parserFactory.createDialectParser(dialectEnv);

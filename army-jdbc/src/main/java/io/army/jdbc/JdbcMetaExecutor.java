@@ -21,7 +21,6 @@ import io.army.executor.SyncExecutor;
 import io.army.executor.SyncMetaExecutor;
 import io.army.lang.Nullable;
 import io.army.option.Option;
-import io.army.result.CurrentRecord;
 import io.army.schema.*;
 import io.army.session.SyncStmtOption;
 import io.army.stmt.SimpleStmt;
@@ -33,7 +32,6 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 class JdbcMetaExecutor implements SyncMetaExecutor {
@@ -277,13 +275,16 @@ class JdbcMetaExecutor implements SyncMetaExecutor {
     private Map<String, TypeInfo> extractTypeInfo(final List<SimpleStmt> sqlList) throws DataAccessException {
 
         final Map<String, TypeInfo> typeInfoMap = new HashMap<>();
-        final Function<CurrentRecord, Boolean> function = RowFunctions.typeInfoFunc(typeInfoMap);
+        final RowFunctions.ReaderFunc<Boolean> readerFunc;
+        readerFunc = RowFunctions.typeInfoFunc(typeInfoMap);
+
         for (SimpleStmt stmt : sqlList) {
-            try (Stream<Boolean> stream = this.syncExecutor.query(stmt, function, SyncStmtOption.defaultOption(), Option.EMPTY_FUNC)) {
+            try (Stream<Boolean> stream = this.syncExecutor.query(stmt, readerFunc, SyncStmtOption.defaultOption(), Option.EMPTY_FUNC)) {
                 stream.reduce(StreamFunctions::last)
                         .orElse(Boolean.TRUE);
             }
         }
+        readerFunc.end();
         return typeInfoMap;
     }
 

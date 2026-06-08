@@ -29,6 +29,12 @@ public abstract class RowFunctions {
     }
 
 
+    public interface ReaderFunc<R> extends Function<CurrentRecord, R> {
+
+        void end();
+    }
+
+
     public static Function<CurrentRecord, Map<String, Object>> hashMapRowFunc(boolean immutableMap) {
         final IntFunction<Map<String, Object>> constructor;
         constructor = _Collections::hashMap;
@@ -95,9 +101,8 @@ public abstract class RowFunctions {
         return reader::readRow;
     }
 
-    public static Function<CurrentRecord, Boolean> typeInfoFunc(final Map<String, TypeInfo> typeInfoMap) {
-        final TypeInfoReader reader = new TypeInfoReader(typeInfoMap);
-        return reader::readRow;
+    public static ReaderFunc<Boolean> typeInfoFunc(final Map<String, TypeInfo> typeInfoMap) {
+        return new TypeInfoReader(typeInfoMap);
     }
 
 
@@ -290,7 +295,7 @@ public abstract class RowFunctions {
     } // MapRowReader
 
 
-    private static final class TypeInfoReader {
+    private static final class TypeInfoReader implements ReaderFunc<Boolean> {
 
         private final Map<String, TypeInfo> typeInfoMap;
 
@@ -310,9 +315,10 @@ public abstract class RowFunctions {
             this.typeInfoMap = typeInfoMap;
         }
 
-        Boolean readRow(final CurrentRecord record) {
+        @Override
+        public Boolean apply(final CurrentRecord record) {
             final String lastTypeName = this.typeName, typeName;
-            typeName = record.getNonNull("typeName", String.class).toUpperCase(Locale.ROOT);
+            typeName = record.getNonNull("typeName", String.class);
 
             if (lastTypeName == null) {
                 receiveNewType(typeName, record);
@@ -325,6 +331,14 @@ public abstract class RowFunctions {
             return Boolean.TRUE;
         }
 
+        @Override
+        public void end() {
+            final String lastTypeName = this.typeName;
+            if (lastTypeName != null) {
+                putLastType(lastTypeName);
+                this.typeName = null;
+            }
+        }
 
         private void receiveCurrentType(final CurrentRecord record) {
             final TypeCategory typeCategory = record.getNonNull("category", TypeCategory.class);
@@ -347,7 +361,7 @@ public abstract class RowFunctions {
                     collation = record.getOrDefault("comFieldCollation", String.class, "").toLowerCase(Locale.ROOT);
                     final MappingType type = record.getNonNull("comFieldType", MappingType.class);
 
-                    fieldList.add(CompositeFieldFactory.from( labelName, type, collation));
+                    fieldList.add(CompositeFieldFactory.from(labelName, type, collation));
                     currentOrder = record.getNonNull("comFieldOrder", Integer.class);
                 }
                 break;
@@ -385,7 +399,7 @@ public abstract class RowFunctions {
                     final MappingType type = record.getNonNull("comFieldType", MappingType.class);
                     collation = record.getOrDefault("comFieldCollation", String.class, "");
 
-                    fieldList.add(CompositeFieldFactory.from( labelName, type, collation));
+                    fieldList.add(CompositeFieldFactory.from(labelName, type, collation));
                     this.order = record.getNonNull("comFieldOrder", Integer.class);
                 }
                 break;
