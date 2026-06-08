@@ -18,16 +18,98 @@ package io.army.dialect;
 
 import io.army.lang.Nullable;
 import io.army.meta.DatabaseObject;
+import io.army.sqltype.PgType;
+import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-abstract class PostgreDialectUtils {
+public abstract class PostgreDialectUtils {
 
-    PostgreDialectUtils() {
+    private PostgreDialectUtils() {
         throw new UnsupportedOperationException();
     }
+
+
+    public static Map<String, PgType> createAliasToTypeMap() {
+        final PgType[] values = PgType.values();
+
+        final Map<PgType, List<String>> listMap = _Collections.hashMapForSize(values.length / 2 + 6);
+
+        listMap.put(PgType.BOOLEAN, List.of("BOOLEAN", "BOOL"));
+        listMap.put(PgType.SMALLINT, List.of("INT2", "SMALLINT", "SMALLSERIAL"));
+        listMap.put(PgType.INTEGER, List.of("INT", "INT4", "INTEGER", "SERIAL", "XID", "CID"));
+        listMap.put(PgType.BIGINT, List.of("INT8", "BIGINT", "BIGSERIAL", "SERIAL8", "XID8"));
+        listMap.put(PgType.DECIMAL, List.of("NUMERIC", "DECIMAL"));
+        listMap.put(PgType.DOUBLE, List.of("FLOAT8", "DOUBLE PRECISION", "FLOAT"));
+        listMap.put(PgType.REAL, List.of("FLOAT4", "REAL"));
+        listMap.put(PgType.CHAR, List.of("CHAR", "BPCHAR", "CHARACTER"));
+        listMap.put(PgType.VARCHAR, List.of("VARCHAR", "CHARACTER VARYING"));
+        listMap.put(PgType.TEXT, List.of("TEXT", "TXID_SNAPSHOT"));
+        listMap.put(PgType.TIME, List.of("TIME", "TIME WITHOUT TIME ZONE"));
+        listMap.put(PgType.TIMETZ, List.of("TIMETZ", "TIME WITH TIME ZONE"));
+        listMap.put(PgType.TIMESTAMP, List.of("TIMESTAMP", "TIMESTAMP WITHOUT TIME ZONE"));
+        listMap.put(PgType.TIMESTAMPTZ, List.of("TIMESTAMPTZ", "TIMESTAMP WITH TIME ZONE"));
+        listMap.put(PgType.VARBIT, List.of("VARBIT", "BIT VARYING"));
+        listMap.put(PgType.VECTOR, List.of("VECTOR"));
+
+        final Map<String, PgType> map = _Collections.hashMapForSize(values.length * 3);
+
+        PgType elementType;
+        for (Map.Entry<PgType, List<String>> e : listMap.entrySet()) {
+            elementType = e.getKey();
+            for (String alias : e.getValue()) {
+                map.put(alias, elementType);
+            }
+        }
+
+        for (PgType value : values) {
+            if (!value.isArray() && !map.containsKey(value.typeName())) {
+                map.put(value.typeName(), value);
+            }
+        }
+
+        final StringBuilder builder = new StringBuilder(15);
+
+        List<String> aliasList;
+        PgType elementTypeOfArray;
+        String elementTypeName;
+        for (PgType value : values) {
+            if (!value.isArray()) {
+                continue;
+            }
+
+            elementTypeOfArray = Objects.requireNonNull(value.elementType());
+            aliasList = listMap.get(elementTypeOfArray);
+            if (aliasList != null) {
+                for (String alias : aliasList) {
+                    builder.setLength(0);
+                    builder.append(alias)
+                            .append("[]");
+                    map.put(builder.toString(), value);
+
+                    builder.setLength(0);
+                    builder.append('_')
+                            .append(alias);
+                    map.put(builder.toString(), value);
+                }
+            } else {
+                elementTypeName = elementTypeOfArray.typeName();
+                builder.setLength(0);
+                builder.append(elementTypeName)
+                        .append("[]");
+                map.put(builder.toString(), value);
+
+                builder.setLength(0);
+                builder.append('_')
+                        .append(elementTypeName);
+                map.put(builder.toString(), value);
+            }
+        }
+
+        return Map.copyOf(map);
+    }
+
 
     ///
     /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS">Identifiers and Keywords</a>
