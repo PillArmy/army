@@ -17,13 +17,74 @@
 
 package io.army.dialect;
 
+import io.army.lang.Nullable;
+import io.army.meta.DatabaseObject;
 import io.army.util._Collections;
+import io.army.util._Exceptions;
 
 import java.util.Set;
 
 abstract class SQLiteDialectUtils extends _DialectUtils {
 
     private SQLiteDialectUtils() {
+    }
+
+    /// @see <a href="https://sqlite.org/lang_naming.html">Database Object Name Resolution</a>
+    /// @see <a href="https://www.sqlite.org/lang_keywords.html">SQLite Keywords</a>
+    static void handleIdentifier(@Nullable DatabaseObject object, String effectiveName, StringBuilder sqlBuilder) {
+        final int length, startIndex;
+        length = effectiveName.length();
+        startIndex = sqlBuilder.length();
+
+        int lastWritten = 0, writtenIndex = startIndex;
+        char ch;
+
+        for (int i = 0; i < length; i++) {
+            ch = effectiveName.charAt(i);
+
+            if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') {
+                continue;
+            } else if (ch >= '0' && ch <= '9') {
+                if (i == 0) {
+                    sqlBuilder.append(_Constant.DOUBLE_QUOTE);
+                    writtenIndex++;
+                }
+                continue;
+            }
+
+            if (ch == _Constant.NUL_CHAR) {
+                if (object == null) {
+                    throw _Exceptions.identifierError(effectiveName, Database.SQLite);
+                } else {
+                    throw _Exceptions.objectNameError(object, Database.SQLite);
+                }
+            }
+
+            if (writtenIndex == startIndex) {
+                sqlBuilder.append(_Constant.DOUBLE_QUOTE);
+                writtenIndex++;
+            }
+
+            if (ch != _Constant.DOUBLE_QUOTE) {
+                continue;
+            }
+
+            if (i > lastWritten) {
+                sqlBuilder.append(effectiveName, lastWritten, i);
+            }
+            sqlBuilder.append(_Constant.DOUBLE_QUOTE);
+            lastWritten = i; // not i + 1 as current char wasn't written
+
+
+        } // for loop
+
+        if (lastWritten < length) {
+            sqlBuilder.append(effectiveName, lastWritten, length);
+        }
+
+        if (writtenIndex > startIndex) {
+            sqlBuilder.append(_Constant.DOUBLE_QUOTE);
+        }
     }
 
     static Set<String> createKeyWordSet() {

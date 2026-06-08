@@ -25,14 +25,12 @@ import io.army.mapping.MappingType;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.sqltype.DataType;
+import io.army.sqltype.SQLType;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -213,6 +211,26 @@ public abstract class _DialectUtils {
     }
 
 
+    public static DataType obtainElementType(final DataType dataType) {
+        final DataType elementType;
+        if (!dataType.isArray()) {
+            elementType = dataType;
+        } else if (dataType instanceof SQLType) {
+            elementType = ((SQLType) dataType).elementType();
+            Objects.requireNonNull(elementType);
+        } else {
+            final String typeName = dataType.typeName();
+            final int index = typeName.indexOf("[]");
+            if (index < 0) {
+                String m = String.format("%s type name[%s] is illegal.", dataType.getClass().getName(), typeName);
+                throw new MetaException(m);
+            }
+            elementType = DataType.from(typeName.substring(0, index));
+        }
+        return elementType;
+    }
+
+
     /*################################## blow package method ##################################*/
 
 
@@ -293,18 +311,18 @@ public abstract class _DialectUtils {
 
     }
 
-    /// @return a unmodified map
-    static Map<String, Boolean> createKeyWordMap(final Set<String> keyWordSet) {
-        final Map<String, Boolean> map;
-        map = _Collections.hashMap((int) (keyWordSet.size() / 0.75f));
+    /// @return an unmodified set
+    static Set<String> createKeyWordSet(final Set<String> keyWordSet) {
+        final Set<String> set;
+        set = _Collections.hashSetForSize(keyWordSet.size());
         for (String keyWord : keyWordSet) {
-            map.putIfAbsent(keyWord.toUpperCase(Locale.ROOT), Boolean.TRUE);
+            set.add(keyWord.toLowerCase(Locale.ROOT));
         }
 
-        for (String keyWord : fieldCoreKeyWordMap().keySet()) {
-            map.putIfAbsent(keyWord.toUpperCase(Locale.ROOT), Boolean.TRUE);
+        for (String keyWord : fieldCoreKeyWordSet()) {
+            set.add(keyWord.toLowerCase(Locale.ROOT));
         }
-        return map;
+        return set;
     }
 
 
@@ -374,29 +392,31 @@ public abstract class _DialectUtils {
     /*-------------------below private method -------------------*/
 
 
-    /// @see #createKeyWordMap(Set)
-    private static Map<String, Boolean> fieldCoreKeyWordMap() {
-        final Map<String, Boolean> map;
-        map = _Collections.hashMap();
+    /// @see #createKeyWordSet(Set)
+    private static Set<String> fieldCoreKeyWordSet() {
+        final Set<String> set;
+        set = _Collections.hashSetForSize(4 * 4);
 
-        map.put("SELECT", Boolean.TRUE);
-        map.put("WITH", Boolean.TRUE);
-        map.put("RECURSIVE", Boolean.TRUE);
-        map.put("COMMENT", Boolean.TRUE);
+        set.add("SELECT");
+        set.add("WITH");
+        set.add("RECURSIVE");
+        set.add("COMMENT");
 
-        map.put("INSERT", Boolean.TRUE);
-        map.put("INTO", Boolean.TRUE);
-        map.put("VALUES", Boolean.TRUE);
+        set.add("INSERT");
+        set.add("INTO");
+        set.add("VALUES");
 
-        map.put("UPDATE", Boolean.TRUE);
-        map.put("FROM", Boolean.TRUE);
-        map.put("DELETE", Boolean.TRUE);
-        map.put("SET", Boolean.TRUE);
+        set.add("UPDATE");
+        set.add("FROM");
+        set.add("DELETE");
+        set.add("SET");
 
-        map.put("WHERE", Boolean.TRUE);
-        map.put("AND", Boolean.TRUE);
+        set.add("WHERE");
+        set.add("AND");
+        set.add("OR");
+        set.add("JOIN");
 
-        return map;
+        return set;
     }
 
 

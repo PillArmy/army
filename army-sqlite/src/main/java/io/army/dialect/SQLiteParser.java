@@ -27,7 +27,10 @@ import io.army.env.EscapeMode;
 import io.army.executor.ExecutorSupport;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
-import io.army.meta.*;
+import io.army.meta.ChildTableMeta;
+import io.army.meta.ParentTableMeta;
+import io.army.meta.ServerMeta;
+import io.army.meta.TypeMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.sqltype.DataType;
 import io.army.sqltype.SQLiteType;
@@ -78,8 +81,13 @@ abstract class SQLiteParser extends _ArmyDialectParser {
 
 
     @Override
-    protected final Set<String> createKeyWordSet() {
+    final Set<String> createKeyWordSet(ServerMeta serverMeta) {
         return SQLiteDialectUtils.createKeyWordSet();
+    }
+
+    @Override
+    final IdentifierHandler createIdentifierHandler(ServerMeta serverMeta) {
+        return SQLiteDialectUtils::handleIdentifier;
     }
 
     /// @see <a href="https://sqlite.org/lang_naming.html">Database Object Name Resolution</a>
@@ -235,7 +243,7 @@ abstract class SQLiteParser extends _ArmyDialectParser {
         if (catalogHasText && schemaHasText) {
             name = _StringUtils.builder(catalog.length() + 1 + schema.length())
                     .append(catalog)
-                    .append(_Constant.DOT)
+                    .append(_Constant.PERIOD)
                     .append(schema)
                     .toString();
         } else if (catalogHasText) {
@@ -248,67 +256,6 @@ abstract class SQLiteParser extends _ArmyDialectParser {
         return name;
     }
 
-
-    /// @see <a href="https://sqlite.org/lang_naming.html">Database Object Name Resolution</a>
-    /// @see <a href="https://www.sqlite.org/lang_keywords.html">SQLite Keywords</a>
-    @Override
-    protected final void handleIdentifier(final @Nullable DatabaseObject object, final String effectiveName, final StringBuilder sqlBuilder) {
-        final int length,startIndex;
-        length = effectiveName.length();
-        startIndex = sqlBuilder.length();
-
-        final char boundaryChar = this.identifierQuote;
-        int lastWritten = 0,writtenIndex = startIndex;
-        char ch;
-
-        for (int i = 0; i < length; i++) {
-            ch = effectiveName.charAt(i);
-
-           if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') {
-                continue;
-            } else if (ch >= '0' && ch <= '9') {
-                if (i == 0) {
-                    sqlBuilder.append(boundaryChar);
-                    writtenIndex ++;
-                }
-                continue;
-            }
-
-            if (ch == _Constant.NUL_CHAR) {
-                if(object == null){
-                    throw _Exceptions.identifierError(effectiveName, this.dialect);
-                }else {
-                    throw _Exceptions.objectNameError(object, this.dialect);
-                }
-            }
-
-            if(writtenIndex == startIndex){
-                sqlBuilder.append(boundaryChar);
-                writtenIndex++;
-            }
-
-            if (ch != boundaryChar) {
-                continue;
-            }
-
-            if (i > lastWritten) {
-                sqlBuilder.append(effectiveName, lastWritten, i);
-            }
-            sqlBuilder.append(boundaryChar);
-            lastWritten = i; // not i + 1 as current char wasn't written
-
-
-        } // for loop
-
-        if (lastWritten < length) {
-            sqlBuilder.append(effectiveName, lastWritten, length);
-        }
-
-        if(writtenIndex > startIndex){
-            sqlBuilder.append(boundaryChar);
-        }
-
-    }
 
     @Override
     protected final TypeMappingHandler createTypeMappingHandler(DialectEnv env) {

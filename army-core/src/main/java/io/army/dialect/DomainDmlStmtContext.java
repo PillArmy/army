@@ -96,7 +96,7 @@ abstract class DomainDmlStmtContext extends SingleTableDmlContext implements _Si
             } else {
                 sqlBuilder.append(this.safeTargetTableAlias);
             }
-            sqlBuilder.append(_Constant.DOT);
+            sqlBuilder.append(_Constant.PERIOD);
             this.parser.safeObjectName(field, sqlBuilder);
         } else if (targetTable instanceof ChildTableMeta
                 && fieldTable == ((ChildTableMeta<?>) targetTable).parentMeta()) {
@@ -105,7 +105,7 @@ abstract class DomainDmlStmtContext extends SingleTableDmlContext implements _Si
                 assert this.safeRelatedAlias != null;
                 sqlBuilder.append(_Constant.SPACE)
                         .append(this.safeRelatedAlias)
-                        .append(_Constant.DOT);
+                        .append(_Constant.PERIOD);
                 this.parser.safeObjectName(field, sqlBuilder);
             } else {
                 this.parentColumnFromSubQuery(field);
@@ -115,7 +115,7 @@ abstract class DomainDmlStmtContext extends SingleTableDmlContext implements _Si
                 assert this.safeRelatedAlias != null;
                 sqlBuilder.append(_Constant.SPACE)
                         .append(this.safeRelatedAlias)
-                        .append(_Constant.DOT);
+                        .append(_Constant.PERIOD);
                 this.parser.safeObjectName(field, sqlBuilder);
             } else {
                 this.childColumnFromSubQuery(field);
@@ -149,7 +149,7 @@ abstract class DomainDmlStmtContext extends SingleTableDmlContext implements _Si
                 .append(_Constant.SPACE_SELECT_SPACE)
                 //below target parent column
                 .append(safeParentAlias)
-                .append(_Constant.DOT);
+                .append(_Constant.PERIOD);
 
         parser.safeObjectName(parentField, sqlBuilder)
                 .append(_Constant.SPACE_FROM_SPACE);
@@ -173,13 +173,13 @@ abstract class DomainDmlStmtContext extends SingleTableDmlContext implements _Si
                 .append(_Constant.SPACE)
 
                 .append(safeParentAlias)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(safeIdColumnName)
 
                 .append(_Constant.SPACE_EQUAL_SPACE)
 
                 .append(this.safeTargetTableAlias)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(safeIdColumnName)
 
                 .append(_Constant.SPACE_RIGHT_PAREN);
@@ -203,7 +203,7 @@ abstract class DomainDmlStmtContext extends SingleTableDmlContext implements _Si
                 .append(_Constant.SPACE_SELECT_SPACE)
                 //below target parent column
                 .append(safeChildAlias)
-                .append(_Constant.DOT);
+                .append(_Constant.PERIOD);
 
         parser.safeObjectName(childField, sqlBuilder)
                 .append(_Constant.SPACE_FROM_SPACE);
@@ -223,11 +223,11 @@ abstract class DomainDmlStmtContext extends SingleTableDmlContext implements _Si
                 .append(_Constant.SPACE_WHERE)
                 .append(_Constant.SPACE)
                 .append(safeChildAlias)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(safeIdColumnName)
                 .append(_Constant.SPACE_EQUAL_SPACE)
                 .append(this.safeTargetTableAlias)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(safeIdColumnName)
                 .append(_Constant.SPACE_RIGHT_PAREN);
 

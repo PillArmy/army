@@ -23,46 +23,40 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping._ArmyBuildInArrayType;
-import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-public class XmlArrayType extends _ArmyBuildInArrayType {
+public final class XmlArrayType extends _ArmyBuildInArrayType {
 
 
     public static XmlArrayType from(final Class<?> javaType) {
         if (!javaType.isArray()) {
             throw errorJavaType(XmlArrayType.class, javaType);
         }
-
-        return INSTANCE_MAP.computeIfAbsent(javaType, XmlArrayType::new);
+        return CLASS_VALUE.get(javaType);
     }
 
-    public static final XmlArrayType UNLIMITED = new XmlArrayType();
+    public static final XmlArrayType UNLIMITED = new XmlArrayType(Object.class);
 
     public static final XmlArrayType TEXT_LINEAR = new XmlArrayType(String[].class);
 
-    private static final ConcurrentMap<Class<?>, XmlArrayType> INSTANCE_MAP = new ConcurrentHashMap<>();
+    private static final ClassValue<XmlArrayType> CLASS_VALUE = FuncClassValue.create(XmlArrayType::new);
 
 
     private final Class<?> javaType;
 
     private final Class<?> underlyingType;
 
-    /// @see #UNLIMITED
-    private XmlArrayType() {
-        this.javaType = Object.class;
-        this.underlyingType = Object.class;
-    }
-
     private XmlArrayType(Class<?> javaType) {
         this.javaType = javaType;
-        this.underlyingType = ArrayUtils.underlyingComponent(javaType);
+        if (javaType == Object.class) {
+            this.underlyingType = String.class;
+        } else {
+            this.underlyingType = ArrayUtils.underlyingComponent(javaType);
+        }
     }
 
     @Override
@@ -92,12 +86,13 @@ public class XmlArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public Class<?> underlyingJavaType() {
-        return null;
+        return this.underlyingType;
     }
 
     @Override
     public MappingType elementType() {
-        return null;
+        // TODO
+        throw new UnsupportedOperationException();
     }
 
 

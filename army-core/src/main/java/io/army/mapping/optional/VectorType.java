@@ -94,8 +94,8 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
     }
 
     @Override
-    public String extensionName() {
-        return "VECTOR";
+    public String extensionName(ServerMeta serverMeta) {
+        return PgType.VECTOR.name();
     }
 
     @Override

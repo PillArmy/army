@@ -198,7 +198,7 @@ public class NameEnumType extends _ArmyNoInjectionType {
                 break;
             case PostgreSQL: {
                 if (type instanceof SqlUserDefined o) {
-                    dataType = DataType.from(o.objectName());
+                    dataType = DataType.from(o.typeName());
                 } else {
                     dataType = PgType.VARCHAR;
                 }
@@ -342,7 +342,7 @@ public class NameEnumType extends _ArmyNoInjectionType {
 
 
         @Override
-        public String objectName() {
+        public String typeName() {
             return this.enumName;
         }
 

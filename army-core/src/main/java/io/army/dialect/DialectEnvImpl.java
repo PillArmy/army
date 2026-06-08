@@ -59,6 +59,8 @@ final class DialectEnvImpl implements DialectEnv {
 
     private final Map<String, MappingType> typeNameToTypeMap;
 
+    private Map<String, String> typeNameToSchemaMap;
+
 
     private DialectEnvImpl(EnvBuilder builder) {
         this.factoryName = builder.factoryName;
@@ -74,6 +76,7 @@ final class DialectEnvImpl implements DialectEnv {
         this.tableMetaMap = builder.tableMetaMap;
         this.typeMapFunc = builder.typeMapFunc;
         this.typeNameToTypeMap = builder.typeNameToTypeMap;
+        this.typeNameToSchemaMap = Map.copyOf(builder.typeNameToSchemaMap);
         if (this.serverMeta == null || this.tableMetaMap == null) {
             throw new IllegalArgumentException();
         }
@@ -140,6 +143,20 @@ final class DialectEnvImpl implements DialectEnv {
     }
 
     @Override
+    public Map<String, String> typeNameToSchemaMap() {
+        final Map<String, String> map = this.typeNameToSchemaMap;
+        if (map == null) {
+            throw new IllegalStateException("typeNameToSchemaMap is cleared");
+        }
+        return map;
+    }
+
+    @Override
+    public void clearTempProperties() {
+        this.typeNameToSchemaMap = null;
+    }
+
+    @Override
     public String toString() {
         return String.format("%s factory:%s", DialectEnvImpl.class.getSimpleName(), this.factoryName);
     }
@@ -168,6 +185,8 @@ final class DialectEnvImpl implements DialectEnv {
         private DefinedTypeMapFunc typeMapFunc;
 
         private Map<String, MappingType> typeNameToTypeMap;
+
+        private Map<String, String> typeNameToSchemaMap;
 
 
         @Override
@@ -234,6 +253,12 @@ final class DialectEnvImpl implements DialectEnv {
         @Override
         public Builder nameToTypeMap(Map<String, MappingType> map) {
             this.typeNameToTypeMap = map;
+            return this;
+        }
+
+        @Override
+        public Builder typeNameToSchemaMap(Map<String, String> map) {
+            this.typeNameToSchemaMap = map;
             return this;
         }
 

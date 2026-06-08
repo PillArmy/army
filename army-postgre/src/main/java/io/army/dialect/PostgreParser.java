@@ -25,7 +25,10 @@ import io.army.criteria.standard.StandardStatement;
 import io.army.executor.ExecutorSupport;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
-import io.army.meta.*;
+import io.army.meta.ChildTableMeta;
+import io.army.meta.ParentTableMeta;
+import io.army.meta.ServerMeta;
+import io.army.meta.TypeMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
@@ -38,13 +41,13 @@ import io.army.util.*;
 import java.math.BigDecimal;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 abstract class PostgreParser extends _ArmyDialectParser {
 
-    static PostgreParser standard(DialectEnv environment, PostgreDialect dialect) {
-        return new Standard(environment, dialect);
-    }
 
     PostgreParser(DialectEnv environment, PostgreDialect dialect) {
         super(environment, dialect);
@@ -78,7 +81,9 @@ abstract class PostgreParser extends _ArmyDialectParser {
     /// 1. Identify composite type: pg_type.typcategory is 'C' and pg_class.relkind is 'c'
     /// 2. Identify domain type: pg_type.typbasetype > 0 ,If this is a domain (see typtype),
     /// then typbasetype identifies the type that this one is based on. Zero if this type is not a domain.
-    /// [pg_type](https://www.postgresql.org/docs/current/catalog-pg-type.html)
+    ///
+    /// 1. [pg_type](https://www.postgresql.org/docs/current/catalog-pg-type.html)
+    /// 2. [pg_class.relkind](https://www.postgresql.org/docs/current/catalog-pg-class.html)
     ///
     /// ```postgresql
     /// SELECT t.typname AS "definedType", t.typcategory AS "type", et."enumLabelArray", at.*
@@ -191,43 +196,6 @@ abstract class PostgreParser extends _ArmyDialectParser {
         return List.of(Stmts.simpleRead(sql, List.of(), selectionList));
     }
 
-    @Override
-    public final List<String> createExtensionSql(@Nullable String catalog, @Nullable String schema, final Set<String> extensionSet) {
-        if (extensionSet.isEmpty()) {
-            return List.of();
-        }
-        final List<String> extensionList = new ArrayList<>(extensionSet.size());
-        final StringBuilder builder = new StringBuilder(50);
-
-        for (String name : extensionSet) {
-
-            builder.setLength(0); // clear
-
-            builder.append("CREATE")
-                    .append(_Constant.SPACE)
-                    .append("EXTENSION")
-                    .append(_Constant.SPACE)
-                    .append("IF")
-                    .append(_Constant.SPACE)
-                    .append("NOT")
-                    .append(_Constant.SPACE)
-                    .append("EXISTS")
-                    .append(_Constant.SPACE);
-
-            identifier(name.toLowerCase(Locale.ROOT), builder);
-
-            if (schema != null) {
-                builder.append(_Constant.SPACE)
-                        .append("SCHEMA")
-                        .append(_Constant.SPACE);
-
-                identifier(schema.toLowerCase(Locale.ROOT), builder);
-            }
-
-            extensionList.add(builder.toString());
-        }
-        return List.copyOf(extensionList);
-    }
 
     @Override
     public final void typeName(final MappingType type, final StringBuilder sqlBuilder) {
@@ -239,8 +207,9 @@ abstract class PostgreParser extends _ArmyDialectParser {
         } else if (dataType.isArray()) {
             final SQLType elementType;
             elementType = ((PgType) dataType).elementType();
-            assert elementType != null;
-            arrayTypeName(elementType.typeName(), ArrayUtils.dimensionOfType(type), sqlBuilder);
+            Objects.requireNonNull(elementType);
+            safeObjectName(elementType, sqlBuilder);
+            arrayTypeName(ArrayUtils.dimensionOfType(type), sqlBuilder);
         } else switch ((PgType) dataType) {
             case REF_CURSOR:
             case UNKNOWN:
@@ -291,10 +260,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
 
 
     @Override
-    protected final void arrayTypeName(final String safeTypeNme, final int dimension,
-                                       final StringBuilder sqlBuilder) {
+    protected final void arrayTypeName(final int dimension, final StringBuilder sqlBuilder) {
         assert dimension > 0;
-        sqlBuilder.append(safeTypeNme);
         for (int i = 0; i < dimension; i++) {
             sqlBuilder.append("[]");
         }
@@ -327,27 +294,43 @@ abstract class PostgreParser extends _ArmyDialectParser {
     }
 
     @Override
-    protected final void bindLiteral(final TypeMeta typeMeta, final DataType dataType, final Object value,
-                                     final boolean typeName, final StringBuilder sqlBuilder) {
-
+    final void bindLiteral(final TypeMeta typeMeta, final DataType dataType, final Object value,
+                           final boolean typeName, final StringBuilder sqlBuilder) {
 
         if (!(dataType instanceof PgType)) {
             if (!(value instanceof String)) {
                 throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
             }
-            bindUserDefinedLiteral(typeMeta, dataType, (String) value, typeName, sqlBuilder);
-        } else if (dataType.isArray()) {
-            if (!(value instanceof String) || dataType == PgType.RECORD_ARRAY) {
-                throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
+            if (dataType instanceof SQLType) {
+                throw _Exceptions.mapMethodError(typeMeta.mappingType(), PgType.class);
             }
-            final SQLType elementType = ((SQLType) dataType).elementType();
-            assert elementType != null;
 
             stringEscape((String) value, sqlBuilder);
 
             if (typeName) {
                 sqlBuilder.append("::");
-                arrayTypeName(elementType.typeName(), ArrayUtils.dimensionOfType(typeMeta.mappingType()), sqlBuilder);
+                safeObjectName(dataType, sqlBuilder);
+                if (dataType.isArray()) {
+                    arrayTypeName(ArrayUtils.dimensionOfType(typeMeta.mappingType()), sqlBuilder);
+                }
+            }
+
+        } else if (dataType.isArray()) {
+            if (!(value instanceof String) || dataType == PgType.RECORD_ARRAY) {
+                throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
+            }
+
+            stringEscape((String) value, sqlBuilder);
+
+            if (typeName) {
+                sqlBuilder.append("::");
+                if (dataType == PgType.VECTOR_ARRAY) {
+                    safeObjectName(dataType, sqlBuilder); // VECTOR need to install pg vector extension
+                } else {
+                    sqlBuilder.append(_DialectUtils.obtainElementType(dataType).typeName());
+                }
+
+                arrayTypeName(ArrayUtils.dimensionOfType(typeMeta.mappingType()), sqlBuilder);
             }
         } else switch ((PgType) dataType) {
             case BOOLEAN:
@@ -359,7 +342,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 }
                 sqlBuilder.append(value);
                 if (typeName) {
-                    sqlBuilder.append("::SMALLINT");
+                    sqlBuilder.append("::")
+                            .append(dataType.typeName());
                 }
             }
             break;
@@ -369,7 +353,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 }
                 sqlBuilder.append(value);
                 if (typeName) {
-                    sqlBuilder.append("::INTEGER");
+                    sqlBuilder.append("::")
+                            .append(dataType.typeName());
                 }
             }
             break;
@@ -379,7 +364,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 }
                 sqlBuilder.append(value);
                 if (typeName) {
-                    sqlBuilder.append("::BIGINT");
+                    sqlBuilder.append("::")
+                            .append(dataType.typeName());
                 }
             }
             break;
@@ -389,7 +375,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 }
                 sqlBuilder.append(((BigDecimal) value).toPlainString());
                 if (typeName) {
-                    sqlBuilder.append("::DECIMAL");
+                    sqlBuilder.append("::")
+                            .append(dataType.typeName());
                 }
             }
             break;
@@ -399,7 +386,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 }
                 sqlBuilder.append(value);
                 if (typeName) {
-                    sqlBuilder.append("::DOUBLE PRECISION");
+                    sqlBuilder.append("::")
+                            .append(dataType.typeName());
                 }
             }
             break;
@@ -409,7 +397,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 }
                 sqlBuilder.append(value);
                 if (typeName) {
-                    sqlBuilder.append("::REAL");
+                    sqlBuilder.append("::")
+                            .append(dataType.typeName());
                 }
             }
             break;
@@ -418,7 +407,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                     throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
                 }
                 if (typeName) {
-                    sqlBuilder.append("TIME ");
+                    sqlBuilder.append(dataType.typeName())
+                            .append(_Constant.SPACE);
                 }
                 sqlBuilder.append(_Constant.QUOTE)
                         .append(_TimeUtils.TIME_FORMATTER_6.format((LocalTime) value))
@@ -430,7 +420,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                     throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
                 }
                 if (typeName) {
-                    sqlBuilder.append("DATE ");
+                    sqlBuilder.append(dataType.typeName())
+                            .append(_Constant.SPACE);
                 }
                 sqlBuilder.append(_Constant.QUOTE)
                         .append(DateTimeFormatter.ISO_LOCAL_DATE.format((LocalDate) value))
@@ -442,7 +433,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                     throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
                 }
                 if (typeName) {
-                    sqlBuilder.append("TIMETZ ");
+                    sqlBuilder.append(dataType.typeName())
+                            .append(_Constant.SPACE);
                 }
                 sqlBuilder.append(_Constant.QUOTE)
                         .append(_TimeUtils.OFFSET_TIME_FORMATTER_6.format((OffsetTime) value))
@@ -454,7 +446,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                     throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
                 }
                 if (typeName) {
-                    sqlBuilder.append("TIMESTAMP ");
+                    sqlBuilder.append(dataType.typeName())
+                            .append(_Constant.SPACE);
                 }
                 sqlBuilder.append(_Constant.QUOTE)
                         .append(_TimeUtils.DATETIME_FORMATTER_6.format((LocalDateTime) value))
@@ -466,7 +459,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                     throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
                 }
                 if (typeName) {
-                    sqlBuilder.append("TIMESTAMPTZ ");
+                    sqlBuilder.append(dataType.typeName())
+                            .append(_Constant.SPACE);
                 }
                 sqlBuilder.append(_Constant.QUOTE)
                         .append(_TimeUtils.OFFSET_DATETIME_FORMATTER_6.format((OffsetDateTime) value))
@@ -479,7 +473,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 }
                 stringEscape((String) value, sqlBuilder);
                 if (typeName) {
-                    sqlBuilder.append("::VECTOR");
+                    sqlBuilder.append("::");
+                    safeObjectName(dataType, sqlBuilder);  // VECTOR need to install pg vector extension
                 }
             }
             break;
@@ -598,8 +593,14 @@ abstract class PostgreParser extends _ArmyDialectParser {
 
 
     @Override
-    protected final Set<String> createKeyWordSet() {
+    final Set<String> createKeyWordSet(ServerMeta serverMeta) {
         return PostgreDialectUtils.createKeywordsSet();
+    }
+
+
+    @Override
+    final IdentifierHandler createIdentifierHandler(ServerMeta serverMeta) {
+        return PostgreDialectUtils::handleIdentifier;
     }
 
     @Override
@@ -708,80 +709,9 @@ abstract class PostgreParser extends _ArmyDialectParser {
         }
         return _StringUtils.builder()
                 .append(catalog)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(schema)
                 .toString();
-    }
-
-
-    ///
-    /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS">Identifiers and Keywords</a>
-    @Override
-    protected final void handleIdentifier(final @Nullable DatabaseObject object, final String effectiveName, final StringBuilder sqlBuilder) {
-        final int length, startIndex;
-        length = effectiveName.length();
-        startIndex = sqlBuilder.length();
-
-        final char boundaryChar = this.identifierQuote;
-        int lastWritten = 0, writtenIndex = startIndex;
-        char ch;
-
-        for (int i = 0; i < length; i++) {
-            ch = effectiveName.charAt(i);
-            if ((ch >= 'a' && ch <= 'z') || ch == '_') {
-                continue;
-            }
-
-            if (object == null && ch >= 'A' && ch <= 'Z') {
-                // Quoting an identifier also makes it case-sensitive, whereas unquoted names are always folded to lower case.
-                if (writtenIndex == startIndex) {
-                    sqlBuilder.append(boundaryChar);
-                    writtenIndex++;
-                }
-                continue;
-            }
-
-            if ((ch >= '0' && ch <= '9') || ch == '$') {
-                if (i == 0) {
-                    sqlBuilder.append(boundaryChar);
-                    writtenIndex++;
-                }
-                continue;
-            }
-
-            if (ch == _Constant.NUL_CHAR) {
-                if (object == null) {
-                    throw _Exceptions.identifierError(effectiveName, this.dialect);
-                } else {
-                    throw _Exceptions.objectNameError(object, this.dialect);
-                }
-            }
-
-            if (writtenIndex == startIndex) {
-                sqlBuilder.append(boundaryChar);
-                writtenIndex++;
-            }
-
-            if (ch != boundaryChar) {
-                continue;
-            }
-
-            if (i > lastWritten) {
-                sqlBuilder.append(effectiveName, lastWritten, i);
-            }
-            sqlBuilder.append(boundaryChar);
-            lastWritten = i; // not i + 1 as current char wasn't written
-
-        } // for loop
-
-        if (lastWritten < length) {
-            sqlBuilder.append(effectiveName, lastWritten, length);
-        }
-
-        if (writtenIndex > startIndex) {
-            sqlBuilder.append(boundaryChar);
-        }
-
     }
 
 
@@ -860,7 +790,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
         sqlBuilder.append(_Constant.SPACE_RETURNING)
                 .append(_Constant.SPACE)
                 .append(safeChildTableAlias)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(safeIdColumnName);
 
         sqlBuilder.append(_Constant.SPACE_AS_SPACE)
@@ -892,11 +822,11 @@ abstract class PostgreParser extends _ArmyDialectParser {
                     .append(safeChildTableAlias)
                     .append(_Constant.SPACE_ON_SPACE)
                     .append(safeChildTableAlias)
-                    .append(_Constant.DOT)
+                    .append(_Constant.PERIOD)
                     .append(safeIdColumnName)
                     .append(_Constant.SPACE_EQUAL_SPACE)
                     .append(childCte)
-                    .append(_Constant.DOT)
+                    .append(_Constant.PERIOD)
                     .append(_MetaBridge.ID);
 
         }
@@ -904,11 +834,11 @@ abstract class PostgreParser extends _ArmyDialectParser {
         sqlBuilder.append(_Constant.SPACE_WHERE)
                 .append(_Constant.SPACE)
                 .append(safeParentAlias)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(safeIdColumnName)
                 .append(_Constant.SPACE_EQUAL_SPACE)
                 .append(childCte)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(_MetaBridge.ID);
 
 
@@ -980,7 +910,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
         sqlBuilder.append(_Constant.SPACE_RETURNING)
                 .append(_Constant.SPACE)
                 .append(safeChildTableAlias)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(safeIdColumnName);
 
         sqlBuilder.append(_Constant.SPACE_AS_SPACE)
@@ -1004,11 +934,11 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 .append(_Constant.SPACE_WHERE)
                 .append(_Constant.SPACE)
                 .append(safeParentAlias)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(safeIdColumnName)
                 .append(_Constant.SPACE_EQUAL_SPACE)
                 .append(deleteCte)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(_MetaBridge.ID);
     }
 
@@ -1059,29 +989,6 @@ abstract class PostgreParser extends _ArmyDialectParser {
     }
 
     /*-------------------below private methods -------------------*/
-
-
-    /// @see #bindLiteral(TypeMeta, DataType, Object, boolean, StringBuilder)
-    private void bindUserDefinedLiteral(final TypeMeta typeMeta, final DataType dataType, final String value,
-                                        final boolean typeName, final StringBuilder sqlBuilder) {
-
-        final int length = value.length();
-        if (dataType.isArray()) {
-            if (length < 2
-                    || value.charAt(0) != _Constant.LEFT_BRACE
-                    || value.charAt(length - 1) != _Constant.RIGHT_BRACE) {
-                throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-            }
-        }
-
-        stringEscape(value, sqlBuilder);
-
-        if (typeName) {
-            sqlBuilder.append("::");
-            unrecognizedTypeName(typeMeta.mappingType(), dataType, true, sqlBuilder);
-        }
-
-    }
 
 
     /// @see #bindLiteral(TypeMeta, DataType, Object, boolean, StringBuilder)

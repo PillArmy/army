@@ -474,7 +474,7 @@ abstract class MySQLSyntax extends MySQLOtherFunctions {
     static String keyWordsToString(Enum<?> words) {
         return _StringUtils.builder()
                 .append(MySQLs.class.getSimpleName())
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(words.name())
                 .toString();
     }

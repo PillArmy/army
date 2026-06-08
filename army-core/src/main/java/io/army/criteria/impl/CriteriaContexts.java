@@ -4378,7 +4378,7 @@ abstract class CriteriaContexts {
             sqlBuilder.append(_Constant.SPACE);
 
             parser.identifier(this.tableName, sqlBuilder)
-                    .append(_Constant.DOT);
+                    .append(_Constant.PERIOD);
             parser.identifier(this.selection.label(), sqlBuilder);
         }
 
@@ -4389,7 +4389,7 @@ abstract class CriteriaContexts {
             sqlBuilder.append(_Constant.SPACE);
 
             dialect.identifier(this.tableName, sqlBuilder)
-                    .append(_Constant.DOT);
+                    .append(_Constant.PERIOD);
             dialect.identifier(this.selection.label(), sqlBuilder);
 
         }
@@ -4400,7 +4400,7 @@ abstract class CriteriaContexts {
             return _StringUtils.builder()
                     .append(_Constant.SPACE)
                     .append(this.tableName)
-                    .append(_Constant.DOT)
+                    .append(_Constant.PERIOD)
                     .append(this.selection.label())
                     .toString();
         }
@@ -4459,7 +4459,7 @@ abstract class CriteriaContexts {
             sqlBuilder.append(_Constant.SPACE);
 
             parser.identifier(this.tableName, sqlBuilder)
-                    .append(_Constant.DOT);
+                    .append(_Constant.PERIOD);
             parser.identifier(this.selection.label(), sqlBuilder);
         }
 
@@ -4470,7 +4470,7 @@ abstract class CriteriaContexts {
             sqlBuilder.append(_Constant.SPACE);
 
             dialect.identifier(this.tableName, sqlBuilder)
-                    .append(_Constant.DOT);
+                    .append(_Constant.PERIOD);
             dialect.identifier(this.selection.label(), sqlBuilder);
 
         }
@@ -4482,7 +4482,7 @@ abstract class CriteriaContexts {
             return _StringUtils.builder()
                     .append(_Constant.SPACE)
                     .append(this.tableName)
-                    .append(_Constant.DOT)
+                    .append(_Constant.PERIOD)
                     .append(this.selection.label())
                     .toString();
         }

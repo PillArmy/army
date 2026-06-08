@@ -35,9 +35,8 @@ public class TypeDataSourceConfig {
 
     @Bean
     public ArmySyncLocalTransactionManager typeSyncTransactionManager(SyncSessionFactory sessionFactory) {
-        final ArmySyncLocalTransactionManager manager = ArmySyncLocalTransactionManager.create(sessionFactory);
-        manager.setNestedTransactionAllowed(true);
-        return manager.setUseDataSourceTimeout(true)
+        return ArmySyncLocalTransactionManager.create(sessionFactory)
+                .setUseDataSourceTimeout(true)
                 .setUseTransactionName(true)
                 .setUseTransactionLabel(true)
                 .setPseudoTransactionAllowed(true);

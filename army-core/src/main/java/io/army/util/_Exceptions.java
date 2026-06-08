@@ -530,6 +530,12 @@ public abstract class _Exceptions {
                 , field.tableMeta(), field, QualifiedField.class.getName()));
     }
 
+
+    public static MetaException underlyingJavaTypeError(MappingType type) {
+        String m = String.format("%s underlyingJavaType error", type.getClass().getName());
+        return new MetaException(m);
+    }
+
     public static CriteriaException selectListIsEmpty() {
         return new CriteriaException("select list must not empty");
     }
@@ -1065,6 +1071,11 @@ public abstract class _Exceptions {
         return new CriteriaException(m);
     }
 
+    public static CriteriaException identifierError(final String identifier, final Database database) {
+        String m = String.format("identifier[%s] syntax error for %s", identifier, database);
+        return new CriteriaException(m);
+    }
+
     public static CriteriaException unknownArrayDimension(SQLType sqlType, MappingType type) {
         String m = String.format("unknown array type %s dimension of %s", sqlType, type);
         return new CriteriaException(m);
@@ -1081,6 +1092,21 @@ public abstract class _Exceptions {
                     object, dialect);
         } else {
             m = String.format("%s %s objectName syntax error. %s", DatabaseObject.class.getName(), object, dialect);
+        }
+        return new CriteriaException(m);
+    }
+
+    public static CriteriaException objectNameError(final DatabaseObject object, final Database database) {
+        final String m, objectName;
+        objectName = object.objectName();
+        if (objectName.length() == 0) {
+            m = String.format("%s %s objectName syntax error,it's empty. %s", DatabaseObject.class.getName(),
+                    object, database);
+        } else if (objectName.indexOf(_Constant.NUL_CHAR) > -1) {
+            m = String.format("%s %s objectName syntax error,contains NUL char. %s", DatabaseObject.class.getName(),
+                    object, database);
+        } else {
+            m = String.format("%s %s objectName syntax error. %s", DatabaseObject.class.getName(), object, database);
         }
         return new CriteriaException(m);
     }

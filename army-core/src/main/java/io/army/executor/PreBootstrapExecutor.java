@@ -14,20 +14,34 @@
  * limitations under the License.
  */
 
-
-package io.army.dialect;
-
-
-class _SQLiteParsers extends DialectParserFactory {
+package io.army.executor;
 
 
-    private _SQLiteParsers() {
+import io.army.lang.Nullable;
+
+import java.util.List;
+import java.util.function.Function;
+
+public interface PreBootstrapExecutor {
+
+
+    Object executeUpdate(List<String> sqlList);
+
+    <R> Object executeQuery(String sql, Function<CurrentRow, R> function);
+
+
+    interface CurrentRow {
+
+        @Nullable
+        <R> R get(int indexBasedZero, Class<R> columnClass);
+
+        <R> R getNonNull(int indexBasedZero, Class<R> columnClass);
+
     }
 
 
-    public static DialectParser create(final DialectEnv env) {
-        return SQLiteDialectParser.create(env, (SQLiteDialect) targetDialect(env, Database.SQLite));
-    }
+    interface VoidRowFunc extends Function<CurrentRow, Void> {
 
+    }
 
 }

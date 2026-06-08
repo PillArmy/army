@@ -25,6 +25,7 @@ import io.army.criteria.mysql.MySQLLoadData;
 import io.army.criteria.mysql.MySQLReplace;
 import io.army.criteria.mysql.MySQLSet;
 import io.army.env.EscapeMode;
+import io.army.lang.Nullable;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.session.SessionSpec;
@@ -32,7 +33,6 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -1003,7 +1003,7 @@ final class MySQLDialectParser extends MySQLParser {
                     || scope == MySQLs.PERSIST_ONLY) {
                 sqlBuilder.append(" @@")
                         .append(scope.name())
-                        .append(_Constant.DOT);
+                        .append(_Constant.PERIOD);
             } else if (scope == SQLs.AT) {
                 if (varName.charAt(0) == _Constant.AT) {
                     throw _Exceptions.userVariableFirstCharIsAt(varName);

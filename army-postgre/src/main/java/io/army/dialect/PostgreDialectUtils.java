@@ -16,12 +16,84 @@
 
 package io.army.dialect;
 
+import io.army.lang.Nullable;
+import io.army.meta.DatabaseObject;
+import io.army.util._Exceptions;
+
 import java.util.HashSet;
 import java.util.Set;
 
 abstract class PostgreDialectUtils {
+
     PostgreDialectUtils() {
         throw new UnsupportedOperationException();
+    }
+
+    ///
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS">Identifiers and Keywords</a>
+    static void handleIdentifier(@Nullable DatabaseObject object, String effectiveName, StringBuilder sqlBuilder) {
+        final int length, startIndex;
+        length = effectiveName.length();
+        startIndex = sqlBuilder.length();
+
+        int lastWritten = 0, writtenIndex = startIndex;
+        char ch;
+
+        for (int i = 0; i < length; i++) {
+            ch = effectiveName.charAt(i);
+            if ((ch >= 'a' && ch <= 'z') || ch == '_') {
+                continue;
+            }
+
+            if (ch >= 'A' && ch <= 'Z') {
+                // Quoting an identifier also makes it case-sensitive, whereas unquoted names are always folded to lower case.
+                if (writtenIndex == startIndex && object == null) {
+                    sqlBuilder.append(_Constant.DOUBLE_QUOTE);
+                    writtenIndex++;
+                }
+                continue;
+            }
+
+            if ((ch >= '0' && ch <= '9') || ch == '$') {
+                if (i == 0) {
+                    sqlBuilder.append(_Constant.DOUBLE_QUOTE);
+                    writtenIndex++;
+                }
+                continue;
+            }
+
+            if (ch == _Constant.NUL_CHAR) {
+                if (object == null) {
+                    throw _Exceptions.identifierError(effectiveName, Database.PostgreSQL);
+                } else {
+                    throw _Exceptions.objectNameError(object, Database.PostgreSQL);
+                }
+            }
+
+            if (writtenIndex == startIndex) {
+                sqlBuilder.append(_Constant.DOUBLE_QUOTE);
+                writtenIndex++;
+            }
+
+            if (ch != _Constant.DOUBLE_QUOTE) {
+                continue;
+            }
+
+            if (i > lastWritten) {
+                sqlBuilder.append(effectiveName, lastWritten, i);
+            }
+            sqlBuilder.append(_Constant.DOUBLE_QUOTE);
+            lastWritten = i; // not i + 1 as current char wasn't written
+
+        } // for loop
+
+        if (lastWritten < length) {
+            sqlBuilder.append(effectiveName, lastWritten, length);
+        }
+
+        if (writtenIndex > startIndex) {
+            sqlBuilder.append(_Constant.DOUBLE_QUOTE);
+        }
     }
 
     /// @return a modifiable set

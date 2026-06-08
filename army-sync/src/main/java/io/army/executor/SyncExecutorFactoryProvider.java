@@ -17,14 +17,17 @@
 package io.army.executor;
 
 import io.army.dialect.Database;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.meta.ServerMeta;
 
-import io.army.lang.Nullable;
 import java.util.function.Function;
 
 /// This interface representing provider of blocking executor.
 public interface SyncExecutorFactoryProvider extends ExecutorFactoryProvider {
+
+    @Override
+    SyncPreBootstrapExecutor createExecutor();
 
     @Override
     ServerMeta createServerMeta(@Nullable Function<String, Database> func) throws DataAccessException;
@@ -33,7 +36,6 @@ public interface SyncExecutorFactoryProvider extends ExecutorFactoryProvider {
     /// @throws IllegalArgumentException throw when {@link  MappingEnv#serverMeta()} not match.
     @Override
     SyncExecutorFactory createFactory(ExecutorEnv env) throws DataAccessException;
-
 
 
 }

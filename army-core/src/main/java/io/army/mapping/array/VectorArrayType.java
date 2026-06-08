@@ -134,8 +134,8 @@ public final class VectorArrayType extends _ArmyBuildInArrayType implements Mapp
     }
 
     @Override
-    public String extensionName() {
-        return VectorType.INSTANCE.extensionName();
+    public String extensionName(ServerMeta serverMeta) {
+        return VectorType.INSTANCE.extensionName(serverMeta);
     }
 
     @Override

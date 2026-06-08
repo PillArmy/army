@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import io.army.advice.FactoryAdvice;
 import io.army.codec.*;
-import io.army.criteria.impl._SchemaMetaFactory;
 import io.army.criteria.impl._TableMetaFactory;
 import io.army.dialect.*;
 import io.army.env.ArmyEnvironment;
@@ -62,25 +61,26 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     ArmyEnvironment environment;
 
     private Object dataSource;
-    protected Collection<FieldCodec> fieldCodecs;
 
-    protected SchemaMeta schemaMeta = _SchemaMetaFactory.getSchema("", "");
+    Collection<FieldCodec> fieldCodecs;
 
-    protected Map<FieldMeta<?>, FieldGenerator> generatorMap = Map.of();
+    SchemaMeta schemaMeta = SchemaMeta.of("", "");
 
-    protected FieldGeneratorFactory fieldGeneratorFactory;
+    Map<FieldMeta<?>, FieldGenerator> generatorMap = Map.of();
 
-    protected JsonCodec jsonCodec;
+    FieldGeneratorFactory fieldGeneratorFactory;
 
-    protected XmlCodec xmlCodec;
+    JsonCodec jsonCodec;
 
-    protected Collection<FactoryAdvice> factoryAdvices;
+    XmlCodec xmlCodec;
 
-    protected List<String> packagesToScan;
+    Collection<FactoryAdvice> factoryAdvices;
 
-    protected Function<String, Database> nameToDatabaseFunc;
+    List<String> packagesToScan;
 
-    protected DdlMode ddlMode;
+    Function<String, Database> nameToDatabaseFunc;
+
+    DdlMode ddlMode;
 
 
     private Map<Option<?>, Object> dataSourceOptionMap;
@@ -91,11 +91,21 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     Consumer<ExecutorFactoryProvider> executorProviderConsumer;
 
+    boolean extensionInCurrentSchema;
+
+    Map<String, String> extensionSchemaMap = Map.of();
+
     private boolean loadStaticModel;
 
     private boolean validateOnStartup;
 
     private DefinedTypeMapFunc typeMapFunc;
+
+    private Consumer<TableMeta<?>> tableMetaConsumer;
+
+    private Consumer<FieldMeta<?>> fieldMetaConsumer;
+
+
 
 
     /*################################## blow non-setter fields ##################################*/
@@ -111,8 +121,12 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     ///
     Map<String, MappingType> definedTypeMap = Map.of();
 
+    /// element is lower case
     /// @see DdlMode
     Set<String> extensionNameSet = Set.of();
+
+
+    private ServerMeta serverMeta;
 
 
     protected ArmyFactoryBuilder() {
@@ -147,7 +161,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     @Override
     public final B schema(String catalog, String schema) {
-        this.schemaMeta = _SchemaMetaFactory.getSchema(catalog, schema);
+        this.schemaMeta = SchemaMeta.of(catalog, schema);
         return (B) this;
     }
 
@@ -232,6 +246,31 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     }
 
     @Override
+    public final B tableMetaConsumer(@Nullable Consumer<TableMeta<?>> consumer) {
+        this.tableMetaConsumer = consumer;
+        return (B) this;
+    }
+
+
+    @Override
+    public final B fieldMetaConsumer(@Nullable Consumer<FieldMeta<?>> consumer) {
+        this.fieldMetaConsumer = consumer;
+        return (B) this;
+    }
+
+    @Override
+    public final B defaultExtensionInCurrentSchema(boolean current) {
+        this.extensionInCurrentSchema = current;
+        return (B) this;
+    }
+
+    @Override
+    public final B extensionSchemaMap(Map<String, String> extensionSchemaMap) {
+        this.extensionSchemaMap = Map.copyOf(extensionSchemaMap);
+        return (B) this;
+    }
+
+    @Override
     public final R build() {
         final String name = this.name;
         final Object dataSource = this.dataSource;
@@ -240,6 +279,8 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
         SessionFactoryException error;
 
+        ExecutorFactoryProvider provider = null;
+        ServerMeta serverMeta = null;
         if (!_StringUtils.hasText(name)) {
             error = new SessionFactoryException("factory name is required");
         } else if (dataSource == null) {
@@ -251,41 +292,48 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         } else {
 
             try {
+                provider = createExecutorFactoryProvider(name, dataSource, env);
+                this.serverMeta = serverMeta = createServerMeta(provider);
+
                 final long startTime = System.currentTimeMillis();
                 this.scanTableMeta();   // scan table meta
                 getLogger().info("factory[{}] scan table meta cost: {} ms", name, System.currentTimeMillis() - startTime);
                 error = null;
             } catch (SessionFactoryException e) {
                 error = e;
+            } catch (Exception e) {
+                error = new SessionFactoryException(e);
             }
         }
 
         if (error != null) {
             return handleError(error);
         }
-
-        return buildAfterScanTableMeta(name, dataSource, env);
+        Objects.requireNonNull(provider);
+        Objects.requireNonNull(serverMeta);
+        return buildAfterScanTableMeta(name, env, provider, serverMeta);
     }
 
-    protected abstract R buildAfterScanTableMeta(final String name, final Object dataSource, final ArmyEnvironment env);
+    abstract ExecutorFactoryProvider createExecutorFactoryProvider(String name, Object dataSource, ArmyEnvironment env);
 
-    protected abstract R handleError(SessionFactoryException cause);
+    abstract ServerMeta createServerMeta(ExecutorFactoryProvider provider);
+
+    abstract R buildAfterScanTableMeta(String name, ArmyEnvironment env, ExecutorFactoryProvider provider, ServerMeta serverMeta);
+
+    abstract R handleError(SessionFactoryException cause);
 
 
-    protected abstract Logger getLogger();
+    abstract Logger getLogger();
 
-
-    protected final DialectParser createDialectParser(String factoryName, boolean reactive, ServerMeta serverMeta,
-                                                      ArmyEnvironment env) {
+    final DialectEnv createDialectEnv(String factoryName, boolean reactive, ServerMeta serverMeta,
+                                      ArmyEnvironment env, Map<String, String> typeNameToSchemaMap) {
         final Dialect dialect = env.getOrDefault(ArmyKey.DIALECT);
         if (serverMeta.usedDialect() != dialect) {
             String m = String.format("used Dialect[%s] and Environment Dialect[%s not match",
                     serverMeta.usedDialect().name(), dialect.name());
             throw new IllegalArgumentException(m);
         }
-        final DialectEnv dialectEnv;
-        //8. create DialectEnv
-        dialectEnv = DialectEnv.builder()
+        return DialectEnv.builder()
                 .factoryName(factoryName)
                 .environment(env)
                 .fieldGeneratorMap(obtainFieldGeneratorMap())
@@ -297,11 +345,8 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 .tableMap(Objects.requireNonNull(this.tableMap))
                 .definedTypeMapFunc(this.typeMapFunc)
                 .nameToTypeMap(this.definedTypeMap)
+                .typeNameToSchemaMap(typeNameToSchemaMap)
                 .build();
-
-        final DialectParser dialectParser;
-        this.dialectParser = dialectParser = DialectParserFactory.createDialectParser(dialectEnv);
-        return dialectParser;
     }
 
 
@@ -337,7 +382,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         }
         SchemaMeta schemaMeta = this.schemaMeta;
         if (schemaMeta == null) {
-            schemaMeta = _SchemaMetaFactory.getSchema("", "");
+            schemaMeta = SchemaMeta.of("", "");
         }
 
 
@@ -386,6 +431,11 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         };
 
         consumer = consumer.andThen(fieldTraversal);
+
+        final Consumer<TableMeta<?>> userConsumer = this.tableMetaConsumer;
+        if (userConsumer != null) {
+            consumer = consumer.andThen(userConsumer);
+        }
         return consumer;
     }
 
@@ -393,6 +443,11 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     private Consumer<FieldMeta<?>> createFieldConsumer() {
         Consumer<FieldMeta<?>> consumer;
         consumer = consumerForDefinedType();
+
+        final Consumer<FieldMeta<?>> userConsumer = this.fieldMetaConsumer;
+        if (userConsumer != null) {
+            consumer = consumer.andThen(userConsumer);
+        }
         return consumer;
     }
 
@@ -407,22 +462,39 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
         final Map<Class<?>, String> definedTypeToNameMap = new HashMap<>();
 
+        final ServerMeta serverMeta = Objects.requireNonNull(this.serverMeta);
+
         return field -> {
-            final MappingType type;
+            MappingType type;
             type = field.mappingType();
 
             if (type instanceof MappingType.SqlExtension te) {
-                extensionNameSet.add(te.extensionName().toLowerCase(Locale.ROOT));
+                extensionNameSet.add(te.extensionName(serverMeta).toLowerCase(Locale.ROOT));
             }
 
 
-            if (!(type instanceof MappingType.SqlUserDefined st)) {
+            if (!(type instanceof MappingType.SqlUserDefined)) {
                 return;
             }
 
 
+            if (type instanceof MappingType.SqlArray) {
+                if (type.javaType() == Object.class) {
+                    return;
+                }
+                while (type instanceof MappingType.SqlArray) {
+                    type = ((MappingType.SqlArray) type).elementType();
+                }
+
+            }
+
+            if (!(type instanceof MappingType.SqlUserDefined st)) {
+                throw typeAndArrayNotMatch(type);
+            }
+
+
             final String oldName, typeName;
-            typeName = st.objectName();
+            typeName = st.typeName();
 
             final Class<?> fieldTypeClass = field.javaType();
 
@@ -445,6 +517,66 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             }
 
         };
+    }
+
+
+    /// @see #consumerForDefinedType
+    private void scanCompositeField(final MappingType.SqlComposite compositeType,
+                                    final Map<String, MappingType> definedTypeMap,
+                                    final Map<Class<?>, String> definedTypeToNameMap,
+                                    final Set<String> extensionNameSet) {
+
+        final ServerMeta serverMeta = Objects.requireNonNull(this.serverMeta);
+
+        MappingType type, oldType;
+        String typeName, oldName;
+        Class<?> fieldType;
+
+        for (CompositeField field : compositeType.fieldList()) {
+            type = field.mappingType();
+
+            if (type instanceof MappingType.SqlExtension te) {
+                extensionNameSet.add(te.extensionName(serverMeta).toLowerCase(Locale.ROOT));
+            }
+
+            if (!(type instanceof MappingType.SqlUserDefined)) {
+                continue;
+            }
+
+            if (type instanceof MappingType.SqlArray) {
+                if (type.javaType() == Object.class) {
+                    continue;
+                }
+                while (type instanceof MappingType.SqlArray) {
+                    type = ((MappingType.SqlArray) type).elementType();
+                }
+            }
+
+            if (!(type instanceof MappingType.SqlUserDefined st)) {
+                throw typeAndArrayNotMatch(type);
+            }
+
+            typeName = st.typeName().toUpperCase(Locale.ROOT);
+
+            oldType = definedTypeMap.putIfAbsent(typeName, type);
+            if (oldType != null && !oldType.equals(type)
+                    && oldType instanceof UserMappingType
+                    && type instanceof _ArmyBuildInType) {
+                definedTypeMap.put(typeName, type);
+            }
+
+            fieldType = field.javaType();
+
+            oldName = definedTypeToNameMap.putIfAbsent(fieldType, typeName);
+            if (oldName != null && !oldName.equals(typeName)) {
+                String m = String.format("%s is mapped to multi type name", fieldType.getName());
+                throw new MetaException(m);
+            }
+
+            if (oldName == null && type instanceof MappingType.SqlComposite ct) {
+                scanCompositeField(ct, definedTypeMap, definedTypeToNameMap, extensionNameSet);
+            }
+        }
     }
 
 
@@ -655,7 +787,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         differentCount += typeList.size();
         for (MappingType type : typeList) {
             builder.append('\n')
-                    .append(((MappingType.SqlUserDefined) type).objectName())
+                    .append(((MappingType.SqlUserDefined) type).typeName())
                     .append(" not exists.");
         }
         final List<TypeResult> typeResultList = schemaResult.modifyTypeList();
@@ -663,7 +795,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         differentCount += typeResultList.size();
         for (TypeResult typeResult : typeResultList) {
             builder.append('\n')
-                    .append(((MappingType.SqlUserDefined) typeResult.type()).objectName())
+                    .append(((MappingType.SqlUserDefined) typeResult.type()).typeName())
                     .append(" not match.");
         }
 
@@ -738,47 +870,11 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         };
     }
 
-    /// @see #consumerForDefinedType
-    private static void scanCompositeField(final MappingType.SqlComposite compositeType,
-                                           final Map<String, MappingType> definedTypeMap,
-                                           final Map<Class<?>, String> definedTypeToNameMap,
-                                           final Set<String> extensionNameSet) {
 
-        MappingType type, oldType;
-        String typeName, oldName;
-        Class<?> fieldType;
-        for (CompositeField field : compositeType.fieldList()) {
-            type = field.mappingType();
-
-            if (type instanceof MappingType.SqlExtension te) {
-                extensionNameSet.add(te.extensionName().toLowerCase(Locale.ROOT));
-            }
-
-            if (!(type instanceof MappingType.SqlUserDefined st)) {
-                continue;
-            }
-
-            typeName = st.objectName().toUpperCase(Locale.ROOT);
-
-            oldType = definedTypeMap.putIfAbsent(typeName, type);
-            if (oldType != null && !oldType.equals(type)
-                    && oldType instanceof UserMappingType
-                    && type instanceof _ArmyBuildInType) {
-                definedTypeMap.put(typeName, type);
-            }
-
-            fieldType = field.javaType();
-
-            oldName = definedTypeToNameMap.putIfAbsent(fieldType, typeName);
-            if (oldName != null && !oldName.equals(typeName)) {
-                String m = String.format("%s is mapped to multi type name", fieldType.getName());
-                throw new MetaException(m);
-            }
-
-            if (oldName == null && type instanceof MappingType.SqlComposite ct) {
-                scanCompositeField(ct, definedTypeMap, definedTypeToNameMap, extensionNameSet);
-            }
-        }
+    private static MetaException typeAndArrayNotMatch(MappingType type) {
+        String m = String.format("%s should be %s,because it's array is %s", type.getClass().getName(),
+                MappingType.SqlUserDefined.class.getSimpleName(), MappingType.SqlUserDefined.class.getSimpleName());
+        return new MetaException(m);
     }
 
 

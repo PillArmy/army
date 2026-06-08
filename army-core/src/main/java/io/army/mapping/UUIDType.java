@@ -19,6 +19,7 @@ package io.army.mapping;
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
+import io.army.mapping.array.UUIDArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
@@ -109,10 +110,21 @@ public final class UUIDType extends _ArmyNoInjectionType {
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         final UUID uuid;
         uuid = toUUID(dataType, source, ACCESS_ERROR_HANDLER);
+
+        final Object result;
         if (this.javaType == UUID.class) {
-            return uuid;
+            result = uuid;
+        } else if (this.javaType == String.class) {
+            result = uuid.toString();
+        } else {
+            throw dataAccessError(this, dataType, source, null);
         }
-        return uuid.toString();
+        return result;
+    }
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return UUIDArrayType.from(this.javaType);
     }
 
     @Override

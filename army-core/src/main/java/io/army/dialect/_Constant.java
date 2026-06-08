@@ -216,7 +216,7 @@ public abstract class _Constant {
 
     public static final char COMMA = ',';
 
-    public static final char DOT = '.';
+    public static final char PERIOD = '.';
 
     public static final char NUL_CHAR = '\0';
     public static final char BACK_SLASH = '\\';

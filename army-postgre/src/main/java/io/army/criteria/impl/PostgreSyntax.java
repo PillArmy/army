@@ -814,7 +814,7 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
     static String keyWordToString(Enum<?> keyWordEnum) {
         return _StringUtils.builder()
                 .append(Postgres.class.getSimpleName())
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(keyWordEnum.name())
                 .toString();
     }

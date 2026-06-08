@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package io.army.struct;
+package io.army.dialect;
 
-public enum TypeCategory {
+import io.army.meta.ServerMeta;
 
-    COMPOSITE,
-    ENUM,
-    RANGE,
-    DOMAIN,
+public interface ParserFactory {
 
-    /// User-defined extended types, e.g., PostgreSQL pgvector
-    USER_DEFINED
+    PreBootstrapParser createPreBootstrapParser(ServerMeta serverMeta);
+
+    DialectParser createDialectParser(DialectEnv environment);
+
+
 }

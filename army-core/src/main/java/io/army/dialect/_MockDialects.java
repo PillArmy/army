@@ -178,6 +178,16 @@ public abstract class _MockDialects implements DialectEnv {
         public Map<String, MappingType> nameToTypeMap() {
             return Map.of();
         }
+
+        @Override
+        public Map<String, String> typeNameToSchemaMap() {
+            return Map.of();
+        }
+
+        @Override
+        public void clearTempProperties() {
+
+        }
     }//MockDialectEnv
 
 
@@ -194,7 +204,9 @@ public abstract class _MockDialects implements DialectEnv {
             default:
                 throw _Exceptions.unexpectedEnum(dialect.database());
         }
-        return DialectParserFactory.createDialectParser(new MockDialectEnv(meta));
+
+        return ParserFactories.createFactory(meta)
+                .createDialectParser(new MockDialectEnv(meta));
     }
 
 

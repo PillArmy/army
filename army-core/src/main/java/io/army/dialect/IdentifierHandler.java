@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package io.army.struct;
+package io.army.dialect;
 
-public enum TypeCategory {
+import io.army.lang.Nullable;
+import io.army.meta.DatabaseObject;
 
-    COMPOSITE,
-    ENUM,
-    RANGE,
-    DOMAIN,
+@FunctionalInterface
+interface IdentifierHandler {
 
-    /// User-defined extended types, e.g., PostgreSQL pgvector
-    USER_DEFINED
+    void handle(final @Nullable DatabaseObject object, final String effectiveName, final StringBuilder sqlBuilder);
 }

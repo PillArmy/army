@@ -10,15 +10,14 @@ spring:
       max-file-size: 100MB
       max-request-size: 1024MB
       file-size-threshold: 10MB
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: army_w
-    password: army123
-    type: com.alibaba.druid.pool.DruidDataSource
-    druid:
-      initial-size: 5
-      max-active: 50
-      max-wait: 27000
-      test-while-idle: true
-      validation-query: SELECT 1
+
+
+nacos:
+  username: nacos
+  password: NvoZD0jomivo
+
+
+#logging:
+#  level:
+#    com.alibaba.nacos: DEBUG
+#    org.springframework: INFO

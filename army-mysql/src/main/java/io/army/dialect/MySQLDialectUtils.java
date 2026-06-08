@@ -21,9 +21,13 @@ import java.util.Set;
 
 abstract class MySQLDialectUtils {
 
+    static final char BACKTICK = '`';
+
+
     private MySQLDialectUtils() {
         throw new UnsupportedOperationException();
     }
+
 
     /// @return a modifiable set
     /// @see <a href="https://dev.mysql.com/doc/refman/8.2/en/keywords.html">Keywords and Reserved Words</a>

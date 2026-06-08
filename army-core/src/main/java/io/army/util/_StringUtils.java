@@ -136,7 +136,7 @@ public abstract class _StringUtils {
         }
         return builder()
                 .append(clazz.getName())
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(words.name())
                 .toString();
     }

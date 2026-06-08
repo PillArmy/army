@@ -17,8 +17,8 @@
 package io.army.executor;
 
 import io.army.dialect.Database;
-
 import io.army.lang.Nullable;
+
 import java.util.function.Function;
 
 /// This interface representing provider of {@link ExecutorFactory} spec.
@@ -28,17 +28,19 @@ import java.util.function.Function;
 /// }
 /// ```
 /// This interface is base interface of following
-/// 
+///
 /// - {@code io.army.executor.SyncStmtExecutorFactoryProvider}
 /// - {@code io.army.reactive.executor.ReactiveStmtExecutorFactoryProvider}
-/// 
+///
 /// The sub interface must override following methods :
-/// 
+///
 /// - {@link #createServerMeta(Function)}
 /// - {@link #createFactory(ExecutorEnv)}
-/// 
+///
 /// @since 0.6.0
 public interface ExecutorFactoryProvider {
+
+    PreBootstrapExecutor createExecutor();
 
     /// Sub interface must override this method return value type.
     /// This method always is invoked before {@link #createFactory(ExecutorEnv)}

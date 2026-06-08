@@ -491,7 +491,7 @@ abstract class InsertContext extends StatementContext
         final StringBuilder sqlBuilder;
         sqlBuilder = this.sqlBuilder.append(_Constant.SPACE)
                 .append(safeAlias)
-                .append(_Constant.DOT);
+                .append(_Constant.PERIOD);
         this.parser.safeObjectName(field, sqlBuilder);
 
     }
@@ -532,11 +532,11 @@ abstract class InsertContext extends StatementContext
             if ((this.outputFieldTableAlias || this.rowAlias != null)
                     && ((safeAlias = this.safeTableAlias) != null || (safeAlias = this.safeTableName) != null)) {
                 sqlBuilder.append(safeAlias)
-                        .append(_Constant.DOT);
+                        .append(_Constant.PERIOD);
             }
         } else {
             sqlBuilder.append(safeRelativeTableAlias)
-                    .append(_Constant.DOT);
+                    .append(_Constant.PERIOD);
         }
         this.parser.safeObjectName(field, sqlBuilder);
 
@@ -567,7 +567,7 @@ abstract class InsertContext extends StatementContext
         final StringBuilder sqlBuilder;
         sqlBuilder = this.sqlBuilder.append(_Constant.SPACE)
                 .append(safeTableAlias)
-                .append(_Constant.DOT);
+                .append(_Constant.PERIOD);
         this.parser.safeObjectName(field, sqlBuilder);
     }
 
@@ -722,7 +722,7 @@ abstract class InsertContext extends StatementContext
         final String safeTableAlias = this.safeTableAlias;
         if (safeTableAlias != null) {
             sqlBuilder.append(safeTableAlias)
-                    .append(_Constant.DOT);
+                    .append(_Constant.PERIOD);
         }
         dialect.safeObjectName(returnId, sqlBuilder)
                 .append(_Constant.SPACE_AS_SPACE);

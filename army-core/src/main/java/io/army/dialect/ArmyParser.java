@@ -67,7 +67,7 @@ import java.util.function.Predicate;
 /// 当你在阅读这段代码时,我才真正在写这段代码,你阅读到哪里,我便写到哪里.
 ///
 /// @since 0.6.0
-abstract class ArmyParser implements DialectParser {
+abstract non-sealed class ArmyParser implements DialectParser {
 
 
     /// The dialect this parser is bound to.
@@ -82,15 +82,20 @@ abstract class ArmyParser implements DialectParser {
 
     protected final ServerMeta serverMeta;
 
+    final SchemaMeta serverSchemaMeta;
+
+    final Set<String> keyWordSet;
+
+    private final IdentifierHandler identifierHandler;
+
+    private final Map<String, String> typeNameToSafeSchemaMap;
+
     protected final EscapeMode literalEscapeMode;
 
     /// The escape mode for SQL identifiers.
     protected final EscapeMode identifierEscapeMode;
 
     final boolean mockEnv;
-
-
-    protected final Map<String, Boolean> keyWordMap;
 
 
     public final char identifierQuote;
@@ -160,14 +165,21 @@ abstract class ArmyParser implements DialectParser {
     ArmyParser(final DialectEnv dialectEnv, final Dialect dialect) {
         this.dialect = dialect; // first
         this.serverMeta = dialectEnv.serverMeta();
+        this.serverSchemaMeta = this.serverMeta.schemaMeta();
+
         this.dialectDatabase = this.dialect.database();
         this.serverDatabase = this.serverMeta.serverDatabase();
+
+        this.keyWordSet = Set.copyOf(_DialectUtils.createKeyWordSet(createKeyWordSet(this.serverMeta)));
+        this.identifierHandler = createIdentifierHandler(this.serverMeta);
+
+        this.typeNameToSafeSchemaMap = Map.copyOf(createTypeNameToSafeSchemaMap(dialectEnv.typeNameToSchemaMap()));
 
         this.mappingEnv = createMappingEnv(dialectEnv);
         this.mockEnv = dialectEnv instanceof _MockDialects;
 
         assert this.serverMeta.serverDatabase().isCompatible(dialect);
-        this.keyWordMap = Map.copyOf(_DialectUtils.createKeyWordMap(this.createKeyWordSet()));
+
 
         final ArmyEnvironment env;
         env = dialectEnv.environment();
@@ -476,7 +488,7 @@ abstract class ArmyParser implements DialectParser {
 
     @Override
     public final boolean isKeyWords(final String words) {
-        return this.keyWordMap.containsKey(words.toUpperCase(Locale.ROOT));
+        return this.keyWordSet.contains(words.toUpperCase(Locale.ROOT));
     }
 
     @Override
@@ -505,8 +517,11 @@ abstract class ArmyParser implements DialectParser {
 
     /*################################## blow properties template method ##################################*/
 
+    abstract Set<String> createKeyWordSet(ServerMeta serverMeta);
 
-    protected abstract Set<String> createKeyWordSet();
+    IdentifierHandler createIdentifierHandler(ServerMeta serverMeta) {
+        throw new UnsupportedOperationException();
+    }
 
 
     protected abstract char identifierDelimitedQuote();
@@ -551,9 +566,6 @@ abstract class ArmyParser implements DialectParser {
     protected abstract String qualifiedSchemaName(ServerMeta meta);
 
 
-    protected abstract void handleIdentifier(@Nullable DatabaseObject object, String effectiveName, StringBuilder sqlBuilder);
-
-
     protected TypeMappingHandler createTypeMappingHandler(DialectEnv env) {
         throw new UnsupportedOperationException();
     }
@@ -564,29 +576,74 @@ abstract class ArmyParser implements DialectParser {
 
     public final String safeObjectName(final DatabaseObject object) {
         final Map<String, String> map = this.objectNameMap;
-        final String objectName, safeObjectName, cacheObjectName;
+        final String objectName, cacheObjectName, finalObjectName;
+
         objectName = object.objectName();
-        if (map != null && (cacheObjectName = map.get(objectName)) != null) {
-            safeObjectName = cacheObjectName;
+
+        final String safePrefix;
+        if (object instanceof TableMeta<?> t && t.schema() == this.serverSchemaMeta) {
+            safePrefix = this.qualifiedSchemaName;
         } else {
-            safeObjectName = createSafeObjectName(object, null);
-            if (safeObjectName == null) {
-                // no bug ,never here
-                throw new RuntimeException("createSafeObjectName() error");
-            }
+            safePrefix = null;
         }
-        return safeObjectName;
+
+        if (map != null && (cacheObjectName = map.get(objectName)) != null) {
+            if (safePrefix == null) {
+                finalObjectName = cacheObjectName;
+            } else {
+                finalObjectName = safePrefix + _Constant.PERIOD + cacheObjectName;
+            }
+        } else {
+            final StringBuilder builder;
+            if (safePrefix == null) {
+                builder = new StringBuilder(objectName.length() + 6);
+            } else {
+                builder = new StringBuilder(safePrefix.length() + 1 + objectName.length() + 6)
+                        .append(safePrefix)
+                        .append(_Constant.PERIOD);
+            }
+
+            createSafeObjectName(object, builder);
+            finalObjectName = builder.toString();
+        }
+        return finalObjectName;
     }
 
     public final StringBuilder safeObjectName(final DatabaseObject object, final StringBuilder builder) {
         final Map<String, String> map = this.objectNameMap;
         final String objectName, cacheObjectName;
-        objectName = object.objectName();
+
+        final DatabaseObject effectiveObject;
+        final boolean dataTypeObject = object instanceof DataType;
+        if (dataTypeObject) {
+            effectiveObject = _DialectUtils.obtainElementType((DataType) object);
+        } else {
+            effectiveObject = object;
+        }
+
+        objectName = effectiveObject.objectName();
+
+        final String safePrefix;
+        if (dataTypeObject) {
+            safePrefix = this.typeNameToSafeSchemaMap.get(objectName.toUpperCase(Locale.ROOT));
+        } else if (!(object instanceof TableMeta<?> t)) {
+            safePrefix = null;
+        } else if (t.schema() == this.serverSchemaMeta) {
+            safePrefix = this.qualifiedSchemaName;
+        } else {
+            safePrefix = null;
+        }
+
+        if (safePrefix != null) {
+            builder.append(safePrefix)
+                    .append(_Constant.PERIOD);
+        }
+
         if (map != null && (cacheObjectName = map.get(objectName)) != null) {
             builder.append(cacheObjectName);
         } else {
             final int startIndex = builder.length();
-            createSafeObjectName(object, builder);
+            createSafeObjectName(effectiveObject, builder);
             if (builder.length() <= startIndex) {
                 // no bug ,never here
                 throw new RuntimeException("createSafeObjectName() error");
@@ -676,7 +733,7 @@ abstract class ArmyParser implements DialectParser {
     }
 
 
-    protected void arrayTypeName(String safeTypeNme, int dimension, StringBuilder sqlBuilder) {
+    protected void arrayTypeName(int dimension, StringBuilder sqlBuilder) {
         String m = String.format("%s don't support array", this.dialectDatabase.name());
         throw new MetaException(m);
     }
@@ -685,7 +742,7 @@ abstract class ArmyParser implements DialectParser {
     protected abstract void bindLiteralNull(MappingType type, DataType dataType, boolean typeName, StringBuilder sqlBuilder);
 
 
-    protected abstract void bindLiteral(TypeMeta typeMeta, DataType dataType, Object value, boolean typeName, StringBuilder sqlBuilder);
+    abstract void bindLiteral(TypeMeta typeMeta, DataType dataType, Object value, boolean typeName, StringBuilder sqlBuilder);
 
     protected abstract DdlParser createDdlDialect();
 
@@ -827,30 +884,9 @@ abstract class ArmyParser implements DialectParser {
             throw _Exceptions.unrecognizedType(this.dialectDatabase, dataType);
         }
 
-        final String typeName;
-        typeName = dataType.typeName();
-
-        if (_StringUtils.isCamelCase(typeName)) {
-            throw new MetaException(String.format("DataType[%s] is CamelCase", typeName));
-        } else if (!this.keyWordMap.containsKey(typeName.toUpperCase(Locale.ROOT))
-                && _DialectUtils.isSimpleIdentifier(typeName)) {
-            sqlBuilder.append(typeName);
-        } else if (!dataType.isArray()) {
-            if (!typeName.equals(identifier(typeName))) {
-                String m = String.format("%s type name[%s] is illegal.", dataType, typeName);
-                throw new MetaException(m);
-            }
-            sqlBuilder.append(typeName);
-        } else if (!typeName.endsWith("[]")) {
-            String m = String.format("%s is array but not end with []", dataType);
-            throw new MetaException(m);
-        } else {
-            final String elementTypeName = typeName.substring(0, typeName.length() - 2);
-            if (!elementTypeName.equals(identifier(elementTypeName))) {
-                String m = String.format("%s is array but type name[%s] is illegal.", dataType, elementTypeName);
-                throw new MetaException(m);
-            }
-            arrayTypeName(elementTypeName, ArrayUtils.dimensionOfType(type), sqlBuilder);
+        safeObjectName(_DialectUtils.obtainElementType(dataType), sqlBuilder);
+        if (dataType.isArray()) {
+            arrayTypeName(ArrayUtils.dimensionOfType(type), sqlBuilder);
         }
 
     }
@@ -1589,11 +1625,11 @@ abstract class ArmyParser implements DialectParser {
         //2.1 on clause
         builder.append(_Constant.SPACE_ON_SPACE)
                 .append(safeChildTableAlias)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(safeIdColumnName)
                 .append(_Constant.SPACE_EQUAL_SPACE)
                 .append(safeParentTableAlias)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(safeIdColumnName);
     }
 
@@ -1709,7 +1745,7 @@ abstract class ArmyParser implements DialectParser {
         } else {
             sqlBuilder.append(safeTableAlias);
         }
-        sqlBuilder.append(_Constant.DOT);
+        sqlBuilder.append(_Constant.PERIOD);
 
         this.safeObjectName(field, sqlBuilder)
                 .append(_Constant.SPACE_EQUAL_SPACE);
@@ -1742,7 +1778,7 @@ abstract class ArmyParser implements DialectParser {
         } else {
             sqlBuilder.append(safeTableAlias);
         }
-        sqlBuilder.append(_Constant.DOT);
+        sqlBuilder.append(_Constant.PERIOD);
         this.safeObjectName(field, sqlBuilder)
                 .append(_Constant.SPACE_EQUAL_SPACE);
         this.safeLiteral(field.mappingType(), visibleValue, false, sqlBuilder);
@@ -1777,7 +1813,7 @@ abstract class ArmyParser implements DialectParser {
                 .append(_Constant.SPACE_SELECT_SPACE)
                 //below target parent column
                 .append(safeParentAlias)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(_MetaBridge.ID)
                 .append(_Constant.SPACE_FROM_SPACE);
 
@@ -1793,18 +1829,18 @@ abstract class ArmyParser implements DialectParser {
                 .append(_Constant.SPACE)
 
                 .append(safeParentAlias)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(_MetaBridge.ID)
 
                 .append(_Constant.SPACE_EQUAL_SPACE)
 
                 .append(safeChildAlias)
-                .append(_Constant.DOT)
+                .append(_Constant.PERIOD)
                 .append(_MetaBridge.ID)
 
                 .append(_Constant.SPACE_AND_SPACE)
                 .append(safeParentAlias)
-                .append(_Constant.DOT);
+                .append(_Constant.PERIOD);
 
         // below discriminator predicate
         final FieldMeta<?> discriminator = parentTable.discriminator();
@@ -1819,7 +1855,7 @@ abstract class ArmyParser implements DialectParser {
 
         sqlBuilder.append(_Constant.SPACE_AND_SPACE)
                 .append(safeParentAlias)
-                .append(_Constant.DOT);
+                .append(_Constant.PERIOD);
 
         this.safeObjectName(visibleField, sqlBuilder)
                 .append(_Constant.SPACE_EQUAL_SPACE);
@@ -1964,7 +2000,7 @@ abstract class ArmyParser implements DialectParser {
 
             if (outputLeftItemAlias) {
                 sqlBuilder.append(safeTableAlias)
-                        .append(_Constant.DOT);
+                        .append(_Constant.PERIOD);
             }
             this.safeObjectName(updateTime, sqlBuilder)
                     .append(_Constant.SPACE_EQUAL);
@@ -1996,14 +2032,14 @@ abstract class ArmyParser implements DialectParser {
 
         if (outputLeftItemAlias) {
             sqlBuilder.append(safeTableAlias)
-                    .append(_Constant.DOT);
+                    .append(_Constant.PERIOD);
         }
         sqlBuilder.append(versionColumnName)
                 .append(_Constant.SPACE_EQUAL_SPACE);
 
         if (safeTableAlias != null) {  // no setClauseTableAlias
             sqlBuilder.append(safeTableAlias)
-                    .append(_Constant.DOT);
+                    .append(_Constant.PERIOD);
         }
         sqlBuilder.append(versionColumnName)
                 .append(" + 1");
@@ -2070,72 +2106,37 @@ abstract class ArmyParser implements DialectParser {
 
     /// @see #safeObjectName(DatabaseObject)
     /// @see #safeObjectName(DatabaseObject, StringBuilder)
-    @Nullable
-    private String createSafeObjectName(final DatabaseObject object, final @Nullable StringBuilder sqlBuilder) {
+
+    private void createSafeObjectName(final DatabaseObject object, final StringBuilder sqlBuilder) {
         final String objectName;
         objectName = object.objectName();
 
-        final StringBuilder schemaTableBuilder;
         final NameMode nameMode;
-        if (object instanceof TypeObject) {
+        if (object instanceof TableMeta<?>) {
             nameMode = this.tableNameMode;
-
-            final String schemaName;
-            if ((schemaName = this.qualifiedSchemaName) == null) {
-                schemaTableBuilder = null;
-            } else if (sqlBuilder == null) {
-                schemaTableBuilder = new StringBuilder(schemaName.length() + 1 + objectName.length() + 4);
-                schemaTableBuilder.append(schemaName)
-                        .append(_Constant.DOT);
-            } else {
-                schemaTableBuilder = sqlBuilder;
-            }
-        } else {
+        } else if (object instanceof FieldMeta<?>) {
             nameMode = this.columnNameMode;
-            schemaTableBuilder = null;
+        } else {
+            nameMode = NameMode.DEFAULT;
         }
 
         final String effectiveName, upperObjectName;
-        switch (nameMode) {
-            case DEFAULT:
-                effectiveName = objectName;
-                upperObjectName = objectName.toUpperCase(Locale.ROOT);
-                break;
-            case LOWER_CASE:
-                effectiveName = objectName.toLowerCase(Locale.ROOT);
-                upperObjectName = objectName.toUpperCase(Locale.ROOT);
-                break;
-            case UPPER_CASE:
-                upperObjectName = objectName.toUpperCase(Locale.ROOT);
-                effectiveName = upperObjectName;
-                break;
-            default:
-                throw _Exceptions.unexpectedEnum(this.columnNameMode);
-        }
+        upperObjectName = objectName.toUpperCase(Locale.ROOT);
+        effectiveName = switch (nameMode) {
+            case DEFAULT -> objectName;
+            case LOWER_CASE -> objectName.toLowerCase(Locale.ROOT);
+            case UPPER_CASE -> upperObjectName;
+            default -> throw _Exceptions.unexpectedEnum(nameMode);
+        };
 
-        final StringBuilder builder;
-        if (schemaTableBuilder != null) {
-            builder = schemaTableBuilder;
-        } else if (sqlBuilder == null) {
-            builder = new StringBuilder(objectName.length() + 4);
-        } else {
-            builder = sqlBuilder;
-        }
-
-        if (this.keyWordMap.containsKey(upperObjectName)) {
-            builder.append(this.identifierQuote)
+        if (this.keyWordSet.contains(upperObjectName)) {
+            sqlBuilder.append(this.identifierQuote)
                     .append(effectiveName)
                     .append(this.identifierQuote);
         } else {
-            handleIdentifier(object, effectiveName, builder);
+            this.identifierHandler.handle(object, effectiveName, sqlBuilder);
         }
-        final String safeObjectName;
-        if (sqlBuilder == null) {
-            safeObjectName = builder.toString();
-        } else {
-            safeObjectName = null;
-        }
-        return safeObjectName;
+
     }
 
     @Nullable
@@ -2148,12 +2149,12 @@ abstract class ArmyParser implements DialectParser {
             builder = sqlBuilder;
         }
 
-        if (this.keyWordMap.containsKey(identifier.toUpperCase(Locale.ROOT))) {
+        if (this.keyWordSet.contains(identifier.toUpperCase(Locale.ROOT))) {
             builder.append(this.identifierQuote)
                     .append(identifier)
                     .append(this.identifierQuote);
         } else {
-            handleIdentifier(null, identifier, builder);
+            this.identifierHandler.handle(null, identifier, builder);
         }
         final String safeIdentifier;
         if (sqlBuilder == null) {
@@ -3209,7 +3210,7 @@ abstract class ArmyParser implements DialectParser {
         standardWithClause(stmt, context);
 
         final StringBuilder builder;
-        if ((builder = context.sqlBuilder()).length() > 0) {
+        if (!(builder = context.sqlBuilder()).isEmpty()) {
             builder.append(_Constant.SPACE);
         }
 
@@ -3221,7 +3222,7 @@ abstract class ArmyParser implements DialectParser {
         //3. from clause
         final List<_TabularBlock> blockList;
         blockList = stmt.tableBlockList();
-        if (blockList.size() > 0) {
+        if (!blockList.isEmpty()) {
             builder.append(_Constant.SPACE_FROM);
             this.standardTableReferences(blockList, context, false);
         }
@@ -3285,6 +3286,49 @@ abstract class ArmyParser implements DialectParser {
     }
 
 
+    /// @see #ArmyParser(DialectEnv, Dialect)
+    private Map<String, String> createTypeNameToSafeSchemaMap(final Map<String, String> typeNameToSchemaMap) {
+        final int mapSize = typeNameToSchemaMap.size();
+        final Map<String, String> map = _Collections.hashMapForSize(mapSize);
+        final StringBuilder builder = new StringBuilder(15);
+
+        final Map<String, SchemaName> schemaNameMap = _Collections.hashMapForSize(mapSize);
+        final Map<String, String> safeSchemaMap = _Collections.hashMapForSize(mapSize);
+
+        final String currentSchema = this.serverMeta.schema();
+
+        SchemaName schemaName;
+        String upperCaseTypeName, originalSchema, safeSchema;
+        for (Map.Entry<String, String> e : typeNameToSchemaMap.entrySet()) {
+
+            originalSchema = e.getValue();
+            if (originalSchema.equals(currentSchema)) {
+                continue;
+            }
+
+            upperCaseTypeName = e.getKey().toUpperCase(Locale.ROOT);
+
+            safeSchema = safeSchemaMap.get(originalSchema);
+            if (safeSchema != null) {
+                map.put(upperCaseTypeName, safeSchema);
+                continue;
+            }
+
+            builder.setLength(0); // firstly clear
+
+            schemaName = schemaNameMap.computeIfAbsent(originalSchema, SchemaName::of);
+
+            createSafeObjectName(schemaName, builder);
+
+            safeSchema = builder.toString();
+
+            safeSchemaMap.put(originalSchema, safeSchema);
+            map.put(upperCaseTypeName, safeSchema);
+        }
+        return map;
+    }
+
+    /// @see #ArmyParser(DialectEnv, Dialect)
     private Map<String, String> createSafeObjectNameMap(final Map<Class<?>, TableMeta<?>> tableMap, final boolean all) {
         final StringBuilder builder = new StringBuilder(20);
 

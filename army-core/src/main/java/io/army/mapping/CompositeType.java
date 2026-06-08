@@ -121,7 +121,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
     }
 
     @Override
-    public String objectName() {
+    public String typeName() {
         return this.typeName;
     }
 

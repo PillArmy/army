@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package io.army.dialect;
+package io.army.executor;
 
+import io.army.lang.Nullable;
 
-/// This class is used by {@link DialectParserFactory#createDialectParser(DialectEnv)} by reflection.
-@SuppressWarnings("unused")
-public abstract class _PostgreParserFactory {
+import java.util.List;
+import java.util.function.Function;
 
-    private _PostgreParserFactory() {
-        throw new UnsupportedOperationException();
-    }
+public interface SyncPreBootstrapExecutor extends PreBootstrapExecutor, AutoCloseable {
 
-    public static DialectParser dialectParser(final DialectEnv environment) {
-        final PostgreDialect dialect;
-        dialect = (PostgreDialect) DialectParserFactory.targetDialect(environment, Database.PostgreSQL);
-        return PostgreDialectParser.create(environment, dialect);
-    }
+    @Nullable
+    @Override
+    Void executeUpdate(List<String> sqlList);
 
+    @Override
+    <R> List<R> executeQuery(String sql, Function<CurrentRow, R> function);
+
+    @Override
+    void close();
 }

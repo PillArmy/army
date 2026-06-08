@@ -18,16 +18,22 @@ package io.army.sqltype;
 
 import io.army.ArmyException;
 import io.army.dialect.Database;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 
-import io.army.lang.Nullable;
 import java.util.function.Supplier;
 
-public interface SQLType extends DataType {
+public sealed interface SQLType extends DataType
+        permits PgType, MySQLType, SQLiteType, OracleDataType, H2Type {
 
     Database database();
 
     ArmyType armyType();
+
+    @Override
+    default Class<?> javaType() {
+        return firstJavaType();
+    }
 
     Class<?> firstJavaType();
 
@@ -35,13 +41,12 @@ public interface SQLType extends DataType {
     Class<?> secondJavaType();
 
 
-    /// 
+    ///
     /// For example:
-    /// 
+    ///
     /// - one dimension BIGINT_ARRAY return BIGINT
     /// - tow dimension BIGINT_ARRAY return BIGINT too
-    /// 
-    /// 
+    ///
     /// @return element type of array(1-n dimension)
     @Nullable
     SQLType elementType();

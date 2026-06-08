@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package io.army.dialect;
+package io.army.executor;
 
-public abstract class _MySQLParserFactory {
+public abstract class ArmyCurrentRow implements PreBootstrapExecutor.CurrentRow {
 
-    private _MySQLParserFactory() {
-        throw new UnsupportedOperationException();
+    @Override
+    public final <R> R getNonNull(int indexBasedZero, Class<R> columnClass) {
+        final R value;
+        value = get(indexBasedZero, columnClass);
+        if (value == null) {
+            throw ExecutorSupport.currentRecordColumnIsNull(indexBasedZero, getColumnLabel(indexBasedZero));
+        }
+        return value;
     }
 
-    public static DialectParser dialectParser(final DialectEnv environment) {
-        final MySQLDialect dialect;
-        dialect = (MySQLDialect) DialectParserFactory.targetDialect(environment, Database.MySQL);
-        return MySQLDialectParser.create(environment, dialect);
-    }
+
+    protected abstract String getColumnLabel(int indexBasedZero);
 
 
 }

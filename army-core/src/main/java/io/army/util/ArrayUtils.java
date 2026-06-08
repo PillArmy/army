@@ -232,6 +232,7 @@ public abstract class ArrayUtils {
         return dimension;
     }
 
+
     public static int dimensionOfType(final MappingType type) {
         final Class<?> clazz;
         clazz = type.javaType();
@@ -239,7 +240,19 @@ public abstract class ArrayUtils {
         if (List.class.isAssignableFrom(clazz)) {
             dimension = 1;
         } else if (clazz.isArray()) {
-            dimension = dimensionOf(clazz);
+            Class<?> underlyingJavaType;
+            underlyingJavaType = ((MappingType.SqlArray) type).underlyingJavaType();
+            if (underlyingJavaType.isArray()) {
+                dimension = dimensionOf(clazz) - dimensionOf(underlyingJavaType);
+                if (dimension < 1) {
+                    throw _Exceptions.underlyingJavaTypeError(type);
+                }
+            } else {
+                dimension = dimensionOf(clazz);
+            }
+
+        } else if (clazz == Object.class) {
+            dimension = 1; // UNLIMITED array dimension
         } else {
             String m = String.format("unknown array dimension of %s .", type);
             throw new ClassCastException(m);

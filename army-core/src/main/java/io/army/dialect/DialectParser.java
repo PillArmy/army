@@ -17,7 +17,6 @@
 package io.army.dialect;
 
 import io.army.criteria.*;
-import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.meta.ServerMeta;
@@ -28,14 +27,14 @@ import io.army.stmt.Stmt;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 
 /// A common interface to all dialect of dialect.
-public interface DialectParser {
+public sealed interface DialectParser permits ArmyParser {
 
 
     /// Parse an INSERT statement into an executable Stmt.
+    ///
     /// @param insert      the insert statement to parse
     /// @param sessionSpec session specification
     /// @return one of :
@@ -47,9 +46,10 @@ public interface DialectParser {
     Stmt insert(InsertStatement insert, SessionSpec sessionSpec);
 
     /// Parse an UPDATE statement into an executable Stmt.
-    /// @param update        the update statement to parse
-    /// @param useMultiStmt  whether to use multi-statement mode
-    /// @param sessionSpec   session specification
+    ///
+    /// @param update       the update statement to parse
+    /// @param useMultiStmt whether to use multi-statement mode
+    /// @param sessionSpec  session specification
     /// @return one of
     /// - {@link SimpleStmt}
     /// - {@link io.army.stmt.BatchStmt}
@@ -57,9 +57,10 @@ public interface DialectParser {
     Stmt update(UpdateStatement update, boolean useMultiStmt, SessionSpec sessionSpec);
 
     /// Parse a DELETE statement into an executable Stmt.
-    /// @param delete        the delete statement to parse
-    /// @param useMultiStmt  whether to use multi-statement mode
-    /// @param sessionSpec   session specification
+    ///
+    /// @param delete       the delete statement to parse
+    /// @param useMultiStmt whether to use multi-statement mode
+    /// @param sessionSpec  session specification
     /// @return one of
     /// - {@link SimpleStmt}
     /// - {@link io.army.stmt.BatchStmt}
@@ -67,9 +68,10 @@ public interface DialectParser {
     Stmt delete(DeleteStatement delete, boolean useMultiStmt, SessionSpec sessionSpec);
 
     /// Parse a SELECT statement into an executable Stmt.
-    /// @param select        the select statement to parse
-    /// @param useMultiStmt  whether to use multi-statement mode
-    /// @param sessionSpec   session specification
+    ///
+    /// @param select       the select statement to parse
+    /// @param useMultiStmt whether to use multi-statement mode
+    /// @param sessionSpec  session specification
     /// @return one of
     /// - {@link SimpleStmt}
     /// - {@link io.army.stmt.BatchStmt}
@@ -91,9 +93,6 @@ public interface DialectParser {
         throw new UnsupportedOperationException();
     }
 
-    default List<String> createExtensionSql(@Nullable String catalog, @Nullable String schema, Set<String> extensionSet) {
-        throw new UnsupportedOperationException();
-    }
 
     default List<String> schemaDdl(SchemaResult schemaResult) {
         throw new UnsupportedOperationException();

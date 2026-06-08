@@ -17,6 +17,7 @@
 package io.army.dialect;
 
 import io.army.annotation.GeneratorType;
+import io.army.executor.ExecutorSupport;
 import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
 import io.army.mapping.TextType;
@@ -25,6 +26,7 @@ import io.army.schema.FieldResult;
 import io.army.schema.TypeResult;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
+import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
@@ -473,14 +475,17 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     protected void dataType(final FieldObject field, final DataType dataType, final StringBuilder builder) {
         builder.append(_Constant.SPACE);
 
-        if (!(dataType instanceof PgType)) {
-            this.parser.typeName(field.mappingType(), builder);
-        } else switch ((PgType) dataType) {
+        if (!(dataType instanceof PgType pgType)) {
+            if (dataType instanceof SQLType) {
+                throw ExecutorSupport.mapMethodError(field.mappingType(), dataType);
+            }
+            appendUserDefinedType(field, dataType, builder);
+        } else switch (pgType) {
             case UNKNOWN:
                 throw _Exceptions.unexpectedEnum((Enum<?>) dataType);
             case DECIMAL:
             case DECIMAL_ARRAY:
-                this.appendDecimalDateType(field, dataType, builder);
+                this.appendDecimalDateType(field, pgType, builder);
                 break;
             case TIME:
             case TIMETZ:
@@ -490,11 +495,11 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
             case TIMETZ_ARRAY:
             case TIMESTAMP_ARRAY:
             case TIMESTAMPTZ_ARRAY:
-                this.appendTimeDateType(field, dataType, builder);
+                this.appendTimeDateType(field, pgType, builder);
                 break;
             case CHAR:
             case VARCHAR: {
-                this.parser.typeName(field.mappingType(), builder);
+                builder.append(dataType.typeName());
                 if (field.precision() > -1) { // https://www.postgresql.org/docs/current/datatype-character.html
                     precision(field, dataType, 10_485_760, 255, builder);
                 }
@@ -504,9 +509,14 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
             }
             break;
             case VECTOR: {
-                builder.append(_Constant.SPACE)
-                        .append(dataType.typeName());
+                this.parser.safeObjectName(dataType, builder); //  VECTOR need to install pg vector extension
                 precision(field, dataType, Integer.MAX_VALUE, 1024, builder);
+            }
+            break;
+            case VECTOR_ARRAY: {
+                this.parser.safeObjectName(dataType, builder); //  VECTOR need to install pg vector extension
+                precision(field, dataType, Integer.MAX_VALUE, 1024, builder);
+                this.parser.arrayTypeName(ArrayUtils.dimensionOfType(field.mappingType()), builder);
             }
             break;
             case BIT:
@@ -518,9 +528,9 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
             }
             break;
             default: {
-                this.parser.typeName(field.mappingType(), builder);
-                if (field.precision() > -1) {
-                    precision(field, dataType, Integer.MAX_VALUE, 1024, builder);
+                builder.append(obtainElementType(pgType).typeName());
+                if (dataType.isArray()) {
+                    this.parser.arrayTypeName(ArrayUtils.dimensionOfType(field.mappingType()), builder);
                 }
             }
 
@@ -561,7 +571,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         } else if (object instanceof FieldMeta) {
             builder.append(" COLUMN ");
             this.parser.safeObjectName(((FieldMeta<?>) object).tableMeta(), builder);
-            builder.append(_Constant.DOT);
+            builder.append(_Constant.PERIOD);
             this.parser.safeObjectName(object, builder);
         } else {
             //no bug,never here
@@ -629,24 +639,18 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
 
 
     /// @see #dataType(FieldObject, DataType, StringBuilder)
-    private void appendTimeDateType(final FieldObject field, final DataType dataType, final StringBuilder builder) {
-        String safeTypeName;
-        safeTypeName = dataType.name();
-        final int index;
-        if ((index = safeTypeName.lastIndexOf("_ARRAY")) > 0) {
-            safeTypeName = safeTypeName.substring(0, index);
-        }
-        builder.append(safeTypeName);
+    private void appendTimeDateType(final FieldObject field, final PgType dataType, final StringBuilder builder) {
 
+        builder.append(obtainElementType(dataType).typeName());
         appendTimeTypeScale(field, builder);
 
-        if (index > 0) {
-            this.parser.arrayTypeName(safeTypeName, ArrayUtils.dimensionOfType(field.mappingType()), builder);
+        if (dataType.isArray()) {
+            this.parser.arrayTypeName(ArrayUtils.dimensionOfType(field.mappingType()), builder);
         }
     }
 
     /// @see #dataType(FieldObject, DataType, StringBuilder)
-    private void appendDecimalDateType(final FieldObject field, final DataType dataType, final StringBuilder builder) {
+    private void appendDecimalDateType(final FieldObject field, final PgType dataType, final StringBuilder builder) {
         int precision, scale;
         precision = field.precision();
         scale = field.scale();
@@ -660,22 +664,16 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         if (scale == -1) {
             scale = 2;
         }
-        String safeTypeName;
-        safeTypeName = dataType.name();
-        final int index;
-        if ((index = safeTypeName.lastIndexOf(_Constant.UNDERSCORE_ARRAY)) > 0) {
-            safeTypeName = safeTypeName.substring(0, index);
-        }
 
-        builder.append(safeTypeName)
+        builder.append(obtainElementType(dataType).typeName())
                 .append(_Constant.LEFT_PAREN)
                 .append(precision)
                 .append(_Constant.COMMA)
                 .append(scale)
                 .append(_Constant.RIGHT_PAREN);
 
-        if (index > 0) {
-            this.parser.arrayTypeName(safeTypeName, ArrayUtils.dimensionOfType(field.mappingType()), builder);
+        if (dataType.isArray()) {
+            this.parser.arrayTypeName(ArrayUtils.dimensionOfType(field.mappingType()), builder);
         }
 
     }
@@ -721,7 +719,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
                 .append(_Constant.SPACE);
 
         this.parser.safeObjectName(field.tableMeta(), builder);
-        builder.append(_Constant.DOT);
+        builder.append(_Constant.PERIOD);
         this.parser.safeObjectName(field, builder);
 
         builder.append(_Constant.SPACE)
@@ -1094,7 +1092,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         fieldCount += listSize; // Modify field count
 
         if (fieldCount == 0) {
-            this.errorMsgList.add(String.format("%s no field to modify", type.objectName()));
+            this.errorMsgList.add(String.format("%s no field to modify", type.typeName()));
         }
         return sqlBuilder.toString();
     }
@@ -1169,7 +1167,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         }
 
         if (newLabelCount != newLabelList.size()) {
-            this.errorMsgList.add(String.format("%s enum new label list error", type.objectName()));
+            this.errorMsgList.add(String.format("%s enum new label list error", type.typeName()));
         }
 
         sqlBuilder.setLength(0); // clear
@@ -1185,9 +1183,9 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
 
         final String dontSupportMsg = "PostgreSQL don't support alter domain[%s] %s";
         if (typeResult.containBaseType()) {
-            this.errorMsgList.add(String.format(dontSupportMsg, type.objectName(), "base type"));
+            this.errorMsgList.add(String.format(dontSupportMsg, type.typeName(), "base type"));
         } else if (typeResult.containCollation()) {
-            this.errorMsgList.add(String.format(dontSupportMsg, type.objectName(), "collation"));
+            this.errorMsgList.add(String.format(dontSupportMsg, type.typeName(), "collation"));
         }
 
         sqlBuilder.setLength(0); // clear

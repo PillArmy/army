@@ -23,6 +23,7 @@ import io.army.lang.Nullable;
 
 public interface ServerMeta {
 
+    /// database product family name,eg : MySQL,PostgreSQL
     String name();
 
     Database serverDatabase();
@@ -32,6 +33,8 @@ public interface ServerMeta {
 
     @Nullable
     String schema();
+
+    SchemaMeta schemaMeta();
 
     String version();
 
@@ -43,7 +46,6 @@ public interface ServerMeta {
 
     /// from {@link io.army.env.ArmyKey#DIALECT}
     Dialect usedDialect();
-
 
     boolean meetsMinimum(int major, int minor, int subMinor);
 
@@ -58,6 +60,7 @@ public interface ServerMeta {
 
     interface Builder {
 
+        /// database product family name,eg : MySQL,PostgreSQL
         Builder name(String name);
 
         Builder catalog(String catalogName);

@@ -55,6 +55,15 @@ abstract class DataTypeFactory {
             this.dataTypeName = dataTypeName;
         }
 
+        @Override
+        public String objectName() {
+            return this.dataTypeName;
+        }
+
+        @Override
+        public Class<?> javaType() {
+            return String.class;
+        }
 
         @Override
         public String name() {

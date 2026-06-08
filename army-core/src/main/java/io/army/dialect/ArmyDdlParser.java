@@ -22,6 +22,8 @@ import io.army.mapping.TextType;
 import io.army.meta.*;
 import io.army.schema.FieldResult;
 import io.army.sqltype.DataType;
+import io.army.sqltype.SQLType;
+import io.army.util.ArrayUtils;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
@@ -742,8 +744,32 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
 
     }
 
-    protected final void noSpecifiedPrecision(FieldMeta<?> field) {
-        this.errorMsgList.add(String.format("%s no precision.", field));
+
+    protected final void appendUserDefinedType(final FieldObject field, final DataType dataType, final StringBuilder builder) {
+
+        this.parser.safeObjectName(_DialectUtils.obtainElementType(dataType), builder);
+
+        final int precision, scale;
+        precision = field.precision();
+        scale = field.scale();
+        if (precision > -1 || scale > -1) {
+            builder.append(_Constant.LEFT_PAREN);
+            if (precision > -1) {
+                builder.append(precision);
+            }
+            if (scale > -1) {
+                if (precision > -1) {
+                    builder.append(_Constant.COMMA);
+                }
+                builder.append(scale);
+            }
+            builder.append(_Constant.RIGHT_PAREN);
+        }
+
+        if (dataType.isArray()) {
+            this.parser.arrayTypeName(ArrayUtils.dimensionOfType(field.mappingType()), builder);
+        }
+
     }
 
     protected final void timeTypeScale(final FieldObject field, DataType dataType, final StringBuilder builder) {
@@ -1116,6 +1142,18 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
         }//for
 
 
+    }
+
+
+    protected static SQLType obtainElementType(final SQLType sqlType) {
+        final SQLType elementType;
+        if (sqlType.isArray()) {
+            elementType = sqlType.elementType();
+            Objects.requireNonNull(elementType);
+        } else {
+            elementType = sqlType;
+        }
+        return elementType;
     }
 
 

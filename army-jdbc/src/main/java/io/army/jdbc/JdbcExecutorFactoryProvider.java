@@ -21,23 +21,20 @@ import io.army.dialect.Database;
 import io.army.dialect.Dialect;
 import io.army.env.ArmyEnvironment;
 import io.army.env.ArmyKey;
-import io.army.executor.DataAccessException;
-import io.army.executor.ExecutorEnv;
-import io.army.executor.SyncExecutorFactory;
-import io.army.executor.SyncExecutorFactoryProvider;
+import io.army.executor.*;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.meta.ServerMeta;
 import io.army.util.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.army.lang.Nullable;
-import javax.sql.CommonDataSource;
 import javax.sql.DataSource;
-import javax.sql.XAConnection;
 import javax.sql.XADataSource;
 import java.lang.reflect.Method;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 @SuppressWarnings("unused")
@@ -46,14 +43,14 @@ public final class JdbcExecutorFactoryProvider implements SyncExecutorFactoryPro
     private static final Logger LOG = LoggerFactory.getLogger(JdbcExecutorFactoryProvider.class);
 
     public static JdbcExecutorFactoryProvider create(Object dataSource, String factoryName, ArmyEnvironment env) {
-        if (!(dataSource instanceof DataSource || dataSource instanceof XADataSource)) {
+        if (!(dataSource instanceof DataSource)) {
             throw unsupportedDataSource(dataSource);
         }
-        return new JdbcExecutorFactoryProvider((CommonDataSource) dataSource, factoryName, env);
+        return new JdbcExecutorFactoryProvider((DataSource) dataSource, factoryName, env);
     }
 
 
-    final CommonDataSource dataSource;
+    final DataSource dataSource;
 
     final String sessionFactoryName;
 
@@ -63,62 +60,34 @@ public final class JdbcExecutorFactoryProvider implements SyncExecutorFactoryPro
 
     ServerMeta meta;
 
-    private JdbcExecutorFactoryProvider(CommonDataSource dataSource, String factoryName, ArmyEnvironment env) {
+    private JdbcExecutorFactoryProvider(DataSource dataSource, String factoryName, ArmyEnvironment env) {
         this.dataSource = dataSource;
         this.sessionFactoryName = factoryName;
         this.usedDialect = env.getOrDefault(ArmyKey.DIALECT);
     }
 
-
     @Override
-    public ServerMeta createServerMeta(@Nullable Function<String, Database> func)
-            throws DataAccessException {
-        final CommonDataSource dataSource = this.dataSource;
-
-        XAConnection xaConnection = null;
-        final ServerMeta meta;
+    public SyncPreBootstrapExecutor createExecutor() {
         try {
-            if (dataSource instanceof DataSource) {
-                meta = createServerMetaAndDriverFlags(((DataSource) dataSource).getConnection(), usedDialect, func);
-            } else if (dataSource instanceof XADataSource) {
-                xaConnection = ((XADataSource) dataSource).getXAConnection();
-                meta = createServerMetaAndDriverFlags(xaConnection.getConnection(), usedDialect, func);
-            } else {
-                //no bug,never here
-                throw unsupportedDataSource(dataSource);
-            }
-            this.meta = meta;
-            return meta;
+            return new JdbcSyncPreBootstrapExecutor(this.dataSource.getConnection());
         } catch (SQLException e) {
             throw JdbcExecutor.wrapError(e);
-        } catch (DataAccessException e) {
-            throw e;
-        } catch (Exception e) {
-            String m = String.format("get %s failure.", Connection.class.getName());
-            throw new DataAccessException(m, e);
-        } finally {
-            if (xaConnection != null) {
-                JdbcExecutorSupport.closeXaConnection(xaConnection);
-            }
         }
     }
 
     @Override
-    public SyncExecutorFactory createFactory(final ExecutorEnv env) throws DataAccessException {
-        validateServerMeta(env.mappingEnv());
-        return JdbcExecutorFactory.create(this, env);
-    }
+    public ServerMeta createServerMeta(@Nullable Function<String, Database> func)
+            throws DataAccessException {
 
-
-    private ServerMeta createServerMetaAndDriverFlags(final Connection connection, final Dialect usedDialect,
-                                                      final @Nullable Function<String, Database> func) {
-        try (Connection conn = connection) {
+        final ServerMeta meta;
+        try (Connection conn = this.dataSource.getConnection()) {
             final ServerMeta serverMeta;
-            serverMeta = builderServerMeta(conn, usedDialect, func);
+            this.meta = serverMeta = builderServerMeta(conn, this.usedDialect, func);
 
             LOG.debug("create {}", serverMeta);
 
             this.methodFlag = createDriverImplFlags(conn, serverMeta.serverDatabase());
+
             return serverMeta;
         } catch (SQLException e) {
             throw JdbcExecutor.wrapError(e);
@@ -126,6 +95,13 @@ public final class JdbcExecutorFactoryProvider implements SyncExecutorFactoryPro
             String m = String.format("get server metadata occur error:%s", e.getMessage());
             throw new DataAccessException(m, e);
         }
+    }
+
+
+    @Override
+    public SyncExecutorFactory createFactory(final ExecutorEnv env) throws DataAccessException {
+        validateServerMeta(env.mappingEnv());
+        return JdbcExecutorFactory.create(this, env);
     }
 
 
@@ -267,6 +243,112 @@ public final class JdbcExecutorFactoryProvider implements SyncExecutorFactoryPro
         );
         throw new ArmyException(m);
     }
+
+
+    private static final class JdbcSyncPreBootstrapExecutor implements SyncPreBootstrapExecutor {
+
+        final Connection conn;
+
+        private JdbcSyncPreBootstrapExecutor(Connection conn) {
+            this.conn = conn;
+        }
+
+
+        @Override
+        public Void executeUpdate(List<String> sqlList) {
+            if (sqlList.isEmpty()) {
+                return null;
+            }
+            try (Statement statement = this.conn.createStatement()) {
+                for (String sql : sqlList) {
+                    statement.addBatch(sql);
+                }
+                statement.executeBatch();
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        }
+
+        @Override
+        public <R> List<R> executeQuery(String sql, Function<CurrentRow, R> function) {
+            try (Statement statement = this.conn.createStatement()) {
+                try (ResultSet resultSet = statement.executeQuery(sql)) {
+                    final CurrentRow currentRow;
+                    currentRow = new JdbcCurrentRow(resultSet);
+
+                    final boolean voidFunc = function instanceof VoidRowFunc;
+                    final List<R> rowList;
+                    if (voidFunc) {
+                        rowList = List.of();
+                    } else {
+                        rowList = new ArrayList<>();
+                    }
+
+                    List<Object> columnList;
+                    R row;
+                    while (resultSet.next()) {
+                        row = function.apply(currentRow);
+                        if (row == currentRow) {
+                            throw new RuntimeException("row == currentRow");
+                        }
+                        if (!voidFunc) {
+                            rowList.add(row);
+                        }
+                    }
+                    return rowList;
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public void close() {
+            JdbcExecutor.closeResource(this.conn);
+        }
+
+
+    } // JdbcSyncPreBootstrapExecutor
+
+    private static final class JdbcCurrentRow extends ArmyCurrentRow {
+
+        private final ResultSet resultSet;
+
+        private final int columnCount;
+
+        private JdbcCurrentRow(ResultSet resultSet) {
+            this.resultSet = resultSet;
+            try {
+                this.columnCount = resultSet.getMetaData().getColumnCount();
+            } catch (SQLException e) {
+                throw JdbcExecutor.wrapError(e);
+            }
+        }
+
+        @Override
+        public <R> R get(int indexBasedZero, Class<R> columnClass) {
+            if (indexBasedZero < 0 || indexBasedZero >= this.columnCount) {
+                String m = String.format("index not in [0,%s)", this.columnCount);
+                throw new DataAccessException(m);
+            }
+            try {
+                return this.resultSet.getObject(indexBasedZero + 1, columnClass);
+            } catch (SQLException e) {
+                throw JdbcExecutor.wrapError(e);
+            }
+        }
+
+        @Override
+        protected String getColumnLabel(int indexBasedZero) {
+            try {
+                return this.resultSet.getMetaData().getColumnLabel(indexBasedZero + 1);
+            } catch (SQLException e) {
+                throw JdbcExecutor.wrapError(e);
+            }
+        }
+    } // JdbcCurrentRow
 
 
 }

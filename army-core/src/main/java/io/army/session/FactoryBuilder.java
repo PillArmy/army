@@ -25,17 +25,21 @@ import io.army.executor.ExecutorFactoryProvider;
 import io.army.function.DefinedTypeMapFunc;
 import io.army.generator.FieldGeneratorFactory;
 import io.army.lang.Nullable;
+import io.army.meta.FieldMeta;
 import io.army.meta.SchemaMeta;
+import io.army.meta.TableMeta;
 import io.army.option.Option;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 /// This interface representing the builder spec of {@link SessionFactory} .
 /// This interface is base interface of all factory builder.
 /// package interface
+///
 /// @param <B> factory builder java type,it is the sub interface of this interface
 /// @param <R> sync session factory or Mono
 /// @since 0.6.0
@@ -43,26 +47,31 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
 
 
     /// Required.
+    ///
     /// @param sessionFactoryName non-empty
     /// @return **this**
     B name(String sessionFactoryName);
 
     /// Required.
+    ///
     /// @return **this**
     B environment(ArmyEnvironment environment);
 
     /// Required.
+    ///
     /// dataSource can be the instance of {@link io.army.datasource.ReadWriteSplittingDataSource}.
+    ///
     /// @return **this**
     /// @see io.army.datasource.ReadWriteSplittingDataSource
     B datasource(Object dataSource);
 
     /// Required
-    /// 
+    ///
     /// @see io.army.criteria.impl._TableMetaFactory#getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     B packagesToScan(List<String> packageList);
 
     /// Optional.
+    ///
     /// @param catalog catalog or empty
     /// @param schema  schema or empty
     /// @return **this**
@@ -76,75 +85,105 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
     //   B fieldCodecs(Collection<FieldCodec> fieldCodecs);
 
     /// Optional.
+    ///
     /// @return **this**
     B jsonCodec(@Nullable JsonCodec codec);
 
     /// Optional.
+    ///
     /// @return **this**
     B xmlCodec(@Nullable XmlCodec codec);
 
     /// Optional.
+    ///
     /// @return **this**
     B factoryAdvice(@Nullable Collection<FactoryAdvice> factoryAdvices);
 
 
     /// Optional.
+    ///
     /// @return **this**
     B fieldGeneratorFactory(@Nullable FieldGeneratorFactory factory);
 
 
     /// Optional.
+    ///
     /// See
-    /// 
+    ///
     /// - {@link ExecutorFactoryProvider#createServerMeta(Function)}
     /// - {@link Database#mapToDatabase(String, Function)}
-    /// 
+    ///
     /// @return **this**
     B nameToDatabaseFunc(@Nullable Function<String, Database> function);
 
     /// Optional.
+    ///
     /// Set a consumer for validating {@link ExecutorFactoryProvider} is the instance which you want.
     /// See {@code io.army.env.SyncKey#EXECUTOR_PROVIDER} and  see {@code io.army.env.ReactiveKey#EXECUTOR_PROVIDER}
+    ///
     /// @return **this**
     B executorFactoryProviderValidator(@Nullable Consumer<ExecutorFactoryProvider> consumer);
 
 
     <T> B dataSourceOption(Option<T> option, @Nullable T value);
 
+    /// Optional.
+    ///
     /// Default : {@code Thread.currentThread().getContextClassLoader()}
-    /// 
+    ///
     /// @param loader is used to load domain classes.
     /// @see io.army.criteria.impl._TableMetaFactory#getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     B classLoader(@Nullable ClassLoader loader);
 
+    /// Optional.
+    ///
     /// Default : false
     /// To optimize startup performance, loading of the corresponding static model classes
     /// and related validations is disabled by default after TableMeta creation. Enable it
     /// for enhanced safety guarantees.
-    /// 
+    ///
     /// @param load true : load static model after create {@link io.army.meta.TableMeta}.
     /// @see io.army.criteria.impl._TableMetaFactory#getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     B loadStaticModel(boolean load);
 
+    /// Optional.
+    ///
     /// To improve startup performance, non-essential startup validation is disabled by default (already validated at compile time).
     /// It can be enabled for stronger consistency guarantees.
     B validateOnStartup(boolean yes);
 
-
+    /// Optional.
+    ///
     B definedTypeMapFunc(@Nullable DefinedTypeMapFunc func);
 
+    /// Optional.
+    ///
+    /// A consumer traverses {@link TableMeta} on startup
+    B tableMetaConsumer(@Nullable Consumer<TableMeta<?>> consumer);
+
+    /// Optional.
+    ///
+    /// A consumer traverses {@link FieldMeta} on startup
+    B fieldMetaConsumer(@Nullable Consumer<FieldMeta<?>> consumer);
+
+    B defaultExtensionInCurrentSchema(boolean current);
+
+    /// Optional.
+    ///
+    /// Extension name(upper case) to schema name map
+    B extensionSchemaMap(Map<String, String> extensionSchemaMap);
+
     /// Create {@link SessionFactory} instance
-    /// @return
-    /// - sync api : {@link SessionFactory} instance
+    ///
+    /// @return - sync api : {@link SessionFactory} instance
     /// - reactive api : Mono of {@link SessionFactory} instance
-    /// 
     /// @throws SessionFactoryException throw (emit) when
-    /// 
+    ///
     /// - required properties absent
     /// - name duplication
     /// - access database occur error
     /// - properties error
-    /// 
+    ///
     R build();
 
 }

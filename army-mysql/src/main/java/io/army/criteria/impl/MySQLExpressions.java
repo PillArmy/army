@@ -582,7 +582,7 @@ abstract class MySQLExpressions {
                 case GLOBAL:
                     sqlBuilder.append(" @@")
                             .append(scope.name())
-                            .append(_Constant.DOT);
+                            .append(_Constant.PERIOD);
                     break;
                 default:
                     throw _Exceptions.unexpectedEnum(scope);

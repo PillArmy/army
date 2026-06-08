@@ -122,7 +122,7 @@ abstract class StatementContext implements _StmtContext, StmtParams {
         final String lowerCaseName, upperCaseName;
         if (buildIn) {
             lowerCaseName = upperCaseName = null;
-        } else if (this.parser.keyWordMap.containsKey(upperCaseName = name.toUpperCase(Locale.ROOT))) {
+        } else if (this.parser.keyWordSet.contains(upperCaseName = name.toUpperCase(Locale.ROOT))) {
             String m = String.format("User defined function name[%s] is key word for %s", name, this.parser.dialect);
             throw new CriteriaException(m);
         } else if (!name.equals(lowerCaseName = name.toLowerCase(Locale.ROOT)) && !name.equals(upperCaseName)) {

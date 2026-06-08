@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package io.army.struct;
+package io.army.meta;
 
-public enum TypeCategory {
+public sealed interface SchemaName extends DatabaseObject permits DefaultSchemaName {
 
-    COMPOSITE,
-    ENUM,
-    RANGE,
-    DOMAIN,
 
-    /// User-defined extended types, e.g., PostgreSQL pgvector
-    USER_DEFINED
+    static SchemaName of(String schema) {
+        return DefaultSchemaName.create(schema);
+    }
 }

@@ -48,17 +48,17 @@ public final class PgHstoreType extends _ArmyBuildInType implements MappingType.
     @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         //TODO
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         //TODO
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public String extensionName() {
+    public String extensionName(ServerMeta serverMeta) {
         return "HSTORE";
     }
 

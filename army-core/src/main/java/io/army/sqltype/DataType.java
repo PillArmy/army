@@ -17,17 +17,19 @@
 package io.army.sqltype;
 
 import io.army.criteria.TypeDef;
+import io.army.meta.TypeObject;
 
 /// This is base interface of following:
-/// 
+///
 /// - {@link SQLType}
 /// - {@link CustomType}
-/// 
+///
 /// @since 0.6.0
-public interface DataType extends TypeDef {
+public interface DataType extends TypeDef, TypeObject {
 
 
     /// SQL type's alias (not type name) in java language.
+    ///
     /// @see #typeName()
     /// @see Enum#name()
     String name();
@@ -37,6 +39,10 @@ public interface DataType extends TypeDef {
 
     boolean isArray();
 
+    @Override
+    default String objectName() {
+        return typeName();
+    }
 
     TypeDef parens(long precision);
 
@@ -55,6 +61,7 @@ public interface DataType extends TypeDef {
     /// This method is equivalent to {@code   DataType.from(typeName,false)} :
     /// **NOTE**: only when {@link ArmyType} couldn't express appropriate type,you use this method.
     /// It means you should prefer {@link SQLType}.
+    ///
     /// @param typeName non-null
     /// @return {@link DataType} instance
     /// @see #from(String, boolean)
@@ -65,6 +72,7 @@ public interface DataType extends TypeDef {
     /// Get one {@link DataType} instance
     /// **NOTE**: only when {@link ArmyType} couldn't express appropriate type,you use this method.
     /// It means you should prefer {@link SQLType}.
+    ///
     /// @param typeName        database data type name,if typeName endWith '[]',then {@link DataType#isArray()} always return true.
     /// @param caseSensitivity if false ,then {@link DataType#typeName()} always return upper case.
     /// @return {@link DataType} that representing user-defined type.

@@ -38,6 +38,8 @@ final class ServerMetaImpl implements ServerMeta {
 
     private final String schemaName;
 
+    private final SchemaMeta schemaMeta;
+
     private final String version;
 
     private final int major;
@@ -57,6 +59,8 @@ final class ServerMetaImpl implements ServerMeta {
         this.database = builder.database;
         this.catalogName = builder.catalogName;
         this.schemaName = builder.schemaName;
+
+        this.schemaMeta = SchemaMeta.of(this.catalogName, this.schemaName);
 
         this.version = builder.version;
         this.major = builder.major;
@@ -101,6 +105,11 @@ final class ServerMetaImpl implements ServerMeta {
     @Override
     public String schema() {
         return this.schemaName;
+    }
+
+    @Override
+    public SchemaMeta schemaMeta() {
+        return this.schemaMeta;
     }
 
     @Override

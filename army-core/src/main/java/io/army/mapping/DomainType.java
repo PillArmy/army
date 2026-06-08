@@ -51,7 +51,7 @@ public final class DomainType extends _ArmyBuildInType implements MappingType.Sq
     }
 
     @Override
-    public String objectName() {
+    public String typeName() {
         return "";
     }
 

@@ -36,7 +36,7 @@ import java.util.function.BiConsumer;
 /// Array mapping type for composite type elements.
 ///
 /// @see io.army.mapping.CompositeType
-public final class CompositeArrayType extends _ArmyBuildInArrayType {
+public final class CompositeArrayType extends _ArmyBuildInArrayType implements MappingType.SqlUserDefined {
 
     public static CompositeArrayType from(final Class<?> arrayClass) {
         if (!arrayClass.isArray()) {
@@ -77,7 +77,7 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType {
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = DataType.from(this.underlyingType.objectName() + "[]");
+                dataType = DataType.from(typeName());
                 break;
             case SQLite:
             case MySQL:
@@ -108,6 +108,11 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType {
         final TextFunction<?> func;
         func = (text, offset, end) -> CompositeType.parseToPojo(this.underlyingType, elementDataType, env, text, offset, end);
         return PostgreArrays.arrayAfterGet(this, dataType, source, false, func, ACCESS_ERROR_HANDLER);
+    }
+
+    @Override
+    public String typeName() {
+        return this.underlyingType.typeName() + "[]";
     }
 
     @Override

@@ -16,16 +16,23 @@
 
 package io.army.dialect;
 
-@SuppressWarnings("unused")
-public abstract class _MySQLParsers extends DialectParserFactory {
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-    private _MySQLParsers() {
-        throw new UnsupportedOperationException();
-    }
+public interface PreBootstrapParser {
 
-    public static DialectParser create(final DialectEnv env) {
-        return MySQLDialectParser.create(env, (MySQLDialect) targetDialect(env, Database.MySQL));
-    }
+    List<String> extensionStmts(boolean currentSchema, Map<String, String> extensionSchemaMap, Set<String> extensionSet);
+
+
+    ///
+    /// Return SQL results in the specified column order.
+    /// 1. typeName
+    /// 2. schemaName
+    /// 3. extensionName
+    ///
+    /// Must include all custom types across schemas
+    String queryDefinedTypeSchema();
 
 
 }

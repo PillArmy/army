@@ -24,7 +24,10 @@ import io.army.env.EscapeMode;
 import io.army.executor.ExecutorSupport;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
-import io.army.meta.*;
+import io.army.meta.ChildTableMeta;
+import io.army.meta.ParentTableMeta;
+import io.army.meta.ServerMeta;
+import io.army.meta.TypeMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -451,9 +454,9 @@ abstract class MySQLParser extends _ArmyDialectParser {
 
 
     @Override
-    protected final Set<String> createKeyWordSet() {
+    final Set<String> createKeyWordSet(ServerMeta serverMeta) {
         final Set<String> keyWordSet;
-        switch ((MySQLDialect) dialect) {
+        switch ((MySQLDialect) serverMeta.usedDialect()) {
             case MySQL55:
             case MySQL56:
             case MySQL57:
@@ -466,6 +469,12 @@ abstract class MySQLParser extends _ArmyDialectParser {
                 throw _Exceptions.unexpectedEnum((Enum<?>) dialect);
         }
         return keyWordSet;
+    }
+
+
+    @Override
+    final IdentifierHandler createIdentifierHandler(ServerMeta serverMeta) {
+        return new MySQLIdentifierHandler(serverMeta);
     }
 
     @Override
@@ -586,79 +595,6 @@ abstract class MySQLParser extends _ArmyDialectParser {
         }
     }
 
-    /// 
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifiers.html"> Schema Object Names</a>
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html">Identifier Case Sensitivity</a>
-    @Override
-    protected final void handleIdentifier(final @Nullable DatabaseObject object, final String effectiveName, final StringBuilder sqlBuilder) {
-        // 1. 列名   : MySQL列名不区分大小写,即使使用引用也不区分,故此算法正确
-        // 2. 列别名 : 虽然MySQL列别名不区分大小写,但MySQL原样返回了列别名,故此算法正确
-        // 3. 表名   : MySQL 的表名的大小写规则依赖服务器的操作系统,若必要,开发者可通过 ArmyKey.TABLE_NAME_MODE 控制大小写
-        // 4. 表别名 : MySQL 的表别名的大小写规则依赖服务器的操作系统,但由于表别名只是语句内引用,并不返回客户端,故此算法正确
-
-        final int length, startIndex;
-        length = effectiveName.length();
-        startIndex = sqlBuilder.length();
-
-        final char boundaryChar = this.identifierQuote;
-        int lastWritten = 0, writtenIndex = startIndex;
-        char ch;
-        for (int i = 0; i < length; i++) {
-            ch = effectiveName.charAt(i);
-            if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') {
-                continue;
-            } else if (ch >= '0' && ch <= '9') {
-                if (i == 0) {
-                    // Identifiers may begin with a digit but unless quoted may not consist solely of digits.
-                    sqlBuilder.append(boundaryChar);
-                    writtenIndex++;
-                }
-                continue;
-            } else if (ch == '$') {
-                if (i > 0 || this.asOf80) {
-                    continue;
-                }
-                sqlBuilder.append(boundaryChar);
-                writtenIndex++;
-                continue;
-            }
-
-            if (ch == _Constant.NUL_CHAR) {
-                if (object == null) {
-                    throw _Exceptions.identifierError(effectiveName, this.dialect);
-                } else {
-                    throw _Exceptions.objectNameError(object, this.dialect);
-                }
-            }
-
-            if (writtenIndex == startIndex) {
-                sqlBuilder.append(boundaryChar);
-                writtenIndex++;
-            }
-
-            if (ch != boundaryChar) {
-                continue;
-            }
-
-            if (i > lastWritten) {
-                sqlBuilder.append(effectiveName, lastWritten, i);
-            }
-            sqlBuilder.append(boundaryChar);
-            lastWritten = i; // not i + 1 as current char wasn't written
-
-
-        } // for loop
-
-        if (lastWritten < length) {
-            sqlBuilder.append(effectiveName, lastWritten, length);
-        }
-
-        if (writtenIndex > startIndex) {
-            sqlBuilder.append(boundaryChar);
-        }
-
-
-    }
 
 
     @Override

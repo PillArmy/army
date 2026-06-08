@@ -286,7 +286,7 @@ public abstract class TableMetaUtils {
             } // switch
 
         } // loop
-        return _SchemaMetaFactory.getSchema(values[0], values[1]);
+        return SchemaMeta.of(values[0], values[1]);
     }
 
     /// Resolves the **database table name** from the `@Table` annotation.

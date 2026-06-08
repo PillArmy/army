@@ -12,7 +12,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest(classes = TypeApplication.class)
+@SpringBootTest(classes = ArmyApplication.class)
 @ActiveProfiles("test")
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class, TransactionalTestExecutionListener.class})
 @Transactional

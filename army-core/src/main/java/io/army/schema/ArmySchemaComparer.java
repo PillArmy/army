@@ -357,7 +357,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
         if (!javaType.isEnum()) {
             String m = String.format("%s  type name[%s] should be enum ,but not "
-                    , javaType.getName(), enumType.objectName());
+                    , javaType.getName(), enumType.typeName());
             addErrorMessage(m);
             return null;
         }
@@ -403,7 +403,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
         final String typeName = typeInfo.rangeSubType();
         if (typeName == null) {
-            String m = String.format("range type[%s] sub type is null", rangeType.objectName());
+            String m = String.format("range type[%s] sub type is null", rangeType.typeName());
             addErrorMessage(m);
             return null;
         }
@@ -468,7 +468,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
         final String typeName = typeInfo.baseTypeName();
         if (typeName == null) {
-            String m = String.format("domain type[%s] base type is null", domainType.objectName());
+            String m = String.format("domain type[%s] base type is null", domainType.typeName());
             addErrorMessage(m);
             return null;
         }
@@ -488,7 +488,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
         final Matcher matcher = getCheckPattern().matcher(value);
         if (!matcher.find()) {
-            String m = String.format("domain type[%s] constraint[%s] format error", domainType.objectName(), value);
+            String m = String.format("domain type[%s] constraint[%s] format error", domainType.typeName(), value);
             addErrorMessage(m);
             return null;
         }
@@ -542,7 +542,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
     private void addTypeNotMatchError(MappingType.SqlUserDefined type, TypeCategory category, TypeInfo typeInfo) {
         String m = String.format("%s category[%s] and  database type [%s] category[%s] not match"
-                , type.javaType().getName(), category.name(), type.objectName(), typeInfo.category().name());
+                , type.javaType().getName(), category.name(), type.typeName(), typeInfo.category().name());
         addErrorMessage(m);
     }
 

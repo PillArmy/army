@@ -16,6 +16,8 @@
 
 package io.army.meta;
 
+import io.army.lang.Nullable;
+
 /// represent a schema.
 /// 
 /// -  MySQL : database
@@ -37,4 +39,12 @@ public interface SchemaMeta extends Meta {
 
     @Override
     String toString();
+
+
+    static SchemaMeta of(@Nullable String catalog, @Nullable String schema) {
+        return DefaultSchemaMeta.getSchema(catalog, schema);
+    }
+
+
+
 }

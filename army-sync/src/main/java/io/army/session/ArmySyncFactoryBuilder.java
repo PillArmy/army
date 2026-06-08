@@ -17,14 +17,11 @@
 package io.army.session;
 
 import io.army.advice.FactoryAdvice;
-import io.army.dialect.DialectParser;
+import io.army.dialect.*;
 import io.army.env.ArmyEnvironment;
 import io.army.env.ArmyKey;
 import io.army.env.SyncKey;
-import io.army.executor.ExecutorFactoryProvider;
-import io.army.executor.SyncExecutorFactory;
-import io.army.executor.SyncExecutorFactoryProvider;
-import io.army.executor.SyncMetaExecutor;
+import io.army.executor.*;
 import io.army.mapping.MappingType;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
@@ -35,10 +32,7 @@ import io.army.util._Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 /// This class is a implementation of {@link SyncFactoryBuilder}.
@@ -64,23 +58,30 @@ final class ArmySyncFactoryBuilder
 
 
     @Override
-    protected SyncSessionFactory buildAfterScanTableMeta(final String name, final Object dataSource, final ArmyEnvironment env) {
+    ExecutorFactoryProvider createExecutorFactoryProvider(final String name, final Object dataSource, final ArmyEnvironment env) {
+        return createExecutorProvider(name, env, dataSource, SyncExecutorFactoryProvider.class,
+                SyncKey.EXECUTOR_PROVIDER, SyncKey.EXECUTOR_PROVIDER_MD5);
+    }
+
+    @Override
+    ServerMeta createServerMeta(ExecutorFactoryProvider provider) {
+        return ((SyncExecutorFactoryProvider) provider).createServerMeta(this.nameToDatabaseFunc);
+    }
+
+    @Override
+    protected SyncSessionFactory buildAfterScanTableMeta(final String name, final ArmyEnvironment env,
+                                                         final ExecutorFactoryProvider provider, final ServerMeta serverMeta) {
 
         try {
 
-            // 1. create ExecutorProvider
-            final SyncExecutorFactoryProvider executorProvider;
-            executorProvider = createExecutorProvider(name, env, dataSource, SyncExecutorFactoryProvider.class,
-                    SyncKey.EXECUTOR_PROVIDER, SyncKey.EXECUTOR_PROVIDER_MD5);
-            // 2. create ServerMeta
-            final ServerMeta serverMeta;
-            serverMeta = executorProvider.createServerMeta(this.nameToDatabaseFunc);
+            // create ExecutorProvider
+            final SyncExecutorFactoryProvider executorProvider = (SyncExecutorFactoryProvider) provider;
 
-            // 3. create DialectParser
+            // create DialectParser
             final DialectParser dialectParser;
-            dialectParser = createDialectParser(name, false, serverMeta, env);
+            dialectParser = createDialectParser(name, false, serverMeta, env, executorProvider);
 
-            // 4. create SyncExecutorFactory
+            //  create SyncExecutorFactory
             final SyncExecutorFactory executorFactory;
             executorFactory = executorProvider.createFactory(createExecutorEnv(name, env, dialectParser));
 
@@ -91,12 +92,12 @@ final class ArmySyncFactoryBuilder
 
             final FactoryAdvice factoryAdvice;
             factoryAdvice = createFactoryAdviceComposite(this.factoryAdvices);
-            // 5. invoke beforeInstance
+            //  invoke beforeInstance
             if (factoryAdvice != null) {
                 factoryAdvice.beforeInstance(serverMeta, env);
             }
 
-            // 6. create SessionFactoryImpl instance
+            // create SessionFactoryImpl instance
             this.stmtExecutorFactory = executorFactory;
             this.ddlMode = env.getOrDefault(ArmyKey.DDL_MODE);
             final ArmySyncSessionFactory sessionFactory;
@@ -107,15 +108,15 @@ final class ArmySyncFactoryBuilder
             assert name.equals(sessionFactory.name());
             assert sessionFactory.executorFactory == this.stmtExecutorFactory;
 
-            //7. invoke beforeInitialize
+            // invoke beforeInitialize
             if (factoryAdvice != null) {
                 factoryAdvice.beforeInitialize(sessionFactory);
             }
 
-            // 8. invoke initializingFactory
+            //  invoke initializingFactory
             initializingFactory(sessionFactory);
 
-            // 9. invoke afterInitialize
+            //  invoke afterInitialize
             if (factoryAdvice != null) {
                 factoryAdvice.afterInitialize(sessionFactory);
             }
@@ -138,7 +139,115 @@ final class ArmySyncFactoryBuilder
     }
 
 
-    /// @see #buildAfterScanTableMeta(String, Object, ArmyEnvironment)
+    private Map<String, String> createTypeNameToSchemaMap(ServerMeta serverMeta, ParserFactory parserFactory,
+                                                          SyncExecutorFactoryProvider provider) {
+        try (SyncPreBootstrapExecutor executor = provider.createExecutor()) {
+
+            final PreBootstrapParser preBootstrapParser;
+            preBootstrapParser = parserFactory.createPreBootstrapParser(serverMeta);
+
+            final List<String> sqlList;
+            sqlList = preBootstrapParser.extensionStmts(this.extensionInCurrentSchema, this.extensionSchemaMap, this.extensionNameSet);
+
+            final boolean debug = LOG.isDebugEnabled();
+            if (debug) {
+                LOG.debug("{}", ddlToSqlLog(sqlList));
+            }
+            executor.executeUpdate(sqlList);
+
+            final String sql;
+            sql = preBootstrapParser.queryDefinedTypeSchema();
+
+            final Set<String> extensionNameSet = this.extensionNameSet;
+            final Map<String, String> typeNameToSchemaMap = new HashMap<>();
+            final Set<String> typeNameInExtensionSet = new HashSet<>();
+
+            final String currentSchema = serverMeta.schema(); // currently, for PostgreSQL schema
+
+            final PreBootstrapExecutor.VoidRowFunc function;
+            function = row -> {
+                final String typeName, schema, oldSchema, extensionName;
+
+                typeName = row.getNonNull(0, String.class).toUpperCase(Locale.ROOT);
+                schema = row.getNonNull(1, String.class);
+                extensionName = row.get(2, String.class);
+
+                if (extensionName != null
+                        && !extensionNameSet.contains(extensionName.toLowerCase(Locale.ROOT))) {
+                    // Unused types
+                    return null;
+                }
+                if (extensionName != null) {
+                    typeNameInExtensionSet.add(typeName);
+                }
+
+                oldSchema = typeNameToSchemaMap.putIfAbsent(typeName, schema);
+
+                if (oldSchema != null
+                        && !oldSchema.equals(schema)
+                        && currentSchema != null
+                        && !oldSchema.equals(currentSchema)) {
+                    typeNameToSchemaMap.remove(typeName);  // Duplicate type name. The current schema will be used.
+                }
+                return null;
+            };
+
+            if (debug) {
+                LOG.debug("{}", sql);
+            }
+
+            executor.executeQuery(sql, function);  // execute sql
+
+            // below , remove unnecessary type name
+            final Map<String, MappingType> definedTypeMap = this.definedTypeMap;
+
+            final Iterator<Map.Entry<String, String>> iterator = typeNameToSchemaMap.entrySet().iterator();
+            String upperCaseTypeName;
+            for (Map.Entry<String, String> e; iterator.hasNext(); ) {
+                e = iterator.next();
+
+                if (e.getValue().equals(currentSchema)) {
+                    iterator.remove(); // current schema don't need to be specified
+                    continue;
+                }
+
+                upperCaseTypeName = e.getKey();
+
+                if (!typeNameInExtensionSet.contains(upperCaseTypeName)
+                        && !definedTypeMap.containsKey(upperCaseTypeName)) {
+                    iterator.remove(); // Unused types
+                }
+
+            }
+
+            return typeNameToSchemaMap;
+        }
+    }
+
+    private DialectParser createDialectParser(String factoryName, boolean reactive, ServerMeta serverMeta,
+                                              ArmyEnvironment env, SyncExecutorFactoryProvider provider) {
+        final ParserFactory parserFactory;
+        parserFactory = ParserFactories.createFactory(serverMeta);
+
+        final Map<String, String> typeNameToSchemaMap;
+        if (this.extensionNameSet.isEmpty()) {
+            typeNameToSchemaMap = Map.of();
+        } else {
+            typeNameToSchemaMap = createTypeNameToSchemaMap(serverMeta, parserFactory, provider);
+        }
+
+        final DialectEnv dialectEnv;
+        dialectEnv = createDialectEnv(factoryName, reactive, serverMeta, env, typeNameToSchemaMap);
+
+        final DialectParser dialectParser;
+        this.dialectParser = dialectParser = parserFactory.createDialectParser(dialectEnv);
+
+        dialectEnv.clearTempProperties();
+        return dialectParser;
+    }
+
+
+    /// @see #buildAfterScanTableMeta(String, ArmyEnvironment, ExecutorFactoryProvider, ServerMeta)
     private void initializingFactory(final ArmySyncSessionFactory sessionFactory) throws SessionFactoryException {
 
         if (LOG.isDebugEnabled()) {
@@ -180,14 +289,6 @@ final class ArmySyncFactoryBuilder
             //1.extract schema info.
             final SchemaInfo schemaInfo;
             schemaInfo = executor.extractInfo(sessionFactory.dialectParser.queryDefinedTypeStmts(definedTypeMap));
-
-            final Set<String> extensionNameSet = this.extensionNameSet;
-            if (!extensionNameSet.isEmpty()) {
-                final List<String> extensionSqlList;
-                extensionSqlList = sessionFactory.dialectParser.createExtensionSql(schemaInfo.catalog(), schemaInfo.schema(), extensionNameSet);
-                LOG.debug("{}:\n\n{}", sessionFactory, ddlToSqlLog(extensionSqlList));
-                executor.executeDdl(extensionSqlList);
-            }
 
             //2.compare schema meta and schema info.
             final SchemaResult schemaResult;

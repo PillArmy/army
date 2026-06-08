@@ -256,7 +256,7 @@ public enum PgType implements SQLType {
 
     @Nullable
     @Override
-    public final SQLType elementType() {
+    public final PgType elementType() {
         return this.elementType;
     }
 

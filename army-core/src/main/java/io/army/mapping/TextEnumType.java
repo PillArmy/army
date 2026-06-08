@@ -186,7 +186,7 @@ public class TextEnumType extends _ArmyBuildInType {
         }
 
         @Override
-        public String objectName() {
+        public String typeName() {
             return this.enumName;
         }
 
