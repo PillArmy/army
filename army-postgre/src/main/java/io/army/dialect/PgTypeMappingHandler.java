@@ -24,6 +24,7 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 
 import java.util.Locale;
+import java.util.Map;
 
 final class PgTypeMappingHandler extends TypeMappingHandlerSupport {
 
@@ -325,7 +326,7 @@ final class PgTypeMappingHandler extends TypeMappingHandlerSupport {
             case "FLOAT8[]":
             case "FLOAT[]":
             case "DOUBLE PRECISION[]":
-                type = PgType.FLOAT8_ARRAY;
+                type = PgType.DOUBLE_ARRAY;
                 typeArray[index] = StringType.INSTANCE;
                 break;
             case "FLOAT4[]":

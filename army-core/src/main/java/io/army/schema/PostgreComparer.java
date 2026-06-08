@@ -16,13 +16,16 @@
 
 package io.army.schema;
 
+import io.army.dialect._DialectUtils;
 import io.army.meta.*;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
+import io.army.util.ReflectionUtils;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 final class PostgreComparer extends ArmySchemaComparer {
@@ -33,8 +36,14 @@ final class PostgreComparer extends ArmySchemaComparer {
 
     private final Pattern checkPattern = Pattern.compile("(?i)(?:CONSTRAINT\\s+[a-zA-Z_][a-zA-Z0-9_]*\\s+)?\\s*CHECK\\s*\\(((?:[^()]|\\([^()]*\\))*)\\)(?:\\s*;)?");
 
+    private final Map<String, PgType> aliasToTypeMap;
+
+    @SuppressWarnings("unchecked")
     private PostgreComparer(ServerMeta serverMeta) {
         super(serverMeta);
+        final String className = "io.army.dialect._PostgreDialectUtils";
+        this.aliasToTypeMap = (Map<String, PgType>) ReflectionUtils.invokeStaticFactoryMethod(
+                className, Map.class, "getAliasToTypeMap", new Class<?>[0]);
     }
 
 
@@ -53,361 +62,57 @@ final class PostgreComparer extends ArmySchemaComparer {
         final String typeName;
         typeName = columnInfo.typeName().toUpperCase(Locale.ROOT);
         if (!(dataType instanceof PgType)) {
-            return !typeName.equals(dataType.typeName().toUpperCase(Locale.ROOT));
+            final boolean notMatch;
+            if (dataType.isArray()) {
+                notMatch = !typeName.equals(dataType.typeName().toUpperCase(Locale.ROOT))
+                        && typeName.equals('_' + _DialectUtils.obtainElementType(dataType).typeName().toUpperCase(Locale.ROOT))
+                ;
+            } else {
+                notMatch = !typeName.equals(dataType.typeName().toUpperCase(Locale.ROOT));
+            }
+            return notMatch;
         }
+
+        final PgType type;
+        type = this.aliasToTypeMap.get(typeName);
+
         final int precision, scale;
+        precision = field.precision();
+        scale = field.scale();
 
         final boolean notMatch;
-        switch ((PgType) dataType) {
-            case BOOLEAN:
-                switch (typeName) {
-                    case "BOOLEAN":
-                    case "BOOL":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case SMALLINT:
-                switch (typeName) {
-                    case "INT2":
-                    case "SMALLINT":
-                    case "SMALLSERIAL":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case INTEGER:
-                switch (typeName) {
-                    case "INT":
-                    case "INT4":
-                    case "SERIAL":
-                    case "INTEGER":
-                    case "XID":  // https://www.postgresql.org/docs/current/datatype-oid.html
-                    case "CID":  // https://www.postgresql.org/docs/current/datatype-oid.html
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case BIGINT:
-                switch (typeName) {
-                    case "INT8":
-                    case "BIGINT":
-                    case "BIGSERIAL":
-                    case "SERIAL8":
-                    case "XID8":  // https://www.postgresql.org/docs/current/datatype-oid.html  TODO what's tid ?
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case DECIMAL:
-                switch (typeName) {
-                    case "NUMERIC":
-                    case "DECIMAL": {
-                        precision = field.precision();
-                        scale = field.scale();
-                        notMatch = (precision > -1 && precision != columnInfo.precision())
-                                || (scale > -1 && scale != columnInfo.scale());
-                    }
-                    break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case DOUBLE:
-                switch (typeName) {
-                    case "FLOAT8":
-                    case "DOUBLE PRECISION":
-                    case "FLOAT":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case REAL:
-                switch (typeName) {
-                    case "FLOAT4":
-                    case "REAL":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
+        if (type == null) {
+            notMatch = true;
+        } else switch (type) {
+            case CHAR:
+            case CHAR_ARRAY:
+            case VARCHAR:
+            case VARCHAR_ARRAY:
+            case BYTEA:
+            case BYTEA_ARRAY:
+            case BIT:
+            case BIT_ARRAY:
+            case VARBIT:
+            case VARBIT_ARRAY:
+                notMatch = precision > -1 && precision != columnInfo.precision();
                 break;
             case TIME:
-                switch (typeName) {
-                    case "TIME":
-                    case "TIME WITHOUT TIME ZONE": {
-                        scale = field.scale();
-                        notMatch = scale > -1 && scale != columnInfo.scale();
-                    }
-                    break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case TIMETZ:
-                switch (typeName) {
-                    case "TIMETZ":
-                    case "TIME WITH TIME ZONE": {
-                        scale = field.scale();
-                        notMatch = scale > -1 && scale != columnInfo.scale();
-                    }
-                    break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case TIMESTAMP:
-                switch (typeName) {
-                    case "TIMESTAMP":
-                    case "TIMESTAMP WITHOUT TIME ZONE": {
-                        scale = field.scale();
-                        notMatch = scale > -1 && scale != columnInfo.scale();
-                    }
-                    break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case TIMESTAMPTZ:
-                switch (typeName) {
-                    case "TIMESTAMPTZ":
-                    case "TIMESTAMP WITH TIME ZONE": {
-                        scale = field.scale();
-                        notMatch = scale > -1 && scale != columnInfo.scale();
-                    }
-                    break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case BPCHAR:
-            case CHAR:
-                switch (typeName) {
-                    case "CHAR":
-                    case "BPCHAR":
-                    case "CHARACTER": {
-                        precision = field.precision();
-                        notMatch = precision > -1 && precision != columnInfo.precision();
-                    }
-                    break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case VARCHAR:
-                switch (typeName) {
-                    case "VARCHAR":
-                    case "CHARACTER VARYING": {
-                        precision = field.precision();
-                        notMatch = precision > -1 && precision != columnInfo.precision();
-                    }
-                    break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case VECTOR:
-                // Current JDBC does not return the real length of vector.
-                notMatch = !typeName.equals("VECTOR");
-                break;
-            case TEXT:
-                switch (typeName) {
-                    case "TEXT":
-                    case "TXID_SNAPSHOT":  // TODO txid_snapshot is text?
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case VARBIT:
-                switch (typeName) {
-                    case "BIT VARYING":
-                    case "VARBIT": {
-                        precision = field.precision();
-                        notMatch = precision > -1 && precision != columnInfo.precision();
-                    }
-                    break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case BOOLEAN_ARRAY:
-                switch (typeName) {
-                    case "BOOLEAN[]":
-                    case "BOOL[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case SMALLINT_ARRAY:
-                switch (typeName) {
-                    case "INT2[]":
-                    case "SMALLINT[]":
-                    case "SMALLSERIAL[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case INTEGER_ARRAY:
-                switch (typeName) {
-                    case "INT[]":
-                    case "INT4[]":
-                    case "INTEGER[]":
-                    case "SERIAL[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case BIGINT_ARRAY:
-                switch (typeName) {
-                    case "INT8[]":
-                    case "BIGINT[]":
-                    case "SERIAL8[]":
-                    case "BIGSERIAL[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case DECIMAL_ARRAY:
-                switch (typeName) {
-                    case "NUMERIC[]":
-                    case "DECIMAL[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case FLOAT8_ARRAY:
-                switch (typeName) {
-                    case "FLOAT8[]":
-                    case "FLOAT[]":
-                    case "DOUBLE PRECISION[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case REAL_ARRAY:
-                switch (typeName) {
-                    case "FLOAT4[]":
-                    case "REAL[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case CHAR_ARRAY:
-                switch (typeName) {
-                    case "CHAR[]":
-                    case "CHARACTER[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case VARCHAR_ARRAY:
-                switch (typeName) {
-                    case "VARCHAR[]":
-                    case "CHARACTER VARYING[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case TEXT_ARRAY:
-                switch (typeName) {
-                    case "TEXT[]":
-                    case "TXID_SNAPSHOT[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
             case TIME_ARRAY:
-                switch (typeName) {
-                    case "TIME[]":
-                    case "TIME WITHOUT TIME ZONE[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
+            case TIMETZ:
             case TIMETZ_ARRAY:
-                switch (typeName) {
-                    case "TIMETZ[]":
-                    case "TIME WITH TIME ZONE[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
+            case TIMESTAMP:
             case TIMESTAMP_ARRAY:
-                switch (typeName) {
-                    case "TIMESTAMP[]":
-                    case "TIMESTAMP WITHOUT TIME ZONE[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
+            case TIMESTAMPTZ:
             case TIMESTAMPTZ_ARRAY:
-                switch (typeName) {
-                    case "TIMESTAMPTZ[]":
-                    case "TIMESTAMP WITH TIME ZONE[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
+                notMatch = scale > -1 && scale != columnInfo.scale();
                 break;
-            case VARBIT_ARRAY:
-                switch (typeName) {
-                    case "VARBIT[]":
-                    case "BIT VARYING[]":
-                        notMatch = false;
-                        break;
-                    default:
-                        notMatch = true;
-                }
-                break;
-            case REF_CURSOR:
-            case UNKNOWN:
-                throw _Exceptions.unexpectedEnum((Enum<?>) dataType);
+            case VECTOR:  // Current JDBC does not return the real length of vector.
+            case VECTOR_ARRAY:
             default:
-                // Current JDBC does not return the real length of vector.
-                notMatch = !typeName.equalsIgnoreCase(dataType.typeName())
-                // || ((precision = field.precision()) > -1 && precision != columnInfo.precision())
-                //  || ((scale = field.scale()) > -1 && scale != columnInfo.scale())
-                ;
-        }
+                notMatch = (precision > -1 && precision != columnInfo.precision())
+                        || (scale > -1 && scale != columnInfo.scale());
+        } // switch
+
         return notMatch;
     }
 
@@ -460,161 +165,12 @@ final class PostgreComparer extends ArmySchemaComparer {
     /// @return the canonical type name, or the original name if no mapping exists
     private String getFanonicalName(String typeName) {
         typeName = typeName.toUpperCase(Locale.ROOT);
-        final String result;
-        switch (typeName) {
-            // BOOLEAN aliases
-            case "BOOLEAN":
-            case "BOOL":
-                result = "BOOLEAN";
-                break;
-            // SMALLINT aliases
-            case "INT2":
-            case "SMALLINT":
-            case "SMALLSERIAL":
-                result = "SMALLINT";
-                break;
-            // INTEGER aliases
-            case "INT":
-            case "INT4":
-            case "SERIAL":
-            case "INTEGER":
-                result = "INTEGER";
-                break;
-            // BIGINT aliases
-            case "INT8":
-            case "BIGINT":
-            case "BIGSERIAL":
-            case "SERIAL8":
-                result = "BIGINT";
-                break;
-            // DECIMAL aliases
-            case "NUMERIC":
-            case "DECIMAL":
-                result = "DECIMAL";
-                break;
-            // FLOAT8 aliases
-            case "FLOAT8":
-            case "DOUBLE PRECISION":
-            case "FLOAT":
-                result = "FLOAT8";
-                break;
-            // REAL aliases
-            case "FLOAT4":
-            case "REAL":
-                result = "REAL";
-                break;
-            // TIME aliases
-            case "TIME":
-            case "TIME WITHOUT TIME ZONE":
-                result = "TIME";
-                break;
-            // TIMETZ aliases
-            case "TIMETZ":
-            case "TIME WITH TIME ZONE":
-                result = "TIMETZ";
-                break;
-            // TIMESTAMP aliases
-            case "TIMESTAMP":
-            case "TIMESTAMP WITHOUT TIME ZONE":
-                result = "TIMESTAMP";
-                break;
-            // TIMESTAMPTZ aliases
-            case "TIMESTAMPTZ":
-            case "TIMESTAMP WITH TIME ZONE":
-                result = "TIMESTAMPTZ";
-                break;
-            // CHAR aliases
-            case "CHAR":
-            case "BPCHAR":
-            case "CHARACTER":
-                result = "CHAR";
-                break;
-            // VARCHAR aliases
-            case "VARCHAR":
-            case "CHARACTER VARYING":
-                result = "VARCHAR";
-                break;
-            // TEXT aliases
-            case "TEXT":
-                result = "TEXT";
-                break;
-            // VARBIT aliases
-            case "BIT VARYING":
-            case "VARBIT":
-                result = "VARBIT";
-                break;
-            // ARRAY types - remove [] suffix and process base type
-            case "BOOLEAN[]":
-            case "BOOL[]":
-                result = "BOOLEAN[]";
-                break;
-            case "INT2[]":
-            case "SMALLINT[]":
-            case "SMALLSERIAL[]":
-                result = "SMALLINT[]";
-                break;
-            case "INT[]":
-            case "INT4[]":
-            case "SERIAL[]":
-            case "INTEGER[]":
-                result = "INTEGER[]";
-                break;
-            case "INT8[]":
-            case "BIGINT[]":
-            case "BIGSERIAL[]":
-            case "SERIAL8[]":
-                result = "BIGINT[]";
-                break;
-            case "NUMERIC[]":
-            case "DECIMAL[]":
-                result = "DECIMAL[]";
-                break;
-            case "FLOAT8[]":
-            case "FLOAT[]":
-            case "DOUBLE PRECISION[]":
-                result = "FLOAT8[]";
-                break;
-            case "FLOAT4[]":
-            case "REAL[]":
-                result = "REAL[]";
-                break;
-            case "TIME[]":
-            case "TIME WITHOUT TIME ZONE[]":
-                result = "TIME[]";
-                break;
-            case "TIMETZ[]":
-            case "TIME WITH TIME ZONE[]":
-                result = "TIMETZ[]";
-                break;
-            case "TIMESTAMP[]":
-            case "TIMESTAMP WITHOUT TIME ZONE[]":
-                result = "TIMESTAMP[]";
-                break;
-            case "TIMESTAMPTZ[]":
-            case "TIMESTAMP WITH TIME ZONE[]":
-                result = "TIMESTAMPTZ[]";
-                break;
-            case "CHAR[]":
-            case "CHARACTER[]":
-                result = "CHAR[]";
-                break;
-            case "VARCHAR[]":
-            case "CHARACTER VARYING[]":
-                result = "VARCHAR[]";
-                break;
-            case "TEXT[]":
-            case "TXID_SNAPSHOT[]":
-                result = "TEXT[]";
-                break;
-            case "BIT VARYING[]":
-            case "VARBIT[]":
-                result = "VARBIT[]";
-                break;
-            default:
-                result = typeName;
-                break;
+        final PgType dataType;
+        dataType = this.aliasToTypeMap.get(typeName);
+        if (dataType != null) {
+            typeName = dataType.typeName();
         }
-        return result;
+        return typeName;
     }
 
 

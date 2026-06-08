@@ -404,7 +404,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
             case BIGINT_ARRAY:
             case DECIMAL_ARRAY:
             case REAL_ARRAY:
-            case FLOAT8_ARRAY:
+            case DOUBLE_ARRAY:
 
             case CHAR_ARRAY:
             case VARCHAR_ARRAY:

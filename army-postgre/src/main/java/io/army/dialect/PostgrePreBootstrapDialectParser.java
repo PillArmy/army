@@ -30,8 +30,8 @@ final class PostgrePreBootstrapDialectParser implements PreBootstrapParser {
 
     PostgrePreBootstrapDialectParser(ServerMeta serverMeta) {
         this.serverMeta = serverMeta;
-        this.identifierHandler = PostgreDialectUtils::handleIdentifier;
-        this.keywordsSet = PostgreDialectUtils.createKeywordsSet();
+        this.identifierHandler = _PostgreDialectUtils::handleIdentifier;
+        this.keywordsSet = _PostgreDialectUtils.createKeywordsSet();
     }
 
     ///

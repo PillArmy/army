@@ -594,13 +594,13 @@ abstract class PostgreParser extends _ArmyDialectParser {
 
     @Override
     final Set<String> createKeyWordSet(ServerMeta serverMeta) {
-        return PostgreDialectUtils.createKeywordsSet();
+        return _PostgreDialectUtils.createKeywordsSet();
     }
 
 
     @Override
     final IdentifierHandler createIdentifierHandler(ServerMeta serverMeta) {
-        return PostgreDialectUtils::handleIdentifier;
+        return _PostgreDialectUtils::handleIdentifier;
     }
 
     @Override

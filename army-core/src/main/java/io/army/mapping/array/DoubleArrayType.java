@@ -118,7 +118,7 @@ public class DoubleArrayType extends _ArmyBuildInArrayType {
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = PgType.FLOAT8_ARRAY;
+                dataType = PgType.DOUBLE_ARRAY;
                 break;
             case MySQL:
             case SQLite:

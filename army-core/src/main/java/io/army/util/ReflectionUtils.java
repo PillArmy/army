@@ -64,6 +64,13 @@ public abstract class ReflectionUtils {
     }
 
 
+    public static Object invokeStaticFactoryMethod(final String className, final Class<?> returnType, final String methodName,
+                                                   final Class<?>[] paramTypeArray, final Object... paramArray) {
+        final Method method = getStaticFactoryMethod(className, returnType, methodName, paramTypeArray);
+        return invokeStaticFactoryMethod(method, paramArray);
+    }
+
+
     /// @return unmodifiable list
     public static List<Class<?>> getTypeArgumentList(final Field field) {
         final Type genericType = field.getGenericType();
