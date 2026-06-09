@@ -44,6 +44,10 @@ public interface DataType extends TypeDef, TypeObject {
         return typeName();
     }
 
+    default String safeTypeAlias() {
+        return typeName();
+    }
+
     TypeDef parens(long precision);
 
     TypeDef parens(int precision, int scale);

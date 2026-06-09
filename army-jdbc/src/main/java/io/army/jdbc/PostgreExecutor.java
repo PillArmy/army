@@ -193,6 +193,8 @@ abstract class PostgreExecutor extends JdbcExecutor {
             stmt.setObject(indexBasedOne, createPgObject(type, dataType, value));
         } else if (!(dataType instanceof PgType)) {
             throw mapMethodError(type, dataType);
+        } else if (dataType.isArray()) {
+            stmt.setObject(indexBasedOne, createPgObject(type, dataType, value));
         } else switch ((PgType) dataType) {
             case UUID: {
                 if (!(value instanceof UUID)) {
@@ -229,7 +231,6 @@ abstract class PostgreExecutor extends JdbcExecutor {
             }
             break;
             case VECTOR:
-            case VECTOR_ARRAY:
             case JSON:
             case JSONB:
 
@@ -268,7 +269,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
 
             case PG_LSN:
             case PG_SNAPSHOT:
-
+            case XML:
             case JSONPATH:
                 stmt.setObject(indexBasedOne, createPgObject(type, dataType, value));
                 break;
@@ -347,6 +348,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
             case UUID:
                 value = resultSet.getObject(indexBasedOne, UUID.class);
                 break;
+            case VECTOR:
             case CHAR:
             case VARCHAR:
             case BPCHAR:
@@ -589,7 +591,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
             throw beforeBindMethodError(type, dataType, value);
         }
         final PGobject pgObject = new PGobject();
-        pgObject.setType(dataType.typeName().toLowerCase(Locale.ROOT));
+        pgObject.setType(dataType.safeTypeAlias());
         pgObject.setValue(v);
 
         return pgObject;

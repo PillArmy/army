@@ -398,10 +398,14 @@ final class ArmyTransactionInfo implements TransactionInfo {
             if (timeoutMillis != null) {
                 optionMap.put(Option.TIMEOUT_MILLIS, timeoutMillis);
             }
-            final String label;
-            label = option.valueOf(Option.LABEL);
-            if (label != null) {
-                optionMap.put(Option.LABEL, label);
+            String textValue;
+            textValue = option.valueOf(Option.LABEL);
+            if (textValue != null) {
+                optionMap.put(Option.LABEL, textValue);
+            }
+            textValue = option.valueOf(Option.NAME);
+            if (textValue != null) {
+                optionMap.put(Option.NAME, textValue);
             }
             return this;
         }

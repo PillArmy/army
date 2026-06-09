@@ -28,8 +28,10 @@ import io.army.util._StringUtils;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.BitSet;
+import java.util.Locale;
 
 /// Enumeration of PostgreSQL data types mapped to Java types.
+///
 /// @see <a href="https://www.postgresql.org/docs/current/datatype.html">Postgre Data Types</a>
 public enum PgType implements SQLType {
 
@@ -271,6 +273,60 @@ public enum PgType implements SQLType {
     public final boolean isArray() {
         return this.armyType == ArmyType.ARRAY;
     }
+
+    @Override
+    public String safeTypeAlias() {
+        // for org.postgresql.jdbc.TypeInfoCache
+        final String alias;
+        switch (this) {
+            case BOOLEAN:
+                alias = "bool";
+                break;
+            case SMALLINT:
+                alias = "int2";
+                break;
+            case INTEGER:
+                alias = "int4";
+                break;
+            case BIGINT:
+                alias = "int8";
+                break;
+            case DECIMAL:
+                alias = "numeric";
+                break;
+            case REAL:
+                alias = "float4";
+                break;
+            case DOUBLE:
+                alias = "float8";
+                break;
+            case BOOLEAN_ARRAY:
+                alias = "bool[]";
+                break;
+            case SMALLINT_ARRAY:
+                alias = "int2[]";
+                break;
+            case INTEGER_ARRAY:
+                alias = "int4[]";
+                break;
+            case BIGINT_ARRAY:
+                alias = "int8[]";
+                break;
+            case DECIMAL_ARRAY:
+                alias = "numeric[]";
+                break;
+            case REAL_ARRAY:
+                alias = "float4[]";
+                break;
+            case DOUBLE_ARRAY:
+                alias = "float8[]";
+                break;
+            default:
+                alias = this.typeName.toLowerCase(Locale.ROOT);
+        }
+        return alias;
+    }
+
 
     @Override
     public final TypeDef._TypeDefCollateClause parens(final long precision) {

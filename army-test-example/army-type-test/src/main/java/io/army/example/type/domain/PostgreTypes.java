@@ -10,7 +10,7 @@ import java.util.UUID;
 
 
 @Table(name = "postgre_types", comment = "postgre types for army example")
-public class Postgre implements FieldAccessPojo {
+public class PostgreTypes implements FieldAccessPojo {
 
 
     @Generator(type = GeneratorType.POST)
