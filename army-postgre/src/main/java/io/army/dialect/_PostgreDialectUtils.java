@@ -23,6 +23,7 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 
 import java.util.*;
+import java.util.function.Function;
 
 public abstract class _PostgreDialectUtils {
 
@@ -33,83 +34,43 @@ public abstract class _PostgreDialectUtils {
     }
 
 
-
-
+    /// Reflection call
+    ///
+    /// see {@code io.army.schema.PostgreComparer}
+    @SuppressWarnings("unused")
     public static Map<String, PgType> getAliasToTypeMap() {
         return ALIAS_TO_TYPE_MAP;
     }
 
-
-    /// an unmodifiable map
-     private static Map<String, PgType> createAliasToTypeMap() {
-        final PgType[] values = PgType.values();
-
-        final Map<PgType, List<String>> listMap = _Collections.hashMapForSize(20);
-
-        listMap.put(PgType.BOOLEAN, List.of("BOOLEAN", "BOOL"));
-        listMap.put(PgType.SMALLINT, List.of("INT2", "SMALLINT", "SMALLSERIAL"));
-        listMap.put(PgType.INTEGER, List.of("INT", "INT4", "INTEGER", "SERIAL", "XID", "CID"));   // https://www.postgresql.org/docs/current/datatype-oid.html
-        listMap.put(PgType.BIGINT, List.of("INT8", "BIGINT", "BIGSERIAL", "SERIAL8", "XID8")); // https://www.postgresql.org/docs/current/datatype-oid.html  TODO what's tid ?
-
-        listMap.put(PgType.DECIMAL, List.of("NUMERIC", "DECIMAL"));
-        listMap.put(PgType.DOUBLE, List.of("FLOAT8", "DOUBLE PRECISION", "FLOAT"));
-        listMap.put(PgType.REAL, List.of("FLOAT4", "REAL"));
-        listMap.put(PgType.CHAR, List.of("CHAR", "BPCHAR", "CHARACTER"));
-
-        listMap.put(PgType.VARCHAR, List.of("VARCHAR", "CHARACTER VARYING"));
-        listMap.put(PgType.TEXT, List.of("TEXT", "TXID_SNAPSHOT"));
-        listMap.put(PgType.TIME, List.of("TIME", "TIME WITHOUT TIME ZONE"));
-        listMap.put(PgType.TIMETZ, List.of("TIMETZ", "TIME WITH TIME ZONE"));
-
-        listMap.put(PgType.TIMESTAMP, List.of("TIMESTAMP", "TIMESTAMP WITHOUT TIME ZONE"));
-        listMap.put(PgType.TIMESTAMPTZ, List.of("TIMESTAMPTZ", "TIMESTAMP WITH TIME ZONE"));
-        listMap.put(PgType.VARBIT, List.of("VARBIT", "BIT VARYING"));
+    /// Reflection call
+    ///
+    /// see {@code io.army.schema.PostgreComparer}
+    @SuppressWarnings("unused")
+    public static Function<String, List<String>> decodeIdentifierFunc() {
+        return _PostgreDialectUtils::decodeIdentifier;
+    }
 
 
-        final Map<String, PgType> map = _Collections.hashMapForSize(values.length * 3);
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS">Identifiers and Keywords</a>
+    public static List<String> decodeIdentifier(final String text) {
+        final int length = text.length();
 
-        PgType elementType;
-        for (Map.Entry<PgType, List<String>> e : listMap.entrySet()) {
-            elementType = e.getKey();
-            for (String alias : e.getValue()) {
-                map.put(alias, elementType);
+        final StringBuilder builder = new StringBuilder(length);
+        final List<String> list = new ArrayList<>(2);
+
+        for (int i = 0; i < length; i++) {
+            if (text.charAt(i) == _Constant.DOUBLE_QUOTE) {
+                i = decodeQuotedIdentifier(text, i, length, builder, list);
+            } else {
+                i = decodeUnquotedIdentifier(text, i, length, builder, list);
             }
+        } // loop
+
+
+        if (list.isEmpty()) {
+            throw new IllegalStateException("bug");
         }
-
-        for (PgType value : values) {
-            if (!value.isArray()) {
-                map.putIfAbsent(value.typeName(), value);
-            }
-
-        }
-
-        final StringBuilder builder = new StringBuilder(15);
-
-        List<String> aliasList;
-        for (PgType value : values) {
-            if (!value.isArray()) {
-                continue;
-            }
-
-            aliasList = listMap.get(Objects.requireNonNull(value.elementType()));
-            Objects.requireNonNull(aliasList);
-
-            for (String alias : aliasList) {
-
-                builder.setLength(0);
-                builder.append(alias)
-                        .append("[]");
-                map.put(builder.toString(), value);
-
-                builder.setLength(0);
-                builder.append('_')
-                        .append(alias);
-                map.put(builder.toString(), value);
-            }  // aliasList loop
-
-        } // values loop
-
-        return Map.copyOf(map);
+        return list;
     }
 
 
@@ -471,4 +432,206 @@ public abstract class _PostgreDialectUtils {
 
         return keywords;
     }
+
+
+    /// an unmodifiable map
+    private static Map<String, PgType> createAliasToTypeMap() {
+        final PgType[] values = PgType.values();
+
+        final Map<PgType, List<String>> listMap = _Collections.hashMapForSize(20);
+
+        listMap.put(PgType.BOOLEAN, List.of("BOOLEAN", "BOOL"));
+        listMap.put(PgType.SMALLINT, List.of("INT2", "SMALLINT", "SMALLSERIAL"));
+        listMap.put(PgType.INTEGER, List.of("INT", "INT4", "INTEGER", "SERIAL", "XID", "CID"));   // https://www.postgresql.org/docs/current/datatype-oid.html
+        listMap.put(PgType.BIGINT, List.of("INT8", "BIGINT", "BIGSERIAL", "SERIAL8", "XID8")); // https://www.postgresql.org/docs/current/datatype-oid.html  TODO what's tid ?
+
+        listMap.put(PgType.DECIMAL, List.of("NUMERIC", "DECIMAL"));
+        listMap.put(PgType.DOUBLE, List.of("FLOAT8", "DOUBLE PRECISION", "FLOAT"));
+        listMap.put(PgType.REAL, List.of("FLOAT4", "REAL"));
+        listMap.put(PgType.CHAR, List.of("CHAR", "BPCHAR", "CHARACTER"));
+
+        listMap.put(PgType.VARCHAR, List.of("VARCHAR", "CHARACTER VARYING"));
+        listMap.put(PgType.TEXT, List.of("TEXT", "TXID_SNAPSHOT"));
+        listMap.put(PgType.TIME, List.of("TIME", "TIME WITHOUT TIME ZONE"));
+        listMap.put(PgType.TIMETZ, List.of("TIMETZ", "TIME WITH TIME ZONE"));
+
+        listMap.put(PgType.TIMESTAMP, List.of("TIMESTAMP", "TIMESTAMP WITHOUT TIME ZONE"));
+        listMap.put(PgType.TIMESTAMPTZ, List.of("TIMESTAMPTZ", "TIMESTAMP WITH TIME ZONE"));
+        listMap.put(PgType.VARBIT, List.of("VARBIT", "BIT VARYING"));
+
+
+        final Map<String, PgType> map = _Collections.hashMapForSize(values.length * 3);
+
+        PgType elementType;
+        for (Map.Entry<PgType, List<String>> e : listMap.entrySet()) {
+            elementType = e.getKey();
+            for (String alias : e.getValue()) {
+                map.put(alias, elementType);
+            }
+        }
+
+        for (PgType value : values) {
+            if (!value.isArray()) {
+                map.put(value.typeName(), value);
+            }
+
+        }
+
+        final StringBuilder builder = new StringBuilder(15);
+
+        List<String> aliasList;
+
+        final List<String> singletonList = new ArrayList<>(1);
+        for (PgType value : values) {
+            if (!value.isArray()) {
+                continue;
+            }
+            elementType = Objects.requireNonNull(value.elementType());
+            aliasList = listMap.get(elementType);
+
+            if (aliasList == null) {
+                singletonList.clear();
+                singletonList.add(elementType.typeName());
+                aliasList = singletonList;
+            }
+
+            for (String alias : aliasList) {
+
+                builder.setLength(0);
+                builder.append(alias)
+                        .append("[]");
+                map.put(builder.toString(), value);
+
+                builder.setLength(0);
+                builder.append('_')
+                        .append(alias);
+                map.put(builder.toString(), value);
+            }  // aliasList loop
+
+        } // values loop
+
+        return Map.copyOf(map);
+    }
+
+
+    private static IllegalArgumentException notIdentifierError() {
+        return new IllegalArgumentException("not postgre identifier");
+    }
+
+    /// @see #decodeIdentifier(String)
+    private static int decodeQuotedIdentifier(final String text, int offest, final int length,
+                                              StringBuilder builder, List<String> list) {
+        final int originalSize = list.size();
+
+        boolean inQuote = false;
+        char ch, nextChar;
+        int lastWritten = offest;
+        for (int nextIndex; offest < length; offest++) {
+            ch = text.charAt(offest);
+
+            if (ch != _Constant.DOUBLE_QUOTE) {
+                continue;
+            }
+
+            if (!inQuote) {
+                lastWritten = offest + 1;
+                builder.setLength(0);  // clear
+                inQuote = true;
+                continue;
+            }
+
+            nextIndex = offest + 1;
+            if (nextIndex == length) {
+                builder.append(text, lastWritten, offest);
+                list.add(builder.toString());
+                inQuote = false;
+                continue;
+            }
+
+            if (offest <= lastWritten) {
+                throw new IllegalStateException("bug");
+            }
+
+            builder.append(text, lastWritten, offest);
+            offest++;  // skip next char
+            lastWritten = offest;
+
+            nextChar = text.charAt(nextIndex);
+            if (nextChar == _Constant.DOUBLE_QUOTE) {
+                continue;
+            }
+
+            if (nextChar == _Constant.PERIOD) {
+                list.add(builder.toString());
+                inQuote = false;
+                break;
+            }
+
+        } // loop
+
+        if (inQuote) {
+            throw notIdentifierError();
+        }
+        if (originalSize + 1 != list.size()) {
+            throw new IllegalStateException("bug");
+        }
+        return offest;
+    }
+
+
+    /// @see #decodeIdentifier(String)
+    private static int decodeUnquotedIdentifier(final String text, int offest, final int length,
+                                                StringBuilder builder, List<String> list) {
+        final int originalSize = list.size();
+
+        boolean enclose = false;
+
+        char ch;
+        int lastWritten = offest;
+        for (int nextIndex; offest < length; offest++) {
+            ch = text.charAt(offest);
+
+            if (ch == _Constant.DOUBLE_QUOTE || ch == _Constant.PERIOD || Character.isWhitespace(ch)) {
+                throw notIdentifierError();
+            }
+
+            if (!enclose) {
+                lastWritten = offest;
+                builder.setLength(0);  // clear
+                enclose = true;
+                continue;
+            }
+
+            if (offest <= lastWritten) {
+                throw new IllegalStateException("bug");
+            }
+
+            nextIndex = offest + 1;
+            if (nextIndex == length) {
+                builder.append(text, lastWritten, length);
+                list.add(builder.toString());
+                enclose = false;
+                continue;
+            }
+
+            if (text.charAt(nextIndex) == _Constant.PERIOD) {
+                offest++;  // firstly skip next char
+                builder.append(text, lastWritten, offest); // use offest after ++
+                list.add(builder.toString());
+                enclose = false;
+                break;
+            }
+
+        } // loop
+
+        if (enclose) {
+            throw notIdentifierError();
+        }
+        if (originalSize + 1 != list.size()) {
+            throw new IllegalStateException("bug");
+        }
+        return offest;
+    }
+
+
 }

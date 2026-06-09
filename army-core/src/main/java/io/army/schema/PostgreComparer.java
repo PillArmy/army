@@ -16,16 +16,18 @@
 
 package io.army.schema;
 
+import io.army.dialect._Constant;
 import io.army.dialect._DialectUtils;
 import io.army.meta.*;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.util.ReflectionUtils;
-import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 final class PostgreComparer extends ArmySchemaComparer {
@@ -38,12 +40,19 @@ final class PostgreComparer extends ArmySchemaComparer {
 
     private final Map<String, PgType> aliasToTypeMap;
 
+    private final Function<String, List<String>> decodeIdentifierFunc;
+    ;
+
     @SuppressWarnings("unchecked")
     private PostgreComparer(ServerMeta serverMeta) {
         super(serverMeta);
         final String className = "io.army.dialect._PostgreDialectUtils";
+        final Class<?>[] paramTypeArray = new Class<?>[0];
+
         this.aliasToTypeMap = (Map<String, PgType>) ReflectionUtils.invokeStaticFactoryMethod(
-                className, Map.class, "getAliasToTypeMap", new Class<?>[0]);
+                className, Map.class, "getAliasToTypeMap", paramTypeArray);
+        this.decodeIdentifierFunc = (Function<String, List<String>>) ReflectionUtils.invokeStaticFactoryMethod(
+                className, Function.class, "decodeIdentifierFunc", paramTypeArray);
     }
 
 
@@ -57,10 +66,11 @@ final class PostgreComparer extends ArmySchemaComparer {
         return !((catalog.isEmpty() || catalog.equals(serverDatabase)) && (schema.isEmpty() || schema.equals(serverSchema)));
     }
 
+
     @Override
     boolean compareSqlType(final ColumnInfo columnInfo, final FieldMeta<?> field, final DataType dataType) {
         final String typeName;
-        typeName = columnInfo.typeName().toUpperCase(Locale.ROOT);
+        typeName = identifierOf(dataType.typeName());
         if (!(dataType instanceof PgType)) {
             final boolean notMatch;
             if (dataType.isArray()) {
@@ -164,13 +174,28 @@ final class PostgreComparer extends ArmySchemaComparer {
     /// @param typeName the type name to get canonical name for
     /// @return the canonical type name, or the original name if no mapping exists
     private String getFanonicalName(String typeName) {
-        typeName = typeName.toUpperCase(Locale.ROOT);
+        typeName = identifierOf(typeName);
         final PgType dataType;
         dataType = this.aliasToTypeMap.get(typeName);
         if (dataType != null) {
             typeName = dataType.typeName();
         }
         return typeName;
+    }
+
+    /// uppercase and remove double quotes and schema name if any
+    private String identifierOf(String typeName) {
+        if (typeName.indexOf(_Constant.DOUBLE_QUOTE) > -1) {
+            final List<String> list;
+            list = this.decodeIdentifierFunc.apply(typeName);
+            typeName = list.getLast();
+        } else {
+            final int index = typeName.indexOf('.');
+            if (index > -1) {
+                typeName = typeName.substring(index + 1);
+            }
+        }
+        return typeName.toUpperCase(Locale.ROOT);
     }
 
 
