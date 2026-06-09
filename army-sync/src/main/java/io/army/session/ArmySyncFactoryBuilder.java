@@ -139,6 +139,8 @@ final class ArmySyncFactoryBuilder
     }
 
 
+    // 保留
+    @SuppressWarnings("unused")
     private Map<String, String> createTypeNameToSchemaMap(ServerMeta serverMeta, ParserFactory parserFactory,
                                                           SyncExecutorFactoryProvider provider) {
         try (SyncPreBootstrapExecutor executor = provider.createExecutor()) {
@@ -232,15 +234,18 @@ final class ArmySyncFactoryBuilder
         final ParserFactory parserFactory;
         parserFactory = ParserFactories.createFactory(serverMeta);
 
-        final Map<String, String> typeNameToSchemaMap;
-        if (this.extensionNameSet.isEmpty() && this.definedTypeMap.isEmpty()) {
-            typeNameToSchemaMap = Map.of();
-        } else {
-            typeNameToSchemaMap = createTypeNameToSchemaMap(serverMeta, parserFactory, provider);
-        }
+// 前缀方案,对于 pg jdbc 来说太复杂,尤其是在 bind parameter 的情况下.
+// 官方文档 "options", "-c search_path=test,public,pg_catalog -c statement_timeout=90000" 是骗人的,实测并不生效,应该使用
+// currentSchema=army_types,my_stock,public
+//        final Map<String, String> typeNameToSchemaMap;
+//        if (this.extensionNameSet.isEmpty() && this.definedTypeMap.isEmpty()) {
+//            typeNameToSchemaMap = Map.of();
+//        } else {
+//            typeNameToSchemaMap = createTypeNameToSchemaMap(serverMeta, parserFactory, provider);
+//        }
 
         final DialectEnv dialectEnv;
-        dialectEnv = createDialectEnv(factoryName, false, serverMeta, env, typeNameToSchemaMap);
+        dialectEnv = createDialectEnv(factoryName, false, serverMeta, env, Map.of());
 
         final DialectParser dialectParser;
         this.dialectParser = dialectParser = parserFactory.createDialectParser(dialectEnv);

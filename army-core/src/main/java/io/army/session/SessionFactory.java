@@ -23,6 +23,7 @@ import io.army.env.AllowMode;
 import io.army.env.ArmyEnvironment;
 import io.army.executor.ExecutorFactory;
 import io.army.lang.Nullable;
+import io.army.mapping.MappingEnv;
 import io.army.meta.SchemaMeta;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
@@ -56,6 +57,8 @@ public sealed interface SessionFactory extends CloseableSpec, OptionSpec permits
     Database dialectDatabase();
 
     JsonCodec jsonCodec();
+
+    MappingEnv mappingEnv();
 
     Map<Class<?>, TableMeta<?>> tableMap();
 

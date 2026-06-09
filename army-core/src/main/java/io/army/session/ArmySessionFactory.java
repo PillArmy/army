@@ -178,6 +178,11 @@ abstract class ArmySessionFactory implements PackageSessionFactory {
     }
 
     @Override
+    public final MappingEnv mappingEnv() {
+        return this.mappingEnv;
+    }
+
+    @Override
     public final boolean isSupportSavePoints() {
         return this.mappingEnv.serverMeta().isSupportSavePoints();
     }
