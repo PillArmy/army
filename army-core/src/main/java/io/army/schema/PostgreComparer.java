@@ -71,8 +71,13 @@ final class PostgreComparer extends ArmySchemaComparer {
     boolean compareSqlType(final ColumnInfo columnInfo, final FieldMeta<?> field, final DataType dataType) {
         final String typeName;
         typeName = identifierOf(dataType.typeName());
+
+        final int precision, scale;
+        precision = field.precision();
+        scale = field.scale();
+
         if (!(dataType instanceof PgType)) {
-            final boolean notMatch;
+            boolean notMatch;
             if (dataType.isArray()) {
                 notMatch = !typeName.equals(dataType.typeName().toUpperCase(Locale.ROOT))
                         && typeName.equals('_' + _DialectUtils.obtainElementType(dataType).typeName().toUpperCase(Locale.ROOT))
@@ -80,21 +85,24 @@ final class PostgreComparer extends ArmySchemaComparer {
             } else {
                 notMatch = !typeName.equals(dataType.typeName().toUpperCase(Locale.ROOT));
             }
+            if (!notMatch) {
+                notMatch = (precision > -1 && precision != columnInfo.precision())
+                        || (scale > -1 && scale != columnInfo.scale());
+            }
             return notMatch;
         }
 
         final PgType type;
         type = this.aliasToTypeMap.get(typeName);
 
-        final int precision, scale;
-        precision = field.precision();
-        scale = field.scale();
-
         final boolean notMatch;
         if (type == null) {
             notMatch = true;
         } else switch (type) {
             case CHAR:
+            case BPCHAR:
+                notMatch = precision > -1 && precision != columnInfo.precision();
+                break;
             case CHAR_ARRAY:
             case VARCHAR:
             case VARCHAR_ARRAY:
@@ -104,7 +112,8 @@ final class PostgreComparer extends ArmySchemaComparer {
             case BIT_ARRAY:
             case VARBIT:
             case VARBIT_ARRAY:
-                notMatch = precision > -1 && precision != columnInfo.precision();
+                notMatch = type != dataType
+                        || precision > -1 && precision != columnInfo.precision();
                 break;
             case TIME:
             case TIME_ARRAY:
@@ -114,12 +123,14 @@ final class PostgreComparer extends ArmySchemaComparer {
             case TIMESTAMP_ARRAY:
             case TIMESTAMPTZ:
             case TIMESTAMPTZ_ARRAY:
-                notMatch = scale > -1 && scale != columnInfo.scale();
+                notMatch = type != dataType
+                        || scale > -1 && scale != columnInfo.scale();
                 break;
             case VECTOR:  // Current JDBC does not return the real length of vector.
             case VECTOR_ARRAY:
             default:
-                notMatch = (precision > -1 && precision != columnInfo.precision())
+                notMatch = type != dataType
+                        || (precision > -1 && precision != columnInfo.precision())
                         || (scale > -1 && scale != columnInfo.scale());
         } // switch
 

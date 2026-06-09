@@ -435,6 +435,7 @@ public abstract class _PostgreDialectUtils {
 
 
     /// an unmodifiable map
+    /// @see <a href="https://www.postgresql.org/docs/current/datatype.html">Data Types</a>
     private static Map<String, PgType> createAliasToTypeMap() {
         final PgType[] values = PgType.values();
 

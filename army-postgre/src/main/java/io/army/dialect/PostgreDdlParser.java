@@ -498,6 +498,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
                 this.appendTimeDateType(field, pgType, builder);
                 break;
             case CHAR:
+            case BPCHAR:
             case VARCHAR: {
                 builder.append(dataType.typeName());
                 if (field.precision() > -1) { // https://www.postgresql.org/docs/current/datatype-character.html
