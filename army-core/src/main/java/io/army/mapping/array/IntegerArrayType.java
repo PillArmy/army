@@ -28,24 +28,27 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
+
+import java.util.Objects;
 
 public class IntegerArrayType extends _ArmyBuildInArrayType {
 
 
-    public static IntegerArrayType from(final Class<?> arrayClass) {
+    public static IntegerArrayType from(final Class<?> javaClass) {
         final IntegerArrayType instance;
         final Class<?> componentType;
-        if (arrayClass == Integer[].class) {
+        if (javaClass == Integer[].class) {
             instance = LINEAR;
-        } else if (arrayClass == int[].class) {
+        } else if (javaClass == int[].class) {
             instance = PRIMITIVE_LINEAR;
-        } else if (!arrayClass.isArray()) {
-            throw errorJavaType(IntegerArrayType.class, arrayClass);
-        } else if ((componentType = ArrayUtils.underlyingComponent(arrayClass)) == int.class
+        } else if (!javaClass.isArray()) {
+            throw errorJavaType(IntegerArrayType.class, javaClass);
+        } else if ((componentType = ArrayUtils.underlyingComponent(javaClass)) == int.class
                 || componentType == Integer.class) {
-            instance = new IntegerArrayType(arrayClass, componentType);
+            instance = CLASS_VALUE.get(javaClass);
         } else {
-            throw errorJavaType(IntegerArrayType.class, arrayClass);
+            throw errorJavaType(IntegerArrayType.class, javaClass);
         }
         return instance;
     }
@@ -64,12 +67,13 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
 
     public static final IntegerArrayType UNLIMITED = new IntegerArrayType(Object.class, Integer.class);
 
-    public static final IntegerArrayType LINEAR = new IntegerArrayType(Integer[].class, Integer.class);
+    public static final IntegerArrayType LINEAR = new IntegerArrayType(Integer[].class);
 
     public static final IntegerArrayType PRIMITIVE_UNLIMITED = new IntegerArrayType(Object.class, int.class);
 
-    public static final IntegerArrayType PRIMITIVE_LINEAR = new IntegerArrayType(int[].class, int.class);
+    public static final IntegerArrayType PRIMITIVE_LINEAR = new IntegerArrayType(int[].class);
 
+    private static final ClassValue<IntegerArrayType> CLASS_VALUE = FuncClassValue.create(IntegerArrayType::new);
 
     private final Class<?> javaType;
 
@@ -77,7 +81,13 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
 
 
     /// private constructor
-    private IntegerArrayType(final Class<?> javaType, Class<?> underlyingJavaType) {
+    private IntegerArrayType(final Class<?> javaType) {
+        this.javaType = javaType;
+        this.underlyingJavaType = ArrayUtils.underlyingComponent(javaType);
+    }
+
+    /// private constructor
+    private IntegerArrayType(Class<Object> javaType, Class<?> underlyingJavaType) {
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;
     }
@@ -92,6 +102,25 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
     public Class<?> underlyingJavaType() {
         return this.underlyingJavaType;
     }
+
+
+    @Override
+    public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
+        return mapToDataType(this, meta);
+    }
+
+
+    @Override
+    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, IntegerArrayType::appendToText, dataType, this);
+    }
+
+    @Override
+    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        final boolean nonNull = this.underlyingJavaType == int.class;
+        return PostgreArrays.arrayAfterGet(this, dataType, source, nonNull, IntegerArrayType::parseText);
+    }
+
 
     @Override
     public MappingType elementType() {
@@ -117,21 +146,24 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
-        return mapToDataType(this, meta);
-    }
-
-
-    @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, IntegerArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
+    public int hashCode() {
+        return Objects.hash(this.javaType, this.underlyingJavaType);
     }
 
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        final boolean nonNull = this.underlyingJavaType == int.class;
-        return PostgreArrays.arrayAfterGet(this, dataType, source, nonNull, IntegerArrayType::parseText, ACCESS_ERROR_HANDLER);
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof IntegerArrayType o) {
+            match = o.javaType == this.javaType
+                    && o.underlyingJavaType == this.underlyingJavaType;
+        } else {
+            match = false;
+        }
+        return match;
     }
+
 
     /*-------------------below static methods -------------------*/
 
@@ -145,7 +177,7 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
             case H2:
             case MySQL:
             default:
-                throw MAP_ERROR_HANDLER.apply(type, meta);
+                throw mapError(type, meta);
         }
         return dataType;
     }

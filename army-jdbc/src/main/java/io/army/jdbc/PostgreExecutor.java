@@ -288,7 +288,11 @@ abstract class PostgreExecutor extends JdbcExecutor {
         final Object value;
 
         if (!(dataType instanceof SQLType)) {
-            value = resultSet.getObject(indexBasedOne);
+            value = resultSet.getString(indexBasedOne);
+        } else if (!(dataType instanceof PgType)) {
+            throw mapMethodError(type, dataType);
+        } else if (dataType.isArray()) {
+            value = resultSet.getString(indexBasedOne);
         } else switch ((PgType) dataType) {
             case BOOLEAN:
                 value = resultSet.getObject(indexBasedOne, Boolean.class);
@@ -399,72 +403,6 @@ abstract class PostgreExecutor extends JdbcExecutor {
 
             case MONEY:
             case RECORD:
-
-            case BOOLEAN_ARRAY:
-            case INTEGER_ARRAY:
-            case SMALLINT_ARRAY:
-            case BIGINT_ARRAY:
-            case DECIMAL_ARRAY:
-            case REAL_ARRAY:
-            case DOUBLE_ARRAY:
-
-            case CHAR_ARRAY:
-            case VARCHAR_ARRAY:
-            case TEXT_ARRAY:
-
-            case BYTEA_ARRAY:
-
-            case DATE_ARRAY:
-            case TIME_ARRAY:
-            case TIMETZ_ARRAY:
-            case TIMESTAMP_ARRAY:
-            case TIMESTAMPTZ_ARRAY:
-            case INTERVAL_ARRAY:
-
-            case BIT_ARRAY:
-            case VARBIT_ARRAY:
-            case UUID_ARRAY:
-
-            case CIDR_ARRAY:
-            case INET_ARRAY:
-            case MACADDR_ARRAY:
-            case MACADDR8_ARRAY:
-
-            case JSON_ARRAY:
-            case JSONB_ARRAY:
-            case JSONPATH_ARRAY:
-            case XML_ARRAY:
-
-            case POINT_ARRAY:
-            case LINE_ARRAY:
-            case LSEG_ARRAY:
-            case PATH_ARRAY:
-            case BOX_ARRAY:
-            case CIRCLE_ARRAY:
-            case POLYGON_ARRAY:
-
-            case TSQUERY_ARRAY:
-            case TSVECTOR_ARRAY:
-
-            case INT4RANGE_ARRAY:
-            case INT8RANGE_ARRAY:
-            case NUMRANGE_ARRAY:
-            case DATERANGE_ARRAY:
-            case TSRANGE_ARRAY:
-            case TSTZRANGE_ARRAY:
-
-            case INT4MULTIRANGE_ARRAY:
-            case INT8MULTIRANGE_ARRAY:
-            case NUMMULTIRANGE_ARRAY:
-            case DATEMULTIRANGE_ARRAY:
-            case TSMULTIRANGE_ARRAY:
-            case TSTZMULTIRANGE_ARRAY:
-
-            case MONEY_ARRAY:
-            case RECORD_ARRAY:
-            case ACLITEM_ARRAY:
-            case PG_LSN_ARRAY:
-            case PG_SNAPSHOT_ARRAY:
                 value = resultSet.getString(indexBasedOne);
                 break;
             case PG_LSN: {

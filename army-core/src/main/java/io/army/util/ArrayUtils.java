@@ -195,12 +195,17 @@ public abstract class ArrayUtils {
         }
 
         boolean match = false;
-        for (Class<?> componentType = arrayType; componentType.isArray(); componentType = componentType.getComponentType()) {
+
+        for (Class<?> componentType = arrayType; ; componentType = componentType.getComponentType()) {
             if (componentType == underlying) {
                 match = true;
                 break;
             }
+            if (!componentType.isArray()) {
+                break;
+            }
         }
+
         return match;
     }
 

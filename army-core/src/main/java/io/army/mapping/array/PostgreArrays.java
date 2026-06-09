@@ -136,9 +136,21 @@ public abstract class PostgreArrays extends ArrayMappings {
                                          final DataType dataType, final MappingType type) {
 
         try {
-            final ArrayParser parser = ArrayParser.defaultParser();
+            final Class<?> javaType = type.javaType();
+            if (javaType != Object.class && !ClassUtils.isAssignableFrom(javaType, source.getClass())) {
+                throw UserMappingType.paramError(type, dataType, source, null);
+            }
+            final ArrayParser parser;
+            if (dataType == PgType.BOX_ARRAY) {
+                parser = ArrayParser.builder()
+                        .delimChar(';')
+                        .build();
+            } else {
+                parser = ArrayParser.defaultParser();
+            }
+
             return parser.parse(((MappingType.SqlArray) type).underlyingJavaType(), source, consumer);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             throw UserMappingType.paramError(type, dataType, source, e);
         }
     }

@@ -58,7 +58,8 @@ final class DefaultArrayParser implements ArrayParser {
     }
 
 
-    private void arrayToString(final Class<?> underlyingType, final Object array, final BiConsumer<Object, StringBuilder> consumer, final StringBuilder builder) {
+    private void arrayToString(final Class<?> underlyingType, final Object array,
+                               final BiConsumer<Object, StringBuilder> consumer, final StringBuilder builder) {
         final int arrayLength;
         arrayLength = Array.getLength(array);
         final boolean multiDimension;
