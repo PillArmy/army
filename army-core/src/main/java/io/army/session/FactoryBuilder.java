@@ -25,14 +25,16 @@ import io.army.executor.ExecutorFactoryProvider;
 import io.army.function.DefinedTypeMapFunc;
 import io.army.generator.FieldGeneratorFactory;
 import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.SchemaMeta;
+import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
 import io.army.option.Option;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -166,12 +168,7 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
     /// A consumer traverses {@link FieldMeta} on startup
     B fieldMetaConsumer(@Nullable Consumer<FieldMeta<?>> consumer);
 
-    B defaultExtensionInCurrentSchema(boolean current);
-
-    /// Optional.
-    ///
-    /// Extension name(upper case) to schema name map
-    B extensionSchemaMap(Map<String, String> extensionSchemaMap);
+    B unrecognizedMappingFunc(@Nullable BiFunction<String, ServerMeta, MappingType> func);
 
     /// Create {@link SessionFactory} instance
     ///

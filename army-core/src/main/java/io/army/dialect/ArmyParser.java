@@ -115,6 +115,8 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
     protected final ServerMeta serverMeta;
 
+    final ArmyEnvironment env;
+
     final SchemaMeta serverSchemaMeta;
 
     final Set<String> keyWordSet;
@@ -202,6 +204,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
         this.dialectDatabase = this.dialect.database();
         this.serverDatabase = this.serverMeta.serverDatabase();
 
+        this.env = dialectEnv.environment();
         this.keyWordSet = Set.copyOf(_DialectUtils.createKeyWordSet(createKeyWordSet(this.serverMeta)));
         this.identifierHandler = createIdentifierHandler(this.serverMeta);
 
@@ -211,11 +214,8 @@ abstract non-sealed class ArmyParser implements DialectParser {
         assert this.serverMeta.serverDatabase().isCompatible(dialect);
 
 
-        final ArmyEnvironment env;
-        env = dialectEnv.environment();
-
-        this.literalEscapeMode = env.getOrDefault(ArmyKey.LITERAL_ESCAPE_MODE);
-        this.identifierEscapeMode = env.getOrDefault(ArmyKey.IDENTIFIER_ESCAPE_MODE);
+        this.literalEscapeMode = this.env.getOrDefault(ArmyKey.LITERAL_ESCAPE_MODE);
+        this.identifierEscapeMode = this.env.getOrDefault(ArmyKey.IDENTIFIER_ESCAPE_MODE);
 
 
         this.childUpdateMode = this.childUpdateMode();
@@ -254,25 +254,25 @@ abstract non-sealed class ArmyParser implements DialectParser {
         }
 
 
-        this.tableNameMode = env.getOrDefault(ArmyKey.TABLE_NAME_MODE);
-        this.columnNameMode = env.getOrDefault(ArmyKey.COLUMN_NAME_MODE);
+        this.tableNameMode = this.env.getOrDefault(ArmyKey.TABLE_NAME_MODE);
+        this.columnNameMode = this.env.getOrDefault(ArmyKey.COLUMN_NAME_MODE);
 
-        this.funcNameMode = env.getOrDefault(ArmyKey.FUNC_NAME_MODE);
-        this.truncatedTimeType = env.getOrDefault(ArmyKey.TRUNCATED_TIME_TYPE);
+        this.funcNameMode = this.env.getOrDefault(ArmyKey.FUNC_NAME_MODE);
+        this.truncatedTimeType = this.env.getOrDefault(ArmyKey.TRUNCATED_TIME_TYPE);
         this.supportLastInsertedId = this.dialectDatabase != Database.PostgreSQL || this.dialect.compareWith(PostgreDialect.POSTGRE12) < 0;
 
-        this.qualifiedSchemaName = createQualifiedSchemaName(env, this.serverMeta);
+        this.qualifiedSchemaName = createQualifiedSchemaName(this.env, this.serverMeta);
 
-        this.literalTypeNameEnable = env.getOrDefault(ArmyKey.LITERAL_TYPE_NAME_ENABLE);
-        this.unrecognizedTypeAllowed = env.getOrDefault(ArmyKey.UNRECOGNIZED_TYPE_ALLOWED);
+        this.literalTypeNameEnable = this.env.getOrDefault(ArmyKey.LITERAL_TYPE_NAME_ENABLE);
+        this.unrecognizedTypeAllowed = this.env.getOrDefault(ArmyKey.UNRECOGNIZED_TYPE_ALLOWED);
 
-        if (env.getOrDefault(ArmyKey.CACHE_IDENTIFIER)) {
+        if (this.env.getOrDefault(ArmyKey.CACHE_IDENTIFIER)) {
             this.identifierMap = new ConcurrentHashMap<>();
         } else {
             this.identifierMap = null;
         }
 
-        switch (env.getOrDefault(ArmyKey.OBJECT_NAME_CACHE_MODE)) {
+        switch (this.env.getOrDefault(ArmyKey.OBJECT_NAME_CACHE_MODE)) {
             case DEFAULT:
                 this.objectNameMap = Map.copyOf(createSafeObjectNameMap(dialectEnv.tableMap(), true));
                 break;
@@ -283,7 +283,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
                 this.objectNameMap = Map.copyOf(createSafeObjectNameMap(dialectEnv.tableMap(), false));
                 break;
             default:
-                throw _Exceptions.unexpectedEnum(env.getOrDefault(ArmyKey.OBJECT_NAME_CACHE_MODE));
+                throw _Exceptions.unexpectedEnum(this.env.getOrDefault(ArmyKey.OBJECT_NAME_CACHE_MODE));
         }
 
 
@@ -580,7 +580,6 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
 
     protected abstract void validateUnionType(_UnionType unionType);
-
 
 
     protected MappingHandler createTypeMappingHandler(DialectEnv env) {

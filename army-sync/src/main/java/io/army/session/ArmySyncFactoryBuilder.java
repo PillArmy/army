@@ -17,11 +17,17 @@
 package io.army.session;
 
 import io.army.advice.FactoryAdvice;
-import io.army.dialect.*;
+import io.army.dialect.DialectEnv;
+import io.army.dialect.DialectParser;
+import io.army.dialect.ParserFactories;
+import io.army.dialect.ParserFactory;
 import io.army.env.ArmyEnvironment;
 import io.army.env.ArmyKey;
 import io.army.env.SyncKey;
-import io.army.executor.*;
+import io.army.executor.ExecutorFactoryProvider;
+import io.army.executor.SyncExecutorFactory;
+import io.army.executor.SyncExecutorFactoryProvider;
+import io.army.executor.SyncMetaExecutor;
 import io.army.mapping.MappingType;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
@@ -32,7 +38,9 @@ import io.army.util._Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /// This class is a implementation of {@link SyncFactoryBuilder}.
@@ -139,118 +147,17 @@ final class ArmySyncFactoryBuilder
     }
 
 
-    // 保留
-    @SuppressWarnings("unused")
-    private Map<String, String> createTypeNameToSchemaMap(ServerMeta serverMeta, ParserFactory parserFactory,
-                                                          SyncExecutorFactoryProvider provider) {
-        try (SyncPreBootstrapExecutor executor = provider.createExecutor()) {
-
-            final PreBootstrapParser preBootstrapParser;
-            preBootstrapParser = parserFactory.createPreBootstrapParser(serverMeta);
-
-            final boolean debug = LOG.isDebugEnabled();
-
-            final Set<String> extensionNameSet = this.extensionNameSet;
-
-            if (!extensionNameSet.isEmpty()) {
-                final List<String> sqlList;
-                sqlList = preBootstrapParser.extensionStmts(this.extensionInCurrentSchema, this.extensionSchemaMap, this.extensionNameSet);
-                if (debug) {
-                    LOG.debug("{}", ddlToSqlLog(sqlList));
-                }
-                executor.executeUpdate(sqlList);
-            }
-
-            final String sql;
-            sql = preBootstrapParser.queryDefinedTypeSchema();
-
-            final Map<String, String> typeNameToSchemaMap = new HashMap<>();
-            final Set<String> typeNameInExtensionSet = new HashSet<>();
-
-            final String currentSchema = serverMeta.schema(); // currently, for PostgreSQL schema
-
-            final PreBootstrapExecutor.VoidRowFunc function;
-            function = row -> {
-                final String typeName, schema, oldSchema, extensionName;
-
-                typeName = row.getNonNull(0, String.class).toUpperCase(Locale.ROOT);
-                schema = row.getNonNull(1, String.class);
-                extensionName = row.get(2, String.class);
-
-                if (extensionName != null
-                        && !extensionNameSet.contains(extensionName.toLowerCase(Locale.ROOT))) {
-                    // Unused types
-                    return null;
-                }
-                if (extensionName != null) {
-                    typeNameInExtensionSet.add(typeName);
-                }
-
-                oldSchema = typeNameToSchemaMap.putIfAbsent(typeName, schema);
-
-                if (oldSchema != null
-                        && !oldSchema.equals(schema)
-                        && currentSchema != null
-                        && !oldSchema.equals(currentSchema)) {
-                    typeNameToSchemaMap.remove(typeName);  // Duplicate type name. The current schema will be used.
-                }
-                return null;
-            };
-
-            if (debug) {
-                LOG.debug("{}", sql);
-            }
-
-            executor.executeQuery(sql, function);  // execute sql
-
-            // below , remove unnecessary type name
-            final Map<String, MappingType> definedTypeMap = this.definedTypeMap;
-
-            final Iterator<Map.Entry<String, String>> iterator = typeNameToSchemaMap.entrySet().iterator();
-            String upperCaseTypeName;
-            for (Map.Entry<String, String> e; iterator.hasNext(); ) {
-                e = iterator.next();
-
-                if (e.getValue().equals(currentSchema)) {
-                    iterator.remove(); // current schema don't need to be specified
-                    continue;
-                }
-
-                upperCaseTypeName = e.getKey();
-
-                if (!typeNameInExtensionSet.contains(upperCaseTypeName)
-                        && !definedTypeMap.containsKey(upperCaseTypeName)) {
-                    iterator.remove(); // Unused types
-                }
-
-            }
-
-            return typeNameToSchemaMap;
-        }
-    }
-
     private DialectParser createDialectParser(String factoryName, ServerMeta serverMeta,
                                               ArmyEnvironment env, SyncExecutorFactoryProvider provider) {
         final ParserFactory parserFactory;
         parserFactory = ParserFactories.createFactory(serverMeta);
 
-// 前缀方案,对于 pg jdbc 来说太复杂,尤其是在 bind parameter 的情况下.
-// 官方文档 "options", "-c search_path=test,public,pg_catalog -c statement_timeout=90000" 是骗人的,实测并不生效,应该使用
-// currentSchema=army_types,my_stock,public
-//        final Map<String, String> typeNameToSchemaMap;
-//        if (this.extensionNameSet.isEmpty() && this.definedTypeMap.isEmpty()) {
-//            typeNameToSchemaMap = Map.of();
-//        } else {
-//            typeNameToSchemaMap = createTypeNameToSchemaMap(serverMeta, parserFactory, provider);
-//        }
-
         final DialectEnv dialectEnv;
-        dialectEnv = createDialectEnv(factoryName, false, serverMeta, env, Map.of());
+        dialectEnv = createDialectEnv(factoryName, false, serverMeta, env);
 
         final DialectParser dialectParser;
         this.dialectParser = dialectParser = parserFactory.createDialectParser(dialectEnv);
 
-        dialectEnv.clearTempProperties();
         return dialectParser;
     }
 

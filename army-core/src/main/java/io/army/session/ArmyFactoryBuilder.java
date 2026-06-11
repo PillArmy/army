@@ -52,6 +52,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -87,15 +88,10 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     private Map<Option<?>, Object> dataSourceOptionMap;
 
-    private Function<Class<?>, Function<Object, ?>> converterFunc;
 
     private ClassLoader classLoader;
 
     Consumer<ExecutorFactoryProvider> executorProviderConsumer;
-
-    boolean extensionInCurrentSchema;
-
-    Map<String, String> extensionSchemaMap = Map.of();
 
     private boolean loadStaticModel;
 
@@ -107,7 +103,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     private Consumer<FieldMeta<?>> fieldMetaConsumer;
 
-
+    private BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc;
 
 
     /*################################## blow non-setter fields ##################################*/
@@ -261,15 +257,10 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         return (B) this;
     }
 
-    @Override
-    public final B defaultExtensionInCurrentSchema(boolean current) {
-        this.extensionInCurrentSchema = current;
-        return (B) this;
-    }
 
     @Override
-    public final B extensionSchemaMap(Map<String, String> extensionSchemaMap) {
-        this.extensionSchemaMap = Map.copyOf(extensionSchemaMap);
+    public final B unrecognizedMappingFunc(@Nullable BiFunction<String, ServerMeta, MappingType> func) {
+        this.unrecognizedMappingFunc = func;
         return (B) this;
     }
 
@@ -329,7 +320,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     abstract Logger getLogger();
 
     final DialectEnv createDialectEnv(String factoryName, boolean reactive, ServerMeta serverMeta,
-                                      ArmyEnvironment env, Map<String, String> typeNameToSchemaMap) {
+                                      ArmyEnvironment env) {
         final Dialect dialect = env.getOrDefault(ArmyKey.DIALECT);
         if (serverMeta.usedDialect() != dialect) {
             String m = String.format("used Dialect[%s] and Environment Dialect[%s not match",
@@ -348,7 +339,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 .tableMap(Objects.requireNonNull(this.tableMap))
                 .definedTypeMapFunc(this.typeMapFunc)
                 .nameToTypeMap(this.definedTypeMap)
-                .typeNameToSchemaMap(typeNameToSchemaMap)
+                .unrecognizedMappingFunc(this.unrecognizedMappingFunc)
                 .build();
     }
 
@@ -361,7 +352,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         final Map<FieldMeta<?>, FieldCodec> codecMap;
         codecMap = createCodecMap();
         return new ArmyExecutorEnvironment(factoryName, dialectParser.serverMeta(), codecMap, env, this.schemaMeta,
-                dialectParser.mappingEnv(), this.converterFunc);
+                dialectParser.mappingEnv(), null);
     }
 
     protected final Map<FieldMeta<?>, FieldGenerator> obtainFieldGeneratorMap() {

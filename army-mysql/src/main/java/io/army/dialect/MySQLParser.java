@@ -20,10 +20,12 @@ import io.army.criteria.*;
 import io.army.criteria.impl._SQLConsultant;
 import io.army.criteria.impl._UnionType;
 import io.army.criteria.impl.inner.*;
+import io.army.env.ArmyKey;
 import io.army.env.EscapeMode;
 import io.army.executor.ExecutorSupport;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
+import io.army.mapping.VectorType;
 import io.army.meta.ChildTableMeta;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.ServerMeta;
@@ -48,6 +50,9 @@ abstract class MySQLParser extends _ArmyDialectParser {
     final boolean asOf80;
 
 
+    final boolean literalWithFunc;
+
+
     MySQLParser(DialectEnv environment, MySQLDialect dialect) {
         super(environment, dialect);
 
@@ -64,6 +69,7 @@ abstract class MySQLParser extends _ArmyDialectParser {
 
         // Prior to / as of
         this.asOf80 = this.dialect.compareWith(MySQLDialect.MySQL80) >= 0;
+        this.literalWithFunc = this.env.getOrDefault(ArmyKey.LITERAL_WITH_FUNC);
     }
 
 
@@ -321,13 +327,24 @@ abstract class MySQLParser extends _ArmyDialectParser {
             }
             break;
             case VECTOR: {
-                if (!(value instanceof String)) {
+                if (!(value instanceof byte[])) {
                     throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
                 }
-                sqlBuilder.append("STRING_TO_VECTOR")
-                        .append(_Constant.LEFT_PAREN);
-                MySQLLiterals.mysqlEscapes(this.literalEscapeMode, (String) value, sqlBuilder);
-                sqlBuilder.append(_Constant.RIGHT_PAREN);
+                final float[] vector;
+                vector = VectorType.binaryToVectorLe((byte[]) value);
+                final String textValue;
+                textValue = VectorType.vectorToString(vector);
+
+                if (this.literalWithFunc) {
+                    sqlBuilder.append("STRING_TO_VECTOR")
+                            .append(_Constant.LEFT_PAREN);
+                }
+
+                MySQLLiterals.mysqlEscapes(this.literalEscapeMode, textValue, sqlBuilder);
+
+                if (this.literalWithFunc) {
+                    sqlBuilder.append(_Constant.RIGHT_PAREN);
+                }
             }
             break;
             case NULL:
@@ -521,7 +538,6 @@ abstract class MySQLParser extends _ArmyDialectParser {
     protected final ChildUpdateMode childUpdateMode() {
         return ChildUpdateMode.MULTI_TABLE;
     }
-
 
 
     @Override

@@ -16,7 +16,6 @@
 
 package io.army.dialect;
 
-import io.army.function.DefinedTypeMapFunc;
 import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
 import io.army.mapping.array.StringArrayType;
@@ -33,9 +32,6 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
 
     private final ServerMeta serverMeta;
 
-    private final DefinedTypeMapFunc function;
-
-    private final Map<String, MappingType> typeMap;
 
     private final BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc;
 
@@ -43,9 +39,6 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
 
     TypeMappingHandlerSupport(DialectEnv env) {
         this.serverMeta = env.serverMeta();
-        this.function = env.definedTypeMapFunc();
-
-        this.typeMap = Map.copyOf(env.nameToTypeMap());
         this.dataTypeToBundleMap = Map.copyOf(createDataTypeToBundleMap(env.nameToTypeMap()));
         this.unrecognizedMappingFunc = env.unrecognizedMappingFunc();
     }

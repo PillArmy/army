@@ -16,6 +16,7 @@
 
 package io.army.jdbc;
 
+import com.mysql.cj.MysqlType;
 import io.army.dialect.Database;
 import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
@@ -195,8 +196,15 @@ abstract class MySQLExecutor extends JdbcExecutor {
                 }
             }
             break;
+            case VECTOR: {
+                if (!(value instanceof byte[])) {
+                    throw ExecutorSupport.beforeBindMethodError(type, dataType, value);
+                }
+                stmt.setObject(indexBasedOne, value, MysqlType.VECTOR);
+            }
+            break;
             default:
-                bindArmyType(stmt, indexBasedOne, type, dataType, ((MySQLType) dataType).armyType(), value);
+                bindArmyType(stmt, indexBasedOne, type, dataType, dataType.armyType(), value);
         }
 
 
@@ -294,6 +302,9 @@ abstract class MySQLExecutor extends JdbcExecutor {
                 }
             }
             break;
+            case VECTOR:
+                value = resultSet.getBytes(indexBasedOne);
+                break;
             default:
                 value = resultSet.getObject(indexBasedOne);
         }
@@ -492,7 +503,7 @@ abstract class MySQLExecutor extends JdbcExecutor {
         }
 
         /// the conversion process of xid is same with MySQL Connector/J .
-        /// 
+        ///
         /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
         @Override
         public final TransactionInfo start(final Xid xid, final int flags, final TransactionOption option, Function<Option<?>, ?> sessionFunc)
@@ -558,7 +569,7 @@ abstract class MySQLExecutor extends JdbcExecutor {
         }
 
         /// the conversion process of xid is same with MySQL Connector/J .
-        /// 
+        ///
         /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
         @Override
         public final TransactionInfo end(final Xid xid, final int flags, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) {
@@ -591,7 +602,7 @@ abstract class MySQLExecutor extends JdbcExecutor {
         }
 
         /// the conversion process of xid is same with MySQL Connector/J .
-        /// 
+        ///
         /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
         @Override
         public final int prepare(final Xid xid, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) {
@@ -628,7 +639,7 @@ abstract class MySQLExecutor extends JdbcExecutor {
         }
 
         /// the conversion process of xid is same with MySQL Connector/J .
-        /// 
+        ///
         /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
         @Override
         public final void commit(final Xid xid, final int flags, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) {
@@ -668,7 +679,7 @@ abstract class MySQLExecutor extends JdbcExecutor {
         }
 
         /// the conversion process of xid is same with MySQL Connector/J .
-        /// 
+        ///
         /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/xa-statements.html">XA Transaction SQL Statements</a>
         @Override
         public final void rollback(final Xid xid, Function<Option<?>, ?> optionFunc, Function<Option<?>, ?> sessionFunc) {

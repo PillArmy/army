@@ -18,22 +18,24 @@ package io.army.dialect;
 
 import io.army.mapping.*;
 import io.army.mapping.mysql.MySqlBitType;
-import io.army.sqltype.MySQLType;
+import io.army.sqltype.SQLiteType;
 import io.army.util._Collections;
 
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-final class MySQLMappingHandler extends TypeMappingHandlerSupport {
+final class SQLiteMappingHandler extends TypeMappingHandlerSupport {
 
     private static final Map<String, TypeMappingBundle> ALIAS_TO_BUNDLE_MAP = Map.copyOf(createTypeMappingBoundleMap());
 
-    MySQLMappingHandler(DialectEnv env) {
+    SQLiteMappingHandler(DialectEnv env) {
         super(env);
     }
 
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/data-types.html">MySQL Data Types</a>
+
+    /// @see <a href="https://sqlite.org/datatype3.html">Datatypes In SQLite</a>
+    /// @see <a href="https://sqlite.org/datatypes.html">Datatypes In SQLite Version 2</a>
     @Override
     public TypeMappingBundle apply(String typeName) {
         TypeMappingBundle bundle;
@@ -44,13 +46,15 @@ final class MySQLMappingHandler extends TypeMappingHandlerSupport {
         return bundle;
     }
 
-    /// @see <a href="https://www.postgresql.org/docs/current/datatype.html">Data Types</a>
+
+    /// @see <a href="https://sqlite.org/datatype3.html">Datatypes In SQLite</a>
+    /// @see <a href="https://sqlite.org/datatypes.html">Datatypes In SQLite Version 2</a>
     private static Map<String, TypeMappingBundle> createTypeMappingBoundleMap() {
-        final MySQLType[] values = MySQLType.values();
-        final Map<MySQLType, TypeMappingBundle> map = _Collections.hashMapForSize(values.length);
+        final SQLiteType[] values = SQLiteType.values();
+        final Map<SQLiteType, TypeMappingBundle> map = _Collections.hashMapForSize(values.length);
 
         MappingType mappingType;
-        for (MySQLType type : values) {
+        for (SQLiteType type : values) {
             switch (type) {
                 case BOOLEAN:
                     mappingType = BooleanType.INSTANCE;
@@ -58,38 +62,20 @@ final class MySQLMappingHandler extends TypeMappingHandlerSupport {
                 case TINYINT:
                     mappingType = ByteType.INSTANCE;
                     break;
-                case TINYINT_UNSIGNED:
-                    mappingType = TinyIntUnsignedType.INSTANCE;
-                    break;
                 case SMALLINT:
                     mappingType = ShortType.INSTANCE;
-                    break;
-                case SMALLINT_UNSIGNED:
-                    mappingType = SmallIntUnsignedType.INSTANCE;
                     break;
                 case MEDIUMINT:
                     mappingType = MediumIntType.INSTANCE;
                     break;
-                case MEDIUMINT_UNSIGNED:
-                    mappingType = MediumIntUnsignedType.INSTANCE;
-                    break;
-                case INT:
+                case INTEGER:
                     mappingType = IntegerType.INSTANCE;
-                    break;
-                case INT_UNSIGNED:
-                    mappingType = SqlIntUnsignedType.INSTANCE;
                     break;
                 case BIGINT:
                     mappingType = LongType.INSTANCE;
                     break;
-                case BIGINT_UNSIGNED:
-                    mappingType = BigintUnsignedType.INSTANCE;
-                    break;
                 case DECIMAL:
                     mappingType = BigDecimalType.INSTANCE;
-                    break;
-                case DECIMAL_UNSIGNED:
-                    mappingType = BigDecimalUnsignedType.INSTANCE;
                     break;
                 case FLOAT:
                     mappingType = FloatType.INSTANCE;
@@ -99,12 +85,7 @@ final class MySQLMappingHandler extends TypeMappingHandlerSupport {
                     break;
                 case BINARY:
                 case VARBINARY:
-                case TINYBLOB:
-                case MEDIUMBLOB:
                 case BLOB:
-                case LONGBLOB:
-                case GEOMETRY:  // In the MySQL client protocol, only the GEOMETRY type is available, with no other GEOMETRY subtypes.
-                    // https://dev.mysql.com/doc/dev/mysql-server/latest/field__types_8h.html#a69e798807026a0f7e12b1d6c72374854
                     mappingType = VarBinaryType.INSTANCE;
                     break;
                 case DATE:
@@ -113,7 +94,7 @@ final class MySQLMappingHandler extends TypeMappingHandlerSupport {
                 case TIME:
                     mappingType = LocalTimeType.INSTANCE;
                     break;
-                case DATETIME:
+                case TIMESTAMP:
                     mappingType = LocalDateTimeType.INSTANCE;
                     break;
                 case BIT:
@@ -122,9 +103,6 @@ final class MySQLMappingHandler extends TypeMappingHandlerSupport {
                 case YEAR:
                     mappingType = YearType.INSTANCE;
                     break;
-                case VECTOR:
-                    mappingType = VectorType.INSTANCE;
-                    break;
                 default:
                     mappingType = StringType.INSTANCE;
             } // switch
@@ -132,11 +110,11 @@ final class MySQLMappingHandler extends TypeMappingHandlerSupport {
             map.put(type, TypeMappingBundle.of(type, mappingType));
         } // loop
 
-        final Map<String, MySQLType> aliasToTypeMap = _MySQLDialectUtils.getAliasToTypeMap();
+        final Map<String, SQLiteType> aliasToTypeMap = _SQLiteDialectUtils.getAliasToTypeMap();
 
         TypeMappingBundle bundle;
         final Map<String, TypeMappingBundle> aliasToBoundleMap = _Collections.hashMapForSize(aliasToTypeMap.size());
-        for (Map.Entry<String, MySQLType> e : aliasToTypeMap.entrySet()) {
+        for (Map.Entry<String, SQLiteType> e : aliasToTypeMap.entrySet()) {
 
             bundle = map.get(e.getValue());
             Objects.requireNonNull(bundle);
@@ -145,6 +123,5 @@ final class MySQLMappingHandler extends TypeMappingHandlerSupport {
 
         return Map.copyOf(aliasToBoundleMap);
     }
-
 
 }

@@ -81,12 +81,12 @@ abstract class SQLiteParser extends _ArmyDialectParser {
 
     @Override
     final Set<String> createKeyWordSet(ServerMeta serverMeta) {
-        return SQLiteDialectUtils.createKeyWordSet();
+        return _SQLiteDialectUtils.createKeyWordSet();
     }
 
     @Override
     final IdentifierHandler createIdentifierHandler(ServerMeta serverMeta) {
-        return SQLiteDialectUtils::handleIdentifier;
+        return _SQLiteDialectUtils::handleIdentifier;
     }
 
     @Override
@@ -136,7 +136,7 @@ abstract class SQLiteParser extends _ArmyDialectParser {
 
     @Override
     protected final MappingHandler createTypeMappingHandler(DialectEnv env) {
-        return new SQLiteTypeMappingHandler(env);
+        return new SQLiteMappingHandler(env);
     }
 
     /// @see <a href="https://sqlite.org/lang_expr.html">Literal Values (Constants)</a>

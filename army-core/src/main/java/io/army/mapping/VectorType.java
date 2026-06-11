@@ -25,6 +25,7 @@ import io.army.sqltype.ArmyType;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.util.ArrayUtils;
+import io.army.util.BinaryUtils;
 
 
 ///
@@ -76,28 +77,48 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
     }
 
     @Override
-    public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         if (!(source instanceof float[] vector)) {
             throw paramError(this, dataType, source, null);
         }
-        return vectorToString(vector, new StringBuilder(2 + vector.length * 8))
-                .toString();
+        final Object value;
+        try {
+            if (dataType == MySQLType.VECTOR) {
+                value = vectorToBinaryLe(vector);
+            } else {
+                value = vectorToString(vector);
+            }
+        } catch (CriteriaException e) {
+            throw e;
+        } catch (Exception e) {
+            throw paramError(this, dataType, source, e);
+        }
+        return value;
     }
 
     @Override
-    public float[] afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        if (source instanceof float[]) {
-            return (float[]) source;
-        }
-        if (!(source instanceof String)) {
-            throw dataAccessError(this, dataType, source, null);
-        }
-        final String text = ((String) source).trim();
+    public float[] afterGet(final DataType dataType, MappingEnv env, final Object source) throws DataAccessException {
+
+        final float[] value;
         try {
-            return stringToVector(text, 0, text.length());
-        } catch (NumberFormatException e) {
+            if (source instanceof float[]) {
+                value = (float[]) source;
+            } else if (dataType == MySQLType.VECTOR) {
+                if (!(source instanceof byte[])) {
+                    throw dataAccessError(this, dataType, source, null);
+                }
+                value = binaryToVectorLe((byte[]) source);
+            } else if (source instanceof String s) {
+                value = stringToVector(s, 0, s.length());
+            } else {
+                throw paramError(this, dataType, source, null);
+            }
+        } catch (DataAccessException e) {
+            throw e;
+        } catch (Exception e) {
             throw dataAccessError(this, dataType, source, e);
         }
+        return value;
     }
 
     @Override
@@ -115,6 +136,10 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
         return obj instanceof VectorType;
     }
 
+    public static String vectorToString(final float[] vector) {
+        return vectorToString(vector, new StringBuilder(2 + vector.length * 10))
+                .toString();
+    }
 
     public static StringBuilder vectorToString(final float[] vector, final StringBuilder sqlBuilder) {
         sqlBuilder.append('[');
@@ -141,6 +166,37 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
     }
 
 
+    public static byte[] vectorToBinaryLe(final float[] vector) {
+        final byte[] bytes = new byte[vector.length << 2];
+        vectorToBinaryLe(vector, bytes, 0);
+        return bytes;
+    }
+
+    public static int vectorToBinaryLe(final float[] vector, final byte[] bytes, int offset) {
+        for (float v : vector) {
+            offset = BinaryUtils.writeFloatLe(v, bytes, offset);
+        }
+        return offset;
+    }
+
+    public static float[] binaryToVectorLe(final byte[] bytes) {
+        return binaryToVectorLe(bytes, 0, bytes.length);
+    }
+
+    public static float[] binaryToVectorLe(final byte[] bytes, int offset, final int endPos) {
+        final int byteLength = endPos - offset;
+        if (byteLength < 1 || byteLength % 4 != 0) {
+            throw new IllegalArgumentException("invalid vector");
+        }
+        final float[] vector = new float[byteLength / 4];
+        for (int i = 0; i < vector.length; i++) {
+            vector[i] = BinaryUtils.readFloatLe(bytes, offset);
+            offset += 4;
+        }
+        return vector;
+    }
+
+    @SuppressWarnings("unused")
     public static void validateVector(MappingType type, DataType dataType, final String source) {
         if (source.charAt(0) != '[' || source.charAt(source.length() - 1) != ']') {
             throw dataAccessError(type, dataType, source, null);

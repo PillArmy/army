@@ -72,11 +72,6 @@ public interface DialectEnv {
         return null;
     }
 
-    /// temp property
-    Map<String, String> typeNameToSchemaMap();
-
-    void clearTempProperties();
-
 
 
     static Builder builder() {
@@ -107,7 +102,8 @@ public interface DialectEnv {
 
         Builder nameToTypeMap(Map<String, MappingType> map);
 
-        Builder typeNameToSchemaMap(Map<String, String> map);
+        Builder unrecognizedMappingFunc(@Nullable BiFunction<String, ServerMeta, MappingType> func);
+
 
         DialectEnv build();
 

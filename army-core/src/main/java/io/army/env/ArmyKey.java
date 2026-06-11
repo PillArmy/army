@@ -79,6 +79,8 @@ public class ArmyKey<T> {
 
     public static final ArmyKey<ObjectNameCacheMode> OBJECT_NAME_CACHE_MODE = new ArmyKey<>("object_name_cache_mode", ObjectNameCacheMode.class, ObjectNameCacheMode.DEFAULT);
 
+    public static final ArmyKey<Boolean> LITERAL_WITH_FUNC = new ArmyKey<>("literal.with_func", Boolean.class, Boolean.FALSE);
+
     /// @see Column#scale()
     /// @see FieldMeta#scale()
     public static final ArmyKey<Boolean> TRUNCATED_TIME_TYPE = new ArmyKey<>("truncated.time_type", Boolean.class, Boolean.TRUE);

@@ -29,6 +29,7 @@ import io.army.meta.TableMeta;
 
 import java.time.ZoneOffset;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 final class DialectEnvImpl implements DialectEnv {
 
@@ -59,7 +60,7 @@ final class DialectEnvImpl implements DialectEnv {
 
     private final Map<String, MappingType> typeNameToTypeMap;
 
-    private Map<String, String> typeNameToSchemaMap;
+    private final BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc;
 
 
     private DialectEnvImpl(EnvBuilder builder) {
@@ -76,7 +77,7 @@ final class DialectEnvImpl implements DialectEnv {
         this.tableMetaMap = builder.tableMetaMap;
         this.typeMapFunc = builder.typeMapFunc;
         this.typeNameToTypeMap = builder.typeNameToTypeMap;
-        this.typeNameToSchemaMap = Map.copyOf(builder.typeNameToSchemaMap);
+        this.unrecognizedMappingFunc = builder.unrecognizedMappingFunc;
         if (this.serverMeta == null || this.tableMetaMap == null) {
             throw new IllegalArgumentException();
         }
@@ -143,17 +144,8 @@ final class DialectEnvImpl implements DialectEnv {
     }
 
     @Override
-    public Map<String, String> typeNameToSchemaMap() {
-        final Map<String, String> map = this.typeNameToSchemaMap;
-        if (map == null) {
-            throw new IllegalStateException("typeNameToSchemaMap is cleared");
-        }
-        return map;
-    }
-
-    @Override
-    public void clearTempProperties() {
-        this.typeNameToSchemaMap = null;
+    public BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc() {
+        return this.unrecognizedMappingFunc;
     }
 
     @Override
@@ -186,8 +178,7 @@ final class DialectEnvImpl implements DialectEnv {
 
         private Map<String, MappingType> typeNameToTypeMap;
 
-        private Map<String, String> typeNameToSchemaMap;
-
+        private BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc;
 
         @Override
         public Builder factoryName(String name) {
@@ -257,8 +248,8 @@ final class DialectEnvImpl implements DialectEnv {
         }
 
         @Override
-        public Builder typeNameToSchemaMap(Map<String, String> map) {
-            this.typeNameToSchemaMap = map;
+        public Builder unrecognizedMappingFunc(@Nullable BiFunction<String, ServerMeta, MappingType> func) {
+            this.unrecognizedMappingFunc = func;
             return this;
         }
 

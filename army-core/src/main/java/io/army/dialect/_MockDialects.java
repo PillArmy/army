@@ -38,6 +38,7 @@ import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiFunction;
 
 public abstract class _MockDialects implements DialectEnv {
 
@@ -180,14 +181,10 @@ public abstract class _MockDialects implements DialectEnv {
         }
 
         @Override
-        public Map<String, String> typeNameToSchemaMap() {
-            return Map.of();
+        public BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc() {
+            return null;
         }
 
-        @Override
-        public void clearTempProperties() {
-
-        }
     }//MockDialectEnv
 
 

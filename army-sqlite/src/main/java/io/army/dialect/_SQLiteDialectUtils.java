@@ -19,15 +19,25 @@ package io.army.dialect;
 
 import io.army.lang.Nullable;
 import io.army.meta.DatabaseObject;
+import io.army.sqltype.SQLiteType;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-abstract class SQLiteDialectUtils extends _DialectUtils {
+public abstract class _SQLiteDialectUtils {
 
-    private SQLiteDialectUtils() {
+    static final Map<String, SQLiteType> ALIAS_TO_TYPE_MAP = Map.copyOf(createAliasToTypeMap());
+
+    private _SQLiteDialectUtils() {
     }
+
+    public static Map<String, SQLiteType> getAliasToTypeMap() {
+        return ALIAS_TO_TYPE_MAP;
+    }
+
 
     /// @see <a href="https://sqlite.org/lang_naming.html">Database Object Name Resolution</a>
     /// @see <a href="https://www.sqlite.org/lang_keywords.html">SQLite Keywords</a>
@@ -276,4 +286,49 @@ abstract class SQLiteDialectUtils extends _DialectUtils {
 
         return set;
     }
+
+
+    /// @return an unmodifiable map
+    /// @see <a href="https://sqlite.org/datatype3.html">Datatypes In SQLite</a>
+    /// @see <a href="https://sqlite.org/datatypes.html">Datatypes In SQLite Version 2</a>
+    private static Map<String, SQLiteType> createAliasToTypeMap() {
+        final SQLiteType[] values = SQLiteType.values();
+
+        final Map<SQLiteType, List<String>> listMap = _Collections.hashMapForSize(4 * 4);
+
+        listMap.put(SQLiteType.BOOLEAN, List.of("BOOLEAN", "BOOL"));
+        listMap.put(SQLiteType.SMALLINT, List.of("SMALLINT", "INT2"));
+        listMap.put(SQLiteType.INTEGER, List.of("INT", "INTEGER", "INT4"));
+        listMap.put(SQLiteType.BIGINT, List.of("BIGINT", "INT8"));
+
+        listMap.put(SQLiteType.DECIMAL, List.of("DECIMAL", "NUMERIC"));
+        listMap.put(SQLiteType.FLOAT, List.of("FLOAT", "FLOAT4"));
+        listMap.put(SQLiteType.DOUBLE, List.of("DOUBLE", "REAL", "FLOAT8", "DOUBLE PRECISION"));
+        listMap.put(SQLiteType.CHAR, List.of("CHAR", "CHARACTER", "NCHAR", "NATIVE CHARACTER"));
+
+        listMap.put(SQLiteType.VARCHAR, List.of("VARCHAR", "VARYING CHARACTER"));
+        listMap.put(SQLiteType.TEXT, List.of("TEXT", "CLOB"));
+        listMap.put(SQLiteType.TIME_WITH_TIMEZONE, List.of("TIME WITH TIMEZONE", "TIMETZ"));
+        listMap.put(SQLiteType.TIMESTAMP, List.of("TIMESTAMP", "DATETIME"));
+
+        listMap.put(SQLiteType.TIMESTAMP_WITH_TIMEZONE, List.of("TIMESTAMP WITH TIMEZONE", "TIMESTAMPTZ"));
+
+
+        final Map<String, SQLiteType> map = _Collections.hashMapForSize(values.length * 3);
+
+        SQLiteType type;
+        for (Map.Entry<SQLiteType, List<String>> e : listMap.entrySet()) {
+            type = e.getKey();
+            for (String alias : e.getValue()) {
+                map.put(alias, type);
+            }
+        }
+
+        for (SQLiteType value : values) {
+            map.put(value.typeName(), value);  // typeName be overridden
+        }
+        return Map.copyOf(map);
+    }
+
+
 }
