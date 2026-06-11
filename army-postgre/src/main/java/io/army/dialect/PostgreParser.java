@@ -240,23 +240,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
         throw _Exceptions.dontSupportWithClause(this.dialect);
     }
 
-    @Override
-    protected final boolean isSupportOnlyDefault() {
-        //Postgre don't support
-        return false;
-    }
 
-    @Override
-    protected final boolean isSupportRowAlias() {
-        //true,Postgre support
-        return true;
-    }
-
-    @Override
-    protected final boolean isSupportTableOnly() {
-        //Postgre support 'ONLY' key word before table name.
-        return true;
-    }
 
 
     @Override
@@ -587,6 +571,29 @@ abstract class PostgreParser extends _ArmyDialectParser {
         return _PostgreDialectUtils::handleIdentifier;
     }
 
+
+    @Override
+    final int capabilitiesBitSet(ServerMeta serverMeta) {
+        final int capabilities = 0; // must be int type
+        // Postgre don't support table alias in SET clause
+        // Postgre don't support update derived field
+        // Postgre donot validate union type
+        return capabilities
+                | SUPPORT_ZONE  // Postgre support zone
+                | SUPPORT_TABLE_ALIAS_AFTER_AS      // Postgre support AS key word
+                | SUPPORT_WITH_CLAUSE               // Postgre support WITH clause
+                | SUPPORT_WITH_CLAUSE_IN_INSERT     // Postgre support WITH clause in INSERT statement
+                | SUPPORT_WINDOW_CLAUSE             // Postgre support WINDOW clause
+                | SUPPORT_UPDATE_ROW                // Postgre support update row
+                | SUPPORT_JOINABLE_SINGLE_UPDATE    // true ,Postgre support single-table joinable update https://www.postgresql.org/docs/current/sql-update.html
+                | SUPPORT_RETURNING_CLAUSE           // Postgre support RETURNING clause
+                | SUPPORT_SINGLE_UPDATE_ALIAS        // Postgre support single table update alias
+                | SUPPORT_SINGLE_DELETE_ALIAS       // Postgre support single table DELETE alias
+                | SUPPORT_ROW_ALIAS
+                | SUPPORT_TABLE_ONLY
+                ;
+    }
+
     @Override
     protected final char identifierDelimitedQuote() {
         return _Constant.DOUBLE_QUOTE;
@@ -594,110 +601,16 @@ abstract class PostgreParser extends _ArmyDialectParser {
 
 
     @Override
-    protected final boolean isSupportZone() {
-        //Postgre support zone
-        return true;
-    }
-
-    @Override
-    protected final boolean isSetClauseTableAlias() {
-        //Postgre don't support table alias in SET clause
-        return false;
-    }
-
-    @Override
-    protected final boolean isTableAliasAfterAs() {
-        //Postgre support AS key word
-        return true;
-    }
-
-    @Override
     protected final ChildUpdateMode childUpdateMode() {
         // Postgre support DML in cte.
         return ChildUpdateMode.CTE;
     }
 
-    @Override
-    protected final boolean isSupportSingleUpdateAlias() {
-        // Postgre support single table update alias
-        return true;
-    }
-
-    @Override
-    protected final boolean isSupportSingleDeleteAlias() {
-        // Postgre support single table DELETE alias
-        return true;
-    }
-
-    @Override
-    protected final boolean isSupportWithClause() {
-        // Postgre support WITH clause
-        return true;
-    }
-
-    @Override
-    protected final boolean isSupportWithClauseInInsert() {
-        // Postgre support WITH clause in INSERT statement
-        return true;
-    }
-
-    @Override
-    protected final boolean isSupportWindowClause() {
-        // Postgre support WINDOW clause
-        return true;
-    }
-
-    @Override
-    protected final boolean isSupportUpdateRow() {
-        // Postgre support update row
-        return true;
-    }
-
-    /// @see <a href="https://www.postgresql.org/docs/current/sql-update.html">UPDATE statement</a>
-    @Override
-    protected final boolean isSupportJoinableSingleUpdate() {
-        // true ,Postgre support single-table joinable update
-        return true;
-    }
-
-    @Override
-    protected final boolean isSupportUpdateDerivedField() {
-        // Postgre don't support update derived field
-        return false;
-    }
-
-    @Override
-    protected final boolean isSupportReturningClause() {
-        // Postgre support RETURNING clause
-        return true;
-    }
-
-    @Override
-    protected final boolean isValidateUnionType() {
-        // false
-        return false;
-    }
 
     @Override
     protected final void validateUnionType(_UnionType unionType) {
         //no-op, no bug never here
     }
-
-    @Override
-    protected final String qualifiedSchemaName(final ServerMeta meta) {
-        final String catalog, schema;
-        catalog = meta.catalog();
-        schema = meta.schema();
-        if (!_StringUtils.hasText(catalog) || !_StringUtils.hasText(schema)) {
-            throw _Exceptions.serverMetaError(meta);
-        }
-        return _StringUtils.builder()
-                .append(catalog)
-                .append(_Constant.PERIOD)
-                .append(schema)
-                .toString();
-    }
-
 
     @Override
     protected final void parseAssignmentInsert(_AssignmentInsertContext context, _Insert._AssignmentInsert insert) {

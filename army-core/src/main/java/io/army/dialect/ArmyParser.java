@@ -70,6 +70,39 @@ import java.util.function.Predicate;
 abstract non-sealed class ArmyParser implements DialectParser {
 
 
+    static final byte SUPPORT_ZONE = 1;
+
+    static final byte SUPPORT_SET_CLAUSE_TABLE_ALIAS = 1 << 1;
+
+    static final byte SUPPORT_TABLE_ALIAS_AFTER_AS = 1 << 2;
+
+    static final byte SUPPORT_ONLY_DEFAULT = 1 << 3;
+
+    static final byte SUPPORT_ROW_ALIAS = 1 << 4;
+
+    static final byte SUPPORT_TABLE_ONLY = 1 << 5;
+
+    static final byte SUPPORT_SINGLE_UPDATE_ALIAS = 1 << 6;
+
+    static final short SUPPORT_SINGLE_DELETE_ALIAS = 1 << 7;
+
+    static final short SUPPORT_WITH_CLAUSE = 1 << 8;
+
+    static final short SUPPORT_WITH_CLAUSE_IN_INSERT = 1 << 9;
+
+    static final short SUPPORT_WINDOW_CLAUSE = 1 << 10;
+
+    static final short SUPPORT_UPDATE_ROW = 1 << 11;
+
+    static final short SUPPORT_JOINABLE_SINGLE_UPDATE = 1 << 12;
+
+    static final short SUPPORT_UPDATE_DERIVED_FIELD = 1 << 13;
+
+    static final short SUPPORT_RETURNING_CLAUSE = 1 << 14;
+
+    static final int SUPPORT_VALIDATE_UNION_TYPE = 1 << 15;
+
+
     /// The dialect this parser is bound to.
     protected final Dialect dialect;
 
@@ -184,26 +217,34 @@ abstract non-sealed class ArmyParser implements DialectParser {
         this.literalEscapeMode = env.getOrDefault(ArmyKey.LITERAL_ESCAPE_MODE);
         this.identifierEscapeMode = env.getOrDefault(ArmyKey.IDENTIFIER_ESCAPE_MODE);
 
+
         this.childUpdateMode = this.childUpdateMode();
-        this.aliasAfterAs = this.isTableAliasAfterAs();
+
         this.identifierQuote = this.identifierDelimitedQuote();
 
+        final int capabilities = capabilitiesBitSet(this.serverMeta);
+
+        this.aliasAfterAs = (capabilities & SUPPORT_TABLE_ALIAS_AFTER_AS) != 0;
         this.singleDmlAliasAfterAs = this.aliasAfterAs;
-        this.supportSingleUpdateAlias = this.isSupportSingleUpdateAlias();
-        this.supportSingleDeleteAlias = this.isSupportSingleDeleteAlias();
-        this.supportZone = this.isSupportZone();
+        this.supportSingleUpdateAlias = (capabilities & SUPPORT_SINGLE_UPDATE_ALIAS) != 0;
+        this.supportSingleDeleteAlias = (capabilities & SUPPORT_SINGLE_DELETE_ALIAS) != 0;
+        this.supportZone = (capabilities & SUPPORT_ZONE) != 0;
 
-        this.supportOnlyDefault = this.isSupportOnlyDefault();
-        this.tableOnlyModifier = this.isSupportTableOnly();
-        this.setClauseTableAlias = this.isSetClauseTableAlias();
-        this.supportUpdateRow = this.isSupportUpdateRow();
+        this.supportOnlyDefault = (capabilities & SUPPORT_ONLY_DEFAULT) != 0;
+        this.tableOnlyModifier = (capabilities & SUPPORT_TABLE_ONLY) != 0;
+        this.setClauseTableAlias = (capabilities & SUPPORT_SET_CLAUSE_TABLE_ALIAS) != 0;
+        this.supportUpdateRow = (capabilities & SUPPORT_UPDATE_ROW) != 0;
 
-        this.supportJoinableSingleUpdate = isSupportJoinableSingleUpdate();
-        this.supportUpdateDerivedField = this.isSupportUpdateDerivedField();
-        this.supportReturningClause = this.isSupportReturningClause();
+        this.supportJoinableSingleUpdate = (capabilities & SUPPORT_JOINABLE_SINGLE_UPDATE) != 0;
+        this.supportUpdateDerivedField = (capabilities & SUPPORT_UPDATE_DERIVED_FIELD) != 0;
+        this.supportReturningClause = (capabilities & SUPPORT_RETURNING_CLAUSE) != 0;
 
-        this.supportRowAlias = this.isSupportRowAlias();
-        this.validateUnionType = this.isValidateUnionType();
+        this.supportRowAlias = (capabilities & SUPPORT_ROW_ALIAS) != 0;
+        this.validateUnionType = (capabilities & SUPPORT_VALIDATE_UNION_TYPE) != 0;
+
+        this.supportWithClause = (capabilities & SUPPORT_WITH_CLAUSE) != 0;
+        this.supportWithClauseInInsert = (capabilities & SUPPORT_WITH_CLAUSE_IN_INSERT) != 0;
+        this.supportWindowClause = (capabilities & SUPPORT_WINDOW_CLAUSE) != 0;
 
 
         if (this.mockEnv) {
@@ -212,9 +253,6 @@ abstract non-sealed class ArmyParser implements DialectParser {
             this.generator = FieldValuesGenerators.create(dialectEnv.fieldGeneratorMap());
         }
 
-        this.supportWithClause = isSupportWithClause();
-        this.supportWithClauseInInsert = isSupportWithClauseInInsert();
-        this.supportWindowClause = isSupportWindowClause();
 
         this.tableNameMode = env.getOrDefault(ArmyKey.TABLE_NAME_MODE);
         this.columnNameMode = env.getOrDefault(ArmyKey.COLUMN_NAME_MODE);
@@ -529,51 +567,20 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
     abstract Set<String> createKeyWordSet(ServerMeta serverMeta);
 
-    IdentifierHandler createIdentifierHandler(ServerMeta serverMeta) {
-        throw new UnsupportedOperationException();
+    abstract IdentifierHandler createIdentifierHandler(ServerMeta serverMeta);
+
+    int capabilitiesBitSet(ServerMeta serverMeta) {
+        return 0;
     }
 
+    abstract char identifierDelimitedQuote();
 
-    protected abstract char identifierDelimitedQuote();
-
-
-    protected abstract boolean isSupportZone();
-
-    protected abstract boolean isSetClauseTableAlias();
-
-    protected abstract boolean isTableAliasAfterAs();
-
-    protected abstract boolean isSupportOnlyDefault();
-
-    protected abstract boolean isSupportRowAlias();
-
-    protected abstract boolean isSupportTableOnly();
 
     protected abstract ChildUpdateMode childUpdateMode();
 
-    protected abstract boolean isSupportSingleUpdateAlias();
-
-    protected abstract boolean isSupportSingleDeleteAlias();
-
-    protected abstract boolean isSupportWithClause();
-
-    protected abstract boolean isSupportWithClauseInInsert();
-
-    protected abstract boolean isSupportWindowClause();
-
-    protected abstract boolean isSupportUpdateRow();
-
-    protected abstract boolean isSupportJoinableSingleUpdate();
-
-    protected abstract boolean isSupportUpdateDerivedField();
-
-    protected abstract boolean isSupportReturningClause();
-
-    protected abstract boolean isValidateUnionType();
 
     protected abstract void validateUnionType(_UnionType unionType);
 
-    protected abstract String qualifiedSchemaName(ServerMeta meta);
 
 
     protected MappingHandler createTypeMappingHandler(DialectEnv env) {

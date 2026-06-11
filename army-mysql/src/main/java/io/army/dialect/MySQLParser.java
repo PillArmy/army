@@ -33,7 +33,6 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.util.HexUtils;
 import io.army.util._Exceptions;
-import io.army.util._StringUtils;
 import io.army.util._TimeUtils;
 
 import java.math.BigInteger;
@@ -451,19 +450,6 @@ abstract class MySQLParser extends _ArmyDialectParser {
 
 
     @Override
-    protected final boolean isSupportTableOnly() {
-        // MySQL don't support only before table name.
-        return false;
-    }
-
-    @Override
-    protected final boolean isSetClauseTableAlias() {
-        // MySQL support table alias in set clause.
-        return true;
-    }
-
-
-    @Override
     final Set<String> createKeyWordSet(ServerMeta serverMeta) {
         final Set<String> keyWordSet;
         switch ((MySQLDialect) serverMeta.usedDialect()) {
@@ -487,33 +473,48 @@ abstract class MySQLParser extends _ArmyDialectParser {
         return new MySQLIdentifierHandler(serverMeta);
     }
 
+
+    @Override
+    final int capabilitiesBitSet(final ServerMeta serverMeta) {
+
+        final int supportRowAlias, supportSingleDeleteAlas, supportWithClause, supportWindowClause;
+        final int supportValidateUnionType;
+
+        final boolean asOf80 = serverMeta.usedDialect().compareWith(MySQLDialect.MySQL80) >= 0;
+        if (asOf80) {
+            supportRowAlias = SUPPORT_ROW_ALIAS;
+            supportSingleDeleteAlas = SUPPORT_SINGLE_DELETE_ALIAS;
+            supportWithClause = SUPPORT_WITH_CLAUSE;
+            supportWindowClause = SUPPORT_WINDOW_CLAUSE;
+        } else {
+            supportRowAlias = 0;
+            supportSingleDeleteAlas = 0;
+            supportWithClause = 0;
+            supportWindowClause = 0;
+
+        }
+
+        if (asOf80) {
+            // MySQL 8.0 add INTERSECT and EXCEPT
+            supportValidateUnionType = 0;
+        } else {
+            supportValidateUnionType = SUPPORT_VALIDATE_UNION_TYPE;
+        }
+        return supportRowAlias
+                | supportSingleDeleteAlas
+                | supportWithClause
+                | supportWindowClause
+                | supportValidateUnionType
+                | SUPPORT_TABLE_ALIAS_AFTER_AS
+                | SUPPORT_ONLY_DEFAULT
+                | SUPPORT_SINGLE_UPDATE_ALIAS
+                | SUPPORT_SET_CLAUSE_TABLE_ALIAS
+                ;
+    }
+
     @Override
     protected final char identifierDelimitedQuote() {
         return BACKTICK;
-    }
-
-    @Override
-    protected final boolean isSupportZone() {
-        // MySQL don't support zone.
-        return false;
-    }
-
-    @Override
-    protected final boolean isTableAliasAfterAs() {
-        // MySQL don't support AS key word before table alias.
-        return true;
-    }
-
-    @Override
-    protected final boolean isSupportOnlyDefault() {
-        // MySQL support DEFAULT() function.
-        return true;
-    }
-
-    @Override
-    protected final boolean isSupportRowAlias() {
-        // MySQL 8.0 add insert row alias
-        return this.dialect.compareWith(MySQLDialect.MySQL80) >= 0;
     }
 
     @Override
@@ -521,66 +522,6 @@ abstract class MySQLParser extends _ArmyDialectParser {
         return ChildUpdateMode.MULTI_TABLE;
     }
 
-    @Override
-    protected final boolean isSupportSingleUpdateAlias() {
-        //MySQL always support single update alias;
-        return true;
-    }
-
-    @Override
-    protected final boolean isSupportSingleDeleteAlias() {
-        //as of 8.0 MySQL support single delete alias
-        return this.dialect.compareWith(MySQLDialect.MySQL80) >= 0;
-    }
-
-    @Override
-    protected final boolean isSupportWithClause() {
-        //as of 8.0 MySQL support WITH clause
-        return this.dialect.compareWith(MySQLDialect.MySQL80) >= 0;
-    }
-
-    @Override
-    protected final boolean isSupportWithClauseInInsert() {
-        // MySQL don't support WITH clause in INSERT statement
-        return false;
-    }
-
-    @Override
-    protected final boolean isSupportWindowClause() {
-        //as of 8.0 MySQL support WINDOW clause
-        return this.dialect.compareWith(MySQLDialect.MySQL80) >= 0;
-    }
-
-    @Override
-    protected final boolean isSupportUpdateRow() {
-        // MySQL don't support update row
-        return false;
-    }
-
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/update.html">single-table UPDATE statement</a>
-    @Override
-    protected final boolean isSupportJoinableSingleUpdate() {
-        // false ,MySQL don't support single-table joinable update
-        return false;
-    }
-
-    @Override
-    protected final boolean isSupportUpdateDerivedField() {
-        //MySQL don't support update derive field
-        return false;
-    }
-
-    @Override
-    protected final boolean isSupportReturningClause() {
-        //MySQL don't support RETURNING clause
-        return false;
-    }
-
-    @Override
-    protected final boolean isValidateUnionType() {
-        // MySQL 8.0 add INTERSECT and EXCEPT
-        return this.dialect.compareWith(MySQLDialect.MySQL80) < 0;
-    }
 
 
     @Override
@@ -605,25 +546,6 @@ abstract class MySQLParser extends _ArmyDialectParser {
         }
     }
 
-
-    @Override
-    protected final String qualifiedSchemaName(final ServerMeta meta) {
-        final String catalog, schema, qualifiedSchema;
-        catalog = meta.catalog();
-        schema = meta.schema();
-        if ((catalog == null) == (schema == null)) {
-            throw _Exceptions.serverMetaError(meta);
-        }
-        if (schema == null) {
-            qualifiedSchema = catalog;
-        } else {
-            qualifiedSchema = schema;
-        }
-        if (!_StringUtils.hasText(qualifiedSchema)) {
-            throw _Exceptions.serverMetaError(meta);
-        }
-        return qualifiedSchema;
-    }
 
     /*################################## blow private method ##################################*/
 
