@@ -236,13 +236,13 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
         switch (env.getOrDefault(ArmyKey.OBJECT_NAME_CACHE_MODE)) {
             case DEFAULT:
-                this.objectNameMap = Map.copyOf(createSafeObjectNameMap(dialectEnv.tableMap(), false));
+                this.objectNameMap = Map.copyOf(createSafeObjectNameMap(dialectEnv.tableMap(), true));
                 break;
             case NONE:
                 this.objectNameMap = null;
                 break;
-            case ALL:
-                this.objectNameMap = Map.copyOf(createSafeObjectNameMap(dialectEnv.tableMap(), true));
+            case SAME:
+                this.objectNameMap = Map.copyOf(createSafeObjectNameMap(dialectEnv.tableMap(), false));
                 break;
             default:
                 throw _Exceptions.unexpectedEnum(env.getOrDefault(ArmyKey.OBJECT_NAME_CACHE_MODE));

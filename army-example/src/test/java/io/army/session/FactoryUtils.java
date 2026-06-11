@@ -120,7 +120,7 @@ public abstract class FactoryUtils {
         map.put(ArmyKey.TABLE_NAME_MODE.name, NameMode.DEFAULT);
         map.put(ArmyKey.COLUMN_NAME_MODE.name, NameMode.DEFAULT);
 
-        map.put(ArmyKey.OBJECT_NAME_CACHE_MODE.name, ObjectNameCacheMode.ALL);
+        map.put(ArmyKey.OBJECT_NAME_CACHE_MODE.name, ObjectNameCacheMode.SAME);
         return StandardEnvironment.from(map);
     }
 

@@ -4,5 +4,5 @@ public enum ObjectNameCacheMode {
 
     DEFAULT,
     NONE,
-    ALL
+    SAME
 }
