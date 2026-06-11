@@ -2076,10 +2076,9 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             try {
 
                 Object value;
-                if (resultSet.wasNull()) {
-                    value = null;
-                } else {
-                    value = this.executor.get(resultSet, indexBasedZero + 1, type, dataType);
+                value = this.executor.get(resultSet, indexBasedZero + 1, type, dataType);
+                if (value == null) {
+                    return null;
                 }
 
                 // TODO 解密 ,脱敏

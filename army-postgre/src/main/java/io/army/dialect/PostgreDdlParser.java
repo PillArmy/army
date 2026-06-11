@@ -383,6 +383,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     @Override
     public void modifyType(final TypeResult typeResult, final List<String> sqlList) {
         final MappingType type = typeResult.type();
+
         if (type instanceof MappingType.SqlComposite) {
             sqlList.add(alterCompositeType((MappingType.SqlComposite) type, typeResult));
         } else if (type instanceof MappingType.SqlEnum) {

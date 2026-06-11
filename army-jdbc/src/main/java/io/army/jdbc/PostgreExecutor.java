@@ -295,25 +295,25 @@ abstract class PostgreExecutor extends JdbcExecutor {
             value = resultSet.getString(indexBasedOne);
         } else switch ((PgType) dataType) {
             case BOOLEAN:
-                value = resultSet.getBoolean(indexBasedOne);
+                value = resultSet.getObject(indexBasedOne, Boolean.class);
                 break;
             case SMALLINT:
-                value = resultSet.getShort(indexBasedOne);
+                value = resultSet.getObject(indexBasedOne, Short.class);
                 break;
             case INTEGER:
-                value = resultSet.getInt(indexBasedOne);
+                value = resultSet.getObject(indexBasedOne, Integer.class);
                 break;
             case BIGINT:
-                value = resultSet.getLong(indexBasedOne);
+                value = resultSet.getObject(indexBasedOne, Long.class);
                 break;
             case DECIMAL:
-                value = resultSet.getBigDecimal(indexBasedOne);
+                value = resultSet.getObject(indexBasedOne, BigDecimal.class);
                 break;
             case DOUBLE:
-                value = resultSet.getDouble(indexBasedOne);
+                value = resultSet.getObject(indexBasedOne, Double.class);
                 break;
             case REAL:
-                value = resultSet.getFloat(indexBasedOne);
+                value = resultSet.getObject(indexBasedOne, Float.class);
                 break;
             case BYTEA: { // postgre client protocol body must less than 2^32 byte
                 if (type instanceof MappingType.SqlString) {

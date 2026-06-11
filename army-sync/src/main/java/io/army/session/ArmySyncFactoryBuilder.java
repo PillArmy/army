@@ -34,6 +34,7 @@ import io.army.meta.TableMeta;
 import io.army.schema.SchemaComparer;
 import io.army.schema.SchemaInfo;
 import io.army.schema.SchemaResult;
+import io.army.stmt.SimpleStmt;
 import io.army.util._Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -200,10 +201,12 @@ final class ArmySyncFactoryBuilder
         try (SyncMetaExecutor executor = executorFactory.metaExecutor(dataSourceFunc())) {
 
             final Map<String, MappingType> definedTypeMap = this.definedTypeMap;
+            final List<SimpleStmt> stmtList;
+            stmtList = sessionFactory.dialectParser.queryDefinedTypeStmts(definedTypeMap);
 
             //1.extract schema info.
             final SchemaInfo schemaInfo;
-            schemaInfo = executor.extractInfo(sessionFactory.dialectParser.queryDefinedTypeStmts(definedTypeMap));
+            schemaInfo = executor.extractInfo(stmtList);
 
             //2.compare schema meta and schema info.
             final SchemaResult schemaResult;

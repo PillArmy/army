@@ -25,9 +25,10 @@ import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
-import io.army.sqltype.ArmyType;
 import io.army.sqltype.DataType;
 import io.army.struct.DefinedType;
+import io.army.struct.TypeCategory;
+import io.army.util.AnnotationUtils;
 import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
 
@@ -39,37 +40,42 @@ import java.util.function.BiConsumer;
 /// @see io.army.mapping.CompositeType
 public final class CompositeArrayType extends _ArmyBuildInArrayType implements MappingType.SqlUserDefined {
 
-    public static CompositeArrayType from(final Class<?> arrayClass) {
-        if (!arrayClass.isArray()) {
-            throw errorJavaType(CompositeArrayType.class, arrayClass);
+    public static CompositeArrayType from(final Class<?> javaType) {
+        if (!javaType.isArray()) {
+            throw errorJavaType(CompositeArrayType.class, javaType);
         }
-        if (ArrayUtils.underlyingComponent(arrayClass).getAnnotation(DefinedType.class) == null) {
-            throw errorJavaType(CompositeArrayType.class, arrayClass);
+        final DefinedType definedType;
+        definedType = ArrayUtils.underlyingComponent(javaType).getAnnotation(DefinedType.class);
+        if (definedType == null || definedType.category() != TypeCategory.COMPOSITE) {
+            throw errorJavaType(CompositeArrayType.class, javaType);
         }
-        return CLASS_VALUE.get(arrayClass);
+        return CLASS_VALUE.get(javaType);
     }
 
 
     private static final ClassValue<CompositeArrayType> CLASS_VALUE = FuncClassValue.create(CompositeArrayType::new);
 
 
-    private final Class<?> arrayClass;
+    private final Class<?> javaType;
 
     private final Class<?> underlyingClass;
 
     private final CompositeType underlyingType;
 
-    private CompositeArrayType(Class<?> arrayClass) {
-        this.arrayClass = arrayClass;
-        this.underlyingClass = ArrayUtils.underlyingComponent(arrayClass);
+    private final DataType dataType;
+
+    private CompositeArrayType(Class<?> javaType) {
+        this.javaType = javaType;
+        this.underlyingClass = ArrayUtils.underlyingComponent(javaType);
         this.underlyingType = CompositeType.from(this.underlyingClass);
+        this.dataType = Objects.requireNonNull(AnnotationUtils.dataTypeOf(this.underlyingClass, true));
 
     }
 
 
     @Override
     public Class<?> javaType() {
-        return this.arrayClass;
+        return this.javaType;
     }
 
 
@@ -78,7 +84,7 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = DataType.from("VECTOR[]", ArmyType.VECTOR);
+                dataType = this.dataType;
                 break;
             case SQLite:
             case MySQL:
@@ -113,7 +119,7 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return from(ArrayUtils.arrayClassOf(this.arrayClass));
+        return from(ArrayUtils.arrayClassOf(this.javaType));
     }
 
     @Override
@@ -123,14 +129,14 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
 
     @Override
     public MappingType underlyingType() {
-        return CompositeType.from(this.underlyingClass);
+        return this.underlyingType;
     }
 
     @Override
     public MappingType elementType() {
         final Class<?> componentType;
         final MappingType instance;
-        if ((componentType = this.arrayClass.getComponentType()).isArray()) {
+        if ((componentType = this.javaType.getComponentType()).isArray()) {
             instance = from(componentType);
         } else {
             instance = this.underlyingType;
@@ -140,7 +146,7 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.arrayClass);
+        return Objects.hash(this.javaType);
     }
 
     @Override
@@ -149,7 +155,7 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
         if (obj == this) {
             match = true;
         } else if (obj instanceof CompositeArrayType o) {
-            match = o.arrayClass == this.arrayClass;
+            match = o.javaType == this.javaType;
         } else {
             match = false;
         }
