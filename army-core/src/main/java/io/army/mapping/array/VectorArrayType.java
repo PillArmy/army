@@ -36,7 +36,7 @@ import java.util.function.BiConsumer;
 /// Vector array type
 ///
 /// @see VectorType
-public class VectorArrayType extends _ArmyBuildInArrayType implements MappingType.SqlUserDefined {
+public class VectorArrayType extends _ArmyBuildInArrayType {
 
 
     public static VectorArrayType from(final Class<?> javaClass) {

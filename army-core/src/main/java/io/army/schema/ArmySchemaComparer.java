@@ -245,13 +245,21 @@ abstract class ArmySchemaComparer implements SchemaComparer {
         final List<TypeResult> typeResultList = _Collections.arrayList();
         final TypeResult.Builder typeBuilder = TypeResult.builder();
 
+        DataType dataType;
         TypeResult typeResult;
         for (Map.Entry<String, MappingType> e : definedTypeMap.entrySet()) {
-            typeName = e.getKey().toUpperCase(Locale.ROOT);
             type = e.getValue();
             if (type instanceof MappingType.SqlArray) {
+                type = ((MappingType.SqlArray) type).underlyingType();
+            }
+
+            if (((MappingType.SqlUserDefined) type).inExtension()) {
                 continue;
             }
+
+            dataType = type.map(this.serverMeta);
+
+            typeName = dataType.typeName().toUpperCase(Locale.ROOT);
             typeInfo = typeInfoMap.get(typeName);
             if (typeInfo == null) {
                 typeMap.put(type, -1);

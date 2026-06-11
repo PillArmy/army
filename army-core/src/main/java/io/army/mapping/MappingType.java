@@ -285,6 +285,9 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     /// User defined type must override {@link #hashCode()} and {@link #equals(Object)}.
     interface SqlUserDefined {
 
+        default boolean inExtension() {
+            return false;
+        }
 
         Class<?> javaType();
 

@@ -127,6 +127,11 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
     }
 
     @Override
+    public boolean inExtension() {
+        return true;
+    }
+
+    @Override
     public int hashCode() {
         return System.identityHashCode(this);
     }
