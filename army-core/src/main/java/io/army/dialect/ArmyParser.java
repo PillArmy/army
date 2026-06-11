@@ -88,8 +88,6 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
     private final IdentifierHandler identifierHandler;
 
-    private final Map<String, String> typeNameToSafeSchemaMap;
-
     protected final EscapeMode literalEscapeMode;
 
     /// The escape mode for SQL identifiers.
@@ -141,6 +139,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
     final boolean supportLastInsertedId;
 
     private final String qualifiedSchemaName;
+
     private final NameMode tableNameMode;
 
     private final NameMode columnNameMode;
@@ -172,8 +171,6 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
         this.keyWordSet = Set.copyOf(_DialectUtils.createKeyWordSet(createKeyWordSet(this.serverMeta)));
         this.identifierHandler = createIdentifierHandler(this.serverMeta);
-
-        this.typeNameToSafeSchemaMap = Map.copyOf(createTypeNameToSafeSchemaMap(dialectEnv.typeNameToSchemaMap()));
 
         this.mappingEnv = createMappingEnv(dialectEnv);
         this.mockEnv = dialectEnv instanceof _MockDialects;
@@ -225,7 +222,8 @@ abstract non-sealed class ArmyParser implements DialectParser {
         this.funcNameMode = env.getOrDefault(ArmyKey.FUNC_NAME_MODE);
         this.truncatedTimeType = env.getOrDefault(ArmyKey.TRUNCATED_TIME_TYPE);
         this.supportLastInsertedId = this.dialectDatabase != Database.PostgreSQL || this.dialect.compareWith(PostgreDialect.POSTGRE12) < 0;
-        this.qualifiedSchemaName = this.getQualifiedSchemaName(env, this.serverMeta);
+
+        this.qualifiedSchemaName = createQualifiedSchemaName(env, this.serverMeta);
 
         this.literalTypeNameEnable = env.getOrDefault(ArmyKey.LITERAL_TYPE_NAME_ENABLE);
         this.unrecognizedTypeAllowed = env.getOrDefault(ArmyKey.UNRECOGNIZED_TYPE_ALLOWED);
@@ -256,28 +254,40 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
     /// @see ArmyParser#ArmyParser(DialectEnv, Dialect)
     @Nullable
-    private String getQualifiedSchemaName(final ArmyEnvironment env, final ServerMeta meta) {
+    private String createQualifiedSchemaName(final ArmyEnvironment env, final ServerMeta meta) {
         if (!env.getOrDefault(ArmyKey.QUALIFIED_TABLE_NAME_ENABLE)) {
             return null;
         }
-        final String schemaName, qualifiedSchemaName;
-        schemaName = this.qualifiedSchemaName(meta);
+        final String[] array = new String[]{meta.catalog(), meta.schema()};
+
         final NameMode mode;
         mode = env.getOrDefault(ArmyKey.DATABASE_NAME_MODE);
-        switch (mode) {
-            case DEFAULT:
-                qualifiedSchemaName = schemaName;
-                break;
-            case LOWER_CASE:
-                qualifiedSchemaName = schemaName.toLowerCase(Locale.ROOT);
-                break;
-            case UPPER_CASE:
-                qualifiedSchemaName = schemaName.toUpperCase(Locale.ROOT);
-                break;
-            default:
-                throw _Exceptions.unexpectedEnum(mode);
+        final StringBuilder builder = new StringBuilder(30);
+
+        String effectiveName;
+        for (String name : array) {
+            if (!_StringUtils.hasText(name)) {
+                continue;
+            }
+            switch (mode) {
+                case DEFAULT:
+                    effectiveName = name;
+                    break;
+                case LOWER_CASE:
+                    effectiveName = name.toLowerCase(Locale.ROOT);
+                    break;
+                case UPPER_CASE:
+                    effectiveName = name.toUpperCase(Locale.ROOT);
+                    break;
+                default:
+                    throw _Exceptions.unexpectedEnum(mode);
+            }
+            if (!builder.isEmpty()) {
+                builder.append(_Constant.PERIOD);
+            }
+            createSafeObjectName(SchemaName.of(effectiveName), builder);
         }
-        return qualifiedSchemaName;
+        return builder.toString();
     }
 
 
@@ -624,9 +634,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
         objectName = effectiveObject.objectName();
 
         final String safePrefix;
-        if (dataTypeObject) {
-            safePrefix = this.typeNameToSafeSchemaMap.get(objectName.toUpperCase(Locale.ROOT));
-        } else if (!(object instanceof TableMeta<?> t)) {
+        if (!(object instanceof TableMeta<?> t)) {
             safePrefix = null;
         } else if (t.schema() == this.serverSchemaMeta) {
             safePrefix = this.qualifiedSchemaName;
@@ -3285,48 +3293,6 @@ abstract non-sealed class ArmyParser implements DialectParser {
         return context.build();
     }
 
-
-    /// @see #ArmyParser(DialectEnv, Dialect)
-    private Map<String, String> createTypeNameToSafeSchemaMap(final Map<String, String> typeNameToSchemaMap) {
-        final int mapSize = typeNameToSchemaMap.size();
-        final Map<String, String> map = _Collections.hashMapForSize(mapSize);
-        final StringBuilder builder = new StringBuilder(15);
-
-        final Map<String, SchemaName> schemaNameMap = _Collections.hashMapForSize(mapSize);
-        final Map<String, String> safeSchemaMap = _Collections.hashMapForSize(mapSize);
-
-        final String currentSchema = this.serverMeta.schema();
-
-        SchemaName schemaName;
-        String upperCaseTypeName, originalSchema, safeSchema;
-        for (Map.Entry<String, String> e : typeNameToSchemaMap.entrySet()) {
-
-            originalSchema = e.getValue();
-            if (originalSchema.equals(currentSchema)) {
-                continue;
-            }
-
-            upperCaseTypeName = e.getKey().toUpperCase(Locale.ROOT);
-
-            safeSchema = safeSchemaMap.get(originalSchema);
-            if (safeSchema != null) {
-                map.put(upperCaseTypeName, safeSchema);
-                continue;
-            }
-
-            builder.setLength(0); // firstly clear
-
-            schemaName = schemaNameMap.computeIfAbsent(originalSchema, SchemaName::of);
-
-            createSafeObjectName(schemaName, builder);
-
-            safeSchema = builder.toString();
-
-            safeSchemaMap.put(originalSchema, safeSchema);
-            map.put(upperCaseTypeName, safeSchema);
-        }
-        return map;
-    }
 
     /// @see #ArmyParser(DialectEnv, Dialect)
     private Map<String, String> createSafeObjectNameMap(final Map<Class<?>, TableMeta<?>> tableMap, final boolean all) {

@@ -321,6 +321,16 @@ abstract class MySQLParser extends _ArmyDialectParser {
                 }
             }
             break;
+            case VECTOR: {
+                if (!(value instanceof String)) {
+                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
+                }
+                sqlBuilder.append("STRING_TO_VECTOR")
+                        .append(_Constant.LEFT_PAREN);
+                MySQLLiterals.mysqlEscapes(this.literalEscapeMode, (String) value, sqlBuilder);
+                sqlBuilder.append(_Constant.RIGHT_PAREN);
+            }
+            break;
             case NULL:
             case UNKNOWN:
                 throw ExecutorSupport.mapMethodError(typeMeta.mappingType(), dataType);
@@ -594,7 +604,6 @@ abstract class MySQLParser extends _ArmyDialectParser {
                 throw _Exceptions.unexpectedEnum(unionType);
         }
     }
-
 
 
     @Override
