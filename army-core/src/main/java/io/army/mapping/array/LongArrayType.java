@@ -28,73 +28,93 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
+import io.army.util._Assert;
+
+import java.util.Objects;
 
 public class LongArrayType extends _ArmyBuildInArrayType {
 
 
-    public static LongArrayType from(final Class<?> arrayClass) {
+    public static LongArrayType from(final Class<?> javaType) {
         final LongArrayType instance;
         final Class<?> componentType;
-        if (arrayClass == Long[].class) {
+        if (javaType == Long[].class) {
             instance = LINEAR;
-        } else if (arrayClass == long[].class) {
+        } else if (javaType == long[].class) {
             instance = PRIMITIVE_LINEAR;
-        } else if (!arrayClass.isArray()) {
-            throw errorJavaType(LongArrayType.class, arrayClass);
-        } else if ((componentType = ArrayUtils.underlyingComponent(arrayClass)) == long.class
+        } else if (!javaType.isArray()) {
+            throw errorJavaType(LongArrayType.class, javaType);
+        } else if ((componentType = ArrayUtils.underlyingComponent(javaType)) == long.class
                 || componentType == Long.class) {
-            instance = new LongArrayType(arrayClass, componentType);
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
-            throw errorJavaType(LongArrayType.class, arrayClass);
-        }
-        return instance;
-    }
-
-    public static LongArrayType fromUnlimited(final Class<?> longClass) {
-        final LongArrayType instance;
-        if (longClass == Long.class) {
-            instance = UNLIMITED;
-        } else if (longClass == long.class) {
-            instance = PRIMITIVE_UNLIMITED;
-        } else {
-            throw errorJavaType(LongArrayType.class, longClass);
+            throw errorJavaType(LongArrayType.class, javaType);
         }
         return instance;
     }
 
     public static final LongArrayType UNLIMITED = new LongArrayType(Object.class, Long.class);
 
-    public static final LongArrayType LINEAR = new LongArrayType(Long[].class, Long.class);
+    public static final LongArrayType LINEAR = new LongArrayType(Long[].class);
 
-    public static final LongArrayType PRIMITIVE_UNLIMITED = new LongArrayType(Object.class, long.class);
-
-    public static final LongArrayType PRIMITIVE_LINEAR = new LongArrayType(long[].class, long.class);
+    public static final LongArrayType PRIMITIVE_LINEAR = new LongArrayType(long[].class);
 
 
     private final Class<?> javaType;
 
     private final Class<?> underlyingJavaType;
 
+    /// private constructor
+    private LongArrayType(final Class<?> javaType) {
+        this.javaType = javaType;
+        this.underlyingJavaType = ArrayUtils.underlyingComponent(javaType);
+    }
 
     /// private constructor
-    private LongArrayType(final Class<?> javaType, Class<?> underlyingJavaType) {
+    private LongArrayType(final Class<Object> javaType, Class<?> underlyingJavaType) {
+        _Assert.isTrue(underlyingJavaType == Long.class, "");
+
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;
     }
 
 
     @Override
-    public Class<?> javaType() {
+    public final Class<?> javaType() {
         return this.javaType;
     }
 
+
     @Override
-    public Class<?> underlyingJavaType() {
+    public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
+        return mapToSqlType(this, meta);
+    }
+
+    @Override
+    public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, LongArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
+    }
+
+    @Override
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        final boolean nonNull = this.underlyingJavaType == long.class;
+        return PostgreArrays.arrayAfterGet(this, dataType, source, nonNull, LongArrayType::parseText, ACCESS_ERROR_HANDLER);
+    }
+
+
+    @Override
+    public final Class<?> underlyingJavaType() {
         return this.underlyingJavaType;
     }
 
     @Override
-    public MappingType elementType() {
+    public final MappingType underlyingType() {
+        return LongType.INSTANCE;
+    }
+
+    @Override
+    public final MappingType elementType() {
         final Class<?> javaType = this.javaType;
         final MappingType instance;
         if (javaType == Object.class) {
@@ -108,7 +128,7 @@ public class LongArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
         final Class<?> javaType = this.javaType;
         if (javaType == Object.class) { // unlimited dimension array
             return this;
@@ -116,23 +136,24 @@ public class LongArrayType extends _ArmyBuildInArrayType {
         return from(ArrayUtils.arrayClassOf(javaType));
     }
 
-
     @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        return mapToSqlType(this, meta);
+    public final int hashCode() {
+        return Objects.hash(this.javaType, this.underlyingJavaType);
     }
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, LongArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof LongArrayType o) {
+            match = o.javaType == this.javaType
+                    && o.underlyingJavaType == this.underlyingJavaType;
+        } else {
+            match = false;
+        }
+        return match;
     }
-
-    @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        final boolean nonNull = this.underlyingJavaType == long.class;
-        return PostgreArrays.arrayAfterGet(this, dataType, source, nonNull, LongArrayType::parseText, ACCESS_ERROR_HANDLER);
-    }
-
 
     /*-------------------below static methods -------------------*/
 
@@ -162,6 +183,12 @@ public class LongArrayType extends _ArmyBuildInArrayType {
             throw new IllegalArgumentException();
         }
         appender.append(element);
+    }
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<LongArrayType> CLASS_VALUE = FuncClassValue.create(LongArrayType::new);
+
     }
 
 

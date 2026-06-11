@@ -22,9 +22,8 @@ import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
-
 /// 
-/// This class is mapping class of {@link Long}.
+/// This class is mapping class of {@link Integer}.
 /// This mapping type can convert below java type:
 /// 
 /// - {@link Byte}
@@ -36,64 +35,60 @@ import io.army.sqltype.SQLiteType;
 /// - {@link Boolean} true : 1 , false: 0
 /// - {@link String}
 /// 
-/// to (unsigned) int,if overflow,throw {@link io.army.ArmyException}
+/// to  (unsigned medium) int,if overflow,throw {@link io.army.ArmyException}
 /// @since 0.6.0
-public final class UnsignedSqlIntType extends _NumericType._UnsignedIntegerType {
+public final class SmallIntUnsignedType extends _ArmyNoInjectionType
+        implements MappingType.SqlInteger, MappingType.SqlUnsignedNumber {
 
-    public static UnsignedSqlIntType from(final Class<?> fieldType) {
-        if (fieldType != Long.class) {
-            throw errorJavaType(UnsignedSqlIntType.class, fieldType);
+
+    public static SmallIntUnsignedType from(final Class<?> fieldType) {
+        if (fieldType != Integer.class) {
+            throw errorJavaType(SmallIntUnsignedType.class, fieldType);
         }
         return INSTANCE;
     }
 
-    public static final UnsignedSqlIntType INSTANCE = new UnsignedSqlIntType();
+    public static final SmallIntUnsignedType INSTANCE = new SmallIntUnsignedType();
 
     /// private constructor
-    private UnsignedSqlIntType() {
+    private SmallIntUnsignedType() {
     }
 
     @Override
     public Class<?> javaType() {
-        return Long.class;
+        return Integer.class;
     }
-
 
     @Override
     public DataType map(final ServerMeta meta) {
-        return mapToDataType(this, meta);
-    }
-
-
-    @Override
-    public Long beforeBind(DataType dataType, MappingEnv env, Object source) {
-        return UnsignedLongType.toUnsignedLong(this, dataType, source, 0xFFFF_FFFFL, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
-    public Long afterGet(DataType dataType, MappingEnv env, Object source) {
-        return UnsignedLongType.toUnsignedLong(this, dataType, source, 0xFFFF_FFFFL, ACCESS_ERROR_HANDLER);
-    }
-
-
-    static DataType mapToDataType(final MappingType type, final ServerMeta meta) {
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case MySQL:
-                dataType = MySQLType.INT_UNSIGNED;
+                dataType = MySQLType.SMALLINT_UNSIGNED;
                 break;
             case PostgreSQL:
-                dataType = PgType.BIGINT;
+                dataType = PgType.INTEGER;
                 break;
             case SQLite:
-                dataType = SQLiteType.BIGINT;
+                dataType = SQLiteType.INTEGER;
                 break;
             case Oracle:
             case H2:
             default:
-                throw MAP_ERROR_HANDLER.apply(type, meta);
+                throw MAP_ERROR_HANDLER.apply(this, meta);
         }
         return dataType;
+    }
+
+
+    @Override
+    public Integer beforeBind(DataType dataType, MappingEnv env, final Object source) {
+        return IntegerUnsignedType.toUnsignedInt(this, dataType, source, 0xFFFF, PARAM_ERROR_HANDLER);
+    }
+
+    @Override
+    public Integer afterGet(DataType dataType, MappingEnv env, Object source) {
+        return IntegerUnsignedType.toUnsignedInt(this, dataType, source, 0xFFFF, ACCESS_ERROR_HANDLER);
     }
 
 

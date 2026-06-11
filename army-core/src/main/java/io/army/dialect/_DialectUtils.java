@@ -25,7 +25,6 @@ import io.army.mapping.MappingType;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.sqltype.DataType;
-import io.army.sqltype.SQLType;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
@@ -213,19 +212,10 @@ public abstract class _DialectUtils {
 
     public static DataType obtainElementType(final DataType dataType) {
         final DataType elementType;
-        if (!dataType.isArray()) {
-            elementType = dataType;
-        } else if (dataType instanceof SQLType) {
-            elementType = ((SQLType) dataType).elementType();
-            Objects.requireNonNull(elementType);
+        if (dataType.isArray()) {
+            elementType = Objects.requireNonNull(dataType.elementType());
         } else {
-            final String typeName = dataType.typeName();
-            final int index = typeName.indexOf("[]");
-            if (index < 0) {
-                String m = String.format("%s type name[%s] is illegal.", dataType.getClass().getName(), typeName);
-                throw new MetaException(m);
-            }
-            elementType = DataType.from(typeName.substring(0, index));
+            elementType = dataType;
         }
         return elementType;
     }
@@ -316,13 +306,13 @@ public abstract class _DialectUtils {
         final Set<String> set;
         set = _Collections.hashSetForSize(keyWordSet.size());
         for (String keyWord : keyWordSet) {
-            set.add(keyWord.toLowerCase(Locale.ROOT));
+            set.add(keyWord.toUpperCase(Locale.ROOT));
         }
 
-        for (String keyWord : fieldCoreKeyWordSet()) {
-            set.add(keyWord.toLowerCase(Locale.ROOT));
+        for (String keyWord : createCoreKeyWordSet()) {
+            set.add(keyWord.toUpperCase(Locale.ROOT));
         }
-        return set;
+        return Set.copyOf(set);
     }
 
 
@@ -393,9 +383,9 @@ public abstract class _DialectUtils {
 
 
     /// @see #createKeyWordSet(Set)
-    private static Set<String> fieldCoreKeyWordSet() {
+    private static Set<String> createCoreKeyWordSet() {
         final Set<String> set;
-        set = _Collections.hashSetForSize(4 * 4);
+        set = _Collections.hashSetForSize(4 * 20);
 
         set.add("SELECT");
         set.add("WITH");
@@ -405,16 +395,96 @@ public abstract class _DialectUtils {
         set.add("INSERT");
         set.add("INTO");
         set.add("VALUES");
-
         set.add("UPDATE");
+
         set.add("FROM");
         set.add("DELETE");
         set.add("SET");
-
         set.add("WHERE");
+
         set.add("AND");
         set.add("OR");
         set.add("JOIN");
+        set.add("VALUE");
+
+        set.add("RIGHT");
+        set.add("LEFT");
+        set.add("CROSS");
+        set.add("FULL");
+
+        set.add("OUTER");
+        set.add("INNER");
+        set.add("LIMIT");
+        set.add("DISTINCT");
+
+        set.add("ALL");
+        set.add("AS");
+        set.add("ON");
+        set.add("GROUP");
+
+        set.add("BY");
+        set.add("HAVING");
+        set.add("ORDER");
+        set.add("ASC");
+
+        set.add("DESC");
+        set.add("NULLS");
+        set.add("FIRST");
+        set.add("LAST");
+
+        set.add("UNION");
+        set.add("INTERSECT");
+        set.add("EXCEPT");
+        set.add("OFFSET");
+
+        set.add("FETCH");
+        set.add("ROWS");
+        set.add("NEXT");
+        set.add("ONLY");
+
+        set.add("PERCENT");
+        set.add("TIES");
+        set.add("EXISTS");
+        set.add("IN");
+
+        set.add("BETWEEN");
+        set.add("LIKE");
+        set.add("ESCAPE");
+        set.add("NOT");
+
+        set.add("IS");
+        set.add("TRUE");
+        set.add("FALSE");
+        set.add("NATURAL");
+
+        set.add("CASE");
+        set.add("WHEN");
+        set.add("THEN");
+        set.add("ELSE");
+
+        set.add("END");
+        set.add("COALESCE");
+        set.add("CAST");
+        set.add("OVER");
+
+        set.add("PARTITION");
+        set.add("WINDOW");
+        set.add("CREATE");
+        set.add("ALTER");
+
+        set.add("DROP");
+        set.add("TABLE");
+        set.add("VIEW");
+        set.add("INDEX");
+
+        set.add("SCHEMA");
+        set.add("PRIMARY");
+        set.add("KEY");
+        set.add("FOREIGN");
+
+        set.add("UNIQUE");
+        set.add("DEFAULT");
+        set.add("NULL");
 
         return set;
     }

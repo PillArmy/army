@@ -17,7 +17,6 @@
 package io.army.mapping;
 
 import io.army.dialect.UnsupportedDialectException;
-import io.army.mapping.array.TinyTextArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -38,12 +37,6 @@ public final class TinyTextType extends ArmyTextType {
     /// private constructor
     private TinyTextType() {
     }
-
-    @Override
-    public MappingType arrayTypeOfThis() {
-        return TinyTextArrayType.LINEAR;
-    }
-
 
     @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {

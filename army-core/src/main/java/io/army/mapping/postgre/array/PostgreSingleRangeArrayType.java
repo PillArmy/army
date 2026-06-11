@@ -184,9 +184,27 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
         super(sqlType, javaType, rangeFunc);
     }
 
+
+    @Override
+    public String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
+        return arrayBeforeBind(source, this::serialize, dataType, this, PARAM_ERROR_HANDLER);
+    }
+
+    @Override
+    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return arrayAfterGet(source, this.rangeFunc, this::deserialize, dataType, this, ACCESS_ERROR_HANDLER);
+    }
+
+
     @Override
     public Class<?> underlyingJavaType() {
         return this.underlyingJavaType;
+    }
+
+    @Override
+    public MappingType underlyingType() {
+        //TODO
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -209,16 +227,6 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
             instance = new PostgreSingleRangeArrayType(this.dataType, targetType, rangeFunc);
         }
         return instance;
-    }
-
-    @Override
-    public String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
-        return arrayBeforeBind(source, this::serialize, dataType, this, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return arrayAfterGet(source, this.rangeFunc, this::deserialize, dataType, this, ACCESS_ERROR_HANDLER);
     }
 
 

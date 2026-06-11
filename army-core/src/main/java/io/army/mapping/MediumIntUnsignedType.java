@@ -22,8 +22,8 @@ import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
-/// 
-/// This class is mapping class of {@link Integer}.
+
+/// This class is mapping class of {@link Integer} to mediumint_unsigned( or integer).
 /// This mapping type can convert below java type:
 /// 
 /// - {@link Byte}
@@ -35,22 +35,24 @@ import io.army.sqltype.SQLiteType;
 /// - {@link Boolean} true : 1 , false: 0
 /// - {@link String}
 /// 
-/// to  (unsigned medium) int,if overflow,throw {@link io.army.ArmyException}
+/// to  (unsigned) int,if overflow,throw {@link io.army.ArmyException}
 /// @since 0.6.0
-public final class UnsignedSmallIntType extends _NumericType._UnsignedIntegerType {
+public final class MediumIntUnsignedType extends _ArmyNoInjectionType
+        implements MappingType.SqlInteger, MappingType.SqlUnsignedNumber {
 
-
-    public static UnsignedSmallIntType from(final Class<?> fieldType) {
+    public static MediumIntUnsignedType from(final Class<?> fieldType) {
         if (fieldType != Integer.class) {
-            throw errorJavaType(UnsignedSmallIntType.class, fieldType);
+            throw errorJavaType(MediumIntUnsignedType.class, fieldType);
         }
         return INSTANCE;
     }
 
-    public static final UnsignedSmallIntType INSTANCE = new UnsignedSmallIntType();
+    public static final MediumIntUnsignedType INSTANCE = new MediumIntUnsignedType();
+
+    public static final int MAX_VALUE = 0xFFFF_FF;
 
     /// private constructor
-    private UnsignedSmallIntType() {
+    private MediumIntUnsignedType() {
     }
 
     @Override
@@ -63,7 +65,7 @@ public final class UnsignedSmallIntType extends _NumericType._UnsignedIntegerTyp
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case MySQL:
-                dataType = MySQLType.SMALLINT_UNSIGNED;
+                dataType = MySQLType.MEDIUMINT_UNSIGNED;
                 break;
             case PostgreSQL:
                 dataType = PgType.INTEGER;
@@ -79,15 +81,14 @@ public final class UnsignedSmallIntType extends _NumericType._UnsignedIntegerTyp
         return dataType;
     }
 
-
     @Override
-    public Integer beforeBind(DataType dataType, MappingEnv env, final Object source) {
-        return UnsignedIntegerType.toUnsignedInt(this, dataType, source, 0xFFFF, PARAM_ERROR_HANDLER);
+    public Integer beforeBind(DataType dataType, MappingEnv env, Object source) {
+        return IntegerUnsignedType.toUnsignedInt(this, dataType, source, MAX_VALUE, PARAM_ERROR_HANDLER);
     }
 
     @Override
     public Integer afterGet(DataType dataType, MappingEnv env, Object source) {
-        return UnsignedIntegerType.toUnsignedInt(this, dataType, source, 0xFFFF, ACCESS_ERROR_HANDLER);
+        return IntegerUnsignedType.toUnsignedInt(this, dataType, source, MAX_VALUE, ACCESS_ERROR_HANDLER);
     }
 
 

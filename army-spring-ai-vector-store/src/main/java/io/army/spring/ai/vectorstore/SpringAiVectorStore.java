@@ -71,7 +71,7 @@ public abstract class SpringAiVectorStore {
     /// If you do not specify it, will throw {@link io.army.meta.MetaException}
     ///
     @Column(name = "${DEFAULT}", notNull = true, precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
-    @Mapping("io.army.mapping.optional.VectorType")
+    @Mapping("io.army.mapping.VectorType")
     private float[] embedding;
 
     public String getId() {

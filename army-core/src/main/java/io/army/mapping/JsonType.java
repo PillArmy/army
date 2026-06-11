@@ -23,6 +23,7 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
+import io.army.util.FuncClassValue;
 
 import java.util.Collection;
 import java.util.List;
@@ -33,13 +34,15 @@ import java.util.Set;
 public class JsonType extends ArmyJsonType implements MappingType.SqlJson {
 
     public static JsonType from(final Class<?> javaType) {
+        final JsonType instance;
         if (javaType == String.class) {
-            return TEXT;
-        }
-        if (Map.class.isAssignableFrom(javaType) || Collection.class.isAssignableFrom(javaType)) {
+            instance = TEXT;
+        } else if (Map.class.isAssignableFrom(javaType) || Collection.class.isAssignableFrom(javaType)) {
             throw errorJavaType(JsonType.class, javaType);
+        } else {
+            instance = CLASS_VALUE.get(javaType);
         }
-        return CLASS_VALUE.get(javaType);
+        return instance;
     }
 
     public static final JsonType TEXT = new JsonType(String.class);
@@ -60,13 +63,7 @@ public class JsonType extends ArmyJsonType implements MappingType.SqlJson {
     }
 
 
-    private static final ClassValue<JsonType> CLASS_VALUE = new ClassValue<>() {
-        @Override
-        protected JsonType computeValue(Class<?> type) {
-            return new JsonType(type);
-        }
-    };
-
+    private static final ClassValue<JsonType> CLASS_VALUE = FuncClassValue.create(JsonType::new);
 
     /// private constructor
     private JsonType(Class<?> javaType) {
@@ -119,12 +116,7 @@ public class JsonType extends ArmyJsonType implements MappingType.SqlJson {
 
     private static final class SetJsonType extends JsonType implements UnaryGenericsMapping {
 
-        private static final ClassValue<SetJsonType> INSTANCE_CACHE = new ClassValue<>() {
-            @Override
-            protected SetJsonType computeValue(Class<?> type) {
-                return new SetJsonType(type);
-            }
-        };
+        private static final ClassValue<SetJsonType> INSTANCE_CACHE = FuncClassValue.create(SetJsonType::new);
 
         private final Class<?> elementClass;
 
@@ -143,12 +135,7 @@ public class JsonType extends ArmyJsonType implements MappingType.SqlJson {
 
     private static final class ListJsonType extends JsonType implements UnaryGenericsMapping {
 
-        private static final ClassValue<ListJsonType> INSTANCE_CACHE = new ClassValue<>() {
-            @Override
-            protected ListJsonType computeValue(Class<?> type) {
-                return new ListJsonType(type);
-            }
-        };
+        private static final ClassValue<ListJsonType> INSTANCE_CACHE = FuncClassValue.create(ListJsonType::new);
 
         private final Class<?> elementClass;
 

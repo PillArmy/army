@@ -23,36 +23,33 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.OffsetDateTimeType;
-import io.army.mapping._ArmyBuildInArrayType; 
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
 import io.army.util._TimeUtils;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 
 public class OffsetDateTimeArrayType extends _ArmyBuildInArrayType {
 
 
-    public static OffsetDateTimeArrayType from(final Class<?> arrayClass) {
+    public static OffsetDateTimeArrayType from(final Class<?> javaType) {
         final OffsetDateTimeArrayType instance;
-        if (arrayClass == OffsetDateTime[].class) {
+        if (javaType == OffsetDateTime[].class) {
             instance = LINEAR;
-        } else if (!arrayClass.isArray()) {
-            throw errorJavaType(OffsetDateTimeArrayType.class, arrayClass);
-        } else if (ArrayUtils.underlyingComponent(arrayClass) == OffsetDateTime.class) {
-            instance = new OffsetDateTimeArrayType(arrayClass);
+        } else if (!javaType.isArray()) {
+            throw errorJavaType(OffsetDateTimeArrayType.class, javaType);
+        } else if (ArrayUtils.underlyingComponent(javaType) == OffsetDateTime.class) {
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
-            throw errorJavaType(OffsetDateTimeArrayType.class, arrayClass);
+            throw errorJavaType(OffsetDateTimeArrayType.class, javaType);
         }
         return instance;
     }
-
-    public static OffsetDateTimeArrayType fromUnlimited() {
-        return UNLIMITED;
-    }
-
 
     public static final OffsetDateTimeArrayType LINEAR = new OffsetDateTimeArrayType(OffsetDateTime[].class);
 
@@ -66,17 +63,37 @@ public class OffsetDateTimeArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public Class<?> javaType() {
+    public final Class<?> javaType() {
         return this.javaType;
     }
 
     @Override
-    public Class<?> underlyingJavaType() {
+    public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
+        return mapToDataType(this, meta);
+    }
+
+    @Override
+    public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, OffsetDateTimeArrayType::appendToText, dataType, this);
+    }
+
+    @Override
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return PostgreArrays.arrayAfterGet(this, dataType, source, OffsetDateTimeArrayType::parseText);
+    }
+
+    @Override
+    public final Class<?> underlyingJavaType() {
         return OffsetDateTime.class;
     }
 
     @Override
-    public MappingType elementType() {
+    public final MappingType underlyingType() {
+        return OffsetDateTimeType.INSTANCE;
+    }
+
+    @Override
+    public final MappingType elementType() {
         final MappingType instance;
         final Class<?> javaType = this.javaType;
         if (javaType == Object.class) {
@@ -90,7 +107,7 @@ public class OffsetDateTimeArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
         final Class<?> javaType = this.javaType;
         if (javaType == Object.class) { // unlimited dimension array
             return this;
@@ -99,22 +116,21 @@ public class OffsetDateTimeArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        return mapToDataType(this, meta);
+    public int hashCode() {
+        return Objects.hash(this.javaType);
     }
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, OffsetDateTimeArrayType::appendToText, dataType, this,
-                PARAM_ERROR_HANDLER
-        );
-    }
-
-    @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false,
-                OffsetDateTimeArrayType::parseText, ACCESS_ERROR_HANDLER
-        );
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof OffsetDateTimeArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
     }
 
 
@@ -155,6 +171,13 @@ public class OffsetDateTimeArrayType extends _ArmyBuildInArrayType {
         appender.append(_Constant.DOUBLE_QUOTE);
         appender.append(((OffsetDateTime) element).format(_TimeUtils.OFFSET_DATETIME_FORMATTER_6));
         appender.append(_Constant.DOUBLE_QUOTE);
+
+    }
+
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<OffsetDateTimeArrayType> CLASS_VALUE = FuncClassValue.create(OffsetDateTimeArrayType::new);
 
     }
 

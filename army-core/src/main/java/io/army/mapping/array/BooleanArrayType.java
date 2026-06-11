@@ -28,6 +28,10 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
+import io.army.util._Assert;
+
+import java.util.Objects;
 
 public class BooleanArrayType extends _ArmyBuildInArrayType {
 
@@ -38,38 +42,24 @@ public class BooleanArrayType extends _ArmyBuildInArrayType {
         if (javaType == Boolean[].class) {
             instance = LINEAR;
         } else if (javaType == boolean[].class) {
-            instance = PRIMITIVE_UNLIMITED;
+            instance = PRIMITIVE_LINEAR;
         } else if (!javaType.isArray()) {
             throw errorJavaType(BooleanArrayType.class, javaType);
         } else if ((underlyingJavaType = ArrayUtils.underlyingComponent(javaType)) == Boolean.class
                 || underlyingJavaType == boolean.class) {
-            instance = new BooleanArrayType(javaType, underlyingJavaType);
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
             throw errorJavaType(BooleanArrayType.class, javaType);
         }
         return instance;
     }
 
-    public static BooleanArrayType fromUnlimited(final Class<?> booleanClass) {
-        final BooleanArrayType instance;
-        if (booleanClass == Boolean.class) {
-            instance = UNLIMITED;
-        } else if (booleanClass == boolean.class) {
-            instance = PRIMITIVE_UNLIMITED;
-        } else {
-            throw errorJavaType(BooleanArrayType.class, booleanClass);
-        }
-        return instance;
-    }
-
-    /// unlimited dimension array of {@code boolean}
-    public static final BooleanArrayType PRIMITIVE_UNLIMITED = new BooleanArrayType(Object.class, boolean.class);
 
     /// one dimension array of {@code  boolean}
-    public static final BooleanArrayType PRIMITIVE_LINEAR = new BooleanArrayType(boolean[].class, boolean.class);
+    public static final BooleanArrayType PRIMITIVE_LINEAR = new BooleanArrayType(boolean[].class);
 
     /// one dimension array of {@link Boolean}
-    public static final BooleanArrayType LINEAR = new BooleanArrayType(Boolean[].class, Boolean.class);
+    public static final BooleanArrayType LINEAR = new BooleanArrayType(Boolean[].class);
 
     /// unlimited dimension array of {@link Boolean}
     public static final BooleanArrayType UNLIMITED = new BooleanArrayType(Object.class, Boolean.class);
@@ -80,46 +70,26 @@ public class BooleanArrayType extends _ArmyBuildInArrayType {
     private final Class<?> underlyingJavaType;
 
     /// private constructor
-    private BooleanArrayType(Class<?> javaType, Class<?> underlyingJavaType) {
+    private BooleanArrayType(Class<?> javaType) {
+        this.javaType = javaType;
+        this.underlyingJavaType = ArrayUtils.underlyingComponent(javaType);
+    }
+
+    /// private constructor
+    private BooleanArrayType(Class<Object> javaType, Class<?> underlyingJavaType) {
+        _Assert.isTrue(underlyingJavaType == Boolean.class, "");
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;
     }
 
     @Override
-    public Class<?> javaType() {
+    public final Class<?> javaType() {
         return this.javaType;
     }
 
-    @Override
-    public Class<?> underlyingJavaType() {
-        return this.underlyingJavaType;
-    }
 
     @Override
-    public MappingType elementType() {
-        final Class<?> javaType = this.javaType;
-        final MappingType instance;
-        if (javaType == Object.class) {
-            instance = this;
-        } else if (javaType == Boolean[].class || javaType == boolean[].class) {
-            instance = BooleanType.INSTANCE;
-        } else {
-            instance = from(javaType.getComponentType());
-        }
-        return instance;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        final Class<?> javaType = this.javaType;
-        if (javaType == Object.class) { // unlimited dimension array
-            return this;
-        }
-        return from(ArrayUtils.arrayClassOf(javaType));
-    }
-
-    @Override
-    public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
+    public final DataType map(final ServerMeta meta) throws UnsupportedDialectException {
         final SQLType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
@@ -136,14 +106,67 @@ public class BooleanArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+    public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return PostgreArrays.arrayBeforeBind(source, BooleanArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
     }
 
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         final boolean nonNull = this.underlyingJavaType == boolean.class;
         return PostgreArrays.arrayAfterGet(this, dataType, source, nonNull, BooleanArrayType::parseText, ACCESS_ERROR_HANDLER);
+    }
+
+    @Override
+    public final Class<?> underlyingJavaType() {
+        return this.underlyingJavaType;
+    }
+
+    @Override
+    public final MappingType underlyingType() {
+        return BooleanType.INSTANCE;
+    }
+
+    @Override
+    public final MappingType elementType() {
+        final Class<?> javaType = this.javaType;
+        final MappingType instance;
+        if (javaType == Object.class) {
+            instance = this;
+        } else if (javaType == Boolean[].class || javaType == boolean[].class) {
+            instance = BooleanType.INSTANCE;
+        } else {
+            instance = from(javaType.getComponentType());
+        }
+        return instance;
+    }
+
+    @Override
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
+        final Class<?> javaType = this.javaType;
+        if (javaType == Object.class) { // unlimited dimension array
+            return this;
+        }
+        return from(ArrayUtils.arrayClassOf(javaType));
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(this.javaType, this.underlyingJavaType);
+    }
+
+    @Override
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof BooleanArrayType o) {
+            match = o.javaType == this.javaType
+                    && o.underlyingJavaType == this.underlyingJavaType
+            ;
+        } else {
+            match = false;
+        }
+        return match;
     }
 
 
@@ -176,5 +199,11 @@ public class BooleanArrayType extends _ArmyBuildInArrayType {
         appender.append(element);
     }
 
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<BooleanArrayType> CLASS_VALUE = FuncClassValue.create(BooleanArrayType::new);
+
+    }
 
 }

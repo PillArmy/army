@@ -40,7 +40,7 @@ import java.math.BigInteger;
 /// 
 /// to {@link BigDecimal},if overflow,throw {@link io.army.ArmyException}
 /// @since 0.6.0
-public final class BigDecimalType extends _NumericType implements MappingType.SqlDecimal {
+public final class BigDecimalType extends _ArmyNoInjectionType implements MappingType.SqlDecimal {
 
 
     public static BigDecimalType from(Class<?> javaType) {

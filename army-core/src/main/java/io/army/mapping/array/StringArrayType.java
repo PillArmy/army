@@ -28,24 +28,23 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
+
+import java.util.Objects;
 
 public class StringArrayType extends _ArmyBuildInArrayType {
 
 
-    public static StringArrayType from(final Class<?> arrayType) {
+    public static StringArrayType from(final Class<?> javaType) {
         final StringArrayType instance;
-        if (arrayType == String[].class) {
+        if (javaType == String[].class) {
             instance = LINEAR;
-        } else if (arrayType.isArray() && ArrayUtils.underlyingComponent(arrayType) == String.class) {
-            instance = new StringArrayType(arrayType);
+        } else if (javaType.isArray() && ArrayUtils.underlyingComponent(javaType) == String.class) {
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
-            throw errorJavaType(StringArrayType.class, arrayType);
+            throw errorJavaType(StringArrayType.class, javaType);
         }
         return instance;
-    }
-
-    public static StringArrayType fromUnlimited() {
-        return UNLIMITED;
     }
 
 
@@ -61,17 +60,38 @@ public class StringArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public Class<?> javaType() {
+    public final Class<?> javaType() {
         return this.javaType;
     }
 
     @Override
-    public Class<?> underlyingJavaType() {
+    public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
+        return mapToSqlType(this, meta);
+    }
+
+    @Override
+    public final String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, TextArrayType::appendToText, dataType, this);
+    }
+
+    @Override
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return PostgreArrays.arrayAfterGet(this, dataType, source, PostgreArrays::decodeElement);
+    }
+
+
+    @Override
+    public final Class<?> underlyingJavaType() {
         return String.class;
     }
 
     @Override
-    public MappingType elementType() {
+    public final MappingType underlyingType() {
+        return StringType.INSTANCE;
+    }
+
+    @Override
+    public final MappingType elementType() {
         final Class<?> javaType = this.javaType;
         final MappingType instance;
         if (javaType == Object.class) {
@@ -85,7 +105,7 @@ public class StringArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
         final Class<?> javaType = this.javaType;
         if (javaType == Object.class) { // unlimited dimension array
             return this;
@@ -94,22 +114,21 @@ public class StringArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        return mapToSqlType(this, meta);
+    public final int hashCode() {
+        return Objects.hash(this.javaType);
     }
 
     @Override
-    public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, TextArrayType::appendToText, dataType, this,
-                PARAM_ERROR_HANDLER
-        );
-    }
-
-    @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false,
-                PostgreArrays::decodeElement, ACCESS_ERROR_HANDLER
-        );
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof StringArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
     }
 
 
@@ -126,6 +145,13 @@ public class StringArrayType extends _ArmyBuildInArrayType {
                 throw MAP_ERROR_HANDLER.apply(type, meta);
         }
         return dataType;
+    }
+
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<StringArrayType> CLASS_VALUE = FuncClassValue.create(StringArrayType::new);
+
     }
 
 

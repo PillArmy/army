@@ -1167,7 +1167,7 @@ public abstract class TableMetaUtils {
             value = 255;
         } else if (Enum.class.isAssignableFrom(javaType = field.javaType())) {
             int maxLength = -1, length;
-            for (Enum<?> e : ClassUtils.getEnumConstants(javaType)) {
+            for (Enum<?> e : ClassUtils.enumConstantsOf(javaType)) {
                 length = e.name().length();
                 if (length > maxLength) {
                     maxLength = length;

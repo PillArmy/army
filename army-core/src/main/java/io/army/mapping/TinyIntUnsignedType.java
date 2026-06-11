@@ -19,22 +19,24 @@ package io.army.mapping;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
-/// 
+///
 /// This class representing the mapping from {@link Short} to (unsigned TINY)  INT.
+///
 /// @see Short
-public final class UnsignedTinyIntType extends _NumericType._UnsignedIntegerType {
+public final class TinyIntUnsignedType extends _ArmyNoInjectionType
+        implements MappingType.SqlInteger, MappingType.SqlUnsignedNumber {
 
-    public static UnsignedTinyIntType from(final Class<?> fieldType) {
+    public static TinyIntUnsignedType from(final Class<?> fieldType) {
         if (fieldType != Short.class) {
-            throw errorJavaType(UnsignedTinyIntType.class, fieldType);
+            throw errorJavaType(TinyIntUnsignedType.class, fieldType);
         }
         return INSTANCE;
     }
 
-    public static final UnsignedTinyIntType INSTANCE = new UnsignedTinyIntType();
+    public static final TinyIntUnsignedType INSTANCE = new TinyIntUnsignedType();
 
     /// private constructor
-    private UnsignedTinyIntType() {
+    private TinyIntUnsignedType() {
     }
 
 
@@ -68,7 +70,7 @@ public final class UnsignedTinyIntType extends _NumericType._UnsignedIntegerType
     @Override
     public Number beforeBind(final DataType dataType, MappingEnv env, final Object source) {
         final int v;
-        v = UnsignedIntegerType.toUnsignedInt(this, dataType, source, 0xFF, PARAM_ERROR_HANDLER);
+        v = IntegerUnsignedType.toUnsignedInt(this, dataType, source, 0xFF, PARAM_ERROR_HANDLER);
         final Number value;
         switch (((SQLType) dataType).database()) {
             case MySQL:
@@ -83,7 +85,7 @@ public final class UnsignedTinyIntType extends _NumericType._UnsignedIntegerType
 
     @Override
     public Short afterGet(DataType dataType, MappingEnv env, Object source) {
-        return (short) UnsignedIntegerType.toUnsignedInt(this, dataType, source, 0xFF, ACCESS_ERROR_HANDLER);
+        return (short) IntegerUnsignedType.toUnsignedInt(this, dataType, source, 0xFF, ACCESS_ERROR_HANDLER);
     }
 
 

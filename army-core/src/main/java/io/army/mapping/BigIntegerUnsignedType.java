@@ -25,20 +25,21 @@ import java.math.BigInteger;
 /// 
 /// This class representing the mapping from {@link BigInteger} to (unsigned) decimal.
 /// * @see BigInteger
-public final class UnsignedBigIntegerType extends _NumericType._UnsignedIntegerType {
+public final class BigIntegerUnsignedType extends _ArmyNoInjectionType
+        implements MappingType.SqlInteger, MappingType.SqlUnsignedNumber {
 
 
-    public static UnsignedBigIntegerType from(final Class<?> fieldType) {
+    public static BigIntegerUnsignedType from(final Class<?> fieldType) {
         if (fieldType != BigInteger.class) {
-            throw errorJavaType(UnsignedBigIntegerType.class, fieldType);
+            throw errorJavaType(BigIntegerUnsignedType.class, fieldType);
         }
         return INSTANCE;
     }
 
-    public static final UnsignedBigIntegerType INSTANCE = new UnsignedBigIntegerType();
+    public static final BigIntegerUnsignedType INSTANCE = new BigIntegerUnsignedType();
 
     /// private constructor
-    private UnsignedBigIntegerType() {
+    private BigIntegerUnsignedType() {
     }
 
 
@@ -49,7 +50,7 @@ public final class UnsignedBigIntegerType extends _NumericType._UnsignedIntegerT
 
     @Override
     public DataType map(final ServerMeta meta) {
-        return UnsignedBigDecimalType.mapToDataType(this, meta);
+        return BigDecimalUnsignedType.mapToDataType(this, meta);
     }
 
 

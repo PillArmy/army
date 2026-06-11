@@ -14,48 +14,32 @@
  * limitations under the License.
  */
 
-package io.army.mapping.postgre.array;
+package io.army.mapping.postgre;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInArrayType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-
-/// 
-/// This class representing Postgre pg_lsn array type {@link MappingType}
-/// @see <a href="https://www.postgresql.org/docs/15/datatype-pg-lsn.html">pg_lsn</a>
-public class PostgrePgLsnArrayType extends _ArmyBuildInArrayType {
+public final class PgTsVector extends _ArmyBuildInType implements MappingType.SqlString {
 
 
-    private PostgrePgLsnArrayType() {
+    private PgTsVector() {
     }
 
     @Override
     public Class<?> javaType() {
-        return null;
-    }
-
-    @Override
-    public Class<?> underlyingJavaType() {
-        return null;
-    }
-
-    @Override
-    public MappingType elementType() {
-        throw new UnsupportedOperationException();
+        return String.class;
     }
 
     @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
         throw new UnsupportedOperationException();
     }
-
 
     @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {

@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-package io.army.mapping.optional;
+package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
-import io.army.mapping.MappingEnv;
-import io.army.mapping.MappingType;
-import io.army.mapping._ArmyNoInjectionType;
 import io.army.mapping.array.VectorArrayType;
 import io.army.meta.ServerMeta;
+import io.army.sqltype.ArmyType;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PgType;
+import io.army.sqltype.MySQLType;
 import io.army.util.ArrayUtils;
 
 
 ///
 /// This class representing Postgre vector type {@link MappingType}
-///@see VectorArrayType
+///
+/// @see VectorArrayType
 /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
 /// @see <a href="https://github.com/pgvector/pgvector-java">pgvector-java</a>
-public final class VectorType extends _ArmyNoInjectionType implements MappingType.SqlExtension, MappingType.SqlVector {
+/// @see <a href="https://dev.mysql.com/doc/refman/9.7/en/vector.html">MySQL Vector Type</a>
+public final class VectorType extends _ArmyNoInjectionType implements MappingType.SqlUserDefined, MappingType.SqlVector {
 
     public static VectorType from(final Class<?> javaType) {
         if (javaType != float[].class) {
@@ -45,6 +44,9 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
     }
 
     public static final VectorType INSTANCE = new VectorType();
+
+
+    private static final DataType DATA_TYPE = DataType.from("VECTOR", ArmyType.VECTOR);
 
 
     private VectorType() {
@@ -57,10 +59,20 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
 
     @Override
     public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
-        if (meta.serverDatabase() != Database.PostgreSQL) {
-            throw mapError(this, meta);
+        final DataType dataType;
+        switch (meta.serverDatabase()) {
+            case PostgreSQL:
+                dataType = DATA_TYPE;
+                break;
+            case MySQL:
+                if (meta.meetsMinimum(9, 0, 0)) {
+                    dataType = MySQLType.VECTOR;
+                    break;
+                }
+            default:
+                throw mapError(this, meta);
         }
-        return PgType.VECTOR;
+        return dataType;
     }
 
     @Override
@@ -91,11 +103,6 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return VectorArrayType.from(ArrayUtils.arrayClassOf(float[].class));
-    }
-
-    @Override
-    public String extensionName(ServerMeta serverMeta) {
-        return PgType.VECTOR.name();
     }
 
     @Override

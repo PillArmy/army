@@ -23,41 +23,46 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
 /// Represents a PostgreSQL domain type.
+///
 /// @see <a href="https://www.postgresql.org/docs/current/domains.html">Domain Types</a>
 /// @see <a href="https://www.postgresql.org/docs/current/sql-createdomain.html">CREATE DOMAIN</a>
 /// @see <a href="https://www.postgresql.org/docs/current/sql-alterdomain.html">ALTER DOMAIN</a>
 public final class DomainType extends _ArmyBuildInType implements MappingType.SqlDomain {
 
 
+    private DomainType() {
+    }
+
     @Override
     public Class<?> javaType() {
-        return null;
+        //TODO
+        throw new UnsupportedOperationException();
     }
 
 
     @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        return null;
+        //TODO
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return null;
+        //TODO
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return null;
+        //TODO
+        throw new UnsupportedOperationException();
     }
 
-    @Override
-    public String typeName() {
-        return "";
-    }
 
     @Override
     public MappingType baseType() {
-        return null;
+        //TODO
+        throw new UnsupportedOperationException();
     }
 
     @Override

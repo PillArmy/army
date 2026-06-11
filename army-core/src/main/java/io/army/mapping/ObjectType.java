@@ -51,10 +51,6 @@ public final class ObjectType extends _ArmyBuildInType {
         return obj instanceof ObjectType;
     }
 
-    private static CriteriaException errorUseCase() {
-        String m = String.format("%s only can use read column from database", ObjectType.class.getName());
-        return new CriteriaException(m);
-    }
 
 
 }

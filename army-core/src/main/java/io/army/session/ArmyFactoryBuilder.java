@@ -40,6 +40,8 @@ import io.army.schema.FieldResult;
 import io.army.schema.SchemaResult;
 import io.army.schema.TableResult;
 import io.army.schema.TypeResult;
+import io.army.sqltype.DataType;
+import io.army.sqltype.SQLType;
 import io.army.util.*;
 import org.slf4j.Logger;
 
@@ -122,6 +124,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     Map<String, MappingType> definedTypeMap = Map.of();
 
     /// element is lower case
+    ///
     /// @see DdlMode
     Set<String> extensionNameSet = Set.of();
 
@@ -457,63 +460,51 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         final Map<String, MappingType> definedTypeMap = new HashMap<>();
         this.definedTypeMap = definedTypeMap;
 
-        final Set<String> extensionNameSet = new HashSet<>();
-        this.extensionNameSet = extensionNameSet;
-
         final Map<Class<?>, String> definedTypeToNameMap = new HashMap<>();
 
         final ServerMeta serverMeta = Objects.requireNonNull(this.serverMeta);
 
         return field -> {
+            final MappingType originalType = field.mappingType();
             MappingType type;
-            type = field.mappingType();
+            type = originalType;
 
-            if (type instanceof MappingType.SqlExtension te) {
-                extensionNameSet.add(te.extensionName(serverMeta).toLowerCase(Locale.ROOT));
+            if (type instanceof MappingType.SqlArray) {
+                type = ((MappingType.SqlArray) type).underlyingType();
             }
-
 
             if (!(type instanceof MappingType.SqlUserDefined)) {
                 return;
             }
 
 
-            if (type instanceof MappingType.SqlArray) {
-                if (type.javaType() == Object.class) {
-                    return;
-                }
-                while (type instanceof MappingType.SqlArray) {
-                    type = ((MappingType.SqlArray) type).elementType();
-                }
-
+            final DataType dataType;
+            dataType = originalType.map(serverMeta);
+            if (dataType instanceof SQLType) {
+                return;
             }
 
-            if (!(type instanceof MappingType.SqlUserDefined st)) {
-                throw typeAndArrayNotMatch(type);
-            }
-
-
-            final String oldName, typeName;
-            typeName = st.typeName();
+            final String oldName, originalTypeName;
+            originalTypeName = dataType.typeName().toUpperCase(Locale.ROOT);
 
             final Class<?> fieldTypeClass = field.javaType();
 
-            oldName = definedTypeToNameMap.putIfAbsent(fieldTypeClass, typeName);
-            if (oldName != null && !oldName.equals(typeName)) {
+            oldName = definedTypeToNameMap.putIfAbsent(fieldTypeClass, originalTypeName);
+            if (oldName != null && !oldName.equals(originalTypeName)) {
                 String m = String.format("%s is mapped to multi type name", fieldTypeClass.getName());
                 throw new MetaException(m);
             }
 
             final MappingType oldType;
-            oldType = definedTypeMap.putIfAbsent(typeName, type);
-            if (oldType != null && !oldType.equals(type)
+            oldType = definedTypeMap.putIfAbsent(originalTypeName, originalType);
+            if (oldType != null && !oldType.equals(originalType)
                     && oldType instanceof UserMappingType
-                    && type instanceof _ArmyBuildInType) {
-                definedTypeMap.put(typeName, type);
+                    && originalType instanceof _ArmyBuildInType) {
+                definedTypeMap.put(originalTypeName, originalType);
             }
 
-            if (oldName == null && type instanceof MappingType.SqlComposite t) {
-                scanCompositeField(t, definedTypeMap, definedTypeToNameMap, extensionNameSet);
+            if (oldName == null && type instanceof MappingType.SqlComposite t) { // type, not originalType
+                scanCompositeField(t, definedTypeMap, definedTypeToNameMap);
             }
 
         };
@@ -523,46 +514,36 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     /// @see #consumerForDefinedType
     private void scanCompositeField(final MappingType.SqlComposite compositeType,
                                     final Map<String, MappingType> definedTypeMap,
-                                    final Map<Class<?>, String> definedTypeToNameMap,
-                                    final Set<String> extensionNameSet) {
+                                    final Map<Class<?>, String> definedTypeToNameMap) {
 
         final ServerMeta serverMeta = Objects.requireNonNull(this.serverMeta);
 
-        MappingType type, oldType;
+        MappingType originalType, type, oldType;
         String typeName, oldName;
         Class<?> fieldType;
-
+        DataType dataType;
         for (CompositeField field : compositeType.fieldList()) {
-            type = field.mappingType();
+            type = originalType = field.mappingType();
 
-            if (type instanceof MappingType.SqlExtension te) {
-                extensionNameSet.add(te.extensionName(serverMeta).toLowerCase(Locale.ROOT));
+            if (type instanceof MappingType.SqlArray) {
+                type = ((MappingType.SqlArray) type).underlyingType();
             }
 
             if (!(type instanceof MappingType.SqlUserDefined)) {
                 continue;
             }
 
-            if (type instanceof MappingType.SqlArray) {
-                if (type.javaType() == Object.class) {
-                    continue;
-                }
-                while (type instanceof MappingType.SqlArray) {
-                    type = ((MappingType.SqlArray) type).elementType();
-                }
+            dataType = originalType.map(serverMeta);
+            if (dataType instanceof SQLType) {
+                continue;
             }
+            typeName = dataType.typeName().toUpperCase(Locale.ROOT);
 
-            if (!(type instanceof MappingType.SqlUserDefined st)) {
-                throw typeAndArrayNotMatch(type);
-            }
-
-            typeName = st.typeName().toUpperCase(Locale.ROOT);
-
-            oldType = definedTypeMap.putIfAbsent(typeName, type);
-            if (oldType != null && !oldType.equals(type)
+            oldType = definedTypeMap.putIfAbsent(typeName, originalType);
+            if (oldType != null && !oldType.equals(originalType)
                     && oldType instanceof UserMappingType
-                    && type instanceof _ArmyBuildInType) {
-                definedTypeMap.put(typeName, type);
+                    && originalType instanceof _ArmyBuildInType) {
+                definedTypeMap.put(typeName, originalType);
             }
 
             fieldType = field.javaType();
@@ -573,8 +554,8 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 throw new MetaException(m);
             }
 
-            if (oldName == null && type instanceof MappingType.SqlComposite ct) {
-                scanCompositeField(ct, definedTypeMap, definedTypeToNameMap, extensionNameSet);
+            if (oldName == null && type instanceof MappingType.SqlComposite ct) {  // type, not originalType
+                scanCompositeField(ct, definedTypeMap, definedTypeToNameMap);
             }
         }
     }
@@ -726,6 +707,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     /// @return true : error
     @Nullable
     protected static SessionFactoryException validateSchema(SessionFactory sessionFactory, SchemaResult schemaResult) {
+        final ServerMeta serverMeta = sessionFactory.serverMeta();
 
         final StringBuilder builder = new StringBuilder()
                 .append(sessionFactory)
@@ -787,7 +769,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         differentCount += typeList.size();
         for (MappingType type : typeList) {
             builder.append('\n')
-                    .append(((MappingType.SqlUserDefined) type).typeName())
+                    .append(type.map(serverMeta).typeName())
                     .append(" not exists.");
         }
         final List<TypeResult> typeResultList = schemaResult.modifyTypeList();
@@ -795,7 +777,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         differentCount += typeResultList.size();
         for (TypeResult typeResult : typeResultList) {
             builder.append('\n')
-                    .append(((MappingType.SqlUserDefined) typeResult.type()).typeName())
+                    .append(typeResult.type().map(serverMeta).typeName())
                     .append(" not match.");
         }
 

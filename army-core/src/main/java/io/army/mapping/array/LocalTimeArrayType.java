@@ -28,29 +28,27 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
 import io.army.util._TimeUtils;
 
 import java.time.LocalTime;
+import java.util.Objects;
 
 public class LocalTimeArrayType extends _ArmyBuildInArrayType {
 
 
-    public static LocalTimeArrayType from(final Class<?> arrayClass) {
+    public static LocalTimeArrayType from(final Class<?> javaType) {
         final LocalTimeArrayType instance;
-        if (arrayClass == LocalTime[].class) {
+        if (javaType == LocalTime[].class) {
             instance = LINEAR;
-        } else if (!arrayClass.isArray()) {
-            throw errorJavaType(LocalTimeArrayType.class, arrayClass);
-        } else if (ArrayUtils.underlyingComponent(arrayClass) == LocalTime.class) {
-            instance = new LocalTimeArrayType(arrayClass);
+        } else if (!javaType.isArray()) {
+            throw errorJavaType(LocalTimeArrayType.class, javaType);
+        } else if (ArrayUtils.underlyingComponent(javaType) == LocalTime.class) {
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
-            throw errorJavaType(LocalTimeArrayType.class, arrayClass);
+            throw errorJavaType(LocalTimeArrayType.class, javaType);
         }
         return instance;
-    }
-
-    public static LocalTimeArrayType fromUnlimited() {
-        return UNLIMITED;
     }
 
 
@@ -66,41 +64,12 @@ public class LocalTimeArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public Class<?> javaType() {
+    public final Class<?> javaType() {
         return this.javaType;
     }
 
     @Override
-    public Class<?> underlyingJavaType() {
-        return LocalTime.class;
-    }
-
-    @Override
-    public MappingType elementType() {
-        final MappingType instance;
-        final Class<?> javaType = this.javaType;
-        if (javaType == Object.class) {
-            instance = this;
-        } else if (javaType == LocalTime[].class) {
-            instance = LocalTimeType.INSTANCE;
-        } else {
-            instance = from(javaType.getComponentType());
-        }
-        return instance;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        final Class<?> javaType = this.javaType;
-        if (javaType == Object.class) { // unlimited dimension array
-            return this;
-        }
-        return from(ArrayUtils.arrayClassOf(javaType));
-    }
-
-
-    @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
+    public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
@@ -117,17 +86,69 @@ public class LocalTimeArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+    public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return PostgreArrays.arrayBeforeBind(source, LocalTimeArrayType::appendToText, dataType, this,
                 PARAM_ERROR_HANDLER
         );
     }
 
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         return PostgreArrays.arrayAfterGet(this, dataType, source, false,
                 LocalTimeArrayType::parseText, ACCESS_ERROR_HANDLER
         );
+    }
+
+
+    @Override
+    public final Class<?> underlyingJavaType() {
+        return LocalTime.class;
+    }
+
+    @Override
+    public final MappingType underlyingType() {
+        return LocalTimeType.INSTANCE;
+    }
+
+    @Override
+    public final MappingType elementType() {
+        final MappingType instance;
+        final Class<?> javaType = this.javaType;
+        if (javaType == Object.class) {
+            instance = this;
+        } else if (javaType == LocalTime[].class) {
+            instance = LocalTimeType.INSTANCE;
+        } else {
+            instance = from(javaType.getComponentType());
+        }
+        return instance;
+    }
+
+    @Override
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
+        final Class<?> javaType = this.javaType;
+        if (javaType == Object.class) { // unlimited dimension array
+            return this;
+        }
+        return from(ArrayUtils.arrayClassOf(javaType));
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(this.javaType);
+    }
+
+    @Override
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof LocalTimeArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
     }
 
     /*-------------------below static methods -------------------*/
@@ -151,6 +172,12 @@ public class LocalTimeArrayType extends _ArmyBuildInArrayType {
         appender.append(_Constant.DOUBLE_QUOTE);
         appender.append(((LocalTime) element).format(_TimeUtils.TIME_FORMATTER_6));
         appender.append(_Constant.DOUBLE_QUOTE);
+
+    }
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<LocalTimeArrayType> CLASS_VALUE = FuncClassValue.create(LocalTimeArrayType::new);
 
     }
 

@@ -5094,7 +5094,7 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
                                                              href="#_vector_type_pgvector_embeddings"></a>4.7. Vector
                     Type (pgvector Embeddings)</h3>
                 <div class="paragraph">
-                    <p>For AI/ML embedding storage, Army provides <code>io.army.mapping.optional.VectorType</code> — a
+                    <p>For AI/ML embedding storage, Army provides <code>io.army.mapping.VectorType</code> — a
                         <code>MappingType</code> for the PostgreSQL <code>pgvector</code> extension&#8217;s
                         <code>VECTOR</code> type.</p>
                 </div>
@@ -5143,7 +5143,7 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
         comment = <span class="string"><span class="delimiter">&quot;</span><span class="content">${DEFAULT}</span><span
             class="delimiter">&quot;</span></span>)
 <span class="annotation">@Mapping</span>(<span class="string"><span class="delimiter">&quot;</span><span
-            class="content">io.army.mapping.optional.VectorType</span><span class="delimiter">&quot;</span></span>)
+            class="content">io.army.mapping.VectorType</span><span class="delimiter">&quot;</span></span>)
 <span class="directive">private</span> <span class="type">float</span><span
             class="type">[]</span> embedding;</code></pre>
                         </div>
@@ -5451,7 +5451,7 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
                                                                           href="#_how_typemappinghandler_resolves_to_sql_types"></a>4.10.
                     How TypeMappingHandler Resolves to SQL Types</h3>
                 <div class="paragraph">
-                    <p>After Army determines a field&#8217;s <code>MappingType</code>, the <code>io.army.dialect.TypeMappingHandler</code>
+                    <p>After Army determines a field&#8217;s <code>MappingType</code>, the <code>io.army.dialect.MappingHandler</code>
                         interface finalizes the concrete <code>DataType</code> for the target database:</p>
                 </div>
                 <div class="listingblock">
@@ -5916,7 +5916,7 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
     }
 
     <span class="comment">/// Used for default array parsing when the database returns an array</span>
-    <span class="comment">/// of unknown dimensions. Typically consumed by {@code io.army.dialect.TypeMappingHandler}</span>
+    <span class="comment">/// of unknown dimensions. Typically consumed by {@code io.army.dialect.MappingHandler}</span>
     <span class="comment">/// implementations.</span>
     <span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> CurrencyArrayType UNLIMITED = <span
             class="keyword">new</span> CurrencyArrayType(<span class="predefined-type">Object</span>.class);
@@ -6094,7 +6094,7 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
                             Processing</strong></p></td>
                         <td class="tableblock halign-left valign-top"><p class="tableblock">Army reads
                             <code>@Mapping</code> (or infers default) to determine <code>MappingType</code></p></td>
-                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Mapping("io.army.mapping.optional.VectorType")</code>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Mapping("io.army.mapping.VectorType")</code>
                             → <code>VectorType</code></p></td>
                     </tr>
                     <tr>

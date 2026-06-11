@@ -63,6 +63,9 @@ public abstract class ReflectionUtils {
         }
     }
 
+    public static Object invokeStaticFactoryMethod(final String className, final Class<?> returnType, final String methodName) {
+        return invokeStaticFactoryMethod(className, returnType, methodName, new Class<?>[0]);
+    }
 
     public static Object invokeStaticFactoryMethod(final String className, final Class<?> returnType, final String methodName,
                                                    final Class<?>[] paramTypeArray, final Object... paramArray) {

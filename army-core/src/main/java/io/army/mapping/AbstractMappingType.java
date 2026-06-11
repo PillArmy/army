@@ -186,15 +186,15 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                 if (targetType == String.class) {
                     type = StringType.INSTANCE;
                 } else if (targetType == Integer.class || targetType == int.class) {
-                    type = UnsignedMediumIntType.INSTANCE;
+                    type = MediumIntUnsignedType.INSTANCE;
                 } else if (targetType == Long.class || targetType == long.class) {
-                    type = UnsignedSqlIntType.INSTANCE;
+                    type = SqlIntUnsignedType.INSTANCE;
                 } else if (targetType == Short.class || targetType == short.class) {
-                    type = UnsignedTinyIntType.INSTANCE;
+                    type = TinyIntUnsignedType.INSTANCE;
                 } else if (targetType == BigDecimal.class) {
-                    type = UnsignedBigDecimalType.INSTANCE;
+                    type = BigDecimalUnsignedType.INSTANCE;
                 } else if (targetType == BigInteger.class) {
-                    type = UnsignedBigIntegerType.INSTANCE;
+                    type = BigIntegerUnsignedType.INSTANCE;
                 } else if (targetType == Float.class || targetType == float.class) {
                     type = FloatType.INSTANCE;
                 } else if (targetType == Double.class || targetType == double.class) {
@@ -542,17 +542,11 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
 
     /// Creates an IllegalArgumentException for unsupported Java type.
     protected static IllegalArgumentException errorJavaType(
-            Class<? extends AbstractMappingType> mappingMetaClass, Class<?> javaType) {
+            Class<? extends MappingType> mappingMetaClass, Class<?> javaType) {
         return new IllegalArgumentException(
                 String.format("%s don't support java type[%s].", mappingMetaClass.getName(), javaType.getName()));
     }
 
-    /// Creates an IllegalArgumentException for value out of mapping range.
-    protected static IllegalArgumentException valueOutOfMapping(final Object nonNull
-            , Class<? extends AbstractMappingType> typeClass) {
-        String m = String.format("value[%s] out of range of %s .", nonNull, typeClass.getName());
-        return new IllegalArgumentException(m);
-    }
 
 
     private static CriteriaException paramError0(final MappingType type, final Object nonNull) {

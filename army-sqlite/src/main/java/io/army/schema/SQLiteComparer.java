@@ -24,9 +24,13 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.SQLiteType;
 import io.army.util._Exceptions;
 
-final class SQLiteComparer extends ArmySchemaComparer {
+/// Reflection call
+///
+/// @see ArmySchemaComparer#createComparer(ServerMeta)
+@SuppressWarnings("unused")
+public final class SQLiteComparer extends ArmySchemaComparer {
 
-    static SQLiteComparer create(ServerMeta serverMeta) {
+    public static SQLiteComparer create(ServerMeta serverMeta) {
         return new SQLiteComparer(serverMeta);
     }
 

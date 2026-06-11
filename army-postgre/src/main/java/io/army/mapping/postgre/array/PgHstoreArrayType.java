@@ -14,35 +14,42 @@
  * limitations under the License.
  */
 
-package io.army.mapping.postgre;
+package io.army.mapping.postgre.array;
 
 import io.army.criteria.CriteriaException;
-import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
+import io.army.util.FuncClassValue;
 
-/// Mapping type for PostgreSQL HSTORE key/value datatype.
+import java.util.Map;
+import java.util.Objects;
+
+/// Mapping type for PostgreSQL HSTORE key/value array type.
 ///
 /// @see <a href="https://www.postgresql.org/docs/current/hstore.html">hstore key/value datatype</a>
-public final class PgHstoreType extends _ArmyBuildInType implements MappingType.SqlExtension {
+public class PgHstoreArrayType extends _ArmyBuildInArrayType {
 
+
+    private final Class<?> javaType;
+
+    private PgHstoreArrayType(Class<?> javaType) {
+        this.javaType = javaType;
+    }
 
     @Override
     public Class<?> javaType() {
-        return null;
+        return this.javaType;
     }
 
     @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        if (meta.serverDatabase() != Database.PostgreSQL) {
-            throw mapError(this, meta);
-        }
-        return DataType.from("HSTORE");
+        //TODO
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -58,9 +65,43 @@ public final class PgHstoreType extends _ArmyBuildInType implements MappingType.
     }
 
     @Override
-    public String extensionName(ServerMeta serverMeta) {
-        return "HSTORE";
+    public Class<?> underlyingJavaType() {
+        return Map.class;
+    }
+
+    @Override
+    public MappingType elementType() {
+        //TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MappingType underlyingType() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(this.javaType);
+    }
+
+    @Override
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof PgHstoreArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
     }
 
 
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<PgHstoreArrayType> CLASS_VALUE = FuncClassValue.create(PgHstoreArrayType::new);
+
+    }
 }

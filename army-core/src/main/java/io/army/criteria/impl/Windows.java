@@ -435,8 +435,8 @@ public abstract class Windows {
     }
 
     /// The {@link MappingType} of function return type:
-    /// 
-    /// - If expr is integer number type ,then {@link UnsignedLongType}
+    ///
+    /// - If expr is integer number type ,then {@link LongUnsignedType}
     /// - else {@link VarBinaryType}
     /// 
     /// @param exp non-null
@@ -447,8 +447,8 @@ public abstract class Windows {
     }
 
     /// The {@link MappingType} of function return type:
-    /// 
-    /// - If expr is integer number type ,then {@link UnsignedLongType}
+    ///
+    /// - If expr is integer number type ,then {@link LongUnsignedType}
     /// - else {@link VarBinaryType}
     /// 
     /// @param exp non-null
@@ -459,8 +459,8 @@ public abstract class Windows {
     }
 
     /// The {@link MappingType} of function return type:
-    /// 
-    /// - If expr is integer number type ,then {@link UnsignedLongType}
+    ///
+    /// - If expr is integer number type ,then {@link LongUnsignedType}
     /// - else {@link VarBinaryType}
     /// 
     /// @param exp non-null
@@ -472,8 +472,8 @@ public abstract class Windows {
 
 
     /// The {@link MappingType} of function return type:
-    /// 
-    /// - If expr is integer number type ,then {@link UnsignedLongType}
+    ///
+    /// - If expr is integer number type ,then {@link LongUnsignedType}
     /// - else {@link VarBinaryType}
     /// 
     /// @param exp non-null
@@ -485,8 +485,8 @@ public abstract class Windows {
     }
 
     /// The {@link MappingType} of function return type:
-    /// 
-    /// - If expr is integer number type ,then {@link UnsignedLongType}
+    ///
+    /// - If expr is integer number type ,then {@link LongUnsignedType}
     /// - else {@link VarBinaryType}
     /// 
     /// @param exp non-null
@@ -498,8 +498,8 @@ public abstract class Windows {
     }
 
     /// The {@link MappingType} of function return type:
-    /// 
-    /// - If expr is integer number type ,then {@link UnsignedLongType}
+    ///
+    /// - If expr is integer number type ,then {@link LongUnsignedType}
     /// - else {@link VarBinaryType}
     /// 
     /// @param exp non-null

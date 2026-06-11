@@ -26,22 +26,22 @@ import java.math.BigDecimal;
 
 /// This class representing the mapping from {@link BigDecimal} to unsigned decimal.
 /// @see BigDecimal
-public final class UnsignedBigDecimalType extends _NumericType._UnsignedNumericType
-        implements MappingType.SqlDecimal {
+public final class BigDecimalUnsignedType extends _ArmyNoInjectionType
+        implements MappingType.SqlDecimal, MappingType.SqlUnsignedNumber {
 
 
-    public static UnsignedBigDecimalType from(final Class<?> fieldType) {
+    public static BigDecimalUnsignedType from(final Class<?> fieldType) {
         if (fieldType != BigDecimal.class) {
-            throw errorJavaType(UnsignedBigDecimalType.class, fieldType);
+            throw errorJavaType(BigDecimalUnsignedType.class, fieldType);
         }
         return INSTANCE;
     }
 
-    public static final UnsignedBigDecimalType INSTANCE = new UnsignedBigDecimalType();
+    public static final BigDecimalUnsignedType INSTANCE = new BigDecimalUnsignedType();
 
 
     /// private constructor
-    private UnsignedBigDecimalType() {
+    private BigDecimalUnsignedType() {
     }
 
     @Override

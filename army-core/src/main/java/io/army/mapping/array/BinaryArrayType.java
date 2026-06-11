@@ -28,9 +28,13 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
+
+import java.util.Objects;
 
 
 /// This class is array type of {@link BinaryType}.
+///
 /// @see BinaryType
 /// @see VarBinaryArrayType
 /// @since 0.6.0
@@ -42,20 +46,16 @@ public class BinaryArrayType extends _ArmyBuildInArrayType {
 
         if (javaType == byte[][].class) {
             instance = LINEAR;
-        } else if (javaType == Object.class) {
-            instance = UNLIMITED;
-        } else if (!javaType.isArray() || ArrayUtils.dimensionOf(javaType) < 2) {
+        } else if (!javaType.isArray()) {
             throw errorJavaType(BinaryArrayType.class, javaType);
-        } else if (ArrayUtils.underlyingComponent(javaType) == byte.class) {
-            instance = new BinaryArrayType(javaType);
+        } else if (ArrayUtils.underlyingComponentMatch(byte[].class, javaType)) {
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
             throw errorJavaType(BinaryArrayType.class, javaType);
         }
         return instance;
     }
 
-
-    public static final BinaryArrayType UNLIMITED = new BinaryArrayType(Object.class);
 
     public static final BinaryArrayType LINEAR = new BinaryArrayType(byte[][].class);
 
@@ -70,34 +70,6 @@ public class BinaryArrayType extends _ArmyBuildInArrayType {
     @Override
     public Class<?> javaType() {
         return this.javaType;
-    }
-
-    @Override
-    public Class<?> underlyingJavaType() {
-        return byte[].class;
-    }
-
-    @Override
-    public MappingType elementType() {
-        final MappingType instance;
-        final Class<?> javaType = this.javaType;
-        if (javaType == Object.class) { // unlimited dimension array
-            instance = this;
-        } else if (javaType == byte[][].class) {
-            instance = BinaryType.INSTANCE;
-        } else {
-            instance = from(javaType.getComponentType());
-        }
-        return instance;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        final Class<?> javaType = this.javaType;
-        if (javaType == Object.class) { // unlimited dimension array
-            return this;
-        }
-        return from(ArrayUtils.arrayClassOf(javaType));
     }
 
     @Override
@@ -126,6 +98,57 @@ public class BinaryArrayType extends _ArmyBuildInArrayType {
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         return PostgreArrays.arrayAfterGet(this, dataType, source, false, PostgreArrays::parseBytea,
                 ACCESS_ERROR_HANDLER);
+    }
+
+    @Override
+    public Class<?> underlyingJavaType() {
+        return byte[].class;
+    }
+
+    @Override
+    public MappingType underlyingType() {
+        return BinaryType.INSTANCE;
+    }
+
+    @Override
+    public MappingType elementType() {
+        final MappingType instance;
+        final Class<?> javaType = this.javaType;
+        if (javaType == byte[][].class) {
+            instance = BinaryType.INSTANCE;
+        } else {
+            instance = from(javaType.getComponentType());
+        }
+        return instance;
+    }
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return from(ArrayUtils.arrayClassOf(this.javaType));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.javaType);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof BinaryArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
+    }
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<BinaryArrayType> CLASS_VALUE = FuncClassValue.create(BinaryArrayType::new);
+
     }
 
 

@@ -1769,7 +1769,7 @@ Serialization example:
 
 === Vector Type (pgvector Embeddings)
 
-For AI/ML embedding storage, Army provides `io.army.mapping.optional.VectorType` — a `MappingType` for the PostgreSQL `pgvector` extension's `VECTOR` type.
+For AI/ML embedding storage, Army provides `io.army.mapping.VectorType` — a `MappingType` for the PostgreSQL `pgvector` extension's `VECTOR` type.
 
 [source,java]
 ----
@@ -1804,7 +1804,7 @@ The `io.army.spring.ai.vectorstore.SpringAiVectorStore` base class uses `VectorT
 @Column(name = "${DEFAULT}", notNull = true,
         precision = Column.DEFAULT_EXP,  // required: embed dimension configured at runtime
         comment = "${DEFAULT}")
-@Mapping("io.army.mapping.optional.VectorType")
+@Mapping("io.army.mapping.VectorType")
 private float[] embedding;
 ----
 
@@ -1959,7 +1959,7 @@ private String firstContent;  // → TextType → TEXT
 
 === How TypeMappingHandler Resolves to SQL Types
 
-After Army determines a field's `MappingType`, the `io.army.dialect.TypeMappingHandler` interface finalizes the concrete `DataType` for the target database:
+After Army determines a field's `MappingType`, the `io.army.dialect.MappingHandler` interface finalizes the concrete `DataType` for the target database:
 
 [source,java]
 ----
@@ -2001,7 +2001,7 @@ final MappingType handleDefinedType(final String typeName, final MappingType def
 }
 ----
 
-This design means the `MappingType` hierarchy is database-agnostic — each `MappingType` declares its target `DataType` per-dialect in `map()`, and `TypeMappingHandler` provides the final resolution for custom/composite/array types.
+This design means the `MappingType` hierarchy is database-agnostic — each `MappingType` declares its target `DataType` per-dialect in `map()`, and `MappingHandler` provides the final resolution for custom/composite/array types.
 In most cases, developers interact only with the `@Mapping` annotation; the handler chain operates transparently behind the scenes.
 
 === Custom MappingType — Extending the Type System
@@ -2221,7 +2221,7 @@ public final class CurrencyArrayType extends UserArrayType
     }
 
     /// Used for default array parsing when the database returns an array
-    /// of unknown dimensions. Typically consumed by {@code io.army.dialect.TypeMappingHandler}
+    /// of unknown dimensions. Typically consumed by {@code io.army.dialect.MappingHandler}
     /// implementations.
     public static final CurrencyArrayType UNLIMITED = new CurrencyArrayType(Object.class);
 
@@ -9998,7 +9998,7 @@ public class MyCustomType implements MappingType {
 
 ==== Registering Custom Types
 
-Register custom type mappings through `TypeMappingHandler`.
+Register custom type mappings through `MappingHandler`.
 
 === JSON / XML Codecs
 

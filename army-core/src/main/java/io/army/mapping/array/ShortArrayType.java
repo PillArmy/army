@@ -28,73 +28,89 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
+import io.army.util._Assert;
+
+import java.util.Objects;
 
 public class ShortArrayType extends _ArmyBuildInArrayType {
 
 
-    public static ShortArrayType from(final Class<?> arrayClass) {
+    public static ShortArrayType from(final Class<?> javaType) {
         final ShortArrayType instance;
         final Class<?> componentType;
-        if (arrayClass == Short[].class) {
+        if (javaType == Short[].class) {
             instance = LINEAR;
-        } else if (arrayClass == short[].class) {
+        } else if (javaType == short[].class) {
             instance = PRIMITIVE_LINEAR;
-        } else if (!arrayClass.isArray()) {
-            throw errorJavaType(ShortArrayType.class, arrayClass);
-        } else if ((componentType = ArrayUtils.underlyingComponent(arrayClass)) == short.class
+        } else if (!javaType.isArray()) {
+            throw errorJavaType(ShortArrayType.class, javaType);
+        } else if ((componentType = ArrayUtils.underlyingComponent(javaType)) == short.class
                 || componentType == Short.class) {
-            instance = new ShortArrayType(arrayClass, componentType);
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
-            throw errorJavaType(ShortArrayType.class, arrayClass);
-        }
-        return instance;
-    }
-
-    public static ShortArrayType fromUnlimited(final Class<?> shortClass) {
-        final ShortArrayType instance;
-        if (shortClass == Short.class) {
-            instance = UNLIMITED;
-        } else if (shortClass == short.class) {
-            instance = PRIMITIVE_UNLIMITED;
-        } else {
-            throw errorJavaType(ShortArrayType.class, shortClass);
+            throw errorJavaType(ShortArrayType.class, javaType);
         }
         return instance;
     }
 
     public static final ShortArrayType UNLIMITED = new ShortArrayType(Object.class, Short.class);
 
-    public static final ShortArrayType LINEAR = new ShortArrayType(Short[].class, Short.class);
+    public static final ShortArrayType LINEAR = new ShortArrayType(Short[].class);
 
-    public static final ShortArrayType PRIMITIVE_UNLIMITED = new ShortArrayType(Object.class, short.class);
-
-    public static final ShortArrayType PRIMITIVE_LINEAR = new ShortArrayType(short[].class, short.class);
-
+    public static final ShortArrayType PRIMITIVE_LINEAR = new ShortArrayType(short[].class);
 
     private final Class<?> javaType;
 
     private final Class<?> underlyingJavaType;
 
+    /// private constructor
+    private ShortArrayType(final Class<?> javaType) {
+        this.javaType = javaType;
+        this.underlyingJavaType = ArrayUtils.underlyingComponent(javaType);
+    }
 
     /// private constructor
-    private ShortArrayType(final Class<?> javaType, Class<?> underlyingJavaType) {
+    private ShortArrayType(final Class<Object> javaType, Class<?> underlyingJavaType) {
+        _Assert.isTrue(underlyingJavaType == Short.class, "");
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;
     }
 
 
     @Override
-    public Class<?> javaType() {
+    public final Class<?> javaType() {
         return this.javaType;
     }
 
     @Override
-    public Class<?> underlyingJavaType() {
+    public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
+        return mapToDataType(this, meta);
+    }
+
+    @Override
+    public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, ShortArrayType::appendToText, dataType, this);
+    }
+
+    @Override
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return PostgreArrays.arrayAfterGet(this, dataType, source, ShortArrayType::parseText);
+    }
+
+
+    @Override
+    public final Class<?> underlyingJavaType() {
         return this.underlyingJavaType;
     }
 
     @Override
-    public MappingType elementType() {
+    public final MappingType underlyingType() {
+        return ShortType.INSTANCE;
+    }
+
+    @Override
+    public final MappingType elementType() {
         final Class<?> javaType = this.javaType;
         final MappingType instance;
         if (javaType == Object.class) {
@@ -108,7 +124,7 @@ public class ShortArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
         final Class<?> javaType = this.javaType;
         if (javaType == Object.class) { // unlimited dimension array
             return this;
@@ -117,20 +133,25 @@ public class ShortArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        return mapToDataType(this, meta);
+    public final int hashCode() {
+        return Objects.hash(this.javaType, this.underlyingJavaType);
     }
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, ShortArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof ShortArrayType o) {
+            match = o.javaType == this.javaType
+                    && o.underlyingJavaType == this.underlyingJavaType
+            ;
+        } else {
+            match = false;
+        }
+        return match;
     }
 
-    @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        final boolean nonNull = this.underlyingJavaType == short.class;
-        return PostgreArrays.arrayAfterGet(this, dataType, source, nonNull, ShortArrayType::parseText, ACCESS_ERROR_HANDLER);
-    }
 
     /*-------------------below static methods -------------------*/
 
@@ -159,6 +180,12 @@ public class ShortArrayType extends _ArmyBuildInArrayType {
             throw new IllegalArgumentException();
         }
         appender.append(element);
+    }
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<ShortArrayType> CLASS_VALUE = FuncClassValue.create(ShortArrayType::new);
+
     }
 
 

@@ -94,8 +94,8 @@ abstract class MySQLParser extends _ArmyDialectParser {
     /*-------------------below protected methods -------------------*/
 
     @Override
-    protected final TypeMappingHandler createTypeMappingHandler(DialectEnv env) {
-        return new MySQLTypeMappingHandler(env);
+    protected final MappingHandler createTypeMappingHandler(DialectEnv env) {
+        return new MySQLMappingHandler(env);
     }
 
     @Override
@@ -460,10 +460,10 @@ abstract class MySQLParser extends _ArmyDialectParser {
             case MySQL55:
             case MySQL56:
             case MySQL57:
-                keyWordSet = MySQLDialectUtils.create57KeywordsSet();
+                keyWordSet = _MySQLDialectUtils.create57KeywordsSet();
                 break;
             case MySQL80:
-                keyWordSet = MySQLDialectUtils.create80KeywordsSet();
+                keyWordSet = _MySQLDialectUtils.create80KeywordsSet();
                 break;
             default:
                 throw _Exceptions.unexpectedEnum((Enum<?>) dialect);

@@ -23,8 +23,6 @@ import io.army.mapping.*;
 import io.army.mapping.array.TextArrayType;
 import io.army.mapping.array.XmlArrayType;
 import io.army.mapping.optional.JsonPathType;
-import io.army.mapping.optional.NoCastTextType;
-import io.army.mapping.optional.VectorType;
 import io.army.mapping.postgre.PgTsQueryType;
 import io.army.meta.TableMeta;
 import io.army.util.ArrayUtils;
@@ -2825,7 +2823,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
     /// - developer custom method
     /// .
-    /// The first argument of funcRefForPath always is {@link NoCastTextType#INSTANCE}.
     /// @param firstPath      firstPath and rest will be collected to unmodified {@link List} and passed to funcRef as the second argument of funcRef
     /// @param rest           rest and firstPath will be collected to unmodified {@link List} and passed to funcRef as the second argument of funcRef
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">json_extract_path ( from_json json, VARIADIC path_elems text[] ) → json
@@ -2846,7 +2843,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
     /// - developer custom method
     /// .
-    /// The first argument of funcRef always is {@link NoCastTextType#INSTANCE}.
     /// @param firstPath firstPath and rest will be collected to unmodified {@link List} and passed to funcRef as the second argument of funcRef
     /// @param rest      rest and firstPath will be collected to unmodified {@link List} and passed to funcRef as the second argument of funcRef
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">json_extract_path ( from_json json, VARIADIC path_elems text[] ) → json
@@ -2857,7 +2853,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         final String name = "JSON_EXTRACT_PATH";
         final List<String> pathElemList;
         pathElemList = ArrayUtils.unmodifiableListOf(firstPath, rest);
-        return FunctionUtils.oneAndMulti(name, fromJson, funcRef.apply(NoCastTextType.INSTANCE, pathElemList));
+        return FunctionUtils.oneAndMulti(name, fromJson, funcRef.apply(TextType.INSTANCE, pathElemList));
     }
 
     /// 
@@ -2869,14 +2865,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
     /// - developer custom method
     /// .
-    /// The first argument of funcRefForPath always is {@link NoCastTextType#INSTANCE}.
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">json_extract_path ( from_json json, VARIADIC path_elems text[] ) → json
     /// Extracts JSON sub-object at the specified path. (This is functionally equivalent to the #> operator, but writing the path out as a variadic list can be more convenient in some cases.)
     /// </a>
     public static SimpleExpression jsonExtractPath(Expression fromJson, BiFunction<MappingType, List<String>, Expression> funcRef,
                                                    Consumer<Consumer<String>> consumer) {
         return FunctionUtils.oneAndMulti("JSON_EXTRACT_PATH", fromJson,
-                funcRef.apply(NoCastTextType.INSTANCE, CriteriaUtils.stringList(null, true, consumer)));
+                funcRef.apply(TextType.INSTANCE, CriteriaUtils.stringList(null, true, consumer)));
     }
 
 
@@ -2925,7 +2920,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
     /// - developer custom method
     /// .
-    /// The first argument of funcRefForPath always is {@link NoCastTextType#INSTANCE}.
     /// @param firstPath      firstPath and rest will be collected to unmodified {@link List} and passed to funcRef as the second argument of funcRef
     /// @param rest           rest and firstPath will be collected to unmodified {@link List} and passed to funcRef as the second argument of funcRef
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_extract_path ( from_json jsonb, VARIADIC path_elems text[] ) → jsonb
@@ -2946,7 +2940,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
     /// - developer custom method
     /// .
-    /// The first argument of funcRef always is {@link NoCastTextType#INSTANCE}.
     /// @param firstPath firstPath and rest will be collected to unmodified {@link List} and passed to funcRef as the second argument of funcRef
     /// @param rest      rest and firstPath will be collected to unmodified {@link List} and passed to funcRef as the second argument of funcRef
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_extract_path ( from_json jsonb, VARIADIC path_elems text[] ) → jsonb
@@ -2957,7 +2950,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         final String name = "JSONB_EXTRACT_PATH";
         final List<String> pathElemList;
         pathElemList = ArrayUtils.unmodifiableListOf(firstPath, rest);
-        return FunctionUtils.oneAndMulti(name, fromJson, funcRef.apply(NoCastTextType.INSTANCE, pathElemList));
+        return FunctionUtils.oneAndMulti(name, fromJson, funcRef.apply(TextType.INSTANCE, pathElemList));
     }
 
 
@@ -2970,14 +2963,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
     /// - developer custom method
     /// .
-    /// The first argument of funcRefForPath always is {@link NoCastTextType#INSTANCE}.
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_extract_path ( from_json json, VARIADIC path_elems text[] ) → json
     /// Extracts JSON sub-object at the specified path. (This is functionally equivalent to the #> operator, but writing the path out as a variadic list can be more convenient in some cases.)
     /// </a>
     public static SimpleExpression jsonbExtractPath(Expression fromJson, BiFunction<MappingType, List<String>, Expression> funcRef,
                                                     Consumer<Consumer<String>> consumer) {
         return FunctionUtils.oneAndMulti("JSONB_EXTRACT_PATH", fromJson,
-                funcRef.apply(NoCastTextType.INSTANCE, CriteriaUtils.stringList(null, true, consumer)));
+                funcRef.apply(TextType.INSTANCE, CriteriaUtils.stringList(null, true, consumer)));
     }
 
 
@@ -3035,7 +3027,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
     /// - developer custom method
     /// .
-    /// The first argument of funcRef always is {@link NoCastTextType#INSTANCE}.
     /// @param firstPath firstPath and rest will be collected to unmodified {@link List} and passed to funcRef as the second argument of funcRef
     /// @param rest      rest and firstPath will be collected to unmodified {@link List} and passed to funcRef as the second argument of funcRef
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">json_extract_path_text ( from_json json, VARIADIC path_elems text[] ) → text
@@ -3046,7 +3037,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         final String name = "JSON_EXTRACT_PATH_TEXT";
         final List<String> pathElemList;
         pathElemList = ArrayUtils.unmodifiableListOf(firstPath, rest);
-        return FunctionUtils.oneAndMulti(name, fromJson, funcRef.apply(NoCastTextType.INSTANCE, pathElemList));
+        return FunctionUtils.oneAndMulti(name, fromJson, funcRef.apply(TextType.INSTANCE, pathElemList));
     }
 
     /// 
@@ -3069,14 +3060,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
     /// - developer custom method
     /// .
-    /// The first argument of funcRefForPath always is {@link NoCastTextType#INSTANCE}.
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">json_extract_path_text ( from_json json, VARIADIC path_elems text[] ) → text
     /// Extracts JSON sub-object at the specified path as text. (This is functionally equivalent to the #>> operator.)
     /// </a>
     public static SimpleExpression jsonExtractPathText(Expression fromJson, BiFunction<MappingType, List<String>, Expression> funcRef,
                                                        Consumer<Consumer<String>> consumer) {
         return FunctionUtils.oneAndMulti("JSON_EXTRACT_PATH_TEXT", fromJson,
-                funcRef.apply(NoCastTextType.INSTANCE, CriteriaUtils.stringList(null, true, consumer)));
+                funcRef.apply(TextType.INSTANCE, CriteriaUtils.stringList(null, true, consumer)));
     }
 
 
@@ -3135,7 +3125,6 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
     /// - developer custom method
     /// .
-    /// The first argument of funcRef always is {@link NoCastTextType#INSTANCE}.
     /// @param firstPath firstPath and rest will be collected to unmodified {@link List} and passed to funcRef as the second argument of funcRef
     /// @param rest      rest and firstPath will be collected to unmodified {@link List} and passed to funcRef as the second argument of funcRef
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_extract_path_text ( from_json jsonb, VARIADIC path_elems text[] ) → text
@@ -3146,7 +3135,7 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
         final String name = "JSONB_EXTRACT_PATH_TEXT";
         final List<String> pathElemList;
         pathElemList = ArrayUtils.unmodifiableListOf(firstPath, rest);
-        return FunctionUtils.oneAndMulti(name, fromJson, funcRef.apply(NoCastTextType.INSTANCE, pathElemList));
+        return FunctionUtils.oneAndMulti(name, fromJson, funcRef.apply(TextType.INSTANCE, pathElemList));
     }
 
     /// 
@@ -3167,14 +3156,13 @@ abstract class PostgreDocumentFunctions extends PostgreMiscellaneous2Functions {
     /// - {@link SQLs#rowLiteral(TypeInfer, Collection)}
     /// - developer custom method
     /// .
-    /// The first argument of funcRefForPath always is {@link NoCastTextType#INSTANCE}.
     /// @see <a href="https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSON-PROCESSING-TABLE">jsonb_extract_path_text ( from_json jsonb, VARIADIC path_elems text[] ) → text
     /// Extracts JSON sub-object at the specified path as text. (This is functionally equivalent to the #>> operator.)
     /// </a>
     public static SimpleExpression jsonbExtractPathText(Expression fromJson, BiFunction<MappingType, List<String>, Expression> funcRef,
                                                         Consumer<Consumer<String>> consumer) {
         return FunctionUtils.oneAndMulti("JSONB_EXTRACT_PATH_TEXT", fromJson,
-                funcRef.apply(NoCastTextType.INSTANCE, CriteriaUtils.stringList(null, true, consumer)));
+                funcRef.apply(TextType.INSTANCE, CriteriaUtils.stringList(null, true, consumer)));
     }
 
 

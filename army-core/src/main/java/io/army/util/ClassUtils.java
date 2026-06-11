@@ -74,12 +74,12 @@ public abstract class ClassUtils {
         return checkEnumClass(clazz);
     }
 
-    public static Enum<?>[] getEnumConstants(Class<?> clazz) {
+    public static Enum<?>[] enumConstantsOf(Class<?> clazz) {
         return checkEnumClass(clazz).getEnumConstants();
     }
 
     /// @return unmodifiable list
-    public static List<String> getEnumNames(Class<?> clazz) {
+    public static List<String> enumNameListOf(Class<?> clazz) {
         final Enum<?>[] enumArray = checkEnumClass(clazz).getEnumConstants();
         final List<String> list = new ArrayList<>(enumArray.length);
         for (Enum<?> e : enumArray) {

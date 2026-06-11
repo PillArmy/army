@@ -258,7 +258,7 @@ abstract class SQLiteParser extends _ArmyDialectParser {
 
 
     @Override
-    protected final TypeMappingHandler createTypeMappingHandler(DialectEnv env) {
+    protected final MappingHandler createTypeMappingHandler(DialectEnv env) {
         return new SQLiteTypeMappingHandler(env);
     }
 

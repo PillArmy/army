@@ -28,10 +28,13 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /// This class representing the mapping that map the array of {@link BigDecimal} to database decimal array,for example {@link PgType#DECIMAL_ARRAY}.
+///
 /// @see io.army.mapping.BigDecimalType
 /// @since 0.6.0
 public class BigDecimalArrayType extends _ArmyBuildInArrayType {
@@ -46,7 +49,7 @@ public class BigDecimalArrayType extends _ArmyBuildInArrayType {
         } else if (!javaType.isArray()) {
             throw errorJavaType(BigDecimalArrayType.class, javaType);
         } else if (ArrayUtils.underlyingComponent(javaType) == BigDecimal.class) {
-            instance = new BigDecimalArrayType(javaType);
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
             throw errorJavaType(BigDecimalArrayType.class, javaType);
         }
@@ -71,15 +74,30 @@ public class BigDecimalArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
+    public final DataType map(final ServerMeta meta) throws UnsupportedDialectException {
+        return mapToSqlType(this, meta);
+    }
+
+    @Override
+    public final String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, BigDecimalArrayType::appendToText, dataType, this,
+                PARAM_ERROR_HANDLER);
+    }
+
+    @Override
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return toBigDecimalArray(dataType, env, source, ACCESS_ERROR_HANDLER);
+    }
+
+    @Override
     public final Class<?> underlyingJavaType() {
         return BigDecimal.class;
     }
 
     @Override
-    public final DataType map(final ServerMeta meta) throws UnsupportedDialectException {
-        return mapToSqlType(this, meta);
+    public MappingType underlyingType() {
+        return BigDecimalType.INSTANCE;
     }
-
 
     @Override
     public final MappingType elementType() {
@@ -106,14 +124,21 @@ public class BigDecimalArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public final String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, BigDecimalArrayType::appendToText, dataType, this,
-                PARAM_ERROR_HANDLER);
+    public int hashCode() {
+        return Objects.hash(this.javaType);
     }
 
     @Override
-    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return toBigDecimalArray(dataType, env, source, ACCESS_ERROR_HANDLER);
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof BigDecimalArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
     }
 
 
@@ -150,6 +175,12 @@ public class BigDecimalArrayType extends _ArmyBuildInArrayType {
             throw new IllegalArgumentException();
         }
         appender.append(((BigDecimal) element).toPlainString());
+    }
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<BigDecimalArrayType> CLASS_VALUE = FuncClassValue.create(BigDecimalArrayType::new);
+
     }
 
 

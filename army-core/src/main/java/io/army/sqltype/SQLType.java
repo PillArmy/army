@@ -28,8 +28,6 @@ public sealed interface SQLType extends DataType
 
     Database database();
 
-    ArmyType armyType();
-
     @Override
     default Class<?> javaType() {
         return firstJavaType();
@@ -49,6 +47,7 @@ public sealed interface SQLType extends DataType
     ///
     /// @return element type of array(1-n dimension)
     @Nullable
+    @Override
     SQLType elementType();
 
 

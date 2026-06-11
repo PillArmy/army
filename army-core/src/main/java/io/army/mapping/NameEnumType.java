@@ -23,99 +23,63 @@ import io.army.sqltype.*;
 import io.army.struct.CodeEnum;
 import io.army.struct.DefinedType;
 import io.army.struct.TextEnum;
-import io.army.util.AnnotationUtils;
-import io.army.util.ArrayUtils;
-import io.army.util.ClassUtils;
-import io.army.util._StringUtils;
+import io.army.util.*;
 
 import java.time.*;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /// Mapping type for Java {@code enum} constants that use {@link Enum#name()} as database value.
 ///
 /// @see Enum
 /// @see TextEnumType
-public class NameEnumType extends _ArmyNoInjectionType {
+public final class NameEnumType extends _ArmyNoInjectionType implements MappingType.SqlEnum {
 
-    public static NameEnumType from(final Class<?> enumType) {
-        final Class<?> actualEnumType;
-        actualEnumType = checkEnumClass(enumType);
-
-        final NameEnumType instance;
-        if (actualEnumType.getAnnotation(DefinedType.class) == null) {
-            instance = INSTANCE_MAP.computeIfAbsent(actualEnumType, NameEnumType::new);
-        } else {
-            instance = INSTANCE_MAP.computeIfAbsent(actualEnumType, NameEnumType::createDefinedType);
-        }
-        return instance;
+    public static NameEnumType from(final Class<?> javaType) {
+        return CLASS_VALUE.get(checkEnumClass(javaType));
     }
 
-    /// @param enumType The enum that is not annotated with {@link DefinedType}.
-    public static NameEnumType fromParam(final Class<?> enumType, final String enumName) {
-        if (!_StringUtils.hasText(enumName)) {
-            throw new IllegalArgumentException("no text");
-        }
-        final Class<?> actualEnumType;
-        actualEnumType = checkEnumClass(enumType);
-        if (actualEnumType.getAnnotation(DefinedType.class) != null) {
-            throw new IllegalArgumentException("error enum");
-        }
+    /// @param javaType The enum that is not annotated with {@link DefinedType}.
+    public static NameEnumType fromParam(final Class<?> javaType, final String enumName) {
+        final Class<?> enumClass;
+        enumClass = checkEnumClass(javaType);
 
-        NameEnumType instance;
-        instance = INSTANCE_MAP.computeIfAbsent(actualEnumType, type -> new NameEnumNamedType(type, enumName));
-        if (!(instance instanceof NameEnumNamedType o) || !enumName.equals(o.enumName)) {
-            // same class but different enum name
-            instance = new NameEnumNamedType(actualEnumType, enumName);
+        if (enumClass.getAnnotation(DefinedType.class) != null) {
+            throw errorJavaType(NameEnumType.class, enumClass);
         }
-        return instance;
-    }
-
-    /// @param enumType The enum that is annotated with {@link DefinedType}.
-    private static NameEnumNamedType createDefinedType(final Class<?> enumType) {
-        final String typeName;
-        typeName = AnnotationUtils.getDefinedTypeName(enumType);
-        if (typeName == null) {
-            // no bug,never here
-            throw new IllegalArgumentException();
-        }
-        return new NameEnumNamedType(enumType, typeName);
+        _Assert.assertTypeName(enumName);
+        return new NameEnumType(enumClass, DataType.from(enumName));
     }
 
 
-    private static final ConcurrentMap<Class<?>, NameEnumType> INSTANCE_MAP = new ConcurrentHashMap<>();
+    private static final ClassValue<NameEnumType> CLASS_VALUE = FuncClassValue.create(NameEnumType::new);
 
     private final Class<?> enumClass;
 
+    private final DataType dataType;
+
     /// private constructor
-    private NameEnumType(Class<?> enumClass) {
-        this.enumClass = enumClass;
+    private NameEnumType(Class<?> javaType) {
+        this.enumClass = ClassUtils.enumClass(javaType);
+        this.dataType = AnnotationUtils.dataTypeOf(javaType, false);
+    }
+
+    /// private constructor
+    private NameEnumType(Class<?> javaType, DataType dataType) {
+        this.enumClass = ClassUtils.enumClass(javaType);
+        this.dataType = dataType;
     }
 
 
     @Override
-    public final Class<?> javaType() {
+    public Class<?> javaType() {
         return this.enumClass;
     }
 
     @Override
-    public final MappingType arrayTypeOfThis() throws CriteriaException {
-        final MappingType arrayType;
-        if (this.enumClass.getAnnotation(DefinedType.class) == null && this instanceof NameEnumNamedType o) {
-            arrayType = NameEnumArrayType.fromParam(ArrayUtils.arrayClassOf(this.enumClass), o.enumName);
-        } else {
-            arrayType = NameEnumArrayType.from(ArrayUtils.arrayClassOf(this.enumClass));
-        }
-        return arrayType;
-    }
-
-
-    @Override
-    public final DataType map(final ServerMeta meta) {
+    public DataType map(final ServerMeta meta) {
         return mapToDataType(this, meta);
     }
 
@@ -152,30 +116,40 @@ public class NameEnumType extends _ArmyNoInjectionType {
     }
 
     @Override
-    public final int hashCode() {
-        final int hash;
-        if (this instanceof NameEnumNamedType o) {
-            hash = Objects.hash(this.enumClass, o.enumName);
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        final DataType dataType = this.dataType;
+        final MappingType instance;
+        if (dataType != null && this.enumClass.getAnnotation(DefinedType.class) == null) {
+            instance = NameEnumArrayType.fromParam(ArrayUtils.arrayClassOf(this.enumClass), dataType.typeName());
         } else {
-            hash = Objects.hash(this.enumClass);
+            instance = NameEnumArrayType.from(ArrayUtils.arrayClassOf(this.enumClass));
         }
-        return hash;
+        return instance;
     }
 
     @Override
-    public final boolean equals(final Object obj) {
+    public DataType dataType() {
+        return this.dataType;
+    }
+
+    @Override
+    public List<String> enumLabelList() {
+        return ClassUtils.enumNameListOf(this.enumClass);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.enumClass, this.dataType);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
         final boolean match;
         if (obj == this) {
             match = true;
-        } else if (obj instanceof NameEnumNamedType o) {
-            if (this instanceof NameEnumNamedType t) {
-                match = ((NameEnumType) o).enumClass == this.enumClass
-                        && o.enumName.equals(t.enumName);
-            } else {
-                match = false;
-            }
         } else if (obj instanceof NameEnumType o) {
-            match = !(this instanceof NameEnumNamedType) && o.enumClass == this.enumClass;
+            match = o.enumClass == this.enumClass
+                    && Objects.equals(o.dataType, this.dataType);
         } else {
             match = false;
         }
@@ -197,8 +171,9 @@ public class NameEnumType extends _ArmyNoInjectionType {
                 dataType = MySQLType.ENUM;
                 break;
             case PostgreSQL: {
-                if (type instanceof SqlUserDefined o) {
-                    dataType = DataType.from(o.typeName());
+                final DataType temp;
+                if (type instanceof SqlEnum o && (temp = o.dataType()) != null) {
+                    dataType = temp;
                 } else {
                     dataType = PgType.VARCHAR;
                 }
@@ -211,7 +186,7 @@ public class NameEnumType extends _ArmyNoInjectionType {
                 dataType = H2Type.ENUM;
                 break;
             default:
-                throw MAP_ERROR_HANDLER.apply(type, meta);
+                throw mapError(type, meta);
 
         }
         return dataType;
@@ -329,29 +304,6 @@ public class NameEnumType extends _ArmyNoInjectionType {
         }
         return value;
     }
-
-
-    private static final class NameEnumNamedType extends NameEnumType implements MappingType.SqlEnum {
-
-        private final String enumName;
-
-        private NameEnumNamedType(Class<?> enumClass, String enumName) {
-            super(enumClass);
-            this.enumName = enumName;
-        }
-
-
-        @Override
-        public String typeName() {
-            return this.enumName;
-        }
-
-        @Override
-        public List<String> enumLabelList() {
-            return ClassUtils.getEnumNames(((NameEnumType) this).enumClass);
-        }
-
-    } // NameEnumNamedType
 
 
 }

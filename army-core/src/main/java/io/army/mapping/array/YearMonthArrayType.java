@@ -21,47 +21,103 @@ import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInArrayType; 
+import io.army.mapping.YearMonthType;
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
+import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
+
+import java.time.YearMonth;
+import java.util.Objects;
 
 public class YearMonthArrayType extends _ArmyBuildInArrayType {
 
 
     public static YearMonthArrayType from(Class<?> javaType) {
-        throw new UnsupportedOperationException();
+        final YearMonthArrayType instance;
+        if (javaType == YearMonth[].class) {
+            instance = LINEAR;
+        } else if (!javaType.isArray()) {
+            throw errorJavaType(YearMonthArrayType.class, javaType);
+        } else if (ArrayUtils.underlyingComponent(javaType) == YearMonth.class) {
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
+        } else {
+            throw errorJavaType(YearMonthArrayType.class, javaType);
+        }
+        return instance;
     }
 
-    private YearMonthArrayType() {
-    }
+    public static final YearMonthArrayType LINEAR = new YearMonthArrayType(YearMonth[].class);
 
-    @Override
-    public Class<?> javaType() {
-        throw new UnsupportedOperationException();
-    }
+    private final Class<?> javaType;
 
-    @Override
-    public Class<?> underlyingJavaType() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public MappingType elementType() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        throw new UnsupportedOperationException();
+    /// private constructor
+    private YearMonthArrayType(Class<?> javaType) {
+        this.javaType = javaType;
     }
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+    public final Class<?> javaType() {
+        return this.javaType;
+    }
+
+    @Override
+    public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
+        //TODO
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+    public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public final Class<?> underlyingJavaType() {
+        return YearMonth.class;
+    }
+
+    @Override
+    public final MappingType underlyingType() {
+        return YearMonthType.INSTANCE;
+    }
+
+    @Override
+    public final MappingType elementType() {
+        throw new UnsupportedOperationException();
+    }
+
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(this.javaType);
+    }
+
+    @Override
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof YearMonthArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
+    }
+
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<YearMonthArrayType> CLASS_VALUE = FuncClassValue.create(YearMonthArrayType::new);
+
+    }
+
+
 }

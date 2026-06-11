@@ -93,10 +93,6 @@ public final class SqlRecordArrayType extends _SqlRecordSupport implements Mappi
         return instance;
     }
 
-    public static SqlRecordArrayType fromUnlimited() {
-        return UNLIMITED;
-    }
-
 
     public static final SqlRecordArrayType UNLIMITED = new SqlRecordArrayType(Object.class, Collections.emptyList());
 
@@ -111,21 +107,6 @@ public final class SqlRecordArrayType extends _SqlRecordSupport implements Mappi
     @Override
     public Class<?> javaType() {
         return this.javaType;
-    }
-
-    @Override
-    public Class<?> underlyingJavaType() {
-        return SqlRecord.class;
-    }
-
-    @Override
-    public MappingType elementType() {
-        return elementTypeOf(this);
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return arrayTypeOf(this);
     }
 
     @Override
@@ -146,6 +127,26 @@ public final class SqlRecordArrayType extends _SqlRecordSupport implements Mappi
         final TextFunction<?> function;
         function = (text, offset, end) -> parseSqlRecord(env, text, offset, end);
         return PostgreArrays.arrayAfterGet(this, dataType, source, false, function, ACCESS_ERROR_HANDLER);
+    }
+
+    @Override
+    public Class<?> underlyingJavaType() {
+        return SqlRecord.class;
+    }
+
+    @Override
+    public MappingType underlyingType() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MappingType elementType() {
+        return elementTypeOf(this);
+    }
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return arrayTypeOf(this);
     }
 
 

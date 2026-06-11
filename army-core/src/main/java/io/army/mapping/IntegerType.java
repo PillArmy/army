@@ -41,7 +41,7 @@ import java.math.BigInteger;
 /// 
 /// to {@link Integer},if overflow,throw {@link io.army.ArmyException}
 /// @since 0.6.0
-public final class IntegerType extends _NumericType._IntegerType {
+public final class IntegerType extends _ArmyNoInjectionType implements MappingType.SqlInteger {
 
 
     public static IntegerType from(final Class<?> javaType) {

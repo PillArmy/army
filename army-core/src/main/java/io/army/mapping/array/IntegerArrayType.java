@@ -29,38 +29,27 @@ import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
+import io.army.util._Assert;
 
 import java.util.Objects;
 
 public class IntegerArrayType extends _ArmyBuildInArrayType {
 
 
-    public static IntegerArrayType from(final Class<?> javaClass) {
+    public static IntegerArrayType from(final Class<?> javaType) {
         final IntegerArrayType instance;
         final Class<?> componentType;
-        if (javaClass == Integer[].class) {
+        if (javaType == Integer[].class) {
             instance = LINEAR;
-        } else if (javaClass == int[].class) {
+        } else if (javaType == int[].class) {
             instance = PRIMITIVE_LINEAR;
-        } else if (!javaClass.isArray()) {
-            throw errorJavaType(IntegerArrayType.class, javaClass);
-        } else if ((componentType = ArrayUtils.underlyingComponent(javaClass)) == int.class
+        } else if (!javaType.isArray()) {
+            throw errorJavaType(IntegerArrayType.class, javaType);
+        } else if ((componentType = ArrayUtils.underlyingComponent(javaType)) == int.class
                 || componentType == Integer.class) {
-            instance = CLASS_VALUE.get(javaClass);
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
-            throw errorJavaType(IntegerArrayType.class, javaClass);
-        }
-        return instance;
-    }
-
-    public static IntegerArrayType fromUnlimited(final Class<?> intClass) {
-        final IntegerArrayType instance;
-        if (intClass == Integer.class) {
-            instance = UNLIMITED;
-        } else if (intClass == int.class) {
-            instance = PRIMITIVE_UNLIMITED;
-        } else {
-            throw errorJavaType(IntegerArrayType.class, intClass);
+            throw errorJavaType(IntegerArrayType.class, javaType);
         }
         return instance;
     }
@@ -69,11 +58,7 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
 
     public static final IntegerArrayType LINEAR = new IntegerArrayType(Integer[].class);
 
-    public static final IntegerArrayType PRIMITIVE_UNLIMITED = new IntegerArrayType(Object.class, int.class);
-
     public static final IntegerArrayType PRIMITIVE_LINEAR = new IntegerArrayType(int[].class);
-
-    private static final ClassValue<IntegerArrayType> CLASS_VALUE = FuncClassValue.create(IntegerArrayType::new);
 
     private final Class<?> javaType;
 
@@ -88,6 +73,7 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
 
     /// private constructor
     private IntegerArrayType(Class<Object> javaType, Class<?> underlyingJavaType) {
+        _Assert.isTrue(underlyingJavaType == Integer.class, "");
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;
     }
@@ -97,12 +83,6 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
     public Class<?> javaType() {
         return this.javaType;
     }
-
-    @Override
-    public Class<?> underlyingJavaType() {
-        return this.underlyingJavaType;
-    }
-
 
     @Override
     public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
@@ -119,6 +99,11 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         final boolean nonNull = this.underlyingJavaType == int.class;
         return PostgreArrays.arrayAfterGet(this, dataType, source, nonNull, IntegerArrayType::parseText);
+    }
+
+    @Override
+    public Class<?> underlyingJavaType() {
+        return this.underlyingJavaType;
     }
 
 
@@ -143,6 +128,11 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
             return this;
         }
         return from(ArrayUtils.arrayClassOf(javaType));
+    }
+
+    @Override
+    public MappingType underlyingType() {
+        return IntegerType.INSTANCE;
     }
 
     @Override
@@ -194,6 +184,13 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
         }
         appender.append(element);
     }
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<IntegerArrayType> CLASS_VALUE = FuncClassValue.create(IntegerArrayType::new);
+
+    }
+
 
 
 }

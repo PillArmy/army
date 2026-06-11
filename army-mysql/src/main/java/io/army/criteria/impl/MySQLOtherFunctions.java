@@ -51,7 +51,7 @@ abstract class MySQLOtherFunctions extends MySQLMiscellaneousFunctions {
     /// - Else if type is {@link MySQLCastType#YEAR }then {@link YearType}
     /// - Else if type is {@link MySQLCastType#DATETIME }then {@link LocalDateTimeType}
     /// - Else if type is {@link MySQLCastType#SIGNED }then {@link LongType}
-    /// - Else if type is {@link MySQLCastType#UNSIGNED }then {@link UnsignedBigIntegerType}
+    /// - Else if type is {@link MySQLCastType#UNSIGNED }then {@link BigIntegerUnsignedType}
     /// - Else if type is {@link MySQLCastType#DECIMAL }then {@link BigDecimalType}
     /// - Else if type is {@link MySQLCastType#FLOAT }then {@link FloatType}
     /// - Else if type is {@link MySQLCastType#REAL }then {@link DoubleType}
@@ -92,7 +92,7 @@ abstract class MySQLOtherFunctions extends MySQLMiscellaneousFunctions {
     /// - Else if type is {@link MySQLCastType#YEAR }then {@link YearType}
     /// - Else if type is {@link MySQLCastType#DATETIME }then {@link LocalDateTimeType}
     /// - Else if type is {@link MySQLCastType#SIGNED }then {@link LongType}
-    /// - Else if type is {@link MySQLCastType#UNSIGNED }then {@link UnsignedBigIntegerType}
+    /// - Else if type is {@link MySQLCastType#UNSIGNED }then {@link BigIntegerUnsignedType}
     /// - Else if type is {@link MySQLCastType#DECIMAL }then {@link BigDecimalType}
     /// - Else if type is {@link MySQLCastType#FLOAT }then {@link FloatType}
     /// - Else if type is {@link MySQLCastType#REAL }then {@link DoubleType}
@@ -271,7 +271,7 @@ abstract class MySQLOtherFunctions extends MySQLMiscellaneousFunctions {
     /// - Else if type is {@link MySQLCastType#YEAR }then {@link YearType}
     /// - Else if type is {@link MySQLCastType#DATETIME }then {@link LocalDateTimeType}
     /// - Else if type is {@link MySQLCastType#SIGNED }then {@link LongType}
-    /// - Else if type is {@link MySQLCastType#UNSIGNED }then {@link UnsignedBigIntegerType}
+    /// - Else if type is {@link MySQLCastType#UNSIGNED }then {@link BigIntegerUnsignedType}
     /// - Else if type is {@link MySQLCastType#DECIMAL }then {@link BigDecimalType}
     /// - Else if type is {@link MySQLCastType#FLOAT }then {@link FloatType}
     /// - Else if type is {@link MySQLCastType#REAL }then {@link DoubleType}
@@ -460,7 +460,7 @@ abstract class MySQLOtherFunctions extends MySQLMiscellaneousFunctions {
                 returnType = LongType.INSTANCE;
                 break;
             case UNSIGNED:
-                returnType = UnsignedBigIntegerType.INSTANCE;
+                returnType = BigIntegerUnsignedType.INSTANCE;
                 break;
             case DECIMAL:
                 returnType = BigDecimalType.INSTANCE;

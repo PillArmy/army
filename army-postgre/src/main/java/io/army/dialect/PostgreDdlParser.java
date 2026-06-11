@@ -353,7 +353,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
                 .append("IF EXISTS")
                 .append(_Constant.SPACE);
 
-        this.parser.safeObjectName(((MappingType.SqlUserDefined) type), sqlBuilder);
+        this.parser.safeObjectName(type.map(this.serverMeta), sqlBuilder);
 
         sqlList.add(sqlBuilder.toString());
         sqlBuilder.setLength(0);
@@ -507,17 +507,6 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
                 if (Enum.class.isAssignableFrom(field.javaType())) {
                     enumCheckClause(field, builder);
                 }
-            }
-            break;
-            case VECTOR: {
-                this.parser.safeObjectName(dataType, builder); //  VECTOR need to install pg vector extension
-                precision(field, dataType, Integer.MAX_VALUE, 1024, builder);
-            }
-            break;
-            case VECTOR_ARRAY: {
-                this.parser.safeObjectName(dataType, builder); //  VECTOR need to install pg vector extension
-                precision(field, dataType, Integer.MAX_VALUE, 1024, builder);
-                this.parser.arrayTypeName(ArrayUtils.dimensionOfType(field.mappingType()), builder);
             }
             break;
             case BIT:
@@ -759,7 +748,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
                 .append("DOMAIN")
                 .append(_Constant.SPACE);
 
-        this.parser.safeObjectName(type, sqlBuilder);
+        this.parser.safeObjectName(((MappingType) type).map(this.serverMeta), sqlBuilder);
 
         sqlBuilder.append(_Constant.SPACE)
                 .append("AS")
@@ -816,7 +805,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
                 .append("TYPE")
                 .append(_Constant.SPACE);
 
-        this.parser.safeObjectName(type, sqlBuilder);
+        this.parser.safeObjectName(((MappingType) type).map(this.serverMeta), sqlBuilder);
 
         sqlBuilder.append(_Constant.SPACE)
                 .append("AS")
@@ -900,7 +889,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
                 .append("TYPE")
                 .append(_Constant.SPACE);
 
-        this.parser.safeObjectName(type, sqlBuilder);
+        this.parser.safeObjectName(((MappingType) type).map(this.serverMeta), sqlBuilder);
 
         sqlBuilder.append(_Constant.SPACE)
                 .append("AS")
@@ -934,7 +923,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
                 .append("TYPE")
                 .append(_Constant.SPACE);
 
-        this.parser.safeObjectName(type, sqlBuilder);
+        this.parser.safeObjectName(((MappingType) type).map(this.serverMeta), sqlBuilder);
 
         sqlBuilder.append(_Constant.SPACE)
                 .append("AS")
@@ -987,7 +976,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
                 .append("TYPE")
                 .append(_Constant.SPACE);
 
-        this.parser.safeObjectName(type, sqlBuilder);
+        this.parser.safeObjectName(((MappingType) type).map(this.serverMeta), sqlBuilder);
 
         List<CompositeField> fieldList;
         fieldList = typeResult.compositeDropFieldList();
@@ -1093,7 +1082,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         fieldCount += listSize; // Modify field count
 
         if (fieldCount == 0) {
-            this.errorMsgList.add(String.format("%s no field to modify", type.typeName()));
+            this.errorMsgList.add(String.format("%s no field to modify", ((MappingType) type).map(this.serverMeta).typeName()));
         }
         return sqlBuilder.toString();
     }
@@ -1127,7 +1116,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
 
             if (safeTypeName == null) {
                 final int length = sqlBuilder.length();
-                this.parser.safeObjectName(type, sqlBuilder);
+                this.parser.safeObjectName(((MappingType) type).map(this.serverMeta), sqlBuilder);
                 safeTypeName = sqlBuilder.substring(length);
             } else {
                 sqlBuilder.append(safeTypeName);
@@ -1168,7 +1157,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
         }
 
         if (newLabelCount != newLabelList.size()) {
-            this.errorMsgList.add(String.format("%s enum new label list error", type.typeName()));
+            this.errorMsgList.add(String.format("%s enum new label list error", ((MappingType) type).map(this.serverMeta).typeName()));
         }
 
         sqlBuilder.setLength(0); // clear
@@ -1184,15 +1173,15 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
 
         final String dontSupportMsg = "PostgreSQL don't support alter domain[%s] %s";
         if (typeResult.containBaseType()) {
-            this.errorMsgList.add(String.format(dontSupportMsg, type.typeName(), "base type"));
+            this.errorMsgList.add(String.format(dontSupportMsg, ((MappingType) type).map(this.serverMeta).typeName(), "base type"));
         } else if (typeResult.containCollation()) {
-            this.errorMsgList.add(String.format(dontSupportMsg, type.typeName(), "collation"));
+            this.errorMsgList.add(String.format(dontSupportMsg, ((MappingType) type).map(this.serverMeta).typeName(), "collation"));
         }
 
         sqlBuilder.setLength(0); // clear
 
         final int length = sqlBuilder.length();
-        this.parser.safeObjectName(type, sqlBuilder);
+        this.parser.safeObjectName(((MappingType) type).map(this.serverMeta), sqlBuilder);
 
         final String safeTypeName;
         safeTypeName = sqlBuilder.substring(length);

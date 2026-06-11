@@ -23,21 +23,22 @@ import java.math.BigInteger;
 
 /// This class representing the mapping from {@link BigInteger} to (unsigned) bigint.
 /// @see BigInteger
-public final class UnsignedBigintType extends _NumericType._UnsignedIntegerType {
+public final class BigintUnsignedType extends _ArmyNoInjectionType
+        implements MappingType.SqlInteger, MappingType.SqlUnsignedNumber {
 
-    public static UnsignedBigintType from(final Class<?> fieldType) {
+    public static BigintUnsignedType from(final Class<?> fieldType) {
         if (fieldType != BigInteger.class) {
-            throw errorJavaType(UnsignedBigintType.class, fieldType);
+            throw errorJavaType(BigintUnsignedType.class, fieldType);
         }
         return INSTANCE;
     }
 
     public static final BigInteger MAX_VALUE = new BigInteger(Long.toUnsignedString(-1L));
 
-    public static final UnsignedBigintType INSTANCE = new UnsignedBigintType();
+    public static final BigintUnsignedType INSTANCE = new BigintUnsignedType();
 
     /// private constructor
-    private UnsignedBigintType() {
+    private BigintUnsignedType() {
     }
 
     @Override
@@ -55,10 +56,10 @@ public final class UnsignedBigintType extends _NumericType._UnsignedIntegerType 
         final Number value;
         switch (((SQLType) dataType).database()) {
             case MySQL:
-                value = UnsignedBigIntegerType.toUnsignedBigInteger(this, dataType, source, PARAM_ERROR_HANDLER);
+                value = BigIntegerUnsignedType.toUnsignedBigInteger(this, dataType, source, PARAM_ERROR_HANDLER);
                 break;
             case PostgreSQL:
-                value = UnsignedBigIntegerType.toUnsignedBigDecimal(this, dataType, source, PARAM_ERROR_HANDLER);
+                value = BigIntegerUnsignedType.toUnsignedBigDecimal(this, dataType, source, PARAM_ERROR_HANDLER);
                 break;
             default:
                 throw PARAM_ERROR_HANDLER.apply(this, dataType, source, null);
@@ -68,7 +69,7 @@ public final class UnsignedBigintType extends _NumericType._UnsignedIntegerType 
 
     @Override
     public BigInteger afterGet(DataType dataType, MappingEnv env, final Object source) {
-        return UnsignedBigIntegerType.toUnsignedBigInteger(this, dataType, source, ACCESS_ERROR_HANDLER);
+        return BigIntegerUnsignedType.toUnsignedBigInteger(this, dataType, source, ACCESS_ERROR_HANDLER);
     }
 
 

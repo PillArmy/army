@@ -25,14 +25,17 @@ import io.army.struct.CodeEnum;
 import io.army.struct.TextEnum;
 import io.army.util.ArrayUtils;
 import io.army.util.ClassUtils;
+import io.army.util.FuncClassValue;
+import io.army.util._Collections;
 
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
 
-/// 
+///
 /// This class is mapping of enum that implements {@link CodeEnum}.
 /// * @see Enum
+///
 /// @see io.army.struct.CodeEnum
 /// @see TextEnumType
 /// @see NameEnumType
@@ -40,41 +43,26 @@ import java.util.Objects;
 public final class CodeEnumType extends _ArmyNoInjectionType {
 
 
-    public static CodeEnumType from(final Class<?> enumClass) {
-        if (!(Enum.class.isAssignableFrom(enumClass) && CodeEnum.class.isAssignableFrom(enumClass))) {
-            throw errorJavaType(CodeEnumType.class, enumClass);
-        } else if (TextEnum.class.isAssignableFrom(enumClass)) {
-            throw errorJavaType(CodeEnumType.class, enumClass);
-        }
-        return INSTANCE_CLASS_VALUE.get(ClassUtils.enumClass(enumClass));
+    public static CodeEnumType from(final Class<?> javaType) {
+        return CLASS_VALUE.get(checkEnumClass(javaType));
     }
 
-    private static final ClassValue<CodeEnumType> INSTANCE_CLASS_VALUE = new ClassValue<>() {
-        @Override
-        protected CodeEnumType computeValue(Class<?> type) {
-            return new CodeEnumType(type);
-        }
-    };
+    private static final ClassValue<CodeEnumType> CLASS_VALUE = FuncClassValue.create(CodeEnumType::new);
 
 
     private final Class<?> enumClass;
 
-    private final Map<Integer, ? extends CodeEnum> codeMap;
+    private final Map<Integer, CodeEnum> codeEnumMap;
 
     /// private constructor
-    private CodeEnumType(Class<?> enumClass) {
-        this.enumClass = enumClass;
-        this.codeMap = CodeEnum.getCodeToEnumMap(enumClass);
+    private CodeEnumType(Class<?> javaType) {
+        this.enumClass = ClassUtils.enumClass(javaType);
+        this.codeEnumMap = Map.copyOf(createCodeMap(this.enumClass));
     }
 
     @Override
     public Class<?> javaType() {
         return this.enumClass;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return CodeEnumArrayType.from(ArrayUtils.arrayClassOf(this.enumClass));
     }
 
     @Override
@@ -123,7 +111,7 @@ public final class CodeEnumType extends _ArmyNoInjectionType {
             throw dataAccessError(this, dataType, source, null);
         }
         final CodeEnum codeEnum;
-        codeEnum = this.codeMap.get(code);
+        codeEnum = this.codeEnumMap.get(code);
         if (codeEnum == null) {
             String m = String.format("Not found enum instance for code[%s] in enum[%s].",
                     source, this.enumClass.getName());
@@ -132,6 +120,16 @@ public final class CodeEnumType extends _ArmyNoInjectionType {
         return codeEnum;
     }
 
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return CodeEnumArrayType.from(ArrayUtils.arrayClassOf(this.enumClass));
+    }
+
+    /// @return an unmodifiable map
+    @SuppressWarnings("unused")
+    public Map<Integer, CodeEnum> getCodeEnumMap() {
+        return this.codeEnumMap;
+    }
 
     @Override
     public int hashCode() {
@@ -152,9 +150,38 @@ public final class CodeEnumType extends _ArmyNoInjectionType {
     }
 
 
+    /// @return an unmodifiable map
+    public static Map<Integer, CodeEnum> createCodeMap(final Class<?> javaType)
+            throws IllegalArgumentException {
+        if (!javaType.isEnum() || !CodeEnum.class.isAssignableFrom(javaType)) {
+            String m = String.format("%s isn't %s enum.", javaType.getName(), CodeEnum.class.getName());
+            throw new IllegalArgumentException(m);
+        }
+
+        final Enum<?>[] values = ClassUtils.enumConstantsOf(javaType);
+        final Map<Integer, CodeEnum> map = _Collections.hashMapForSize(values.length);
+        CodeEnum codeEnum;
+        for (Enum<?> value : values) {
+            codeEnum = (CodeEnum) value;
+            if (map.putIfAbsent(codeEnum.code(), codeEnum) != null) {
+                String m;
+                m = String.format("%s.%s code[%s] duplicate", javaType.getName(), codeEnum.name(), codeEnum.code());
+                throw new IllegalArgumentException(m);
+            }
+        }
+
+        return Map.copyOf(map);
+    }
 
 
-    /*################################## blow private method ##################################*/
+    private static Class<?> checkEnumClass(final Class<?> javaType) {
+        if (!Enum.class.isAssignableFrom(javaType)
+                || TextEnum.class.isAssignableFrom(javaType)
+                || !CodeEnum.class.isAssignableFrom(javaType)) {
+            throw errorJavaType(CodeEnumType.class, javaType);
+        }
+        return ClassUtils.enumClass(javaType);
+    }
 
 
 }

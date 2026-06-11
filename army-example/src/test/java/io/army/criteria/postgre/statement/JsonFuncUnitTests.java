@@ -29,7 +29,6 @@ import io.army.mapping.TextType;
 import io.army.mapping.array.IntegerArrayType;
 import io.army.mapping.array.TextArrayType;
 import io.army.mapping.optional.JsonPathType;
-import io.army.mapping.optional.NoCastTextType;
 import io.army.meta.TableMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -402,11 +401,11 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonExtractPath(SQLs.literal(JsonType.TEXT, json), SQLs.literal(NoCastTextType.INSTANCE, "f4"), SQLs.literal(NoCastTextType.INSTANCE, "f6")).as("json1"))
+                .select(jsonExtractPath(SQLs.literal(JsonType.TEXT, json), SQLs.literal(TextType.INSTANCE, "f4"), SQLs.literal(TextType.INSTANCE, "f6")).as("json1"))
                 // .comma(jsonExtractPath(SQLs.literal(JsonType.TEXT, json), SQLs::multiLiteral, "f4", "f6").as("json2")  //TODO
                 .comma(jsonExtractPath(SQLs.literal(JsonType.TEXT, json), c -> {
-                            c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f4"));
-                            c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f6"));
+                    c.accept(SQLs.literal(TextType.INSTANCE, "f4"));
+                    c.accept(SQLs.literal(TextType.INSTANCE, "f6"));
                         }).as("json3")
                 )
 //                .comma(jsonExtractPath(SQLs.literal(JsonType.TEXT, json), SQLs::multiLiteral, c -> {
@@ -415,11 +414,11 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 //                        }).as("json4"
 //                )
                 // .comma(jsonExtractPath(SQLs::literal, json, SQLs::multiLiteral, "f4", "f6").as("json5")
-                .comma(jsonbExtractPath(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(NoCastTextType.INSTANCE, "f4"), SQLs.literal(NoCastTextType.INSTANCE, "f6")).as("json6"))
+                .comma(jsonbExtractPath(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(TextType.INSTANCE, "f4"), SQLs.literal(TextType.INSTANCE, "f6")).as("json6"))
                 // .comma(jsonbExtractPath(SQLs.literal(JsonbType.TEXT, json), SQLs::multiLiteral, "f4", "f6").as("json7")
                 .comma(jsonbExtractPath(SQLs.literal(JsonbType.TEXT, json), c -> {
-                            c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f4"));
-                            c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f6"));
+                    c.accept(SQLs.literal(TextType.INSTANCE, "f4"));
+                    c.accept(SQLs.literal(TextType.INSTANCE, "f6"));
                         }).as("json8")
                 )
                 //.comma(jsonbExtractPath(SQLs.literal(JsonbType.TEXT, json), SQLs::multiLiteral, c -> {
@@ -450,11 +449,11 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 
         final Select stmt;
         stmt = Postgres.query()
-                .select(jsonExtractPathText(SQLs.literal(JsonType.TEXT, json), SQLs.literal(NoCastTextType.INSTANCE, "f4"), SQLs.literal(NoCastTextType.INSTANCE, "f6")).as("json1"))
+                .select(jsonExtractPathText(SQLs.literal(JsonType.TEXT, json), SQLs.literal(TextType.INSTANCE, "f4"), SQLs.literal(TextType.INSTANCE, "f6")).as("json1"))
                 // .comma(jsonExtractPathText(SQLs.literal(JsonType.TEXT, json), SQLs::multiLiteral, "f4", "f6").as("json2")
                 .comma(jsonExtractPathText(SQLs.literal(JsonType.TEXT, json), c -> {
-                            c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f4"));
-                            c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f6"));
+                    c.accept(SQLs.literal(TextType.INSTANCE, "f4"));
+                    c.accept(SQLs.literal(TextType.INSTANCE, "f6"));
                         }).as("json3")
                 )
 //                .comma(jsonExtractPathText(SQLs.literal(JsonType.TEXT, json), SQLs::multiLiteral, c -> {
@@ -463,11 +462,11 @@ public class JsonFuncUnitTests extends PostgreUnitTests {
 //                        }).as("json4"
 //                ).comma(jsonExtractPathText(SQLs::literal, json, SQLs::multiLiteral, "f4", "f6").as("json5")
 
-                // .comma(jsonbExtractPathText(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(NoCastTextType.INSTANCE, "f4"), SQLs.literal(NoCastTextType.INSTANCE, "f6")).as("json6")
+                // .comma(jsonbExtractPathText(SQLs.literal(JsonbType.TEXT, json), SQLs.literal(TextType.INSTANCE, "f4"), SQLs.literal(TextType.INSTANCE, "f6")).as("json6")
                 //   .comma(jsonbExtractPathText(SQLs.literal(JsonbType.TEXT, json), SQLs::multiLiteral, "f4", "f6").as("json7")
                 .comma(jsonbExtractPathText(SQLs.literal(JsonbType.TEXT, json), c -> {
-                            c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f4"));
-                            c.accept(SQLs.literal(NoCastTextType.INSTANCE, "f6"));
+                    c.accept(SQLs.literal(TextType.INSTANCE, "f4"));
+                    c.accept(SQLs.literal(TextType.INSTANCE, "f6"));
                         }).as("json8")
                 )
 //                .comma(jsonbExtractPathText(SQLs.literal(JsonbType.TEXT, json), SQLs::multiLiteral, c -> {

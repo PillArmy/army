@@ -41,7 +41,7 @@ import java.math.BigInteger;
 /// 
 /// to {@link Double},if overflow,throw {@link io.army.ArmyException}
 /// @since 0.6.0
-public final class DoubleType extends _NumericType._FloatNumericType {
+public final class DoubleType extends _ArmyNoInjectionType implements MappingType.SqlFloat {
 
 
     public static DoubleType from(final Class<?> javaType) {

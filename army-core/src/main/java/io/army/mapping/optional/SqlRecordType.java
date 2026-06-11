@@ -24,7 +24,6 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.ObjectType;
-import io.army.mapping.array.SqlRecordArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
@@ -56,12 +55,6 @@ public final class SqlRecordType extends _SqlRecordSupport implements MappingTyp
         return new SqlRecordType(_Collections.asUnmodifiableList(columnTypeList));
     }
 
-
-    public static SqlRecordType fromUnlimited() {
-        return UNLIMITED;
-    }
-
-
     public static final SqlRecordType UNLIMITED = new SqlRecordType(Collections.emptyList());
 
     /// private constructor
@@ -82,21 +75,6 @@ public final class SqlRecordType extends _SqlRecordSupport implements MappingTyp
         return PgType.RECORD;
     }
 
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        final MappingType instance;
-        switch (this.columnTypeList.size()) {
-            case 0:
-                instance = SqlRecordArrayType.UNLIMITED;
-                break;
-            case 1:
-                instance = SqlRecordArrayType.fromColumn(io.army.type.SqlRecord[].class, this.columnTypeList.get(0));
-                break;
-            default:
-                instance = SqlRecordArrayType.fromRow(io.army.type.SqlRecord[].class, this.columnTypeList);
-        }
-        return instance;
-    }
 
     @Override
     public Object beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {

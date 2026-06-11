@@ -22,60 +22,72 @@ import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
+import io.army.mapping.VectorType;
 import io.army.mapping._ArmyBuildInArrayType;
-import io.army.mapping.optional.VectorType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
-import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
 
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 
 /// Vector array type
 ///
 /// @see VectorType
-public final class VectorArrayType extends _ArmyBuildInArrayType implements MappingType.SqlExtension {
+public class VectorArrayType extends _ArmyBuildInArrayType implements MappingType.SqlUserDefined {
 
 
     public static VectorArrayType from(final Class<?> javaClass) {
-        if (!javaClass.isArray() || !javaClass.getComponentType().isArray()) {
+        final VectorArrayType instance;
+        if (javaClass == float[].class) {
+            instance = LINEAR;
+        } else if (!javaClass.isArray()) {
+            throw errorJavaType(VectorArrayType.class, javaClass);
+        } else if (ArrayUtils.underlyingComponentMatch(float[].class, javaClass)) {
+            instance = ClassValueHolder.CLASS_VALUE.get(javaClass);
+        } else {
             throw errorJavaType(VectorArrayType.class, javaClass);
         }
-        final Class<?> componentType = ArrayUtils.underlyingComponent(javaClass);
-        if (componentType != float.class) {
-            throw errorJavaType(VectorArrayType.class, javaClass);
-        }
-        return new VectorArrayType(javaClass);
+        return instance;
     }
 
 
-    private final Class<?> javaClass;
+    public static final VectorArrayType LINEAR = new VectorArrayType(float[][].class);
+
+    public static final VectorArrayType UNLIMITED = new VectorArrayType(Object.class);
+
+    private static final DataType DATA_TYPE = DataType.from("VECTOR[]");
+
+    private final Class<?> javaType;
 
 
-    private VectorArrayType(Class<?> javaClass) {
-        this.javaClass = javaClass;
+    private VectorArrayType(Class<?> javaType) {
+        this.javaType = javaType;
     }
 
     @Override
-    public Class<?> javaType() {
-        return this.javaClass;
+    public final Class<?> javaType() {
+        return this.javaType;
     }
 
     @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
+    public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
         if (meta.serverDatabase() != Database.PostgreSQL) {
             throw MAP_ERROR_HANDLER.apply(this, meta);
         }
-        return PgType.VECTOR_ARRAY;
+        return DATA_TYPE;
     }
 
     @Override
-    public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+    public final String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         final Class<?> sourceClass = source.getClass();
         if (!sourceClass.isArray()) {
             throw paramError(this, dataType, source, null);
-        } else if (!this.javaClass.isInstance(source)) {
+        } else if (!ArrayUtils.underlyingComponentMatch(underlyingJavaType(), sourceClass)) {
+            throw paramError(this, dataType, source, null);
+        } else if (!this.javaType.isInstance(source)) {
             throw paramError(this, dataType, source, null);
         }
         final BiConsumer<Object, StringBuilder> consumer;
@@ -89,7 +101,7 @@ public final class VectorArrayType extends _ArmyBuildInArrayType implements Mapp
     }
 
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         final Class<?> sourceClass = source.getClass();
         if (sourceClass.isArray()
                 && ArrayUtils.underlyingComponentMatch(underlyingJavaType(), sourceClass)) {
@@ -98,34 +110,32 @@ public final class VectorArrayType extends _ArmyBuildInArrayType implements Mapp
         if (!(source instanceof String)) {
             throw dataAccessError(this, dataType, source, null);
         }
-        try {
-            return PostgreArrays.arrayAfterGet(this, dataType, source, true, VectorType::stringToVector);
-        } catch (DataAccessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw dataAccessError(this, dataType, source, e);
-        }
+        return PostgreArrays.arrayAfterGet(this, dataType, source, VectorType::stringToVector);
     }
 
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return from(ArrayUtils.arrayClassOf(this.javaClass));
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
+        return from(ArrayUtils.arrayClassOf(this.javaType));
     }
 
     @Override
-    public Class<?> underlyingJavaType() {
+    public final Class<?> underlyingJavaType() {
         return float[].class;
     }
 
     @Override
-    public MappingType elementType() {
-        if (this.javaClass == Object.class) {
-            return this;
-        }
-        final Class<?> componentType = this.javaClass.getComponentType();
+    public final MappingType underlyingType() {
+        return VectorType.INSTANCE;
+    }
+
+    @Override
+    public final MappingType elementType() {
+        final Class<?> componentType = this.javaType.getComponentType();
         final MappingType type;
-        if (componentType == float[].class) {
+        if (this.javaType == Object.class) {
+            type = this;
+        } else if (componentType == float[].class) {
             type = VectorType.INSTANCE;
         } else {
             type = from(componentType);
@@ -133,27 +143,30 @@ public final class VectorArrayType extends _ArmyBuildInArrayType implements Mapp
         return type;
     }
 
+
     @Override
-    public String extensionName(ServerMeta serverMeta) {
-        return VectorType.INSTANCE.extensionName(serverMeta);
+    public final int hashCode() {
+        return Objects.hash(this.javaType);
     }
 
     @Override
-    public int hashCode() {
-        return this.javaClass.hashCode();
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
+    public final boolean equals(final Object obj) {
         final boolean match;
         if (obj == this) {
             match = true;
         } else if (obj instanceof VectorArrayType o) {
-            match = o.javaClass == this.javaClass;
+            match = o.javaType == this.javaType;
         } else {
             match = false;
         }
         return match;
+    }
+
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<VectorArrayType> CLASS_VALUE = FuncClassValue.create(VectorArrayType::new);
+
     }
 
 

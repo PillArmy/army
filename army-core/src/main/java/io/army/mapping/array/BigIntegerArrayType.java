@@ -28,6 +28,7 @@ import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 public class BigIntegerArrayType extends _ArmyBuildInArrayType {
 
@@ -66,15 +67,32 @@ public class BigIntegerArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public Class<?> underlyingJavaType() {
-        return BigInteger.class;
-    }
-
-    @Override
     public final DataType map(final ServerMeta meta) throws UnsupportedDialectException {
         return BigDecimalArrayType.mapToSqlType(this, meta);
     }
 
+    @Override
+    public final String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, BigIntegerArrayType::appendToText, dataType, this,
+                PARAM_ERROR_HANDLER);
+    }
+
+    @Override
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return PostgreArrays.arrayAfterGet(this, dataType, source, false,
+                BigIntegerArrayType::parseBigInteger, ACCESS_ERROR_HANDLER);
+    }
+
+    @Override
+    public Class<?> underlyingJavaType() {
+        return BigInteger.class;
+    }
+
+
+    @Override
+    public MappingType underlyingType() {
+        return BigIntegerType.INSTANCE;
+    }
 
     @Override
     public final MappingType elementType() {
@@ -100,17 +118,22 @@ public class BigIntegerArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public final String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, BigIntegerArrayType::appendToText, dataType, this,
-                PARAM_ERROR_HANDLER);
+    public int hashCode() {
+        return Objects.hash(this.javaType);
     }
 
     @Override
-    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false,
-                BigIntegerArrayType::parseBigInteger, ACCESS_ERROR_HANDLER);
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof BigIntegerArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
     }
-
 
 
     /*-------------------below static methods -------------------*/

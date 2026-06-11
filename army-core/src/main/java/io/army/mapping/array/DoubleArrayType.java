@@ -22,11 +22,15 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.DoubleType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInArrayType; 
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
+import io.army.util._Assert;
+
+import java.util.Objects;
 
 public class DoubleArrayType extends _ArmyBuildInArrayType {
 
@@ -41,21 +45,9 @@ public class DoubleArrayType extends _ArmyBuildInArrayType {
             throw errorJavaType(DoubleArrayType.class, javaType);
         } else if ((componentType = ArrayUtils.underlyingComponent(javaType)) == double.class
                 || componentType == Double.class) {
-            instance = new DoubleArrayType(javaType, componentType);
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
             throw errorJavaType(DoubleArrayType.class, javaType);
-        }
-        return instance;
-    }
-
-    public static DoubleArrayType fromUnlimited(final Class<?> doubleClass) {
-        final DoubleArrayType instance;
-        if (doubleClass == Double.class) {
-            instance = UNLIMITED;
-        } else if (doubleClass == double.class) {
-            instance = PRIMITIVE_UNLIMITED;
-        } else {
-            throw errorJavaType(DoubleArrayType.class, doubleClass);
         }
         return instance;
     }
@@ -63,18 +55,23 @@ public class DoubleArrayType extends _ArmyBuildInArrayType {
 
     public static final DoubleArrayType UNLIMITED = new DoubleArrayType(Object.class, Double.class);
 
-    public static final DoubleArrayType LINEAR = new DoubleArrayType(Double[].class, Double.class);
+    public static final DoubleArrayType LINEAR = new DoubleArrayType(Double[].class);
 
-    public static final DoubleArrayType PRIMITIVE_LINEAR = new DoubleArrayType(double[].class, double.class);
-
-    public static final DoubleArrayType PRIMITIVE_UNLIMITED = new DoubleArrayType(Object.class, double.class);
+    public static final DoubleArrayType PRIMITIVE_LINEAR = new DoubleArrayType(double[].class);
 
     private final Class<?> javaType;
 
     private final Class<?> underlyingJavaType;
 
     /// private constructor
-    private DoubleArrayType(Class<?> javaType, Class<?> underlyingJavaType) {
+    private DoubleArrayType(Class<?> javaType) {
+        this.javaType = javaType;
+        this.underlyingJavaType = ArrayUtils.underlyingComponent(javaType);
+    }
+
+    /// private constructor
+    private DoubleArrayType(Class<Object> javaType, Class<?> underlyingJavaType) {
+        _Assert.isTrue(underlyingJavaType == Double.class, "");
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;
     }
@@ -85,8 +82,42 @@ public class DoubleArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
+    public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
+        final DataType dataType;
+        switch (meta.serverDatabase()) {
+            case PostgreSQL:
+                dataType = PgType.DOUBLE_ARRAY;
+                break;
+            case MySQL:
+            case SQLite:
+            case H2:
+            case Oracle:
+            default:
+                throw MAP_ERROR_HANDLER.apply(this, meta);
+        }
+        return dataType;
+    }
+
+    @Override
+    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, DoubleArrayType::appendToText, dataType, this);
+    }
+
+    @Override
+    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return PostgreArrays.arrayAfterGet(this, dataType, source, false, DoubleArrayType::parseText);
+    }
+
+
+    @Override
     public Class<?> underlyingJavaType() {
         return this.underlyingJavaType;
+    }
+
+
+    @Override
+    public MappingType underlyingType() {
+        return DoubleType.INSTANCE;
     }
 
     @Override
@@ -112,33 +143,26 @@ public class DoubleArrayType extends _ArmyBuildInArrayType {
         return from(ArrayUtils.arrayClassOf(javaType));
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.javaType, this.underlyingJavaType);
+    }
 
     @Override
-    public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
-        final DataType dataType;
-        switch (meta.serverDatabase()) {
-            case PostgreSQL:
-                dataType = PgType.DOUBLE_ARRAY;
-                break;
-            case MySQL:
-            case SQLite:
-            case H2:
-            case Oracle:
-            default:
-                throw MAP_ERROR_HANDLER.apply(this, meta);
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof DoubleArrayType o) {
+            match = o.javaType == this.javaType
+                    && o.underlyingJavaType == this.underlyingJavaType
+            ;
+        } else {
+            match = false;
         }
-        return dataType;
+        return match;
     }
 
-    @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, DoubleArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, DoubleArrayType::parseText, ACCESS_ERROR_HANDLER);
-    }
 
     /*-------------------below static methods -------------------*/
 
@@ -152,6 +176,12 @@ public class DoubleArrayType extends _ArmyBuildInArrayType {
             throw new IllegalArgumentException();
         }
         appender.append(element);
+    }
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<DoubleArrayType> CLASS_VALUE = FuncClassValue.create(DoubleArrayType::new);
+
     }
 
 

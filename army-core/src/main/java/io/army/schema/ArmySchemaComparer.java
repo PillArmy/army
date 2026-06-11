@@ -22,7 +22,9 @@ import io.army.mapping.MappingType;
 import io.army.meta.*;
 import io.army.sqltype.DataType;
 import io.army.struct.TypeCategory;
+import io.army.util.ReflectionUtils;
 import io.army.util._Collections;
+import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
 import java.util.*;
@@ -31,6 +33,29 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 abstract class ArmySchemaComparer implements SchemaComparer {
+
+    static ArmySchemaComparer createComparer(final ServerMeta serverMeta) {
+        String className;
+        switch (serverMeta.serverDatabase()) {
+            case MySQL:
+                className = "io.army.schema.MySQLComparer";
+                break;
+            case PostgreSQL:
+                className = "io.army.schema.PostgreComparer";
+                break;
+            case SQLite:
+                className = "io.army.schema.SQLiteComparer";
+                break;
+            case Oracle:
+            case H2:
+            default:
+                throw _Exceptions.unexpectedEnum(serverMeta.serverDatabase());
+        }
+        final Class<?>[] argArray = new Class[]{ServerMeta.class};
+        final ArmySchemaComparer comparer;
+        comparer = (ArmySchemaComparer) ReflectionUtils.invokeStaticFactoryMethod(className, ArmySchemaComparer.class, "create", argArray, serverMeta);
+        return comparer;
+    }
 
     final ServerMeta serverMeta;
 
@@ -357,7 +382,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
         if (!javaType.isEnum()) {
             String m = String.format("%s  type name[%s] should be enum ,but not "
-                    , javaType.getName(), enumType.typeName());
+                    , javaType.getName(), ((MappingType) enumType).map(this.serverMeta).typeName());
             addErrorMessage(m);
             return null;
         }
@@ -403,7 +428,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
         final String typeName = typeInfo.rangeSubType();
         if (typeName == null) {
-            String m = String.format("range type[%s] sub type is null", rangeType.typeName());
+            String m = String.format("range type[%s] sub type is null", ((MappingType) rangeType).map(this.serverMeta).typeName());
             addErrorMessage(m);
             return null;
         }
@@ -468,7 +493,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
         final String typeName = typeInfo.baseTypeName();
         if (typeName == null) {
-            String m = String.format("domain type[%s] base type is null", domainType.typeName());
+            String m = String.format("domain type[%s] base type is null", ((MappingType) domainType).map(this.serverMeta).typeName());
             addErrorMessage(m);
             return null;
         }
@@ -488,7 +513,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
         final Matcher matcher = getCheckPattern().matcher(value);
         if (!matcher.find()) {
-            String m = String.format("domain type[%s] constraint[%s] format error", domainType.typeName(), value);
+            String m = String.format("domain type[%s] constraint[%s] format error", ((MappingType) domainType).map(this.serverMeta).typeName(), value);
             addErrorMessage(m);
             return null;
         }
@@ -542,7 +567,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
     private void addTypeNotMatchError(MappingType.SqlUserDefined type, TypeCategory category, TypeInfo typeInfo) {
         String m = String.format("%s category[%s] and  database type [%s] category[%s] not match"
-                , type.javaType().getName(), category.name(), type.typeName(), typeInfo.category().name());
+                , type.javaType().getName(), category.name(), ((MappingType) type).map(this.serverMeta).typeName(), typeInfo.category().name());
         addErrorMessage(m);
     }
 

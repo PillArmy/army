@@ -72,6 +72,15 @@ public abstract class _Assert {
         }
     }
 
+    public static void assertTypeName(@Nullable String typeName) {
+        if (!_StringUtils.hasText(typeName)
+                || _StringUtils.isCamelCase(typeName)
+                || typeName.endsWith("[]")
+                || typeName.startsWith("_")) {
+            throw new IllegalArgumentException(String.format("%s error", typeName));
+        }
+    }
+
 
 
 }

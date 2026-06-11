@@ -23,7 +23,6 @@ import io.army.util._Collections;
 import io.army.util._Exceptions;
 
 import java.util.*;
-import java.util.function.Function;
 
 public abstract class _PostgreDialectUtils {
 
@@ -34,20 +33,8 @@ public abstract class _PostgreDialectUtils {
     }
 
 
-    /// Reflection call
-    ///
-    /// see {@code io.army.schema.PostgreComparer}
-    @SuppressWarnings("unused")
     public static Map<String, PgType> getAliasToTypeMap() {
         return ALIAS_TO_TYPE_MAP;
-    }
-
-    /// Reflection call
-    ///
-    /// see {@code io.army.schema.PostgreComparer}
-    @SuppressWarnings("unused")
-    public static Function<String, List<String>> decodeIdentifierFunc() {
-        return _PostgreDialectUtils::decodeIdentifier;
     }
 
 
@@ -434,7 +421,7 @@ public abstract class _PostgreDialectUtils {
     }
 
 
-    /// an unmodifiable map
+    ///@return  an unmodifiable map
     /// @see <a href="https://www.postgresql.org/docs/current/datatype.html">Data Types</a>
     private static Map<String, PgType> createAliasToTypeMap() {
         final PgType[] values = PgType.values();
@@ -449,7 +436,7 @@ public abstract class _PostgreDialectUtils {
         listMap.put(PgType.DECIMAL, List.of("NUMERIC", "DECIMAL"));
         listMap.put(PgType.DOUBLE, List.of("FLOAT8", "DOUBLE PRECISION", "FLOAT"));
         listMap.put(PgType.REAL, List.of("FLOAT4", "REAL"));
-        listMap.put(PgType.CHAR, List.of("CHAR", "BPCHAR", "CHARACTER"));
+        listMap.put(PgType.CHAR, List.of("CHAR", "BPCHAR", "CHARACTER")); // BPCHAR can be overridden
 
         listMap.put(PgType.VARCHAR, List.of("VARCHAR", "CHARACTER VARYING"));
         listMap.put(PgType.TEXT, List.of("TEXT", "TXID_SNAPSHOT"));
@@ -473,7 +460,7 @@ public abstract class _PostgreDialectUtils {
 
         for (PgType value : values) {
             if (!value.isArray()) {
-                map.put(value.typeName(), value);
+                map.put(value.typeName(), value); // typeName be overridden
             }
 
         }

@@ -32,7 +32,7 @@ import io.army.util.FuncClassValue;
 
 import java.util.UUID;
 
-public final class UUIDArrayType extends _ArmyBuildInArrayType {
+public class UUIDArrayType extends _ArmyBuildInArrayType {
 
 
     public static UUIDArrayType from(final Class<?> javaType) {
@@ -42,15 +42,11 @@ public final class UUIDArrayType extends _ArmyBuildInArrayType {
             instance = LINEAR;
         } else if (javaType.isArray()
                 && ((clazz = ArrayUtils.underlyingComponent(javaType)) == UUID.class || clazz == String.class)) {
-            instance = CLASS_VALUE.get(javaType);
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
             throw errorJavaType(UUIDArrayType.class, javaType);
         }
         return instance;
-    }
-
-    public static UUIDArrayType fromUnlimited() {
-        return UNLIMITED;
     }
 
 
@@ -58,7 +54,6 @@ public final class UUIDArrayType extends _ArmyBuildInArrayType {
 
     public static final UUIDArrayType LINEAR = new UUIDArrayType(UUID[].class);
 
-    private static final ClassValue<UUIDArrayType> CLASS_VALUE = FuncClassValue.create(UUIDArrayType::new);
 
     private final Class<?> javaType;
 
@@ -76,13 +71,12 @@ public final class UUIDArrayType extends _ArmyBuildInArrayType {
 
 
     @Override
-    public Class<?> javaType() {
+    public final Class<?> javaType() {
         return this.javaType;
     }
 
-
     @Override
-    public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
+    public final DataType map(final ServerMeta meta) throws UnsupportedDialectException {
         return switch (meta.serverDatabase()) {
             case PostgreSQL -> PgType.UUID_ARRAY;
             default -> throw MAP_ERROR_HANDLER.apply(this, meta);
@@ -91,22 +85,33 @@ public final class UUIDArrayType extends _ArmyBuildInArrayType {
 
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+    public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         return PostgreArrays.arrayBeforeBind(source, this::appendToText, dataType, this);
     }
 
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         return PostgreArrays.arrayAfterGet(this, dataType, source, false, this::parseText);
     }
 
     @Override
-    public Class<?> underlyingJavaType() {
+    public final Class<?> underlyingJavaType() {
         return this.underlyingJavaType;
     }
 
     @Override
-    public MappingType elementType() {
+    public final MappingType underlyingType() {
+        final MappingType instance;
+        if (this.underlyingJavaType == String.class) {
+            instance = UUIDType.TEXT;
+        } else {
+            instance = UUIDType.INSTANCE;
+        }
+        return instance;
+    }
+
+    @Override
+    public final MappingType elementType() {
         final Class<?> javaType = this.javaType;
         final MappingType instance;
         if (javaType == Object.class) {
@@ -122,7 +127,7 @@ public final class UUIDArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
         final Class<?> javaType = this.javaType;
         if (javaType == Object.class) {
             return this;
@@ -131,12 +136,12 @@ public final class UUIDArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return this.javaType.hashCode();
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public final boolean equals(final Object obj) {
         final boolean match;
         if (obj == this) {
             match = true;
@@ -169,8 +174,12 @@ public final class UUIDArrayType extends _ArmyBuildInArrayType {
         } else {
             throw new IllegalArgumentException(String.format("%s unsupported", ClassUtils.safeClassName(element)));
         }
-
         PostgreArrays.encodeElement(text, appender);
+    }
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<UUIDArrayType> CLASS_VALUE = FuncClassValue.create(UUIDArrayType::new);
 
     }
 

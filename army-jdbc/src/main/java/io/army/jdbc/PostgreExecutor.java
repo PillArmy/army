@@ -230,7 +230,6 @@ abstract class PostgreExecutor extends JdbcExecutor {
                 stmt.setObject(indexBasedOne, pgObject, Types.OTHER);
             }
             break;
-            case VECTOR:
             case JSON:
             case JSONB:
 
@@ -274,7 +273,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
                 stmt.setObject(indexBasedOne, createPgObject(type, dataType, value));
                 break;
             default:
-                bindArmyType(stmt, indexBasedOne, type, dataType, ((PgType) dataType).armyType(), value);
+                bindArmyType(stmt, indexBasedOne, type, dataType, dataType.armyType(), value);
 
         }
 
@@ -282,6 +281,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
     }
 
 
+    @Nullable
     @Override
     final Object get(final ResultSet resultSet, final int indexBasedOne, final MappingType type, final DataType dataType)
             throws SQLException {
@@ -295,27 +295,26 @@ abstract class PostgreExecutor extends JdbcExecutor {
             value = resultSet.getString(indexBasedOne);
         } else switch ((PgType) dataType) {
             case BOOLEAN:
-                value = resultSet.getObject(indexBasedOne, Boolean.class);
+                value = resultSet.getBoolean(indexBasedOne);
                 break;
             case SMALLINT:
-                value = resultSet.getObject(indexBasedOne, Short.class);
+                value = resultSet.getShort(indexBasedOne);
                 break;
             case INTEGER:
-                value = resultSet.getObject(indexBasedOne, Integer.class);
+                value = resultSet.getInt(indexBasedOne);
                 break;
             case BIGINT:
-                value = resultSet.getObject(indexBasedOne, Long.class);
+                value = resultSet.getLong(indexBasedOne);
                 break;
             case DECIMAL:
-                value = resultSet.getObject(indexBasedOne, BigDecimal.class);
+                value = resultSet.getBigDecimal(indexBasedOne);
                 break;
             case DOUBLE:
-                value = resultSet.getObject(indexBasedOne, Double.class);
+                value = resultSet.getDouble(indexBasedOne);
                 break;
             case REAL:
-                value = resultSet.getObject(indexBasedOne, Float.class);
+                value = resultSet.getFloat(indexBasedOne);
                 break;
-
             case BYTEA: { // postgre client protocol body must less than 2^32 byte
                 if (type instanceof MappingType.SqlString) {
                     value = resultSet.getString(indexBasedOne);
@@ -350,60 +349,11 @@ abstract class PostgreExecutor extends JdbcExecutor {
                 value = resultSet.getObject(indexBasedOne, OffsetDateTime.class);
                 break;
             case UUID:
-                value = resultSet.getObject(indexBasedOne, UUID.class);
-                break;
-            case VECTOR:
-            case CHAR:
-            case VARCHAR:
-            case BPCHAR:
-            case TEXT:
-
-            case JSON:
-            case JSONB:
-            case JSONPATH:
-            case XML:
-
-            case BIT:
-            case VARBIT:
-
-            case INTERVAL:
-
-            case TSVECTOR:
-            case TSQUERY:
-
-            case INT4RANGE:
-            case INT8RANGE:
-            case NUMRANGE:
-            case TSRANGE:
-            case DATERANGE:
-            case TSTZRANGE:
-
-            case INT4MULTIRANGE:
-            case INT8MULTIRANGE:
-            case NUMMULTIRANGE:
-            case TSMULTIRANGE:
-            case DATEMULTIRANGE:
-            case TSTZMULTIRANGE:
-
-            case PG_SNAPSHOT:
-
-            case BOX:
-            case LSEG:
-            case LINE:
-            case PATH:
-            case POINT:
-            case CIRCLE:
-            case POLYGON:
-
-            case CIDR:
-            case INET:
-            case MACADDR8:
-            case MACADDR:
-            case ACLITEM:
-
-            case MONEY:
-            case RECORD:
-                value = resultSet.getString(indexBasedOne);
+                if (type instanceof MappingType.SqlString) {
+                    value = resultSet.getString(indexBasedOne);
+                } else {
+                    value = resultSet.getObject(indexBasedOne, UUID.class);
+                }
                 break;
             case PG_LSN: {
                 final long v;
@@ -415,13 +365,10 @@ abstract class PostgreExecutor extends JdbcExecutor {
                 }
             }
             break;
-            case UNKNOWN:
-            case REF_CURSOR:
             default:
-                throw _Exceptions.unexpectedEnum((PgType) dataType);
+                value = resultSet.getString(indexBasedOne);
 
         }
-
         return value;
     }
 

@@ -294,12 +294,8 @@ abstract class MySQLExecutor extends JdbcExecutor {
                 }
             }
             break;
-            case NULL:
-            case UNKNOWN:
-                value = resultSet.getObject(indexBasedOne);
-                break;
             default:
-                throw _Exceptions.unexpectedEnum((MySQLType) dataType);
+                value = resultSet.getObject(indexBasedOne);
         }
         return value;
     }

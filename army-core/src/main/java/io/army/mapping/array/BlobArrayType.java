@@ -29,6 +29,8 @@ import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 
+import java.util.Objects;
+
 /// Array mapping type for blob ({@code byte[]}) elements.
 ///
 /// @see BlobType
@@ -73,8 +75,31 @@ public class BlobArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
+    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
+        return mapToSqlType(this, meta);
+    }
+
+    @Override
+    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        return PostgreArrays.byteaArrayToText(this, dataType, source, new StringBuilder(), PARAM_ERROR_HANDLER)
+                .toString();
+    }
+
+    @Override
+    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return PostgreArrays.arrayAfterGet(this, dataType, source, false, PostgreArrays::parseBytea,
+                PARAM_ERROR_HANDLER);
+    }
+
+    @Override
     public Class<?> underlyingJavaType() {
         return byte[].class;
+    }
+
+
+    @Override
+    public MappingType underlyingType() {
+        return BlobType.INSTANCE;
     }
 
     @Override
@@ -102,21 +127,23 @@ public class BlobArrayType extends _ArmyBuildInArrayType {
 
 
     @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        return mapToSqlType(this, meta);
+    public int hashCode() {
+        return Objects.hash(this.javaType);
     }
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.byteaArrayToText(this, dataType, source, new StringBuilder(), PARAM_ERROR_HANDLER)
-                .toString();
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof BlobArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
     }
 
-    @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, PostgreArrays::parseBytea,
-                PARAM_ERROR_HANDLER);
-    }
 
 
     /*-------------------below static methods -------------------*/

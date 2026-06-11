@@ -23,24 +23,23 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
+
+import java.util.Objects;
 
 public class TextArrayType extends ArmyTextArrayType {
 
 
-    public static TextArrayType from(final Class<?> arrayType) {
+    public static TextArrayType from(final Class<?> javaType) {
         final TextArrayType instance;
-        if (arrayType == String[].class) {
+        if (javaType == String[].class) {
             instance = LINEAR;
-        } else if (arrayType.isArray() && ArrayUtils.underlyingComponent(arrayType) == String.class) {
-            instance = new TextArrayType(arrayType);
+        } else if (javaType.isArray() && ArrayUtils.underlyingComponent(javaType) == String.class) {
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
-            throw errorJavaType(TextArrayType.class, arrayType);
+            throw errorJavaType(TextArrayType.class, javaType);
         }
         return instance;
-    }
-
-    public static TextArrayType fromUnlimited() {
-        return UNLIMITED;
     }
 
 
@@ -54,7 +53,12 @@ public class TextArrayType extends ArmyTextArrayType {
     }
 
     @Override
-    public MappingType elementType() {
+    public final MappingType underlyingType() {
+        return TextType.INSTANCE;
+    }
+
+    @Override
+    public final MappingType elementType() {
         final Class<?> javaType = this.javaType;
         final MappingType instance;
         if (javaType == Object.class) {
@@ -68,12 +72,31 @@ public class TextArrayType extends ArmyTextArrayType {
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
         final Class<?> javaType = this.javaType;
         if (javaType == Object.class) { // unlimited dimension array
             return this;
         }
         return from(ArrayUtils.arrayClassOf(javaType));
+    }
+
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(this.javaType);
+    }
+
+    @Override
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof TextArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
     }
 
 
@@ -103,6 +126,14 @@ public class TextArrayType extends ArmyTextArrayType {
         PostgreArrays.encodeElement((String) element, appender);
 
     }
+
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<TextArrayType> CLASS_VALUE = FuncClassValue.create(TextArrayType::new);
+
+    }
+
 
 
 }

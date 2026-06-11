@@ -16,8 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
-import io.army.mapping.array.MediumIntArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -39,7 +37,7 @@ import io.army.sqltype.SQLiteType;
 /// 
 /// to medium {@link Integer},if overflow,throw {@link io.army.ArmyException}
 /// @since 0.6.0
-public final class MediumIntType extends _NumericType._IntegerType {
+public final class MediumIntType extends _ArmyNoInjectionType implements MappingType.SqlInteger {
 
     public static MediumIntType from(final Class<?> javaType) {
         if (javaType != Integer.class) {
@@ -61,11 +59,6 @@ public final class MediumIntType extends _NumericType._IntegerType {
     @Override
     public Class<?> javaType() {
         return Integer.class;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return MediumIntArrayType.LINEAR;
     }
 
     @Override

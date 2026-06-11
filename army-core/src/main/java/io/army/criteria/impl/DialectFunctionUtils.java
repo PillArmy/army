@@ -29,7 +29,7 @@ import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
-import io.army.mapping.optional.NoCastTextType;
+import io.army.mapping.TextType;
 import io.army.meta.CompositeField;
 import io.army.meta.FieldMeta;
 import io.army.util._Collections;
@@ -1071,7 +1071,7 @@ abstract class DialectFunctionUtils extends FunctionUtils {
                 }
                 field = (FieldMeta<?>) selectionList.get(i);
 
-                context.appendLiteral(NoCastTextType.INSTANCE, field.columnName(), true); // here use column name not field name
+                context.appendLiteral(TextType.INSTANCE, field.columnName(), false); // here use column name not field name
                 sqlBuilder.append(_Constant.SPACE_COMMA_SPACE);
                 context.appendField(tableAlias, field);
             }

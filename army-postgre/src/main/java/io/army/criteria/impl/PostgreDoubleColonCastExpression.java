@@ -23,7 +23,6 @@ import io.army.dialect._Constant;
 import io.army.dialect._DialectUtils;
 import io.army.dialect._SqlContext;
 import io.army.mapping.TextType;
-import io.army.mapping.optional.NoCastTextType;
 import io.army.meta.TypeMeta;
 import io.army.util._StringUtils;
 
@@ -50,7 +49,7 @@ final class PostgreDoubleColonCastExpression extends OperationExpression.Operati
 
     @Override
     public TypeMeta typeMeta() {
-        return NoCastTextType.INSTANCE;
+        return TextType.INSTANCE;
     }
 
     @Override

@@ -26,9 +26,13 @@ import io.army.sqltype.MySQLType;
 
 import java.util.Locale;
 
-final class MySQLComparer extends ArmySchemaComparer {
+/// Reflection call
+///
+/// @see ArmySchemaComparer#createComparer(ServerMeta)
+@SuppressWarnings("unused")
+public final class MySQLComparer extends ArmySchemaComparer {
 
-    static MySQLComparer create(ServerMeta serverMeta) {
+    public static MySQLComparer create(ServerMeta serverMeta) {
         return new MySQLComparer(serverMeta);
     }
 

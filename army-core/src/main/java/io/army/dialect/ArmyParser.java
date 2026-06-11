@@ -566,7 +566,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
     protected abstract String qualifiedSchemaName(ServerMeta meta);
 
 
-    protected TypeMappingHandler createTypeMappingHandler(DialectEnv env) {
+    protected MappingHandler createTypeMappingHandler(DialectEnv env) {
         throw new UnsupportedOperationException();
     }
 
@@ -3447,7 +3447,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
                 .xmlCodec(env.xmlCodec())
                 .safeLiteralFunc(this::safeLiteral)
                 .decodeLiteralFunc(this::decodeLiteral)
-                .typeMapFunc(createTypeMappingHandler(env))
+                .mappingHandler(createTypeMappingHandler(env))
                 .build();
     }
 

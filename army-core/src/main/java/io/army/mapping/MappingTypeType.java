@@ -18,6 +18,7 @@ package io.army.mapping;
 
 
 import io.army.criteria.CriteriaException;
+import io.army.dialect.TypeMappingBundle;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.array.MappingTypeArrayType;
@@ -25,13 +26,11 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
 
-import java.util.Objects;
-
 /// Map {@link MappingType} to SQL string
 public final class MappingTypeType extends _ArmyBuildInType implements MappingType.SqlString {
 
     public static MappingTypeType from(Class<?> javaType) {
-        if (MappingType.class.isAssignableFrom(javaType)) {
+        if (javaType != MappingType.class) {
             throw errorJavaType(MappingTypeType.class, javaType);
         }
         return INSTANCE;
@@ -70,15 +69,14 @@ public final class MappingTypeType extends _ArmyBuildInType implements MappingTy
         if (!(source instanceof String s)) {
             throw dataAccessError(this, dataType, source, null);
         }
-        final MappingType[] holder = new MappingType[1];
 
+        final TypeMappingBundle bundle;
         try {
-            env.typeMapFunc().apply(s, holder, 0);
-        } catch (IllegalArgumentException e) {
+            bundle = env.mappingHandler().apply(s);
+        } catch (Exception e) {
             throw dataAccessError(this, dataType, source, e);
         }
-
-        return Objects.requireNonNull(holder[0]);
+        return bundle.mappingType;
     }
 
     @Override

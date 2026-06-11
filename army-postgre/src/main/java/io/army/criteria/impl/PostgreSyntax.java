@@ -21,7 +21,6 @@ import io.army.criteria.*;
 import io.army.dialect.PostgreDialect;
 import io.army.dialect._Constant;
 import io.army.mapping.*;
-import io.army.mapping.optional.NoCastTextType;
 import io.army.meta.FieldMeta;
 import io.army.util._StringUtils;
 
@@ -123,7 +122,6 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
 
     /// Create PostgreSQL-style typecast expression. Format : 'string'::type .
     /// This method is used for postgre dialect type, for example : text, regclass .
-    /// **NOTE**: {@link LiteralExpression#typeMeta()} always is {@link NoCastTextType#INSTANCE}
     /// examples :
     /// ```
     /// Postgres.space("my_seq",Postgres.DOUBLE_COLON,"regclass")
@@ -133,7 +131,6 @@ abstract class PostgreSyntax extends PostgreWindowFunctions {
     /// @param literal     text literal
     /// @param doubleColon must be {@link Postgres#DOUBLE_COLON}
     /// @param typeName    not key word , a simple sql identifier.
-    /// @return a {@link LiteralExpression} whose {@link LiteralExpression#typeMeta()} always is {@link NoCastTextType#INSTANCE}
     /// @throws CriteriaException throw when
     /// - literal error,here is delay , throw when parsing
     /// - typeName error,here is delay , throw when parsing

@@ -28,9 +28,13 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
+
+import java.util.Objects;
 
 
 /// This class is array type of {@link VarBinaryType}.
+///
 /// @see VarBinaryType
 /// @see BinaryArrayType
 /// @since 0.6.0
@@ -41,12 +45,10 @@ public class VarBinaryArrayType extends _ArmyBuildInArrayType {
 
         if (javaType == byte[][].class) {
             instance = LINEAR;
-        } else if (javaType == Object.class) {
-            instance = UNLIMITED;
-        } else if (!javaType.isArray() || ArrayUtils.dimensionOf(javaType) < 2) {
+        } else if (!javaType.isArray()) {
             throw errorJavaType(VarBinaryArrayType.class, javaType);
-        } else if (ArrayUtils.underlyingComponent(javaType) == byte.class) {
-            instance = new VarBinaryArrayType(javaType);
+        } else if (ArrayUtils.underlyingComponentMatch(byte[].class, javaType)) {
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
             throw errorJavaType(VarBinaryArrayType.class, javaType);
         }
@@ -69,34 +71,6 @@ public class VarBinaryArrayType extends _ArmyBuildInArrayType {
     @Override
     public Class<?> javaType() {
         return this.javaType;
-    }
-
-    @Override
-    public Class<?> underlyingJavaType() {
-        return byte[].class;
-    }
-
-    @Override
-    public MappingType elementType() {
-        final MappingType instance;
-        final Class<?> javaType = this.javaType;
-        if (javaType == Object.class) { // unlimited dimension array
-            instance = this;
-        } else if (javaType == byte[][].class) {
-            instance = VarBinaryType.INSTANCE;
-        } else {
-            instance = from(javaType.getComponentType());
-        }
-        return instance;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        final Class<?> javaType = this.javaType;
-        if (javaType == Object.class) { // unlimited dimension array
-            return this;
-        }
-        return from(ArrayUtils.arrayClassOf(javaType));
     }
 
     @Override
@@ -129,9 +103,64 @@ public class VarBinaryArrayType extends _ArmyBuildInArrayType {
     }
 
 
+    @Override
+    public Class<?> underlyingJavaType() {
+        return byte[].class;
+    }
+
+    @Override
+    public MappingType underlyingType() {
+        return VarBinaryType.INSTANCE;
+    }
+
+    @Override
+    public MappingType elementType() {
+        final MappingType instance;
+        final Class<?> javaType = this.javaType;
+        if (javaType == Object.class) { // unlimited dimension array
+            instance = this;
+        } else if (javaType == byte[][].class) {
+            instance = VarBinaryType.INSTANCE;
+        } else {
+            instance = from(javaType.getComponentType());
+        }
+        return instance;
+    }
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        final Class<?> javaType = this.javaType;
+        if (javaType == Object.class) { // unlimited dimension array
+            return this;
+        }
+        return from(ArrayUtils.arrayClassOf(javaType));
+    }
 
 
-    /*-------------------below static methods -------------------*/
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.javaType);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof VarBinaryArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
+    }
+
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<VarBinaryArrayType> CLASS_VALUE = FuncClassValue.create(VarBinaryArrayType::new);
+
+    }
 
 
 }

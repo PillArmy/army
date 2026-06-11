@@ -20,7 +20,6 @@ import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
-import io.army.mapping.MappingType;
 import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
@@ -28,10 +27,8 @@ import io.army.sqltype.DataType;
 
 /// Package class
 /// This class is base class of following :
-/// 
-/// - {@link TinyTextArrayType}
+///
 /// - {@link TextArrayType}
-/// - {@link MediumTextArrayType}
 /// 
 /// @since 0.6.0
 abstract class ArmyTextArrayType extends _ArmyBuildInArrayType {
@@ -62,16 +59,12 @@ abstract class ArmyTextArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, TextArrayType::appendToText, dataType, this,
-                PARAM_ERROR_HANDLER
-        );
+        return PostgreArrays.arrayBeforeBind(source, TextArrayType::appendToText, dataType, this);
     }
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false,
-                PostgreArrays::decodeElement, ACCESS_ERROR_HANDLER
-        );
+        return PostgreArrays.arrayAfterGet(this, dataType, source, PostgreArrays::decodeElement);
     }
 
 

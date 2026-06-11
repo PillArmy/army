@@ -19,7 +19,6 @@ package io.army.mapping;
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
-import io.army.mapping.array.PathArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.util._StringUtils;
@@ -49,11 +48,6 @@ public final class PathType extends _ArmyBuildInType implements MappingType.SqlS
     @Override
     public Class<?> javaType() {
         return Path.class;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return PathArrayType.LINEAR;
     }
 
     @Override

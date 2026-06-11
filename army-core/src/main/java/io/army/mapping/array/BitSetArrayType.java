@@ -31,6 +31,7 @@ import io.army.util.ArrayUtils;
 import io.army.util._StringUtils;
 
 import java.util.BitSet;
+import java.util.Objects;
 
 /// Array mapping type for {@link BitSet} elements.
 ///
@@ -75,8 +76,41 @@ public class BitSetArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
+    public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
+        final SQLType dataType;
+        switch (meta.serverDatabase()) {
+            case PostgreSQL:
+                dataType = PgType.VARBIT_ARRAY;
+                break;
+            case MySQL:
+            case SQLite:
+            case H2:
+            case Oracle:
+            default:
+                throw MAP_ERROR_HANDLER.apply(this, meta);
+        }
+        return dataType;
+    }
+
+    @Override
+    public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, BitSetArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
+    }
+
+    @Override
+    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return PostgreArrays.arrayAfterGet(this, dataType, source, false, _StringUtils::bitStringToBitSet,
+                ACCESS_ERROR_HANDLER);
+    }
+
+    @Override
     public Class<?> underlyingJavaType() {
         return BitSet.class;
+    }
+
+    @Override
+    public MappingType underlyingType() {
+        return BitSetType.INSTANCE;
     }
 
     @Override
@@ -103,31 +137,21 @@ public class BitSetArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
-        final SQLType dataType;
-        switch (meta.serverDatabase()) {
-            case PostgreSQL:
-                dataType = PgType.VARBIT_ARRAY;
-                break;
-            case MySQL:
-            case SQLite:
-            case H2:
-            case Oracle:
-            default:
-                throw MAP_ERROR_HANDLER.apply(this, meta);
+    public int hashCode() {
+        return Objects.hash(this.javaType);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof BitSetArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
         }
-        return dataType;
-    }
-
-    @Override
-    public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, BitSetArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, _StringUtils::bitStringToBitSet,
-                ACCESS_ERROR_HANDLER);
+        return match;
     }
 
 

@@ -16,8 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
-import io.army.mapping.array.MediumBlobArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
@@ -46,11 +44,6 @@ public final class MediumBlobType extends _ArmyBuildInType implements MappingTyp
     @Override
     public Class<?> javaType() {
         return byte[].class;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return MediumBlobArrayType.LINEAR;
     }
 
     @Override

@@ -20,6 +20,7 @@ import io.army.ArmyException;
 import io.army.criteria.TypeDef;
 import io.army.criteria.impl._SQLConsultant;
 import io.army.dialect.Database;
+import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.mapping.mysql.MySqlBitType;
 import io.army.mapping.spatial.*;
@@ -27,13 +28,13 @@ import io.army.type.BlobPath;
 import io.army.type.TextPath;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.*;
 import java.util.function.Supplier;
 
 /// This enum representing MySQL build-in data type
+///
 /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/data-types.html">MySQL Data Types</a>
 public enum MySQLType implements SQLType {
 
@@ -86,6 +87,9 @@ public enum MySQLType implements SQLType {
     ENUM("ENUM", ArmyType.ENUM, String.class),
     SET("SET", ArmyType.DIALECT_TYPE, String.class),
     JSON("JSON", ArmyType.JSON, String.class),
+
+    /// as of 9.0
+    VECTOR("VECTOR", ArmyType.VECTOR, float[].class),
 
 
     // https://dev.mysql.com/doc/refman/8.0/en/gis-geometry-class-hierarchy.html
@@ -272,22 +276,22 @@ public enum MySQLType implements SQLType {
                 break;
 
             case TINYINT_UNSIGNED:
-                type = UnsignedTinyIntType.INSTANCE;
+                type = TinyIntUnsignedType.INSTANCE;
                 break;
             case SMALLINT_UNSIGNED:
-                type = UnsignedSmallIntType.INSTANCE;
+                type = SmallIntUnsignedType.INSTANCE;
                 break;
             case MEDIUMINT_UNSIGNED:
-                type = UnsignedMediumIntType.INSTANCE;
+                type = MediumIntUnsignedType.INSTANCE;
                 break;
             case INT_UNSIGNED:
-                type = UnsignedSqlIntType.INSTANCE;
+                type = SqlIntUnsignedType.INSTANCE;
                 break;
             case BIGINT_UNSIGNED:
-                type = UnsignedBigintType.INSTANCE;
+                type = BigintUnsignedType.INSTANCE;
                 break;
             case DECIMAL_UNSIGNED:
-                type = UnsignedBigDecimalType.INSTANCE;
+                type = BigDecimalUnsignedType.INSTANCE;
                 break;
 
             case TIME:

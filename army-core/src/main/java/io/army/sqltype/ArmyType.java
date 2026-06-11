@@ -23,6 +23,7 @@ import io.army.result.RecordMeta;
 import io.army.result.ResultStates;
 
 /// This enum is a implementation of {@link DataType} for the convenience that application get column type meta by ResultRecordMeta#getArmyType(int) .
+///
 /// @see RecordMeta#getArmyType(int)
 /// @since 0.6.0
 public enum ArmyType {
@@ -33,28 +34,28 @@ public enum ArmyType {
     /// Identifies the generic SQL type {@code BIT}, not boolean.
     /// {@code BIT} are strings of 1's and 0's. They can be used to store or visualize bit masks.
     /// {@code BIT} is similar to {@link #VARBIT}, except that must match fixed length.
-    /// 
+    ///
     /// {@link DataRecord#get(int, Class)} support following java type:
-    /// 
+    ///
     /// - {@link Integer}
     /// - {@link Long}
     /// - {@link String}
     /// - {@link java.util.BitSet}
-    /// 
-    /// 
+    ///
+    ///
     BIT,
 
     /// Identifies the generic SQL type {@code VARBIT}, not boolean.
     /// {@code VARBIT} are strings of 1's and 0's. They can be used to store or visualize bit masks.
-    /// 
+    ///
     /// {@link DataRecord#get(int, Class)} support following java type:
-    /// 
+    ///
     /// - {@link Integer}
     /// - {@link Long}
     /// - {@link String}
     /// - {@link java.util.BitSet}
-    /// 
-    /// 
+    ///
+    ///
     VARBIT,
 
     /// Identifies the generic SQL type {@code TINYINT}, one byte integer number.
@@ -173,6 +174,7 @@ public enum ArmyType {
     JSONB,
 
     /// Identifies the generic SQL type {@code GEOMETRY}, for example Point , LineString,polygon
+    ///
     /// @see <a href="https://www.ogc.org/standards/sfa">Simple Feature Access - Part 1: Common Architecture PDF</a>
     GEOMETRY,
 
@@ -187,6 +189,7 @@ public enum ArmyType {
     /// Identifies the generic SQL type {@code REF_CURSOR}.
     /// If {@link RecordMeta#getArmyType(int)} is this enum instance,then {@link DataRecord#get(int)} always is {@link String} instance.
     /// Application developer can get the instance of {@link Cursor} by {@link ResultStates#valueOf(Option)}
+    ///
     /// @see Cursor
     REF_CURSOR,
 
@@ -199,6 +202,9 @@ public enum ArmyType {
     COMPOSITE,
 
     VECTOR,
+
+
+    USER_DEFINED,
 
 
     /// Indicates that the dialect data type  .

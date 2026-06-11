@@ -16,9 +16,7 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
-import io.army.mapping.array.MediumTextArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -70,10 +68,6 @@ public final class MediumTextType extends ArmyTextType {
     private MediumTextType() {
     }
 
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return MediumTextArrayType.LINEAR;
-    }
 
     @Override
     public DataType map(final ServerMeta meta) throws UnsupportedDialectException {

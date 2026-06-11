@@ -39,7 +39,7 @@ import java.math.BigInteger;
 /// 
 /// to {@link BigInteger},if overflow,throw {@link io.army.ArmyException}
 /// @since 0.6.0
-public final class BigIntegerType extends _NumericType._IntegerType {
+public final class BigIntegerType extends _ArmyNoInjectionType implements MappingType.SqlInteger {
 
 
     public static BigIntegerType from(final Class<?> javaType) {

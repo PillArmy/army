@@ -17,10 +17,6 @@
 package io.army.struct;
 
 
-import io.army.lang.Nullable;
-
-import java.util.Map;
-
 /// This interface is base interface of the enum that mapping to {@code io.army.mapping.CodeEnumType}.
 /// 
 /// Army will persist {@link #code()} to database table column not {@link Enum#ordinal()}.
@@ -45,32 +41,6 @@ public interface CodeEnum {
 
     default CodeEnum family() {
         return this;
-    }
-
-
-    /*################# static method ############################*/
-
-
-    @Nullable
-    static <T extends Enum<T> & CodeEnum> T resolve(final Class<?> enumClass, final int code) {
-        final Map<Integer, T> map;
-        map = EnumHelper.getCodeMap(enumClass);
-        return map.get(code);
-    }
-
-    /// 
-    /// see {@code io.army.mapping.CodeEnumType#getInstanceMap(java.lang.Class)}
-    /// @return instance map ; unmodified map
-    static <T extends Enum<T> & CodeEnum> Map<Integer, T> getInstanceMap(Class<T> clazz) throws IllegalArgumentException {
-        return EnumHelper.getCodeMap(clazz);
-    }
-
-    static Map<Integer, ? extends CodeEnum> getCodeToEnumMap(final Class<?> javaType) {
-        if (!(Enum.class.isAssignableFrom(javaType) && CodeEnum.class.isAssignableFrom(javaType))) {
-            String m = String.format("%s not %s type", javaType.getName(), CodeEnum.class.getName());
-            throw new IllegalArgumentException(m);
-        }
-        return EnumHelper.getCodeMap(javaType);
     }
 
 

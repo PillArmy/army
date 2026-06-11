@@ -20,7 +20,6 @@ import io.army.mapping.MappingType;
 import io.army.meta.SchemaMeta;
 import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
-import io.army.util._Exceptions;
 
 import java.util.Collection;
 import java.util.Map;
@@ -31,23 +30,7 @@ public interface SchemaComparer {
                          Map<String, MappingType> definedTypeMap);
 
     static SchemaComparer create(final ServerMeta serverMeta) {
-        final SchemaComparer comparer;
-        switch (serverMeta.serverDatabase()) {
-            case MySQL:
-                comparer = MySQLComparer.create(serverMeta);
-                break;
-            case PostgreSQL:
-                comparer = PostgreComparer.create(serverMeta);
-                break;
-            case SQLite:
-                comparer = SQLiteComparer.create(serverMeta);
-                break;
-            case Oracle:
-            case H2:
-            default:
-                throw _Exceptions.unexpectedEnum(serverMeta.serverDatabase());
-        }
-        return comparer;
+        return ArmySchemaComparer.createComparer(serverMeta);
     }
 
 }

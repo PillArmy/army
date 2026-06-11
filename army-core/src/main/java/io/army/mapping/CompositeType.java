@@ -30,6 +30,7 @@ import io.army.pojo.ObjectAccessor;
 import io.army.pojo.ObjectAccessorFactory;
 import io.army.sqltype.DataType;
 import io.army.struct.DefinedType;
+import io.army.struct.TypeCategory;
 import io.army.util.*;
 
 import java.util.List;
@@ -43,7 +44,9 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
     public static CompositeType from(final Class<?> javaType) {
         final DefinedType definedType = javaType.getAnnotation(DefinedType.class);
-        if (definedType == null || definedType.fieldOrder().length == 0) {
+        if (definedType == null
+                || definedType.category() != TypeCategory.COMPOSITE
+                || definedType.fieldOrder().length == 0) {
             throw errorJavaType(CompositeType.class, javaType);
         }
         return CLASS_VALUE.get(javaType);
@@ -55,19 +58,14 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
     private final Class<?> javaType;
 
-    private final String typeName;
+    private final DataType dataType;
 
     private final List<CompositeField> fieldList;
 
 
     private CompositeType(Class<?> javaType) {
         this.javaType = javaType;
-        final String typeName = AnnotationUtils.getDefinedTypeName(javaType);
-        if (typeName == null) {
-            // no bug,never here
-            throw new IllegalArgumentException();
-        }
-        this.typeName = typeName;
+        this.dataType = Objects.requireNonNull(AnnotationUtils.dataTypeOf(javaType, false));
         this.fieldList = List.copyOf(CompositeFieldFactory.forType(this));
     }
 
@@ -82,7 +80,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = DataType.from(this.typeName);
+                dataType = this.dataType;
                 break;
             case SQLite:
             case MySQL:
@@ -120,10 +118,6 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         return this.fieldList;
     }
 
-    @Override
-    public String typeName() {
-        return this.typeName;
-    }
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {

@@ -31,6 +31,7 @@ import io.army.session.FactoryBuilder;
 
 import java.time.ZoneOffset;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 
 /// The instance of this interface is created by the implementation of {@link FactoryBuilder}.
@@ -65,6 +66,11 @@ public interface DialectEnv {
     DefinedTypeMapFunc definedTypeMapFunc();
 
     Map<String, MappingType> nameToTypeMap();
+
+    @Nullable
+    default BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc() {
+        return null;
+    }
 
     /// temp property
     Map<String, String> typeNameToSchemaMap();

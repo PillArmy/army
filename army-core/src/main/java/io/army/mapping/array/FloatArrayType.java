@@ -27,36 +27,28 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
+import io.army.util._Assert;
+
+import java.util.Objects;
 
 public class FloatArrayType extends _ArmyBuildInArrayType {
 
 
-    public static FloatArrayType from(final Class<?> arrayClass) {
+    public static FloatArrayType from(final Class<?> javaType) {
         final FloatArrayType instance;
         final Class<?> componentType;
-        if (arrayClass == Float[].class) {
+        if (javaType == Float[].class) {
             instance = LINEAR;
-        } else if (arrayClass == float[].class) {
+        } else if (javaType == float[].class) {
             instance = PRIMITIVE_LINEAR;
-        } else if (!arrayClass.isArray()) {
-            throw errorJavaType(FloatArrayType.class, arrayClass);
-        } else if ((componentType = ArrayUtils.underlyingComponent(arrayClass)) == float.class
+        } else if (!javaType.isArray()) {
+            throw errorJavaType(FloatArrayType.class, javaType);
+        } else if ((componentType = ArrayUtils.underlyingComponent(javaType)) == float.class
                 || componentType == Float.class) {
-            instance = new FloatArrayType(arrayClass, componentType);
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
-            throw errorJavaType(FloatArrayType.class, arrayClass);
-        }
-        return instance;
-    }
-
-    public static FloatArrayType fromUnlimited(final Class<?> floatClass) {
-        final FloatArrayType instance;
-        if (floatClass == Float.class) {
-            instance = UNLIMITED;
-        } else if (floatClass == float.class) {
-            instance = PRIMITIVE_UNLIMITED;
-        } else {
-            throw errorJavaType(FloatArrayType.class, floatClass);
+            throw errorJavaType(FloatArrayType.class, javaType);
         }
         return instance;
     }
@@ -64,18 +56,23 @@ public class FloatArrayType extends _ArmyBuildInArrayType {
 
     public static final FloatArrayType UNLIMITED = new FloatArrayType(Object.class, Float.class);
 
-    public static final FloatArrayType LINEAR = new FloatArrayType(Float[].class, Float.class);
+    public static final FloatArrayType LINEAR = new FloatArrayType(Float[].class);
 
-    public static final FloatArrayType PRIMITIVE_LINEAR = new FloatArrayType(float[].class, float.class);
-
-    public static final FloatArrayType PRIMITIVE_UNLIMITED = new FloatArrayType(Object.class, float.class);
+    public static final FloatArrayType PRIMITIVE_LINEAR = new FloatArrayType(float[].class);
 
     private final Class<?> javaType;
 
     private final Class<?> underlyingJavaType;
 
     /// private constructor
-    private FloatArrayType(Class<?> javaType, Class<?> underlyingJavaType) {
+    private FloatArrayType(Class<?> javaType) {
+        this.javaType = javaType;
+        this.underlyingJavaType = ArrayUtils.underlyingComponent(javaType);
+    }
+
+    /// private constructor
+    private FloatArrayType(Class<Object> javaType, Class<?> underlyingJavaType) {
+        _Assert.isTrue(underlyingJavaType == Float.class, "");
         this.javaType = javaType;
         this.underlyingJavaType = underlyingJavaType;
     }
@@ -86,8 +83,41 @@ public class FloatArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
+    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
+        final DataType dataType;
+        switch (meta.serverDatabase()) {
+            case PostgreSQL:
+                dataType = PgType.REAL_ARRAY;
+                break;
+            case MySQL:
+            case SQLite:
+            case H2:
+            case Oracle:
+            default:
+                throw MAP_ERROR_HANDLER.apply(this, meta);
+        }
+        return dataType;
+    }
+
+    @Override
+    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, FloatArrayType::appendToText, dataType, this);
+    }
+
+    @Override
+    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return PostgreArrays.arrayAfterGet(this, dataType, source, false, FloatArrayType::parseText);
+    }
+
+    @Override
     public Class<?> underlyingJavaType() {
         return this.underlyingJavaType;
+    }
+
+
+    @Override
+    public MappingType underlyingType() {
+        return FloatType.INSTANCE;
     }
 
     @Override
@@ -111,32 +141,24 @@ public class FloatArrayType extends _ArmyBuildInArrayType {
         return from(ArrayUtils.arrayClassOf(javaType));
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.javaType, this.underlyingJavaType);
+    }
 
     @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        final DataType dataType;
-        switch (meta.serverDatabase()) {
-            case PostgreSQL:
-                dataType = PgType.REAL_ARRAY;
-                break;
-            case MySQL:
-            case SQLite:
-            case H2:
-            case Oracle:
-            default:
-                throw MAP_ERROR_HANDLER.apply(this, meta);
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof FloatArrayType o) {
+            match = o.javaType == this.javaType
+                    && o.underlyingJavaType == this.underlyingJavaType
+            ;
+        } else {
+            match = false;
         }
-        return dataType;
-    }
-
-    @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, FloatArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
-    }
-
-    @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, FloatArrayType::parseText, ACCESS_ERROR_HANDLER);
+        return match;
     }
 
 
@@ -152,6 +174,12 @@ public class FloatArrayType extends _ArmyBuildInArrayType {
             throw new IllegalArgumentException();
         }
         appender.append(element);
+    }
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<FloatArrayType> CLASS_VALUE = FuncClassValue.create(FloatArrayType::new);
+
     }
 
 

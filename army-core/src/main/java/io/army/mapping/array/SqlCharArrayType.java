@@ -28,23 +28,22 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
+
+import java.util.Objects;
 
 public class SqlCharArrayType extends _ArmyBuildInArrayType {
 
-    public static SqlCharArrayType from(final Class<?> arrayType) {
+    public static SqlCharArrayType from(final Class<?> javaType) {
         final SqlCharArrayType instance;
-        if (arrayType == String[].class) {
+        if (javaType == String[].class) {
             instance = LINEAR;
-        } else if (arrayType.isArray() && ArrayUtils.underlyingComponent(arrayType) == String.class) {
-            instance = new SqlCharArrayType(arrayType);
+        } else if (javaType.isArray() && ArrayUtils.underlyingComponent(javaType) == String.class) {
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
-            throw errorJavaType(SqlCharArrayType.class, arrayType);
+            throw errorJavaType(SqlCharArrayType.class, javaType);
         }
         return instance;
-    }
-
-    public static SqlCharArrayType fromUnlimited() {
-        return UNLIMITED;
     }
 
 
@@ -60,40 +59,12 @@ public class SqlCharArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public Class<?> javaType() {
+    public final Class<?> javaType() {
         return this.javaType;
     }
 
     @Override
-    public Class<?> underlyingJavaType() {
-        return String.class;
-    }
-
-    @Override
-    public MappingType elementType() {
-        final Class<?> javaType = this.javaType;
-        final MappingType instance;
-        if (javaType == Object.class) {
-            instance = this;
-        } else if (javaType == String[].class) {
-            instance = SqlCharType.INSTANCE;
-        } else {
-            instance = from(javaType.getComponentType());
-        }
-        return instance;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        final Class<?> javaType = this.javaType;
-        if (javaType == Object.class) { // unlimited dimension array
-            return this;
-        }
-        return from(ArrayUtils.arrayClassOf(javaType));
-    }
-
-    @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
+    public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
         final SQLType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
@@ -110,17 +81,70 @@ public class SqlCharArrayType extends _ArmyBuildInArrayType {
 
 
     @Override
-    public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, TextArrayType::appendToText, dataType, this,
-                PARAM_ERROR_HANDLER
-        );
+    public final String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, TextArrayType::appendToText, dataType, this);
     }
 
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false,
-                PostgreArrays::decodeElement, ACCESS_ERROR_HANDLER
-        );
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return PostgreArrays.arrayAfterGet(this, dataType, source, PostgreArrays::decodeElement);
+    }
+
+    @Override
+    public final Class<?> underlyingJavaType() {
+        return String.class;
+    }
+
+    @Override
+    public final MappingType underlyingType() {
+        return SqlCharType.INSTANCE;
+    }
+
+    @Override
+    public final MappingType elementType() {
+        final Class<?> javaType = this.javaType;
+        final MappingType instance;
+        if (javaType == Object.class) {
+            instance = this;
+        } else if (javaType == String[].class) {
+            instance = SqlCharType.INSTANCE;
+        } else {
+            instance = from(javaType.getComponentType());
+        }
+        return instance;
+    }
+
+    @Override
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
+        final Class<?> javaType = this.javaType;
+        if (javaType == Object.class) { // unlimited dimension array
+            return this;
+        }
+        return from(ArrayUtils.arrayClassOf(javaType));
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(this.javaType);
+    }
+
+    @Override
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof SqlCharArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
+    }
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<SqlCharArrayType> CLASS_VALUE = FuncClassValue.create(SqlCharArrayType::new);
+
     }
 
 

@@ -225,6 +225,28 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
     public static Object arrayAfterGet(MappingType type, DataType dataType, final Object source,
+                                       final TextFunction<?> elementFunc) {
+        final Class<?> javaType = type.javaType();
+        if (javaType != Object.class && javaType.isInstance(source)) {
+            return source;
+        }
+        if (!(source instanceof String)) {
+            throw UserMappingType.dataAccessError(type, dataType, source, null);
+        }
+        final ItemsParser parser;
+        if (dataType == PgType.BOX_ARRAY) {
+            parser = ItemsParser.builder()
+                    .delimForCurly(';')
+                    .build();
+        } else {
+            parser = ItemsParser.defaultParser();
+        }
+        final String text = (String) source;
+        parser.parseItems(text, 0, text.length(), elementFunc);
+        throw new UnsupportedOperationException();
+    }
+
+    public static Object arrayAfterGet(MappingType type, DataType dataType, final Object source,
                                        final boolean nonNull, final TextFunction<?> elementFunc, ErrorHandler errorHandler) {
         final Object value;
         final Class<?> javaType = type.javaType(), sourceType = source.getClass();

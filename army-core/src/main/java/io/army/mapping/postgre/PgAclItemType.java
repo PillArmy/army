@@ -20,16 +20,16 @@ import io.army.criteria.CriteriaException;
 import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
+import io.army.mapping.IntegerType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping._ArmyBuildInType;
-import io.army.mapping.postgre.array.PostgreAclItemArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 
 
-/// 
+///
 /// This class representing Postgre aclitem type {@link MappingType}
 /// * @see <a href="https://www.postgresql.org/docs/current/ddl-priv.html">Privileges</a>
 public final class PgAclItemType extends _ArmyBuildInType {
@@ -61,15 +61,11 @@ public final class PgAclItemType extends _ArmyBuildInType {
         return PgType.ACLITEM;
     }
 
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return PostgreAclItemArrayType.LINEAR;
-    }
 
     @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         if (!(source instanceof String)) {
-            throw PARAM_ERROR_HANDLER.apply(this, dataType, source, null);
+            throw paramError(this, dataType, source, null);
         }
         return source;
     }
@@ -77,9 +73,19 @@ public final class PgAclItemType extends _ArmyBuildInType {
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         if (!(source instanceof String)) {
-            throw ACCESS_ERROR_HANDLER.apply(this, dataType, source, null);
+            throw dataAccessError(this, dataType, source, null);
         }
         return source;
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof IntegerType;
     }
 
 

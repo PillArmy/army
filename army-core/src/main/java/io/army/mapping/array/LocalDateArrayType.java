@@ -29,28 +29,26 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class LocalDateArrayType extends _ArmyBuildInArrayType {
 
 
-    public static LocalDateArrayType from(final Class<?> arrayClass) {
+    public static LocalDateArrayType from(final Class<?> javaType) {
         final LocalDateArrayType instance;
-        if (arrayClass == LocalDate[].class) {
+        if (javaType == LocalDate[].class) {
             instance = LINEAR;
-        } else if (!arrayClass.isArray()) {
-            throw errorJavaType(LocalDateArrayType.class, arrayClass);
-        } else if (ArrayUtils.underlyingComponent(arrayClass) == LocalDate.class) {
-            instance = new LocalDateArrayType(arrayClass);
+        } else if (!javaType.isArray()) {
+            throw errorJavaType(LocalDateArrayType.class, javaType);
+        } else if (ArrayUtils.underlyingComponent(javaType) == LocalDate.class) {
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         } else {
-            throw errorJavaType(LocalDateArrayType.class, arrayClass);
+            throw errorJavaType(LocalDateArrayType.class, javaType);
         }
         return instance;
-    }
-
-    public static LocalDateArrayType fromUnlimited() {
-        return UNLIMITED;
     }
 
 
@@ -66,17 +64,42 @@ public class LocalDateArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public Class<?> javaType() {
+    public final Class<?> javaType() {
         return this.javaType;
     }
 
+
     @Override
-    public Class<?> underlyingJavaType() {
+    public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
+        return mapToSqlType(this, meta);
+    }
+
+    @Override
+    public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, LocalDateArrayType::appendToText, dataType, this,
+                PARAM_ERROR_HANDLER
+        );
+    }
+
+    @Override
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return PostgreArrays.arrayAfterGet(this, dataType, source, false,
+                LocalDateArrayType::parseText, ACCESS_ERROR_HANDLER
+        );
+    }
+
+    @Override
+    public final Class<?> underlyingJavaType() {
         return LocalDate.class;
     }
 
     @Override
-    public MappingType elementType() {
+    public final MappingType underlyingType() {
+        return LocalDateType.INSTANCE;
+    }
+
+    @Override
+    public final MappingType elementType() {
         final MappingType instance;
         final Class<?> javaType = this.javaType;
         if (javaType == Object.class) {
@@ -90,7 +113,7 @@ public class LocalDateArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
         final Class<?> javaType = this.javaType;
         if (javaType == Object.class) { // unlimited dimension array
             return this;
@@ -98,23 +121,23 @@ public class LocalDateArrayType extends _ArmyBuildInArrayType {
         return from(ArrayUtils.arrayClassOf(javaType));
     }
 
+
     @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        return mapToSqlType(this, meta);
+    public final int hashCode() {
+        return Objects.hash(this.javaType);
     }
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, LocalDateArrayType::appendToText, dataType, this,
-                PARAM_ERROR_HANDLER
-        );
-    }
-
-    @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false,
-                LocalDateArrayType::parseText, ACCESS_ERROR_HANDLER
-        );
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof LocalDateArrayType o) {
+            match = o.javaType == this.javaType;
+        } else {
+            match = false;
+        }
+        return match;
     }
 
     /*-------------------below static methods -------------------*/
@@ -154,6 +177,12 @@ public class LocalDateArrayType extends _ArmyBuildInArrayType {
         appender.append(_Constant.DOUBLE_QUOTE);
         appender.append(element);
         appender.append(_Constant.DOUBLE_QUOTE);
+
+    }
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<LocalDateArrayType> CLASS_VALUE = FuncClassValue.create(LocalDateArrayType::new);
 
     }
 

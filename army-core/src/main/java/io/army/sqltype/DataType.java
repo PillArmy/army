@@ -17,6 +17,7 @@
 package io.army.sqltype;
 
 import io.army.criteria.TypeDef;
+import io.army.lang.Nullable;
 import io.army.meta.TypeObject;
 
 /// This is base interface of following:
@@ -28,7 +29,7 @@ import io.army.meta.TypeObject;
 public interface DataType extends TypeDef, TypeObject {
 
 
-    /// SQL type's alias (not type name) in java language.
+    /// SQL type's alias (not type name) in Java language.
     ///
     /// @see #typeName()
     /// @see Enum#name()
@@ -39,6 +40,8 @@ public interface DataType extends TypeDef, TypeObject {
 
     boolean isArray();
 
+    ArmyType armyType();
+
     @Override
     default String objectName() {
         return typeName();
@@ -47,6 +50,16 @@ public interface DataType extends TypeDef, TypeObject {
     default String safeTypeAlias() {
         return typeName();
     }
+
+    ///
+    /// For example:
+    ///
+    /// - one dimension BIGINT_ARRAY return BIGINT
+    /// - tow dimension BIGINT_ARRAY return BIGINT too
+    ///
+    /// @return element type of array(1-n dimension)
+    @Nullable
+    DataType elementType();
 
     TypeDef parens(long precision);
 
@@ -70,7 +83,11 @@ public interface DataType extends TypeDef, TypeObject {
     /// @return {@link DataType} instance
     /// @see #from(String, boolean)
     static CustomType from(String typeName) {
-        return DataTypeFactory.typeFrom(typeName, false);
+        return from(typeName, ArmyType.USER_DEFINED);
+    }
+
+    static CustomType from(String typeName, ArmyType armyType) {
+        return DataTypeFactory.typeFrom(typeName, armyType, false);
     }
 
     /// Get one {@link DataType} instance
@@ -82,7 +99,7 @@ public interface DataType extends TypeDef, TypeObject {
     /// @return {@link DataType} that representing user-defined type.
     /// @throws IllegalArgumentException throw when typeName have no text.
     static CustomType from(String typeName, boolean caseSensitivity) {
-        return DataTypeFactory.typeFrom(typeName, caseSensitivity);
+        return DataTypeFactory.typeFrom(typeName, ArmyType.USER_DEFINED, caseSensitivity);
     }
 
 }

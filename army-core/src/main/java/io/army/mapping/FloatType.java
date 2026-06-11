@@ -40,7 +40,7 @@ import java.math.BigInteger;
 /// 
 /// to {@link Float},if overflow,throw {@link io.army.ArmyException}
 /// * @since 0.6.0
-public final class FloatType extends _NumericType._FloatNumericType {
+public final class FloatType extends _ArmyNoInjectionType implements MappingType.SqlFloat {
 
 
     public static FloatType from(final Class<?> fieldType) {

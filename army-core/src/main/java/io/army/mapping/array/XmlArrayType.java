@@ -22,6 +22,7 @@ import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
+import io.army.mapping.XmlType;
 import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
@@ -29,22 +30,28 @@ import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
 
-public final class XmlArrayType extends _ArmyBuildInArrayType {
+import java.util.Objects;
+
+public class XmlArrayType extends _ArmyBuildInArrayType {
 
 
     public static XmlArrayType from(final Class<?> javaType) {
-        if (!javaType.isArray()) {
+        final XmlArrayType instance;
+        if (javaType == String[].class) {
+            instance = TEXT_LINEAR;
+        } else if (!javaType.isArray()) {
+            throw errorJavaType(XmlArrayType.class, javaType);
+        } else if (ArrayUtils.underlyingComponent(javaType) == String.class) {
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
+        } else {
             throw errorJavaType(XmlArrayType.class, javaType);
         }
-        return CLASS_VALUE.get(javaType);
+        return instance;
     }
 
     public static final XmlArrayType UNLIMITED = new XmlArrayType(Object.class);
 
     public static final XmlArrayType TEXT_LINEAR = new XmlArrayType(String[].class);
-
-    private static final ClassValue<XmlArrayType> CLASS_VALUE = FuncClassValue.create(XmlArrayType::new);
-
 
     private final Class<?> javaType;
 
@@ -60,39 +67,70 @@ public final class XmlArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public Class<?> javaType() {
+    public final Class<?> javaType() {
         return this.javaType;
     }
 
     @Override
-    public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
+    public final DataType map(final ServerMeta meta) throws UnsupportedDialectException {
         if (meta.serverDatabase() != Database.PostgreSQL) {
             throw MAP_ERROR_HANDLER.apply(this, meta);
         }
-        return PgType.VARCHAR_ARRAY;
+        return PgType.XML_ARRAY;
     }
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+    public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         // TODO
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         // TODO
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Class<?> underlyingJavaType() {
+    public final Class<?> underlyingJavaType() {
         return this.underlyingType;
     }
 
     @Override
-    public MappingType elementType() {
+    public final MappingType underlyingType() {
+        return XmlType.from(this.underlyingType);
+    }
+
+    @Override
+    public final MappingType elementType() {
         // TODO
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(this.javaType, this.underlyingType);
+    }
+
+    @Override
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof XmlArrayType o) {
+            match = o.javaType == this.javaType
+                    && o.underlyingType == this.underlyingType;
+        } else {
+            match = false;
+        }
+        return match;
+    }
+
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<XmlArrayType> CLASS_VALUE = FuncClassValue.create(XmlArrayType::new);
+
     }
 
 

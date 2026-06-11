@@ -26,18 +26,6 @@ public final class NullType extends _ArmyBuildInType {
         return Object.class;
     }
 
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return super.arrayTypeOfThis();
-    }
-
-    @Override
-    public <Z> MappingType compatibleFor(DataType dataType, Class<Z> targetType) throws NoMatchMappingException {
-        // always return this
-        return this;
-    }
-
     @Override
     public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
         final SQLType type;
@@ -62,6 +50,23 @@ public final class NullType extends _ArmyBuildInType {
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         throw new UnsupportedOperationException("bug,never here");
+    }
+
+
+    @Override
+    public <Z> MappingType compatibleFor(DataType dataType, Class<Z> targetType) throws NoMatchMappingException {
+        // always return this
+        return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof NullType;
     }
 
 

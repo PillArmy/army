@@ -17,7 +17,8 @@
 package io.army.mapping.array;
 
 import io.army.criteria.CriteriaException;
-import io.army.dialect.TypeMappingHandler;
+import io.army.dialect.MappingHandler;
+import io.army.dialect.TypeMappingBundle;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.function.TextFunction;
@@ -33,43 +34,42 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 /// The array type of {@link io.army.mapping.MappingTypeType}
-public final class MappingTypeArrayType extends _ArmyBuildInArrayType {
+public class MappingTypeArrayType extends _ArmyBuildInArrayType {
 
     public static MappingTypeArrayType from(Class<?> javaType) {
         if (!javaType.isArray()) {
             throw errorJavaType(MappingTypeArrayType.class, javaType);
         }
-        final Class<?> underlyingType = ArrayUtils.underlyingComponent(javaType);
-        if (!MappingType.class.isAssignableFrom(underlyingType)) {
+        if (ArrayUtils.underlyingComponent(javaType) != MappingType.class) {
             throw errorJavaType(MappingTypeArrayType.class, javaType);
         }
-        return new MappingTypeArrayType(javaType, underlyingType);
+        return new MappingTypeArrayType(javaType);
     }
 
 
-    private final Class<?> arrayClass;
+    private final Class<?> javaType;
 
     private final Class<?> underlyingType;
 
     /// private constructor
-    private MappingTypeArrayType(Class<?> arrayClass, Class<?> underlyingType) {
-        this.arrayClass = arrayClass;
-        this.underlyingType = underlyingType;
+    private MappingTypeArrayType(Class<?> javaType) {
+        this.javaType = javaType;
+        this.underlyingType = ArrayUtils.underlyingComponent(javaType);
     }
 
     @Override
-    public Class<?> javaType() {
-        return this.arrayClass;
+    public final Class<?> javaType() {
+        return this.javaType;
     }
 
     @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
+    public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
         return StringArrayType.mapToSqlType(this, meta);
     }
 
     @Override
-    public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        if (!this.arrayClass.isInstance(source)) {
+    public final String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        if (!this.javaType.isInstance(source)) {
             throw paramError(this, dataType, source, null);
         }
         final ServerMeta serverMeta = env.serverMeta();
@@ -89,40 +89,44 @@ public final class MappingTypeArrayType extends _ArmyBuildInArrayType {
 
 
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        if (this.arrayClass.isInstance(source)) {
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        if (this.javaType.isInstance(source)) {
             return source;
         }
-        final TypeMappingHandler func = env.typeMapFunc();
-        final MappingType[] holder = new MappingType[1];
+        final MappingHandler handler = env.mappingHandler();
         final TextFunction<MappingType> function;
         function = (text, offset, end) -> {
-            holder[0] = null;
+            final TypeMappingBundle bundle;
             try {
-                func.apply(text.substring(offset, end), holder, 0);
-            } catch (IllegalArgumentException e) {
+                bundle = handler.apply(text.substring(offset, end));
+            } catch (Exception e) {
                 throw dataAccessError(this, dataType, source, e);
             }
-            return Objects.requireNonNull(holder[0]);
+            return bundle.mappingType;
         };
         return PostgreArrays.arrayAfterGet(this, dataType, source, false, function);
     }
 
 
     @Override
-    public Class<?> underlyingJavaType() {
+    public final Class<?> underlyingJavaType() {
         return this.underlyingType;
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return from(ArrayUtils.arrayClassOf(this.arrayClass));
+    public final MappingType underlyingType() {
+        return MappingTypeType.INSTANCE;
+    }
+
+    @Override
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
+        return from(ArrayUtils.arrayClassOf(this.javaType));
     }
 
 
     @Override
-    public MappingType elementType() {
-        final Class<?> component = this.arrayClass.componentType();
+    public final MappingType elementType() {
+        final Class<?> component = this.javaType.componentType();
         final MappingType type;
         if (component.isArray()) {
             type = from(component);
@@ -134,17 +138,17 @@ public final class MappingTypeArrayType extends _ArmyBuildInArrayType {
 
 
     @Override
-    public int hashCode() {
-        return Objects.hash(this.arrayClass);
+    public final int hashCode() {
+        return Objects.hash(this.javaType);
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public final boolean equals(final Object obj) {
         final boolean match;
         if (obj == this) {
             match = true;
         } else if (obj instanceof MappingTypeArrayType o) {
-            match = o.arrayClass == this.arrayClass;
+            match = o.javaType == this.javaType;
         } else {
             match = false;
         }

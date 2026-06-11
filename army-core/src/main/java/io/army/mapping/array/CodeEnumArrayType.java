@@ -22,17 +22,19 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.CodeEnumType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInArrayType; 
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.struct.CodeEnum;
 import io.army.struct.TextEnum;
 import io.army.util.ArrayUtils;
-import io.army.util.ClassUtils;
+import io.army.util.FuncClassValue;
 
 import java.util.Map;
+import java.util.Objects;
 
 /// This class is mapping class of {@link CodeEnum}.
+///
 /// @see CodeEnumType
 public class CodeEnumArrayType extends _ArmyBuildInArrayType {
 
@@ -49,43 +51,23 @@ public class CodeEnumArrayType extends _ArmyBuildInArrayType {
         } else if (TextEnum.class.isAssignableFrom(enumClass)) {
             throw errorJavaType(CodeEnumArrayType.class, enumClass);
         }
-        return INSTANCE_CLASS_VALUE.get(javaType);
-    }
-
-    public static CodeEnumArrayType fromUnlimited(final Class<?> enumClass) {
-        if (!(Enum.class.isAssignableFrom(enumClass) && CodeEnum.class.isAssignableFrom(enumClass))) {
-            throw errorJavaType(CodeEnumArrayType.class, enumClass);
-        } else if (TextEnum.class.isAssignableFrom(enumClass)) {
-            throw errorJavaType(CodeEnumArrayType.class, enumClass);
-        }
-        return INSTANCE_CLASS_VALUE.get(ClassUtils.enumClass(enumClass));
+        return CLASS_VALUE.get(javaType);
     }
 
 
-    private static final ClassValue<CodeEnumArrayType> INSTANCE_CLASS_VALUE = new ClassValue<>() {
-        @Override
-        protected CodeEnumArrayType computeValue(final Class<?> type) {
-            final CodeEnumArrayType arrayType;
-            if (Enum.class.isAssignableFrom(type)) { // fromUnlimited()
-                arrayType = new CodeEnumArrayType(Object.class, type);
-            } else {
-                arrayType = new CodeEnumArrayType(type, ArrayUtils.underlyingComponent(type));
-            }
-            return arrayType;
-        }
-    };
+    private static final ClassValue<CodeEnumArrayType> CLASS_VALUE = FuncClassValue.create(CodeEnumArrayType::new);
 
     private final Class<?> javaType;
 
     private final Class<?> enumClass;
 
-    private final Map<Integer, ? extends CodeEnum> codeMap;
+    private final Map<Integer, CodeEnum> codeMap;
 
     /// private constructor
-    private CodeEnumArrayType(Class<?> javaType, Class<?> enumClass) {
+    private CodeEnumArrayType(Class<?> javaType) {
         this.javaType = javaType;
-        this.enumClass = enumClass;
-        this.codeMap = CodeEnum.getCodeToEnumMap(enumClass);
+        this.enumClass = ArrayUtils.underlyingComponent(javaType);
+        this.codeMap = Map.copyOf(CodeEnumType.createCodeMap(this.enumClass));
     }
 
     @Override
@@ -94,8 +76,30 @@ public class CodeEnumArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
+    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
+        return IntegerArrayType.mapToDataType(this, meta);
+    }
+
+    @Override
+    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, this::appendToText, dataType, this, PARAM_ERROR_HANDLER);
+    }
+
+    @Override
+    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        return PostgreArrays.arrayAfterGet(this, dataType, source, false, this::parseText, ACCESS_ERROR_HANDLER);
+    }
+
+
+    @Override
     public Class<?> underlyingJavaType() {
         return this.enumClass;
+    }
+
+
+    @Override
+    public MappingType underlyingType() {
+        return CodeEnumType.from(this.enumClass);
     }
 
     @Override
@@ -122,19 +126,29 @@ public class CodeEnumArrayType extends _ArmyBuildInArrayType {
         return from(ArrayUtils.arrayClassOf(javaType));
     }
 
-    @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        return IntegerArrayType.mapToDataType(this, meta);
+    /// @return an unmodifiable map
+    @SuppressWarnings("unused")
+    public final Map<Integer, CodeEnum> getCodeMap() {
+        return this.codeMap;
     }
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, this::appendToText, dataType, this, PARAM_ERROR_HANDLER);
+    public int hashCode() {
+        return Objects.hash(this.javaType, this.enumClass);
     }
 
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, this::parseText, ACCESS_ERROR_HANDLER);
+    public boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof CodeEnumArrayType o) {
+            match = o.javaType == this.javaType
+                    && o.enumClass == this.enumClass;
+        } else {
+            match = false;
+        }
+        return match;
     }
 
 

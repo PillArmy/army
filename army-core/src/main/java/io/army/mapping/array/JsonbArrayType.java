@@ -27,64 +27,28 @@ import io.army.util.ArrayUtils;
 
 public class JsonbArrayType extends ArmyJsonArrayType {
 
-    public static JsonbArrayType from(final Class<?> arrayClass) {
+    public static JsonbArrayType from(final Class<?> javaType) {
         final JsonbArrayType instance;
-        if (!arrayClass.isArray()) {
-            throw errorJavaType(JsonbArrayType.class, arrayClass);
-        } else if (arrayClass == String[].class) {
+        if (!javaType.isArray()) {
+            throw errorJavaType(JsonbArrayType.class, javaType);
+        } else if (javaType == String[].class) {
             instance = TEXT_LINEAR;
         } else {
-            instance = new JsonbArrayType(arrayClass, ArrayUtils.underlyingComponent(arrayClass));
+            instance = new JsonbArrayType(javaType);
         }
         return instance;
     }
 
-    public static JsonbArrayType fromUnlimited(final Class<?> underlyingJavaType) {
-        final JsonbArrayType instance;
-        if (underlyingJavaType == String.class) {
-            instance = TEXT_UNLIMITED;
-        } else if (underlyingJavaType.isArray()) {
-            throw errorJavaType(JsonbArrayType.class, underlyingJavaType);
-        } else {
-            instance = new JsonbArrayType(Object.class, underlyingJavaType);
-        }
-        return instance;
-    }
 
-    public static final JsonbArrayType TEXT_LINEAR = new JsonbArrayType(String[].class, String.class);
-
-    public static final JsonbArrayType TEXT_UNLIMITED = new JsonbArrayType(Object.class, String.class);
+    public static final JsonbArrayType TEXT_LINEAR = new JsonbArrayType(String[].class);
 
     /// private constructor
-    private JsonbArrayType(Class<?> javaType, Class<?> underlyingJavaType) {
-        super(javaType, underlyingJavaType);
+    private JsonbArrayType(Class<?> javaType) {
+        super(javaType, ArrayUtils.underlyingComponent(javaType));
     }
 
     @Override
-    public MappingType elementType() {
-        final MappingType instance;
-        final Class<?> javaType = this.javaType;
-        if (javaType == Object.class) {
-            instance = this;
-        } else if (ArrayUtils.dimensionOf(javaType) == 1) {
-            instance = JsonbType.from(this.underlyingJavaType);
-        } else {
-            instance = from(javaType.getComponentType());
-        }
-        return instance;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        final Class<?> javaType = this.javaType;
-        if (javaType == Object.class) { // unlimited dimension array
-            return this;
-        }
-        return from(ArrayUtils.arrayClassOf(javaType));
-    }
-
-    @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
+    public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
@@ -100,6 +64,28 @@ public class JsonbArrayType extends ArmyJsonArrayType {
         return dataType;
     }
 
+
+    @Override
+    public MappingType underlyingType() {
+        return JsonbType.from(this.underlyingJavaType);
+    }
+
+    @Override
+    public final MappingType elementType() {
+        final MappingType instance;
+        final Class<?> javaType = this.javaType;
+        if (ArrayUtils.dimensionOf(javaType) == 1) {
+            instance = JsonbType.from(this.underlyingJavaType);
+        } else {
+            instance = from(javaType.getComponentType());
+        }
+        return instance;
+    }
+
+    @Override
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
+        return from(ArrayUtils.arrayClassOf(this.javaType));
+    }
 
 
 }

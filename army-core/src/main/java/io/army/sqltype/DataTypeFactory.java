@@ -18,12 +18,13 @@ package io.army.sqltype;
 
 import io.army.criteria.TypeDef;
 import io.army.criteria.impl._SQLConsultant;
+import io.army.lang.Nullable;
 import io.army.util._Collections;
 import io.army.util._StringUtils;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
 
 abstract class DataTypeFactory {
 
@@ -32,14 +33,14 @@ abstract class DataTypeFactory {
     }
 
 
-    static DataType.CustomType typeFrom(String typeName, final boolean caseSensitivity) {
+    static DataType.CustomType typeFrom(String typeName, final ArmyType armyType, final boolean caseSensitivity) {
         if (!_StringUtils.hasText(typeName)) {
             throw new IllegalArgumentException("typeName must have text");
         }
         if (!caseSensitivity) {
             typeName = typeName.toUpperCase(Locale.ROOT);
         }
-        return ArmyDataType.INSTANCE_MAP.computeIfAbsent(typeName, ArmyDataType.CONSTRUCTOR);
+        return ArmyDataType.INSTANCE_MAP.computeIfAbsent(typeName, key -> new ArmyDataType(key, armyType));
     }
 
 
@@ -47,12 +48,19 @@ abstract class DataTypeFactory {
 
         private static final ConcurrentMap<String, ArmyDataType> INSTANCE_MAP = _Collections.concurrentHashMap();
 
-        private static final Function<String, ArmyDataType> CONSTRUCTOR = ArmyDataType::new;
-
         private final String dataTypeName;
 
-        private ArmyDataType(String dataTypeName) {
+        private final ArmyType armyType;
+
+        public ArmyDataType(String dataTypeName, ArmyType armyType) {
             this.dataTypeName = dataTypeName;
+
+            if (isArray()) {
+                this.armyType = ArmyType.ARRAY;
+            } else {
+                this.armyType = armyType;
+            }
+
         }
 
         @Override
@@ -63,6 +71,11 @@ abstract class DataTypeFactory {
         @Override
         public Class<?> javaType() {
             return String.class;
+        }
+
+        @Override
+        public ArmyType armyType() {
+            return this.armyType;
         }
 
         @Override
@@ -77,7 +90,7 @@ abstract class DataTypeFactory {
 
         @Override
         public boolean isArray() {
-            return this.dataTypeName.endsWith("[]");
+            return this.dataTypeName.endsWith("[]") || this.dataTypeName.startsWith("_");
         }
 
         @Override
@@ -94,6 +107,38 @@ abstract class DataTypeFactory {
         @Override
         public TypeDef parens(final int precision, final int scale) {
             return _SQLConsultant.precisionAndScale(this, precision, scale, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        }
+
+        @Nullable
+        @Override
+        public DataType elementType() {
+            DataType dataType;
+            if (this.dataTypeName.endsWith("[]")) {
+                dataType = DataType.from(this.dataTypeName.substring(0, this.dataTypeName.length() - 2));
+            } else if (this.dataTypeName.startsWith("_")) {
+                dataType = DataType.from(this.dataTypeName.substring(1));
+            } else {
+                dataType = null;
+            }
+            return dataType;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.dataTypeName);
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            final boolean match;
+            if (obj == this) {
+                match = true;
+            } else if (obj instanceof ArmyDataType o) {
+                match = o.dataTypeName.equals(this.dataTypeName);
+            } else {
+                match = false;
+            }
+            return match;
         }
 
         @Override

@@ -20,7 +20,8 @@ import io.army.ArmyException;
 import io.army.criteria.SQLParam;
 import io.army.criteria.Selection;
 import io.army.criteria.TypedSelection;
-import io.army.dialect.TypeMappingHandler;
+import io.army.dialect.MappingHandler;
+import io.army.dialect.TypeMappingBundle;
 import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.executor.DriverException;
@@ -88,7 +89,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
     private final long identifier;
 
-    private final TypeMappingHandler typeMappingHandler;
+    private final MappingHandler typeMappingHandler;
 
     /// True : application developer have got the {@link Connection} instance,
     /// so {@link TransactionInfo} perhaps error.
@@ -105,7 +106,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
         } else {
             this.identifier = 0L;
         }
-        this.typeMappingHandler = factory.mappingEnv.typeMapFunc();
+        this.typeMappingHandler = factory.mappingEnv.mappingHandler();
     }
 
 
@@ -399,7 +400,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                        DataType dataType, Object value)
             throws SQLException;
 
-
+    /// No need to handle null values, as java.sql.ResultSet#wasNull has already been invoked at the upper layer.
     @Nullable
     abstract Object get(ResultSet resultSet, int indexBasedOne, MappingType type, DataType dataType) throws SQLException;
 
@@ -1220,23 +1221,35 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
 
         Selection selection;
         TypeMeta typeMeta;
+        TypeMappingBundle bundle;
         for (int i = 0; i < columnCount; i++) {
 
-            dataTypeArray[i] = this.typeMappingHandler.apply(meta.getColumnTypeName(i + 1), typeArray, i);
+            bundle = this.typeMappingHandler.apply(meta.getColumnTypeName(i + 1));
+            dataTypeArray[i] = bundle.dataType;
+            typeArray[i] = bundle.mappingType;
 
             if (selectionList == null) {
                 continue;
             }
+
             selection = selectionList.get(i);
+
             if (!(selection instanceof TypedSelection)) {
                 continue;
             }
+
             typeMeta = ((TypedSelection) selection).typeMeta();
             if (!(typeMeta instanceof MappingType)) {
                 typeMeta = typeMeta.mappingType();
             }
+            if (typeMeta == null) {
+                throw new IllegalStateException("bug");
+            }
             typeArray[i] = (MappingType) typeMeta;
-        }
+
+
+        } // loop
+
     }
 
 
@@ -1677,8 +1690,11 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                 idColumnIndexBaseOne = idSelectionIndex + 1;
             }
 
+            final TypeMappingBundle bundle;
+            bundle = this.typeMappingHandler.apply(resultSet.getMetaData().getColumnTypeName(1));
+
             final DataType sqlType;
-            sqlType = this.typeMappingHandler.apply(resultSet.getMetaData().getColumnTypeName(1), new MappingType[1], 0);
+            sqlType = bundle.dataType;
 
             final MappingEnv env = this.factory.mappingEnv;
             final int rowSize = stmt.rowSize();
@@ -1694,14 +1710,19 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
                     }
                     throw _Exceptions.insertedRowsAndGenerateIdNotMatch(rowSize, rowIndex + 1);
                 }
-                idValue = get(resultSet, idColumnIndexBaseOne, type, sqlType);
+
+                if (resultSet.wasNull()) {
+                    idValue = null;
+                } else {
+                    idValue = get(resultSet, idColumnIndexBaseOne, type, sqlType);
+                }
                 if (idValue == null) {
                     throw _Exceptions.idValueIsNull(rowIndex, idField);
                 }
                 if (rowIndex == 0 && firstIdHolder != null) {
                     if (idValue instanceof Long || idValue instanceof Integer) {
                         firstIdHolder[0] = ((Number) idValue).longValue();
-                    } else if (idValue instanceof BigInteger && UnsignedBigintType.MAX_VALUE.compareTo((BigInteger) idValue) >= 0) {
+                    } else if (idValue instanceof BigInteger && BigintUnsignedType.MAX_VALUE.compareTo((BigInteger) idValue) >= 0) {
                         firstIdHolder[0] = ((BigInteger) idValue).longValueExact();
                     } else {
                         String m = String.format("database server auto increment id type %s is unsupported by army", idValue.getClass().getSimpleName());
@@ -2055,10 +2076,10 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             try {
 
                 Object value;
-                value = this.executor.get(resultSet, indexBasedZero + 1, type, dataType);
-
-                if (value == null) {
-                    return null;
+                if (resultSet.wasNull()) {
+                    value = null;
+                } else {
+                    value = this.executor.get(resultSet, indexBasedZero + 1, type, dataType);
                 }
 
                 // TODO 解密 ,脱敏

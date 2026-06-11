@@ -18,7 +18,7 @@ package io.army.mapping;
 
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
-import io.army.dialect.TypeMappingHandler;
+import io.army.dialect.MappingHandler;
 import io.army.function.DecodeLiteralFunc;
 import io.army.function.SafeLiteralFunc;
 import io.army.lang.Nullable;
@@ -48,7 +48,7 @@ final class ArmyMappingEnv implements MappingEnv {
 
     private final DecodeLiteralFunc decodeFunc;
 
-    private final TypeMappingHandler typeMapFunction;
+    private final MappingHandler typeMapFunction;
 
 
     private ArmyMappingEnv(EnvBuilder builder) {
@@ -116,7 +116,7 @@ final class ArmyMappingEnv implements MappingEnv {
     }
 
     @Override
-    public TypeMappingHandler typeMapFunc() {
+    public MappingHandler mappingHandler() {
         return this.typeMapFunction;
     }
 
@@ -156,7 +156,7 @@ final class ArmyMappingEnv implements MappingEnv {
 
         private DecodeLiteralFunc decodeFunction;
 
-        private TypeMappingHandler typeMapFunction;
+        private MappingHandler typeMapFunction;
 
         @Override
         public Builder reactive(boolean yes) {
@@ -201,7 +201,7 @@ final class ArmyMappingEnv implements MappingEnv {
         }
 
         @Override
-        public Builder typeMapFunc(TypeMappingHandler func) {
+        public Builder mappingHandler(MappingHandler func) {
             this.typeMapFunction = func;
             return this;
         }

@@ -24,44 +24,56 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
 
 public class JsonArrayType extends ArmyJsonArrayType {
 
-    public static JsonArrayType from(final Class<?> arrayClass) {
+    public static JsonArrayType from(final Class<?> javaType) {
         final JsonArrayType instance;
-        if (!arrayClass.isArray()) {
-            throw errorJavaType(JsonArrayType.class, arrayClass);
-        } else if (arrayClass == String[].class) {
+        if (!javaType.isArray()) {
+            throw errorJavaType(JsonArrayType.class, javaType);
+        } else if (javaType == String[].class) {
             instance = TEXT_LINEAR;
         } else {
-            instance = new JsonArrayType(arrayClass, ArrayUtils.underlyingComponent(arrayClass));
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         }
         return instance;
     }
 
-    public static JsonArrayType fromUnlimited(final Class<?> underlyingJavaType) {
-        final JsonArrayType instance;
-        if (underlyingJavaType == String.class) {
-            instance = TEXT_UNLIMITED;
-        } else if (underlyingJavaType.isArray()) {
-            throw errorJavaType(JsonArrayType.class, underlyingJavaType);
-        } else {
-            instance = new JsonArrayType(Object.class, underlyingJavaType);
-        }
-        return instance;
-    }
 
-    public static final JsonArrayType TEXT_LINEAR = new JsonArrayType(String[].class, String.class);
-
-    public static final JsonArrayType TEXT_UNLIMITED = new JsonArrayType(Object.class, String.class);
+    public static final JsonArrayType TEXT_LINEAR = new JsonArrayType(String[].class);
 
     /// private constructor
-    private JsonArrayType(Class<?> javaType, Class<?> underlyingJavaType) {
-        super(javaType, underlyingJavaType);
+    private JsonArrayType(Class<?> javaType) {
+        super(javaType, ArrayUtils.underlyingComponent(javaType));
+    }
+
+
+    @Override
+    public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
+        final DataType dataType;
+        switch (meta.serverDatabase()) {
+            case PostgreSQL:
+                dataType = PgType.JSON_ARRAY;
+                break;
+            case MySQL:
+            case SQLite:
+            case H2:
+            case Oracle:
+            default:
+                throw mapError(this, meta);
+        }
+        return dataType;
+    }
+
+
+    @Override
+    public final MappingType underlyingType() {
+        return JsonType.from(this.underlyingJavaType);
     }
 
     @Override
-    public MappingType elementType() {
+    public final MappingType elementType() {
         final MappingType instance;
         final Class<?> javaType = this.javaType;
         if (javaType == Object.class) {
@@ -75,7 +87,7 @@ public class JsonArrayType extends ArmyJsonArrayType {
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
         final Class<?> javaType = this.javaType;
         if (javaType == Object.class) { // unlimited dimension array
             return this;
@@ -83,22 +95,27 @@ public class JsonArrayType extends ArmyJsonArrayType {
         return from(ArrayUtils.arrayClassOf(javaType));
     }
 
+
     @Override
-    public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        final DataType dataType;
-        switch (meta.serverDatabase()) {
-            case PostgreSQL:
-                dataType = PgType.JSON_ARRAY;
-                break;
-            case MySQL:
-            case SQLite:
-            case H2:
-            case Oracle:
-            default:
-                throw MAP_ERROR_HANDLER.apply(this, meta);
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (obj instanceof JsonArrayType o) {
+            match = o.javaType == this.javaType
+                    && o.underlyingJavaType == this.underlyingJavaType
+            ;
+        } else {
+            match = false;
         }
-        return dataType;
+        return match;
     }
 
+
+    private static final class ClassValueHolder {
+
+        private static final ClassValue<JsonArrayType> CLASS_VALUE = FuncClassValue.create(JsonArrayType::new);
+
+    }
 
 }

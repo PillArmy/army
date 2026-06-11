@@ -588,7 +588,7 @@ abstract class MySQLJsonFunctions extends MySQLTimeFunctions {
     /// - Else if type is {@link MySQLCastType#YEAR }then {@link YearType}
     /// - Else if type is {@link MySQLCastType#DATETIME }then {@link LocalDateTimeType}
     /// - Else if type is {@link MySQLCastType#SIGNED }then {@link LongType}
-    /// - Else if type is {@link MySQLCastType#UNSIGNED }then {@link UnsignedBigIntegerType}
+    /// - Else if type is {@link MySQLCastType#UNSIGNED }then {@link BigIntegerUnsignedType}
     /// - Else if type is {@link MySQLCastType#DECIMAL }then {@link BigDecimalType}
     /// - Else if type is {@link MySQLCastType#FLOAT }then {@link FloatType}
     /// - Else if type is {@link MySQLCastType#DOUBLE }then {@link DoubleType}

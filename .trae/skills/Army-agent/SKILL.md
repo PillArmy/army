@@ -1064,7 +1064,7 @@ public class ExchangeRate {
 
 #### **VectorType 概述**
 
-`io.army.mapping.optional.VectorType` 专门为 PostgreSQL `pgvector` 扩展的 `VECTOR` 类型设计，用于 AI/ML 嵌入存储：
+`io.army.mapping.VectorType` 专门为 PostgreSQL `pgvector` 扩展的 `VECTOR` 类型设计，用于 AI/ML 嵌入存储：
 
 ```java
 public final class VectorType extends _ArmyNoInjectionType
@@ -1096,7 +1096,7 @@ public final class VectorType extends _ArmyNoInjectionType
 @Column(name = "${DEFAULT}", notNull = true,
         precision = Column.DEFAULT_EXP,  // 必需：嵌入维度在运行时配置
         comment = "${DEFAULT}")
-@Mapping("io.army.mapping.optional.VectorType")
+@Mapping("io.army.mapping.VectorType")
 private float[] embedding;
 ```
 
@@ -1203,7 +1203,7 @@ private String firstContent;  // → TextType → TEXT
 
 ### 11.10 TypeMappingHandler — SQL 类型解析
 
-确定字段的 `MappingType` 后，`io.army.dialect.TypeMappingHandler` 接口确定目标数据库的具体 `DataType`：
+确定字段的 `MappingType` 后，`io.army.dialect.MappingHandler` 接口确定目标数据库的具体 `DataType`：
 
 ```java
 public sealed interface TypeMappingHandler permits TypeMappingHandlerSupport {

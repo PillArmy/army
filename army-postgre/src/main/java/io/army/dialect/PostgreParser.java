@@ -72,8 +72,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
 
 
     @Override
-    protected final TypeMappingHandler createTypeMappingHandler(DialectEnv env) {
-        return new PgTypeMappingHandler(env);
+    protected final MappingHandler createTypeMappingHandler(DialectEnv env) {
+        return new PgMappingHandler(env);
     }
 
     ///
@@ -323,13 +323,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
             stringEscape((String) value, sqlBuilder);
 
             if (typeName) {
-                sqlBuilder.append("::");
-                if (dataType == PgType.VECTOR_ARRAY) {
-                    safeObjectName(dataType, sqlBuilder); // VECTOR need to install pg vector extension
-                } else {
-                    sqlBuilder.append(_DialectUtils.obtainElementType(dataType).typeName());
-                }
-
+                sqlBuilder.append("::")
+                        .append(_DialectUtils.obtainElementType(dataType).typeName());
                 arrayTypeName(ArrayUtils.dimensionOfType(typeMeta.mappingType()), sqlBuilder);
             }
         } else switch ((PgType) dataType) {
@@ -465,17 +460,6 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 sqlBuilder.append(_Constant.QUOTE)
                         .append(_TimeUtils.OFFSET_DATETIME_FORMATTER_6.format((OffsetDateTime) value))
                         .append(_Constant.QUOTE);
-            }
-            break;
-            case VECTOR: {
-                if (!(value instanceof String)) {
-                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-                }
-                stringEscape((String) value, sqlBuilder);
-                if (typeName) {
-                    sqlBuilder.append("::");
-                    safeObjectName(dataType, sqlBuilder);  // VECTOR need to install pg vector extension
-                }
             }
             break;
             case CHAR:

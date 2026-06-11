@@ -25,6 +25,7 @@ import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
+import io.army.sqltype.ArmyType;
 import io.army.sqltype.DataType;
 import io.army.struct.DefinedType;
 import io.army.util.ArrayUtils;
@@ -77,7 +78,7 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = DataType.from(typeName());
+                dataType = DataType.from("VECTOR[]", ArmyType.VECTOR);
                 break;
             case SQLite:
             case MySQL:
@@ -111,11 +112,6 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
     }
 
     @Override
-    public String typeName() {
-        return this.underlyingType.typeName() + "[]";
-    }
-
-    @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         return from(ArrayUtils.arrayClassOf(this.arrayClass));
     }
@@ -123,6 +119,11 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
     @Override
     public Class<?> underlyingJavaType() {
         return this.underlyingClass;
+    }
+
+    @Override
+    public MappingType underlyingType() {
+        return CompositeType.from(this.underlyingClass);
     }
 
     @Override

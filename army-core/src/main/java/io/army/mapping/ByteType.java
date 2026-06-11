@@ -37,7 +37,7 @@ import io.army.util.ClassUtils;
 /// 
 /// to {@link Byte},if overflow,throw {@link io.army.ArmyException}
 /// * @since 0.6.0
-public final class ByteType extends _NumericType._IntegerType {
+public final class ByteType extends _ArmyNoInjectionType implements MappingType.SqlInteger {
 
 
     public static ByteType from(final Class<?> javaType) {

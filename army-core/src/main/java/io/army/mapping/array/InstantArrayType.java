@@ -25,6 +25,7 @@ import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
+/// @see io.army.mapping.InstantType
 public class InstantArrayType extends _ArmyBuildInArrayType {
 
     public static InstantArrayType from(Class<?> javaType) {
@@ -40,16 +41,6 @@ public class InstantArrayType extends _ArmyBuildInArrayType {
     }
 
     @Override
-    public Class<?> underlyingJavaType() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public MappingType elementType() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
         throw new UnsupportedOperationException();
     }
@@ -61,6 +52,25 @@ public class InstantArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+        //TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Class<?> underlyingJavaType() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MappingType elementType() {
+        //TODO
+        throw new UnsupportedOperationException();
+    }
+
+
+    @Override
+    public MappingType underlyingType() {
+        //TODO
         throw new UnsupportedOperationException();
     }
 

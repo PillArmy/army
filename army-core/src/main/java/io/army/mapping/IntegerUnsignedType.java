@@ -27,16 +27,16 @@ import java.math.BigInteger;
 
 /// Mapping type for unsigned integer ({@link Integer}) values.
 ///
-/// @see UnsignedSqlIntType
-/// @see UnsignedLongType
-public final class UnsignedIntegerType extends _ArmyNoInjectionType
+/// @see SqlIntUnsignedType
+/// @see LongUnsignedType
+public final class IntegerUnsignedType extends _ArmyNoInjectionType
         implements MappingType.SqlInteger, MappingType.SqlUnsignedNumber {
 
 
-    public static final UnsignedIntegerType INSTANCE = new UnsignedIntegerType();
+    public static final IntegerUnsignedType INSTANCE = new IntegerUnsignedType();
 
 
-    private UnsignedIntegerType() {
+    private IntegerUnsignedType() {
     }
 
     @Override
@@ -47,7 +47,7 @@ public final class UnsignedIntegerType extends _ArmyNoInjectionType
 
     @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        return UnsignedSqlIntType.mapToDataType(this, meta);
+        return SqlIntUnsignedType.mapToDataType(this, meta);
     }
 
     @Override

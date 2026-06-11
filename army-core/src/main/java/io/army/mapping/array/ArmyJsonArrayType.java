@@ -22,19 +22,19 @@ import io.army.criteria.CriteriaException;
 import io.army.executor.DataAccessException;
 import io.army.function.TextFunction;
 import io.army.mapping.MappingEnv;
-import io.army.mapping.MappingType;
 import io.army.mapping._ArmyBuildInArrayType;
 import io.army.sqltype.DataType;
 
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 
 /// Package class
 /// This class is base class of following :
-/// 
+///
 /// - {@link JsonArrayType}
 /// - {@link JsonbArrayType}
-/// 
+///
 /// @since 0.6.0
 abstract class ArmyJsonArrayType extends _ArmyBuildInArrayType {
 
@@ -79,6 +79,11 @@ abstract class ArmyJsonArrayType extends _ArmyBuildInArrayType {
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         return decodeJsonArray(dataType, env, source, ACCESS_ERROR_HANDLER);
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(this.javaType, this.underlyingJavaType);
     }
 
     private Object decodeJsonArray(DataType dataType, MappingEnv env, final Object source, ErrorHandler errorHandler) {

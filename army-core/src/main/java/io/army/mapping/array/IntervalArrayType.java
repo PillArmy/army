@@ -25,7 +25,7 @@ import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-@Deprecated
+
 public class IntervalArrayType extends _ArmyBuildInArrayType {
 
     public static final IntervalArrayType LINEAR = new IntervalArrayType();
@@ -37,32 +37,51 @@ public class IntervalArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public Class<?> javaType() {
-        return null;
+        //TODO
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        return null;
+        //TODO
+        throw new UnsupportedOperationException();
     }
 
 
     @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return null;
+        //TODO
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return null;
+        //TODO
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Class<?> underlyingJavaType() {
-        return null;
+        //TODO
+        throw new UnsupportedOperationException();
+    }
+
+
+    @Override
+    public MappingType underlyingType() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public MappingType elementType() {
-        return null;
+        //TODO
+        throw new UnsupportedOperationException();
     }
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        throw new UnsupportedOperationException();
+    }
+
+
 }

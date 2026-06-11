@@ -21,8 +21,5 @@ public enum TypeCategory {
     COMPOSITE,
     ENUM,
     RANGE,
-    DOMAIN,
-
-    /// User-defined extended types, e.g., PostgreSQL pgvector
-    USER_DEFINED
+    DOMAIN
 }

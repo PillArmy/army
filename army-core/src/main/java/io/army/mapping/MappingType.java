@@ -22,10 +22,10 @@ import io.army.criteria.TypeItem;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.executor.StmtExecutor;
+import io.army.lang.Nullable;
 import io.army.meta.CompositeField;
 import io.army.meta.ServerMeta;
 import io.army.meta.TypeMeta;
-import io.army.meta.TypeObject;
 import io.army.sqltype.DataType;
 import io.army.sqltype.SQLType;
 
@@ -214,9 +214,9 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
         MappingType elementType();
 
-        default MappingType unlimited() {
-            throw new UnsupportedOperationException();
-        }
+        MappingType underlyingType();
+
+        MappingType arrayTypeOfThis() throws CriteriaException;
 
     }
 
@@ -280,29 +280,11 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
-    /// This interface representing the type that need to create extension.
-    ///
-    /// For example: "CREATE EXTENSION IF NOT EXISTS vector" , "CREATE EXTENSION IF NOT EXISTS hstore"
-    ///
-    /// @see <a href="https://www.postgresql.org/docs/current/sql-createextension.html">CREATE EXTENSION</a>
-    /// @see io.army.mapping.optional.VectorType
-    /// @see io.army.mapping.postgre.PgHstoreType
-    interface SqlExtension {
-
-        String extensionName(ServerMeta serverMeta);
-    }
 
     /// SqlUserDefined does not inherit from {@link MappingType}, because {@link MappingType} is a sealed interface.
     /// User defined type must override {@link #hashCode()} and {@link #equals(Object)}.
-    interface SqlUserDefined extends TypeObject {
+    interface SqlUserDefined {
 
-        /// @return upper case object name(type name)
-        String typeName();
-
-        @Override
-        default String objectName() {
-            return typeName();
-        }
 
         Class<?> javaType();
 
@@ -314,6 +296,10 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     }
 
     interface SqlEnum extends SqlUserDefined {
+
+        /// The type name cannot be retrieved via this method; use map(ServerMeta) instead.
+        @Nullable
+        DataType dataType();
 
         List<String> enumLabelList();
 

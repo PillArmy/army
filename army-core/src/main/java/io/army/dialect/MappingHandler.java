@@ -20,9 +20,15 @@ import io.army.mapping.MappingType;
 import io.army.sqltype.DataType;
 
 
-public sealed interface TypeMappingHandler permits TypeMappingHandlerSupport {
+public sealed interface MappingHandler permits TypeMappingHandlerSupport {
 
 
-    DataType apply(String typeName, MappingType[] typeArray, int index);
+    default DataType apply(String typeName, MappingType[] typeArray, int index) {
+        throw new UnsupportedOperationException();
+    }
+
+    default TypeMappingBundle apply(String typeName) {
+        throw new UnsupportedOperationException();
+    }
 
 }

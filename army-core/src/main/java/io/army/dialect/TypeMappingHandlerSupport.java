@@ -18,11 +18,18 @@ package io.army.dialect;
 
 import io.army.function.DefinedTypeMapFunc;
 import io.army.mapping.MappingType;
+import io.army.mapping.StringType;
+import io.army.mapping.array.StringArrayType;
 import io.army.meta.ServerMeta;
+import io.army.sqltype.DataType;
+import io.army.util._Collections;
 
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiFunction;
 
-abstract non-sealed class TypeMappingHandlerSupport implements TypeMappingHandler {
+abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
 
     private final ServerMeta serverMeta;
 
@@ -30,34 +37,61 @@ abstract non-sealed class TypeMappingHandlerSupport implements TypeMappingHandle
 
     private final Map<String, MappingType> typeMap;
 
+    private final BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc;
+
+    private final Map<String, TypeMappingBundle> dataTypeToBundleMap;
+
     TypeMappingHandlerSupport(DialectEnv env) {
         this.serverMeta = env.serverMeta();
         this.function = env.definedTypeMapFunc();
 
         this.typeMap = Map.copyOf(env.nameToTypeMap());
-
+        this.dataTypeToBundleMap = Map.copyOf(createDataTypeToBundleMap(env.nameToTypeMap()));
+        this.unrecognizedMappingFunc = env.unrecognizedMappingFunc();
     }
 
 
-    final MappingType handleDefinedType(final String typeName, final MappingType defaultType) {
-        final DefinedTypeMapFunc func = this.function;
-        MappingType type = null;
-        if (func != null) {
-            type = func.apply(typeName, this.serverMeta, this.typeMap);
+    final TypeMappingBundle handleDefined(final String typeName) {
+        final String upperCaseTypeName = typeName.toUpperCase(Locale.ROOT);
+
+        final TypeMappingBundle bundle;
+        bundle = this.dataTypeToBundleMap.get(upperCaseTypeName);
+        if (bundle != null) {
+            return bundle;
         }
-        if (type != null) {
-            return type;
+
+        final DataType dataType = DataType.from(typeName);
+
+        final BiFunction<String, ServerMeta, MappingType> function = this.unrecognizedMappingFunc;
+        MappingType mappingType = null;
+        if (function != null) {
+            mappingType = function.apply(upperCaseTypeName, this.serverMeta);
         }
-        final int index = typeName.indexOf('[');
-        if (index < 0) {
-            type = this.typeMap.getOrDefault(typeName, defaultType);
-        } else if ((type = this.typeMap.get(typeName.substring(0, index))) == null) {
-            //实现 SqlArray 的类不能实现 SqlComposite, 因为数组类型是因基础类型产生的
-            type = defaultType;
-        } else {
-            type = ((MappingType.SqlArray) type.arrayTypeOfThis()).unlimited();
+        if (mappingType == null) {
+            if (dataType.isArray()) {
+                mappingType = StringArrayType.UNLIMITED;
+            } else {
+                mappingType = StringType.INSTANCE;
+            }
         }
-        return type;
+        return TypeMappingBundle.of(dataType, mappingType);
+    }
+
+    private static Map<String, TypeMappingBundle> createDataTypeToBundleMap(Map<String, MappingType> typeMap) {
+        final Map<String, TypeMappingBundle> map = _Collections.hashMapForSize(typeMap.size());
+        DataType dataType;
+        MappingType mappingType;
+        String typeName;
+        for (Map.Entry<String, MappingType> e : typeMap.entrySet()) {
+            typeName = e.getKey();
+            Objects.requireNonNull(typeMap);
+
+            dataType = DataType.from(typeName);
+            mappingType = Objects.requireNonNull(e.getValue());
+
+            map.put(typeName, TypeMappingBundle.of(dataType, mappingType));
+        }
+        return Map.copyOf(map);
     }
 
 

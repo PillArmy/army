@@ -20,6 +20,7 @@ package io.army.util;
 
 import io.army.lang.Nullable;
 import io.army.meta.MetaException;
+import io.army.sqltype.DataType;
 import io.army.struct.DefinedType;
 
 public abstract class AnnotationUtils {
@@ -29,7 +30,7 @@ public abstract class AnnotationUtils {
 
 
     @Nullable
-    public static String getDefinedTypeName(Class<?> javaType) {
+    public static String definedTypeNameOf(Class<?> javaType) {
         if (javaType.isAnonymousClass()) {
             javaType = javaType.getSuperclass();
         }
@@ -44,8 +45,26 @@ public abstract class AnnotationUtils {
         } else if (_StringUtils.isCamelCase(name)) {
             String m = String.format("%s don't support CamelCase in %s", DefinedType.class.getName(), javaType.getName());
             throw new MetaException(m);
+        } else if (name.endsWith("[]") || name.startsWith("_")) {
+            String m = String.format("%s don't support array in %s", DefinedType.class.getName(), javaType.getName());
+            throw new MetaException(m);
         }
         return name;
     }
+
+    @Nullable
+    public static DataType dataTypeOf(final Class<?> javaType, boolean array) {
+        final DataType dataType;
+        final String typeName = definedTypeNameOf(javaType);
+        if (!_StringUtils.hasText(typeName)) {
+            dataType = null;
+        } else if (array) {
+            dataType = DataType.from(typeName + "[]");
+        } else {
+            dataType = DataType.from(typeName);
+        }
+        return dataType;
+    }
+
 
 }
