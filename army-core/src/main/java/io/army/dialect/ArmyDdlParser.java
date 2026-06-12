@@ -729,7 +729,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
             if (precision > max) {
                 String m;
                 m = String.format("%s precision[%s] out of [1,%s] error for %s.%s"
-                        , field, field.scale(), max, dataType.getClass().getSimpleName(), dataType.name());
+                        , field, field.scale(), max, dataType.getClass().getSimpleName(), dataType.typeName());
                 this.errorMsgList.add(m);
                 return;
             }
@@ -1023,7 +1023,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
     private void timeScaleError(DatabaseFieldObject field, DataType dataType) {
         String m;
         m = String.format("%s scale[%s] error for %s.%s"
-                , field, field.scale(), dataType.getClass().getSimpleName(), dataType.name());
+                , field, field.scale(), dataType.getClass().getSimpleName(), dataType.typeName());
         this.errorMsgList.add(m);
 
     }

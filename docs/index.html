@@ -210,7 +210,7 @@
         <span id="author" class="author">zoro&lt;zoro@qinarmy.io&gt;</span><br>
         <span id="email" class="email"><a href="mailto:zoro@qinarmy.io">zoro@qinarmy.io</a></span><br>
         <span id="revnumber">version 0.6.8-SNAPSHOT,</span>
-        <span id="revdate">2026-06-07</span>
+        <span id="revdate">2026-06-12</span>
         <br><span id="revremark">Snapshot</span>
     </div>
     <div id="toc" class="toc2">
@@ -1041,10 +1041,6 @@
                             <p><strong>We need standards, and we need dialects.</strong> That&#8217;s how the real world
                                 works.</p>
                         </li>
-                        <li>
-                            <p><strong>Keep it simple — blocking by default, straightforward and predictable.</strong>
-                            </p>
-                        </li>
                     </ol>
                 </div>
             </div>
@@ -1124,12 +1120,12 @@
     <span class="tag">&lt;dependency&gt;</span>
         <span class="tag">&lt;groupId&gt;</span>io.qinarmy<span class="tag">&lt;/groupId&gt;</span>
         <span class="tag">&lt;artifactId&gt;</span>army-jdbc<span class="tag">&lt;/artifactId&gt;</span>
-        <span class="tag">&lt;version&gt;</span>0.6.6<span class="tag">&lt;/version&gt;</span>
+        <span class="tag">&lt;version&gt;</span>{project-version}<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;/dependency&gt;</span>
     <span class="tag">&lt;dependency&gt;</span>
         <span class="tag">&lt;groupId&gt;</span>io.qinarmy<span class="tag">&lt;/groupId&gt;</span>
         <span class="tag">&lt;artifactId&gt;</span>army-postgre<span class="tag">&lt;/artifactId&gt;</span>
-        <span class="tag">&lt;version&gt;</span>0.6.6<span class="tag">&lt;/version&gt;</span>
+        <span class="tag">&lt;version&gt;</span>{project-version}<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;/dependency&gt;</span>
 <span class="tag">&lt;/dependencies&gt;</span></code></pre>
                         </div>
@@ -4279,7 +4275,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
                         </tr>
                         <tr>
                             <td class="tableblock halign-left valign-top"><p class="tableblock">
-                                <code>TextEnumType</code></p></td>
+                                <code>LabelEnumType</code></p></td>
                             <td class="tableblock halign-left valign-top"><p class="tableblock"><code>implements
                                 TextEnum</code></p></td>
                             <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VARCHAR</code> (or
@@ -4378,7 +4374,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
                                     Zoro"</code> instead of <code>"ZORO"</code>?</p>
                         </div>
                         <div class="paragraph">
-                            <p>That&#8217;s what <code>TextEnumType</code> is for.
+                            <p>That&#8217;s what <code>LabelEnumType</code> is for.
                                 By implementing <code>io.army.struct.LabelEnum</code>, the enum provides a
                                 <code>text()</code> method that returns the value to be stored:</p>
                         </div>
@@ -4432,7 +4428,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
                             <tr>
                                 <th class="tableblock halign-left valign-top">Aspect</th>
                                 <th class="tableblock halign-left valign-top"><code>NameEnumType</code></th>
-                                <th class="tableblock halign-left valign-top"><code>TextEnumType</code></th>
+                                <th class="tableblock halign-left valign-top"><code>LabelEnumType</code></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -4557,8 +4553,8 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
                                         <i class="fa icon-warning" title="Warning"></i>
                                     </td>
                                     <td class="content">
-                                        Never implement both <code>CodeEnum</code> and <code>TextEnum</code> on the same
-                                        enum class.
+                                        Never implement both <code>CodeEnum</code> and <code>LabelEnum</code> on the
+                                        same enum class.
                                         Army will reject it at startup with an <code>IllegalArgumentException</code>.
                                     </td>
                                 </tr>
@@ -4570,7 +4566,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
                                                                             href="#_postgresql_native_enum_via_definedtype"></a>PostgreSQL
                             Native ENUM via @DefinedType</h5>
                         <div class="paragraph">
-                            <p>Both <code>NameEnumType</code> and <code>TextEnumType</code> support PostgreSQL native
+                            <p>Both <code>NameEnumType</code> and <code>LabelEnumType</code> support PostgreSQL native
                                 <code>ENUM</code> types through the <code>io.army.struct.DefinedType</code> annotation.
                                 When applied to the enum class, Army generates a <code>CREATE TYPE</code> DDL and maps
                                 the field to the named PostgreSQL enum type instead of <code>VARCHAR</code>:</p>
@@ -5094,9 +5090,8 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
                                                              href="#_vector_type_pgvector_embeddings"></a>4.7. Vector
                     Type (pgvector Embeddings)</h3>
                 <div class="paragraph">
-                    <p>For AI/ML embedding storage, Army provides <code>io.army.mapping.VectorType</code> — a
-                        <code>MappingType</code> for the PostgreSQL <code>pgvector</code> extension&#8217;s
-                        <code>VECTOR</code> type.</p>
+                    <p>For AI/ML embedding storage, Army provides <code>io.army.mapping.VectorType</code> — a <code>MappingType</code>
+                        for the PostgreSQL <code>pgvector</code> extension&#8217;s <code>VECTOR</code> type.</p>
                 </div>
                 <div class="listingblock">
                     <div class="content">
@@ -5520,7 +5515,7 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
                 </div>
                 <div class="paragraph">
                     <p>This design means the <code>MappingType</code> hierarchy is database-agnostic — each <code>MappingType</code>
-                        declares its target <code>DataType</code> per-dialect in <code>map()</code>, and <code>TypeMappingHandler</code>
+                        declares its target <code>DataType</code> per-dialect in <code>map()</code>, and <code>MappingHandler</code>
                         provides the final resolution for custom/composite/array types.
                         In most cases, developers interact only with the <code>@Mapping</code> annotation; the handler
                         chain operates transparently behind the scenes.</p>
@@ -6094,7 +6089,7 @@ com.example.stock.domain.StockChatVectorStore.conversationId.Mapping.value=io.ar
                             Processing</strong></p></td>
                         <td class="tableblock halign-left valign-top"><p class="tableblock">Army reads
                             <code>@Mapping</code> (or infers default) to determine <code>MappingType</code></p></td>
-                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Mapping("io.army.mapping.VectorType")</code>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Mapping("io.army.mapping.optional.VectorType")</code>
                             → <code>VectorType</code></p></td>
                     </tr>
                     <tr>
@@ -18478,7 +18473,7 @@ Type Mapping Layer (Mapping)
                     <h4 id="_registering_custom_types"><a class="anchor" href="#_registering_custom_types"></a>8.4.2.
                         Registering Custom Types</h4>
                     <div class="paragraph">
-                        <p>Register custom type mappings through <code>TypeMappingHandler</code>.</p>
+                        <p>Register custom type mappings through <code>MappingHandler</code>.</p>
                     </div>
                 </div>
             </div>
@@ -19273,7 +19268,7 @@ envMap.put(ArmyKey.SQL_LOG_EXECUTION_TAKE_TIME.name, <span class="predefined-con
 <div id="footer">
     <div id="footer-text">
         Version 0.6.8-SNAPSHOT<br>
-        Last updated 2026-06-07 04:58:20 +0800
+        Last updated 2026-06-12 23:57:40 +0800
     </div>
 </div>
 </body>

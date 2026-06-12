@@ -580,6 +580,9 @@
                                         <imagesdir>./images</imagesdir>
                                         <docinfo>shared</docinfo>
                                         <icons>font</icons>
+
+                                        <project-version>${project.version}</project-version>
+                                        <revnumber>${project.version}</revnumber>
                                     </attributes>
                                 </configuration>
                             </execution>
