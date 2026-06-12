@@ -308,7 +308,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
 
             if (typeName) {
                 sqlBuilder.append("::")
-                        .append(_DialectUtils.obtainElementType(dataType).typeName());
+                        .append(dataType.componentTypeName());
                 arrayTypeName(ArrayUtils.dimensionOfType(typeMeta.mappingType()), sqlBuilder);
             }
         } else switch ((PgType) dataType) {

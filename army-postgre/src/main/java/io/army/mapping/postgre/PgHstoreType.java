@@ -25,6 +25,8 @@ import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
+import io.army.sqltype.ArmyType;
+import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
 
 import java.util.Map;
@@ -38,7 +40,12 @@ public final class PgHstoreType extends _ArmyBuildInType implements MappingType.
     public static final PgHstoreType INSTANCE = new PgHstoreType();
 
 
-    private static final DataType DATA_TYPE = DataType.from("HSTORE");
+    private static final DataType DATA_TYPE = CustomType.builder()
+            .typeName("HSTORE")
+            .javaType(Map.class)
+            .componentType(ArmyType.DIALECT_TYPE)
+            .componentCreateDdl(false)
+            .build();
 
     private PgHstoreType() {
     }

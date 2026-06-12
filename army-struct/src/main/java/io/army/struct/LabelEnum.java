@@ -17,21 +17,21 @@
 package io.army.struct;
 
 /// This interface is base interface of the enum that mapping to {@code io.army.mapping.TextEnumType}.
-/// 
-/// Army will persist {@link #text()} to database table column not {@link Enum#name()}.
+///
+/// Army will persist {@link #label()} to database table column not {@link Enum#name()}.
 /// If you want to persist {@link Enum#name()},then you should use {@code io.army.mapping.NameEnumType},
 /// but never persist {@link Enum#ordinal()}.
 /// @see CodeEnum
 /// @since 0.6.0
-public interface TextEnum {
+public interface LabelEnum {
 
     /// @see Enum#name()
     String name();
 
     /// @return text that can representing this enum instance
-    String text();
+    String label();
 
-    default TextEnum family() {
+    default LabelEnum family() {
         return this;
     }
 

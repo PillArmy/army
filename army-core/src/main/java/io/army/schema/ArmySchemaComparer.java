@@ -20,6 +20,7 @@ package io.army.schema;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.meta.*;
+import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
 import io.army.struct.TypeCategory;
 import io.army.util.ReflectionUtils;
@@ -253,17 +254,19 @@ abstract class ArmySchemaComparer implements SchemaComparer {
                 type = ((MappingType.SqlArray) type).underlyingType();
             }
 
-            if (((MappingType.SqlUserDefined) type).inExtension()) {
+            dataType = type.map(this.serverMeta);
+            if (!(dataType instanceof CustomType customType) || !customType.isComponentCreateDdl()) {
                 continue;
             }
-
-            dataType = type.map(this.serverMeta);
 
             typeName = dataType.typeName().toUpperCase(Locale.ROOT);
             typeInfo = typeInfoMap.get(typeName);
             if (typeInfo == null) {
-                typeMap.put(type, -1);
-                continue;
+                typeInfo = typeInfoMap.get(dataType.safeTypeAlias().toUpperCase(Locale.ROOT));
+                if (typeInfo == null) {
+                    typeMap.put(type, -1);
+                    continue;
+                }
             }
 
             if (type instanceof MappingType.SqlComposite) {

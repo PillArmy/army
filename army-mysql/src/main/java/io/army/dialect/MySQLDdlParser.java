@@ -22,7 +22,7 @@ import io.army.meta.*;
 import io.army.schema.FieldResult;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.struct.TextEnum;
+import io.army.struct.LabelEnum;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
@@ -472,8 +472,8 @@ final class MySQLDdlParser extends ArmyDdlParser<MySQLParser> {
                 builder.append(_Constant.SPACE_COMMA);
             }
             builder.append(_Constant.QUOTE);
-            if (e instanceof TextEnum) {
-                builder.append(((TextEnum) e).text());
+            if (e instanceof LabelEnum) {
+                builder.append(((LabelEnum) e).label());
             } else {
                 builder.append(((Enum<?>) e).name());
             }
@@ -492,8 +492,8 @@ final class MySQLDdlParser extends ArmyDdlParser<MySQLParser> {
                 builder.append(_Constant.SPACE_COMMA);
             }
             builder.append(_Constant.QUOTE);
-            if (e instanceof TextEnum) {
-                builder.append(((TextEnum) e).text());
+            if (e instanceof LabelEnum) {
+                builder.append(((LabelEnum) e).label());
             } else {
                 builder.append(((Enum<?>) e).name());
             }

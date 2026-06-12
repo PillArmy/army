@@ -16,9 +16,9 @@
 
 package io.army.example.pill.struct;
 
-import io.army.struct.TextEnum;
+import io.army.struct.LabelEnum;
 
-public enum QinArmy implements TextEnum {
+public enum QinArmy implements LabelEnum {
 
     ZORO("Roronoa Zoro"),
     ANZAI("Mitsuyoshi Anzai");
@@ -31,7 +31,7 @@ public enum QinArmy implements TextEnum {
 
 
     @Override
-    public String text() {
+    public String label() {
         return this.text;
     }
 

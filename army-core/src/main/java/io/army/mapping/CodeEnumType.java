@@ -22,7 +22,7 @@ import io.army.mapping.array.CodeEnumArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.struct.CodeEnum;
-import io.army.struct.TextEnum;
+import io.army.struct.LabelEnum;
 import io.army.util.ArrayUtils;
 import io.army.util.ClassUtils;
 import io.army.util.FuncClassValue;
@@ -37,7 +37,7 @@ import java.util.Objects;
 /// * @see Enum
 ///
 /// @see io.army.struct.CodeEnum
-/// @see TextEnumType
+/// @see LabelEnumType
 /// @see NameEnumType
 /// @since 0.6.0
 public final class CodeEnumType extends _ArmyNoInjectionType {
@@ -176,7 +176,7 @@ public final class CodeEnumType extends _ArmyNoInjectionType {
 
     private static Class<?> checkEnumClass(final Class<?> javaType) {
         if (!Enum.class.isAssignableFrom(javaType)
-                || TextEnum.class.isAssignableFrom(javaType)
+                || LabelEnum.class.isAssignableFrom(javaType)
                 || !CodeEnum.class.isAssignableFrom(javaType)) {
             throw errorJavaType(CodeEnumType.class, javaType);
         }

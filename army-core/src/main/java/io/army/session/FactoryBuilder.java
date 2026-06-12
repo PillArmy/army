@@ -20,12 +20,11 @@ import io.army.advice.FactoryAdvice;
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
 import io.army.dialect.Database;
+import io.army.dialect.TypeMappingBundle;
 import io.army.env.ArmyEnvironment;
 import io.army.executor.ExecutorFactoryProvider;
-import io.army.function.DefinedTypeMapFunc;
 import io.army.generator.FieldGeneratorFactory;
 import io.army.lang.Nullable;
-import io.army.mapping.MappingType;
 import io.army.meta.FieldMeta;
 import io.army.meta.SchemaMeta;
 import io.army.meta.ServerMeta;
@@ -154,9 +153,6 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
     /// It can be enabled for stronger consistency guarantees.
     B validateOnStartup(boolean yes);
 
-    /// Optional.
-    ///
-    B definedTypeMapFunc(@Nullable DefinedTypeMapFunc func);
 
     /// Optional.
     ///
@@ -168,7 +164,8 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
     /// A consumer traverses {@link FieldMeta} on startup
     B fieldMetaConsumer(@Nullable Consumer<FieldMeta<?>> consumer);
 
-    B unrecognizedMappingFunc(@Nullable BiFunction<String, ServerMeta, MappingType> func);
+    /// func can return null
+    B unrecognizedMappingFunc(@Nullable BiFunction<String, ServerMeta, TypeMappingBundle> func);
 
     /// Create {@link SessionFactory} instance
     ///

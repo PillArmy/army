@@ -20,7 +20,7 @@ import io.army.mapping.array.StringArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 import io.army.struct.CodeEnum;
-import io.army.struct.TextEnum;
+import io.army.struct.LabelEnum;
 import io.army.util._TimeUtils;
 
 import java.math.BigDecimal;
@@ -36,7 +36,7 @@ import java.time.temporal.TemporalAmount;
 /// - {@link Number}
 /// - {@link Boolean}
 /// - {@link CodeEnum}
-/// - {@link TextEnum}
+/// - {@link LabelEnum}
 /// - {@link Enum}
 /// - {@link LocalDate}
 /// - {@link LocalDateTime}
@@ -145,8 +145,8 @@ public final class StringType extends _ArmyBuildInType implements MappingType.Sq
         } else if (source instanceof Enum) {
             if (source instanceof CodeEnum) {
                 value = Integer.toString(((CodeEnum) source).code());
-            } else if (source instanceof TextEnum) {
-                value = ((TextEnum) source).text();
+            } else if (source instanceof LabelEnum) {
+                value = ((LabelEnum) source).label();
             } else {
                 value = ((Enum<?>) source).name();
             }

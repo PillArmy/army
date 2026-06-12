@@ -21,7 +21,7 @@ import io.army.sqltype.DataType;
 
 public final class TypeMappingBundle {
 
-    static TypeMappingBundle of(DataType dataType, MappingType mappingType) {
+    public static TypeMappingBundle of(DataType dataType, MappingType mappingType) {
         return new TypeMappingBundle(dataType, mappingType);
     }
 

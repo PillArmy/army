@@ -1318,7 +1318,7 @@ When a domain field's Java type is an `enum`, Army has three distinct mapping st
 | `VARCHAR` (or PostgreSQL native `ENUM` with `@DefinedType`)
 | Simple enums where `name()` is human-readable enough (e.g., `NORMAL`, `DELISTED`)
 
-| `TextEnumType`
+| `LabelEnumType`
 | `implements TextEnum`
 | `VARCHAR` (or PostgreSQL native `ENUM` with `@DefinedType`)
 | Enum values need a display text different from the Java constant name (e.g., `ZORO` → `"Roronoa Zoro"`)
@@ -1364,8 +1364,8 @@ TIP: A plain enum mapped via `NameEnumType` is safe for adding new constants at 
 `NameEnumType` stores `Enum.name()` — but `name()` is constrained to valid Java identifiers.
 What if you need the database to store a more descriptive text, like `"Roronoa Zoro"` instead of `"ZORO"`?
 
-That's what `TextEnumType` is for.
-By implementing `io.army.struct.TextEnum`, the enum provides a `text()` method that returns the value to be stored:
+That's what `LabelEnumType` is for.
+By implementing `io.army.struct.LabelEnum`, the enum provides a `text()` method that returns the value to be stored:
 
 [source,java]
 ----
@@ -1396,7 +1396,7 @@ TextEnumType vs NameEnumType:
 
 [cols="2,3,3",options="header"]
 |===
-| Aspect | `NameEnumType` | `TextEnumType`
+| Aspect | `NameEnumType` | `LabelEnumType`
 
 | Stored value source
 | `Enum.name()` (Java constant identifier)
@@ -1462,12 +1462,12 @@ Always leave gaps between codes — use increments of **10** (e.g., `0, 10, 20, 
 Consecutive values make it impossible to insert a new constant between existing ones without renumbering, which would corrupt existing data.
 With spaced codes, you can always insert a new value — e.g., between `LENDER(100)` and `BORROWER(200)` you can add `LENDER_PREMIUM(150)`.
 
-WARNING: Never implement both `CodeEnum` and `TextEnum` on the same enum class.
+WARNING: Never implement both `CodeEnum` and `LabelEnum` on the same enum class.
 Army will reject it at startup with an `IllegalArgumentException`.
 
 ===== PostgreSQL Native ENUM via @DefinedType
 
-Both `NameEnumType` and `TextEnumType` support PostgreSQL native `ENUM` types through the `io.army.struct.DefinedType` annotation.
+Both `NameEnumType` and `LabelEnumType` support PostgreSQL native `ENUM` types through the `io.army.struct.DefinedType` annotation.
 When applied to the enum class, Army generates a `CREATE TYPE` DDL and maps the field to the named PostgreSQL enum type instead of `VARCHAR`:
 
 [source,java]

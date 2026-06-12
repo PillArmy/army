@@ -25,6 +25,8 @@ import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
+import io.army.sqltype.ArmyType;
+import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
 import io.army.struct.DefinedType;
 import io.army.struct.TypeCategory;
@@ -68,7 +70,12 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
         this.javaType = javaType;
         this.underlyingClass = ArrayUtils.underlyingComponent(javaType);
         this.underlyingType = CompositeType.from(this.underlyingClass);
-        this.dataType = Objects.requireNonNull(AnnotationUtils.dataTypeOf(this.underlyingClass, true));
+        this.dataType = CustomType.builder()
+                .typeName(Objects.requireNonNull(AnnotationUtils.definedTypeNameOf(this.underlyingClass)))
+                .javaType(this.javaType)
+                .componentType(ArmyType.COMPOSITE)
+                .componentCreateDdl(true)
+                .build();
 
     }
 
@@ -105,7 +112,7 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
             CompositeType.bindToLiteral(this.underlyingType, elementDataType, env, element, tempBuilder);
             PostgreArrays.encodeElement(tempBuilder.toString(), sqlBuilder);
         };
-        return PostgreArrays.arrayBeforeBind(source, consumer, dataType, this, PARAM_ERROR_HANDLER);
+        return PostgreArrays.arrayBeforeBind(source, consumer, dataType, this);
     }
 
     @Override
@@ -114,12 +121,7 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
         elementDataType = this.underlyingType.map(env.serverMeta());
         final TextFunction<?> func;
         func = (text, offset, end) -> CompositeType.parseToPojo(this.underlyingType, elementDataType, env, text, offset, end);
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, func, ACCESS_ERROR_HANDLER);
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return from(ArrayUtils.arrayClassOf(this.javaType));
+        return PostgreArrays.arrayAfterGet(this, dataType, source, func);
     }
 
     @Override
@@ -143,6 +145,12 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
         }
         return instance;
     }
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return from(ArrayUtils.arrayClassOf(this.javaType));
+    }
+
 
     @Override
     public int hashCode() {

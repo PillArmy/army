@@ -22,7 +22,6 @@ import io.army.criteria.TypeItem;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.executor.StmtExecutor;
-import io.army.lang.Nullable;
 import io.army.meta.CompositeField;
 import io.army.meta.ServerMeta;
 import io.army.meta.TypeMeta;
@@ -285,10 +284,6 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     /// User defined type must override {@link #hashCode()} and {@link #equals(Object)}.
     interface SqlUserDefined {
 
-        default boolean inExtension() {
-            return false;
-        }
-
         Class<?> javaType();
 
         @Override
@@ -299,10 +294,6 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     }
 
     interface SqlEnum extends SqlUserDefined {
-
-        /// The type name cannot be retrieved via this method; use map(ServerMeta) instead.
-        @Nullable
-        DataType dataType();
 
         List<String> enumLabelList();
 

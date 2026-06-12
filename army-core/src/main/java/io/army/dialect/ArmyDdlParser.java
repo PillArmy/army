@@ -747,7 +747,7 @@ public abstract class ArmyDdlParser<P extends _ArmyDialectParser> implements Ddl
 
     protected final void appendUserDefinedType(final FieldObject field, final DataType dataType, final StringBuilder builder) {
 
-        this.parser.safeObjectName(_DialectUtils.obtainElementType(dataType), builder);
+        this.parser.safeObjectName(dataType, builder);
 
         final int precision, scale;
         precision = field.precision();

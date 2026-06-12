@@ -42,6 +42,8 @@ public interface DataType extends TypeDef, TypeObject {
 
     ArmyType armyType();
 
+    String componentTypeName();
+
     @Override
     default String objectName() {
         return typeName();
@@ -65,41 +67,5 @@ public interface DataType extends TypeDef, TypeObject {
 
     TypeDef parens(int precision, int scale);
 
-
-    /// This interface representing user-defined type or unrecognized database build-in type.
-    interface CustomType extends DataType {
-
-        @Override
-        TypeDef._TypeDefCharacterSetSpec parens(long precision);
-
-    }
-
-
-    /// This method is equivalent to {@code   DataType.from(typeName,false)} :
-    /// **NOTE**: only when {@link ArmyType} couldn't express appropriate type,you use this method.
-    /// It means you should prefer {@link SQLType}.
-    ///
-    /// @param typeName non-null
-    /// @return {@link DataType} instance
-    /// @see #from(String, boolean)
-    static CustomType from(String typeName) {
-        return from(typeName, ArmyType.USER_DEFINED);
-    }
-
-    static CustomType from(String typeName, ArmyType armyType) {
-        return DataTypeFactory.typeFrom(typeName, armyType, false);
-    }
-
-    /// Get one {@link DataType} instance
-    /// **NOTE**: only when {@link ArmyType} couldn't express appropriate type,you use this method.
-    /// It means you should prefer {@link SQLType}.
-    ///
-    /// @param typeName        database data type name,if typeName endWith '[]',then {@link DataType#isArray()} always return true.
-    /// @param caseSensitivity if false ,then {@link DataType#typeName()} always return upper case.
-    /// @return {@link DataType} that representing user-defined type.
-    /// @throws IllegalArgumentException throw when typeName have no text.
-    static CustomType from(String typeName, boolean caseSensitivity) {
-        return DataTypeFactory.typeFrom(typeName, ArmyType.USER_DEFINED, caseSensitivity);
-    }
 
 }

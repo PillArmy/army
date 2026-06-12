@@ -19,7 +19,6 @@ package io.army.dialect;
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
 import io.army.env.ArmyEnvironment;
-import io.army.function.DefinedTypeMapFunc;
 import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
@@ -29,6 +28,7 @@ import io.army.meta.TableMeta;
 
 import java.time.ZoneOffset;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 final class DialectEnvImpl implements DialectEnv {
@@ -56,11 +56,9 @@ final class DialectEnvImpl implements DialectEnv {
 
     private final Map<Class<?>, TableMeta<?>> tableMetaMap;
 
-    private final DefinedTypeMapFunc typeMapFunc;
+    private final Set<MappingType> definedTypeSet;
 
-    private final Map<String, MappingType> typeNameToTypeMap;
-
-    private final BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc;
+    private final BiFunction<String, ServerMeta, TypeMappingBundle> unrecognizedMappingFunc;
 
 
     private DialectEnvImpl(EnvBuilder builder) {
@@ -74,11 +72,10 @@ final class DialectEnvImpl implements DialectEnv {
         this.jsonCodec = builder.jsonCodec;
         this.xmlCodec = builder.xmlCodec;
 
-        this.tableMetaMap = builder.tableMetaMap;
-        this.typeMapFunc = builder.typeMapFunc;
-        this.typeNameToTypeMap = builder.typeNameToTypeMap;
+        this.tableMetaMap = Map.copyOf(builder.tableMetaMap);
+        this.definedTypeSet = Set.copyOf(builder.definedTypeSet);
         this.unrecognizedMappingFunc = builder.unrecognizedMappingFunc;
-        if (this.serverMeta == null || this.tableMetaMap == null) {
+        if (this.serverMeta == null) {
             throw new IllegalArgumentException();
         }
 
@@ -134,19 +131,15 @@ final class DialectEnvImpl implements DialectEnv {
     }
 
     @Override
-    public DefinedTypeMapFunc definedTypeMapFunc() {
-        return this.typeMapFunc;
+    public Set<MappingType> definedTypeSet() {
+        return this.definedTypeSet;
     }
 
     @Override
-    public Map<String, MappingType> nameToTypeMap() {
-        return this.typeNameToTypeMap;
-    }
-
-    @Override
-    public BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc() {
+    public BiFunction<String, ServerMeta, TypeMappingBundle> unrecognizedMappingFunc() {
         return this.unrecognizedMappingFunc;
     }
+
 
     @Override
     public String toString() {
@@ -174,11 +167,9 @@ final class DialectEnvImpl implements DialectEnv {
 
         private Map<Class<?>, TableMeta<?>> tableMetaMap;
 
-        private DefinedTypeMapFunc typeMapFunc;
+        private Set<MappingType> definedTypeSet = Set.of();
 
-        private Map<String, MappingType> typeNameToTypeMap;
-
-        private BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc;
+        private BiFunction<String, ServerMeta, TypeMappingBundle> unrecognizedMappingFunc;
 
         @Override
         public Builder factoryName(String name) {
@@ -236,19 +227,13 @@ final class DialectEnvImpl implements DialectEnv {
 
 
         @Override
-        public Builder definedTypeMapFunc(@Nullable DefinedTypeMapFunc func) {
-            this.typeMapFunc = func;
+        public Builder definedTypeSet(Set<MappingType> set) {
+            this.definedTypeSet = set;
             return this;
         }
 
         @Override
-        public Builder nameToTypeMap(Map<String, MappingType> map) {
-            this.typeNameToTypeMap = map;
-            return this;
-        }
-
-        @Override
-        public Builder unrecognizedMappingFunc(@Nullable BiFunction<String, ServerMeta, MappingType> func) {
+        public Builder unrecognizedMappingFunc(@Nullable BiFunction<String, ServerMeta, TypeMappingBundle> func) {
             this.unrecognizedMappingFunc = func;
             return this;
         }

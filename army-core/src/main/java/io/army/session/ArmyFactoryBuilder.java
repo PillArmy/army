@@ -26,7 +26,6 @@ import io.army.env.ArmyEnvironment;
 import io.army.env.ArmyKey;
 import io.army.executor.ExecutorEnv;
 import io.army.executor.ExecutorFactoryProvider;
-import io.army.function.DefinedTypeMapFunc;
 import io.army.generator.FieldGenerator;
 import io.army.generator.FieldGeneratorFactory;
 import io.army.lang.Nullable;
@@ -40,8 +39,8 @@ import io.army.schema.FieldResult;
 import io.army.schema.SchemaResult;
 import io.army.schema.TableResult;
 import io.army.schema.TypeResult;
+import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
-import io.army.sqltype.SQLType;
 import io.army.util.*;
 import org.slf4j.Logger;
 
@@ -97,13 +96,11 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     private boolean validateOnStartup;
 
-    private DefinedTypeMapFunc typeMapFunc;
-
     private Consumer<TableMeta<?>> tableMetaConsumer;
 
     private Consumer<FieldMeta<?>> fieldMetaConsumer;
 
-    private BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc;
+    private BiFunction<String, ServerMeta, TypeMappingBundle> unrecognizedMappingFunc;
 
 
     /*################################## blow non-setter fields ##################################*/
@@ -118,11 +115,6 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     /// key is upper case
     ///
     Map<String, MappingType> definedTypeMap = Map.of();
-
-    /// element is lower case
-    ///
-    /// @see DdlMode
-    Set<String> extensionNameSet = Set.of();
 
 
     private ServerMeta serverMeta;
@@ -239,12 +231,6 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
 
     @Override
-    public final B definedTypeMapFunc(@Nullable DefinedTypeMapFunc func) {
-        this.typeMapFunc = func;
-        return (B) this;
-    }
-
-    @Override
     public final B tableMetaConsumer(@Nullable Consumer<TableMeta<?>> consumer) {
         this.tableMetaConsumer = consumer;
         return (B) this;
@@ -259,7 +245,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
 
     @Override
-    public final B unrecognizedMappingFunc(@Nullable BiFunction<String, ServerMeta, MappingType> func) {
+    public final B unrecognizedMappingFunc(@Nullable BiFunction<String, ServerMeta, TypeMappingBundle> func) {
         this.unrecognizedMappingFunc = func;
         return (B) this;
     }
@@ -337,9 +323,8 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 .jsonCodec(findJsonCodec())
                 .xmlCodec(this.xmlCodec)
                 .tableMap(Objects.requireNonNull(this.tableMap))
-                .definedTypeMapFunc(this.typeMapFunc)
-                .nameToTypeMap(this.definedTypeMap)
                 .unrecognizedMappingFunc(this.unrecognizedMappingFunc)
+                .definedTypeSet(Set.copyOf(this.definedTypeMap.values()))
                 .build();
     }
 
@@ -471,7 +456,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
             final DataType dataType;
             dataType = originalType.map(serverMeta);
-            if (dataType instanceof SQLType) {
+            if (!(dataType instanceof CustomType)) {
                 return;
             }
 
@@ -525,7 +510,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             }
 
             dataType = originalType.map(serverMeta);
-            if (dataType instanceof SQLType) {
+            if (!(dataType instanceof CustomType)) {
                 continue;
             }
             typeName = dataType.typeName().toUpperCase(Locale.ROOT);

@@ -18,17 +18,18 @@ package io.army.mapping.array;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
-import io.army.dialect._DialectUtils;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.NameEnumType;
 import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
+import io.army.sqltype.ArmyType;
+import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
 import io.army.struct.CodeEnum;
 import io.army.struct.DefinedType;
-import io.army.struct.TextEnum;
+import io.army.struct.LabelEnum;
 import io.army.util.*;
 
 import java.util.Objects;
@@ -53,7 +54,7 @@ public class NameEnumArrayType extends _ArmyBuildInArrayType {
             throw errorJavaType(NameEnumArrayType.class, javaType);
         }
         _Assert.assertTypeName(enumTypeName);
-        return new NameEnumArrayType(javaType, DataType.from(enumTypeName + "[]"));
+        return new NameEnumArrayType(javaType, enumTypeName);
     }
 
 
@@ -69,14 +70,19 @@ public class NameEnumArrayType extends _ArmyBuildInArrayType {
     private NameEnumArrayType(Class<?> javaType) {
         this.javaType = javaType;
         this.enumClass = ClassUtils.enumClass(ArrayUtils.underlyingComponent(javaType));
-        this.dataType = AnnotationUtils.dataTypeOf(this.enumClass, true);
+        final String typeName = AnnotationUtils.definedTypeNameOf(this.enumClass);
+        if (typeName == null) {
+            this.dataType = null;
+        } else {
+            this.dataType = createDataType(typeName, javaType);
+        }
     }
 
     /// private constructor
-    private NameEnumArrayType(Class<?> javaType, DataType dataType) {
+    private NameEnumArrayType(Class<?> javaType, String typeName) {
         this.javaType = javaType;
         this.enumClass = ClassUtils.enumClass(ArrayUtils.underlyingComponent(javaType));
-        this.dataType = dataType;
+        this.dataType = createDataType(typeName, javaType);
     }
 
     @Override
@@ -113,7 +119,7 @@ public class NameEnumArrayType extends _ArmyBuildInArrayType {
         final MappingType instance;
         final DataType dataType = this.dataType;
         if (dataType != null && this.enumClass.getAnnotation(DefinedType.class) == null) {
-            instance = NameEnumType.fromParam(this.enumClass, _DialectUtils.obtainElementType(dataType).typeName());
+            instance = NameEnumType.fromParam(this.enumClass, dataType.componentTypeName());
         } else {
             instance = NameEnumType.from(this.enumClass);
         }
@@ -129,7 +135,7 @@ public class NameEnumArrayType extends _ArmyBuildInArrayType {
         if (!componentType.isArray()) {
             instance = underlyingType();
         } else if (dataType != null && this.enumClass.getAnnotation(DefinedType.class) == null) {
-            instance = fromParam(componentType, _DialectUtils.obtainElementType(dataType).typeName());
+            instance = fromParam(componentType, dataType.componentTypeName());
         } else {
             instance = from(componentType);
         }
@@ -141,7 +147,7 @@ public class NameEnumArrayType extends _ArmyBuildInArrayType {
         final DataType dataType = this.dataType;
         final MappingType instance;
         if (dataType != null && this.enumClass.getAnnotation(DefinedType.class) == null) {
-            instance = fromParam(ArrayUtils.arrayClassOf(this.javaType), _DialectUtils.obtainElementType(dataType).typeName());
+            instance = fromParam(ArrayUtils.arrayClassOf(this.javaType), dataType.componentTypeName());
         } else {
             instance = from(ArrayUtils.arrayClassOf(this.javaType));
         }
@@ -184,6 +190,16 @@ public class NameEnumArrayType extends _ArmyBuildInArrayType {
     }
 
 
+    static CustomType createDataType(String typeName, Class<?> javaType) {
+        return CustomType.builder()
+                .typeName(typeName + "[]")
+                .componentType(ArmyType.ENUM)
+                .javaType(javaType)
+                .componentCreateDdl(true)
+                .build();
+    }
+
+
     /// @see #from(Class)
     /// @see #fromParam(Class, String)
     private static Class<?> checkJavaType(final Class<?> javaType) {
@@ -195,7 +211,7 @@ public class NameEnumArrayType extends _ArmyBuildInArrayType {
 
         if (!Enum.class.isAssignableFrom(enumClass)
                 || CodeEnum.class.isAssignableFrom(enumClass)
-                || TextEnum.class.isAssignableFrom(enumClass)) {
+                || LabelEnum.class.isAssignableFrom(enumClass)) {
             throw errorJavaType(NameEnumArrayType.class, javaType);
         }
         return ClassUtils.enumClass(enumClass);

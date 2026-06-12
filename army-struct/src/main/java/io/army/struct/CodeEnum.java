@@ -22,7 +22,7 @@ package io.army.struct;
 /// Army will persist {@link #code()} to database table column not {@link Enum#ordinal()}.
 /// If you want to persist {@link Enum#name()},then you should use {@code io.army.mapping.NameEnumType},
 /// but never persist {@link Enum#ordinal()}.
-/// @see TextEnum
+/// @see LabelEnum
 /// @since 0.6.0
 public interface CodeEnum {
 

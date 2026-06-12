@@ -81,8 +81,8 @@ public abstract class _MappingFactory {
         } else if (Enum.class.isAssignableFrom(javaType)) {
             if (CodeEnum.class.isAssignableFrom(javaType)) {
                 type = CodeEnumType.from(javaType);
-            } else if (TextEnumType.class.isAssignableFrom(javaType)) {
-                type = TextEnumType.from(javaType);
+            } else if (LabelEnumType.class.isAssignableFrom(javaType)) {
+                type = LabelEnumType.from(javaType);
             } else {
                 type = NameEnumType.from(javaType);
             }
@@ -98,8 +98,8 @@ public abstract class _MappingFactory {
             }
         } else if (CodeEnum.class.isAssignableFrom(componentClass)) {
             type = CodeEnumArrayType.from(javaType);
-        } else if (TextEnumType.class.isAssignableFrom(componentClass)) {
-            type = TextEnumArrayType.from(javaType);
+        } else if (LabelEnumType.class.isAssignableFrom(componentClass)) {
+            type = LabelEnumArrayType.from(javaType);
         } else {
             type = NameEnumArrayType.from(javaType);
         }

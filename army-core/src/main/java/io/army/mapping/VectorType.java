@@ -22,6 +22,7 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.array.VectorArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.ArmyType;
+import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.util.ArrayUtils;
@@ -46,10 +47,9 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
 
     public static final VectorType INSTANCE = new VectorType();
 
+    private CustomType dataType;
 
-    private static final DataType DATA_TYPE = DataType.from("VECTOR", ArmyType.VECTOR);
-
-
+    /// private constructor
     private VectorType() {
     }
 
@@ -63,7 +63,7 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = DATA_TYPE;
+                dataType = obtainDataType();
                 break;
             case MySQL:
                 if (meta.meetsMinimum(9, 0, 0)) {
@@ -126,10 +126,6 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
         return VectorArrayType.from(ArrayUtils.arrayClassOf(float[].class));
     }
 
-    @Override
-    public boolean inExtension() {
-        return true;
-    }
 
     @Override
     public int hashCode() {
@@ -140,6 +136,20 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
     public boolean equals(final Object obj) {
         return obj instanceof VectorType;
     }
+
+    private CustomType obtainDataType() {
+        CustomType dataType = this.dataType;
+        if (dataType == null) {
+            this.dataType = dataType = CustomType.builder()
+                    .typeName("VECTOR")
+                    .componentType(ArmyType.VECTOR)
+                    .javaType(float[].class)
+                    .componentCreateDdl(false)
+                    .build();
+        }
+        return dataType;
+    }
+
 
     public static String vectorToString(final float[] vector) {
         return vectorToString(vector, new StringBuilder(2 + vector.length * 10))

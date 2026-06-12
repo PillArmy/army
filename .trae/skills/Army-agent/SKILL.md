@@ -821,7 +821,9 @@ SQL 类型映射是方言相关的：
 
 #### **TextEnumType — 文本枚举与自定义标签**
 
-`NameEnumType` 存储 `Enum.name()` — 但 `name()` 受限于有效的 Java 标识符。如果需要数据库存储更具描述性的文本，比如 `"Roronoa Zoro"` 而非 `"ZORO"`，这就是 `TextEnumType` 的用武之地。通过实现 `io.army.struct.TextEnum`，枚举提供返回要存储值的 `text()` 方法：
+`NameEnumType` 存储 `Enum.name()` — 但 `name()` 受限于有效的 Java 标识符。如果需要数据库存储更具描述性的文本，比如
+`"Roronoa Zoro"` 而非 `"ZORO"`，这就是 `TextEnumType` 的用武之地。通过实现 `io.army.struct.LabelEnum`，枚举提供返回要存储值的
+`text()` 方法：
 
 ```java
 public enum QinArmy implements TextEnum {

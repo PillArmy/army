@@ -24,7 +24,7 @@ import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 import io.army.struct.CodeEnum;
-import io.army.struct.TextEnum;
+import io.army.struct.LabelEnum;
 
 import java.time.*;
 
@@ -36,7 +36,7 @@ import java.time.*;
 /// - {@link Number}
 /// - {@link Boolean}
 /// - {@link CodeEnum}
-/// - {@link TextEnum}
+/// - {@link LabelEnum}
 /// - {@link Enum}
 /// - {@link LocalDate}
 /// - {@link LocalDateTime}

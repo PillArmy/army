@@ -17,11 +17,13 @@
 package io.army.util;
 
 import io.army.lang.Nullable;
+import io.army.struct.LabelEnum;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /// Utility class for class loading and reflection operations.
+///
 /// @since 0.6.0
 public abstract class ClassUtils {
 
@@ -84,6 +86,22 @@ public abstract class ClassUtils {
         final List<String> list = new ArrayList<>(enumArray.length);
         for (Enum<?> e : enumArray) {
             list.add(e.name());
+        }
+        return List.copyOf(list);
+    }
+
+    /// @return unmodifiable list
+    public static List<String> textEnumLabelList(Class<?> clazz) {
+        final Class<? extends Enum<?>> enumClass;
+        enumClass = checkEnumClass(clazz);
+        if (!LabelEnum.class.isAssignableFrom(enumClass)) {
+            String m = String.format("%s not %s", enumClass.getName(), LabelEnum.class.getName());
+            throw new IllegalArgumentException(m);
+        }
+        final Enum<?>[] enumArray = enumClass.getEnumConstants();
+        final List<String> list = new ArrayList<>(enumArray.length);
+        for (Enum<?> e : enumArray) {
+            list.add(((LabelEnum) e).label());
         }
         return List.copyOf(list);
     }

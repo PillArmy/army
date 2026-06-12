@@ -28,6 +28,8 @@ import io.army.meta.CompositeField;
 import io.army.meta.ServerMeta;
 import io.army.pojo.ObjectAccessor;
 import io.army.pojo.ObjectAccessorFactory;
+import io.army.sqltype.ArmyType;
+import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
 import io.army.struct.DefinedType;
 import io.army.struct.TypeCategory;
@@ -58,14 +60,19 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
     private final Class<?> javaType;
 
-    private final DataType dataType;
+    private final CustomType dataType;
 
     private final List<CompositeField> fieldList;
 
 
     private CompositeType(Class<?> javaType) {
         this.javaType = javaType;
-        this.dataType = Objects.requireNonNull(AnnotationUtils.dataTypeOf(javaType, false));
+        this.dataType = CustomType.builder()
+                .typeName(Objects.requireNonNull(AnnotationUtils.definedTypeNameOf(javaType)))
+                .componentType(ArmyType.COMPOSITE)
+                .javaType(javaType)
+                .componentCreateDdl(true)
+                .build();
         this.fieldList = List.copyOf(CompositeFieldFactory.forType(this));
     }
 

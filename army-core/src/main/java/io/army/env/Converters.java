@@ -17,7 +17,7 @@
 package io.army.env;
 
 import io.army.lang.Nullable;
-import io.army.struct.TextEnum;
+import io.army.struct.LabelEnum;
 import io.army.util.NumberUtils;
 import io.army.util._Collections;
 
@@ -90,7 +90,7 @@ public abstract class Converters {
 
         if (!Enum.class.isAssignableFrom(targetClass)) {
             convertor = CONVERTOR_MAP.get(targetClass);
-        } else if (TextEnum.class.isAssignableFrom(targetClass)) {
+        } else if (LabelEnum.class.isAssignableFrom(targetClass)) {
             convertor = TEXT_ENUM_CONVERTOR;
         } else {
             convertor = NAME_ENUM_CONVERTOR;
@@ -313,10 +313,10 @@ public abstract class Converters {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Enum<T> & TextEnum> T toTextEnum(final Class<?> targetType, final String source)
+    private static <T extends Enum<T> & LabelEnum> T toTextEnum(final Class<?> targetType, final String source)
             throws IllegalStateException {
-        if (!TextEnum.class.isAssignableFrom(targetType)) {
-            String m = String.format("%s isn't %S.", targetType.getName(), TextEnum.class.getName());
+        if (!LabelEnum.class.isAssignableFrom(targetType)) {
+            String m = String.format("%s isn't %S.", targetType.getName(), LabelEnum.class.getName());
             throw new IllegalStateException(m);
         }
         final T value;
@@ -341,21 +341,21 @@ public abstract class Converters {
 
     private static class TextEnumHelper {
 
-        private static final ConcurrentMap<Class<?>, Map<String, ? extends TextEnum>> INSTANCE_MAP =
+        private static final ConcurrentMap<Class<?>, Map<String, ? extends LabelEnum>> INSTANCE_MAP =
                 _Collections.concurrentHashMap();
 
-        private static final Function<Class<?>, Map<String, ? extends TextEnum>> FUNCTION = TextEnumHelper::createEnumMap;
+        private static final Function<Class<?>, Map<String, ? extends LabelEnum>> FUNCTION = TextEnumHelper::createEnumMap;
 
 
         @SuppressWarnings("unchecked")
-        private static <T extends TextEnum> Map<String, T> getTextMap(Class<?> enumClass) {
+        private static <T extends LabelEnum> Map<String, T> getTextMap(Class<?> enumClass) {
             return (Map<String, T>) INSTANCE_MAP.computeIfAbsent(enumClass, FUNCTION);
         }
 
         @SuppressWarnings("unchecked")
-        private static <T extends TextEnum> Map<String, T> createEnumMap(final Class<?> enumClass) {
-            if (!Enum.class.isAssignableFrom(enumClass) || TextEnum.class.isAssignableFrom(enumClass)) {
-                throw new IllegalStateException(String.format("%s isn't %s.", enumClass.getName(), TextEnum.class));
+        private static <T extends LabelEnum> Map<String, T> createEnumMap(final Class<?> enumClass) {
+            if (!Enum.class.isAssignableFrom(enumClass) || LabelEnum.class.isAssignableFrom(enumClass)) {
+                throw new IllegalStateException(String.format("%s isn't %s.", enumClass.getName(), LabelEnum.class));
             }
             for (Field field : enumClass.getDeclaredFields()) {
                 if (!Modifier.isFinal(field.getModifiers())) {
@@ -369,8 +369,8 @@ public abstract class Converters {
 
             String text;
             for (T e : array) {
-                text = e.text();
-                if (map.putIfAbsent(e.text(), e) != null) {
+                text = e.label();
+                if (map.putIfAbsent(e.label(), e) != null) {
                     throw new IllegalStateException(String.format("%s text[%s] duplication.", enumClass.getName(), text));
                 }
             }

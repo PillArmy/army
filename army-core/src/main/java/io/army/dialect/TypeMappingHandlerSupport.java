@@ -20,12 +20,14 @@ import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
 import io.army.mapping.array.StringArrayType;
 import io.army.meta.ServerMeta;
+import io.army.sqltype.ArmyType;
+import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
 import io.army.util._Collections;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
@@ -33,56 +35,58 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
     private final ServerMeta serverMeta;
 
 
-    private final BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc;
+    private final BiFunction<String, ServerMeta, TypeMappingBundle> unrecognizedMappingFunc;
 
     private final Map<String, TypeMappingBundle> dataTypeToBundleMap;
 
     TypeMappingHandlerSupport(DialectEnv env) {
         this.serverMeta = env.serverMeta();
-        this.dataTypeToBundleMap = Map.copyOf(createDataTypeToBundleMap(env.nameToTypeMap()));
+        this.dataTypeToBundleMap = Map.copyOf(createDataTypeToBundleMap(env.definedTypeSet()));
         this.unrecognizedMappingFunc = env.unrecognizedMappingFunc();
     }
 
 
     final TypeMappingBundle handleDefined(final String typeName) {
-        final String upperCaseTypeName = typeName.toUpperCase(Locale.ROOT);
-
-        final TypeMappingBundle bundle;
-        bundle = this.dataTypeToBundleMap.get(upperCaseTypeName);
+        TypeMappingBundle bundle;
+        bundle = this.dataTypeToBundleMap.get(typeName.toUpperCase(Locale.ROOT));
         if (bundle != null) {
             return bundle;
         }
 
-        final DataType dataType = DataType.from(typeName);
-
-        final BiFunction<String, ServerMeta, MappingType> function = this.unrecognizedMappingFunc;
-        MappingType mappingType = null;
+        final BiFunction<String, ServerMeta, TypeMappingBundle> function = this.unrecognizedMappingFunc;
         if (function != null) {
-            mappingType = function.apply(upperCaseTypeName, this.serverMeta);
+            bundle = function.apply(typeName, this.serverMeta);
         }
-        if (mappingType == null) {
-            if (dataType.isArray()) {
-                mappingType = StringArrayType.UNLIMITED;
-            } else {
-                mappingType = StringType.INSTANCE;
-            }
+
+        if (bundle != null) {
+            return bundle;
         }
-        return TypeMappingBundle.of(dataType, mappingType);
+
+        final DataType dataType = CustomType.builder()
+                .typeName(typeName)
+                .javaType(String.class)
+                .componentType(ArmyType.UNKNOWN)
+                .build();
+        if (dataType.isArray()) {
+            bundle = TypeMappingBundle.of(dataType, StringArrayType.UNLIMITED);
+        } else {
+            bundle = TypeMappingBundle.of(dataType, StringType.INSTANCE);
+        }
+        return bundle;
     }
 
-    private static Map<String, TypeMappingBundle> createDataTypeToBundleMap(Map<String, MappingType> typeMap) {
-        final Map<String, TypeMappingBundle> map = _Collections.hashMapForSize(typeMap.size());
+    private Map<String, TypeMappingBundle> createDataTypeToBundleMap(Set<MappingType> typSet) {
+        final Map<String, TypeMappingBundle> map = _Collections.hashMapForSize(typSet.size() << 1);
         DataType dataType;
-        MappingType mappingType;
-        String typeName;
-        for (Map.Entry<String, MappingType> e : typeMap.entrySet()) {
-            typeName = e.getKey();
-            Objects.requireNonNull(typeMap);
-
-            dataType = DataType.from(typeName);
-            mappingType = Objects.requireNonNull(e.getValue());
-
-            map.put(typeName, TypeMappingBundle.of(dataType, mappingType));
+        TypeMappingBundle bundle;
+        for (MappingType mappingType : typSet) {
+            dataType = mappingType.map(this.serverMeta);
+            if (!(dataType instanceof CustomType)) {
+                continue;
+            }
+            bundle = TypeMappingBundle.of(dataType, mappingType);
+            map.put(dataType.typeName(), bundle);
+            map.put(dataType.safeTypeAlias(), bundle);
         }
         return Map.copyOf(map);
     }

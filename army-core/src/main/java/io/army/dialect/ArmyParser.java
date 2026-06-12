@@ -630,8 +630,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
         final String objectName, cacheObjectName;
 
         final DatabaseObject effectiveObject;
-        final boolean dataTypeObject = object instanceof DataType;
-        if (dataTypeObject) {
+        if (object instanceof DataType) {
             effectiveObject = _DialectUtils.obtainElementType((DataType) object);
         } else {
             effectiveObject = object;
@@ -898,7 +897,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
             throw _Exceptions.unrecognizedType(this.dialectDatabase, dataType);
         }
 
-        safeObjectName(_DialectUtils.obtainElementType(dataType), sqlBuilder);
+        safeObjectName(dataType, sqlBuilder);
         if (dataType.isArray()) {
             arrayTypeName(ArrayUtils.dimensionOfType(type), sqlBuilder);
         }

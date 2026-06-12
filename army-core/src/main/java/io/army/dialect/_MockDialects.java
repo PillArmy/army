@@ -22,7 +22,6 @@ import io.army.codec.XmlCodec;
 import io.army.criteria.Visible;
 import io.army.env.ArmyEnvironment;
 import io.army.env.StandardEnvironment;
-import io.army.function.DefinedTypeMapFunc;
 import io.army.generator.FieldGenerator;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
@@ -37,6 +36,7 @@ import io.army.util._Exceptions;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiFunction;
 
@@ -169,19 +169,13 @@ public abstract class _MockDialects implements DialectEnv {
             return Map.of();
         }
 
-        @Nullable
         @Override
-        public DefinedTypeMapFunc definedTypeMapFunc() {
-            return null;
+        public Set<MappingType> definedTypeSet() {
+            return Set.of();
         }
 
         @Override
-        public Map<String, MappingType> nameToTypeMap() {
-            return Map.of();
-        }
-
-        @Override
-        public BiFunction<String, ServerMeta, MappingType> unrecognizedMappingFunc() {
+        public BiFunction<String, ServerMeta, TypeMappingBundle> unrecognizedMappingFunc() {
             return null;
         }
 

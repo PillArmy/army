@@ -17,65 +17,67 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.TextEnumArrayType;
+import io.army.lang.Nullable;
+import io.army.mapping.array.LabelEnumArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.SQLType;
 import io.army.struct.CodeEnum;
 import io.army.struct.DefinedType;
-import io.army.struct.TextEnum;
+import io.army.struct.LabelEnum;
 import io.army.util.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 ///
-/// This class representing the mapping from {@link TextEnum} to {@link SQLType}.
+/// This class representing the mapping from {@link LabelEnum} to {@link SQLType}.
 ///
-/// @see TextEnum
+/// @see LabelEnum
 /// @see NameEnumType
 /// @see CodeEnumType
-public final class TextEnumType extends _ArmyBuildInType implements MappingType.SqlEnum {
+public final class LabelEnumType extends _ArmyBuildInType implements MappingType.SqlEnum {
 
-    public static TextEnumType from(final Class<?> javaType) {
-        return CLASS_VALUE.get(checkEnumClass(TextEnumType.class, javaType));
+    public static LabelEnumType from(final Class<?> javaType) {
+        return CLASS_VALUE.get(checkEnumClass(LabelEnumType.class, javaType));
     }
 
-    public static TextEnumType fromParam(final Class<?> javaType, final String enumName) {
+    public static LabelEnumType fromParam(final Class<?> javaType, final String enumName) {
         final Class<?> enumClass;
-        enumClass = checkEnumClass(TextEnumType.class, javaType);
+        enumClass = checkEnumClass(LabelEnumType.class, javaType);
 
         if (enumClass.getAnnotation(DefinedType.class) != null) {
             throw errorJavaType(NameEnumType.class, enumClass);
         }
         _Assert.assertTypeName(enumName);
-        return new TextEnumType(enumClass, DataType.from(enumName));
+        return new LabelEnumType(enumClass, enumName);
     }
 
 
-    private static final ClassValue<TextEnumType> CLASS_VALUE = FuncClassValue.create(TextEnumType::new);
+    private static final ClassValue<LabelEnumType> CLASS_VALUE = FuncClassValue.create(LabelEnumType::new);
 
 
     private final Class<?> enumClass;
 
-    private final Map<String, TextEnum> textEnumMap;
+    private final String typeName;
 
-    private final DataType dataType;
+    private final Map<String, LabelEnum> textEnumMap;
+
+    private DataType dataType;
 
     /// private constructor
-    private TextEnumType(final Class<?> javaType) {
+    private LabelEnumType(final Class<?> javaType) {
         this.enumClass = ClassUtils.enumClass(javaType);
+        this.typeName = AnnotationUtils.definedTypeNameOf(this.enumClass);
         this.textEnumMap = Map.copyOf(createTextMap(this.enumClass));
-        this.dataType = AnnotationUtils.dataTypeOf(this.enumClass, false);
     }
 
     /// private constructor
-    private TextEnumType(final Class<?> javaType, DataType dataType) {
+    private LabelEnumType(final Class<?> javaType, String typeName) {
         this.enumClass = ClassUtils.enumClass(javaType);
+        this.typeName = typeName;
         this.textEnumMap = Map.copyOf(createTextMap(this.enumClass));
-        this.dataType = dataType;
     }
 
 
@@ -86,7 +88,7 @@ public final class TextEnumType extends _ArmyBuildInType implements MappingType.
 
     @Override
     public DataType map(final ServerMeta meta) {
-        return NameEnumType.mapToDataType(this, meta);
+        return NameEnumType.mapToDataType(this, meta, this::tryDataType);
     }
 
     @Override
@@ -94,15 +96,15 @@ public final class TextEnumType extends _ArmyBuildInType implements MappingType.
         if (!this.enumClass.isInstance(source)) {
             throw paramError(this, dataType, source, null);
         }
-        return ((TextEnum) source).text();
+        return ((LabelEnum) source).label();
     }
 
     @Override
-    public TextEnum afterGet(DataType dataType, MappingEnv env, Object source) {
+    public LabelEnum afterGet(DataType dataType, MappingEnv env, Object source) {
         if (this.enumClass.isInstance(source)) {
-            return ((TextEnum) source);
+            return ((LabelEnum) source);
         }
-        final TextEnum value;
+        final LabelEnum value;
         if (!(source instanceof String) || (value = this.textEnumMap.get(source)) == null) {
             throw dataAccessError(this, dataType, source, null);
         }
@@ -111,41 +113,30 @@ public final class TextEnumType extends _ArmyBuildInType implements MappingType.
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        final DataType dataType = this.dataType;
+        final String typeName = this.typeName;
         final MappingType instance;
-        if (dataType != null && this.enumClass.getAnnotation(DefinedType.class) == null) {
-            instance = TextEnumArrayType.fromParam(ArrayUtils.arrayClassOf(this.enumClass), dataType.typeName());
+        if (typeName != null && this.enumClass.getAnnotation(DefinedType.class) == null) {
+            instance = LabelEnumArrayType.fromParam(ArrayUtils.arrayClassOf(this.enumClass), typeName);
         } else {
-            instance = TextEnumArrayType.from(ArrayUtils.arrayClassOf(this.enumClass));
+            instance = LabelEnumArrayType.from(ArrayUtils.arrayClassOf(this.enumClass));
         }
         return instance;
     }
 
-    @Override
-    public DataType dataType() {
-        return this.dataType;
-    }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<String> enumLabelList() {
-        Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) this.enumClass;
-        final Enum<?>[] enumArray = enumClass.getEnumConstants();
-        final List<String> enumLabelList = new ArrayList<>(enumArray.length);
-        for (Enum<?> enumConstant : enumArray) {
-            enumLabelList.add(((TextEnum) enumConstant).text());
-        }
-        return List.copyOf(enumLabelList);
+        return ClassUtils.textEnumLabelList(this.enumClass);
     }
 
     @SuppressWarnings("unused")
-    public Map<String, TextEnum> getTextEnumMap() {
+    public Map<String, LabelEnum> getTextEnumMap() {
         return this.textEnumMap;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.enumClass, this.dataType);
+        return Objects.hash(this.enumClass, this.typeName);
     }
 
     @Override
@@ -153,31 +144,40 @@ public final class TextEnumType extends _ArmyBuildInType implements MappingType.
         final boolean match;
         if (obj == this) {
             match = true;
-        } else if (obj instanceof TextEnumType o) {
+        } else if (obj instanceof LabelEnumType o) {
             match = o.enumClass == this.enumClass
-                    && Objects.equals(o.dataType, this.dataType);
+                    && Objects.equals(o.typeName, this.typeName);
         } else {
             match = false;
         }
         return match;
     }
 
+    @Nullable
+    private DataType tryDataType(ServerMeta meta) {
+        DataType dataType = this.dataType;
+        if (dataType == null) {
+            this.dataType = dataType = NameEnumType.tryCreateDataType(this.typeName, this.enumClass, meta);
+        }
+        return dataType;
+    }
+
     /// @return an unmodifiable map
-    public static Map<String, TextEnum> createTextMap(final Class<?> javaType)
+    public static Map<String, LabelEnum> createTextMap(final Class<?> javaType)
             throws IllegalArgumentException {
-        if (!javaType.isEnum() || !TextEnum.class.isAssignableFrom(javaType)) {
-            String m = String.format("%s isn't %s enum.", javaType.getName(), TextEnum.class.getName());
+        if (!javaType.isEnum() || !LabelEnum.class.isAssignableFrom(javaType)) {
+            String m = String.format("%s isn't %s enum.", javaType.getName(), LabelEnum.class.getName());
             throw new IllegalArgumentException(m);
         }
 
         final Enum<?>[] values = ClassUtils.enumConstantsOf(javaType);
-        final Map<String, TextEnum> map = _Collections.hashMapForSize(values.length);
-        TextEnum textEnum;
+        final Map<String, LabelEnum> map = _Collections.hashMapForSize(values.length);
+        LabelEnum labelEnum;
         for (Enum<?> value : values) {
-            textEnum = (TextEnum) value;
-            if (map.putIfAbsent(textEnum.text(), textEnum) != null) {
+            labelEnum = (LabelEnum) value;
+            if (map.putIfAbsent(labelEnum.label(), labelEnum) != null) {
                 String m;
-                m = String.format("%s.%s text[%s] duplicate", javaType.getName(), textEnum.name(), textEnum.text());
+                m = String.format("%s.%s text[%s] duplicate", javaType.getName(), labelEnum.name(), labelEnum.label());
                 throw new IllegalArgumentException(m);
             }
         }
@@ -187,7 +187,7 @@ public final class TextEnumType extends _ArmyBuildInType implements MappingType.
 
     public static Class<?> checkEnumClass(Class<? extends MappingType> typeClass, final Class<?> javaType) {
         if (!Enum.class.isAssignableFrom(javaType)
-                || !TextEnum.class.isAssignableFrom(javaType)
+                || !LabelEnum.class.isAssignableFrom(javaType)
                 || CodeEnum.class.isAssignableFrom(javaType)) {
             throw errorJavaType(typeClass, javaType);
         }

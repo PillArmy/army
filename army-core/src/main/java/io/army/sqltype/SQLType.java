@@ -50,6 +50,19 @@ public sealed interface SQLType extends DataType
     @Override
     SQLType elementType();
 
+    @Override
+    default String componentTypeName() {
+        final SQLType type;
+        type = elementType();
+        String name;
+        if (type == null) {
+            name = typeName();
+        } else {
+            name = type.typeName();
+        }
+        return name;
+    }
+
 
     default MappingType mapType(Supplier<? extends ArmyException> errorHandler) {
         throw new UnsupportedOperationException();

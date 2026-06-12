@@ -18,63 +18,71 @@ package io.army.mapping.array;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
-import io.army.dialect._DialectUtils;
 import io.army.executor.DataAccessException;
+import io.army.mapping.LabelEnumType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping.TextEnumType;
 import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
+import io.army.sqltype.PgType;
 import io.army.struct.DefinedType;
-import io.army.struct.TextEnum;
+import io.army.struct.LabelEnum;
 import io.army.util.*;
 
 import java.util.Map;
 import java.util.Objects;
 
-public class TextEnumArrayType extends _ArmyBuildInArrayType {
+/// @see LabelEnumType
+public class LabelEnumArrayType extends _ArmyBuildInArrayType {
 
-    public static TextEnumArrayType from(final Class<?> javaType) {
+    public static LabelEnumArrayType from(final Class<?> javaType) {
         checkJavaType(javaType);
 
         return CLASS_VALUE.get(javaType);
     }
 
-    public static TextEnumArrayType fromParam(final Class<?> javaType, String enumTypeName) {
+    public static LabelEnumArrayType fromParam(final Class<?> javaType, String enumTypeName) {
         final Class<?> enumClass;
         enumClass = checkJavaType(javaType);
         if (enumClass.getAnnotation(DefinedType.class) != null) {
-            throw errorJavaType(TextEnumArrayType.class, javaType);
+            throw errorJavaType(LabelEnumArrayType.class, javaType);
         }
         _Assert.assertTypeName(enumTypeName);
-        return new TextEnumArrayType(javaType, DataType.from(enumTypeName + "[]"));
+        return new LabelEnumArrayType(javaType, enumTypeName);
     }
 
-    private static final ClassValue<TextEnumArrayType> CLASS_VALUE = FuncClassValue.create(TextEnumArrayType::new);
+    private static final ClassValue<LabelEnumArrayType> CLASS_VALUE = FuncClassValue.create(LabelEnumArrayType::new);
 
     private final Class<?> javaType;
 
     private final Class<?> enumClass;
 
-    private final Map<String, TextEnum> textMap;
+    private final Map<String, LabelEnum> textMap;
 
     private final DataType dataType;
 
     /// private constructor
-    private TextEnumArrayType(final Class<?> javaType) {
+    private LabelEnumArrayType(final Class<?> javaType) {
         this.javaType = javaType;
         this.enumClass = ClassUtils.enumClass(ArrayUtils.underlyingComponent(javaType));
-        this.textMap = Map.copyOf(TextEnumType.createTextMap(this.enumClass));
-        this.dataType = AnnotationUtils.dataTypeOf(this.enumClass, true);
+        this.textMap = Map.copyOf(LabelEnumType.createTextMap(this.enumClass));
+
+        final String typeName;
+        typeName = AnnotationUtils.definedTypeNameOf(javaType);
+        if (typeName == null) {
+            this.dataType = null;
+        } else {
+            this.dataType = NameEnumArrayType.createDataType(typeName, javaType);
+        }
     }
 
     /// private constructor
-    private TextEnumArrayType(final Class<?> javaType, DataType dataType) {
+    private LabelEnumArrayType(final Class<?> javaType, String typeName) {
         this.javaType = javaType;
         this.enumClass = ClassUtils.enumClass(ArrayUtils.underlyingComponent(javaType));
-        this.textMap = Map.copyOf(TextEnumType.createTextMap(this.enumClass));
-        this.dataType = dataType;
+        this.textMap = Map.copyOf(LabelEnumType.createTextMap(this.enumClass));
+        this.dataType = NameEnumArrayType.createDataType(typeName, javaType);
     }
 
     @Override
@@ -86,7 +94,7 @@ public class TextEnumArrayType extends _ArmyBuildInArrayType {
     public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
         DataType dataType = this.dataType;
         if (dataType == null) {
-            dataType = StringArrayType.mapToSqlType(this, meta);
+            dataType = PgType.VARCHAR_ARRAY;
         }
         return dataType;
     }
@@ -111,9 +119,9 @@ public class TextEnumArrayType extends _ArmyBuildInArrayType {
         final MappingType instance;
         final DataType dataType = this.dataType;
         if (dataType != null && this.enumClass.getAnnotation(DefinedType.class) == null) {
-            instance = TextEnumType.fromParam(this.enumClass, _DialectUtils.obtainElementType(dataType).typeName());
+            instance = LabelEnumType.fromParam(this.enumClass, dataType.componentTypeName());
         } else {
-            instance = TextEnumType.from(this.enumClass);
+            instance = LabelEnumType.from(this.enumClass);
         }
         return instance;
     }
@@ -127,15 +135,28 @@ public class TextEnumArrayType extends _ArmyBuildInArrayType {
         if (!(componentType = this.javaType.getComponentType()).isArray()) {
             instance = underlyingType();
         } else if (dataType != null && this.enumClass.getAnnotation(DefinedType.class) == null) {
-            instance = fromParam(componentType, _DialectUtils.obtainElementType(dataType).typeName());
+            instance = fromParam(componentType, dataType.componentTypeName());
         } else {
             instance = from(componentType);
         }
         return instance;
     }
 
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        final DataType dataType = this.dataType;
+        final MappingType instance;
+        if (dataType != null && this.enumClass.getAnnotation(DefinedType.class) == null) {
+            instance = fromParam(ArrayUtils.arrayClassOf(this.javaType), dataType.componentTypeName());
+        } else {
+            instance = from(ArrayUtils.arrayClassOf(this.javaType));
+        }
+        return instance;
+    }
+
+
     @SuppressWarnings("unused")
-    public Map<String, TextEnum> getTextMap() {
+    public Map<String, LabelEnum> getTextMap() {
         return this.textMap;
     }
 
@@ -149,7 +170,7 @@ public class TextEnumArrayType extends _ArmyBuildInArrayType {
         final boolean match;
         if (obj == this) {
             match = true;
-        } else if (obj instanceof TextEnumArrayType o) {
+        } else if (obj instanceof LabelEnumArrayType o) {
             match = o.javaType == this.javaType
                     && o.enumClass == this.enumClass
                     && Objects.equals(o.dataType, this.dataType)
@@ -161,9 +182,9 @@ public class TextEnumArrayType extends _ArmyBuildInArrayType {
     }
 
 
-    private TextEnum parseText(final String text, final int offset, final int end) {
+    private LabelEnum parseText(final String text, final int offset, final int end) {
         final String textValue = text.substring(offset, end);
-        final TextEnum value;
+        final LabelEnum value;
         value = this.textMap.get(textValue);
         if (value == null) {
             String m = String.format("%s isn't element of %s", textValue, this.enumClass.getName());
@@ -177,7 +198,7 @@ public class TextEnumArrayType extends _ArmyBuildInArrayType {
             // no bug,never here
             throw new IllegalArgumentException();
         }
-        final String textValue = ((TextEnum) element).text();
+        final String textValue = ((LabelEnum) element).label();
         PostgreArrays.encodeElement(textValue, appender);
     }
 
@@ -186,14 +207,14 @@ public class TextEnumArrayType extends _ArmyBuildInArrayType {
     /// @see #fromParam(Class, String)
     private static Class<?> checkJavaType(final Class<?> javaType) {
         if (!javaType.isArray()) {
-            throw errorJavaType(TextEnumArrayType.class, javaType);
+            throw errorJavaType(LabelEnumArrayType.class, javaType);
         }
         final Class<?> enumClass;
         enumClass = ArrayUtils.underlyingComponent(javaType);
 
         if (!Enum.class.isAssignableFrom(enumClass)
-                || !TextEnum.class.isAssignableFrom(enumClass)) {
-            throw errorJavaType(TextEnumArrayType.class, javaType);
+                || !LabelEnum.class.isAssignableFrom(enumClass)) {
+            throw errorJavaType(LabelEnumArrayType.class, javaType);
         }
         return ClassUtils.enumClass(enumClass);
     }

@@ -22,6 +22,7 @@ import io.army.mapping.MappingType;
 import io.army.mapping._MappingFactory;
 import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
+import io.army.struct.LabelEnum;
 
 import java.util.BitSet;
 import java.util.Collection;
@@ -86,7 +87,7 @@ abstract class SQLSyntax extends Functions {
     /// - {@code  byte[]}
     /// - {@link BitSet}
     /// - {@link io.army.struct.CodeEnum}
-    /// - {@link io.army.struct.TextEnum}
+    /// - {@link LabelEnum}
     /// - {@link java.time.LocalTime}
     /// - {@link java.time.LocalDate}
     /// - {@link java.time.LocalDateTime}
@@ -182,7 +183,7 @@ abstract class SQLSyntax extends Functions {
     /// - {@code  byte[]}
     /// - {@link BitSet}
     /// - {@link io.army.struct.CodeEnum}
-    /// - {@link io.army.struct.TextEnum}
+    /// - {@link LabelEnum}
     /// - {@link java.time.LocalTime}
     /// - {@link java.time.LocalDate}
     /// - {@link java.time.LocalDateTime}

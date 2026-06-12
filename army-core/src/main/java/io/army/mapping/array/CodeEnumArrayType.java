@@ -26,7 +26,7 @@ import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.struct.CodeEnum;
-import io.army.struct.TextEnum;
+import io.army.struct.LabelEnum;
 import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
 
@@ -48,7 +48,7 @@ public class CodeEnumArrayType extends _ArmyBuildInArrayType {
 
         if (!(Enum.class.isAssignableFrom(enumClass) && CodeEnum.class.isAssignableFrom(enumClass))) {
             throw errorJavaType(CodeEnumArrayType.class, javaType);
-        } else if (TextEnum.class.isAssignableFrom(enumClass)) {
+        } else if (LabelEnum.class.isAssignableFrom(enumClass)) {
             throw errorJavaType(CodeEnumArrayType.class, enumClass);
         }
         return CLASS_VALUE.get(javaType);

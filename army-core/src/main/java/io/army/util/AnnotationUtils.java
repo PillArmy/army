@@ -20,8 +20,8 @@ package io.army.util;
 
 import io.army.lang.Nullable;
 import io.army.meta.MetaException;
-import io.army.sqltype.DataType;
 import io.army.struct.DefinedType;
+import io.army.struct.TypeCategory;
 
 public abstract class AnnotationUtils {
 
@@ -48,23 +48,13 @@ public abstract class AnnotationUtils {
         } else if (name.endsWith("[]") || name.startsWith("_")) {
             String m = String.format("%s don't support array in %s", DefinedType.class.getName(), javaType.getName());
             throw new MetaException(m);
+        } else if (Enum.class.isAssignableFrom(javaType) && nno.category() != TypeCategory.ENUM) {
+            String m = String.format("enum %s %s error.", javaType.getName(), "category");
+            throw new IllegalArgumentException(m);
         }
         return name;
     }
 
-    @Nullable
-    public static DataType dataTypeOf(final Class<?> javaType, boolean array) {
-        final DataType dataType;
-        final String typeName = definedTypeNameOf(javaType);
-        if (!_StringUtils.hasText(typeName)) {
-            dataType = null;
-        } else if (array) {
-            dataType = DataType.from(typeName + "[]");
-        } else {
-            dataType = DataType.from(typeName);
-        }
-        return dataType;
-    }
 
 
 }

@@ -29,7 +29,7 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.sqltype.SQLType;
 import io.army.struct.CodeEnum;
-import io.army.struct.TextEnum;
+import io.army.struct.LabelEnum;
 import io.army.util.ClassUtils;
 
 import java.io.IOException;
@@ -257,8 +257,8 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                     // TODO
                     throw noMatchCompatibleMapping(this, dataType, targetType);
                 } else if (Enum.class.isAssignableFrom(targetType)) {
-                    if (TextEnum.class.isAssignableFrom(targetType)) {
-                        type = TextEnumType.from(targetType);
+                    if (LabelEnum.class.isAssignableFrom(targetType)) {
+                        type = LabelEnumType.from(targetType);
                     } else {
                         type = NameEnumType.from(targetType);
                     }
@@ -280,8 +280,8 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
                     type = StringType.INSTANCE;
                 } else if (!Enum.class.isAssignableFrom(targetType)) {
                     throw noMatchCompatibleMapping(this, dataType, targetType);
-                } else if (TextEnumType.class.isAssignableFrom(targetType)) {
-                    type = TextEnumType.from(targetType);
+                } else if (LabelEnumType.class.isAssignableFrom(targetType)) {
+                    type = LabelEnumType.from(targetType);
                 } else {
                     type = NameEnumType.from(targetType);
                 }

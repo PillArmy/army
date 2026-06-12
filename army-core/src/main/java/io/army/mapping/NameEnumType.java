@@ -17,12 +17,13 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
+import io.army.lang.Nullable;
 import io.army.mapping.array.NameEnumArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 import io.army.struct.CodeEnum;
 import io.army.struct.DefinedType;
-import io.army.struct.TextEnum;
+import io.army.struct.LabelEnum;
 import io.army.util.*;
 
 import java.time.*;
@@ -30,11 +31,12 @@ import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.function.Function;
 
 /// Mapping type for Java {@code enum} constants that use {@link Enum#name()} as database value.
 ///
 /// @see Enum
-/// @see TextEnumType
+/// @see LabelEnumType
 public final class NameEnumType extends _ArmyNoInjectionType implements MappingType.SqlEnum {
 
     public static NameEnumType from(final Class<?> javaType) {
@@ -50,7 +52,8 @@ public final class NameEnumType extends _ArmyNoInjectionType implements MappingT
             throw errorJavaType(NameEnumType.class, enumClass);
         }
         _Assert.assertTypeName(enumName);
-        return new NameEnumType(enumClass, DataType.from(enumName));
+
+        return new NameEnumType(enumClass, enumName);
     }
 
 
@@ -58,18 +61,20 @@ public final class NameEnumType extends _ArmyNoInjectionType implements MappingT
 
     private final Class<?> enumClass;
 
-    private final DataType dataType;
+    private final String typeName;
+
+    private DataType dataType;
 
     /// private constructor
     private NameEnumType(Class<?> javaType) {
         this.enumClass = ClassUtils.enumClass(javaType);
-        this.dataType = AnnotationUtils.dataTypeOf(javaType, false);
+        this.typeName = AnnotationUtils.definedTypeNameOf(this.enumClass);
     }
 
     /// private constructor
-    private NameEnumType(Class<?> javaType, DataType dataType) {
+    private NameEnumType(Class<?> javaType, String typeName) {
         this.enumClass = ClassUtils.enumClass(javaType);
-        this.dataType = dataType;
+        this.typeName = typeName;
     }
 
 
@@ -80,7 +85,7 @@ public final class NameEnumType extends _ArmyNoInjectionType implements MappingT
 
     @Override
     public DataType map(final ServerMeta meta) {
-        return mapToDataType(this, meta);
+        return mapToDataType(this, meta, this::tryDataType);
     }
 
 
@@ -117,20 +122,16 @@ public final class NameEnumType extends _ArmyNoInjectionType implements MappingT
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        final DataType dataType = this.dataType;
+        final String typeName = this.typeName;
         final MappingType instance;
-        if (dataType != null && this.enumClass.getAnnotation(DefinedType.class) == null) {
-            instance = NameEnumArrayType.fromParam(ArrayUtils.arrayClassOf(this.enumClass), dataType.typeName());
+        if (typeName != null && this.enumClass.getAnnotation(DefinedType.class) == null) {
+            instance = NameEnumArrayType.fromParam(ArrayUtils.arrayClassOf(this.enumClass), typeName);
         } else {
             instance = NameEnumArrayType.from(ArrayUtils.arrayClassOf(this.enumClass));
         }
         return instance;
     }
 
-    @Override
-    public DataType dataType() {
-        return this.dataType;
-    }
 
     @Override
     public List<String> enumLabelList() {
@@ -139,7 +140,7 @@ public final class NameEnumType extends _ArmyNoInjectionType implements MappingT
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.enumClass, this.dataType);
+        return Objects.hash(this.enumClass, this.typeName);
     }
 
     @Override
@@ -149,11 +150,20 @@ public final class NameEnumType extends _ArmyNoInjectionType implements MappingT
             match = true;
         } else if (obj instanceof NameEnumType o) {
             match = o.enumClass == this.enumClass
-                    && Objects.equals(o.dataType, this.dataType);
+                    && Objects.equals(o.typeName, this.typeName);
         } else {
             match = false;
         }
         return match;
+    }
+
+    @Nullable
+    private DataType tryDataType(ServerMeta meta) {
+        DataType dataType = this.dataType;
+        if (dataType == null) {
+            this.dataType = dataType = tryCreateDataType(this.typeName, this.enumClass, meta);
+        }
+        return dataType;
     }
 
 
@@ -164,7 +174,32 @@ public final class NameEnumType extends _ArmyNoInjectionType implements MappingT
     }
 
 
-    static DataType mapToDataType(final MappingType type, final ServerMeta meta) {
+    /// for {@link LabelEnumType}
+    @Nullable
+    static DataType tryCreateDataType(@Nullable String typeName, Class<?> enumClass, ServerMeta meta) {
+        if (typeName == null) {
+            return null;
+        }
+        final DataType dataType;
+        switch (meta.serverDatabase()) {
+            case PostgreSQL:
+                dataType = CustomType.builder()
+                        .typeName(typeName)
+                        .javaType(enumClass)
+                        .componentType(ArmyType.ENUM)
+                        .componentCreateDdl(true)
+                        .build();
+                break;
+            case MySQL:
+            case SQLite:
+            default:
+                dataType = null;
+        }
+        return dataType;
+    }
+
+
+    static DataType mapToDataType(final MappingType type, final ServerMeta meta, Function<ServerMeta, DataType> func) {
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case MySQL:
@@ -172,10 +207,10 @@ public final class NameEnumType extends _ArmyNoInjectionType implements MappingT
                 break;
             case PostgreSQL: {
                 final DataType temp;
-                if (type instanceof SqlEnum o && (temp = o.dataType()) != null) {
-                    dataType = temp;
-                } else {
+                if ((temp = func.apply(meta)) == null) {
                     dataType = PgType.VARCHAR;
+                } else {
+                    dataType = temp;
                 }
             }
             break;
@@ -202,9 +237,9 @@ public final class NameEnumType extends _ArmyNoInjectionType implements MappingT
                     CodeEnum.class.getName(), CodeEnumType.class.getName());
             throw new IllegalArgumentException(m);
         }
-        if (TextEnum.class.isAssignableFrom(javaType)) {
+        if (LabelEnum.class.isAssignableFrom(javaType)) {
             String m = String.format("enum %s implements %s,please use %s.", javaType.getName(),
-                    TextEnum.class.getName(), TextEnumType.class.getName());
+                    LabelEnum.class.getName(), LabelEnumType.class.getName());
             throw new IllegalArgumentException(m);
         }
         return ClassUtils.enumClass(javaType);

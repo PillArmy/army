@@ -23,7 +23,7 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.struct.CodeEnum;
-import io.army.struct.TextEnum;
+import io.army.struct.LabelEnum;
 import io.army.util.ClassUtils;
 import io.army.util.FuncClassValue;
 import io.army.util._Collections;
@@ -39,19 +39,19 @@ public final class MySQLTextEnumSetType extends _ArmyBuildInType implements Unar
 
 
     public static MySQLTextEnumSetType fromSet(Class<?> elementClass) {
-        return CLASS_VALUE.get(TextEnumType.checkEnumClass(MySQLTextEnumSetType.class, elementClass));
+        return CLASS_VALUE.get(LabelEnumType.checkEnumClass(MySQLTextEnumSetType.class, elementClass));
     }
 
     private static final ClassValue<MySQLTextEnumSetType> CLASS_VALUE = FuncClassValue.create(MySQLTextEnumSetType::new);
 
     private final Class<?> enumClass;
 
-    private final Map<String, TextEnum> textEnumMap;
+    private final Map<String, LabelEnum> textEnumMap;
 
     /// private constructor
     private MySQLTextEnumSetType(Class<?> javaType) {
         this.enumClass = ClassUtils.enumClass(javaType);
-        this.textEnumMap = Map.copyOf(TextEnumType.createTextMap(this.enumClass));
+        this.textEnumMap = Map.copyOf(LabelEnumType.createTextMap(this.enumClass));
     }
 
 
@@ -85,7 +85,7 @@ public final class MySQLTextEnumSetType extends _ArmyBuildInType implements Unar
             if (index > 0) {
                 builder.append(_Constant.COMMA);
             }
-            builder.append(((TextEnum) e).text());    // https://dev.mysql.com/doc/refman/9.7/en/set.html
+            builder.append(((LabelEnum) e).label());    // https://dev.mysql.com/doc/refman/9.7/en/set.html
             index++;
         }
         return builder.toString();
@@ -97,16 +97,16 @@ public final class MySQLTextEnumSetType extends _ArmyBuildInType implements Unar
             throw dataAccessError(this, dataType, source, null);
         }
         final String[] array = ((String) source).split(",");
-        final Set<TextEnum> set = _Collections.hashSetForSize(array.length);
-        TextEnum textEnum;
-        final Map<String, TextEnum> textEnumMap = this.textEnumMap;
+        final Set<LabelEnum> set = _Collections.hashSetForSize(array.length);
+        LabelEnum labelEnum;
+        final Map<String, LabelEnum> textEnumMap = this.textEnumMap;
         for (String text : array) {
-            textEnum = textEnumMap.get(text);
-            if (textEnum == null) {
+            labelEnum = textEnumMap.get(text);
+            if (labelEnum == null) {
                 String m = String.format("%s unknown text[%s] instance.", this.enumClass.getName(), text);
                 throw dataAccessError(this, dataType, source, new IllegalArgumentException(m));
             }
-            set.add(textEnum);
+            set.add(labelEnum);
         }
         return set;
     }
@@ -124,7 +124,7 @@ public final class MySQLTextEnumSetType extends _ArmyBuildInType implements Unar
             throw noMatchCompatibleMapping(this, dataType, javaType);
         } else if (CodeEnum.class.isAssignableFrom(elementType)) {
             throw noMatchCompatibleMapping(this, dataType, javaType);
-        } else if (TextEnum.class.isAssignableFrom(elementType)) {
+        } else if (LabelEnum.class.isAssignableFrom(elementType)) {
             type = fromSet(elementType);
         } else {
             throw noMatchCompatibleMapping(this, dataType, javaType);
@@ -138,7 +138,7 @@ public final class MySQLTextEnumSetType extends _ArmyBuildInType implements Unar
     }
 
     @SuppressWarnings("unused")
-    public Map<String, TextEnum> getTextEnumMap() {
+    public Map<String, LabelEnum> getTextEnumMap() {
         return this.textEnumMap;
     }
 

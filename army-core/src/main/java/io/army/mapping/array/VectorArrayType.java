@@ -25,6 +25,8 @@ import io.army.mapping.MappingType;
 import io.army.mapping.VectorType;
 import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
+import io.army.sqltype.ArmyType;
+import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
 import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
@@ -58,13 +60,19 @@ public class VectorArrayType extends _ArmyBuildInArrayType {
 
     public static final VectorArrayType UNLIMITED = new VectorArrayType(Object.class);
 
-    private static final DataType DATA_TYPE = DataType.from("VECTOR[]");
-
     private final Class<?> javaType;
 
+    private final CustomType customType;
 
+    /// private constructor
     private VectorArrayType(Class<?> javaType) {
         this.javaType = javaType;
+        this.customType = CustomType.builder()
+                .typeName("VECTOR[]")
+                .javaType(javaType)
+                .componentType(ArmyType.VECTOR)
+                .componentCreateDdl(true)
+                .build();
     }
 
     @Override
@@ -77,7 +85,7 @@ public class VectorArrayType extends _ArmyBuildInArrayType {
         if (meta.serverDatabase() != Database.PostgreSQL) {
             throw MAP_ERROR_HANDLER.apply(this, meta);
         }
-        return DATA_TYPE;
+        return this.customType;
     }
 
     @Override

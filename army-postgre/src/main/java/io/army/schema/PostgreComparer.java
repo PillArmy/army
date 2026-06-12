@@ -17,7 +17,6 @@
 package io.army.schema;
 
 import io.army.dialect._Constant;
-import io.army.dialect._DialectUtils;
 import io.army.dialect._PostgreDialectUtils;
 import io.army.meta.*;
 import io.army.sqltype.DataType;
@@ -148,19 +147,14 @@ public final class PostgreComparer extends ArmySchemaComparer {
     private boolean compareUserDefinedSqlType(final ColumnInfo columnInfo, final FieldMeta<?> field,
                                               final DataType dataType) {
 
-        final String typeNameFromDb, typeNameFromJava;
+        final String typeNameFromDb, typeNameFromJava, aliasFromJava;
         typeNameFromJava = dataType.typeName().toUpperCase(Locale.ROOT);
+        aliasFromJava = dataType.safeTypeAlias().toUpperCase(Locale.ROOT);
+
         typeNameFromDb = identifierOf(columnInfo.typeName());
 
-        final boolean notMatch;
-        if (dataType.isArray()) {
-            notMatch = !typeNameFromDb.equals(typeNameFromJava)
-                    && !typeNameFromDb.equals('_' + _DialectUtils.obtainElementType(dataType).typeName().toUpperCase(Locale.ROOT))
-            ;
-        } else {
-            notMatch = !typeNameFromDb.equals(typeNameFromJava);
-        }
-        return notMatch;
+        return !typeNameFromDb.equals(typeNameFromJava)
+                && !typeNameFromDb.equals(aliasFromJava);
     }
 
 
