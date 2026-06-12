@@ -16,6 +16,14 @@
 
 package io.army.meta;
 
+
+///
+/// This interface representing database object ,this interface is base interface of below:
+///
+/// - {@link  TableMeta}
+/// - {@link  io.army.sqltype.DataType}
+///
+/// @since 0.6.0
 public interface DatabaseTypeObject extends DatabaseObject {
 
 }

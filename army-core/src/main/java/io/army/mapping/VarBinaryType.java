@@ -59,7 +59,7 @@ public final class VarBinaryType extends _ArmyBuildInType implements MappingType
                 dataType = SQLiteType.BLOB;
                 break;
             case Oracle:
-                dataType = OracleDataType.BLOB;
+                dataType = OracleType.BLOB;
                 break;
             case H2:
                 dataType = H2Type.VARBINARY;

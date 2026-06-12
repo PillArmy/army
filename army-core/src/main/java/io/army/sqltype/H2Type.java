@@ -42,24 +42,24 @@ public enum H2Type implements SQLType {
 
     @Override
     public ArmyType armyType() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Class<?> firstJavaType() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Nullable
     @Override
     public Class<?> secondJavaType() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Nullable
     @Override
     public SQLType elementType() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -70,7 +70,7 @@ public enum H2Type implements SQLType {
 
     @Override
     public String typeName() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

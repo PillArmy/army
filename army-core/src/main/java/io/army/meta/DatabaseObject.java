@@ -17,15 +17,13 @@
 package io.army.meta;
 
 import io.army.criteria.SQLElement;
-import io.army.criteria.TableField;
 
 ///
 /// This interface representing database object ,this interface is base interface of below:
 ///
-/// - {@link  TableMeta}
-/// - {@link  TableField}
-/// - {@link  io.army.mapping.MappingType.SqlUserDefined}
-/// - {@link CompositeField}
+/// - {@link  DatabaseTypeObject}
+/// - {@link  DatabaseFieldObject}
+/// - {@link  SchemaName}
 ///
 /// @since 0.6.0
 public interface DatabaseObject extends SQLElement {

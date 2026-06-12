@@ -24,7 +24,13 @@ import io.army.mapping.MappingType;
 import java.util.function.Supplier;
 
 public sealed interface SQLType extends DataType
-        permits PgType, MySQLType, SQLiteType, OracleDataType, H2Type {
+        permits PgType, MySQLType, SQLiteType, OracleType, H2Type {
+
+    /// SQL type's alias (not type name) in Java language.
+    ///
+    /// @see #typeName()
+    /// @see Enum#name()
+    String name();
 
     Database database();
 

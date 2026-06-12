@@ -67,7 +67,7 @@ public final class BlobType extends _ArmyBuildInType implements MappingType.SqlB
                 dataType = SQLiteType.BLOB;
                 break;
             case Oracle:
-                dataType = OracleDataType.BLOB;
+                dataType = OracleType.BLOB;
                 break;
             case H2:
                 dataType = H2Type.VARBINARY;

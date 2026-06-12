@@ -29,12 +29,6 @@ import io.army.meta.DatabaseTypeObject;
 public interface DataType extends TypeDef, DatabaseTypeObject {
 
 
-    /// SQL type's alias (not type name) in Java language.
-    ///
-    /// @see #typeName()
-    /// @see Enum#name()
-    String name();
-
 
     boolean isUnknown();
 

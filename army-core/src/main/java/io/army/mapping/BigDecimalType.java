@@ -142,7 +142,7 @@ public final class BigDecimalType extends _ArmyNoInjectionType implements Mappin
                 dataType = H2Type.DECIMAL;
                 break;
             case Oracle:
-                dataType = OracleDataType.NUMBER;
+                dataType = OracleType.NUMBER;
                 break;
             default:
                 throw MAP_ERROR_HANDLER.apply(type, meta);

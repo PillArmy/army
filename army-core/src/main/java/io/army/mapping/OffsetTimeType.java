@@ -78,7 +78,7 @@ public final class OffsetTimeType extends _ArmyNoInjectionType implements Mappin
                 dataType = SQLiteType.TIME_WITH_TIMEZONE;
                 break;
             case Oracle:
-                dataType = OracleDataType.TIMESTAMPTZ;
+                dataType = OracleType.TIMESTAMPTZ;
                 break;
             default:
                 throw MAP_ERROR_HANDLER.apply(this, meta);

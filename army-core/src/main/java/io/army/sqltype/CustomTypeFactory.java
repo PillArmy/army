@@ -83,10 +83,6 @@ abstract class CustomTypeFactory {
             return type;
         }
 
-        @Override
-        public String name() {
-            return this.dataTypeName;
-        }
 
         @Override
         public String typeName() {

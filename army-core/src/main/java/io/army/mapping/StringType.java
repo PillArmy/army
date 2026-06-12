@@ -121,7 +121,7 @@ public final class StringType extends _ArmyBuildInType implements MappingType.Sq
                 dataType = SQLiteType.VARCHAR;
                 break;
             case Oracle:
-                dataType = OracleDataType.VARCHAR2;
+                dataType = OracleType.VARCHAR2;
                 break;
             case H2:
             default:

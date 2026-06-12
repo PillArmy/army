@@ -68,7 +68,7 @@ public final class SqlCharType extends _ArmyBuildInType implements MappingType.S
                 dataType = SQLiteType.CHAR;
                 break;
             case Oracle:
-                dataType = OracleDataType.CHAR;
+                dataType = OracleType.CHAR;
                 break;
             case H2:
             default:

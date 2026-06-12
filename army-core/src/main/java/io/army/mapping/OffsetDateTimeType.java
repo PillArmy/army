@@ -93,7 +93,7 @@ public final class OffsetDateTimeType extends _ArmyNoInjectionType implements Ma
                 dataType = SQLiteType.TIMESTAMP_WITH_TIMEZONE;
                 break;
             case Oracle:
-                dataType = OracleDataType.TIMESTAMPTZ;
+                dataType = OracleType.TIMESTAMPTZ;
                 break;
             default:
                 throw MAP_ERROR_HANDLER.apply(type, meta);
