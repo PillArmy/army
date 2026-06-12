@@ -68,7 +68,7 @@ Domain classes (annotated)
 
 ==== Core Dependency
 
-[source,xml,subs="specialchars"]
+[source,xml,subs="attributes,specialchars"]
 ----
 <dependencies>
     <dependency>

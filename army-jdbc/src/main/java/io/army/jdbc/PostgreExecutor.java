@@ -476,7 +476,7 @@ abstract class PostgreExecutor extends JdbcExecutor {
             throw beforeBindMethodError(type, dataType, value);
         }
         final PGobject pgObject = new PGobject();
-        pgObject.setType(dataType.safeTypeAlias());
+        pgObject.setType(dataType.safeTypeAlias().toLowerCase(Locale.ROOT));
         pgObject.setValue(v);
 
         return pgObject;
