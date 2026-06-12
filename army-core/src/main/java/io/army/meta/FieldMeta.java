@@ -25,7 +25,7 @@ import java.util.List;
 /// this interface representing a Java class then tableMeta column mapping.
 ///
 /// @param <T> representing Domain Java Type
-public interface FieldMeta<T> extends TableField, FieldObject {
+public interface FieldMeta<T> extends TableField, DatabaseFieldObject {
 
     @Override
     TableMeta<T> tableMeta();

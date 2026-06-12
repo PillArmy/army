@@ -280,7 +280,7 @@ final class MySQLDdlParser extends ArmyDdlParser<MySQLParser> {
     }
 
     @Override
-    protected void dataType(final FieldObject field, final DataType dataType, final StringBuilder builder) {
+    protected void dataType(final DatabaseFieldObject field, final DataType dataType, final StringBuilder builder) {
         builder.append(_Constant.SPACE);
 
         switch ((MySQLType) dataType) {

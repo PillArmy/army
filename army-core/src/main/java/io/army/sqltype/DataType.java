@@ -18,7 +18,7 @@ package io.army.sqltype;
 
 import io.army.criteria.TypeDef;
 import io.army.lang.Nullable;
-import io.army.meta.TypeObject;
+import io.army.meta.DatabaseTypeObject;
 
 /// This is base interface of following:
 ///
@@ -26,7 +26,7 @@ import io.army.meta.TypeObject;
 /// - {@link CustomType}
 ///
 /// @since 0.6.0
-public interface DataType extends TypeDef, TypeObject {
+public interface DataType extends TypeDef, DatabaseTypeObject {
 
 
     /// SQL type's alias (not type name) in Java language.

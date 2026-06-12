@@ -2,7 +2,7 @@ package io.army.meta;
 
 import io.army.mapping.MappingType;
 
-public interface FieldObject extends DatabaseObject {
+public interface DatabaseFieldObject extends DatabaseObject {
 
 
     String fieldName();

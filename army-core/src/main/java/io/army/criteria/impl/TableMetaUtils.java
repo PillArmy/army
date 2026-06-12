@@ -188,7 +188,7 @@ public abstract class TableMetaUtils {
     /// @param field   the database field object (either `FieldMeta` or `CompositeField`)
     /// @param context the metadata resolution context
     /// @return the resolved precision value, or `-1` if not applicable
-    public static int columnPrecision(Column column, FieldObject field, MetaContext context) {
+    public static int columnPrecision(Column column, DatabaseFieldObject field, MetaContext context) {
         return columnIntValue(column.precision(), "precision", field, context);
     }
 
@@ -202,7 +202,7 @@ public abstract class TableMetaUtils {
     /// @param field   the database field object
     /// @param context the metadata resolution context
     /// @return the resolved scale value, or `-1` if not applicable
-    public static int columnScale(Column column, FieldObject field, MetaContext context) {
+    public static int columnScale(Column column, DatabaseFieldObject field, MetaContext context) {
         return columnIntValue(column.scale(), "scale", field, context);
     }
 
@@ -215,7 +215,7 @@ public abstract class TableMetaUtils {
     /// @param field   the database field object
     /// @param context the metadata resolution context
     /// @return the resolved collation string, or empty string if not specified
-    public static String columnCollation(Column column, FieldObject field, MetaContext context) {
+    public static String columnCollation(Column column, DatabaseFieldObject field, MetaContext context) {
         return columnStringValue(column.collation(), "collation", field, context);
     }
 
@@ -230,7 +230,7 @@ public abstract class TableMetaUtils {
     /// @param field   the database field object
     /// @param context the metadata resolution context
     /// @return the resolved default value expression as a SQL literal string
-    static String columnDefault(Column column, FieldObject field, MetaContext context) {
+    static String columnDefault(Column column, DatabaseFieldObject field, MetaContext context) {
         return columnStringValue(column.defaultValue(), "defaultValue", field, context);
     }
 
@@ -1034,7 +1034,7 @@ public abstract class TableMetaUtils {
     }
 
 
-    private static Class<?> getTypeObjetClass(FieldObject field) {
+    private static Class<?> getTypeObjetClass(DatabaseFieldObject field) {
         final Class<?> clazz;
         if (field instanceof FieldMeta<?>) {
             clazz = ((FieldMeta<?>) field).tableMeta().javaType();
@@ -1070,8 +1070,8 @@ public abstract class TableMetaUtils {
         return targetField;
     }
 
-    /// @see #columnCollation(Column, FieldObject, MetaContext)
-    private static String columnStringValue(final String value, String method, FieldObject field,
+    /// @see #columnCollation(Column, DatabaseFieldObject, MetaContext)
+    private static String columnStringValue(final String value, String method, DatabaseFieldObject field,
                                             MetaContext context) {
         final String finalValue;
         switch (value) {
@@ -1115,8 +1115,8 @@ public abstract class TableMetaUtils {
     }
 
 
-    /// @see #columnStringValue(String, String, FieldObject, MetaContext)
-    private static String zeroValue(FieldObject field) {
+    /// @see #columnStringValue(String, String, DatabaseFieldObject, MetaContext)
+    private static String zeroValue(DatabaseFieldObject field) {
         final MappingType type;
         final String value;
         if (field instanceof PrimaryFieldMeta<?>
@@ -1145,8 +1145,8 @@ public abstract class TableMetaUtils {
         return value;
     }
 
-    /// @see #columnIntValue(int, String, FieldObject, MetaContext)
-    private static int precisionDefault(FieldObject field) {
+    /// @see #columnIntValue(int, String, DatabaseFieldObject, MetaContext)
+    private static int precisionDefault(DatabaseFieldObject field) {
         final MappingType type;
         final Class<?> javaType;
         final int value;
@@ -1184,8 +1184,8 @@ public abstract class TableMetaUtils {
         return value;
     }
 
-    /// @see #columnIntValue(int, String, FieldObject, MetaContext)
-    private static int scaleDefault(FieldObject field) {
+    /// @see #columnIntValue(int, String, DatabaseFieldObject, MetaContext)
+    private static int scaleDefault(DatabaseFieldObject field) {
         final MappingType type;
         final int value;
         if (field instanceof PrimaryFieldMeta<?>) {
@@ -1204,9 +1204,9 @@ public abstract class TableMetaUtils {
     }
 
 
-    /// @see #columnPrecision(Column, FieldObject, MetaContext)
-    /// @see #columnScale(Column, FieldObject, MetaContext)
-    private static int columnIntValue(final int value, String method, FieldObject field, MetaContext context) {
+    /// @see #columnPrecision(Column, DatabaseFieldObject, MetaContext)
+    /// @see #columnScale(Column, DatabaseFieldObject, MetaContext)
+    private static int columnIntValue(final int value, String method, DatabaseFieldObject field, MetaContext context) {
         final int finalValue;
         switch (value) {
             case Column.DEFAULT_EXP:

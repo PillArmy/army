@@ -291,7 +291,7 @@ abstract class CustomTypeFactory {
                 throw new IllegalArgumentException(String.format("%s must be set", "typeName"));
             }
 
-            final boolean arrayTypeName = typeName.endsWith("[]") || typeName.startsWith("_");
+            final boolean arrayTypeName = DataType.isArrayTypeName(typeName);
             final boolean listClass = List.class.isAssignableFrom(javaType);
             if (arrayTypeName && javaType != Object.class && !javaType.isArray() && !listClass) {
                 throw new IllegalArgumentException(String.format("%s %s and %s not match", "javaType", javaType.getName(), typeName));
@@ -314,7 +314,7 @@ abstract class CustomTypeFactory {
             if (!_StringUtils.hasText(safeTypeAlias)) {
                 this.safeTypeAlias = this.typeName;
             } else {
-                final boolean aliasArrayTypeName = typeName.endsWith("[]") || typeName.startsWith("_");
+                final boolean aliasArrayTypeName = DataType.isArrayTypeName(safeTypeAlias);
                 if (aliasArrayTypeName != arrayTypeName) {
                     throw new IllegalArgumentException(String.format("%s %s and %s not match", "typeName", typeName, safeTypeAlias));
                 }
