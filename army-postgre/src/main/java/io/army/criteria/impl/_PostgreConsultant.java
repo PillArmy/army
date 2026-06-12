@@ -34,6 +34,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
 
 
     /// Assert that the given INSERT statement is a valid PostgreSQL Army insert.
+    /// @param insert the INSERT statement to validate
     public static void assertInsert(final InsertStatement insert) {
         if (insert instanceof _Insert._DomainInsert || insert instanceof _Insert._ValuesInsert) {
             if (!(insert instanceof PostgreInserts.PostgreValueSyntaxInsertStatement)) {
@@ -49,6 +50,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
     }
 
     /// Assert that the given sub INSERT statement is a valid PostgreSQL Army sub-insert.
+    /// @param insert the sub INSERT statement to validate
     public static void assertSubInsert(final SubStatement insert) {
         if (insert instanceof _Insert._DomainInsert || insert instanceof _Insert._ValuesInsert) {
             if (!(insert instanceof PostgreInserts.PostgreValueSyntaxInsertStatement || insert instanceof PostgreMerges.MergeValuesSyntaxSubInsert)) {
@@ -64,6 +66,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
     }
 
     /// Assert that the given UPDATE statement is a valid PostgreSQL Army update.
+    /// @param update the UPDATE statement to validate
     public static void assertUpdate(final UpdateStatement update) {
         if (update instanceof _ReturningDml) {
             if (!(update instanceof PostgreUpdates.PostgreUpdateWrapper)) {
@@ -76,6 +79,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
     }
 
     /// Assert that the given sub UPDATE statement is a valid PostgreSQL Army sub-update.
+    /// @param update the sub UPDATE statement to validate
     public static void assertSubUpdate(final SubStatement update) {
         if (update instanceof _ReturningDml) {
             if (!(update instanceof PostgreUpdates.PostgreSubReturningUpdate)) {
@@ -87,6 +91,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
     }
 
     /// Assert that the given DELETE statement is a valid PostgreSQL Army delete.
+    /// @param stmt the DELETE statement to validate
     public static void assertDelete(final DeleteStatement stmt) {
         if (stmt instanceof _ReturningDml) {
             if (!(stmt instanceof PostgreDeletes.PostgreReturningDeleteWrapper)) {
@@ -98,6 +103,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
     }
 
     /// Assert that the given sub DELETE statement is a valid PostgreSQL Army sub-delete.
+    /// @param stmt the sub DELETE statement to validate
     public static void assertSubDelete(final SubStatement stmt) {
         if (stmt instanceof _ReturningDml) {
             if (!(stmt instanceof PostgreDeletes.PostgreSubReturningDelete)) {
@@ -109,6 +115,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
     }
 
     /// Assert that the given MERGE statement is a valid PostgreSQL Army merge.
+    /// @param stmt the MERGE statement to validate
     public static void assertMerge(final PostgreMerge stmt) {
         if (!(stmt instanceof PostgreMerges.MergeInsertStatement)) {
             throw nonArmyStatement(stmt);
@@ -116,6 +123,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
     }
 
     /// Assert that the given SET statement is a valid PostgreSQL Army SET command.
+    /// @param stmt the SET command to validate
     public static void assertSetStmt(final _PostgreCommand._SetCommand stmt) {
         if (!(stmt instanceof PostgreSets)) {
             throw nonArmyStatement(stmt);
@@ -123,6 +131,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
     }
 
     /// Assert that the given SHOW statement is a valid PostgreSQL Army SHOW command.
+    /// @param stmt the SHOW command to validate
     public static void assertShowStmt(final _PostgreCommand._ShowCommand stmt) {
         if (!(stmt instanceof PostgreCommands.ShowCommand)) {
             throw nonArmyStatement(stmt);
@@ -130,12 +139,15 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
     }
 
     /// Check whether the given insert statement is NOT a merge sub-insert.
+    /// @param stmt the INSERT statement to check
+    /// @return {@code true} if not a merge sub-insert, {@code false} otherwise
     public static boolean isNotMergeSubInsert(final _Insert stmt) {
         return !(stmt instanceof PostgreMerges.MergeValuesSyntaxSubInsert);
     }
 
 
     /// Assert that the given RowSet is a valid PostgreSQL Army row set.
+    /// @param rowSet the RowSet to validate
     public static void assertRowSet(final RowSet rowSet) {
         if (!(rowSet instanceof Query)) {
             if (!(rowSet instanceof PostgreSimpleValues
@@ -164,6 +176,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
     }
 
     /// Assert that the given DECLARE CURSOR statement is a valid PostgreSQL Army cursor declaration.
+    /// @param stmt the cursor declaration to validate
     public static void assertDeclareCursor(final PostgreCursor stmt) {
         if (!(stmt instanceof PostgreDeclareCursors)) {
             throw nonArmyStatement(stmt);
@@ -171,6 +184,7 @@ public abstract class _PostgreConsultant extends _SQLConsultant {
     }
 
     /// Assert that the given CLOSE CURSOR statement is a valid PostgreSQL Army close cursor.
+    /// @param stmt the close cursor statement to validate
     public static void assertCloseCursor(final _CloseCursor stmt) {
         if (!(stmt instanceof PostgreSupports.CloseCursorStatement)) {
             throw nonArmyStatement(stmt);

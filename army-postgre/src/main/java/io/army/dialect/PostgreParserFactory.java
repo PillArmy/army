@@ -19,7 +19,7 @@ package io.army.dialect;
 
 import io.army.meta.ServerMeta;
 
-/// This class is used by {@link ParserFactories#createDialectParser(DialectEnv)} by reflection.
+/// This class is used by {@link ParserFactories#createFactory(io.army.meta.ServerMeta)} by reflection.
 @SuppressWarnings("unused")
 public final class PostgreParserFactory implements ParserFactory {
 

@@ -333,6 +333,7 @@ public interface PostgreQuery extends Query, PostgreStatement {
 
     }
 
+    /// Search order clause for CTE queries.
     /// @see <a href="https://www.postgresql.org/docs/current/sql-select.html">Postgre SELECT syntax</a>
     /// @see <a href="https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-SEARCH">Search Order</a>
     interface _SearchBreadthDepthClause {

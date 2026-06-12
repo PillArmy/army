@@ -29,7 +29,7 @@ public interface _PostgreCommand extends _Statement {
     /// SET command for modifying runtime parameters.
     interface _SetCommand extends _PostgreCommand {
 
-        /// The parameter-value pair.
+        /// @return the parameter-value pair
         _ParamValue paramValuePair();
 
     }
@@ -37,16 +37,16 @@ public interface _PostgreCommand extends _Statement {
     /// A parameter name and its value list for SET commands.
     interface _ParamValue {
 
-        /// The variable scope (SESSION, LOCAL, etc.).
+        /// @return the variable scope (SESSION, LOCAL, etc.)
         SQLs.VarScope scope();
 
-        /// The parameter name.
+        /// @return the parameter name
         String name();
 
-        /// The value word (e.g. TO, =).
+        /// @return the value word (e.g. TO, =)
         Object word();
 
-        /// The list of values.
+        /// @return the list of values
         List<Object> valueList();
 
     }
@@ -55,11 +55,11 @@ public interface _PostgreCommand extends _Statement {
     /// SHOW command for displaying runtime parameters.
     interface _ShowCommand extends _PostgreCommand {
 
-        /// The selection list.
+        /// @return the selection list
         List<? extends Selection> selectionList();
 
 
-        /// The parameter to show.
+        /// @return the parameter to show
         Object parameter();
 
     }
