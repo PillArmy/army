@@ -71,7 +71,7 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
         this.underlyingClass = ArrayUtils.underlyingComponent(javaType);
         this.underlyingType = CompositeType.from(this.underlyingClass);
         this.dataType = CustomType.builder()
-                .typeName(Objects.requireNonNull(AnnotationUtils.definedTypeNameOf(this.underlyingClass)))
+                .typeName(Objects.requireNonNull(AnnotationUtils.definedTypeNameOf(this.underlyingClass)) + "[]")
                 .javaType(this.javaType)
                 .componentType(ArmyType.COMPOSITE)
                 .componentCreateDdl(true)

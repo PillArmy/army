@@ -27,6 +27,7 @@ import io.army.util._Collections;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 
@@ -62,9 +63,10 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
             return bundle;
         }
 
+
         final DataType dataType = CustomType.builder()
                 .typeName(typeName)
-                .javaType(String.class)
+                .javaType(Object.class)
                 .componentType(ArmyType.UNKNOWN)
                 .build();
         if (dataType.isArray()) {
@@ -85,8 +87,8 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
                 continue;
             }
             bundle = TypeMappingBundle.of(dataType, mappingType);
-            map.put(dataType.typeName(), bundle);
-            map.put(dataType.safeTypeAlias(), bundle);
+            map.put(Objects.requireNonNull(dataType.typeName()), bundle);
+            map.put(Objects.requireNonNull(dataType.safeTypeAlias()), bundle);
         }
         return Map.copyOf(map);
     }

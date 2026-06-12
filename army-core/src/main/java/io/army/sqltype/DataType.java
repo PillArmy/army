@@ -67,5 +67,9 @@ public interface DataType extends TypeDef, TypeObject {
 
     TypeDef parens(int precision, int scale);
 
+    static boolean isArrayTypeName(String typeName) {
+        return typeName.endsWith("[]") || typeName.startsWith("_");
+    }
+
 
 }

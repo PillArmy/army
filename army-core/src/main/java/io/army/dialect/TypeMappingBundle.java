@@ -29,6 +29,7 @@ public final class TypeMappingBundle {
 
     public final MappingType mappingType;
 
+    /// private constructor
     private TypeMappingBundle(DataType dataType, MappingType mappingType) {
         this.dataType = dataType;
         this.mappingType = mappingType;

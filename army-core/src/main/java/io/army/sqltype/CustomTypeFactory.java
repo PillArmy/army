@@ -32,10 +32,6 @@ abstract class CustomTypeFactory {
     }
 
 
-    static CustomType typeFrom(String typeName, final ArmyType armyType, final boolean caseSensitivity) {
-        throw new UnsupportedOperationException();
-    }
-
     static CustomType.Builder builder() {
         return new DataTypeBuilder();
     }
@@ -58,11 +54,11 @@ abstract class CustomTypeFactory {
         private CustomType elementType;
 
         private ArmyCustomType(DataTypeBuilder builder) {
-            this.dataTypeName = builder.typeName;
-            this.componentType = builder.componentType;
+            this.dataTypeName = Objects.requireNonNull(builder.typeName);
+            this.componentType = Objects.requireNonNull(builder.componentType);
             this.javaType = builder.javaType;
             this.componentCreateDdl = builder.componentCreateDdl;
-            this.safeTypeAlias = builder.safeTypeAlias;
+            this.safeTypeAlias = Objects.requireNonNull(builder.safeTypeAlias);
             this.listElementJavaType = builder.listElementJavaType;
         }
 
@@ -104,7 +100,7 @@ abstract class CustomTypeFactory {
 
         @Override
         public boolean isArray() {
-            return this.dataTypeName.endsWith("[]") || this.dataTypeName.startsWith("_");
+            return DataType.isArrayTypeName(this.dataTypeName);
         }
 
         @Override
@@ -218,7 +214,9 @@ abstract class CustomTypeFactory {
         private Class<?> obtainComponentJavaType() {
             final Class<?> javaType = this.javaType;
             final Class<?> componentJavaType;
-            if (List.class.isAssignableFrom(javaType)) {
+            if (javaType == Object.class) {
+                componentJavaType = Object.class;
+            } else if (List.class.isAssignableFrom(javaType)) {
                 componentJavaType = Objects.requireNonNull(this.listElementJavaType);
             } else {
                 componentJavaType = ArrayUtils.underlyingComponent(javaType);
@@ -242,6 +240,9 @@ abstract class CustomTypeFactory {
         private String safeTypeAlias;
 
         private Class<?> listElementJavaType;
+
+        private DataTypeBuilder() {
+        }
 
         @Override
         public CustomType.Builder typeName(String typeName) {
@@ -292,7 +293,7 @@ abstract class CustomTypeFactory {
 
             final boolean arrayTypeName = typeName.endsWith("[]") || typeName.startsWith("_");
             final boolean listClass = List.class.isAssignableFrom(javaType);
-            if (arrayTypeName && !javaType.isArray() && !listClass) {
+            if (arrayTypeName && javaType != Object.class && !javaType.isArray() && !listClass) {
                 throw new IllegalArgumentException(String.format("%s %s and %s not match", "javaType", javaType.getName(), typeName));
             }
 
@@ -309,7 +310,7 @@ abstract class CustomTypeFactory {
                 throw new IllegalArgumentException(String.format("%s must be not %s", "componentType", "ARRAY"));
             }
 
-            final String safeTypeAlias = this.typeName;
+            final String safeTypeAlias = this.safeTypeAlias;
             if (!_StringUtils.hasText(safeTypeAlias)) {
                 this.safeTypeAlias = this.typeName;
             } else {
