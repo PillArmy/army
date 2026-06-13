@@ -64,6 +64,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
             .rightBoundaries(new char[]{')'})
             .backSlashEscapeOn(true)
             .quoteEscapeOn(true)
+            .quoteChar(_Constant.QUOTE)
             .build();
 
 

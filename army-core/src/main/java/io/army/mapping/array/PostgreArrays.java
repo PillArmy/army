@@ -44,6 +44,7 @@ public abstract class PostgreArrays extends ArrayMappings {
             .lengthFunc(PostgreArrays::parseArrayLength)
             .backSlashEscapeOn(true)
             .quoteEscapeOn(false)
+            .quoteChar(_Constant.DOUBLE_QUOTE)
             .build();
 
 
@@ -519,18 +520,6 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    private static IllegalArgumentException noRightBrace(int end) {
-        return new IllegalArgumentException(String.format("postgre array no right brace before offset[%s] nearby", end));
-    }
-
-    private static IllegalArgumentException noLeftBrace(int offset) {
-        return new IllegalArgumentException(String.format("postgre array no left brace at offset[%s] nearby", offset));
-    }
-
-    private static IllegalArgumentException isNotWhitespaceError(int offset) {
-        return new IllegalArgumentException(String.format("postgre array error at offset[%s]", offset));
-    }
-
 
     private static final class BoxArrayDeserializerHolder {
 
@@ -541,6 +530,7 @@ public abstract class PostgreArrays extends ArrayMappings {
                 .lengthFunc(PostgreArrays::parseArrayLength)
                 .backSlashEscapeOn(true)
                 .quoteEscapeOn(false)
+                .quoteChar(_Constant.DOUBLE_QUOTE)
                 .build();
     }
 

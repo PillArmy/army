@@ -40,11 +40,11 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
 
     private final char[] rightBoundaries;
 
+    private final char quoteChar;
+
     private final TextFunction<int[]> dimensionFunc;
 
     private final TextFunction<Integer> lengthFunc;
-
-    private final boolean alwaysParseLength;
 
     private final boolean backSlashEscape;
 
@@ -56,10 +56,10 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
         this.leftBoundaries = builder.leftBoundaries;
         this.itemDelim = builder.itemDelim;
         this.rightBoundaries = builder.rightBoundaries;
-        this.dimensionFunc = builder.dimensionFunc;
+        this.quoteChar = builder.quoteChar;
 
+        this.dimensionFunc = builder.dimensionFunc;
         this.lengthFunc = builder.lengthFunc;
-        this.alwaysParseLength = builder.alwaysParseLength;
         this.quoteEscape = builder.quoteEscape;
         this.backSlashEscape = builder.backSlashEscape;
     }
@@ -164,8 +164,9 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
         }
 
 
-        final char itemDelim;
+        final char itemDelim, quoteChar;
         itemDelim = this.itemDelim;
+        quoteChar = this.quoteChar;
 
         char ch;
 
@@ -205,7 +206,7 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
 
                 i = parseBlockElement(text, i, endIndex, holder, componentType, underlyingJavaType, elementConsumer, func);
                 delimFlat = i;
-            } else if (ch == _Constant.QUOTE || ch == _Constant.DOUBLE_QUOTE) {
+            } else if (ch == quoteChar) {
                 i = parseQuoteElement(text, i + 1, endIndex, ch, holder, elementConsumer, func);
                 delimFlat = i;
             } else if (ch == itemDelim) {
@@ -224,7 +225,7 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
         } // top loop
 
         if (rightIndex < 0) {
-            throw arrayNotEnclose(text, offset);
+            throw _Exceptions.missingEndingError(text, endIndex, this.rightBoundaries);
         }
 
         if (outerConsumer != null) {
@@ -236,13 +237,15 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
 
 
     /// @return the previous index of array delim or right boundary
+    /// @see #parseBlockElement(String, int, int, StringBuilder[], Class, Class, Consumer, TextFunction)
     private int parseUnQuoteElement(final String text, final int offset, final int endIndex,
                                     final @Nullable Consumer<Object> consumer, TextFunction<?> func) {
         final char firstChar;
         firstChar = text.charAt(offset);
 
-        final char itemDelim;
+        final char itemDelim, quoteChar;
         itemDelim = this.itemDelim;
+        quoteChar = this.quoteChar;
 
         final boolean firstIsN = firstChar == 'n' || firstChar == 'N';
 
@@ -273,7 +276,7 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
                 break;
             }
 
-            if (ch == _Constant.DOUBLE_QUOTE || ch == _Constant.QUOTE) {
+            if (ch == quoteChar) {
                 throw _Exceptions.unexpectedQuoteError(text, i, ch);
             }
 
@@ -312,8 +315,13 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
 
     /// @param offset the next index of left quote
     /// @return the index of right quote
+    /// @see #parseBlockElement(String, int, int, StringBuilder[], Class, Class, Consumer, TextFunction)
     private int parseQuoteElement(final String text, final int offset, final int endIndex, final char quote,
                                   final StringBuilder[] holder, @Nullable Consumer<Object> consumer, TextFunction<?> func) {
+
+        if (text.charAt(offset - 1) != quote) {
+            throw new IllegalArgumentException();
+        }
 
         StringBuilder builder = holder[0];
         if (builder != null) {
@@ -401,23 +409,16 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
         final Object array;
         final int arrayLength;
 
-        final TextFunction<Integer> lengthFunc = Objects.requireNonNull(this.lengthFunc, "array parser lengthFunc required");
+        arrayLength = Objects.requireNonNull(this.lengthFunc, "array parser lengthFunc required")
+                .apply(text, offset, endIndex);
+        if (arrayLength < 0) {
+            throw lengthFuncBug();
+        }
 
         if (!List.class.isAssignableFrom(javaType)) {
-            arrayLength = lengthFunc.apply(text, offset, endIndex);
-            if (arrayLength < 0) {
-                throw lengthFuncBug();
-            }
             componentType = javaType.getComponentType();
             oneDimension = componentType == underlyingJavaType;
             array = Array.newInstance(componentType, arrayLength);
-        } else if (!this.alwaysParseLength) {
-            arrayLength = Integer.MAX_VALUE;
-            array = new ArrayList<>();
-            componentType = underlyingJavaType;
-            oneDimension = true;
-        } else if ((arrayLength = lengthFunc.apply(text, offset, endIndex)) < 0) {
-            throw lengthFuncBug();
         } else if (arrayLength > 0) {
             array = new ArrayList<>(arrayLength);
             componentType = underlyingJavaType;
@@ -463,13 +464,6 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
             }
         }
         return match;
-    }
-
-
-    private static IllegalArgumentException arrayNotEnclose(String text, int offset) {
-        String m = String.format("array not enclose at nearby offset[%s] -> %s", offset,
-                _StringUtils.surroundingText(text, offset, 4));
-        return new IllegalArgumentException(m);
     }
 
 
@@ -552,11 +546,12 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
 
         private char[] rightBoundaries = DEFAULT_RIGHT_BOUNDARIES;
 
+        private char quoteChar = _Constant.DOUBLE_QUOTE;
+
         private TextFunction<int[]> dimensionFunc;
 
         private TextFunction<Integer> lengthFunc;
 
-        private boolean alwaysParseLength;
 
         private boolean backSlashEscape;
 
@@ -593,13 +588,6 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
         }
 
         @Override
-        public Builder alwaysParseLength(boolean yes) {
-            this.alwaysParseLength = yes;
-            return this;
-        }
-
-
-        @Override
         public Builder backSlashEscapeOn(boolean yes) {
             this.backSlashEscape = yes;
             return this;
@@ -612,11 +600,20 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
         }
 
         @Override
+        public Builder quoteChar(char ch) {
+            this.quoteChar = ch;
+            return this;
+        }
+
+        @Override
         public ItemsDeserializer build() {
             if (this.leftBoundaries == null) {
                 throw new NullPointerException("leftBoundaries");
             } else if (this.rightBoundaries == null) {
                 throw new NullPointerException("rightBoundaries");
+            }
+            if (this.quoteChar != _Constant.DOUBLE_QUOTE && this.quoteChar != _Constant.QUOTE) {
+                throw new IllegalArgumentException("quoteChar must be \" or '");
             }
             return new DefaultItemsDeserializer(this);
         }

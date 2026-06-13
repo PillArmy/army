@@ -95,12 +95,11 @@ public class BaseArrayMappingTests {
         DataType dataType;
         Object sourceValue, bindValue, afterGetValue;
 
-        sourceValue = new String[]{"1", "\"2\\\"", null, "{,sdf\"\\,}", null};
+        sourceValue = new String[]{"1", "\"2\\\"", null, "{,sdf\"\\,}", "Don't create new word", null};
         type = StringArrayType.from(String[].class);
 
         dataType = type.map(serverMeta);
         bindValue = type.beforeBind(dataType, env, sourceValue);
-        ArrayTestUtils.printBindValue(bindValue);
         afterGetValue = type.afterGet(dataType, env, bindValue);
 
         ArrayTestUtils.printBindAndGetValue(bindValue, afterGetValue);

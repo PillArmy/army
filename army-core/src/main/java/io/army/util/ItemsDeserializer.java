@@ -52,7 +52,7 @@ public interface ItemsDeserializer {
 
         Builder quoteEscapeOn(boolean yes);
 
-        Builder alwaysParseLength(boolean yes);
+        Builder quoteChar(char ch);
 
 
         ItemsDeserializer build();
