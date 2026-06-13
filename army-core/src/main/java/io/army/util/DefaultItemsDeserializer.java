@@ -24,6 +24,7 @@ import io.army.mapping.MappingType;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -93,6 +94,8 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
             // determine array java type
             if (javaType == Object.class) {
                 arrayJavaType = ArrayUtils.arrayClassOf(underlyingJavaType, dimension);
+            } else if (!ArrayUtils.underlyingComponentMatch(underlyingJavaType, javaType)) {
+                throw _Exceptions.arrayUnderlyingComponentMatch(underlyingJavaType, javaType);
             } else if (ArrayUtils.dimensionOf(javaType) == dimension) {
                 arrayJavaType = javaType;
             } else {
@@ -259,8 +262,8 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
             if (ch == itemDelim || isBoundaries(this.rightBoundaries, ch)) {
 
                 if (elementEndInex < 0) {
-                    if (i - offset == 4
-                            && firstIsN
+                    if (firstIsN
+                            && i - offset == 4
                             && text.regionMatches(true, offset, _Constant.NULL, 0, 4)) {
                         value = null;
                     } else {
@@ -285,8 +288,8 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
             }
 
             if (elementEndInex < 0) {
-                if (firstIsN
-                        && i - offset == 4
+                if (i - offset == 4
+                        && firstIsN
                         && text.regionMatches(true, offset, _Constant.NULL, 0, 4)) {
                     value = null;
                 } else {
@@ -318,10 +321,6 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
     /// @see #parseBlockElement(String, int, int, StringBuilder[], Class, Class, Consumer, TextFunction)
     private int parseQuoteElement(final String text, final int offset, final int endIndex, final char quote,
                                   final StringBuilder[] holder, @Nullable Consumer<Object> consumer, TextFunction<?> func) {
-
-        if (text.charAt(offset - 1) != quote) {
-            throw new IllegalArgumentException();
-        }
 
         StringBuilder builder = holder[0];
         if (builder != null) {
@@ -559,7 +558,7 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
 
         @Override
         public Builder leftBoundaries(char[] array) {
-            this.leftBoundaries = array;
+            this.leftBoundaries = Arrays.copyOf(array, array.length);
             return this;
         }
 
@@ -571,7 +570,7 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
 
         @Override
         public Builder rightBoundaries(char[] array) {
-            this.rightBoundaries = array;
+            this.rightBoundaries = Arrays.copyOf(array, array.length);
             return this;
         }
 

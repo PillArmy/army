@@ -22,6 +22,7 @@ import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.executor.StmtExecutor;
 import io.army.lang.Nullable;
+import io.army.meta.MetaException;
 import io.army.meta.ServerMeta;
 import io.army.meta.TypeMeta;
 import io.army.sqltype.ArmyType;
@@ -516,7 +517,19 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
     }
 
 
-    /*-------------------below private methods -------------------*/
+    /*-------------------below static methods -------------------*/
+
+    public static MetaException arrayUnderlyingTypeElementTypeNotMatch(final MappingType type) {
+        final Class<?> elementType, underlyingType;
+        elementType = ((UnaryGenericsMapping) type).genericsType();
+        underlyingType = ((MappingType.SqlArray) type).underlyingJavaType();
+
+        // elementType != underlyingType
+
+        String m = String.format("%s : element type %s not match underlyingType %s",
+                type.getClass().getName(), elementType.getName(), underlyingType.getName());
+        return new MetaException(m);
+    }
 
 
     /// Creates a NoMatchMappingException when compatible mapping is not found.

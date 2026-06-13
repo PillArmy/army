@@ -16,6 +16,7 @@
 
 package io.army.mapping.array;
 
+import io.army.criteria.CriteriaException;
 import io.army.dialect._Constant;
 import io.army.function.TextFunction;
 import io.army.lang.Nullable;
@@ -36,15 +37,14 @@ public abstract class PostgreArrays extends ArrayMappings {
     private PostgreArrays() {
     }
 
+    private static final ArraySerializer DEFAULT_SERIALIZER = createDefaultSerializerBuilder()
+            .delimChar(_Constant.COMMA)
+            .build();
+
 
     /// @see BoxArrayDeserializerHolder#BOX_DESERIALIZER
-    private static final ItemsDeserializer DEFAULT_DESERIALIZER = ItemsDeserializer.builder()
+    private static final ItemsDeserializer DEFAULT_DESERIALIZER = createDefaultDeserializerBuilder()
             .delim(_Constant.COMMA)
-            .dimensionFunc(PostgreArrays::parseArrayDimension)
-            .lengthFunc(PostgreArrays::parseArrayLength)
-            .backSlashEscapeOn(true)
-            .quoteEscapeOn(false)
-            .quoteChar(_Constant.DOUBLE_QUOTE)
             .build();
 
 
@@ -58,6 +58,7 @@ public abstract class PostgreArrays extends ArrayMappings {
         bytea = text.substring(offset, end).getBytes(StandardCharsets.UTF_8);
         return HexUtils.decodeHex(bytea, 0, bytea.length);
     }
+
 
     /// decode array element
     ///
@@ -141,28 +142,6 @@ public abstract class PostgreArrays extends ArrayMappings {
         }
 
         builder.append(_Constant.DOUBLE_QUOTE);// right doubleQuote
-    }
-
-    public static String arrayBeforeBind(final Object source, final BiConsumer<Object, StringBuilder> consumer,
-                                         final DataType dataType, final MappingType type) {
-        try {
-            final Class<?> javaType = type.javaType();
-            if (javaType != Object.class && !ClassUtils.isAssignableFrom(javaType, source.getClass())) {
-                throw UserMappingType.paramError(type, dataType, source, null);
-            }
-            final ArraySerializer parser;
-            if (dataType == PgType.BOX_ARRAY) {
-                parser = ArraySerializer.builder()
-                        .delimChar(';')
-                        .build();
-            } else {
-                parser = ArraySerializer.defaultParser();
-            }
-
-            return parser.parse(((MappingType.SqlArray) type).underlyingJavaType(), source, consumer);
-        } catch (Exception e) {
-            throw UserMappingType.paramError(type, dataType, source, e);
-        }
     }
 
 
@@ -290,6 +269,42 @@ public abstract class PostgreArrays extends ArrayMappings {
         return length;
     }
 
+    public static String arrayBeforeBind(final Object source, final BiConsumer<Object, StringBuilder> consumer,
+                                         final DataType dataType, final MappingType type) {
+        try {
+            if (!(type instanceof MappingType.SqlArray)) {
+                String m = String.format("%s not %s", type.getClass().getName(), MappingType.SqlArray.class.getName());
+                throw new IllegalArgumentException(m);
+            }
+            final Class<?> javaType = type.javaType(), underlyingJavaType, sourceClass;
+            underlyingJavaType = ((MappingType.SqlArray) type).underlyingJavaType();
+            sourceClass = source.getClass();
+
+            if (javaType == Object.class) {
+                if (!sourceClass.isArray()) {
+                    throw new IllegalArgumentException("source not array");
+                } else if (!ArrayUtils.underlyingComponentMatch(underlyingJavaType, sourceClass)) {
+                    throw _Exceptions.arrayUnderlyingComponentMatch(underlyingJavaType, sourceClass);
+                }
+            } else if (!List.class.isAssignableFrom(javaType) && !javaType.isInstance(source)) {
+                throw UserMappingType.paramError(type, dataType, source, null);
+            }
+
+            final ArraySerializer parser;
+            if (dataType == PgType.BOX_ARRAY) {
+                parser = BoxArrayDeserializerHolder.BOX_SERIALIZER;
+            } else {
+                parser = DEFAULT_SERIALIZER;
+            }
+
+            return parser.parse(((MappingType.SqlArray) type).underlyingJavaType(), source, consumer);
+        } catch (CriteriaException e) {
+            throw e;
+        } catch (Exception e) {
+            throw UserMappingType.paramError(type, dataType, source, e);
+        }
+    }
+
     public static Object arrayAfterGet(MappingType type, DataType dataType, final Object source,
                                        final TextFunction<?> elementFunc, @Nullable StringBuilder builder) {
 
@@ -315,108 +330,6 @@ public abstract class PostgreArrays extends ArrayMappings {
         } catch (Exception e) {
             throw UserMappingType.dataAccessError(type, dataType, source, e);
         }
-    }
-
-    public static int skipQuoteElement(final String text, final int offset, final int endIndex) {
-        if (text.charAt(offset) != _Constant.DOUBLE_QUOTE) {
-            throw new IllegalArgumentException();
-        }
-        int rightIndex = -1;
-        char ch;
-        for (int i = offset + 1; i < endIndex; i++) {
-            ch = text.charAt(i);
-
-            if (ch == _Constant.BACK_SLASH) {
-                i++; // skip current char
-                continue;
-            }
-            if (ch == _Constant.DOUBLE_QUOTE) {
-                rightIndex = i;
-                break;
-            }
-
-        } // loop
-
-        if (rightIndex < 0) {
-            throw _Exceptions.missingClosingError(text, endIndex, _Constant.DOUBLE_QUOTE);
-        }
-        return rightIndex;
-    }
-
-    public static int skipUnquotedElement(final String text, final int offset, final int endIndex) {
-        final char firstChar;
-        firstChar = text.charAt(offset);
-
-        if (firstChar == _Constant.COMMA || firstChar == _Constant.RIGHT_BRACE) {
-            throw new IllegalArgumentException();
-        } else if (Character.isWhitespace(firstChar)) {
-            throw new IllegalArgumentException();
-        }
-
-        int rightIndex = -1;
-        char ch;
-        for (int i = offset + 1; i < endIndex; i++) {
-            ch = text.charAt(i);
-
-            if (ch == _Constant.COMMA || ch == _Constant.RIGHT_BRACE) {
-                rightIndex = i - 1;
-                break;
-            }
-
-            if (ch == _Constant.DOUBLE_QUOTE) {
-                throw _Exceptions.unexpectedQuoteError(text, i, ch);
-            }
-
-        } // loop
-
-        if (rightIndex < 0) {
-            throw _Exceptions.missingEndingError(text, endIndex, new char[]{_Constant.COMMA, _Constant.RIGHT_BRACE});
-        }
-        return rightIndex;
-    }
-
-    public static int skipArrayElement(final String text, final int offset, final int endIndex) {
-        if (text.charAt(offset) != _Constant.LEFT_BRACE) {
-            throw new IllegalArgumentException();
-        }
-        int rightIndex = -1;
-        char ch;
-        for (int i = offset + 1, commaFlag = -1; i < endIndex; i++) {
-            ch = text.charAt(i);
-            if (ch == _Constant.RIGHT_BRACE) {
-                rightIndex = i;
-                break;
-            }
-
-            if (commaFlag > -1) {
-                if (ch == _Constant.COMMA) {
-                    commaFlag = -1;
-                    continue;
-                } else if (Character.isWhitespace(ch)) {
-                    continue;
-                }
-                throw _Exceptions.missDelimError(text, offset, _Constant.COMMA);
-            }
-
-            if (ch == _Constant.LEFT_BRACE) {
-                i = skipArrayElement(text, i, endIndex);
-                commaFlag = i;
-            } else if (ch == _Constant.DOUBLE_QUOTE) {
-                i = skipQuoteElement(text, i, endIndex);
-                commaFlag = i;
-            } else if (ch == _Constant.COMMA) {
-                throw _Exceptions.redundantDelimError(text, i, _Constant.COMMA);
-            } else if (!Character.isWhitespace(ch)) {
-                i = skipUnquotedElement(text, i, endIndex);
-                commaFlag = i;
-            }
-
-        } // loop
-
-        if (rightIndex < 0) {
-            throw _Exceptions.missingClosingError(text, endIndex, _Constant.RIGHT_BRACE);
-        }
-        return rightIndex;
     }
 
 
@@ -490,18 +403,24 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    /// @see #arrayAfterGet(MappingType, DataType, Object, TextFunction)
+    /// @see #arrayAfterGet(MappingType, DataType, Object, TextFunction, StringBuilder)
     private static boolean isInstanceOfType(final MappingType type, final Object source) {
-        final Class<?> javaType = type.javaType();
+        final Class<?> javaType = type.javaType(), underlyingType;
+        underlyingType = ((MappingType.SqlArray) type).underlyingJavaType();
+
         final boolean match;
         if (javaType == Object.class) {
-            match = source.getClass().isArray();
+            final Class<?> sourceClass = source.getClass();
+            match = sourceClass.isArray() && ArrayUtils.underlyingComponentMatch(underlyingType, sourceClass);
         } else if (javaType.isArray()) {
             match = javaType.isInstance(source);
         } else if (!List.class.isAssignableFrom(javaType)) {
             match = false;
         } else if (source instanceof List<?> list) {
             final Class<?> elementType = ((UnaryGenericsMapping) type).genericsType();
+            if (elementType != underlyingType) {
+                throw UserMappingType.arrayUnderlyingTypeElementTypeNotMatch(type);
+            }
             boolean elementMatch = true;
             for (Object o : list) {
                 if (o == null) {
@@ -520,17 +439,152 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
+    /// @param offset the index of left {@link _Constant#DOUBLE_QUOTE}
+    /// @see #skipArrayElement(String, int, int)
+    /// @see #parseArrayLength(String, int, int)
+    private static int skipQuoteElement(final String text, final int offset, final int endIndex) {
+//         private method trust upper
+//        if (text.charAt(offset) != _Constant.DOUBLE_QUOTE) {
+//            throw new IllegalArgumentException();
+//        }
+        int rightIndex = -1;
+        char ch;
+        for (int i = offset + 1; i < endIndex; i++) {
+            ch = text.charAt(i);
 
-    private static final class BoxArrayDeserializerHolder {
+            if (ch == _Constant.BACK_SLASH) {
+                i++; // skip current char
+                continue;
+            }
+            if (ch == _Constant.DOUBLE_QUOTE) {
+                rightIndex = i;
+                break;
+            }
 
-        /// @see #DEFAULT_DESERIALIZER
-        private static final ItemsDeserializer BOX_DESERIALIZER = ItemsDeserializer.builder()
-                .delim(_Constant.SEMICOLON)
+        } // loop
+
+        if (rightIndex < 0) {
+            throw _Exceptions.missingClosingError(text, endIndex, _Constant.DOUBLE_QUOTE);
+        }
+        return rightIndex;
+    }
+
+    /// @param offset the index of first not whitespace char
+    /// @see #skipArrayElement(String, int, int)
+    /// @see #parseArrayLength(String, int, int)
+    private static int skipUnquotedElement(final String text, final int offset, final int endIndex) {
+//        private method trust upper
+//        final char firstChar;
+//        firstChar = text.charAt(offset);
+//
+//        if (firstChar == _Constant.COMMA || firstChar == _Constant.RIGHT_BRACE) {
+//            throw new IllegalArgumentException();
+//        } else if (Character.isWhitespace(firstChar)) {
+//            throw new IllegalArgumentException();
+//        }
+
+        int rightIndex = -1;
+        char ch;
+        for (int i = offset + 1; i < endIndex; i++) {
+            ch = text.charAt(i);
+
+            if (ch == _Constant.COMMA || ch == _Constant.RIGHT_BRACE) {
+                rightIndex = i - 1;
+                break;
+            }
+
+            if (ch == _Constant.DOUBLE_QUOTE) {
+                throw _Exceptions.unexpectedQuoteError(text, i, ch);
+            }
+
+        } // loop
+
+        if (rightIndex < 0) {
+            throw _Exceptions.missingEndingError(text, endIndex, new char[]{_Constant.COMMA, _Constant.RIGHT_BRACE});
+        }
+        return rightIndex;
+    }
+
+    /// @param offset the index of left {@link _Constant#LEFT_BRACE}
+    /// @see #skipQuoteElement(String, int, int)
+    /// @see #skipUnquotedElement(String, int, int)
+    private static int skipArrayElement(final String text, final int offset, final int endIndex) {
+//        private method trust upper
+//        if (text.charAt(offset) != _Constant.LEFT_BRACE) {
+//            throw new IllegalArgumentException();
+//        }
+        int rightIndex = -1;
+        char ch;
+        for (int i = offset + 1, commaFlag = -1; i < endIndex; i++) {
+            ch = text.charAt(i);
+            if (ch == _Constant.RIGHT_BRACE) {
+                rightIndex = i;
+                break;
+            }
+
+            if (commaFlag > -1) {
+                if (ch == _Constant.COMMA) {
+                    commaFlag = -1;
+                    continue;
+                } else if (Character.isWhitespace(ch)) {
+                    continue;
+                }
+                throw _Exceptions.missDelimError(text, offset, _Constant.COMMA);
+            }
+
+            if (ch == _Constant.LEFT_BRACE) {
+                i = skipArrayElement(text, i, endIndex);
+                commaFlag = i;
+            } else if (ch == _Constant.DOUBLE_QUOTE) {
+                i = skipQuoteElement(text, i, endIndex);
+                commaFlag = i;
+            } else if (ch == _Constant.COMMA) {
+                throw _Exceptions.redundantDelimError(text, i, _Constant.COMMA);
+            } else if (!Character.isWhitespace(ch)) {
+                i = skipUnquotedElement(text, i, endIndex);
+                commaFlag = i;
+            }
+
+        } // loop
+
+        if (rightIndex < 0) {
+            throw _Exceptions.missingClosingError(text, endIndex, _Constant.RIGHT_BRACE);
+        }
+        return rightIndex;
+    }
+
+    /// @see #DEFAULT_DESERIALIZER
+    /// @see BoxArrayDeserializerHolder#BOX_DESERIALIZER
+    private static ItemsDeserializer.Builder createDefaultDeserializerBuilder() {
+        return ItemsDeserializer.builder()
                 .dimensionFunc(PostgreArrays::parseArrayDimension)
                 .lengthFunc(PostgreArrays::parseArrayLength)
                 .backSlashEscapeOn(true)
                 .quoteEscapeOn(false)
-                .quoteChar(_Constant.DOUBLE_QUOTE)
+                .quoteChar(_Constant.DOUBLE_QUOTE);
+    }
+
+
+    /// @see #DEFAULT_SERIALIZER
+    /// @see BoxArrayDeserializerHolder#BOX_SERIALIZER
+    private static ArraySerializer.Builder createDefaultSerializerBuilder() {
+        return ArraySerializer.builder()
+                .leftBoundary(_Constant.LEFT_BRACE)
+                .rightBoundary(_Constant.RIGHT_BRACE)
+                ;
+    }
+
+
+    private static final class BoxArrayDeserializerHolder {
+
+        /// @see #DEFAULT_DESERIALIZER
+        private static final ItemsDeserializer BOX_DESERIALIZER = createDefaultDeserializerBuilder()
+                .delim(_Constant.SEMICOLON)
+                .build();
+
+        /// @see #DEFAULT_SERIALIZER
+        private static final ArraySerializer BOX_SERIALIZER = createDefaultSerializerBuilder()
+                .delimChar(_Constant.SEMICOLON)
                 .build();
     }
 

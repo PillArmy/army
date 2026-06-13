@@ -116,6 +116,11 @@ public abstract class _Exceptions {
         return new IllegalArgumentException(m);
     }
 
+    public static IllegalArgumentException arrayUnderlyingComponentMatch(final Class<?> underlying, final Class<?> arrayType) {
+        String m = String.format("array underlying component type %s not match %s", underlying, arrayType);
+        return new IllegalArgumentException(m);
+    }
+
     public static ArmyException unexpectedStmt(Stmt stmt) {
         return new ArmyException(String.format("Unexpected Stmt type[%s]", stmt));
     }

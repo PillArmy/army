@@ -26,8 +26,6 @@ final class DefaultArraySerializer implements ArraySerializer {
         return new DefaultBuilder();
     }
 
-    static final ArraySerializer DEFAULT = newBuilder().build();
-
 
     private final char leftBoundary;
 

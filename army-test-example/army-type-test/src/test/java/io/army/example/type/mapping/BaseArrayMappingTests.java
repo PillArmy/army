@@ -106,7 +106,7 @@ public class BaseArrayMappingTests {
         Assert.assertEquals(afterGetValue, sourceValue);
 
 
-        sourceValue = new String[][]{{null, null, "\"2\\\"", "", "3"}, {null}, {}, {"{,sdf\"\\,}"}};
+        sourceValue = new String[][]{{null, null, "\"2\\\"", "", "3"}, {null}, {}, {"{,sdf\"\\,}"}, {"Don't create new word", "123"}};
         type = StringArrayType.from(String[][].class);
 
         dataType = type.map(serverMeta);

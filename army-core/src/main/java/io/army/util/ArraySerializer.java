@@ -25,10 +25,6 @@ public interface ArraySerializer {
             throws IllegalArgumentException;
 
 
-    static ArraySerializer defaultParser() {
-        return DefaultArraySerializer.DEFAULT;
-    }
-
     static Builder builder() {
         return DefaultArraySerializer.newBuilder();
     }
