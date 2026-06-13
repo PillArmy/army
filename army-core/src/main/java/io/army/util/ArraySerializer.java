@@ -38,6 +38,8 @@ public interface ArraySerializer {
 
         Builder delimChar(char delim);
 
+        Builder rectangularMatrixArray(boolean yes);
+
         ArraySerializer build();
 
     }

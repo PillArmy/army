@@ -571,6 +571,7 @@ public abstract class PostgreArrays extends ArrayMappings {
         return ArraySerializer.builder()
                 .leftBoundary(_Constant.LEFT_BRACE)
                 .rightBoundary(_Constant.RIGHT_BRACE)
+                .rectangularMatrixArray(true)
                 ;
     }
 

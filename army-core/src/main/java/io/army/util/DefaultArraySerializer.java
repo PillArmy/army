@@ -33,11 +33,14 @@ final class DefaultArraySerializer implements ArraySerializer {
 
     private final char delimChar;
 
+    private final boolean rectangularMatrixArray;
+
 
     private DefaultArraySerializer(DefaultBuilder builder) {
         this.leftBoundary = builder.leftBoundary;
         this.rightBoundary = builder.rightBoundary;
         this.delimChar = builder.delimChar;
+        this.rectangularMatrixArray = builder.rectangularMatrixArray;
     }
 
 
@@ -56,7 +59,7 @@ final class DefaultArraySerializer implements ArraySerializer {
     }
 
 
-    private void arrayToString(final Class<?> underlyingType, final Object array,
+    private int arrayToString(final Class<?> underlyingType, final Object array,
                                final BiConsumer<Object, StringBuilder> consumer, final StringBuilder builder) {
         final int arrayLength;
         arrayLength = Array.getLength(array);
@@ -65,7 +68,7 @@ final class DefaultArraySerializer implements ArraySerializer {
 
         Object element;
         builder.append(this.leftBoundary);
-        for (int i = 0; i < arrayLength; i++) {
+        for (int i = 0, lastLength = -1, curLength; i < arrayLength; i++) {
             if (i > 0) {
                 builder.append(this.delimChar);
             }
@@ -74,7 +77,12 @@ final class DefaultArraySerializer implements ArraySerializer {
                 if (element == null) {
                     throw new IllegalArgumentException("element array couldn't be null.");
                 }
-                arrayToString(underlyingType, element, consumer, builder);
+                curLength = arrayToString(underlyingType, element, consumer, builder);
+                if (lastLength < 0) {
+                    lastLength = curLength;
+                } else if (curLength != lastLength && this.rectangularMatrixArray) {
+                    throw new IllegalArgumentException("rectangular matrix array required,current database don't support malformed array");
+                }
             } else if (element == null) {
                 builder.append("null");
             } else {
@@ -83,6 +91,7 @@ final class DefaultArraySerializer implements ArraySerializer {
 
         }
         builder.append(this.rightBoundary);
+        return arrayLength;
     }
 
 
@@ -93,6 +102,8 @@ final class DefaultArraySerializer implements ArraySerializer {
         private char rightBoundary = '}';
 
         private char delimChar = ',';
+
+        private boolean rectangularMatrixArray;
 
 
         @Override
@@ -113,6 +124,11 @@ final class DefaultArraySerializer implements ArraySerializer {
             return this;
         }
 
+        @Override
+        public Builder rectangularMatrixArray(boolean yes) {
+            this.rectangularMatrixArray = yes;
+            return this;
+        }
 
         @Override
         public ArraySerializer build() {

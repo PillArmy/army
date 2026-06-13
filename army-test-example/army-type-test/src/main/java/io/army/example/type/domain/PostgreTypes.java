@@ -222,6 +222,18 @@ public class PostgreTypes implements FieldAccessPojo {
     @Column(comment = "integer array type")
     public Integer[] integerArray;
 
+    @Mapping("io.army.mapping.array.IntegerArrayType")
+    @Column(comment = "integer 2d array type")
+    public Integer[][] integer2dArray;
+
+    @Mapping("io.army.mapping.array.IntegerArrayType")
+    @Column(comment = "int array type")
+    public int[] intArray;
+
+    @Mapping("io.army.mapping.array.IntegerArrayType")
+    @Column(comment = "int 2d array type")
+    public int[][] int2dArray;
+
     @Mapping("io.army.mapping.array.LongArrayType")
     @Column(comment = "bigint array type")
     public Long[] bigintArray;
@@ -281,6 +293,11 @@ public class PostgreTypes implements FieldAccessPojo {
     @Mapping("io.army.mapping.array.TextArrayType")
     @Column(comment = "text array type")
     public String[] textArray;
+
+
+    @Mapping("io.army.mapping.array.TextArrayType")
+    @Column(comment = "text 2d array type")
+    public String[][] text2dArray;
 
     @Mapping("io.army.mapping.array.JsonArrayType")
     @Column(comment = "json array type")

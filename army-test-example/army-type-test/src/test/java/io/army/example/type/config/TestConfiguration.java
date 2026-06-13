@@ -1,6 +1,8 @@
 package io.army.example.type.config;
 
 
+import io.army.example.type.annotation.CurrentSession;
+import io.army.example.type.domain.PostgreTypes;
 import io.army.mapping.MappingEnv;
 import io.army.session.SyncSession;
 import io.army.session.SyncSessionContext;
@@ -14,7 +16,7 @@ public class TestConfiguration {
 
 
     @Scope("prototype")
-    @Bean(destroyMethod = "close")
+    @Bean(name = "currentSession", destroyMethod = "close")
     public SyncSession currentSession(SyncSessionContext sessionContext) {
         return sessionContext.currentSession();
     }
@@ -22,6 +24,14 @@ public class TestConfiguration {
     @Bean
     public MappingEnv mappingEnv(SyncSessionFactory sessionFactory) {
         return sessionFactory.mappingEnv();
+    }
+
+    @Scope("prototype")
+    @Bean(name = "newPostgreTypeId")
+    public Long newPostgreTypeId(@CurrentSession SyncSession session) {
+        final PostgreTypes o = new PostgreTypes();
+        session.save(o);
+        return o.id;
     }
 
 }
