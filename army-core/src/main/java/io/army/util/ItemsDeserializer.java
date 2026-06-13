@@ -48,6 +48,10 @@ public interface ItemsDeserializer {
         /// @param func return the length of array
         Builder lengthFunc(TextFunction<Integer> func);
 
+        Builder backSlashEscapeOn(boolean yes);
+
+        Builder quoteEscapeOn(boolean yes);
+
         Builder alwaysParseLength(boolean yes);
 
 

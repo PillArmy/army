@@ -51,4 +51,39 @@ public class BaseArrayMappingTests {
 
 
     }
+
+    @Test
+    public void integerArray(@Autowired MappingEnv env) {
+        final ServerMeta serverMeta = env.serverMeta();
+
+        IntegerArrayType type;
+
+        DataType dataType;
+        Object sourceValue, bindValue, afterGetValue;
+
+        sourceValue = new Integer[]{1, 2, 3, null};
+        type = IntegerArrayType.from(Integer[].class);
+
+        dataType = type.map(serverMeta);
+        bindValue = type.beforeBind(dataType, env, sourceValue);
+        afterGetValue = type.afterGet(dataType, env, bindValue);
+
+        LOG.debug("beforeBind :\n{}\nafterGet :\n{}", bindValue, afterGetValue);
+        Assert.assertEquals(afterGetValue, sourceValue);
+
+
+        sourceValue = new Integer[][]{{null, null, 3}, {null}, {}};
+        type = IntegerArrayType.from(Integer[][].class);
+
+        dataType = type.map(serverMeta);
+        bindValue = type.beforeBind(dataType, env, sourceValue);
+        afterGetValue = type.afterGet(dataType, env, bindValue);
+
+        LOG.debug("beforeBind :\n{}\nafterGet :\n{}", bindValue, afterGetValue);
+        Assert.assertEquals(afterGetValue, sourceValue);
+
+
+    }
+
+
 }

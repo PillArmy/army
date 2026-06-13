@@ -36,10 +36,14 @@ public abstract class PostgreArrays extends ArrayMappings {
     private PostgreArrays() {
     }
 
+
+    /// @see BoxArrayDeserializerHolder#BOX_DESERIALIZER
     private static final ItemsDeserializer DEFAULT_DESERIALIZER = ItemsDeserializer.builder()
             .delim(_Constant.COMMA)
             .dimensionFunc(PostgreArrays::parseArrayDimension)
             .lengthFunc(PostgreArrays::parseArrayLength)
+            .backSlashEscapeOn(true)
+            .quoteEscapeOn(false)
             .build();
 
 
@@ -421,10 +425,13 @@ public abstract class PostgreArrays extends ArrayMappings {
 
     private static final class BoxArrayDeserializerHolder {
 
+        /// @see #DEFAULT_DESERIALIZER
         private static final ItemsDeserializer BOX_DESERIALIZER = ItemsDeserializer.builder()
                 .delim(_Constant.SEMICOLON)
                 .dimensionFunc(PostgreArrays::parseArrayDimension)
                 .lengthFunc(PostgreArrays::parseArrayLength)
+                .backSlashEscapeOn(true)
+                .quoteEscapeOn(false)
                 .build();
     }
 
