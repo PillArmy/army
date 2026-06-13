@@ -49,6 +49,7 @@ import io.army.stmt.Stmt;
 import io.army.transaction.*;
 import io.army.type.SqlRecord;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -85,13 +86,34 @@ public abstract class _Exceptions {
         return new ArmyException("unknown error," + e.getMessage(), e);
     }
 
-    public static ArmyException unknownError(String message, Throwable e) {
-        return new ArmyException(message, e);
+    public static IllegalArgumentException missDelimError(String text, int offset, char delim) {
+        String m = String.format("missing delim[%s] at nearby offset[%s] -> %s", delim,
+                offset, _StringUtils.surroundingText(text, offset, 4));
+        return new IllegalArgumentException(m);
     }
 
-    public static SessionException unknownSessionError(Session session, Throwable clause) {
-        String m = String.format("session[%s]\n occur unknown error,", session.name());
-        return new SessionException(m, clause);
+    public static IllegalArgumentException redundantDelimError(String text, int offset, char delim) {
+        String m = String.format("redundant delim[%s] at nearby offset[%s] -> %s", delim,
+                offset, _StringUtils.surroundingText(text, offset, 4));
+        return new IllegalArgumentException(m);
+    }
+
+    public static IllegalArgumentException missingClosingError(String text, int offset, char quote) {
+        String m = String.format("miss closing char[%s] at nearby offset[%s] -> %s", quote, offset,
+                _StringUtils.surroundingText(text, offset, 4));
+        return new IllegalArgumentException(m);
+    }
+
+    public static IllegalArgumentException missingEndingError(String text, int offset, char[] endList) {
+        String m = String.format("miss ending char list[%s] at nearby offset[%s] -> %s", Arrays.toString(endList), offset,
+                _StringUtils.surroundingText(text, offset, 4));
+        return new IllegalArgumentException(m);
+    }
+
+    public static IllegalArgumentException unexpectedQuoteError(String text, int offset, char quote) {
+        String m = String.format("unexpected quote[%s] at nearby offset[%s] -> %s", quote, offset,
+                _StringUtils.surroundingText(text, offset, 4));
+        return new IllegalArgumentException(m);
     }
 
     public static ArmyException unexpectedStmt(Stmt stmt) {

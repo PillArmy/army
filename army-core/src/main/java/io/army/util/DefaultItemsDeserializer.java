@@ -186,22 +186,20 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
                 throw lengthFuncBug();
             }
 
-            if (delimFlat > 0) {
+            if (delimFlat > -1) {
                 if (ch == itemDelim) {
                     delimFlat = -1;
                     continue;
                 } else if (Character.isWhitespace(ch)) {
                     continue;
                 }
-                String m = String.format("missing delim at nearby offset[%s] -> %s",
-                        offset, _StringUtils.surroundingText(text, offset, 4));
-                throw new IllegalArgumentException(m);
+                throw _Exceptions.missDelimError(text, i, itemDelim);
             }
 
             if (isBoundaries(this.leftBoundaries, ch)) {
                 if (arrayContext != null && oneDimension) {
                     String m = String.format("expected one dimension array but multi-dimension array at nearby offset[%s] -> %s",
-                            offset, _StringUtils.surroundingText(text, offset, 4));
+                            i, _StringUtils.surroundingText(text, i, 4));
                     throw new IllegalArgumentException(m);
                 }
 
@@ -211,13 +209,11 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
                 i = parseQuoteElement(text, i + 1, endIndex, ch, holder, elementConsumer, func);
                 delimFlat = i;
             } else if (ch == itemDelim) {
-                String m = String.format("redundant array delim at nearby offset[%s] -> %s",
-                        offset, _StringUtils.surroundingText(text, offset, 4));
-                throw new IllegalArgumentException(m);
+                throw _Exceptions.redundantDelimError(text, i, itemDelim);
             } else if (!Character.isWhitespace(ch)) {
                 if (arrayContext != null && !oneDimension) {
                     String m = String.format("array format error at nearby offset[%s] -> %s",
-                            offset, _StringUtils.surroundingText(text, offset, 4));
+                            i, _StringUtils.surroundingText(text, i, 4));
                     throw new IllegalArgumentException(m);
                 }
                 i = parseUnQuoteElement(text, i, endIndex, elementConsumer, func);
@@ -242,9 +238,11 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
     /// @return the previous index of array delim or right boundary
     private int parseUnQuoteElement(final String text, final int offset, final int endIndex,
                                     final @Nullable Consumer<Object> consumer, TextFunction<?> func) {
-        final char itemDelim, firstChar;
-        itemDelim = this.itemDelim;
+        final char firstChar;
         firstChar = text.charAt(offset);
+
+        final char itemDelim;
+        itemDelim = this.itemDelim;
 
         final boolean firstIsN = firstChar == 'n' || firstChar == 'N';
 
@@ -275,6 +273,10 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
                 break;
             }
 
+            if (ch == _Constant.DOUBLE_QUOTE || ch == _Constant.QUOTE) {
+                throw _Exceptions.unexpectedQuoteError(text, i, ch);
+            }
+
             if (!Character.isWhitespace(ch)) {
                 continue;
             }
@@ -294,7 +296,7 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
                 elementEndInex = i;
             } else {
                 String m = String.format("unquoted element exists whitespace at nearby offset[%s] -> %s",
-                        offset, _StringUtils.surroundingText(text, offset, 4));
+                        i, _StringUtils.surroundingText(text, i, 4));
                 throw new IllegalArgumentException(m);
             }
 
@@ -342,12 +344,12 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
                     holder[0] = builder = new StringBuilder((i - offset) << 1);
                 }
 
-                // skip escape(current char),
                 if (i > lastWritten) {
                     builder.append(text, lastWritten, i);
-                    i++; // skip escape(current char),
-                    lastWritten = i;
                 }
+
+                i++; // skip escape(current char),
+                lastWritten = i;
 
                 continue;
             }
@@ -378,9 +380,7 @@ final class DefaultItemsDeserializer implements ItemsDeserializer {
 
 
         if (rightIndex < 0) {
-            String m = String.format("quote element not end at nearby offset[%s] -> %s",
-                    offset, _StringUtils.surroundingText(text, offset, 4));
-            throw new IllegalArgumentException(m);
+            throw _Exceptions.missingClosingError(text, endIndex, quote);
         }
         return rightIndex;
     }

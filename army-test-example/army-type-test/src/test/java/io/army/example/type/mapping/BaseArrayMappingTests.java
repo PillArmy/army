@@ -2,6 +2,7 @@ package io.army.example.type.mapping;
 
 import io.army.mapping.MappingEnv;
 import io.army.mapping.array.IntegerArrayType;
+import io.army.mapping.array.StringArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ public class BaseArrayMappingTests {
         bindValue = type.beforeBind(dataType, env, sourceValue);
         afterGetValue = type.afterGet(dataType, env, bindValue);
 
-        LOG.debug("beforeBind :\n{}\nafterGet :\n{}", bindValue, afterGetValue);
+        ArrayTestUtils.printBindAndGetValue(bindValue, afterGetValue);
         Assert.assertEquals(afterGetValue, sourceValue);
 
 
@@ -46,7 +47,7 @@ public class BaseArrayMappingTests {
         bindValue = type.beforeBind(dataType, env, sourceValue);
         afterGetValue = type.afterGet(dataType, env, bindValue);
 
-        LOG.debug("beforeBind :\n{}\nafterGet :\n{}", bindValue, afterGetValue);
+        ArrayTestUtils.printBindAndGetValue(bindValue, afterGetValue);
         Assert.assertEquals(afterGetValue, sourceValue);
 
 
@@ -68,7 +69,7 @@ public class BaseArrayMappingTests {
         bindValue = type.beforeBind(dataType, env, sourceValue);
         afterGetValue = type.afterGet(dataType, env, bindValue);
 
-        LOG.debug("beforeBind :\n{}\nafterGet :\n{}", bindValue, afterGetValue);
+        ArrayTestUtils.printBindAndGetValue(bindValue, afterGetValue);
         Assert.assertEquals(afterGetValue, sourceValue);
 
 
@@ -79,9 +80,42 @@ public class BaseArrayMappingTests {
         bindValue = type.beforeBind(dataType, env, sourceValue);
         afterGetValue = type.afterGet(dataType, env, bindValue);
 
-        LOG.debug("beforeBind :\n{}\nafterGet :\n{}", bindValue, afterGetValue);
+        ArrayTestUtils.printBindAndGetValue(bindValue, afterGetValue);
         Assert.assertEquals(afterGetValue, sourceValue);
 
+
+    }
+
+    @Test
+    public void stringArray(@Autowired MappingEnv env) {
+        final ServerMeta serverMeta = env.serverMeta();
+
+        StringArrayType type;
+
+        DataType dataType;
+        Object sourceValue, bindValue, afterGetValue;
+
+        sourceValue = new String[]{"1", "\"2\\\"", null, "{,sdf\"\\,}", null};
+        type = StringArrayType.from(String[].class);
+
+        dataType = type.map(serverMeta);
+        bindValue = type.beforeBind(dataType, env, sourceValue);
+        ArrayTestUtils.printBindValue(bindValue);
+        afterGetValue = type.afterGet(dataType, env, bindValue);
+
+        ArrayTestUtils.printBindAndGetValue(bindValue, afterGetValue);
+        Assert.assertEquals(afterGetValue, sourceValue);
+
+
+        sourceValue = new String[][]{{null, null, "\"2\\\"", "", "3"}, {null}, {}, {"{,sdf\"\\,}"}};
+        type = StringArrayType.from(String[][].class);
+
+        dataType = type.map(serverMeta);
+        bindValue = type.beforeBind(dataType, env, sourceValue);
+        afterGetValue = type.afterGet(dataType, env, bindValue);
+
+        ArrayTestUtils.printBindAndGetValue(bindValue, afterGetValue);
+        Assert.assertEquals(afterGetValue, sourceValue);
 
     }
 

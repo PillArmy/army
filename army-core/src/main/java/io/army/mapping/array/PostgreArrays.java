@@ -234,51 +234,57 @@ public abstract class PostgreArrays extends ArrayMappings {
     /// @see ItemsDeserializer.Builder#lengthFunc(TextFunction)
     public static int parseArrayLength(final String text, final int offset, final int endIndex)
             throws IllegalArgumentException {
+
+        if (text.charAt(offset) != _Constant.LEFT_BRACE) {
+            throw new IllegalArgumentException();
+        }
+
+        int rightIndex = -1;
         char ch;
-        boolean leftBrace = true, inBrace = false, inQuote = false, arrayEnd = false;
 
         int length = 0;
-        for (int i = offset, itemCount = 0; i < endIndex; i++) {
+        for (int i = offset + 1, commaFlag = 0; i < endIndex; i++) {
+
             ch = text.charAt(i);
-            if (leftBrace) {
-                if (ch == _Constant.LEFT_BRACE) {
-                    leftBrace = false;
-                } else if (!Character.isWhitespace(ch)) {
-                    throw isNotWhitespaceError(i);
-                }
-            } else if (inQuote) {
-                if (ch == _Constant.BACK_SLASH) {
-                    i++;
-                } else if (ch == _Constant.DOUBLE_QUOTE) {
-                    inQuote = false;
-                }
-            } else if (inBrace) {
-                if (ch == _Constant.RIGHT_BRACE) {
-                    inBrace = false;
-                }
-            } else if (ch == _Constant.LEFT_BRACE) {
-                itemCount++;
-                inBrace = true;
-            } else if (ch == _Constant.DOUBLE_QUOTE) {
-                itemCount++;
-                inQuote = true;
-            } else if (ch == _Constant.COMMA) {
-                length++;
-            } else if (ch == _Constant.RIGHT_BRACE) {
-                if (itemCount > 0) {
-                    length++;
-                }
-                arrayEnd = true;
+
+            if (ch == _Constant.RIGHT_BRACE) {
+                rightIndex = i;
                 break;
-            } else if (itemCount == 0 && !Character.isWhitespace(ch)) {
-                itemCount++;
             }
 
-        }
-        if (leftBrace) {
-            throw noLeftBrace(offset);
-        } else if (!arrayEnd) {
-            throw noRightBrace(endIndex);
+            if (commaFlag > 0) {
+                if (ch == _Constant.COMMA) {
+                    commaFlag = 0;
+                    continue;
+                } else if (Character.isWhitespace(ch)) {
+                    continue;
+                }
+                throw _Exceptions.missDelimError(text, offset, _Constant.COMMA);
+            }
+
+
+            if (ch == _Constant.LEFT_BRACE) {
+                i = skipArrayElement(text, i, endIndex);
+                commaFlag = 1;
+            } else if (ch == _Constant.DOUBLE_QUOTE) {
+                i = skipQuoteElement(text, i, endIndex);
+                commaFlag = 1;
+            } else if (ch == _Constant.COMMA) {
+                throw _Exceptions.redundantDelimError(text, i, _Constant.COMMA);
+            } else if (!Character.isWhitespace(ch)) {
+                i = skipUnquotedElement(text, i, endIndex);
+                commaFlag = 1;
+            }
+
+            if (commaFlag > 0) {
+                length++;
+            }
+
+
+        } // loop
+
+        if (rightIndex < 0) {
+            throw _Exceptions.missingClosingError(text, endIndex, _Constant.RIGHT_BRACE);
         }
         return length;
     }
@@ -309,6 +315,109 @@ public abstract class PostgreArrays extends ArrayMappings {
             throw UserMappingType.dataAccessError(type, dataType, source, e);
         }
     }
+
+    public static int skipQuoteElement(final String text, final int offset, final int endIndex) {
+        if (text.charAt(offset) != _Constant.DOUBLE_QUOTE) {
+            throw new IllegalArgumentException();
+        }
+        int rightIndex = -1;
+        char ch;
+        for (int i = offset + 1; i < endIndex; i++) {
+            ch = text.charAt(i);
+
+            if (ch == _Constant.BACK_SLASH) {
+                i++; // skip current char
+                continue;
+            }
+            if (ch == _Constant.DOUBLE_QUOTE) {
+                rightIndex = i;
+                break;
+            }
+
+        } // loop
+
+        if (rightIndex < 0) {
+            throw _Exceptions.missingClosingError(text, endIndex, _Constant.DOUBLE_QUOTE);
+        }
+        return rightIndex;
+    }
+
+    public static int skipUnquotedElement(final String text, final int offset, final int endIndex) {
+        final char firstChar;
+        firstChar = text.charAt(offset);
+
+        if (firstChar == _Constant.COMMA || firstChar == _Constant.RIGHT_BRACE) {
+            throw new IllegalArgumentException();
+        } else if (Character.isWhitespace(firstChar)) {
+            throw new IllegalArgumentException();
+        }
+
+        int rightIndex = -1;
+        char ch;
+        for (int i = offset + 1; i < endIndex; i++) {
+            ch = text.charAt(i);
+
+            if (ch == _Constant.COMMA || ch == _Constant.RIGHT_BRACE) {
+                rightIndex = i - 1;
+                break;
+            }
+
+            if (ch == _Constant.DOUBLE_QUOTE) {
+                throw _Exceptions.unexpectedQuoteError(text, i, ch);
+            }
+
+        } // loop
+
+        if (rightIndex < 0) {
+            throw _Exceptions.missingEndingError(text, endIndex, new char[]{_Constant.COMMA, _Constant.RIGHT_BRACE});
+        }
+        return rightIndex;
+    }
+
+    public static int skipArrayElement(final String text, final int offset, final int endIndex) {
+        if (text.charAt(offset) != _Constant.LEFT_BRACE) {
+            throw new IllegalArgumentException();
+        }
+        int rightIndex = -1;
+        char ch;
+        for (int i = offset + 1, commaFlag = -1; i < endIndex; i++) {
+            ch = text.charAt(i);
+            if (ch == _Constant.RIGHT_BRACE) {
+                rightIndex = i;
+                break;
+            }
+
+            if (commaFlag > -1) {
+                if (ch == _Constant.COMMA) {
+                    commaFlag = -1;
+                    continue;
+                } else if (Character.isWhitespace(ch)) {
+                    continue;
+                }
+                throw _Exceptions.missDelimError(text, offset, _Constant.COMMA);
+            }
+
+            if (ch == _Constant.LEFT_BRACE) {
+                i = skipArrayElement(text, i, endIndex);
+                commaFlag = i;
+            } else if (ch == _Constant.DOUBLE_QUOTE) {
+                i = skipQuoteElement(text, i, endIndex);
+                commaFlag = i;
+            } else if (ch == _Constant.COMMA) {
+                throw _Exceptions.redundantDelimError(text, i, _Constant.COMMA);
+            } else if (!Character.isWhitespace(ch)) {
+                i = skipUnquotedElement(text, i, endIndex);
+                commaFlag = i;
+            }
+
+        } // loop
+
+        if (rightIndex < 0) {
+            throw _Exceptions.missingClosingError(text, endIndex, _Constant.RIGHT_BRACE);
+        }
+        return rightIndex;
+    }
+
 
     @Deprecated
     public static Object arrayAfterGet(MappingType type, DataType dataType, final Object source,
