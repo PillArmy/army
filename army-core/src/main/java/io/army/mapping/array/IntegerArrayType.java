@@ -97,8 +97,7 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        final boolean nonNull = this.underlyingJavaType == int.class;
-        return PostgreArrays.arrayAfterGet(this, dataType, source, nonNull, IntegerArrayType::parseText);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, IntegerArrayType::parseText, null);
     }
 
     @Override
@@ -190,7 +189,6 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
         private static final ClassValue<IntegerArrayType> CLASS_VALUE = FuncClassValue.create(IntegerArrayType::new);
 
     }
-
 
 
 }

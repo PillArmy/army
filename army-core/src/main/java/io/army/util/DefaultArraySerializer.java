@@ -20,13 +20,13 @@ package io.army.util;
 import java.lang.reflect.Array;
 import java.util.function.BiConsumer;
 
-final class DefaultArrayParser implements ArrayParser {
+final class DefaultArraySerializer implements ArraySerializer {
 
     static Builder newBuilder() {
         return new DefaultBuilder();
     }
 
-    static final ArrayParser DEFAULT = newBuilder().build();
+    static final ArraySerializer DEFAULT = newBuilder().build();
 
 
     private final char leftBoundary;
@@ -36,7 +36,7 @@ final class DefaultArrayParser implements ArrayParser {
     private final char delimChar;
 
 
-    private DefaultArrayParser(DefaultBuilder builder) {
+    private DefaultArraySerializer(DefaultBuilder builder) {
         this.leftBoundary = builder.leftBoundary;
         this.rightBoundary = builder.rightBoundary;
         this.delimChar = builder.delimChar;
@@ -117,8 +117,8 @@ final class DefaultArrayParser implements ArrayParser {
 
 
         @Override
-        public ArrayParser build() {
-            return new DefaultArrayParser(this);
+        public ArraySerializer build() {
+            return new DefaultArraySerializer(this);
         }
 
     } // DefaultBuilder

@@ -20,13 +20,11 @@ import io.army.annotation.Mapping;
 import io.army.criteria.CriteriaException;
 import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
-import io.army.function.TextFunction;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.NoMatchMappingException;
 import io.army.mapping.TextType;
-import io.army.mapping.array.PostgreArrays;
 import io.army.mapping.postgre.array.PostgreMultiRangeArrayType;
 import io.army.meta.MetaException;
 import io.army.sqltype.DataType;
@@ -34,14 +32,14 @@ import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 import io.army.util._Exceptions;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-/// 
+///
 /// This class representing army build-in postgre multi-range array type.
 /// * @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-BUILTIN">Built-in Range and Multirange Types</a>
+///
 /// @since 0.6.0
 public final class PgMultiRangeType extends PgRangeType implements PgRangeType.MultiRangeType {
 
@@ -55,7 +53,6 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
     /// - {@link PgType#DATEMULTIRANGE}
     /// - {@link PgType#TSMULTIRANGE}
     /// - {@link PgType#TSTZMULTIRANGE}
-    /// 
     /// @throws IllegalArgumentException throw when javaType error
     /// @throws MetaException            throw when param error.
     public static PgMultiRangeType from(final Class<?> javaType, final String param) throws MetaException {
@@ -81,7 +78,7 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
     /// - {@link PgType#DATEMULTIRANGE}
     /// - {@link PgType#TSMULTIRANGE}
     /// - {@link PgType#TSTZMULTIRANGE}
-    /// 
+    ///
     public static PgMultiRangeType from(final Class<?> javaType, final PgType sqlType)
             throws IllegalArgumentException {
 
@@ -115,7 +112,6 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
     /// - {@link PgType#DATEMULTIRANGE}
     /// - {@link PgType#TSMULTIRANGE}
     /// - {@link PgType#TSTZMULTIRANGE}
-    /// 
     /// @throws IllegalArgumentException throw when javaType or sqlType error
     public static PgMultiRangeType fromFunc(final Class<?> javaType, final PgType sqlType,
                                             final RangeFunction<?, ?> rangeFunc)
@@ -141,7 +137,6 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
     /// - {@link PgType#DATEMULTIRANGE}
     /// - {@link PgType#TSMULTIRANGE}
     /// - {@link PgType#TSTZMULTIRANGE}
-    /// 
     /// @param methodName from {@link Mapping#func()}
     /// @throws IllegalArgumentException throw when javaType error
     /// @throws MetaException            throw when param or methodName error.
@@ -219,7 +214,7 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
     }
 
 
-    /// 
+    ///
     /// package constructor
     private PgMultiRangeType(PgType sqlType, Class<?> javaType, @Nullable RangeFunction<?, ?> rangeFunc) {
         super(sqlType, javaType, rangeFunc);
@@ -366,28 +361,29 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
                                              final DataType dataType, final MappingType type, final ErrorHandler handler)
             throws CriteriaException {
 
-        final String value, text;
-        final int length;
-        if (!(nonNull instanceof String)) {
-            if (!type.javaType().isInstance(nonNull)) {
-                throw handler.apply(type, dataType, nonNull, null);
-            }
-            final BiConsumer<Object, StringBuilder> rangeSerializer;
-            rangeSerializer = (range, appender) -> rangeToText(range, boundSerializer, type, appender);
-
-            final StringBuilder builder = new StringBuilder();
-            PostgreArrays.toArrayText(nonNull, rangeSerializer, builder);
-            value = builder.toString();
-        } else if ((length = (text = ((String) nonNull).trim()).length()) < 5) { //non-empty
-            throw handler.apply(type, dataType, nonNull, null);
-        } else if (text.charAt(0) != _Constant.LEFT_BRACE) {
-            throw handler.apply(type, dataType, nonNull, null);
-        } else if (text.charAt(length - 1) != _Constant.RIGHT_BRACE) {
-            throw handler.apply(type, dataType, nonNull, null);
-        } else {
-            value = text;
-        }
-        return value;
+//        final String value, text;
+//        final int length;
+//        if (!(nonNull instanceof String)) {
+//            if (!type.javaType().isInstance(nonNull)) {
+//                throw handler.apply(type, dataType, nonNull, null);
+//            }
+//            final BiConsumer<Object, StringBuilder> rangeSerializer;
+//            rangeSerializer = (range, appender) -> rangeToText(range, boundSerializer, type, appender);
+//
+//            final StringBuilder builder = new StringBuilder();
+//            PostgreArrays.toArrayText(nonNull, rangeSerializer, builder);
+//            value = builder.toString();
+//        } else if ((length = (text = ((String) nonNull).trim()).length()) < 5) { //non-empty
+//            throw handler.apply(type, dataType, nonNull, null);
+//        } else if (text.charAt(0) != _Constant.LEFT_BRACE) {
+//            throw handler.apply(type, dataType, nonNull, null);
+//        } else if (text.charAt(length - 1) != _Constant.RIGHT_BRACE) {
+//            throw handler.apply(type, dataType, nonNull, null);
+//        } else {
+//            value = text;
+//        }
+//        return value;
+        throw new UnsupportedOperationException();
     }
 
     public static <T> Object rangeAfterGet(Object nonNull, @Nullable RangeFunction<T, ?> rangeFunc,
@@ -404,23 +400,24 @@ public final class PgMultiRangeType extends PgRangeType implements PgRangeType.M
                                               final Function<String, T> parseFunc, final DataType dataType,
                                               final MappingType type, final ErrorHandler handler) {
 
-        final TextFunction<?> elementFunc;
-        if (rangeFunc == null) {
-            if (type.javaType() != String.class) {
-                String m = String.format("%s java type isn't %s", type, String.class.getName());
-                throw handler.apply(type, dataType, text, new IllegalArgumentException(m));
-            }
-            elementFunc = String::substring;
-        } else {
-            elementFunc = multiRangeParseFunc(text, rangeFunc, parseFunc, dataType, type, handler);
-        }
-        final Object array;
-        array = PostgreArrays.parseMultiRange(text, elementFunc, dataType, type, handler);
-
-        if (!(array instanceof List || ArrayUtils.dimensionOf(array.getClass()) == 1)) {
-            throw handler.apply(type, dataType, text, null);
-        }
-        return array;
+//        final TextFunction<?> elementFunc;
+//        if (rangeFunc == null) {
+//            if (type.javaType() != String.class) {
+//                String m = String.format("%s java type isn't %s", type, String.class.getName());
+//                throw handler.apply(type, dataType, text, new IllegalArgumentException(m));
+//            }
+//            elementFunc = String::substring;
+//        } else {
+//            elementFunc = multiRangeParseFunc(text, rangeFunc, parseFunc, dataType, type, handler);
+//        }
+//        final Object array;
+//        array = PostgreArrays.parseMultiRange(text, elementFunc, dataType, type, handler);
+//
+//        if (!(array instanceof List || ArrayUtils.dimensionOf(array.getClass()) == 1)) {
+//            throw handler.apply(type, dataType, text, null);
+//        }
+//        return array;
+        throw new UnsupportedOperationException();
     }
 
 

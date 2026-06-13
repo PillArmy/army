@@ -19,18 +19,18 @@ package io.army.util;
 
 import java.util.function.BiConsumer;
 
-public interface ArrayParser {
+public interface ArraySerializer {
 
     String parse(Class<?> underlyingJavaType, final Object array, final BiConsumer<Object, StringBuilder> consumer)
             throws IllegalArgumentException;
 
 
-    static ArrayParser defaultParser() {
-        return DefaultArrayParser.DEFAULT;
+    static ArraySerializer defaultParser() {
+        return DefaultArraySerializer.DEFAULT;
     }
 
     static Builder builder() {
-        return DefaultArrayParser.newBuilder();
+        return DefaultArraySerializer.newBuilder();
     }
 
 
@@ -42,7 +42,7 @@ public interface ArrayParser {
 
         Builder delimChar(char delim);
 
-        ArrayParser build();
+        ArraySerializer build();
 
     }
 

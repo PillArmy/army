@@ -189,6 +189,14 @@ public abstract class ArrayUtils {
 
     }
 
+    public static boolean underlyingIsPrimitive(Class<?> javaType) {
+
+        if (javaType.isArray()) {
+            javaType = underlyingComponent(javaType);
+        }
+        return javaType.isPrimitive();
+    }
+
     public static boolean underlyingComponentMatch(final Class<?> underlying, final Class<?> arrayType) {
         if (!arrayType.isArray()) {
             throw new IllegalArgumentException(String.format("%s isn't array type", arrayType.getName()));
@@ -227,15 +235,6 @@ public abstract class ArrayUtils {
         return dimension;
     }
 
-    public static int dimensionOfArrayMapping(final Class<?> javaType) {
-        final int dimension;
-        if (List.class.isAssignableFrom(javaType)) {
-            dimension = 1;
-        } else {
-            dimension = dimensionOf(javaType);
-        }
-        return dimension;
-    }
 
 
     public static int dimensionOfType(final MappingType type) {

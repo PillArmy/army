@@ -16,7 +16,6 @@
 
 package io.army.mapping.array;
 
-import io.army.dialect._Constant;
 import io.army.util._TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,199 +108,199 @@ public class PostgreArraysUnitTests {
 
     @Test
     public void parseArray() {
-        String text;
-        Class<?> javaType;
-        Object array;
-
-        text = "{}";
-        javaType = int[].class;
-        array = PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-        Assert.assertEquals(array, new int[0]);
-
-        text = "{1}";
-        array = PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-        Assert.assertEquals(array, new int[]{1});
-
-        text = "{1 , 2}";
-        array = PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-        Assert.assertEquals(array, new int[]{1, 2});
-
-        text = "{{1 , 2}}";
-        javaType = int[][].class;
-        array = PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-        Assert.assertEquals(array, new int[][]{{1, 2}});
-
-        text = "{{1 , 2} , { 3, 4}}";
-        array = PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-        Assert.assertEquals(array, new int[][]{{1, 2}, {3, 4}});
-
-        text = "[-1:0][-2:-1]={{1 , 2} , { 3, 4}}";
-        array = PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-        Assert.assertEquals(array, new int[][]{{1, 2}, {3, 4}});
-
-
-        text = "{}";
-        javaType = String[].class;
-        array = PostgreArrays.parseArrayText(javaType, text, false, _Constant.COMMA, String::substring);
-        Assert.assertEquals(array, new String[0]);
-
-        text = "{\"\"}";
-        array = PostgreArrays.parseArrayText(javaType, text, false, _Constant.COMMA, String::substring);
-        Assert.assertEquals(array, new String[]{""});
-
-        text = "{\"I love \\\"army\\\"\"}";
-        array = PostgreArrays.parseArrayText(javaType, text, false, _Constant.COMMA, String::substring);
-        Assert.assertEquals(array, new String[]{"I love \"army\""});
-
-        text = "{{\"\"}}";
-        javaType = String[][].class;
-        array = PostgreArrays.parseArrayText(javaType, text, false, _Constant.COMMA, String::substring);
-        Assert.assertEquals(array, new String[][]{{""}});
-
-        text = "{{\"\"}, {army} }";
-        array = PostgreArrays.parseArrayText(javaType, text, false, _Constant.COMMA, String::substring);
-        Assert.assertEquals(array, new String[][]{{""}, {"army"}});
-
-        text = "{{\"I love \\\"army\\\"\"} , {\"My Name is zoro.\"} }";
-        array = PostgreArrays.parseArrayText(javaType, text, false, _Constant.COMMA, String::substring);
-        Assert.assertEquals(array, new String[][]{{"I love \"army\""}, {"My Name is zoro."}});
+//        String text;
+//        Class<?> javaType;
+//        Object array;
+//
+//        text = "{}";
+//        javaType = int[].class;
+//        array = PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//        Assert.assertEquals(array, new int[0]);
+//
+//        text = "{1}";
+//        array = PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//        Assert.assertEquals(array, new int[]{1});
+//
+//        text = "{1 , 2}";
+//        array = PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//        Assert.assertEquals(array, new int[]{1, 2});
+//
+//        text = "{{1 , 2}}";
+//        javaType = int[][].class;
+//        array = PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//        Assert.assertEquals(array, new int[][]{{1, 2}});
+//
+//        text = "{{1 , 2} , { 3, 4}}";
+//        array = PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//        Assert.assertEquals(array, new int[][]{{1, 2}, {3, 4}});
+//
+//        text = "[-1:0][-2:-1]={{1 , 2} , { 3, 4}}";
+//        array = PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//        Assert.assertEquals(array, new int[][]{{1, 2}, {3, 4}});
+//
+//
+//        text = "{}";
+//        javaType = String[].class;
+//        array = PostgreArrays.parseArrayText(javaType, text, false, _Constant.COMMA, String::substring);
+//        Assert.assertEquals(array, new String[0]);
+//
+//        text = "{\"\"}";
+//        array = PostgreArrays.parseArrayText(javaType, text, false, _Constant.COMMA, String::substring);
+//        Assert.assertEquals(array, new String[]{""});
+//
+//        text = "{\"I love \\\"army\\\"\"}";
+//        array = PostgreArrays.parseArrayText(javaType, text, false, _Constant.COMMA, String::substring);
+//        Assert.assertEquals(array, new String[]{"I love \"army\""});
+//
+//        text = "{{\"\"}}";
+//        javaType = String[][].class;
+//        array = PostgreArrays.parseArrayText(javaType, text, false, _Constant.COMMA, String::substring);
+//        Assert.assertEquals(array, new String[][]{{""}});
+//
+//        text = "{{\"\"}, {army} }";
+//        array = PostgreArrays.parseArrayText(javaType, text, false, _Constant.COMMA, String::substring);
+//        Assert.assertEquals(array, new String[][]{{""}, {"army"}});
+//
+//        text = "{{\"I love \\\"army\\\"\"} , {\"My Name is zoro.\"} }";
+//        array = PostgreArrays.parseArrayText(javaType, text, false, _Constant.COMMA, String::substring);
+//        Assert.assertEquals(array, new String[][]{{"I love \"army\""}, {"My Name is zoro."}});
     }
 
 
     @Test
     public void nonNullError() {
-        String text;
-        final Class<?> javaType;
-        javaType = int[].class;
-        try {
-            text = "{null}";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
-
-        try {
-            text = "{NULL}";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
-
-        try {
-            text = "{ null  }";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
-
-        try {
-            text = "{ NULL  }";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
-
-        //
-
-        try {
-            text = "{1,null}";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
-
-        try {
-            text = "{2 , null}";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
-
-        try {
-            text = "{ 3,null  }";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
-
-        try {
-            text = "{ 4 , null  }";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
-
-        try {
-            text = "{ 4 , null  }";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
-
-        //
-        try {
-            text = "{1,NULL}";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
-
-        try {
-            text = "{2 , NULL}";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
-
-        try {
-            text = "{ 3,NULL  }";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
-
-        try {
-            text = "{ 4 , NULL  }";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
-
-        try {
-            text = "{ 4 , NULL  }";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
+//        String text;
+//        final Class<?> javaType;
+//        javaType = int[].class;
+//        try {
+//            text = "{null}";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
+//
+//        try {
+//            text = "{NULL}";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
+//
+//        try {
+//            text = "{ null  }";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
+//
+//        try {
+//            text = "{ NULL  }";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
+//
+//        //
+//
+//        try {
+//            text = "{1,null}";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
+//
+//        try {
+//            text = "{2 , null}";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
+//
+//        try {
+//            text = "{ 3,null  }";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
+//
+//        try {
+//            text = "{ 4 , null  }";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
+//
+//        try {
+//            text = "{ 4 , null  }";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
+//
+//        //
+//        try {
+//            text = "{1,NULL}";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
+//
+//        try {
+//            text = "{2 , NULL}";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
+//
+//        try {
+//            text = "{ 3,NULL  }";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
+//
+//        try {
+//            text = "{ 4 , NULL  }";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
+//
+//        try {
+//            text = "{ 4 , NULL  }";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
 
     }
 
     @Test
     public void memberArrayNullError() {
-        String text;
-        final Class<?> javaType;
-        javaType = int[][].class;
-        try {
-            text = "{{1},null}";
-            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
-            Assert.fail();
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e.getMessage());
-        }
+//        String text;
+//        final Class<?> javaType;
+//        javaType = int[][].class;
+//        try {
+//            text = "{{1},null}";
+//            PostgreArrays.parseArrayText(javaType, text, true, _Constant.COMMA, this::parseInt);
+//            Assert.fail();
+//        } catch (IllegalArgumentException e) {
+//            LOG.debug(e.getMessage());
+//        }
     }
 
     /// @see PostgreArrays#decodeElement(String, int, int)

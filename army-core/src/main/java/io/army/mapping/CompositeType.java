@@ -23,6 +23,7 @@ import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.function.DecodeLiteralFunc;
 import io.army.function.SafeLiteralFunc;
+import io.army.lang.Nullable;
 import io.army.mapping.array.CompositeArrayType;
 import io.army.meta.CompositeField;
 import io.army.meta.ServerMeta;
@@ -56,6 +57,12 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
 
     private static final ClassValue<CompositeType> CLASS_VALUE = FuncClassValue.create(CompositeType::new);
+
+    private static final ItemsDeserializer ITEM_PARSER = ItemsDeserializer.builder()
+            .leftBoundaries(new char[]{'('})
+            .delim(_Constant.COMMA)
+            .rightBoundaries(new char[]{')'})
+            .build();
 
 
     private final Class<?> javaType;
@@ -117,7 +124,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
             throw dataAccessError(this, dataType, source, null);
         }
         final String text = ((String) source).trim();
-        return parseToPojo(this, dataType, env, text, 0, text.length());
+        return parseToPojo(this, dataType, env, text, 0, text.length(), null);
     }
 
     @Override
@@ -185,7 +192,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
     }
 
     public static Object parseToPojo(final CompositeType instance, final DataType dataType, final MappingEnv env,
-                                     final String source, final int offset, final int endIndex) {
+                                     final String source, final int offset, final int endIndex, @Nullable StringBuilder builder) {
         if (!_StringUtils.hasText(source)
                 || source.charAt(offset) != _Constant.LEFT_PAREN
                 || source.charAt(endIndex - 1) != _Constant.RIGHT_PAREN) {
@@ -196,9 +203,10 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         final Supplier<?> constructor = ObjectAccessorFactory.pojoConstructor(instance.javaType);
         final FieldParser fieldParser = new FieldParser(accessor, constructor.get(), instance.fieldList, env);
 
+
         try {
-            ItemsParser.defaultParser()
-                    .parseItems(source, offset, endIndex, fieldParser::parseField);
+
+            ITEM_PARSER.deserialize(source, offset, endIndex, instance, fieldParser::parseField, builder);
 
             if (fieldParser.fieldIndex != fieldParser.fieldCount) {
                 throw dataAccessError(instance, dataType, source, null);

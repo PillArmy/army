@@ -119,6 +119,15 @@ public abstract class _StringUtils {
         return map;
     }
 
+    public static String surroundingText(String text, int offset, int subLength) {
+        final int start, end;
+
+        start = Math.max(offset - subLength, 0);
+        end = Math.min(offset + subLength, text.length());
+
+        return text.substring(start, end);
+    }
+
 
     public static StringBuilder builder() {
         return new StringBuilder();

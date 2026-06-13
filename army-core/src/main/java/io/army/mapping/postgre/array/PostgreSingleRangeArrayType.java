@@ -35,8 +35,9 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-/// 
+///
 /// This class representing army build-in postgre range array type.
+///
 /// @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-BUILTIN">Built-in Range and Multirange Types</a>
 /// @since 0.6.0
 public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements MappingType.SqlArray {
@@ -51,7 +52,6 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
     /// - {@link PgType#DATERANGE_ARRAY}
     /// - {@link PgType#TSRANGE_ARRAY}
     /// - {@link PgType#TSTZRANGE_ARRAY}
-    /// 
     /// @throws IllegalArgumentException throw when javaType error
     /// @throws MetaException            throw when param error.
     public static PostgreSingleRangeArrayType from(final Class<?> javaType, final String param) throws MetaException {
@@ -77,7 +77,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
     /// - {@link PgType#DATERANGE_ARRAY}
     /// - {@link PgType#TSRANGE_ARRAY}
     /// - {@link PgType#TSTZRANGE_ARRAY}
-    /// 
+    ///
     public static PostgreSingleRangeArrayType from(final Class<?> javaType, final PgType sqlType)
             throws IllegalArgumentException {
 
@@ -111,7 +111,6 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
     /// - {@link PgType#DATERANGE_ARRAY}
     /// - {@link PgType#TSRANGE_ARRAY}
     /// - {@link PgType#TSTZRANGE_ARRAY}
-    /// 
     /// @throws IllegalArgumentException throw when javaType or sqlType error
     public static PostgreSingleRangeArrayType fromFunc(final Class<?> javaType,
                                                        final PgType sqlType,
@@ -138,7 +137,6 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
     /// - {@link PgType#DATERANGE_ARRAY}
     /// - {@link PgType#TSRANGE_ARRAY}
     /// - {@link PgType#TSTZRANGE_ARRAY}
-    /// 
     /// @param methodName from {@link Mapping#func()}
     /// @throws IllegalArgumentException throw when javaType error
     /// @throws MetaException            throw when param or methodName error.
@@ -323,7 +321,8 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
                 return value;
             };
         }
-        return PostgreArrays.parseArray(text, false, elementFunc, _Constant.COMMA, dataType, type, handler);
+        //  return PostgreArrays.parseArray(text, false, elementFunc, _Constant.COMMA, dataType, type, handler);
+        throw new UnsupportedOperationException();
     }
 
 

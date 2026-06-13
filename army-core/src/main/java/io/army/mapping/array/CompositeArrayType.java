@@ -119,9 +119,12 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         final DataType elementDataType;
         elementDataType = this.underlyingType.map(env.serverMeta());
+
+        final StringBuilder builder = new StringBuilder(30);
+
         final TextFunction<?> func;
-        func = (text, offset, end) -> CompositeType.parseToPojo(this.underlyingType, elementDataType, env, text, offset, end);
-        return PostgreArrays.arrayAfterGet(this, dataType, source, func);
+        func = (text, offset, end) -> CompositeType.parseToPojo(this.underlyingType, elementDataType, env, text, offset, end, builder);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, func, builder);
     }
 
     @Override

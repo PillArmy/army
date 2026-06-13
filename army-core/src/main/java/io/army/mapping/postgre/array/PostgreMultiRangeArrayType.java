@@ -333,12 +333,12 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
         else {
             elementFunc = PgMultiRangeType.multiRangeParseFunc(text, rangeFunc, parseFunc, dataType, type, handler);
         }
-        final Object array;
-        array = PostgreArrays.parseArray(text, true, elementFunc, _Constant.COMMA, dataType, type, handler);
-        if (ArrayUtils.dimensionOf(array.getClass()) < 2) {
-            throw handler.apply(type, dataType, text, new IllegalArgumentException("Not multi-ranage array"));
-        }
-        return array;
+//        final Object array;
+//        array = PostgreArrays.parseArray(text, true, elementFunc, _Constant.COMMA, dataType, type, handler);
+//        if (ArrayUtils.dimensionOf(array.getClass()) < 2) {
+//            throw handler.apply(type, dataType, text, new IllegalArgumentException("Not multi-ranage array"));
+//        }
+        throw new UnsupportedOperationException();
     }
 
 
