@@ -77,7 +77,7 @@ public class MonthDayArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, MonthDayArrayType::parseText, null, null, null);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, MonthDayArrayType::parseText, null);
     }
 
     @Override

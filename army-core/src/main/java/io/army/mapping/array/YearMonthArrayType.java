@@ -17,7 +17,9 @@
 package io.army.mapping.array;
 
 import io.army.criteria.CriteriaException;
+import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
@@ -25,9 +27,11 @@ import io.army.mapping.YearMonthType;
 import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
+import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Objects;
 
@@ -64,18 +68,20 @@ public class YearMonthArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
-        //TODO
-        throw new UnsupportedOperationException();
+        if (meta.serverDatabase() != Database.PostgreSQL) {
+            throw mapError(this, meta);
+        }
+        return PgType.DATE_ARRAY;
     }
 
     @Override
     public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        throw new UnsupportedOperationException();
+        return PostgreArrays.arrayBeforeBind(source, YearMonthArrayType::appendToText, dataType, this);
     }
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        throw new UnsupportedOperationException();
+        return PostgreArrays.arrayAfterGet(this, dataType, source, YearMonthArrayType::parseText, null);
     }
 
     @Override
@@ -90,9 +96,19 @@ public class YearMonthArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final MappingType elementType() {
-        throw new UnsupportedOperationException();
+        final MappingType instance;
+        if (this.javaType == YearMonth[].class) {
+            instance = YearMonthType.INSTANCE;
+        } else {
+            instance = from(this.javaType.getComponentType());
+        }
+        return instance;
     }
 
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return from(ArrayUtils.arrayClassOf(this.javaType));
+    }
 
     @Override
     public final int hashCode() {
@@ -110,6 +126,24 @@ public class YearMonthArrayType extends _ArmyBuildInArrayType {
             match = false;
         }
         return match;
+    }
+
+    private static void appendToText(Object value, StringBuilder builder) {
+        if (!(value instanceof YearMonth y)) {
+            throw new IllegalArgumentException();
+        }
+        builder.append(_Constant.DOUBLE_QUOTE)
+                .append(y.getYear())
+                .append('-')
+                .append(y.getMonthValue())
+                .append('-')
+                .append("01")
+                .append(_Constant.DOUBLE_QUOTE);
+
+    }
+
+    private static YearMonth parseText(final String text, final int offset, final int end) {
+        return YearMonth.from(LocalDate.parse(text.substring(offset, end)));
     }
 
 

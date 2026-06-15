@@ -18,7 +18,6 @@ package io.army.mapping.array;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
-import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.function.TextFunction;
 import io.army.mapping.CompositeType;
@@ -57,8 +56,6 @@ public class CompositeArrayType extends _ArmyBuildInArrayType {
 
 
     private static final ClassValue<CompositeArrayType> CLASS_VALUE = FuncClassValue.create(CompositeArrayType::new);
-
-    private static final char[] LEFT_BOUNDARIES = new char[]{_Constant.LEFT_PAREN};
 
 
     private final Class<?> javaType;
@@ -133,7 +130,7 @@ public class CompositeArrayType extends _ArmyBuildInArrayType {
 
         final TextFunction<?> func;
         func = (text, offset, end) -> CompositeType.parseToPojo(this.underlyingType, elementDataType, env, text, offset, end, builder);
-        return PostgreArrays.arrayAfterGet(this, dataType, source, func, LEFT_BOUNDARIES, CompositeType.PG_DESERIALIZER::skipRecord, builder);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, func, builder);
     }
 
     @Override

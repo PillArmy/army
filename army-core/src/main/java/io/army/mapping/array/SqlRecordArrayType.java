@@ -126,7 +126,7 @@ public final class SqlRecordArrayType extends _SqlRecordSupport implements Mappi
     public Object afterGet(DataType dataType, final MappingEnv env, Object source) throws DataAccessException {
         final TextFunction<?> function;
         function = (text, offset, end) -> parseSqlRecord(env, text, offset, end);
-        return PostgreArrays.arrayAfterGet(this, dataType, source, function, null, null, null);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, function, null);
     }
 
     @Override

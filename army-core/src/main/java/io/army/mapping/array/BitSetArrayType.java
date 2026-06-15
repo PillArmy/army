@@ -99,7 +99,7 @@ public class BitSetArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, _StringUtils::bitStringToBitSet, null, null, null);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, _StringUtils::bitStringToBitSet, null);
     }
 
     @Override

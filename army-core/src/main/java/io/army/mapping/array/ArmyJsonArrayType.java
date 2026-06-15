@@ -82,7 +82,7 @@ abstract class ArmyJsonArrayType extends _ArmyBuildInArrayType {
         final TextFunction<?> function;
         function = (text, offset, end) -> codec.decode(text.substring(offset, end), this.underlyingJavaType);
 
-        return PostgreArrays.arrayAfterGet(this, dataType, source, function, null, null, null);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, function, null);
     }
 
     @Override

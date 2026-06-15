@@ -95,7 +95,7 @@ public class ByteArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, ByteArrayType::parseText, null, null, null);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, ByteArrayType::parseText, null);
     }
 
 

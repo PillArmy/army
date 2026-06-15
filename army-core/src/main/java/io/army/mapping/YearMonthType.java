@@ -16,7 +16,9 @@
 
 package io.army.mapping;
 
+import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.mapping.array.YearMonthArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 import io.army.util._TimeUtils;
@@ -110,6 +112,20 @@ public final class YearMonthType extends _ArmyNoInjectionType implements Mapping
         return toYearMonth(this, dataType, source, ACCESS_ERROR_HANDLER);
     }
 
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return YearMonthArrayType.LINEAR;
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof YearMonthType;
+    }
 
     static YearMonth toYearMonth(final MappingType type, final DataType dataType, final Object source,
                                  final ErrorHandler errorHandler) {

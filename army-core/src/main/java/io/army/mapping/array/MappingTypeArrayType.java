@@ -104,7 +104,7 @@ public class MappingTypeArrayType extends _ArmyBuildInArrayType {
             }
             return bundle.mappingType;
         };
-        return PostgreArrays.arrayAfterGet(this, dataType, source, function, null, null, null);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, function, null);
     }
 
 

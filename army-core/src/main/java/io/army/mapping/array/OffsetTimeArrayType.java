@@ -95,7 +95,7 @@ public class OffsetTimeArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, OffsetTimeArrayType::parseText, null, null, null);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, OffsetTimeArrayType::parseText, null);
     }
 
     @Override

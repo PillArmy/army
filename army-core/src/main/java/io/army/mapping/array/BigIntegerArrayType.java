@@ -78,7 +78,7 @@ public class BigIntegerArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, BigIntegerArrayType::parseBigInteger, null, null, null);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, BigIntegerArrayType::parseBigInteger, null);
     }
 
     @Override

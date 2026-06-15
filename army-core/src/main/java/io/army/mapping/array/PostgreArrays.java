@@ -157,11 +157,6 @@ public abstract class PostgreArrays extends ArrayMappings {
         throw new UnsupportedOperationException();
     }
 
-    public static Object arrayAfterGet(MappingType type, DataType dataType, final Object source,
-                                       final boolean nonNull, final TextFunction<?> elementFunc) {
-        throw new UnsupportedOperationException();
-    }
-
 
     public static String arrayBeforeBind(final Object source, final BiConsumer<Object, StringBuilder> consumer,
                                          final DataType dataType, final MappingType type) {
@@ -199,9 +194,9 @@ public abstract class PostgreArrays extends ArrayMappings {
         }
     }
 
+
     public static Object arrayAfterGet(MappingType type, DataType dataType, final Object source,
-                                       final TextFunction<?> elementFunc, final @Nullable char[] boundaries,
-                                       @Nullable TextToIntFunc skipFunc, @Nullable StringBuilder builder) {
+                                       final TextFunction<?> elementFunc, @Nullable StringBuilder builder) {
 
         if (!(type instanceof MappingType.SqlArray)) {
             throw new IllegalArgumentException("not array type");
@@ -221,18 +216,16 @@ public abstract class PostgreArrays extends ArrayMappings {
         }
 
         try {
-            return deserializer.deserialize(sourceText, 0, sourceText.length(), type, elementFunc, boundaries, skipFunc, builder);
+            return deserializer.deserialize(sourceText, 0, sourceText.length(), type, elementFunc, null, null, builder);
         } catch (Exception e) {
             throw UserMappingType.dataAccessError(type, dataType, source, e);
         }
     }
 
-
-    @Deprecated
     public static Object arrayAfterGet(MappingType type, DataType dataType, final Object source,
                                        final TextFunction<?> elementFunc) {
 
-        return arrayAfterGet(type, dataType, source, true, elementFunc, null);
+        return arrayAfterGet(type, dataType, source, elementFunc, null);
     }
 
 
@@ -298,7 +291,7 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    /// @see #arrayAfterGet(MappingType, DataType, Object, TextFunction, char[], TextToIntFunc, StringBuilder)
+    /// @see #arrayAfterGet(MappingType, DataType, Object, TextFunction, StringBuilder)
     private static boolean isInstanceOfType(final MappingType type, final Object source) {
         final Class<?> javaType = type.javaType(), underlyingType;
         underlyingType = ((MappingType.SqlArray) type).underlyingJavaType();

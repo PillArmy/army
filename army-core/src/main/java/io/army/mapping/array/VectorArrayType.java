@@ -118,7 +118,7 @@ public class VectorArrayType extends _ArmyBuildInArrayType {
         if (!(source instanceof String)) {
             throw dataAccessError(this, dataType, source, null);
         }
-        return PostgreArrays.arrayAfterGet(this, dataType, source, VectorType::stringToVector, null, null, null);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, VectorType::stringToVector, null);
     }
 
 
