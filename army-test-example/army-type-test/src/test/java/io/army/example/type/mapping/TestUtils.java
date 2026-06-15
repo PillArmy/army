@@ -13,11 +13,11 @@ import org.testng.Assert;
 
 import static io.army.criteria.impl.SQLs.AS;
 
-public abstract class ArrayTestUtils {
+public abstract class TestUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ArrayTestUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TestUtils.class);
 
-    private ArrayTestUtils() {
+    private TestUtils() {
     }
 
 
@@ -30,15 +30,18 @@ public abstract class ArrayTestUtils {
     }
 
 
-    public static void updateAndQuery(SyncSession session, Long id, FieldMeta<PostgreTypes> field, Object value) {
-        final Update updateStmt;
+    public static void updateAndQuery(SyncSession session, Long id, FieldMeta<PostgreTypes> field, final Object value) {
+        Update updateStmt;
         updateStmt = SQLs.singleUpdate()
                 .update(PostgreTypes_.T, AS, "t")
-                .set(field, value)
+                .set(field, SQLs::literal, value)
                 .where(PostgreTypes_.id.equal(id))
                 .asUpdate();
 
         session.update(updateStmt);
+
+
+        Object result;
 
         final Select selectStmt;
         selectStmt = SQLs.query()
@@ -47,7 +50,19 @@ public abstract class ArrayTestUtils {
                 .where(PostgreTypes_.id.equal(id))
                 .asQuery();
 
-        final Object result;
+
+        result = session.queryOne(selectStmt, field.javaType());
+        Assert.assertEquals(result, value);
+
+
+        updateStmt = SQLs.singleUpdate()
+                .update(PostgreTypes_.T, AS, "t")
+                .set(field, SQLs::param, value)
+                .where(PostgreTypes_.id.equal(id))
+                .asUpdate();
+
+        session.update(updateStmt);
+
         result = session.queryOne(selectStmt, field.javaType());
         Assert.assertEquals(result, value);
     }

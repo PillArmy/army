@@ -605,10 +605,6 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
             throw e;
         } catch (Exception e) {
             throw wrapSessionError(e);
-        } finally {
-            if (statement instanceof _Statement) {
-                ((_Statement) statement).clear();
-            }
         }
     }
 
@@ -711,10 +707,6 @@ non-sealed abstract class ArmySyncSession extends ArmySession<ArmySyncSessionFac
             throw e;
         } catch (Exception e) {
             throw wrapSessionError(e);
-        } finally {
-            if (statement instanceof _Statement) {
-                ((_Statement) statement).clear();
-            }
         }
 
     }

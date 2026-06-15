@@ -46,7 +46,10 @@ import io.army.schema.TypeResult;
 import io.army.session.SessionSpec;
 import io.army.sqltype.DataType;
 import io.army.stmt.*;
-import io.army.util.*;
+import io.army.util.ArrayUtils;
+import io.army.util._Collections;
+import io.army.util._Exceptions;
+import io.army.util._StringUtils;
 
 import java.lang.ref.WeakReference;
 import java.time.LocalDateTime;
@@ -123,6 +126,8 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
     private final IdentifierHandler identifierHandler;
 
+    private final LiteralHandler literalHandler;
+
     protected final EscapeMode literalEscapeMode;
 
     /// The escape mode for SQL identifiers.
@@ -186,8 +191,6 @@ abstract non-sealed class ArmyParser implements DialectParser {
     private final boolean supportWindowClause;
 
     private final boolean validateUnionType;
-
-    private final boolean literalTypeNameEnable;
 
     private final BiConsumer<String, Consumer<String>> beautifySqlFunc = this::beautifySql;
 
@@ -263,7 +266,6 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
         this.qualifiedSchemaName = createQualifiedSchemaName(this.env, this.serverMeta);
 
-        this.literalTypeNameEnable = this.env.getOrDefault(ArmyKey.LITERAL_TYPE_NAME_ENABLE);
         this.unrecognizedTypeAllowed = this.env.getOrDefault(ArmyKey.UNRECOGNIZED_TYPE_ALLOWED);
 
         if (this.env.getOrDefault(ArmyKey.CACHE_IDENTIFIER)) {
@@ -286,6 +288,8 @@ abstract non-sealed class ArmyParser implements DialectParser {
                 throw _Exceptions.unexpectedEnum(this.env.getOrDefault(ArmyKey.OBJECT_NAME_CACHE_MODE));
         }
 
+        // fully create literal handler
+        this.literalHandler = createLiteralHandler();
 
     }
 
@@ -569,6 +573,8 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
     abstract IdentifierHandler createIdentifierHandler(ServerMeta serverMeta);
 
+    abstract LiteralHandler createLiteralHandler();
+
     int capabilitiesBitSet(ServerMeta serverMeta) {
         return 0;
     }
@@ -718,31 +724,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
     /// Append  literal
     public final void safeLiteral(final TypeMeta typeMeta, @Nullable Object value, final boolean typeName,
                                   final StringBuilder sqlBuilder) {
-        final MappingType type;
-        if (typeMeta instanceof MappingType) {
-            type = (MappingType) typeMeta;
-        } else {
-            type = typeMeta.mappingType();
-        }
-        final DataType dataType;
-        dataType = type.map(this.serverMeta);
-
-        final boolean typeNameEnable = typeName && this.literalTypeNameEnable;
-
-        if (value == null) {
-            bindLiteralNull(type, dataType, typeNameEnable, sqlBuilder);
-            return;
-        }
-
-        value = type.beforeBind(dataType, this.mappingEnv, value);
-
-        if (value instanceof Temporal && typeMeta instanceof FieldMeta && this.truncatedTimeType) {
-            value = _TimeUtils.truncatedIfNeed(((FieldMeta<?>) typeMeta).scale(), (Temporal) value);
-        }
-
-        //TODO validate non-field codec
-
-        bindLiteral(typeMeta, dataType, value, typeNameEnable, sqlBuilder);
+        this.literalHandler.safeLiteral(typeMeta, value, typeName, sqlBuilder, null);
     }
 
 
@@ -751,11 +733,6 @@ abstract non-sealed class ArmyParser implements DialectParser {
         throw new MetaException(m);
     }
 
-
-    protected abstract void bindLiteralNull(MappingType type, DataType dataType, boolean typeName, StringBuilder sqlBuilder);
-
-
-    abstract void bindLiteral(TypeMeta typeMeta, DataType dataType, Object value, boolean typeName, StringBuilder sqlBuilder);
 
     protected abstract DdlParser createDdlDialect();
 
@@ -2147,7 +2124,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
                     .append(effectiveName)
                     .append(this.identifierQuote);
         } else {
-            this.identifierHandler.handle(object, effectiveName, sqlBuilder);
+            this.identifierHandler.safeIdentifier(object, effectiveName, sqlBuilder);
         }
 
     }
@@ -2167,7 +2144,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
                     .append(identifier)
                     .append(this.identifierQuote);
         } else {
-            this.identifierHandler.handle(null, identifier, builder);
+            this.identifierHandler.safeIdentifier(null, identifier, builder);
         }
         final String safeIdentifier;
         if (sqlBuilder == null) {
@@ -3408,6 +3385,13 @@ abstract non-sealed class ArmyParser implements DialectParser {
     }
 
 
+    /// @see #createMappingEnv(DialectEnv)
+    private void safeLiteralFunc(TypeMeta typeMeta, @Nullable Object value, final boolean typeName,
+                                 final StringBuilder sqlBuilder, @Nullable DataType container) {
+
+        this.literalHandler.safeLiteral(typeMeta, value, typeName, sqlBuilder, container);
+    }
+
     /// @see #ArmyParser(DialectEnv, Dialect)
     private MappingEnv createMappingEnv(final DialectEnv env) {
         return MappingEnv.builder()
@@ -3416,7 +3400,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
                 .zoneOffset(env.zoneOffset())
                 .jsonCodec(env.jsonCodec())
                 .xmlCodec(env.xmlCodec())
-                .safeLiteralFunc(this::safeLiteral)
+                .literalHandler(this::safeLiteralFunc)
                 .decodeLiteralFunc(this::decodeLiteral)
                 .mappingHandler(createTypeMappingHandler(env))
                 .build();

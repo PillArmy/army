@@ -19,13 +19,18 @@ package io.army.mapping.array;
 import io.army.criteria.CriteriaException;
 import io.army.dialect._Constant;
 import io.army.function.TextFunction;
+import io.army.function.TextToIntFunc;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.mapping.UnaryGenericsMapping;
 import io.army.mapping.UserMappingType;
+import io.army.serialize.ArrayDeserializer;
+import io.army.serialize.ArraySerializer;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
-import io.army.util.*;
+import io.army.util.ArrayUtils;
+import io.army.util.HexUtils;
+import io.army.util._Exceptions;
 
 import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
@@ -43,7 +48,7 @@ public abstract class PostgreArrays extends ArrayMappings {
 
 
     /// @see BoxArrayDeserializerHolder#BOX_DESERIALIZER
-    private static final ItemsDeserializer DEFAULT_DESERIALIZER = createDefaultDeserializerBuilder()
+    private static final ArrayDeserializer DEFAULT_DESERIALIZER = createDefaultDeserializerBuilder()
             .delim(_Constant.COMMA)
             .build();
 
@@ -62,7 +67,7 @@ public abstract class PostgreArrays extends ArrayMappings {
 
     /// decode array element
     ///
-    /// @see #encodeElement(String, StringBuilder)
+    /// @see #encodeElement(CharSequence, StringBuilder)
     /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
     public static String decodeElement(final String text, int offset, int end) {
         final boolean enclose;
@@ -119,7 +124,7 @@ public abstract class PostgreArrays extends ArrayMappings {
     ///
     /// @see #decodeElement(String, int, int)
     /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
-    public static void encodeElement(final String element, final StringBuilder builder) {
+    public static void encodeElement(final CharSequence element, final StringBuilder builder) {
 
         builder.append(_Constant.DOUBLE_QUOTE); // left doubleQuote
 
@@ -158,117 +163,6 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    /// @return int[2] , int[0] is dimension, int[1] is the index of left boundary.
-    /// @see ItemsDeserializer.Builder#dimensionFunc(TextFunction)
-    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
-    public static int[] parseArrayDimension(final String text, int offset, final int endIndex) {
-
-        char ch;
-
-        if (offset == 0) {
-            for (; offset < endIndex; offset++) {
-                ch = text.charAt(offset);
-                if (Character.isWhitespace(ch)) {
-                    continue;
-                }
-                if (ch != _Constant.LEFT_SQUARE_BRACKET) {
-                    break;
-                }
-                offset = text.indexOf('=');
-                if (offset < 0) {
-                    throw new IllegalArgumentException("postgre array meta error");
-                }
-
-                offset++;
-
-                break;
-            } // loop
-            if (offset == endIndex) {
-                throw new IllegalArgumentException("no text");
-            }
-
-        } //   if(offset == 0){
-
-
-        int dimension = 0, leftIndex = -1;
-        for (; offset < endIndex; offset++) {
-            ch = text.charAt(offset);
-            if (ch == _Constant.LEFT_BRACE) {
-                dimension++;
-                if (leftIndex < 0) {
-                    leftIndex = offset;
-                }
-            } else if (!Character.isWhitespace(ch)) {
-                break;
-            }
-        } // loop
-
-        if (dimension == 0) {
-            throw new IllegalArgumentException("postgre array dimension is zero");
-        }
-        return new int[]{dimension, leftIndex};
-    }
-
-
-    /// @return the length of array
-    /// @see ItemsDeserializer.Builder#lengthFunc(TextFunction)
-    public static int parseArrayLength(final String text, final int offset, final int endIndex)
-            throws IllegalArgumentException {
-
-        if (text.charAt(offset) != _Constant.LEFT_BRACE) {
-            throw new IllegalArgumentException();
-        }
-
-        int rightIndex = -1;
-        char ch;
-
-        int length = 0;
-        for (int i = offset + 1, commaFlag = 0; i < endIndex; i++) {
-
-            ch = text.charAt(i);
-
-            if (ch == _Constant.RIGHT_BRACE) {
-                rightIndex = i;
-                break;
-            }
-
-            if (commaFlag > 0) {
-                if (ch == _Constant.COMMA) {
-                    commaFlag = 0;
-                    continue;
-                } else if (Character.isWhitespace(ch)) {
-                    continue;
-                }
-                throw _Exceptions.missDelimError(text, offset, _Constant.COMMA);
-            }
-
-
-            if (ch == _Constant.LEFT_BRACE) {
-                i = skipArrayElement(text, i, endIndex);
-                commaFlag = 1;
-            } else if (ch == _Constant.DOUBLE_QUOTE) {
-                i = skipQuoteElement(text, i, endIndex);
-                commaFlag = 1;
-            } else if (ch == _Constant.COMMA) {
-                throw _Exceptions.redundantDelimError(text, i, _Constant.COMMA);
-            } else if (!Character.isWhitespace(ch)) {
-                i = skipUnquotedElement(text, i, endIndex);
-                commaFlag = 1;
-            }
-
-            if (commaFlag > 0) {
-                length++;
-            }
-
-
-        } // loop
-
-        if (rightIndex < 0) {
-            throw _Exceptions.missingClosingError(text, endIndex, _Constant.RIGHT_BRACE);
-        }
-        return length;
-    }
-
     public static String arrayBeforeBind(final Object source, final BiConsumer<Object, StringBuilder> consumer,
                                          final DataType dataType, final MappingType type) {
         try {
@@ -297,7 +191,7 @@ public abstract class PostgreArrays extends ArrayMappings {
                 parser = DEFAULT_SERIALIZER;
             }
 
-            return parser.parse(((MappingType.SqlArray) type).underlyingJavaType(), source, consumer);
+            return parser.serialize(((MappingType.SqlArray) type).underlyingJavaType(), source, consumer);
         } catch (CriteriaException e) {
             throw e;
         } catch (Exception e) {
@@ -306,7 +200,8 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
     public static Object arrayAfterGet(MappingType type, DataType dataType, final Object source,
-                                       final TextFunction<?> elementFunc, @Nullable StringBuilder builder) {
+                                       final TextFunction<?> elementFunc, final @Nullable char[] boundaries,
+                                       @Nullable TextToIntFunc skipFunc, @Nullable StringBuilder builder) {
 
         if (!(type instanceof MappingType.SqlArray)) {
             throw new IllegalArgumentException("not array type");
@@ -318,7 +213,7 @@ public abstract class PostgreArrays extends ArrayMappings {
             throw UserMappingType.dataAccessError(type, dataType, source, null);
         }
 
-        final ItemsDeserializer deserializer;
+        final ArrayDeserializer deserializer;
         if (dataType == PgType.BOX_ARRAY) {
             deserializer = BoxArrayDeserializerHolder.BOX_DESERIALIZER;
         } else {
@@ -326,7 +221,7 @@ public abstract class PostgreArrays extends ArrayMappings {
         }
 
         try {
-            return deserializer.deserialize(sourceText, 0, sourceText.length(), type, elementFunc, builder);
+            return deserializer.deserialize(sourceText, 0, sourceText.length(), type, elementFunc, boundaries, skipFunc, builder);
         } catch (Exception e) {
             throw UserMappingType.dataAccessError(type, dataType, source, e);
         }
@@ -403,7 +298,7 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    /// @see #arrayAfterGet(MappingType, DataType, Object, TextFunction, StringBuilder)
+    /// @see #arrayAfterGet(MappingType, DataType, Object, TextFunction, char[], TextToIntFunc, StringBuilder)
     private static boolean isInstanceOfType(final MappingType type, final Object source) {
         final Class<?> javaType = type.javaType(), underlyingType;
         underlyingType = ((MappingType.SqlArray) type).underlyingJavaType();
@@ -439,128 +334,52 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    /// @param offset the index of left {@link _Constant#DOUBLE_QUOTE}
-    /// @see #skipArrayElement(String, int, int)
-    /// @see #parseArrayLength(String, int, int)
-    private static int skipQuoteElement(final String text, final int offset, final int endIndex) {
-//         private method trust upper
-//        if (text.charAt(offset) != _Constant.DOUBLE_QUOTE) {
-//            throw new IllegalArgumentException();
-//        }
-        int rightIndex = -1;
-        char ch;
-        for (int i = offset + 1; i < endIndex; i++) {
-            ch = text.charAt(i);
+    /// @return int[2] , int[0] is dimension, int[1] is the index of left boundary.
+    /// @see ArrayDeserializer.Builder#skipPrefixFunc(TextToIntFunc)
+    /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
+    private static int skipExplicitDimensions(final String text, int offset, final int endIndex) {
 
-            if (ch == _Constant.BACK_SLASH) {
-                i++; // skip current char
+        final int oldOffset = offset;
+
+        char ch;
+
+        for (; offset < endIndex; offset++) {
+            ch = text.charAt(offset);
+            if (Character.isWhitespace(ch)) {
                 continue;
             }
-            if (ch == _Constant.DOUBLE_QUOTE) {
-                rightIndex = i;
+            if (ch != _Constant.LEFT_SQUARE_BRACKET) {
                 break;
             }
+            offset = text.indexOf('=');
+            if (offset < 0) {
+                throw new IllegalArgumentException("postgre array meta error");
+            }
+
+            offset++;
+
+            break;
 
         } // loop
 
-        if (rightIndex < 0) {
-            throw _Exceptions.missingClosingError(text, endIndex, _Constant.DOUBLE_QUOTE);
+        if (offset == endIndex) {
+            throw new IllegalArgumentException("no text");
+        } else if (offset > oldOffset && text.charAt(offset) == _Constant.LEFT_BRACE) {
+            throw new IllegalArgumentException("postgre array format error");
         }
-        return rightIndex;
+        return offset;
     }
 
-    /// @param offset the index of first not whitespace char
-    /// @see #skipArrayElement(String, int, int)
-    /// @see #parseArrayLength(String, int, int)
-    private static int skipUnquotedElement(final String text, final int offset, final int endIndex) {
-//        private method trust upper
-//        final char firstChar;
-//        firstChar = text.charAt(offset);
-//
-//        if (firstChar == _Constant.COMMA || firstChar == _Constant.RIGHT_BRACE) {
-//            throw new IllegalArgumentException();
-//        } else if (Character.isWhitespace(firstChar)) {
-//            throw new IllegalArgumentException();
-//        }
-
-        int rightIndex = -1;
-        char ch;
-        for (int i = offset + 1; i < endIndex; i++) {
-            ch = text.charAt(i);
-
-            if (ch == _Constant.COMMA || ch == _Constant.RIGHT_BRACE) {
-                rightIndex = i - 1;
-                break;
-            }
-
-            if (ch == _Constant.DOUBLE_QUOTE) {
-                throw _Exceptions.unexpectedQuoteError(text, i, ch);
-            }
-
-        } // loop
-
-        if (rightIndex < 0) {
-            throw _Exceptions.missingEndingError(text, endIndex, new char[]{_Constant.COMMA, _Constant.RIGHT_BRACE});
-        }
-        return rightIndex;
-    }
-
-    /// @param offset the index of left {@link _Constant#LEFT_BRACE}
-    /// @see #skipQuoteElement(String, int, int)
-    /// @see #skipUnquotedElement(String, int, int)
-    private static int skipArrayElement(final String text, final int offset, final int endIndex) {
-//        private method trust upper
-//        if (text.charAt(offset) != _Constant.LEFT_BRACE) {
-//            throw new IllegalArgumentException();
-//        }
-        int rightIndex = -1;
-        char ch;
-        for (int i = offset + 1, commaFlag = -1; i < endIndex; i++) {
-            ch = text.charAt(i);
-            if (ch == _Constant.RIGHT_BRACE) {
-                rightIndex = i;
-                break;
-            }
-
-            if (commaFlag > -1) {
-                if (ch == _Constant.COMMA) {
-                    commaFlag = -1;
-                    continue;
-                } else if (Character.isWhitespace(ch)) {
-                    continue;
-                }
-                throw _Exceptions.missDelimError(text, offset, _Constant.COMMA);
-            }
-
-            if (ch == _Constant.LEFT_BRACE) {
-                i = skipArrayElement(text, i, endIndex);
-                commaFlag = i;
-            } else if (ch == _Constant.DOUBLE_QUOTE) {
-                i = skipQuoteElement(text, i, endIndex);
-                commaFlag = i;
-            } else if (ch == _Constant.COMMA) {
-                throw _Exceptions.redundantDelimError(text, i, _Constant.COMMA);
-            } else if (!Character.isWhitespace(ch)) {
-                i = skipUnquotedElement(text, i, endIndex);
-                commaFlag = i;
-            }
-
-        } // loop
-
-        if (rightIndex < 0) {
-            throw _Exceptions.missingClosingError(text, endIndex, _Constant.RIGHT_BRACE);
-        }
-        return rightIndex;
-    }
 
     /// @see #DEFAULT_DESERIALIZER
     /// @see BoxArrayDeserializerHolder#BOX_DESERIALIZER
-    private static ItemsDeserializer.Builder createDefaultDeserializerBuilder() {
-        return ItemsDeserializer.builder()
-                .dimensionFunc(PostgreArrays::parseArrayDimension)
-                .lengthFunc(PostgreArrays::parseArrayLength)
+    private static ArrayDeserializer.Builder createDefaultDeserializerBuilder() {
+        return ArrayDeserializer.builder()
+                .leftBoundary(_Constant.LEFT_BRACE)
+                .rightBoundary(_Constant.RIGHT_BRACE)
+                .skipPrefixFunc(PostgreArrays::skipExplicitDimensions)
                 .backSlashEscapeOn(true)
-                .quoteEscapeOn(false)
+                .quoteEscapeOn(true)
                 .quoteChar(_Constant.DOUBLE_QUOTE);
     }
 
@@ -571,15 +390,14 @@ public abstract class PostgreArrays extends ArrayMappings {
         return ArraySerializer.builder()
                 .leftBoundary(_Constant.LEFT_BRACE)
                 .rightBoundary(_Constant.RIGHT_BRACE)
-                .rectangularMatrixArray(true)
-                ;
+                .rectangularMatrixArray(true);
     }
 
 
     private static final class BoxArrayDeserializerHolder {
 
         /// @see #DEFAULT_DESERIALIZER
-        private static final ItemsDeserializer BOX_DESERIALIZER = createDefaultDeserializerBuilder()
+        private static final ArrayDeserializer BOX_DESERIALIZER = createDefaultDeserializerBuilder()
                 .delim(_Constant.SEMICOLON)
                 .build();
 

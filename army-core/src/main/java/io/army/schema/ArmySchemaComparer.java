@@ -246,8 +246,11 @@ abstract class ArmySchemaComparer implements SchemaComparer {
         final List<TypeResult> typeResultList = _Collections.arrayList();
         final TypeResult.Builder typeBuilder = TypeResult.builder();
 
+        final Set<String> typeNameSet = _Collections.hashSet();
+
         DataType dataType;
         TypeResult typeResult;
+
         for (Map.Entry<String, MappingType> e : definedTypeMap.entrySet()) {
             type = e.getValue();
             if (type instanceof MappingType.SqlArray) {
@@ -267,6 +270,10 @@ abstract class ArmySchemaComparer implements SchemaComparer {
                     typeMap.put(type, -1);
                     continue;
                 }
+            }
+
+            if (!typeNameSet.add(typeName)) {
+                continue;
             }
 
             if (type instanceof MappingType.SqlComposite) {
@@ -311,7 +318,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
         String columnName;
         boolean modify;
         CompositeField javaField, dbField;
-        TypeMeta javaTypeMeta;
+        MappingType javaTypeMeta;
 
         topLoop:
         for (int javaIndex = 0, dbStart = 0; javaIndex < javaFieldCount; javaIndex++) {
@@ -336,12 +343,9 @@ abstract class ArmySchemaComparer implements SchemaComparer {
                 }
 
                 javaTypeMeta = javaField.mappingType();
-                if (!(javaTypeMeta instanceof MappingType)) {
-                    javaTypeMeta = javaTypeMeta.mappingType();
-                }
 
                 modify = !javaTypeMeta.equals(dbField.mappingType())
-                        && !((MappingType) javaTypeMeta).map(this.serverMeta).equals(((MappingType) dbField.mappingType()).map(this.serverMeta));
+                        && !javaTypeMeta.map(this.serverMeta).equals(dbField.mappingType().map(this.serverMeta));
 
                 if (!modify) {
                     modify = _StringUtils.hasText(javaField.collation())

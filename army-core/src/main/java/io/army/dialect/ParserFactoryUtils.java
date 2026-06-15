@@ -22,13 +22,14 @@ import io.army.util._Exceptions;
 
 import java.lang.reflect.Method;
 
-public abstract class ParserFactories {
+abstract class ParserFactoryUtils {
 
-    protected ParserFactories() {
+    private ParserFactoryUtils() {
         throw new UnsupportedOperationException();
     }
 
-    public static ParserFactory createFactory(ServerMeta serverMeta) {
+
+    static ParserFactory createFactory(ServerMeta serverMeta) {
         final Database database;
         database = serverMeta.serverDatabase();
         final String className;
@@ -61,7 +62,7 @@ public abstract class ParserFactories {
         }
         final Dialect serverDialect;
         serverDialect = Database.from(meta);
-        Dialect targetDialect;
+        final Dialect targetDialect;
         targetDialect = meta.usedDialect();
         if (!targetDialect.isFamily(serverDialect)) {
             throw _Exceptions.dialectDatabaseNotMatch(targetDialect, meta);
@@ -70,7 +71,6 @@ public abstract class ParserFactories {
         }
         return targetDialect;
     }
-
 
     static UnsupportedOperationException extensionUnsupported(Database database) {
         String m = String.format("%s is not supported by %s", "Extension", database);

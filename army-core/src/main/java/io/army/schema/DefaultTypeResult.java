@@ -93,7 +93,6 @@ final class DefaultTypeResult implements TypeResult {
                 this.containRangeSubDiff = false;
                 break;
             case COMPOSITE:
-                _Assert.notEmpty(builder.compositeNewFieldList, "empty");
                 this.compositeNewFieldList = _Collections.safeCopyList(builder.compositeNewFieldList);
                 this.compositeDropFieldList = _Collections.safeCopyList(builder.compositeDropFieldList);
                 this.compositeModifyFieldList = _Collections.safeCopyList(builder.compositeModifyFieldList);

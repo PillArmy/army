@@ -19,7 +19,7 @@ package io.army.dialect;
 
 import io.army.meta.ServerMeta;
 
-/// This class is used by {@link ParserFactories#createFactory(io.army.meta.ServerMeta)} by reflection.
+/// This class is used by {@link ParserFactory#createFactory(ServerMeta)} by reflection.
 @SuppressWarnings("unused")
 public final class PostgreParserFactory implements ParserFactory {
 
@@ -38,7 +38,7 @@ public final class PostgreParserFactory implements ParserFactory {
     @Override
     public DialectParser createDialectParser(DialectEnv environment) {
         final PostgreDialect dialect;
-        dialect = (PostgreDialect) ParserFactories.targetDialect(environment, Database.PostgreSQL);
+        dialect = (PostgreDialect) ParserFactoryUtils.targetDialect(environment, Database.PostgreSQL);
         return PostgreDialectParser.create(environment, dialect);
     }
 

@@ -32,13 +32,13 @@ public class SQLiteParserFactory implements ParserFactory {
 
     @Override
     public PreBootstrapParser createPreBootstrapParser(ServerMeta serverMeta) {
-        throw ParserFactories.extensionUnsupported(Database.SQLite);
+        throw ParserFactoryUtils.extensionUnsupported(Database.SQLite);
     }
 
     @Override
     public DialectParser createDialectParser(DialectEnv environment) {
         final SQLiteDialect dialect;
-        dialect = (SQLiteDialect) ParserFactories.targetDialect(environment, Database.SQLite);
+        dialect = (SQLiteDialect) ParserFactoryUtils.targetDialect(environment, Database.SQLite);
         return SQLiteParser.standard(environment, dialect);
     }
 }

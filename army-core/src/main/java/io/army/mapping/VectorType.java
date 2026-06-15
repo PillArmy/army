@@ -30,7 +30,7 @@ import io.army.util.BinaryUtils;
 
 
 ///
-/// This class representing Postgre vector type {@link MappingType}
+/// This class representing vector type {@link MappingType}
 ///
 /// @see VectorArrayType
 /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>

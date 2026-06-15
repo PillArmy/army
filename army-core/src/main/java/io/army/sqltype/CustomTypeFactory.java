@@ -55,11 +55,12 @@ abstract class CustomTypeFactory {
 
         private ArmyCustomType(DataTypeBuilder builder) {
             this.dataTypeName = Objects.requireNonNull(builder.typeName);
-            this.componentType = Objects.requireNonNull(builder.componentType);
+            this.componentType = Objects.requireNonNull(builder.obtainComponentType());
             this.javaType = builder.javaType;
             this.componentCreateDdl = builder.componentCreateDdl;
             this.safeTypeAlias = Objects.requireNonNull(builder.safeTypeAlias);
             this.listElementJavaType = builder.listElementJavaType;
+            this.elementType = builder.elementInstance;
         }
 
         @Override
@@ -154,10 +155,7 @@ abstract class CustomTypeFactory {
 
         @Override
         public int hashCode() {
-            return Objects.hash(this.dataTypeName, this.javaType,
-                    this.componentType, this.safeTypeAlias,
-                    this.componentCreateDdl
-            );
+            return Objects.hash(this.dataTypeName);
         }
 
         @Override
@@ -166,11 +164,7 @@ abstract class CustomTypeFactory {
             if (obj == this) {
                 match = true;
             } else if (obj instanceof ArmyCustomType o) {
-                match = o.dataTypeName.equals(this.dataTypeName)
-                        && o.javaType.equals(this.javaType)
-                        && o.componentType == this.componentType
-                        && Objects.equals(o.safeTypeAlias, this.safeTypeAlias)
-                        && o.componentCreateDdl == this.componentCreateDdl;
+                match = o.dataTypeName.equals(this.dataTypeName);
             } else {
                 match = false;
             }
@@ -237,6 +231,8 @@ abstract class CustomTypeFactory {
 
         private Class<?> listElementJavaType;
 
+        private CustomType elementInstance;
+
         private DataTypeBuilder() {
         }
 
@@ -249,6 +245,12 @@ abstract class CustomTypeFactory {
         @Override
         public CustomType.Builder componentType(ArmyType armyType) {
             this.componentType = armyType;
+            return this;
+        }
+
+        @Override
+        public CustomType.Builder elementInstance(CustomType customType) {
+            this.elementInstance = customType;
             return this;
         }
 
@@ -299,12 +301,31 @@ abstract class CustomTypeFactory {
 
 
             final ArmyType armyType = this.componentType;
-            if (armyType == null) {
-                throw new IllegalArgumentException(String.format("%s must be set", "componentType"));
+            final CustomType elementInstance = this.elementInstance;
+            if (armyType == null && elementInstance == null) {
+                String m = String.format("At least one of %s and %s must be set", "componentType", "elementInstance");
+                throw new IllegalArgumentException(m);
             }
             if (armyType == ArmyType.ARRAY) {
                 throw new IllegalArgumentException(String.format("%s must be not %s", "componentType", "ARRAY"));
+            } else if (armyType != null && elementInstance != null) {
+                if (armyType != elementInstance.armyType()) {
+                    String m = String.format("%s %s and %s %s not match", "componentType", armyType, "elementInstance", elementInstance.armyType());
+                    throw new IllegalArgumentException(m);
+                }
             }
+            if (elementInstance != null) {
+                if (!DataType.isArrayTypeName(typeName)) {
+                    throw new IllegalArgumentException();
+                } else if (DataType.isArrayTypeName(elementInstance.typeName())) {
+                    throw new IllegalArgumentException();
+                } else if (typeName.endsWith("[]") && !typeName.startsWith(elementInstance.typeName())) {
+                    throw new IllegalArgumentException();
+                } else if (typeName.startsWith("_") && !typeName.endsWith(elementInstance.typeName())) {
+                    throw new IllegalArgumentException();
+                }
+            }
+
 
             final String safeTypeAlias = this.safeTypeAlias;
             if (!_StringUtils.hasText(safeTypeAlias)) {
@@ -316,6 +337,20 @@ abstract class CustomTypeFactory {
                 }
             }
             return new ArmyCustomType(this);
+        }
+
+        @Nullable
+        private ArmyType obtainComponentType() {
+            ArmyType armyType = this.componentType;
+
+            if (armyType == null) {
+                final CustomType elementInstance = this.elementInstance;
+                if (elementInstance != null) {
+                    armyType = elementInstance.armyType();
+                }
+            }
+
+            return armyType;
         }
 
     } // DataTypeBuilder

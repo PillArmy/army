@@ -29,6 +29,8 @@ import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -74,9 +76,12 @@ public class StringArrayType extends _ArmyBuildInArrayType {
         return PostgreArrays.arrayBeforeBind(source, TextArrayType::appendToText, dataType, this);
     }
 
+    private static final Logger LOG = LoggerFactory.getLogger(StringArrayType.class);
+
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, String::substring, null);
+        LOG.debug("string source array :\n{}", source);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, String::substring, null, null, null);
     }
 
 

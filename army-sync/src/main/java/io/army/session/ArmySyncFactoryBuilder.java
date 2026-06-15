@@ -19,7 +19,6 @@ package io.army.session;
 import io.army.advice.FactoryAdvice;
 import io.army.dialect.DialectEnv;
 import io.army.dialect.DialectParser;
-import io.army.dialect.ParserFactories;
 import io.army.dialect.ParserFactory;
 import io.army.env.ArmyEnvironment;
 import io.army.env.ArmyKey;
@@ -151,7 +150,7 @@ final class ArmySyncFactoryBuilder
     private DialectParser createDialectParser(String factoryName, ServerMeta serverMeta,
                                               ArmyEnvironment env, SyncExecutorFactoryProvider provider) {
         final ParserFactory parserFactory;
-        parserFactory = ParserFactories.createFactory(serverMeta);
+        parserFactory = ParserFactory.createFactory(serverMeta);
 
         final DialectEnv dialectEnv;
         dialectEnv = createDialectEnv(factoryName, false, serverMeta, env);

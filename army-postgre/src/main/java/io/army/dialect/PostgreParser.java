@@ -28,7 +28,6 @@ import io.army.mapping.*;
 import io.army.meta.ChildTableMeta;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.ServerMeta;
-import io.army.meta.TypeMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
@@ -36,11 +35,9 @@ import io.army.sqltype.SQLType;
 import io.army.stmt.SimpleStmt;
 import io.army.stmt.Stmts;
 import io.army.struct.TypeCategory;
-import io.army.util.*;
+import io.army.util.ArrayUtils;
+import io.army.util._Exceptions;
 
-import java.math.BigDecimal;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -252,302 +249,6 @@ abstract class PostgreParser extends _ArmyDialectParser {
 
     }
 
-    @Override
-    protected final void bindLiteralNull(final MappingType type, final DataType dataType, final boolean typeName,
-                                         final StringBuilder sqlBuilder) {
-        if (!(dataType instanceof SQLType)) {
-            sqlBuilder.append(_Constant.NULL);
-            if (typeName) {
-                sqlBuilder.append("::");
-                identifier(dataType.typeName(), sqlBuilder);
-            }
-        } else switch ((PgType) dataType) {
-            case UNKNOWN:
-            case REF_CURSOR:
-                throw ExecutorSupport.mapMethodError(type, dataType);
-            default: {
-                sqlBuilder.append(_Constant.NULL);
-                if (typeName) {
-                    sqlBuilder.append("::")
-                            .append(dataType.typeName());
-                }
-            }
-
-        }//switch
-
-    }
-
-    @Override
-    final void bindLiteral(final TypeMeta typeMeta, final DataType dataType, final Object value,
-                           final boolean typeName, final StringBuilder sqlBuilder) {
-
-        if (!(dataType instanceof PgType)) {
-            if (!(value instanceof String)) {
-                throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-            }
-            if (dataType instanceof SQLType) {
-                throw _Exceptions.mapMethodError(typeMeta.mappingType(), PgType.class);
-            }
-
-            stringEscape((String) value, sqlBuilder);
-
-            if (typeName) {
-                sqlBuilder.append("::");
-                safeObjectName(dataType, sqlBuilder);
-                if (dataType.isArray()) {
-                    arrayTypeName(ArrayUtils.dimensionOfType(typeMeta.mappingType()), sqlBuilder);
-                }
-            }
-
-        } else if (dataType.isArray()) {
-            if (!(value instanceof String) || dataType == PgType.RECORD_ARRAY) {
-                throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-            }
-
-            stringEscape((String) value, sqlBuilder);
-
-            if (typeName) {
-                sqlBuilder.append("::")
-                        .append(dataType.componentTypeName());
-                arrayTypeName(ArrayUtils.dimensionOfType(typeMeta.mappingType()), sqlBuilder);
-            }
-        } else switch ((PgType) dataType) {
-            case BOOLEAN:
-                _Literals.bindBoolean(typeMeta, dataType, value, sqlBuilder);
-                break;
-            case SMALLINT: {
-                if (!(value instanceof Short)) {
-                    throw _Exceptions.beforeBindMethod(dataType, typeMeta.mappingType(), value);
-                }
-                sqlBuilder.append(value);
-                if (typeName) {
-                    sqlBuilder.append("::")
-                            .append(dataType.typeName());
-                }
-            }
-            break;
-            case INTEGER: {
-                if (!(value instanceof Integer)) {
-                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-                }
-                sqlBuilder.append(value);
-                if (typeName) {
-                    sqlBuilder.append("::")
-                            .append(dataType.typeName());
-                }
-            }
-            break;
-            case BIGINT: {
-                if (!(value instanceof Long)) {
-                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-                }
-                sqlBuilder.append(value);
-                if (typeName) {
-                    sqlBuilder.append("::")
-                            .append(dataType.typeName());
-                }
-            }
-            break;
-            case DECIMAL: {
-                if (!(value instanceof BigDecimal)) {
-                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-                }
-                sqlBuilder.append(((BigDecimal) value).toPlainString());
-                if (typeName) {
-                    sqlBuilder.append("::")
-                            .append(dataType.typeName());
-                }
-            }
-            break;
-            case DOUBLE: {
-                if (!(value instanceof Double)) {
-                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-                }
-                sqlBuilder.append(value);
-                if (typeName) {
-                    sqlBuilder.append("::")
-                            .append(dataType.typeName());
-                }
-            }
-            break;
-            case REAL: {
-                if (!(value instanceof Float)) {
-                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-                }
-                sqlBuilder.append(value);
-                if (typeName) {
-                    sqlBuilder.append("::")
-                            .append(dataType.typeName());
-                }
-            }
-            break;
-            case TIME: {
-                if (!(value instanceof LocalTime)) {
-                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-                }
-                if (typeName) {
-                    sqlBuilder.append(dataType.typeName())
-                            .append(_Constant.SPACE);
-                }
-                sqlBuilder.append(_Constant.QUOTE)
-                        .append(_TimeUtils.TIME_FORMATTER_6.format((LocalTime) value))
-                        .append(_Constant.QUOTE);
-            }
-            break;
-            case DATE: {
-                if (!(value instanceof LocalDate)) {
-                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-                }
-                if (typeName) {
-                    sqlBuilder.append(dataType.typeName())
-                            .append(_Constant.SPACE);
-                }
-                sqlBuilder.append(_Constant.QUOTE)
-                        .append(DateTimeFormatter.ISO_LOCAL_DATE.format((LocalDate) value))
-                        .append(_Constant.QUOTE);
-            }
-            break;
-            case TIMETZ: {
-                if (!(value instanceof OffsetTime)) {
-                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-                }
-                if (typeName) {
-                    sqlBuilder.append(dataType.typeName())
-                            .append(_Constant.SPACE);
-                }
-                sqlBuilder.append(_Constant.QUOTE)
-                        .append(_TimeUtils.OFFSET_TIME_FORMATTER_6.format((OffsetTime) value))
-                        .append(_Constant.QUOTE);
-            }
-            break;
-            case TIMESTAMP: {
-                if (!(value instanceof LocalDateTime)) {
-                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-                }
-                if (typeName) {
-                    sqlBuilder.append(dataType.typeName())
-                            .append(_Constant.SPACE);
-                }
-                sqlBuilder.append(_Constant.QUOTE)
-                        .append(_TimeUtils.DATETIME_FORMATTER_6.format((LocalDateTime) value))
-                        .append(_Constant.QUOTE);
-            }
-            break;
-            case TIMESTAMPTZ: {
-                if (!(value instanceof OffsetDateTime)) {
-                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-                }
-                if (typeName) {
-                    sqlBuilder.append(dataType.typeName())
-                            .append(_Constant.SPACE);
-                }
-                sqlBuilder.append(_Constant.QUOTE)
-                        .append(_TimeUtils.OFFSET_DATETIME_FORMATTER_6.format((OffsetDateTime) value))
-                        .append(_Constant.QUOTE);
-            }
-            break;
-            case CHAR:
-            case BPCHAR:
-            case VARCHAR:
-            case TEXT:
-            case JSON:
-            case JSONB:
-            case JSONPATH:
-            case XML:
-                // Geometric Types
-            case POINT:
-            case LINE:
-            case LSEG:
-            case BOX:
-            case PATH:
-            case POLYGON:
-            case CIRCLE:
-                // Network Address Types
-            case CIDR:
-            case INET:
-            case MACADDR:
-            case MACADDR8:
-                //
-            case UUID:
-            case MONEY:
-            case TSQUERY:
-            case TSVECTOR:
-                // Range Types
-            case INT4RANGE:
-            case INT8RANGE:
-            case NUMRANGE:
-            case TSRANGE:
-            case TSTZRANGE:
-            case DATERANGE:
-                // multi range Types
-            case INT4MULTIRANGE:
-            case INT8MULTIRANGE:
-            case NUMMULTIRANGE:
-            case DATEMULTIRANGE:
-            case TSMULTIRANGE:
-            case TSTZMULTIRANGE:
-
-            case INTERVAL:
-
-            case ACLITEM:
-            case PG_LSN:
-            case PG_SNAPSHOT: {
-                if (!(value instanceof String)) {
-                    throw _Exceptions.beforeBindMethod(dataType, typeMeta.mappingType(), value);
-                }
-                if (typeName) {
-                    sqlBuilder.append(dataType.typeName())
-                            .append(_Constant.SPACE); //use dataType 'string' syntax not 'string'::dataType syntax,because XMLEXISTS function not work, see PostgreSQL 15.1 on x86_64-apple-darwin20.6.0, compiled by Apple clang version 12.0.0 (clang-1200.0.32.29), 64-bit
-                }
-                stringEscape((String) value, sqlBuilder);
-            }
-            break;
-            case BYTEA: {
-                if (!(value instanceof byte[])) {
-                    throw _Exceptions.beforeBindMethod(dataType, typeMeta.mappingType(), value);
-                }
-
-                if (typeName) {
-                    sqlBuilder.append(dataType.typeName())
-                            .append(_Constant.SPACE); //use dataType 'string' syntax not 'string'::dataType syntax,because XMLEXISTS function not work, see PostgreSQL 15.1 on x86_64-apple-darwin20.6.0, compiled by Apple clang version 12.0.0 (clang-1200.0.32.29), 64-bit
-                }
-
-                sqlBuilder.append(_Constant.QUOTE)
-                        .append(_Constant.BACK_SLASH)
-                        .append('x')
-                        .append(HexUtils.hexEscapesText(true, (byte[]) value))
-                        .append(_Constant.QUOTE);
-            }
-            break;
-            case VARBIT:
-            case BIT: {
-
-                if (!(value instanceof String)) {
-                    throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
-                } else if (!_StringUtils.isBinary((String) value)) {
-                    throw _Exceptions.valueOutRange(dataType, value);
-                }
-                if (typeName) {
-                    sqlBuilder.append(dataType.typeName())
-                            .append(_Constant.SPACE); //use dataType 'string' syntax not 'string'::dataType syntax,because XMLEXISTS function not work, see PostgreSQL 15.1 on x86_64-apple-darwin20.6.0, compiled by Apple clang version 12.0.0 (clang-1200.0.32.29), 64-bit
-                }
-                sqlBuilder.append('B')
-                        .append(_Constant.QUOTE)
-                        .append(value)
-                        .append(_Constant.QUOTE);
-            }
-            break;
-            case UNKNOWN:
-            case REF_CURSOR:
-            case RECORD:
-                throw ExecutorSupport.mapMethodError(typeMeta.mappingType(), dataType);
-            default:
-                throw _Exceptions.unexpectedEnum((PgType) dataType);
-
-
-        } // switch
-    }
-
 
     @Override
     protected final PostgreDdlParser createDdlDialect() {
@@ -571,6 +272,10 @@ abstract class PostgreParser extends _ArmyDialectParser {
         return _PostgreDialectUtils::handleIdentifier;
     }
 
+    @Override
+    final LiteralHandler createLiteralHandler() {
+        return new PostgreLiteralHandler(this);
+    }
 
     @Override
     final int capabilitiesBitSet(ServerMeta serverMeta) {
@@ -888,30 +593,8 @@ abstract class PostgreParser extends _ArmyDialectParser {
     /*-------------------below private methods -------------------*/
 
 
-    /// @see #bindLiteral(TypeMeta, DataType, Object, boolean, StringBuilder)
-    private void stringEscape(final CharSequence value, final StringBuilder builder) {
-        switch (this.literalEscapeMode) {
-            case DEFAULT:
-            case BACK_SLASH:
-                _PostgreLiterals.backslashEscape(value, 0, value.length(), builder);
-                break;
-            case UNICODE:
-                _PostgreLiterals.unicodeEscape(value, 0, value.length(), _Constant.BACK_SLASH, builder);
-                break;
-            default:
-                throw _Exceptions.dontSupportEscapeMode(this.literalEscapeMode, this.dialect);
-        }
-
-    }
 
 
-    private static final class Standard extends PostgreParser {
-
-        private Standard(DialectEnv environment, PostgreDialect dialect) {
-            super(environment, dialect);
-        }
-
-    } // Standard
 
 
 }

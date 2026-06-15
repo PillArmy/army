@@ -37,7 +37,7 @@ final class MySQLIdentifierHandler implements IdentifierHandler {
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifiers.html"> Schema Object Names</a>
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html">Identifier Case Sensitivity</a>
     @Override
-    public void handle(@Nullable DatabaseObject object, String effectiveName, StringBuilder sqlBuilder) {
+    public void safeIdentifier(@Nullable DatabaseObject object, String effectiveName, StringBuilder sqlBuilder) {
         // 1. 列名   : MySQL列名不区分大小写,即使使用引用也不区分,故此算法正确
         // 2. 列别名 : 虽然MySQL列别名不区分大小写,但MySQL原样返回了列别名,故此算法正确
         // 3. 表名   : MySQL 的表名的大小写规则依赖服务器的操作系统,若必要,开发者可通过 ArmyKey.TABLE_NAME_MODE 控制大小写

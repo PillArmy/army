@@ -18,6 +18,7 @@ package io.army.mapping.array;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.function.TextFunction;
 import io.army.mapping.CompositeType;
@@ -40,7 +41,7 @@ import java.util.function.BiConsumer;
 /// Array mapping type for composite type elements.
 ///
 /// @see io.army.mapping.CompositeType
-public final class CompositeArrayType extends _ArmyBuildInArrayType implements MappingType.SqlUserDefined {
+public class CompositeArrayType extends _ArmyBuildInArrayType {
 
     public static CompositeArrayType from(final Class<?> javaType) {
         if (!javaType.isArray()) {
@@ -57,6 +58,8 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
 
     private static final ClassValue<CompositeArrayType> CLASS_VALUE = FuncClassValue.create(CompositeArrayType::new);
 
+    private static final char[] LEFT_BOUNDARIES = new char[]{_Constant.LEFT_PAREN};
+
 
     private final Class<?> javaType;
 
@@ -64,16 +67,17 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
 
     private final CompositeType underlyingType;
 
-    private final DataType dataType;
+    private final CustomType customType;
 
     private CompositeArrayType(Class<?> javaType) {
         this.javaType = javaType;
         this.underlyingClass = ArrayUtils.underlyingComponent(javaType);
         this.underlyingType = CompositeType.from(this.underlyingClass);
-        this.dataType = CustomType.builder()
+        this.customType = CustomType.builder()
                 .typeName(Objects.requireNonNull(AnnotationUtils.definedTypeNameOf(this.underlyingClass)) + "[]")
                 .javaType(this.javaType)
                 .componentType(ArmyType.COMPOSITE)
+                .elementInstance(this.underlyingType.getCustomType())
                 .componentCreateDdl(true)
                 .build();
 
@@ -81,17 +85,17 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
 
 
     @Override
-    public Class<?> javaType() {
+    public final Class<?> javaType() {
         return this.javaType;
     }
 
 
     @Override
-    public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
+    public final DataType map(final ServerMeta meta) throws UnsupportedDialectException {
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = this.dataType;
+                dataType = this.customType;
                 break;
             case SQLite:
             case MySQL:
@@ -103,20 +107,25 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
 
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
+    public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
         final DataType elementDataType;
         elementDataType = this.underlyingType.map(env.serverMeta());
+
+        final StringBuilder tempBuilder = this.underlyingType.createStringBuilder();
+
         final BiConsumer<Object, StringBuilder> consumer;
         consumer = (element, sqlBuilder) -> {
-            final StringBuilder tempBuilder = new StringBuilder();
+            tempBuilder.setLength(0); // firstly clear
+
             CompositeType.bindToLiteral(this.underlyingType, elementDataType, env, element, tempBuilder);
-            PostgreArrays.encodeElement(tempBuilder.toString(), sqlBuilder);
+            PostgreArrays.encodeElement(tempBuilder, sqlBuilder);
         };
         return PostgreArrays.arrayBeforeBind(source, consumer, dataType, this);
     }
 
+
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         final DataType elementDataType;
         elementDataType = this.underlyingType.map(env.serverMeta());
 
@@ -124,21 +133,21 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
 
         final TextFunction<?> func;
         func = (text, offset, end) -> CompositeType.parseToPojo(this.underlyingType, elementDataType, env, text, offset, end, builder);
-        return PostgreArrays.arrayAfterGet(this, dataType, source, func, builder);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, func, LEFT_BOUNDARIES, CompositeType.PG_DESERIALIZER::skipRecord, builder);
     }
 
     @Override
-    public Class<?> underlyingJavaType() {
+    public final Class<?> underlyingJavaType() {
         return this.underlyingClass;
     }
 
     @Override
-    public MappingType underlyingType() {
+    public final MappingType underlyingType() {
         return this.underlyingType;
     }
 
     @Override
-    public MappingType elementType() {
+    public final MappingType elementType() {
         final Class<?> componentType;
         final MappingType instance;
         if ((componentType = this.javaType.getComponentType()).isArray()) {
@@ -150,18 +159,18 @@ public final class CompositeArrayType extends _ArmyBuildInArrayType implements M
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
         return from(ArrayUtils.arrayClassOf(this.javaType));
     }
 
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Objects.hash(this.javaType);
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public final boolean equals(final Object obj) {
         final boolean match;
         if (obj == this) {
             match = true;

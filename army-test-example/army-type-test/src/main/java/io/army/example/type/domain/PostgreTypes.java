@@ -205,9 +205,11 @@ public class PostgreTypes implements FieldAccessPojo {
     @Column(comment = "aclitem type")
     public String aclitem;
 
-    @Mapping("io.army.mapping.CompositeType")
     @Column(comment = "product info composite type")
     public ProductInfo productInfo;
+
+    @Column(comment = "manager info composite type")
+    public ManagerInfo managerInfo;  // only one field
 
     // ------------- 数组类型 -------------
     @Mapping("io.army.mapping.array.BooleanArrayType")

@@ -18,9 +18,9 @@ package io.army.mapping;
 
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
+import io.army.dialect.LiteralHandler;
 import io.army.dialect.MappingHandler;
 import io.army.function.DecodeLiteralFunc;
-import io.army.function.SafeLiteralFunc;
 import io.army.lang.Nullable;
 import io.army.meta.ServerMeta;
 
@@ -28,7 +28,7 @@ import java.time.ZoneOffset;
 
 
 /// The instance of this interface is created by the implementation of {@link io.army.dialect.DialectParser}.
-public interface MappingEnv {
+public sealed interface MappingEnv permits ArmyMappingEnv {
 
     boolean isReactive();
 
@@ -43,7 +43,7 @@ public interface MappingEnv {
     /// @throws IllegalStateException throw when don't support  {@link XmlCodec}.
     XmlCodec xmlCodec();
 
-    SafeLiteralFunc safeLiteralFunc();
+    LiteralHandler literalHandler();
 
     DecodeLiteralFunc decodeLiteralFunc();
 
@@ -66,7 +66,7 @@ public interface MappingEnv {
 
         Builder xmlCodec(@Nullable XmlCodec codec);
 
-        Builder safeLiteralFunc(SafeLiteralFunc func);
+        Builder literalHandler(LiteralHandler func);
 
         Builder decodeLiteralFunc(DecodeLiteralFunc func);
 

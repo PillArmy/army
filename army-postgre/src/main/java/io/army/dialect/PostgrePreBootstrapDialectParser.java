@@ -125,7 +125,7 @@ final class PostgrePreBootstrapDialectParser implements PreBootstrapParser {
                     .append(effectiveName)
                     .append(_Constant.DOUBLE_QUOTE);
         } else {
-            this.identifierHandler.handle(null, effectiveName, sqlBuilder);
+            this.identifierHandler.safeIdentifier(null, effectiveName, sqlBuilder);
         }
     }
 

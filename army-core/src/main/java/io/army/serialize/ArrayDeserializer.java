@@ -15,38 +15,35 @@
  */
 
 
-package io.army.util;
+package io.army.serialize;
 
 import io.army.function.TextFunction;
+import io.army.function.TextToIntFunc;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 
+/// @see ArraySerializer
+public interface ArrayDeserializer {
 
-public interface ItemsDeserializer {
 
-
-    /// Parse all item form
-    Object deserialize(String text, int offset, int endIndex, MappingType type, TextFunction<?> func, @Nullable StringBuilder builder);
+    Object deserialize(String text, int offset, int endIndex, MappingType type, TextFunction<?> func,
+                       @Nullable char[] boundaries, @Nullable TextToIntFunc skipFunc, @Nullable StringBuilder builder);
 
 
     static Builder builder() {
-        return DefaultItemsDeserializer.newBuilder();
+        return DefaultArrayDeserializer.newBuilder();
     }
 
 
     interface Builder {
 
-        Builder leftBoundaries(char[] array);
+        Builder leftBoundary(char ch);
 
         Builder delim(char ch);
 
-        Builder rightBoundaries(char[] array);
+        Builder rightBoundary(char ch);
 
-        /// @param func return int[2] , int[0] is dimension, int[1] is the index of left boundary.
-        Builder dimensionFunc(TextFunction<int[]> func);
-
-        /// @param func return the length of array
-        Builder lengthFunc(TextFunction<Integer> func);
+        Builder skipPrefixFunc(TextToIntFunc func);
 
         Builder backSlashEscapeOn(boolean yes);
 
@@ -54,8 +51,7 @@ public interface ItemsDeserializer {
 
         Builder quoteChar(char ch);
 
-
-        ItemsDeserializer build();
+        ArrayDeserializer build();
 
     }
 

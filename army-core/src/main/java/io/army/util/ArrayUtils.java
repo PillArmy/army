@@ -236,7 +236,6 @@ public abstract class ArrayUtils {
     }
 
 
-
     public static int dimensionOfType(final MappingType type) {
         final Class<?> clazz;
         clazz = type.javaType();
@@ -280,17 +279,20 @@ public abstract class ArrayUtils {
         if (dimension < 1) {
             throw new IllegalArgumentException("dimension error");
         }
-        final StringBuilder builder = new StringBuilder();
+        final String elementTypeName;
+        elementTypeName = elementType.getName();
+
+        final StringBuilder builder = new StringBuilder(elementTypeName.length() + dimension + 2);
         for (int i = 0; i < dimension; i++) {
             builder.append('[');
         }
         if (elementType.isArray()) {
-            builder.append(elementType.getName());
+            builder.append(elementTypeName);
         } else if (elementType.isAnonymousClass()) {
             throw new IllegalArgumentException("don't support anonymous class");
         } else if (!(elementType.isPrimitive())) {
             builder.append('L')
-                    .append(elementType.getName())
+                    .append(elementTypeName)
                     .append(';');
         } else if (elementType == int.class) {
             builder.append('I');

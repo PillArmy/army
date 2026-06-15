@@ -18,15 +18,16 @@ package io.army.mapping;
 
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
+import io.army.dialect.LiteralHandler;
 import io.army.dialect.MappingHandler;
 import io.army.function.DecodeLiteralFunc;
-import io.army.function.SafeLiteralFunc;
 import io.army.lang.Nullable;
 import io.army.meta.ServerMeta;
 import io.army.util._StringUtils;
 
 import java.time.Clock;
 import java.time.ZoneOffset;
+import java.util.Objects;
 
 final class ArmyMappingEnv implements MappingEnv {
 
@@ -44,7 +45,7 @@ final class ArmyMappingEnv implements MappingEnv {
 
     private final XmlCodec xmlCodec;
 
-    private final SafeLiteralFunc literalFunc;
+    private final LiteralHandler literalHandler;
 
     private final DecodeLiteralFunc decodeFunc;
 
@@ -58,7 +59,7 @@ final class ArmyMappingEnv implements MappingEnv {
         this.jsonCodec = builder.jsonCodec;
 
         this.xmlCodec = builder.xmlCodec;
-        this.literalFunc = builder.literalFunc;
+        this.literalHandler = Objects.requireNonNull(builder.literalFunc);
         this.decodeFunc = builder.decodeFunction;
         this.typeMapFunction = builder.typeMapFunction;
         if (this.serverMeta == null) {
@@ -106,8 +107,8 @@ final class ArmyMappingEnv implements MappingEnv {
     }
 
     @Override
-    public SafeLiteralFunc safeLiteralFunc() {
-        return this.literalFunc;
+    public LiteralHandler literalHandler() {
+        return this.literalHandler;
     }
 
     @Override
@@ -152,7 +153,7 @@ final class ArmyMappingEnv implements MappingEnv {
 
         private XmlCodec xmlCodec;
 
-        private SafeLiteralFunc literalFunc;
+        private LiteralHandler literalFunc;
 
         private DecodeLiteralFunc decodeFunction;
 
@@ -189,7 +190,7 @@ final class ArmyMappingEnv implements MappingEnv {
         }
 
         @Override
-        public Builder safeLiteralFunc(SafeLiteralFunc func) {
+        public Builder literalHandler(LiteralHandler func) {
             this.literalFunc = func;
             return this;
         }

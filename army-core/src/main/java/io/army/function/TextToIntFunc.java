@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package io.army.dialect;
-
-import io.army.lang.Nullable;
-import io.army.meta.DatabaseObject;
+package io.army.function;
 
 @FunctionalInterface
-interface IdentifierHandler {
+public interface TextToIntFunc {
 
-    void safeIdentifier(final @Nullable DatabaseObject object, final String effectiveName, final StringBuilder sqlBuilder);
-
+    int apply(String text, int offset, int endIndex);
 }

@@ -56,6 +56,8 @@ public abstract class CompositeFieldFactory {
     public static List<CompositeField> forType(final MappingType.SqlComposite compositeType) {
         if (!(compositeType instanceof MappingType)) {
             throw new IllegalArgumentException();
+        } else if (compositeType.javaType().getEnclosingClass() != null) {
+            throw new IllegalArgumentException();
         }
 
         return createFieldList(compositeType);

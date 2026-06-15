@@ -21,7 +21,7 @@ import io.army.dialect.Dialect;
 
 import io.army.lang.Nullable;
 
-public interface ServerMeta {
+public sealed interface ServerMeta permits ServerMetaImpl {
 
     /// database product family name,eg : MySQL,PostgreSQL
     String name();

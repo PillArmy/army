@@ -20,9 +20,15 @@ import io.army.meta.ServerMeta;
 
 public interface ParserFactory {
 
+
     PreBootstrapParser createPreBootstrapParser(ServerMeta serverMeta);
 
     DialectParser createDialectParser(DialectEnv environment);
+
+
+    static ParserFactory createFactory(ServerMeta serverMeta) {
+        return ParserFactoryUtils.createFactory(serverMeta);
+    }
 
 
 }

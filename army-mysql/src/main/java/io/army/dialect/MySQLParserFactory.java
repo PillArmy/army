@@ -31,13 +31,13 @@ public final class MySQLParserFactory implements ParserFactory {
 
     @Override
     public PreBootstrapParser createPreBootstrapParser(ServerMeta serverMeta) {
-        throw ParserFactories.extensionUnsupported(Database.MySQL);
+        throw ParserFactoryUtils.extensionUnsupported(Database.MySQL);
     }
 
     @Override
     public DialectParser createDialectParser(DialectEnv environment) {
         final MySQLDialect dialect;
-        dialect = (MySQLDialect) ParserFactories.targetDialect(environment, Database.MySQL);
+        dialect = (MySQLDialect) ParserFactoryUtils.targetDialect(environment, Database.MySQL);
         return MySQLDialectParser.create(environment, dialect);
     }
 

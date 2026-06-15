@@ -31,7 +31,7 @@ public abstract class RowFunctions {
 
     public interface ReaderFunc<R> extends Function<CurrentRecord, R> {
 
-        void end();
+        void endLast();
     }
 
 
@@ -332,7 +332,7 @@ public abstract class RowFunctions {
         }
 
         @Override
-        public void end() {
+        public void endLast() {
             final String lastTypeName = this.typeName;
             if (lastTypeName != null) {
                 putLastType(lastTypeName);

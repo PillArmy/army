@@ -15,13 +15,14 @@
  */
 
 
-package io.army.util;
+package io.army.serialize;
 
 import java.util.function.BiConsumer;
 
+/// @see ArrayDeserializer
 public interface ArraySerializer {
 
-    String parse(Class<?> underlyingJavaType, final Object array, final BiConsumer<Object, StringBuilder> consumer)
+    String serialize(Class<?> underlyingJavaType, final Object array, final BiConsumer<Object, StringBuilder> consumer)
             throws IllegalArgumentException;
 
 

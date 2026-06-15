@@ -32,6 +32,7 @@ import io.army.sqltype.SQLType;
 import io.army.struct.CodeEnum;
 import io.army.struct.LabelEnum;
 import io.army.util.ClassUtils;
+import io.army.util._StringUtils;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -495,6 +496,23 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
     }
 
 
+    @Override
+    public String toString() {
+        final String className, javaTypeName;
+        className = getClass().getName();
+        javaTypeName = javaType().getName();
+
+        return _StringUtils.builder(className.length() + 11 + javaTypeName.length())
+                .append(className)
+                .append('[')
+                .append("javaType")
+                .append(':')
+                .append(javaTypeName)
+                .append(']')
+                .toString();
+    }
+
+
     /// Throws CloneNotSupportedException.  This guarantees that MappingType
     /// are never cloned
     ///
@@ -559,7 +577,6 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         return new IllegalArgumentException(
                 String.format("%s don't support java type[%s].", mappingMetaClass.getName(), javaType.getName()));
     }
-
 
 
     private static CriteriaException paramError0(final MappingType type, final Object nonNull) {

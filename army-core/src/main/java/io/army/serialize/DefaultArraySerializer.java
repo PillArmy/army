@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package io.army.util;
+package io.army.serialize;
 
+
+import io.army.util.ArrayUtils;
 
 import java.lang.reflect.Array;
 import java.util.function.BiConsumer;
@@ -45,7 +47,7 @@ final class DefaultArraySerializer implements ArraySerializer {
 
 
     @Override
-    public String parse(final Class<?> underlyingJavaType, final Object array, final BiConsumer<Object, StringBuilder> consumer)
+    public String serialize(final Class<?> underlyingJavaType, final Object array, final BiConsumer<Object, StringBuilder> consumer)
             throws IllegalArgumentException {
         final Class<?> arrayClass = array.getClass();
         if (!ArrayUtils.underlyingComponentMatch(underlyingJavaType, arrayClass)) {

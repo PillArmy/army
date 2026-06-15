@@ -21,8 +21,11 @@ public interface CustomType extends DataType {
         /// Required
         Builder typeName(String typeName);
 
-        /// Required
+        /// At least one of {@link #elementInstance(CustomType)} and this method must be provided.
         Builder componentType(ArmyType armyType);
+
+        /// At least one of {@link #componentType(ArmyType)} and this method must be provided.
+        Builder elementInstance(CustomType customType);
 
         /// Required
         Builder javaType(Class<?> javaType);
@@ -32,6 +35,7 @@ public interface CustomType extends DataType {
 
         /// Optional
         Builder safeTypeAlias(String safeTypeAlias);
+
 
         /// Optional,
         ///

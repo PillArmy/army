@@ -196,7 +196,7 @@ public abstract class _MockDialects implements DialectEnv {
                 throw _Exceptions.unexpectedEnum(dialect.database());
         }
 
-        return ParserFactories.createFactory(meta)
+        return ParserFactory.createFactory(meta)
                 .createDialectParser(new MockDialectEnv(meta));
     }
 

@@ -87,8 +87,8 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
                 continue;
             }
             bundle = TypeMappingBundle.of(dataType, mappingType);
-            map.put(Objects.requireNonNull(dataType.typeName()), bundle);
-            map.put(Objects.requireNonNull(dataType.safeTypeAlias()), bundle);
+            map.put(Objects.requireNonNull(dataType.typeName()).toUpperCase(Locale.ROOT), bundle);
+            map.put(Objects.requireNonNull(dataType.safeTypeAlias()).toUpperCase(Locale.ROOT), bundle);
         }
         return Map.copyOf(map);
     }

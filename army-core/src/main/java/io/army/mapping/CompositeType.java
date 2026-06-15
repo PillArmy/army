@@ -18,17 +18,18 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
+import io.army.dialect.LiteralHandler;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.function.DecodeLiteralFunc;
-import io.army.function.SafeLiteralFunc;
 import io.army.lang.Nullable;
 import io.army.mapping.array.CompositeArrayType;
 import io.army.meta.CompositeField;
 import io.army.meta.ServerMeta;
 import io.army.pojo.ObjectAccessor;
 import io.army.pojo.ObjectAccessorFactory;
+import io.army.serialize.RecordDeserializer;
 import io.army.sqltype.ArmyType;
 import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
@@ -51,33 +52,38 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
                 || definedType.category() != TypeCategory.COMPOSITE
                 || definedType.fieldOrder().length == 0) {
             throw errorJavaType(CompositeType.class, javaType);
+        } else if (javaType.getEnclosingClass() != null) {
+            throw errorJavaType(CompositeType.class, javaType);
         }
         return CLASS_VALUE.get(javaType);
     }
 
 
-    private static final ClassValue<CompositeType> CLASS_VALUE = FuncClassValue.create(CompositeType::new);
-
-    private static final ItemsDeserializer ITEM_PARSER = ItemsDeserializer.builder()
-            .leftBoundaries(new char[]{'('})
+    public static final RecordDeserializer PG_DESERIALIZER = RecordDeserializer.builder()
+            .leftBoundary(_Constant.LEFT_PAREN)
             .delim(_Constant.COMMA)
-            .rightBoundaries(new char[]{')'})
+            .rightBoundary(_Constant.RIGHT_PAREN)
+
             .backSlashEscapeOn(true)
-            .quoteEscapeOn(true)
-            .quoteChar(_Constant.QUOTE)
+            .quoteEscapeOn(true)  // postgre server response use quote escape
+            .quoteChar(_Constant.DOUBLE_QUOTE)
+
+            .allowEmpty(true)
             .build();
+
+    private static final ClassValue<CompositeType> CLASS_VALUE = FuncClassValue.create(CompositeType::new);
 
 
     private final Class<?> javaType;
 
-    private final CustomType dataType;
+    private final CustomType customType;
 
     private final List<CompositeField> fieldList;
 
 
     private CompositeType(Class<?> javaType) {
         this.javaType = javaType;
-        this.dataType = CustomType.builder()
+        this.customType = CustomType.builder()
                 .typeName(Objects.requireNonNull(AnnotationUtils.definedTypeNameOf(javaType)))
                 .componentType(ArmyType.COMPOSITE)
                 .javaType(javaType)
@@ -97,7 +103,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         final DataType dataType;
         switch (meta.serverDatabase()) {
             case PostgreSQL:
-                dataType = this.dataType;
+                dataType = this.customType;
                 break;
             case SQLite:
             case MySQL:
@@ -110,13 +116,9 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
     @Override
     public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        final List<CompositeField> fieldList = this.fieldList;
-        final int size = fieldList.size();
-        final StringBuilder sqlBuilder = new StringBuilder(2 + size + (size * 10));
-        bindToLiteral(this, dataType, env, source, sqlBuilder);
-        return sqlBuilder.toString();
+        return bindToLiteral(this, dataType, env, source, createStringBuilder())
+                .toString();
     }
-
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
@@ -141,6 +143,18 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         return CompositeArrayType.from(ArrayUtils.arrayClassOf(this.javaType));
     }
 
+    @SuppressWarnings("unused")
+    public CustomType getCustomType() {
+        return this.customType;
+    }
+
+
+    public StringBuilder createStringBuilder() {
+        final List<CompositeField> fieldList = this.fieldList;
+        final int size = fieldList.size();
+        return new StringBuilder(2 + size + (size * 10));
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(this.javaType);
@@ -160,14 +174,16 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
     }
 
 
-    public static void bindToLiteral(final CompositeType instance, final DataType dataType, final MappingEnv env,
-                                     final Object source, final StringBuilder sqlBuilder) {
+    public static StringBuilder bindToLiteral(final CompositeType instance, final DataType dataType, final MappingEnv env,
+                                              final Object source, final StringBuilder sqlBuilder) {
         if (!instance.javaType.isInstance(source)) {
             String m = String.format("%s is instance of %s", ClassUtils.safeClassName(source), instance.javaType.getName());
             throw paramError(instance, dataType, source, new IllegalArgumentException(m));
         }
 
-        final SafeLiteralFunc func = env.safeLiteralFunc();
+        Objects.requireNonNull(dataType); // assert not null
+
+        final LiteralHandler literalHandler = env.literalHandler();
         final ObjectAccessor accessor = ObjectAccessorFactory.forPojo(instance.javaType);
         final List<CompositeField> fieldList = instance.fieldList;
 
@@ -184,15 +200,16 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
             field = fieldList.get(i);
             value = accessor.get(source, field.fieldName());
             if (value == null) {
-                sqlBuilder.append(_Constant.NULL);
+                // null output nothing , https://www.postgresql.org/docs/current/rowtypes.html
                 continue;
             }
 
-            func.safeLiteral(field.mappingType(), value, false, sqlBuilder);
+            literalHandler.safeLiteral(field.mappingType(), value, false, sqlBuilder, dataType);
         }
         sqlBuilder.append(_Constant.RIGHT_PAREN);
-
+        return sqlBuilder;
     }
+
 
     public static Object parseToPojo(final CompositeType instance, final DataType dataType, final MappingEnv env,
                                      final String source, final int offset, final int endIndex, @Nullable StringBuilder builder) {
@@ -206,10 +223,9 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         final Supplier<?> constructor = ObjectAccessorFactory.pojoConstructor(instance.javaType);
         final FieldParser fieldParser = new FieldParser(accessor, constructor.get(), instance.fieldList, env);
 
-
         try {
 
-            ITEM_PARSER.deserialize(source, offset, endIndex, instance, fieldParser::parseField, builder);
+            PG_DESERIALIZER.deserialize(source, offset, endIndex, fieldParser::parseField, null, null, builder);
 
             if (fieldParser.fieldIndex != fieldParser.fieldCount) {
                 throw dataAccessError(instance, dataType, source, null);
@@ -260,9 +276,9 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
             final CompositeField field = this.fieldList.get(fieldIndex);
             final MappingType type = field.mappingType();
 
-            String literal;
-            if (offest == 0 && endIndex == text.length()) {
-                literal = text;
+            final String literal;
+            if (text.isEmpty()) {
+                literal = null;
             } else {
                 literal = text.substring(offest, endIndex);
             }
@@ -271,7 +287,12 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
             // literal = this.decodeFunc.decodeLiteral(type, literal);
 
             final Object value;
-            value = type.afterGet(type.map(this.serverMeta), this.env, literal);
+            if (literal == null) {
+                value = null;
+            } else {
+                value = type.afterGet(type.map(this.serverMeta), this.env, literal);
+            }
+
             this.accessor.set(this.object, field.fieldName(), value);
             this.fieldIndex++;
             return Boolean.TRUE;

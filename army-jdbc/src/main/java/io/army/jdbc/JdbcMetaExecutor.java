@@ -283,8 +283,8 @@ class JdbcMetaExecutor implements SyncMetaExecutor {
                 stream.reduce(StreamFunctions::last)
                         .orElse(Boolean.TRUE);
             }
+            readerFunc.endLast();
         }
-        readerFunc.end();
         return typeInfoMap;
     }
 

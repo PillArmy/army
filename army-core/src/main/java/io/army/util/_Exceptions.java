@@ -1187,6 +1187,7 @@ public abstract class _Exceptions {
         return new CriteriaException(m);
     }
 
+
     public static IllegalOneStmtModeException parentSubInsertDomainError(TableMeta<?> actual, ChildTableMeta<?> child) {
         String m = String.format("excepted domain is %s but %s", actual, child);
         return new IllegalOneStmtModeException(m);

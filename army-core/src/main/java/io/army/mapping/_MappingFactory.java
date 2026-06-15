@@ -27,6 +27,7 @@ import io.army.mapping.array.*;
 import io.army.meta.MetaException;
 import io.army.modelgen._MetaBridge;
 import io.army.struct.CodeEnum;
+import io.army.struct.DefinedType;
 import io.army.util.ArrayUtils;
 import io.army.util.ReflectionUtils;
 import io.army.util._StringUtils;
@@ -87,7 +88,19 @@ public abstract class _MappingFactory {
                 type = NameEnumType.from(javaType);
             }
         } else if (!javaType.isArray()) {
-            type = DEFAULT_TYPE_MAP.get(javaType);
+            final DefinedType definedType = javaType.getAnnotation(DefinedType.class);
+            if (definedType == null) {
+                type = DEFAULT_TYPE_MAP.get(javaType);
+            } else switch (definedType.category()) {
+                case COMPOSITE:
+                    type = CompositeType.from(javaType);
+                    break;
+                case DOMAIN:
+                case RANGE:
+                default:
+                    type = null;
+            }
+
         } else if (!Enum.class.isAssignableFrom(componentClass = ArrayUtils.underlyingComponent(javaType))) {
             final Function<Class<?>, MappingType> func;
             func = DEFAULT_ARRAY_FUNC_MAP.get(componentClass);
