@@ -93,13 +93,12 @@ public class LongArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, LongArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
+        return PostgreArrays.arrayBeforeBind(source, LongArrayType::appendToText, dataType, this);
     }
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        final boolean nonNull = this.underlyingJavaType == long.class;
-        return PostgreArrays.arrayAfterGet(this, dataType, source, nonNull, LongArrayType::parseText, ACCESS_ERROR_HANDLER);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, LongArrayType::parseText, null, null, null);
     }
 
 
@@ -173,8 +172,8 @@ public class LongArrayType extends _ArmyBuildInArrayType {
     }
 
 
-    private static long parseText(final String text, final int offset, final int end) {
-        return Long.parseLong(text.substring(offset, end));
+    private static long parseText(final String text, final int offset, final int endIndex) {
+        return Long.parseLong(text, offset, endIndex, 10);
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

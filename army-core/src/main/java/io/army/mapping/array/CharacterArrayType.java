@@ -104,13 +104,12 @@ public class CharacterArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, CharacterArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
+        return PostgreArrays.arrayBeforeBind(source, CharacterArrayType::appendToText, dataType, this);
     }
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        final boolean nonNull = this.underlyingJavaType == boolean.class;
-        return PostgreArrays.arrayAfterGet(this, dataType, source, nonNull, CharacterArrayType::parseText, ACCESS_ERROR_HANDLER);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, CharacterArrayType::parseText, null, null, null);
     }
 
     @Override

@@ -73,14 +73,12 @@ public class BigIntegerArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, BigIntegerArrayType::appendToText, dataType, this,
-                PARAM_ERROR_HANDLER);
+        return PostgreArrays.arrayBeforeBind(source, BigIntegerArrayType::appendToText, dataType, this);
     }
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false,
-                BigIntegerArrayType::parseBigInteger, ACCESS_ERROR_HANDLER);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, BigIntegerArrayType::parseBigInteger, null, null, null);
     }
 
     @Override

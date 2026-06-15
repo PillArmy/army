@@ -77,7 +77,7 @@ public class MonthDayArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, MonthDayArrayType::parseText);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, MonthDayArrayType::parseText, null, null, null);
     }
 
     @Override
@@ -131,11 +131,7 @@ public class MonthDayArrayType extends _ArmyBuildInArrayType {
 
     private static MonthDay parseText(final String text, final int offset, final int end) {
         final String timeStr;
-        if (text.charAt(offset) == _Constant.DOUBLE_QUOTE) {
-            timeStr = text.substring(offset + 1, end - 1);
-        } else {
-            timeStr = text.substring(offset, end);
-        }
+        timeStr = text.substring(offset, end);
 
         final MonthDay value;
         if (timeStr.length() == 5) {

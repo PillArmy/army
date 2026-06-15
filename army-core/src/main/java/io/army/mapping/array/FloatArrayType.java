@@ -106,7 +106,7 @@ public class FloatArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, FloatArrayType::parseText);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, FloatArrayType::parseText, null, null, null);
     }
 
     @Override

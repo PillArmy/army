@@ -50,7 +50,11 @@ public interface RecordDeserializer {
 
         Builder quoteChar(char ch);
 
-        Builder allowEmpty(boolean yes);
+        /// eg : PostgreSQL composite nothing representing null
+        Builder allowNothing(boolean yes);
+
+        /// eg:  PostgreSQL composite whitespace is part of field value
+        Builder allowWhitespace(boolean yes);
 
         RecordDeserializer build();
 

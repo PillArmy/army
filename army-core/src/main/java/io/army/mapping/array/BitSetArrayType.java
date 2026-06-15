@@ -94,13 +94,12 @@ public class BitSetArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, BitSetArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
+        return PostgreArrays.arrayBeforeBind(source, BitSetArrayType::appendToText, dataType, this);
     }
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, _StringUtils::bitStringToBitSet,
-                ACCESS_ERROR_HANDLER);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, _StringUtils::bitStringToBitSet, null, null, null);
     }
 
     @Override

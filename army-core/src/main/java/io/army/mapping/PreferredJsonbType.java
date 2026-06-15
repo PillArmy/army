@@ -18,11 +18,13 @@ package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.mapping.array.PreferredJsonbArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
+import io.army.util.FuncClassValue;
 
 import java.util.Collection;
 import java.util.List;
@@ -88,7 +90,10 @@ public class PreferredJsonbType extends ArmyJsonType implements MappingType.SqlJ
 
     @Override
     public final MappingType arrayTypeOfThis() throws CriteriaException {
-        return super.arrayTypeOfThis();
+        if (getClass() != PreferredJsonbType.class) {
+            throw dontSupportArrayType(this);
+        }
+        return PreferredJsonbArrayType.from(this.javaType);
     }
 
     @Override
@@ -109,12 +114,7 @@ public class PreferredJsonbType extends ArmyJsonType implements MappingType.SqlJ
 
     private static final class SetJsonType extends PreferredJsonbType implements UnaryGenericsMapping {
 
-        private static final ClassValue<SetJsonType> INSTANCE_CACHE = new ClassValue<>() {
-            @Override
-            protected SetJsonType computeValue(Class<?> type) {
-                return new SetJsonType(type);
-            }
-        };
+        private static final ClassValue<SetJsonType> INSTANCE_CACHE = FuncClassValue.create(SetJsonType::new);
 
         private final Class<?> elementClass;
 
@@ -133,12 +133,7 @@ public class PreferredJsonbType extends ArmyJsonType implements MappingType.SqlJ
 
     private static final class ListJsonType extends PreferredJsonbType implements UnaryGenericsMapping {
 
-        private static final ClassValue<ListJsonType> INSTANCE_CACHE = new ClassValue<>() {
-            @Override
-            protected ListJsonType computeValue(Class<?> type) {
-                return new ListJsonType(type);
-            }
-        };
+        private static final ClassValue<ListJsonType> INSTANCE_CACHE = FuncClassValue.create(ListJsonType::new);
 
 
         private final Class<?> elementClass;

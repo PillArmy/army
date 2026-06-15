@@ -107,13 +107,12 @@ public class BooleanArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, BooleanArrayType::appendToText, dataType, this, PARAM_ERROR_HANDLER);
+        return PostgreArrays.arrayBeforeBind(source, BooleanArrayType::appendToText, dataType, this);
     }
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        final boolean nonNull = this.underlyingJavaType == boolean.class;
-        return PostgreArrays.arrayAfterGet(this, dataType, source, nonNull, BooleanArrayType::parseText, ACCESS_ERROR_HANDLER);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, BooleanArrayType::parseText, null, null, null);
     }
 
     @Override

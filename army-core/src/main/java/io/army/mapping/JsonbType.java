@@ -74,11 +74,6 @@ public class JsonbType extends ArmyJsonType implements MappingType.SqlJsonb {
 
 
     @Override
-    public final MappingType arrayTypeOfThis() throws CriteriaException {
-        return JsonbArrayType.from(this.javaType);
-    }
-
-    @Override
     public final DataType map(final ServerMeta meta) {
         final SQLType dataType;
         switch (meta.serverDatabase()) {
@@ -92,6 +87,15 @@ public class JsonbType extends ArmyJsonType implements MappingType.SqlJsonb {
                 throw MAP_ERROR_HANDLER.apply(this, meta);
         }
         return dataType;
+    }
+
+
+    @Override
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
+        if (getClass() != JsonbType.class) {
+            throw dontSupportArrayType(this);
+        }
+        return JsonbArrayType.from(this.javaType);
     }
 
     @Override

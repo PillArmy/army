@@ -68,7 +68,8 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
             .quoteEscapeOn(true)  // postgre server response use quote escape
             .quoteChar(_Constant.DOUBLE_QUOTE)
 
-            .allowEmpty(true)
+            .allowNothing(true)
+            .allowWhitespace(true)
             .build();
 
     private static final ClassValue<CompositeType> CLASS_VALUE = FuncClassValue.create(CompositeType::new);

@@ -19,6 +19,7 @@ package io.army.dialect;
 import io.army.mapping.*;
 import io.army.mapping.mysql.MySqlBitType;
 import io.army.sqltype.SQLiteType;
+import io.army.transaction.Isolation;
 import io.army.util._Collections;
 
 import java.util.Locale;
@@ -46,6 +47,17 @@ final class SQLiteMappingHandler extends TypeMappingHandlerSupport {
         return bundle;
     }
 
+    @Override
+    public Isolation nameToIsolation(String level) {
+        //TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String isolationToName(Isolation isolation) {
+        //TODO
+        throw new UnsupportedOperationException();
+    }
 
     /// @see <a href="https://sqlite.org/datatype3.html">Datatypes In SQLite</a>
     /// @see <a href="https://sqlite.org/datatypes.html">Datatypes In SQLite Version 2</a>

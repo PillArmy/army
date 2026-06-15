@@ -95,6 +95,9 @@ public class JsonType extends ArmyJsonType implements MappingType.SqlJson {
 
     @Override
     public final MappingType arrayTypeOfThis() throws CriteriaException {
+        if (getClass() != JsonType.class) {
+            throw dontSupportArrayType(this);
+        }
         return JsonArrayType.from(this.javaType);
     }
 

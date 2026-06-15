@@ -173,7 +173,7 @@ public class IntegerArrayType extends _ArmyBuildInArrayType {
 
 
     private static int parseText(final String text, final int offset, final int end) {
-        return Integer.parseInt(text.substring(offset, end));
+        return Integer.parseInt(text, offset, end, 10);
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

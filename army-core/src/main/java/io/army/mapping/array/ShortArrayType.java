@@ -95,7 +95,7 @@ public class ShortArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, ShortArrayType::parseText);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, ShortArrayType::parseText, null, null, null);
     }
 
 

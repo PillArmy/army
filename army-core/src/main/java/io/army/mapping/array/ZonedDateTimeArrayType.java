@@ -77,7 +77,7 @@ public class ZonedDateTimeArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, ZonedDateTimeArrayType::parseText);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, ZonedDateTimeArrayType::parseText, null, null, null);
     }
 
 
@@ -112,13 +112,7 @@ public class ZonedDateTimeArrayType extends _ArmyBuildInArrayType {
     /*-------------------below static methods -------------------*/
 
     private static ZonedDateTime parseText(final String text, final int offset, final int end) {
-        final String timeStr;
-        if (text.charAt(offset) == _Constant.DOUBLE_QUOTE) {
-            timeStr = text.substring(offset + 1, end - 1);
-        } else {
-            timeStr = text.substring(offset, end);
-        }
-        return ZonedDateTime.parse(timeStr, _TimeUtils.OFFSET_DATETIME_FORMATTER_6);
+        return ZonedDateTime.parse(text.substring(offset, end), _TimeUtils.OFFSET_DATETIME_FORMATTER_6);
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

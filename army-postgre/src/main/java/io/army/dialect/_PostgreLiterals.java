@@ -32,11 +32,12 @@ public abstract class _PostgreLiterals extends _Literals {
 
 
     /// Escape backslash sequences in a string literal for PostgreSQL C-style string constants.
-    /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-ESCAPE">String Constants With C-Style Escapes</a>
-    /// @param literal the input character sequence
-    /// @param offset the start offset in the literal
-    /// @param end the end offset in the literal (exclusive)
+    ///
+    /// @param literal    the input character sequence
+    /// @param offset     the start offset in the literal
+    /// @param end        the end offset in the literal (exclusive)
     /// @param sqlBuilder the output StringBuilder
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-ESCAPE">String Constants With C-Style Escapes</a>
     public static void backslashEscape(final CharSequence literal, final int offset, final int end,
                                        final StringBuilder sqlBuilder) {
 
@@ -108,12 +109,13 @@ public abstract class _PostgreLiterals extends _Literals {
     }
 
     /// Escape Unicode sequences in a string literal for PostgreSQL Unicode string constants.
-    /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-UESCAPE">String Constants With Unicode Escapes</a>
-    /// @param literal the input character sequence
-    /// @param offset the start offset in the literal
-    /// @param end the end offset in the literal (exclusive)
+    ///
+    /// @param literal    the input character sequence
+    /// @param offset     the start offset in the literal
+    /// @param end        the end offset in the literal (exclusive)
     /// @param escapeChar the Unicode escape character
     /// @param sqlBuilder the output StringBuilder
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-UESCAPE">String Constants With Unicode Escapes</a>
     public static void unicodeEscape(final CharSequence literal, final int offset, final int end, final char escapeChar,
                                      final StringBuilder sqlBuilder) {
 
@@ -229,6 +231,35 @@ public abstract class _PostgreLiterals extends _Literals {
                 .append(value, offset, end)
                 .append(dollarQuote);
 
+    }
+
+    /// eg : composite field value
+    ///
+    /// @see <a href="https://www.postgresql.org/docs/current/rowtypes.html#ROWTYPES-IO-SYNTAX">Composite Type Input and Output Syntax</a>
+    public static void doubleQuoteBackSlashEscape(final CharSequence element, final StringBuilder builder) {
+        builder.append(_Constant.DOUBLE_QUOTE); // left doubleQuote
+
+        final int length = element.length();
+        int lastWritten = 0;
+        char ch;
+        for (int i = 0; i < length; i++) {
+            ch = element.charAt(i);
+
+            if (ch == _Constant.BACK_SLASH || ch == _Constant.DOUBLE_QUOTE) {
+                if (i > lastWritten) {
+                    builder.append(element, lastWritten, i);
+                }
+                builder.append(ch);
+                lastWritten = i; // not i + 1 as current char wasn't written
+            }
+
+        } // loop
+
+        if (lastWritten < length) {
+            builder.append(element, lastWritten, length);
+        }
+
+        builder.append(_Constant.DOUBLE_QUOTE);// right doubleQuote
     }
 
 

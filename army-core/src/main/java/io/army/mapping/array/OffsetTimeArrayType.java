@@ -23,7 +23,7 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.OffsetTimeType;
-import io.army.mapping._ArmyBuildInArrayType; 
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
@@ -95,7 +95,7 @@ public class OffsetTimeArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, OffsetTimeArrayType::parseText);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, OffsetTimeArrayType::parseText, null, null, null);
     }
 
     @Override
@@ -153,13 +153,7 @@ public class OffsetTimeArrayType extends _ArmyBuildInArrayType {
     /*-------------------below static methods -------------------*/
 
     private static OffsetTime parseText(final String text, final int offset, final int end) {
-        final String timeStr;
-        if (text.charAt(offset) == _Constant.DOUBLE_QUOTE) {
-            timeStr = text.substring(offset + 1, end - 1);
-        } else {
-            timeStr = text.substring(offset, end);
-        }
-        return OffsetTime.parse(timeStr, _TimeUtils.OFFSET_TIME_FORMATTER_6);
+        return OffsetTime.parse(text.substring(offset, end), _TimeUtils.OFFSET_TIME_FORMATTER_6);
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

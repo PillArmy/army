@@ -37,13 +37,16 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
 
     private final char rightBoundary;
 
-    private final boolean allowEmpty;
+    private final boolean allowNothing;
+
+    private final boolean allowWhitespace;
 
     private DefaultRecordDeserializer(DefaultBuilder builder) {
         super(builder);
         this.leftBoundary = builder.leftBoundary;
         this.rightBoundary = builder.rightBoundary;
-        this.allowEmpty = builder.allowEmpty;
+        this.allowNothing = builder.allowNothing;
+        this.allowWhitespace = builder.allowWhitespace;
     }
 
 
@@ -65,6 +68,8 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
         final char quoteChar;
         quoteChar = this.quoteChar;
 
+        final boolean allowNothing = this.allowNothing, allowWhitespace = this.allowWhitespace;
+
         final StringBuilder[] holder = new StringBuilder[1];
         holder[0] = builder;
 
@@ -77,7 +82,7 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
 
             if (ch == rightBoundary) {
                 if (itemCount <= delimCount) {
-                    if (!this.allowEmpty) {
+                    if (!allowNothing) {
                         throw new IllegalArgumentException(String.format("expected end at nearby offset[%s] -> %s",
                                 i, _StringUtils.surroundingText(text, i, 4)));
                     }
@@ -107,16 +112,17 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
                 delimFlat = 1;
                 itemCount++;
             } else if (ch == itemDelim) {
-                if (this.allowEmpty) {
+                if (allowNothing) {
                     func.apply("", 0, 0);
                     itemCount++;
                     delimCount++;
                     continue;
                 }
                 throw _Exceptions.redundantDelimError(text, i, itemDelim);
-            } else if (Character.isWhitespace(ch)) {
-                continue;
             } else {
+                if (!allowWhitespace && Character.isWhitespace(ch)) {
+                    continue;
+                }
                 i = parseUnQuoteElement(text, i, endIndex, func, boundaries, skipFunc);
                 delimFlat = 1;
                 itemCount++;
@@ -174,13 +180,13 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
             }
 
             if (ch == leftBoundary) {
-                i = parseSubRecord(text, i, endIndex, null, boundaries, subFunc); // skip sub record , so func is null
+                i = parseSubRecord(text, i, endIndex, null, boundaries, subFunc); // skip sub record , so func is null , TODO 实测,postgre 不允许 这样的子 record,是否去除
                 delimFlat = 1;
             } else if (ch == quoteChar) {
                 i = skipQuoteElement(text, i, endIndex);
                 delimFlat = 1;
             } else if (ch == itemDelim) {
-                if (this.allowEmpty) {
+                if (this.allowNothing) {
                     continue;
                 }
                 throw _Exceptions.redundantDelimError(text, i, itemDelim);
@@ -210,6 +216,8 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
                                     final @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc) {
 
         final char itemDelim = this.itemDelim, quoteChar = this.quoteChar, rightBoundary = this.rightBoundary;
+
+        final boolean allowWhitespace = this.allowWhitespace;
 
         int rightIndex = -1;
 
@@ -241,6 +249,10 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
                 throw _Exceptions.unexpectedQuoteError(text, i, ch);
             }
 
+            if (allowWhitespace) {
+                continue;
+            }
+
             if (!Character.isWhitespace(ch)) {
                 continue;
             }
@@ -269,7 +281,9 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
 
         private char rightBoundary = _Constant.RIGHT_BRACE;
 
-        private boolean allowEmpty;
+        private boolean allowNothing;
+
+        private boolean allowWhitespace;
 
         private DefaultBuilder() {
         }
@@ -311,8 +325,14 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
         }
 
         @Override
-        public Builder allowEmpty(boolean yes) {
-            this.allowEmpty = yes;
+        public Builder allowNothing(boolean yes) {
+            this.allowNothing = yes;
+            return this;
+        }
+
+        @Override
+        public Builder allowWhitespace(boolean yes) {
+            this.allowWhitespace = yes;
             return this;
         }
 

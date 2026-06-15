@@ -16,9 +16,11 @@
 
 package io.army.dialect;
 
+import io.army.executor.ExecutorSupport;
 import io.army.mapping.*;
 import io.army.mapping.array.*;
 import io.army.sqltype.PgType;
+import io.army.transaction.Isolation;
 import io.army.util._Collections;
 
 import java.util.Locale;
@@ -44,6 +46,35 @@ final class PgMappingHandler extends TypeMappingHandlerSupport {
         }
         return bundle;
     }
+
+    /// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-DEFAULT-TRANSACTION-ISOLATION">default_transaction_isolation</a>
+    @Override
+    public Isolation nameToIsolation(final String level) {
+        final Isolation isolation;
+        switch (level.toUpperCase(Locale.ROOT)) {
+            case "READ COMMITTED":
+                isolation = Isolation.READ_COMMITTED;
+                break;
+            case "REPEATABLE READ":
+                isolation = Isolation.REPEATABLE_READ;
+                break;
+            case "SERIALIZABLE":
+                isolation = Isolation.SERIALIZABLE;
+                break;
+            case "READ UNCOMMITTED":
+                isolation = Isolation.READ_UNCOMMITTED;
+                break;
+            default:
+                throw ExecutorSupport.unknownIsolation(level);
+        }
+        return isolation;
+    }
+
+    @Override
+    public String isolationToName(Isolation isolation) {
+        return standardIsolationToName(isolation);
+    }
+
 
     /// @see <a href="https://www.postgresql.org/docs/current/datatype.html">Data Types</a>
     private static Map<String, TypeMappingBundle> createTypeMappingBoundleMap() {

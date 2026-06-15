@@ -23,7 +23,7 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.LocalDateType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInArrayType; 
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
@@ -76,16 +76,12 @@ public class LocalDateArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, LocalDateArrayType::appendToText, dataType, this,
-                PARAM_ERROR_HANDLER
-        );
+        return PostgreArrays.arrayBeforeBind(source, LocalDateArrayType::appendToText, dataType, this);
     }
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false,
-                LocalDateArrayType::parseText, ACCESS_ERROR_HANDLER
-        );
+        return PostgreArrays.arrayAfterGet(this, dataType, source, LocalDateArrayType::parseText, null, null, null);
     }
 
     @Override
@@ -159,13 +155,7 @@ public class LocalDateArrayType extends _ArmyBuildInArrayType {
     }
 
     private static LocalDate parseText(final String text, final int offset, final int end) {
-        final String timeStr;
-        if (text.charAt(offset) == _Constant.DOUBLE_QUOTE) {
-            timeStr = text.substring(offset + 1, end - 1);
-        } else {
-            timeStr = text.substring(offset, end);
-        }
-        return LocalDate.parse(timeStr);
+        return LocalDate.parse(text.substring(offset, end));
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

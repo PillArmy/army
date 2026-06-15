@@ -16,15 +16,17 @@
 
 package io.army.mapping;
 
+import io.army.criteria.CriteriaException;
+import io.army.mapping.array.YearArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
 import java.time.*;
 
-/// 
+///
 /// This class is mapping class of {@link Year}.
 /// This mapping type can convert below java type:
-/// 
+///
 /// - {@link LocalDate}
 /// - {@link LocalDateTime}
 /// - {@link java.time.LocalDate}
@@ -32,8 +34,9 @@ import java.time.*;
 /// - {@link java.time.ZonedDateTime}
 /// - {@link YearMonth}
 /// - {@link String} ,{@link Year} string {@link YearMonth} string or {@link LocalDate} string
-/// 
+///
 /// to {@link Year},if error,throw {@link io.army.ArmyException}
+///
 /// @since 0.6.0
 public final class YearType extends _ArmyNoInjectionType implements MappingType.SqlTemporal,
         MappingType.SqlTemporalField {
@@ -116,6 +119,22 @@ public final class YearType extends _ArmyNoInjectionType implements MappingType.
     @Override
     public Year afterGet(DataType dataType, MappingEnv env, Object source) {
         return toYear(this, dataType, source, ACCESS_ERROR_HANDLER);
+    }
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return YearArrayType.from(Year[].class);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof YearType;
     }
 
     static Year toYear(final MappingType type, DataType dataType, final Object nonNull,

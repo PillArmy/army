@@ -23,7 +23,9 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.ArmyType;
 import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
+import io.army.transaction.Isolation;
 import io.army.util._Collections;
+import io.army.util._Exceptions;
 
 import java.util.Locale;
 import java.util.Map;
@@ -76,6 +78,24 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
         }
         return bundle;
     }
+
+
+    static String standardIsolationToName(final Isolation isolation) {
+        final String name;
+        if (isolation == Isolation.READ_COMMITTED) {
+            name = "READ COMMITTED";
+        } else if (isolation == Isolation.REPEATABLE_READ) {
+            name = "REPEATABLE READ";
+        } else if (isolation == Isolation.SERIALIZABLE) {
+            name = "SERIALIZABLE";
+        } else if (isolation == Isolation.READ_UNCOMMITTED) {
+            name = "READ UNCOMMITTED";
+        } else {
+            throw _Exceptions.unknownIsolation(isolation);
+        }
+        return name;
+    }
+
 
     private Map<String, TypeMappingBundle> createDataTypeToBundleMap(Set<MappingType> typSet) {
         final Map<String, TypeMappingBundle> map = _Collections.hashMapForSize(typSet.size() << 1);

@@ -23,7 +23,7 @@ import io.army.executor.DataAccessException;
 import io.army.mapping.LocalDateTimeType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInArrayType; 
+import io.army.mapping._ArmyBuildInArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
@@ -50,7 +50,6 @@ public class LocalDateTimeArrayType extends _ArmyBuildInArrayType {
         }
         return instance;
     }
-
 
 
     public static final LocalDateTimeArrayType LINEAR = new LocalDateTimeArrayType(LocalDateTime[].class);
@@ -88,16 +87,12 @@ public class LocalDateTimeArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, LocalDateTimeArrayType::appendToText, dataType, this,
-                PARAM_ERROR_HANDLER
-        );
+        return PostgreArrays.arrayBeforeBind(source, LocalDateTimeArrayType::appendToText, dataType, this);
     }
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false,
-                LocalDateTimeArrayType::parseText, ACCESS_ERROR_HANDLER
-        );
+        return PostgreArrays.arrayAfterGet(this, dataType, source, LocalDateTimeArrayType::parseText, null, null, null);
     }
 
 
@@ -156,13 +151,7 @@ public class LocalDateTimeArrayType extends _ArmyBuildInArrayType {
     /*-------------------below static methods -------------------*/
 
     private static LocalDateTime parseText(final String text, final int offset, final int end) {
-        final String timeStr;
-        if (text.charAt(offset) == _Constant.DOUBLE_QUOTE) {
-            timeStr = text.substring(offset + 1, end - 1);
-        } else {
-            timeStr = text.substring(offset, end);
-        }
-        return LocalDateTime.parse(timeStr, _TimeUtils.DATETIME_FORMATTER_6);
+        return LocalDateTime.parse(text.substring(offset, end), _TimeUtils.DATETIME_FORMATTER_6);
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

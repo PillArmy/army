@@ -52,9 +52,6 @@ public class BlobArrayType extends _ArmyBuildInArrayType {
         return instance;
     }
 
-    public static BlobArrayType fromUnlimited() {
-        return UNLIMITED;
-    }
 
 
     public static final BlobArrayType UNLIMITED = new BlobArrayType(Object.class);

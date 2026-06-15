@@ -558,7 +558,7 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
     }
 
     /// Creates a CriteriaException indicating this type does not support array types.
-    protected static CriteriaException dontSupportArrayType(AbstractMappingType type) {
+    protected static CriteriaException dontSupportArrayType(MappingType type) {
         String m = String.format("%s don't support array type.", type);
         return new CriteriaException(m);
     }

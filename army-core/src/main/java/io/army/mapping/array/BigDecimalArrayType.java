@@ -80,13 +80,12 @@ public class BigDecimalArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, BigDecimalArrayType::appendToText, dataType, this,
-                PARAM_ERROR_HANDLER);
+        return PostgreArrays.arrayBeforeBind(source, BigDecimalArrayType::appendToText, dataType, this);
     }
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return toBigDecimalArray(dataType, env, source, ACCESS_ERROR_HANDLER);
+        return PostgreArrays.arrayAfterGet(this, dataType, false, BigDecimalArrayType::parseBigDecimal, null, null, null);
     }
 
     @Override
@@ -142,9 +141,6 @@ public class BigDecimalArrayType extends _ArmyBuildInArrayType {
     }
 
 
-    private Object toBigDecimalArray(DataType dataType, MappingEnv env, final Object nonNull, ErrorHandler errorHandler) {
-        return PostgreArrays.arrayAfterGet(this, dataType, nonNull, false, BigDecimalArrayType::parseBigDecimal, errorHandler);
-    }
 
 
     /*-------------------below static methods -------------------*/

@@ -103,11 +103,20 @@ public abstract class _MappingFactory {
 
         } else if (!Enum.class.isAssignableFrom(componentClass = ArrayUtils.underlyingComponent(javaType))) {
             final Function<Class<?>, MappingType> func;
+            final DefinedType definedType;
             func = DEFAULT_ARRAY_FUNC_MAP.get(componentClass);
-            if (func == null) {
-                type = null;
-            } else {
+            if (func != null) {
                 type = func.apply(javaType);
+            } else if ((definedType = componentClass.getAnnotation(DefinedType.class)) == null) {
+                type = null;
+            } else switch (definedType.category()) {
+                case COMPOSITE:
+                    type = CompositeArrayType.from(javaType);
+                    break;
+                case DOMAIN:
+                case RANGE:
+                default:
+                    type = null;
             }
         } else if (CodeEnum.class.isAssignableFrom(componentClass)) {
             type = CodeEnumArrayType.from(javaType);

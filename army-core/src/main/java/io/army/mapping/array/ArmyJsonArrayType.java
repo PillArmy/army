@@ -34,6 +34,7 @@ import java.util.function.BiConsumer;
 ///
 /// - {@link JsonArrayType}
 /// - {@link JsonbArrayType}
+/// - {@link PreferredJsonbArrayType}
 ///
 /// @since 0.6.0
 abstract class ArmyJsonArrayType extends _ArmyBuildInArrayType {
@@ -67,37 +68,26 @@ abstract class ArmyJsonArrayType extends _ArmyBuildInArrayType {
 
         final BiConsumer<Object, StringBuilder> consumer;
         consumer = (element, appender) -> {
-            if (!this.underlyingJavaType.isInstance(element)) {
-                throw PARAM_ERROR_HANDLER.apply(this, dataType, source, null);
-            }
             PostgreArrays.encodeElement(codec.encode(element), appender);
         };
 
-        return PostgreArrays.arrayBeforeBind(source, consumer, dataType, this, PARAM_ERROR_HANDLER);
+        return PostgreArrays.arrayBeforeBind(source, consumer, dataType, this);
     }
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return decodeJsonArray(dataType, env, source, ACCESS_ERROR_HANDLER);
+        final JsonCodec codec;
+        codec = env.jsonCodec();
+
+        final TextFunction<?> function;
+        function = (text, offset, end) -> codec.decode(text.substring(offset, end), this.underlyingJavaType);
+
+        return PostgreArrays.arrayAfterGet(this, dataType, source, function, null, null, null);
     }
 
     @Override
     public final int hashCode() {
         return Objects.hash(this.javaType, this.underlyingJavaType);
-    }
-
-    private Object decodeJsonArray(DataType dataType, MappingEnv env, final Object source, ErrorHandler errorHandler) {
-        final JsonCodec codec;
-        codec = env.jsonCodec();
-
-        final TextFunction<?> function;
-        function = (text, offset, end) -> {
-            final String json;
-            json = PostgreArrays.decodeElement(text, offset, end);
-            return codec.decode(json, this.underlyingJavaType);
-        };
-
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, function, errorHandler);
     }
 
 

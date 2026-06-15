@@ -87,16 +87,12 @@ public class LocalTimeArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.arrayBeforeBind(source, LocalTimeArrayType::appendToText, dataType, this,
-                PARAM_ERROR_HANDLER
-        );
+        return PostgreArrays.arrayBeforeBind(source, LocalTimeArrayType::appendToText, dataType, this);
     }
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false,
-                LocalTimeArrayType::parseText, ACCESS_ERROR_HANDLER
-        );
+        return PostgreArrays.arrayAfterGet(this, dataType, source, LocalTimeArrayType::parseText, null, null, null);
     }
 
 
@@ -154,13 +150,7 @@ public class LocalTimeArrayType extends _ArmyBuildInArrayType {
     /*-------------------below static methods -------------------*/
 
     private static LocalTime parseText(final String text, final int offset, final int end) {
-        final String timeStr;
-        if (text.charAt(offset) == _Constant.DOUBLE_QUOTE) {
-            timeStr = text.substring(offset + 1, end - 1);
-        } else {
-            timeStr = text.substring(offset, end);
-        }
-        return LocalTime.parse(timeStr, _TimeUtils.TIME_FORMATTER_6);
+        return LocalTime.parse(text.substring(offset, end), _TimeUtils.TIME_FORMATTER_6);
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

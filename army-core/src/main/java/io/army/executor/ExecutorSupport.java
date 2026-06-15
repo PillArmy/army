@@ -307,7 +307,7 @@ public abstract class ExecutorSupport {
         return new DataAccessException(m);
     }
 
-    protected static DataAccessException unknownIsolation(String isolation) {
+    public static DataAccessException unknownIsolation(String isolation) {
         String m = String.format("unknown isolation %s", isolation);
         return new DataAccessException(m);
     }

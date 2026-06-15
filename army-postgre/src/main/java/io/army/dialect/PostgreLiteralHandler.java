@@ -345,7 +345,11 @@ final class PostgreLiteralHandler extends ArmyLiteralHandler<PostgreParser> {
     /// @see #bindLiteral(TypeMeta, DataType, Object, boolean, StringBuilder, DataType)
     private void stringEscape(final CharSequence value, final StringBuilder builder, @Nullable DataType container) {
         if (container != null) {
-            PostgreArrays.encodeElement(value, builder);
+            if (container.armyType() == ArmyType.COMPOSITE) {
+                _PostgreLiterals.doubleQuoteBackSlashEscape(value, builder);
+            } else {
+                PostgreArrays.encodeElement(value, builder);
+            }
         } else switch (this.literalEscapeMode) {
             case DEFAULT:
             case BACK_SLASH:

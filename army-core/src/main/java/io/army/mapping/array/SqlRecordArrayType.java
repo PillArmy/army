@@ -119,14 +119,14 @@ public final class SqlRecordArrayType extends _SqlRecordSupport implements Mappi
 
     @Override
     public String beforeBind(final DataType dataType, final MappingEnv env, Object source) throws CriteriaException {
-        throw PARAM_ERROR_HANDLER.apply(this, dataType, source, dontSupportBind());
+        throw paramError(this, dataType, source, dontSupportBind());
     }
 
     @Override
     public Object afterGet(DataType dataType, final MappingEnv env, Object source) throws DataAccessException {
         final TextFunction<?> function;
         function = (text, offset, end) -> parseSqlRecord(env, text, offset, end);
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, function, ACCESS_ERROR_HANDLER);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, function, null, null, null);
     }
 
     @Override

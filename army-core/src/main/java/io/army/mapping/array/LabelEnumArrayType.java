@@ -106,7 +106,7 @@ public class LabelEnumArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, this::parseText);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, this::parseText, null, null, null);
     }
 
     @Override

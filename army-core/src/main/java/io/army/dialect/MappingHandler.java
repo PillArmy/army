@@ -17,9 +17,16 @@
 package io.army.dialect;
 
 
+import io.army.transaction.Isolation;
+
 public sealed interface MappingHandler permits TypeMappingHandlerSupport {
 
 
     TypeMappingBundle apply(String typeName);
+
+    Isolation nameToIsolation(String level);
+
+    String isolationToName(Isolation isolation);
+
 
 }
