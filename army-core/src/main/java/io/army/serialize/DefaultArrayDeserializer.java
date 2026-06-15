@@ -62,8 +62,10 @@ final class DefaultArrayDeserializer extends DeserializerSupport implements Arra
 
         if ((boundaries == null) != (subFunc == null)) {
             throw new IllegalArgumentException();
-
+        } else if (boundaries != null && isBoundaries(boundaries, this.leftBoundary)) {
+            throw new IllegalArgumentException();
         }
+
         if (!(type instanceof MappingType.SqlArray sa)) {
             throw new IllegalArgumentException();
         }

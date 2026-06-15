@@ -17,7 +17,6 @@
 package io.army.mapping.postgre;
 
 import io.army.lang.Nullable;
-import io.army.type.DaoLayer;
 
 /// 
 /// This interface representing postgre  range type. The implementations of this interface must provide public static
@@ -108,8 +107,7 @@ import io.army.type.DaoLayer;
 /// @see RangeFunction
 /// @see <a href="https://www.postgresql.org/docs/15/rangetypes.html">Range Types</a>
 /// @since 0.6.0
-@DaoLayer
-public interface PostgreRange<T> {
+public interface Range<T> {
 
     /// @return true : empty
     /// @see <a href="https://www.postgresql.org/docs/15/rangetypes.html#RANGETYPES-IO"> Range Input/Output</a>

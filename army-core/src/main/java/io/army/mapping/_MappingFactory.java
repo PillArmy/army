@@ -174,14 +174,17 @@ public abstract class _MappingFactory {
                 mappingType = method.invoke(null, fieldType, mapping.elements());
             } else if (fieldType == Map.class) {
                 method = mappingClass.getDeclaredMethod("fromMap", Class.class, Class.class);
-                final List<Class<?>> genericsTypeList = ReflectionUtils.getTypeArgumentList(field);
+                assertFactoryMethod(method);
+                final List<Class<?>> genericsTypeList = ReflectionUtils.typeArgumentList(field);
                 mappingType = method.invoke(null, genericsTypeList.getFirst(), genericsTypeList.get(1));
             } else if (fieldType == List.class) {
                 method = mappingClass.getDeclaredMethod("fromList", Class.class);
-                mappingType = method.invoke(null, ReflectionUtils.getTypeArgumentList(field).getFirst());
+                assertFactoryMethod(method);
+                mappingType = method.invoke(null, ReflectionUtils.typeArgumentList(field).getFirst());
             } else if (fieldType == Set.class) {
                 method = mappingClass.getDeclaredMethod("fromSet", Class.class);
-                mappingType = method.invoke(null, ReflectionUtils.getTypeArgumentList(field).getFirst());
+                assertFactoryMethod(method);
+                mappingType = method.invoke(null, ReflectionUtils.typeArgumentList(field).getFirst());
             } else {
                 method = mappingClass.getDeclaredMethod("from", Class.class);
                 assertFactoryMethod(method);

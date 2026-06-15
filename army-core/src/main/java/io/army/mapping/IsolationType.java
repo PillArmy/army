@@ -52,10 +52,10 @@ public final class IsolationType extends _ArmyBuildInType implements MappingType
 
     @Override
     public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        if (!(source instanceof Isolation)) {
+        if (!(source instanceof Isolation isolation)) {
             throw paramError(this, dataType, source, null);
         }
-        return ((Isolation) source).name();
+        return env.mappingHandler().isolationToName(isolation);
     }
 
     @Override

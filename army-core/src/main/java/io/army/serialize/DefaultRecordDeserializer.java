@@ -60,6 +60,8 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
             throw new IllegalArgumentException();
         } else if (offset >= endIndex) {
             throw new IllegalArgumentException();
+        } else if (boundaries != null && isBoundaries(boundaries, this.leftBoundary)) {
+            throw new IllegalArgumentException();
         }
 
         Objects.requireNonNull(func);

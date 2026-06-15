@@ -44,7 +44,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
 
 
     /// @param javaType one dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-    /// see {@link PostgreRange}
+    /// see {@link Range}
     /// @param param    from {@link Mapping#params()} ,it's the name of
     /// - {@link PgType#INT4RANGE_ARRAY}
     /// - {@link PgType#INT8RANGE_ARRAY}
@@ -69,7 +69,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
 
 
     /// @param javaType one dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-    /// see {@link PostgreRange}
+    /// see {@link Range}
     /// @param sqlType  valid instance
     /// - {@link PgType#INT4RANGE_ARRAY}
     /// - {@link PgType#INT8RANGE_ARRAY}
@@ -103,7 +103,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
 
 
     /// @param javaType one dimension or higher dimension non-string array class
-    /// see {@link PostgreRange}
+    /// see {@link Range}
     /// @param sqlType  valid instance
     /// - {@link PgType#INT4RANGE_ARRAY}
     /// - {@link PgType#INT8RANGE_ARRAY}
@@ -129,7 +129,7 @@ public class PostgreSingleRangeArrayType extends _ArmyPgRangeType implements Map
 
 
     /// @param javaType   one dimension or higher dimension array class
-    /// see {@link PostgreRange}
+    /// see {@link Range}
     /// @param param      from {@link Mapping#params()} ,it's the name of
     /// - {@link PgType#INT4RANGE_ARRAY}
     /// - {@link PgType#INT8RANGE_ARRAY}

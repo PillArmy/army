@@ -42,7 +42,7 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
 
 
     /// @param javaType non-array class. If javaType isn't String array,then must declare static 'create' factory method.
-    /// see {@link PostgreRange}
+    /// see {@link Range}
     /// @param param    from {@link Mapping#params()} ,it's the name of
     /// - {@link PgType#INT4RANGE}
     /// - {@link PgType#INT8RANGE}
@@ -68,7 +68,7 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
 
 
     /// @param javaType non-array class. If javaType isn't String array,then must declare static 'create' factory method.
-    /// see {@link PostgreRange}
+    /// see {@link Range}
     /// @param sqlType  valid instance:
     /// - {@link PgType#INT4RANGE}
     /// - {@link PgType#INT8RANGE}
@@ -99,7 +99,7 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
 
 
     /// @param javaType non-array and non-string class.
-    /// see {@link PostgreRange}
+    /// see {@link Range}
     /// @param sqlType  valid instance:
     /// - {@link PgType#INT4RANGE}
     /// - {@link PgType#INT8RANGE}
@@ -123,7 +123,7 @@ public final class PgSingleRangeType extends PgRangeType implements PgRangeType.
 
 
     /// @param javaType non-array and non-string class.
-    /// see {@link PostgreRange}
+    /// see {@link Range}
     /// @param param    from {@link Mapping#params()} ,it's the name of
     /// - {@link PgType#INT4RANGE}
     /// - {@link PgType#INT8RANGE}

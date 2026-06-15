@@ -83,7 +83,7 @@ public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
         this.dataType = dataType;
         this.javaType = javaType;
         this.rangeFunc = (RangeFunction<Object, ?>) rangeFunc;
-        if (this.underlyingJavaType == String.class || PostgreRange.class.isAssignableFrom(javaType)) {
+        if (this.underlyingJavaType == String.class || Range.class.isAssignableFrom(javaType)) {
             this.mockFunction = null;
         } else {
             this.mockFunction = PgRangeType.createMockFunction(javaType, boundJavaType(dataType));
@@ -345,8 +345,8 @@ public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
     @SuppressWarnings("unchecked")
     protected static <T> void rangeToText(final Object nonNull, final BiConsumer<T, StringBuilder> consumer,
                                           final MappingType type, final StringBuilder builder) {
-        if (nonNull instanceof PostgreRange) {
-            final PostgreRange<T> range = (PostgreRange<T>) nonNull;
+        if (nonNull instanceof Range) {
+            final Range<T> range = (Range<T>) nonNull;
             if (range.isEmpty()) {
                 builder.append(PgRangeType.EMPTY);
             } else {
@@ -383,7 +383,7 @@ public abstract class _ArmyPgRangeType extends _ArmyNoInjectionType {
             } else {
                 String m = String.format("either %s is %s type or %s is %s type.",
                         type.javaType().getName(),
-                        PostgreRange.class.getName(),
+                        Range.class.getName(),
                         type,
                         PgRangeType.UserDefinedRangeType.class.getName()
                 );

@@ -75,7 +75,7 @@ public abstract class ReflectionUtils {
 
 
     /// @return unmodifiable list
-    public static List<Class<?>> getTypeArgumentList(final Field field) {
+    public static List<Class<?>> typeArgumentList(final Field field) {
         final Type genericType = field.getGenericType();
         if (!(genericType instanceof ParameterizedType paramType)) {
             String m = String.format("%s.%s not a parameterized type", field.getDeclaringClass().getName(), field.getName());

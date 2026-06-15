@@ -46,7 +46,7 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
 
 
     /// @param javaType 2 dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-    /// see {@link PostgreRange}
+    /// see {@link Range}
     /// @param param    from {@link Mapping#params()} ,it's the name of
     /// - {@link PgType#INT4MULTIRANGE_ARRAY}
     /// - {@link PgType#INT8MULTIRANGE_ARRAY}
@@ -72,7 +72,7 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
 
 
     /// @param javaType 2 dimension or higher dimension array class. If javaType isn't String array,then must declare static 'create' factory method.
-    /// see {@link PostgreRange}
+    /// see {@link Range}
     /// @param sqlType
     /// - {@link PgType#INT4MULTIRANGE_ARRAY}
     /// - {@link PgType#INT8MULTIRANGE_ARRAY}
@@ -108,7 +108,7 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
 
 
     /// @param javaType 2 dimension or higher dimension non-string array class
-    /// see {@link PostgreRange}
+    /// see {@link Range}
     /// @param sqlType
     /// - {@link PgType#INT4MULTIRANGE_ARRAY}
     /// - {@link PgType#INT8MULTIRANGE_ARRAY}
@@ -136,7 +136,7 @@ public class PostgreMultiRangeArrayType extends _ArmyPgRangeType implements Mapp
 
 
     /// @param javaType   2 dimension or higher dimension non-string array class
-    /// see {@link PostgreRange}
+    /// see {@link Range}
     /// @param param      from {@link Mapping#params()} ,it's the name of
     /// - {@link PgType#INT4MULTIRANGE_ARRAY}
     /// - {@link PgType#INT8MULTIRANGE_ARRAY}
