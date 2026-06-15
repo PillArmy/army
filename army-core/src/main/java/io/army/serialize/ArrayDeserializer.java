@@ -51,6 +51,8 @@ public interface ArrayDeserializer {
 
         Builder quoteChar(char ch);
 
+        Builder allowDirectNested(boolean yes);
+
         ArrayDeserializer build();
 
     }

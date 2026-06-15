@@ -237,6 +237,12 @@ abstract class DeserializerSupport {
         return new IllegalArgumentException(m);
     }
 
+    static IllegalArgumentException syntaxError(String target, String text, int offset) {
+        String m = String.format("syntax[%s] error at nearby offset[%s] -> %s",
+                target, offset, _StringUtils.surroundingText(text, offset, 4));
+        return new IllegalArgumentException(m);
+    }
+
     static abstract class BuilderSupport {
 
         char itemDelim = _Constant.COMMA;

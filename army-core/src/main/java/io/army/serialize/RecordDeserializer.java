@@ -56,6 +56,8 @@ public interface RecordDeserializer {
         /// eg:  PostgreSQL composite whitespace is part of field value
         Builder allowWhitespace(boolean yes);
 
+        Builder allowDirectNested(boolean yes);
+
         RecordDeserializer build();
 
     }

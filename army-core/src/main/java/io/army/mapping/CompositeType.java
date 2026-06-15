@@ -70,6 +70,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
             .allowNothing(true)  // nothing representing null
             .allowWhitespace(true) // whitespace is a part of field value
+            .allowDirectNested(false) // don't support direct nested composite type, must be enclosed by double quote
             .build();
 
     private static final ClassValue<CompositeType> CLASS_VALUE = FuncClassValue.create(CompositeType::new);

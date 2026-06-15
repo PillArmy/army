@@ -44,8 +44,9 @@ final class DefaultArrayDeserializer extends DeserializerSupport implements Arra
 
     final char rightBoundary;
 
-
     private final TextToIntFunc skipPrefixFunc;
+
+    private final boolean allowDirectNested;
 
 
     private DefaultArrayDeserializer(DefaultBuilder builder) {
@@ -53,6 +54,7 @@ final class DefaultArrayDeserializer extends DeserializerSupport implements Arra
         this.leftBoundary = builder.leftBoundary;
         this.rightBoundary = builder.rightBoundary;
         this.skipPrefixFunc = Objects.requireNonNull(builder.skipPrefixFunc);
+        this.allowDirectNested = builder.allowDirectNested;
     }
 
 
@@ -283,6 +285,9 @@ final class DefaultArrayDeserializer extends DeserializerSupport implements Arra
             ch = text.charAt(i);
 
             if (boundaries != null && isBoundaries(boundaries, ch)) {
+                if (!this.allowDirectNested) {
+                    throw syntaxError("array", text, i);
+                }
                 oldIndex = i;
                 assert subFunc != null;
                 i = subFunc.apply(text, i, endIndex);
@@ -545,8 +550,9 @@ final class DefaultArrayDeserializer extends DeserializerSupport implements Arra
 
         char rightBoundary = _Constant.RIGHT_BRACE;
 
-
         private TextToIntFunc skipPrefixFunc;
+
+        private boolean allowDirectNested;
 
 
         @Override
@@ -591,6 +597,11 @@ final class DefaultArrayDeserializer extends DeserializerSupport implements Arra
             return this;
         }
 
+        @Override
+        public Builder allowDirectNested(boolean yes) {
+            this.allowDirectNested = yes;
+            return this;
+        }
 
         @Override
         public ArrayDeserializer build() {

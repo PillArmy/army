@@ -41,12 +41,15 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
 
     private final boolean allowWhitespace;
 
+    private final boolean allowDirectNested;
+
     private DefaultRecordDeserializer(DefaultBuilder builder) {
         super(builder);
         this.leftBoundary = builder.leftBoundary;
         this.rightBoundary = builder.rightBoundary;
         this.allowNothing = builder.allowNothing;
         this.allowWhitespace = builder.allowWhitespace;
+        this.allowDirectNested = builder.allowDirectNested;
     }
 
 
@@ -106,7 +109,10 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
             }
 
             if (ch == leftBoundary) {
-                i = parseSubRecord(text, i, endIndex, func, boundaries, skipFunc);
+                if (!this.allowDirectNested) {
+                    throw syntaxError("record", text, i);
+                }
+                i = parseDirectNestedRecord(text, i, endIndex, func, boundaries, skipFunc);
                 delimFlat = 1;
                 itemCount++;
             } else if (ch == quoteChar) {
@@ -142,16 +148,16 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
 
     @Override
     public int skipRecord(String text, int offset, int endIndex) {
-        return parseSubRecord(text, offset, endIndex, null, null, null);
+        return parseDirectNestedRecord(text, offset, endIndex, null, null, null);
     }
 
     @Override
     public int skipRecord(String text, int offset, int endIndex, @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc) {
-        return parseSubRecord(text, offset, endIndex, null, boundaries, subFunc);
+        return parseDirectNestedRecord(text, offset, endIndex, null, boundaries, subFunc);
     }
 
-    private int parseSubRecord(final String text, final int offset, final int endIndex, @Nullable TextFunction<?> func,
-                               final @Nullable char[] boundaries, final @Nullable TextToIntFunc subFunc) {
+    private int parseDirectNestedRecord(final String text, final int offset, final int endIndex, @Nullable TextFunction<?> func,
+                                        final @Nullable char[] boundaries, final @Nullable TextToIntFunc subFunc) {
 
         final char leftBoundary = this.leftBoundary, itemDelim = this.itemDelim, rightBoundary = this.rightBoundary;
         final char quoteChar = this.quoteChar;
@@ -182,7 +188,10 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
             }
 
             if (ch == leftBoundary) {
-                i = parseSubRecord(text, i, endIndex, null, boundaries, subFunc); // skip sub record , so func is null , TODO 实测,postgre 不允许 这样的子 record,是否去除
+                if (!this.allowDirectNested) {
+                    throw syntaxError("record", text, i);
+                }
+                i = parseDirectNestedRecord(text, i, endIndex, null, boundaries, subFunc); // skip sub record , so func is null , TODO 实测,postgre 不允许 这样的子 record,是否去除
                 delimFlat = 1;
             } else if (ch == quoteChar) {
                 i = skipQuoteElement(text, i, endIndex);
@@ -228,6 +237,9 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
             ch = text.charAt(i);
 
             if (boundaries != null && isBoundaries(boundaries, ch)) {
+                if (!this.allowDirectNested) {
+                    throw syntaxError("record", text, i);
+                }
                 oldIndex = i;
                 assert subFunc != null;
                 i = subFunc.apply(text, i, endIndex);
@@ -279,13 +291,15 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
 
     private static final class DefaultBuilder extends DeserializerSupport.BuilderSupport implements Builder {
 
-        private char leftBoundary = _Constant.LEFT_BRACE;
+        private char leftBoundary = _Constant.LEFT_PAREN;
 
-        private char rightBoundary = _Constant.RIGHT_BRACE;
+        private char rightBoundary = _Constant.RIGHT_PAREN;
 
         private boolean allowNothing;
 
         private boolean allowWhitespace;
+
+        private boolean allowDirectNested;
 
         private DefaultBuilder() {
         }
@@ -335,6 +349,12 @@ final class DefaultRecordDeserializer extends DeserializerSupport implements Rec
         @Override
         public Builder allowWhitespace(boolean yes) {
             this.allowWhitespace = yes;
+            return this;
+        }
+
+        @Override
+        public Builder allowDirectNested(boolean yes) {
+            this.allowDirectNested = yes;
             return this;
         }
 
