@@ -20,7 +20,6 @@ import io.army.criteria.*;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.mapping.array.TextArrayType;
-import io.army.mapping.postgre.PgRangeType;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -1249,13 +1248,15 @@ abstract class PostgreStringFunctions extends Functions {
     /// @see #lower(Expression)
     /// @see #upper(Expression)
     private static MappingType lowerOrUpperType(final MappingType type) {
-        final MappingType returnType;
-        if (type instanceof PgRangeType.RangeType) {
-            returnType = ((PgRangeType.RangeType) type).subtype();
-        } else {
-            returnType = TextType.INSTANCE;
-        }
-        return returnType;
+//        final MappingType returnType;
+//        if (type instanceof PgRangeType.RangeType) {
+//            returnType = ((PgRangeType.RangeType) type).subtype();
+//        } else {
+//            returnType = TextType.INSTANCE;
+//        }
+//        return returnType;
+        //TODO fix range
+        throw new UnsupportedOperationException();
     }
 
 

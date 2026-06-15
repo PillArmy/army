@@ -6,7 +6,7 @@ import io.army.struct.DefinedType;
 
 import java.util.Objects;
 
-@DefinedType(name = "manager_info",
+@DefinedType(name = "MANAGER_INFO",
         fieldOrder = {"id"})
 public class ManagerInfo implements FieldAccessPojo {
 

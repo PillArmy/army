@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Objects;
 
-@DefinedType(name = "product_info",
+@DefinedType(name = "PRODUCT_INFO",
         fieldOrder = {"productId", "productName", "price", "available", "releaseDate", "intArray", "textArray", "managerInfo"})
 public class ProductInfo implements FieldAccessPojo {
 

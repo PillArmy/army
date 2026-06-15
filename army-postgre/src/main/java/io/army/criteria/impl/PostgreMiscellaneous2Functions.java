@@ -24,7 +24,6 @@ import io.army.mapping.array.ShortArrayType;
 import io.army.mapping.array.TextArrayType;
 import io.army.mapping.postgre.PgAclItemType;
 import io.army.mapping.postgre.PgInetType;
-import io.army.mapping.postgre.PgRangeType;
 import io.army.util._Collections;
 
 import java.util.Collection;
@@ -643,9 +642,11 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
                     ArmySelections.forName("weights")
             );
             func = DialectFunctionUtils.oneArgTabularFunc(name, exp, fieldList);
-        } else if (type instanceof PgRangeType.MultiRangeType) {
-            func = DialectFunctionUtils.oneArgColumnFunction(name, exp, null);
-        } else {
+        }
+//        else if (type instanceof PgRangeType.MultiRangeType) {  // TODO fix range
+//            func = DialectFunctionUtils.oneArgColumnFunction(name, exp, null);
+//        }
+        else {
             throw CriteriaUtils.funcArgError(name, exp);
         }
         return func;
@@ -818,8 +819,6 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
 
     /// 
     /// The {@link MappingType} of function return type:
-    /// - If anyRange is {@link PgRangeType.SingleRangeType} ,then the multi range of the {@link MappingType} of anyRange.
-    /// - Else {@link TextType#INSTANCE}
     /// 
     /// @throws CriteriaException throw when
     /// - the element of consumer isn't operable {@link Expression},eg:{@link SQLs#DEFAULT}
@@ -1301,8 +1300,7 @@ abstract class PostgreMiscellaneous2Functions extends PostgreMiscellaneousFuncti
 
     /*-------------------below aclitem Functions-------------------*/
 
-    /// 
-    /// The {@link MappingType} of function return type:  {@link PostgreAclItemArrayType#LINEAR}
+    ///
     /// @see <a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-ACLITEM-FN-TABLE">acldefault ( type "char", ownerId oid ) → aclitem[]
     /// </a>
     public static SimpleExpression aclDefault(Expression type, Expression ownerId) {
