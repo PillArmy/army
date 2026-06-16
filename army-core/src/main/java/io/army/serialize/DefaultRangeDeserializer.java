@@ -74,7 +74,7 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
             if (isBoundaries(rightBoundaries, ch)) {
 
                 if (itemCount <= delimCount) {
-                    func.apply(text, i, i); // call second
+                    func.apply(text, 0, 0); // representing nothing
                     itemCount++;
                 }
                 if (itemCount != 2) {
@@ -102,7 +102,7 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
                 itemCount++;
             } else if (ch == itemDelim) {
                 if (allowNothing) {
-                    func.apply(text, i, i);
+                    func.apply(text, 0, 0);  // representing nothing
                     itemCount++;
                     delimCount++;
                     continue;

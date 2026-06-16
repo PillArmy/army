@@ -281,7 +281,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
             final MappingType type = field.mappingType();
 
             final String literal;
-            if (text.isEmpty()) {
+            if (offest == 0 && endIndex == offest && !text.isEmpty()) { // representing nothing
                 literal = null;
             } else {
                 literal = text.substring(offest, endIndex);

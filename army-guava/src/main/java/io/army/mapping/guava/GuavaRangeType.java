@@ -332,17 +332,19 @@ public class GuavaRangeType extends _ArmyBuildInType implements MappingType.SqlR
             final int count = this.consumeCount++;
 
             final String textValue;
-            if (length > 1) {
-                textValue = text.substring(offset, end);
-            } else {
+            if (length < 2) {
                 textValue = null;
+            } else if (offset == 0 && end == offset) {  // text not empty and offset == 0 and offset == end : representing nothing
+                textValue = null;
+            } else {
+                textValue = text.substring(offset, end);
             }
 
             if (length == 0) {
                 if (count != 0) {
                     throw dataAccessError(this.type, this.type.dataType, this.source, new IllegalStateException("bug"));
                 }
-                this.consumeCount = -8;   // empty
+                this.consumeCount = -8;   // server response empty
             } else if (length == 1) {
                 final char ch = text.charAt(offset);
                 if (count == 0) {
@@ -370,7 +372,7 @@ public class GuavaRangeType extends _ArmyBuildInType implements MappingType.SqlR
                 subDataType = this.type.subType.map(this.env.serverMeta());
 
                 Object value;
-                if (textValue.isEmpty()) {
+                if (textValue == null) {
                     value = null;
                 } else {
                     value = this.type.subType.afterGet(subDataType, this.env, textValue);

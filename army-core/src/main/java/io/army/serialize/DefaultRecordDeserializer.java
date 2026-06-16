@@ -70,7 +70,7 @@ final class DefaultRecordDeserializer extends ArmyDeserializer.SingleBoundaryDes
                         throw new IllegalArgumentException(String.format("expected end at nearby offset[%s] -> %s",
                                 i, _StringUtils.surroundingText(text, i, 4)));
                     }
-                    func.apply("", 0, 0);
+                    func.apply(text, 0, 0);  // representing nothing
                 }
                 rightIndex = i;
                 break;
@@ -99,7 +99,7 @@ final class DefaultRecordDeserializer extends ArmyDeserializer.SingleBoundaryDes
                 itemCount++;
             } else if (ch == itemDelim) {
                 if (allowNothing) {
-                    func.apply("", 0, 0);
+                    func.apply(text, 0, 0);  // representing nothing
                     itemCount++;
                     delimCount++;
                     continue;
