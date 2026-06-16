@@ -26,7 +26,7 @@ import io.army.stmt.SimpleStmt;
 import io.army.stmt.Stmt;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /// A common interface to all dialect of dialect.
@@ -89,7 +89,7 @@ public sealed interface DialectParser permits ArmyParser {
         throw new UnsupportedOperationException();
     }
 
-    default List<SimpleStmt> queryDefinedTypeStmts(Map<String, MappingType> definedTypeMap) {
+    default List<SimpleStmt> queryDefinedTypeStmts(Set<MappingType> definedTypeSet) {
         throw new UnsupportedOperationException();
     }
 

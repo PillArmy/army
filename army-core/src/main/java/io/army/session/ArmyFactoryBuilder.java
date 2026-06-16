@@ -31,16 +31,12 @@ import io.army.generator.FieldGeneratorFactory;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping.UserMappingType;
-import io.army.mapping._ArmyBuildInType;
 import io.army.meta.*;
 import io.army.option.Option;
 import io.army.schema.FieldResult;
 import io.army.schema.SchemaResult;
 import io.army.schema.TableResult;
 import io.army.schema.TypeResult;
-import io.army.sqltype.CustomType;
-import io.army.sqltype.DataType;
 import io.army.util.*;
 import org.slf4j.Logger;
 
@@ -114,7 +110,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     ///
     /// key is upper case
     ///
-    Map<String, MappingType> definedTypeMap = Map.of();
+    Set<MappingType> definedTypeSet = Set.of();
 
 
     private ServerMeta serverMeta;
@@ -324,7 +320,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 .xmlCodec(this.xmlCodec)
                 .tableMap(Objects.requireNonNull(this.tableMap))
                 .unrecognizedMappingFunc(this.unrecognizedMappingFunc)
-                .definedTypeSet(Set.copyOf(this.definedTypeMap.values()))
+                .definedTypeSet(Set.copyOf(this.definedTypeSet))
                 .build();
     }
 
@@ -384,7 +380,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
         this.tableMap = Map.copyOf(tableMetaMap);
         this.generatorMap = Map.copyOf(generatorMap);
 
-        this.definedTypeMap = Map.copyOf(this.definedTypeMap);
+        this.definedTypeSet = Set.copyOf(this.definedTypeSet);
 
     }
 
@@ -433,12 +429,8 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     /// @see #createFieldConsumer()
     private Consumer<FieldMeta<?>> consumerForDefinedType() {
-        final Map<String, MappingType> definedTypeMap = new HashMap<>();
-        this.definedTypeMap = definedTypeMap;
-
-        final Map<Class<?>, String> definedTypeToNameMap = new HashMap<>();
-
-        final ServerMeta serverMeta = Objects.requireNonNull(this.serverMeta);
+        final Set<MappingType> definedTypeSet = new HashSet<>();
+        this.definedTypeSet = definedTypeSet;
 
         return field -> {
             final MappingType originalType = field.mappingType();
@@ -453,34 +445,8 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 return;
             }
 
-
-            final DataType dataType;
-            dataType = originalType.map(serverMeta);
-            if (!(dataType instanceof CustomType)) {
-                return;
-            }
-
-            final String oldName, originalTypeName;
-            originalTypeName = dataType.typeName().toUpperCase(Locale.ROOT);
-
-            final Class<?> fieldTypeClass = field.javaType();
-
-            oldName = definedTypeToNameMap.putIfAbsent(fieldTypeClass, originalTypeName);
-            if (oldName != null && !oldName.equals(originalTypeName)) {
-                String m = String.format("%s is mapped to multi type name", fieldTypeClass.getName());
-                throw new MetaException(m);
-            }
-
-            final MappingType oldType;
-            oldType = definedTypeMap.putIfAbsent(originalTypeName, originalType);
-            if (oldType != null && !oldType.equals(originalType)
-                    && oldType instanceof UserMappingType
-                    && originalType instanceof _ArmyBuildInType) {
-                definedTypeMap.put(originalTypeName, originalType);
-            }
-
-            if (oldName == null && type instanceof MappingType.SqlComposite t) { // type, not originalType
-                scanCompositeField(t, definedTypeMap, definedTypeToNameMap);
+            if (definedTypeSet.add(originalType) && type instanceof MappingType.SqlComposite t) { // type, not originalType
+                scanCompositeField(t, definedTypeSet);
             }
 
         };
@@ -489,15 +455,9 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     /// @see #consumerForDefinedType
     private void scanCompositeField(final MappingType.SqlComposite compositeType,
-                                    final Map<String, MappingType> definedTypeMap,
-                                    final Map<Class<?>, String> definedTypeToNameMap) {
+                                    final Set<MappingType> definedTypeSet) {
 
-        final ServerMeta serverMeta = Objects.requireNonNull(this.serverMeta);
-
-        MappingType originalType, type, oldType;
-        String typeName, oldName;
-        Class<?> fieldType;
-        DataType dataType;
+        MappingType originalType, type;
         for (CompositeField field : compositeType.fieldList()) {
             type = originalType = field.mappingType();
 
@@ -509,29 +469,8 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 continue;
             }
 
-            dataType = originalType.map(serverMeta);
-            if (!(dataType instanceof CustomType)) {
-                continue;
-            }
-            typeName = dataType.typeName().toUpperCase(Locale.ROOT);
-
-            oldType = definedTypeMap.putIfAbsent(typeName, originalType);
-            if (oldType != null && !oldType.equals(originalType)
-                    && oldType instanceof UserMappingType
-                    && originalType instanceof _ArmyBuildInType) {
-                definedTypeMap.put(typeName, originalType);
-            }
-
-            fieldType = field.javaType();
-
-            oldName = definedTypeToNameMap.putIfAbsent(fieldType, typeName);
-            if (oldName != null && !oldName.equals(typeName)) {
-                String m = String.format("%s is mapped to multi type name", fieldType.getName());
-                throw new MetaException(m);
-            }
-
-            if (oldName == null && type instanceof MappingType.SqlComposite ct) {  // type, not originalType
-                scanCompositeField(ct, definedTypeMap, definedTypeToNameMap);
+            if (definedTypeSet.add(originalType) && type instanceof MappingType.SqlComposite ct) {  // type, not originalType
+                scanCompositeField(ct, definedTypeSet);
             }
         }
     }
@@ -829,11 +768,11 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     }
 
 
-    private static MetaException typeAndArrayNotMatch(MappingType type) {
-        String m = String.format("%s should be %s,because it's array is %s", type.getClass().getName(),
-                MappingType.SqlUserDefined.class.getSimpleName(), MappingType.SqlUserDefined.class.getSimpleName());
-        return new MetaException(m);
-    }
+//    private static MetaException typeAndArrayNotMatch(MappingType type) {
+//        String m = String.format("%s should be %s,because it's array is %s", type.getClass().getName(),
+//                MappingType.SqlUserDefined.class.getSimpleName(), MappingType.SqlUserDefined.class.getSimpleName());
+//        return new MetaException(m);
+//    }
 
 
     private static SessionFactoryException fieldGeneratorTypeError(GeneratorMeta meta, @Nullable FieldGenerator generator) {

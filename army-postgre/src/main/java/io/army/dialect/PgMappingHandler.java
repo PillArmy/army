@@ -23,16 +23,19 @@ import io.army.sqltype.PgType;
 import io.army.transaction.Isolation;
 import io.army.util._Collections;
 
+import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
 final class PgMappingHandler extends TypeMappingHandlerSupport {
 
-    private static final Map<String, TypeMappingBundle> ALIAS_TO_BUNDLE_MAP = Map.copyOf(createTypeMappingBoundleMap());
+
+    private final Map<String, TypeMappingBundle> aliasToBundleMap;
 
     PgMappingHandler(DialectEnv env) {
         super(env);
+        aliasToBundleMap = Map.copyOf(createTypeMappingBoundleMap(env));
     }
 
 
@@ -40,7 +43,7 @@ final class PgMappingHandler extends TypeMappingHandlerSupport {
     @Override
     public TypeMappingBundle apply(String typeName) {
         TypeMappingBundle bundle;
-        bundle = ALIAS_TO_BUNDLE_MAP.get(typeName.toUpperCase(Locale.ROOT));
+        bundle = aliasToBundleMap.get(typeName.toUpperCase(Locale.ROOT));
         if (bundle == null) {
             bundle = handleDefined(typeName);
         }
@@ -77,7 +80,10 @@ final class PgMappingHandler extends TypeMappingHandlerSupport {
 
 
     /// @see <a href="https://www.postgresql.org/docs/current/datatype.html">Data Types</a>
-    private static Map<String, TypeMappingBundle> createTypeMappingBoundleMap() {
+    private static Map<String, TypeMappingBundle> createTypeMappingBoundleMap(DialectEnv env) {
+        EnumMap<PgType, MappingType> definedTypeMap;
+        definedTypeMap = createSQLTypeToMappingTypeMap(PgType.class, env.serverMeta(), env.definedTypeSet());
+
         final PgType[] array = PgType.values();
         final Map<PgType, TypeMappingBundle> map = _Collections.hashMapForSize(array.length);
 
@@ -174,12 +180,16 @@ final class PgMappingHandler extends TypeMappingHandlerSupport {
                 case UUID_ARRAY:
                     mappingType = UUIDArrayType.UNLIMITED;
                     break;
-                default:
-                    if (type.isArray()) {
+                default: {
+                    mappingType = definedTypeMap.get(type);
+                    if (mappingType != null) {
+                        break;
+                    } else if (type.isArray()) {
                         mappingType = StringArrayType.UNLIMITED;
                     } else {
                         mappingType = StringType.INSTANCE;
                     }
+                } // default
             } // switch
 
             map.put(type, TypeMappingBundle.of(type, mappingType));

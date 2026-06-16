@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /// This class is a implementation of {@link SyncFactoryBuilder}.
@@ -199,7 +199,7 @@ final class ArmySyncFactoryBuilder
 
         try (SyncMetaExecutor executor = executorFactory.metaExecutor(dataSourceFunc())) {
 
-            final Map<String, MappingType> definedTypeMap = this.definedTypeMap;
+            final Set<MappingType> definedTypeMap = this.definedTypeSet;
             final List<SimpleStmt> stmtList;
             stmtList = sessionFactory.dialectParser.queryDefinedTypeStmts(definedTypeMap);
 
@@ -222,7 +222,7 @@ final class ArmySyncFactoryBuilder
                 case DROP_CREATE: {
                     final Collection<TableMeta<?>> tableCollection;
                     tableCollection = sessionFactory.tableMap().values();
-                    schemaResult = SchemaResult.dropCreate(schemaInfo.catalog(), schemaInfo.schema(), tableCollection, definedTypeMap.values());
+                    schemaResult = SchemaResult.dropCreate(schemaInfo.catalog(), schemaInfo.schema(), tableCollection, definedTypeMap);
                 }
                 break;
                 default:

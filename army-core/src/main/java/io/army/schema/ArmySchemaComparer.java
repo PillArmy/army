@@ -72,7 +72,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
     @Override
     public final SchemaResult compare(SchemaInfo schemaInfo, SchemaMeta schemaMeta,
                                       Collection<TableMeta<?>> tableMetas,
-                                      Map<String, MappingType> definedTypeMap) {
+                                      Set<MappingType> definedTypeMap) {
         if (compareSchema(schemaInfo, schemaMeta)) {
             String m = String.format("_SchemaInfo[%s,%s] and %s not match,serverMeta[%s].",
                     schemaInfo.catalog(), schemaInfo.schema(), schemaMeta, this.serverMeta);
@@ -237,10 +237,9 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
     }
 
-    private List<TypeResult> compareTypes(Map<String, MappingType> definedTypeMap, Map<String, TypeInfo> typeInfoMap,
+    private List<TypeResult> compareTypes(Set<MappingType> definedTypeMap, Map<String, TypeInfo> typeInfoMap,
                                           final Map<MappingType, Integer> typeMap) {
         String typeName;
-        MappingType type;
         TypeInfo typeInfo;
 
         final List<TypeResult> typeResultList = _Collections.arrayList();
@@ -251,8 +250,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
         DataType dataType;
         TypeResult typeResult;
 
-        for (Map.Entry<String, MappingType> e : definedTypeMap.entrySet()) {
-            type = e.getValue();
+        for (MappingType type : definedTypeMap) {
             if (type instanceof MappingType.SqlArray) {
                 type = ((MappingType.SqlArray) type).underlyingType();
             }

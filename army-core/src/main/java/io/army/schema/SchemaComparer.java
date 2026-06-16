@@ -22,12 +22,12 @@ import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.Set;
 
 public interface SchemaComparer {
 
     SchemaResult compare(SchemaInfo schemaInfo, SchemaMeta schemaMeta, Collection<TableMeta<?>> tableMetas,
-                         Map<String, MappingType> definedTypeMap);
+                         Set<MappingType> definedTypeMap);
 
     static SchemaComparer create(final ServerMeta serverMeta) {
         return ArmySchemaComparer.createComparer(serverMeta);

@@ -18,19 +18,19 @@ package io.army.dialect;
 
 import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
+import io.army.mapping.UserMappingType;
+import io.army.mapping._ArmyBuildInType;
 import io.army.mapping.array.StringArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.ArmyType;
 import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
+import io.army.sqltype.SQLType;
 import io.army.transaction.Isolation;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiFunction;
 
 abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
@@ -94,6 +94,31 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
             throw _Exceptions.unknownIsolation(isolation);
         }
         return name;
+    }
+
+
+    static <E extends Enum<E>> EnumMap<E, MappingType> createSQLTypeToMappingTypeMap(Class<E> enumClass, ServerMeta serverMeta,
+                                                                                     Set<MappingType> definedTypeSet) {
+        final EnumMap<E, MappingType> map = new EnumMap<>(enumClass);
+        DataType dataType;
+        E key;
+        MappingType oldValue;
+        for (MappingType mappingType : definedTypeSet) {
+            dataType = mappingType.map(serverMeta);
+            if (!(dataType instanceof SQLType)) {
+                continue;
+            }
+            if (!enumClass.isInstance(dataType)) {
+                continue;
+            }
+            key = enumClass.cast(dataType);
+            oldValue = map.put(key, mappingType);
+
+            if (oldValue instanceof _ArmyBuildInType && mappingType instanceof UserMappingType) {
+                map.put(key, oldValue);
+            }
+        } // loop
+        return map;
     }
 
 

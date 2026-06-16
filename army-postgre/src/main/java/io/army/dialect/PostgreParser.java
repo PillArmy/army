@@ -39,7 +39,6 @@ import io.army.util.ArrayUtils;
 import io.army.util._Exceptions;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -107,7 +106,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
     /// AND (t.typcategory IN ('E', 'U', 'R') OR t.typbasetype > 0 OR (t.typcategory = 'C' AND c.relkind = 'c'))
     /// ```
     @Override
-    public final List<SimpleStmt> queryDefinedTypeStmts(Map<String, MappingType> definedTypeMap) {
+    public final List<SimpleStmt> queryDefinedTypeStmts(Set<MappingType> definedTypeSet) {
         final String sql;
         sql = """
                 SELECT t.typname AS "typeName",
