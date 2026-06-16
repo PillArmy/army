@@ -60,14 +60,7 @@ public abstract class _TableMetaFactory {
     /// only for {@link #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)}
     private static final ThreadLocal<MetaContext> CONTEXT_HOLDER = new ThreadLocal<>();
 
-    public static MetaContext getContext() {
-        MetaContext metaContext = CONTEXT_HOLDER.get();
-        if (metaContext == null) {
-            // don't store to CONTEXT_HOLDER
-            metaContext = new DefaultMetaContext();
-        }
-        return metaContext;
-    }
+
 
 
     public static <T> SimpleTableMeta<T> getSimpleTableMeta(final Class<T> domainClass) {
@@ -187,6 +180,16 @@ public abstract class _TableMetaFactory {
             }
         } // synchronized
 
+    }
+
+
+    static MetaContext getContext() {
+        MetaContext metaContext = CONTEXT_HOLDER.get();
+        if (metaContext == null) {
+            // don't store to CONTEXT_HOLDER
+            metaContext = new DefaultMetaContext();
+        }
+        return metaContext;
     }
 
 

@@ -201,6 +201,8 @@ public enum ArmyType {
     /// This enum instance is only returned by {@link RecordMeta#getArmyType(int)}
     COMPOSITE,
 
+    RANGE,
+
     VECTOR,
 
 

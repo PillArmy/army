@@ -100,21 +100,21 @@ public enum PgType implements SQLType {
     INET("INET", ArmyType.DIALECT_TYPE, String.class),
     CIDR("CIDR", ArmyType.DIALECT_TYPE, String.class),
 
-    INT4RANGE("INT4RANGE", ArmyType.DIALECT_TYPE, String.class),
-    INT8RANGE("INT8RANGE", ArmyType.DIALECT_TYPE, String.class),
-    NUMRANGE("NUMRANGE", ArmyType.DIALECT_TYPE, String.class),
-    TSRANGE("TSRANGE", ArmyType.DIALECT_TYPE, String.class),
+    INT4RANGE("INT4RANGE", ArmyType.RANGE, String.class),
+    INT8RANGE("INT8RANGE", ArmyType.RANGE, String.class),
+    NUMRANGE("NUMRANGE", ArmyType.RANGE, String.class),
+    TSRANGE("TSRANGE", ArmyType.RANGE, String.class),
 
-    TSTZRANGE("TSTZRANGE", ArmyType.DIALECT_TYPE, String.class),
+    TSTZRANGE("TSTZRANGE", ArmyType.RANGE, String.class),
 
-    DATERANGE("DATERANGE", ArmyType.DIALECT_TYPE, String.class),
+    DATERANGE("DATERANGE", ArmyType.RANGE, String.class),
 
-    INT4MULTIRANGE("INT4MULTIRANGE", ArmyType.DIALECT_TYPE, String.class),
-    INT8MULTIRANGE("INT8MULTIRANGE", ArmyType.DIALECT_TYPE, String.class),
-    NUMMULTIRANGE("NUMMULTIRANGE", ArmyType.DIALECT_TYPE, String.class),
-    DATEMULTIRANGE("DATEMULTIRANGE", ArmyType.DIALECT_TYPE, String.class),
-    TSMULTIRANGE("TSMULTIRANGE", ArmyType.DIALECT_TYPE, String.class),
-    TSTZMULTIRANGE("TSTZMULTIRANGE", ArmyType.DIALECT_TYPE, String.class),
+    INT4MULTIRANGE("INT4MULTIRANGE", ArmyType.RANGE, String.class),
+    INT8MULTIRANGE("INT8MULTIRANGE", ArmyType.RANGE, String.class),
+    NUMMULTIRANGE("NUMMULTIRANGE", ArmyType.RANGE, String.class),
+    DATEMULTIRANGE("DATEMULTIRANGE", ArmyType.RANGE, String.class),
+    TSMULTIRANGE("TSMULTIRANGE", ArmyType.RANGE, String.class),
+    TSTZMULTIRANGE("TSTZMULTIRANGE", ArmyType.RANGE, String.class),
 
 
     RECORD("RECORD", ArmyType.DIALECT_TYPE, SqlRecord.class),

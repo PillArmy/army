@@ -23,7 +23,7 @@ import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 
 /// @see ArraySerializer
-public interface ArrayDeserializer {
+public interface ArrayDeserializer extends Deserializer {
 
 
     Object deserialize(String text, int offset, int endIndex, MappingType type, TextFunction<?> func,
@@ -35,24 +35,11 @@ public interface ArrayDeserializer {
     }
 
 
-    interface Builder {
-
-        Builder leftBoundary(char ch);
-
-        Builder delim(char ch);
-
-        Builder rightBoundary(char ch);
+    interface Builder extends SingleBoundaryBuilder<Builder> {
 
         Builder skipPrefixFunc(TextToIntFunc func);
 
-        Builder backSlashEscapeOn(boolean yes);
-
-        Builder quoteEscapeOn(boolean yes);
-
-        Builder quoteChar(char ch);
-
-        Builder allowDirectNested(boolean yes);
-
+        @Override
         ArrayDeserializer build();
 
     }

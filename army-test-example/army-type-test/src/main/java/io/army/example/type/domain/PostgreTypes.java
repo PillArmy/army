@@ -1,5 +1,6 @@
 package io.army.example.type.domain;
 
+import com.google.common.collect.Range;
 import io.army.annotation.*;
 import io.army.pojo.FieldAccessPojo;
 
@@ -162,6 +163,9 @@ public class PostgreTypes implements FieldAccessPojo {
 
     @Column(comment = "daterange type")
     public String daterange;
+
+    @Column(comment = "int4range type")
+    public Range<Integer> int4RangeGuava;
 
     // ------------- 多范围类型 -------------
     @Column(comment = "int4multirange type")

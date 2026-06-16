@@ -368,8 +368,8 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
             sqlList.add(createCompositeType((MappingType.SqlComposite) type));
         } else if (type instanceof MappingType.SqlEnum) {
             sqlList.add(createEnumType((MappingType.SqlEnum) type));
-        } else if (type instanceof MappingType.SqlRange) {
-            sqlList.add(createRangeType((MappingType.SqlRange) type));
+        } else if (type instanceof MappingType.SqlDefinedRange) {
+            sqlList.add(createRangeType((MappingType.SqlDefinedRange) type));
         } else if (type instanceof MappingType.SqlDomain) {
             sqlList.add(createDomainType((MappingType.SqlDomain) type));
         } else {
@@ -388,7 +388,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
             sqlList.add(alterCompositeType((MappingType.SqlComposite) type, typeResult));
         } else if (type instanceof MappingType.SqlEnum) {
             alterEnumType((MappingType.SqlEnum) type, typeResult, sqlList);
-        } else if (type instanceof MappingType.SqlRange) {
+        } else if (type instanceof MappingType.SqlDefinedRange) {
             this.errorMsgList.add("PostgreSQL don't support alter range type");
         } else if (type instanceof MappingType.SqlDomain) {
             alterDomainType((MappingType.SqlDomain) type, typeResult, sqlList);
@@ -797,7 +797,7 @@ final class PostgreDdlParser extends ArmyDdlParser<PostgreParser> {
     /// @see <a href="https://www.postgresql.org/docs/current/rangetypes.html">Range Types</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-createtype.html">CREATE TYPE</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-altertype.html">ALTER TYPE</a>
-    private String createRangeType(final MappingType.SqlRange type) {
+    private String createRangeType(final MappingType.SqlDefinedRange type) {
         final StringBuilder sqlBuilder = this.sqlBuilder;
         sqlBuilder.setLength(0); // clear
 

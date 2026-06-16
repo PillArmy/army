@@ -19,7 +19,6 @@ package io.army.criteria.impl;
 import io.army.criteria.*;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
-import io.army.mapping._MappingFactory;
 import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
 import io.army.struct.LabelEnum;

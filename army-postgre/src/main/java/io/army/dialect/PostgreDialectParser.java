@@ -22,8 +22,8 @@ import io.army.criteria.impl.inner.*;
 import io.army.criteria.impl.inner.postgre.*;
 import io.army.criteria.postgre.PostgreCursor;
 import io.army.criteria.postgre.PostgreMerge;
+import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
-import io.army.mapping._MappingFactory;
 import io.army.meta.SingleTableMeta;
 import io.army.meta.TableMeta;
 import io.army.modelgen._MetaBridge;
@@ -31,7 +31,6 @@ import io.army.session.SessionSpec;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
-import io.army.lang.Nullable;
 import java.util.List;
 
 

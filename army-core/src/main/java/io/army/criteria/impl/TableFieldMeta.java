@@ -31,7 +31,6 @@ import io.army.lang.Nullable;
 import io.army.mapping.ArrayMappingType;
 import io.army.mapping.MappingType;
 import io.army.mapping.MultiGenericsMappingType;
-import io.army.mapping._MappingFactory;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.util._Assert;

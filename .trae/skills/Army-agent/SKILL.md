@@ -748,7 +748,8 @@ public sealed interface MappingType permits AbstractMappingType, ArrayMappingTyp
 
 #### **内置 Java 到 MappingType 映射**
 
-当域字段没有 `@Mapping` 注解时，Army 通过 `io.army.mapping._MappingFactory.getDefaultIfMatch()` 自动推断 MappingType：
+当域字段没有 `@Mapping` 注解时，Army 通过 `io.army.criteria.impl._MappingFactory.getDefaultIfMatch()` 自动推断
+MappingType：
 
 | Java 类型 | MappingType | PostgreSQL / MySQL 类型 |
 |------|---------|---------|

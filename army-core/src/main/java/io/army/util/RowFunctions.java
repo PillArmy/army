@@ -1,9 +1,9 @@
 package io.army.util;
 
 import io.army.criteria.Selection;
+import io.army.criteria.impl.CompositeFieldFactory;
 import io.army.executor.ExecutorSupport;
 import io.army.lang.Nullable;
-import io.army.mapping.CompositeFieldFactory;
 import io.army.mapping.MappingType;
 import io.army.meta.CompositeField;
 import io.army.meta.MetaException;

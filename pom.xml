@@ -98,7 +98,10 @@
 
         <jdbd.version>0.13.0-SNAPSHOT</jdbd.version>
         <jdbd.mysql.version>0.12.0-SNAPSHOT</jdbd.mysql.version>
+
         <hibernate.version>7.3.1.Final</hibernate.version>
+        <jooq.version>3.21.5</jooq.version>
+
         <nacos.version>3.2.0</nacos.version>
     </properties>
 
@@ -399,6 +402,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>33.6.0-jre</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.alibaba.nacos</groupId>
                 <artifactId>nacos-client</artifactId>
                 <version>${nacos.version}</version>
@@ -416,7 +425,8 @@
                 <version>1.2.8</version>
             </dependency>
             <dependency>
-                <groupId>com.zaxxer</groupId>
+
+            <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
                 <version>4.0.3</version>
             </dependency>
@@ -451,6 +461,14 @@
                 <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-spatial</artifactId>
                 <version>7.4.0.Final</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-bom</artifactId>
+                <version>${jooq.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>

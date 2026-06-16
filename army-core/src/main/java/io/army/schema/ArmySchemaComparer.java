@@ -280,8 +280,8 @@ abstract class ArmySchemaComparer implements SchemaComparer {
                 typeResult = compareCompositeType((MappingType.SqlComposite) type, typeInfo, typeBuilder);
             } else if (type instanceof MappingType.SqlEnum) {
                 typeResult = compareEnumType((MappingType.SqlEnum) type, typeInfo, typeBuilder);
-            } else if (type instanceof MappingType.SqlRange) {
-                typeResult = compareRangeType((MappingType.SqlRange) type, typeInfo, typeBuilder);
+            } else if (type instanceof MappingType.SqlDefinedRange) {
+                typeResult = compareRangeType((MappingType.SqlDefinedRange) type, typeInfo, typeBuilder);
             } else if (type instanceof MappingType.SqlDomain) {
                 typeResult = compareDomainType((MappingType.SqlDomain) type, typeInfo, typeBuilder);
             } else {
@@ -430,7 +430,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
 
 
     @Nullable
-    private TypeResult compareRangeType(MappingType.SqlRange rangeType, TypeInfo typeInfo,
+    private TypeResult compareRangeType(MappingType.SqlDefinedRange rangeType, TypeInfo typeInfo,
                                         TypeResult.Builder builder) {
         if (typeInfo.category() != TypeCategory.RANGE) {
             addTypeNotMatchError(rangeType, TypeCategory.RANGE, typeInfo);
@@ -643,8 +643,8 @@ abstract class ArmySchemaComparer implements SchemaComparer {
             deep = compositeDependencyDepth((MappingType.SqlComposite) type, predicate);
         } else if (type instanceof MappingType.SqlDomain) {
             deep = domainDependencyDepth((MappingType.SqlDomain) type, predicate);
-        } else if (type instanceof MappingType.SqlRange) {
-            deep = rangeDependencyDepth((MappingType.SqlRange) type, predicate);
+        } else if (type instanceof MappingType.SqlDefinedRange) {
+            deep = rangeDependencyDepth((MappingType.SqlDefinedRange) type, predicate);
         }
         return deep;
     }
@@ -675,7 +675,7 @@ abstract class ArmySchemaComparer implements SchemaComparer {
         return deep;
     }
 
-    private static int rangeDependencyDepth(final MappingType.SqlRange type, Predicate<MappingType> predicate) {
+    private static int rangeDependencyDepth(final MappingType.SqlDefinedRange type, Predicate<MappingType> predicate) {
         final MappingType subType = type.rangeSubType();
         int deep = 0;
         if (subType instanceof MappingType.SqlUserDefined && predicate.test(subType)) {

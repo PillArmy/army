@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.army.mapping.postgre;
+package io.army.mapping;
 
 import io.army.lang.Nullable;
 
@@ -104,7 +104,7 @@ import io.army.lang.Nullable;
 /// }//Int4Range
 /// ```
 /// @param <T> the range subtype
-/// @see RangeFunction
+/// @see RangeConstructor
 /// @see <a href="https://www.postgresql.org/docs/15/rangetypes.html">Range Types</a>
 /// @since 0.6.0
 public interface Range<T> {

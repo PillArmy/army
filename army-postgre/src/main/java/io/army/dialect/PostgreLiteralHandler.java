@@ -344,23 +344,30 @@ final class PostgreLiteralHandler extends ArmyLiteralHandler<PostgreParser> {
 
     /// @see #bindLiteral(TypeMeta, DataType, Object, boolean, StringBuilder, DataType)
     private void stringEscape(final CharSequence value, final StringBuilder builder, @Nullable DataType container) {
-        if (container != null) {
-            if (container.armyType() == ArmyType.COMPOSITE) {
-                _PostgreLiterals.doubleQuoteBackSlashEscape(value, builder);
-            } else {
-                PostgreArrays.encodeElement(value, builder);
+
+        if (container == null) {
+            switch (this.literalEscapeMode) {
+                case DEFAULT:
+                case BACK_SLASH:
+                    _PostgreLiterals.backslashEscape(value, 0, value.length(), builder);
+                    break;
+                case UNICODE:
+                    _PostgreLiterals.unicodeEscape(value, 0, value.length(), _Constant.BACK_SLASH, builder);
+                    break;
+                default:
+                    throw _Exceptions.dontSupportEscapeMode(this.literalEscapeMode, this.serverMeta.usedDialect());
             }
-        } else switch (this.literalEscapeMode) {
-            case DEFAULT:
-            case BACK_SLASH:
-                _PostgreLiterals.backslashEscape(value, 0, value.length(), builder);
-                break;
-            case UNICODE:
-                _PostgreLiterals.unicodeEscape(value, 0, value.length(), _Constant.BACK_SLASH, builder);
+        } else if (container.isArray()) {
+            PostgreArrays.encodeElement(value, builder);
+        } else switch (container.armyType()) {
+            case RANGE:
+            case COMPOSITE:
+                _PostgreLiterals.doubleQuoteBackSlashEscape(value, builder);
                 break;
             default:
-                throw _Exceptions.dontSupportEscapeMode(this.literalEscapeMode, this.serverMeta.usedDialect());
-        }
+                PostgreArrays.encodeElement(value, builder);
+        } // switch
+
 
     }
 

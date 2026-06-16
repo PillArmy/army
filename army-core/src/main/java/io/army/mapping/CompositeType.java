@@ -18,6 +18,7 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
+import io.army.criteria.impl.CompositeFieldFactory;
 import io.army.dialect.LiteralHandler;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.dialect._Constant;
@@ -70,7 +71,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
             .allowNothing(true)  // nothing representing null
             .allowWhitespace(true) // whitespace is a part of field value
-            .allowDirectNested(false) // don't support direct nested composite type, must be enclosed by double quote
+            .nullAsNull(false)
             .build();
 
     private static final ClassValue<CompositeType> CLASS_VALUE = FuncClassValue.create(CompositeType::new);
@@ -227,7 +228,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
         try {
 
-            PG_DESERIALIZER.deserialize(source, offset, endIndex, fieldParser::parseField, null, null, builder);
+            PG_DESERIALIZER.deserialize(source, offset, endIndex, fieldParser::parseField, builder);
 
             if (fieldParser.fieldIndex != fieldParser.fieldCount) {
                 throw dataAccessError(instance, dataType, source, null);
@@ -288,11 +289,14 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
             //TODO add decode literal
             // literal = this.decodeFunc.decodeLiteral(type, literal);
 
-            final Object value;
+            Object value;
             if (literal == null) {
                 value = null;
             } else {
                 value = type.afterGet(type.map(this.serverMeta), this.env, literal);
+                if (value == MappingType.DOCUMENT_NULL_VALUE) {
+                    value = null;
+                }
             }
 
             this.accessor.set(this.object, field.fieldName(), value);

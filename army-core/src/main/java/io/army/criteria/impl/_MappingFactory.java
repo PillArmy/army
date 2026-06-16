@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package io.army.mapping;
+package io.army.criteria.impl;
 
 import io.army.annotation.Generator;
 import io.army.annotation.GeneratorType;
 import io.army.annotation.Mapping;
-import io.army.criteria.impl.MetaContext;
-import io.army.criteria.impl.TableMetaUtils;
 import io.army.generator.GeneratorStrategy;
 import io.army.lang.Nullable;
+import io.army.mapping.*;
 import io.army.mapping.array.*;
 import io.army.meta.MetaException;
 import io.army.modelgen._MetaBridge;
@@ -159,7 +158,11 @@ public abstract class _MappingFactory {
             final Object mappingType;
             final Class<?> fieldType = field.getType();
 
-            if (textMapping && elementMapping) {
+            if (mapping.fromJavaField()) {
+                method = mappingClass.getDeclaredMethod("fromJavaField", Field.class);
+                assertFactoryMethod(method);
+                mappingType = method.invoke(null, field);
+            } else if (textMapping && elementMapping) {
                 method = mappingClass.getDeclaredMethod("forMixture", Class.class, Class[].class, Charset.class);
                 assertFactoryMethod(method);
                 final Charset charset = Charset.forName(mapping.charset());

@@ -69,6 +69,8 @@ public @interface Mapping {
     /// is available at compile time.
     Class<?> type() default void.class;
 
+    boolean fromJavaField() default false;
+
     /// (Optional) **Extra parameters** for the mapping type configuration.
     ///
     /// Commonly used for PostgreSQL `ENUM` types to specify the enum type name,

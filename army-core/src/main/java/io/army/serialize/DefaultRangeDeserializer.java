@@ -19,40 +19,45 @@ package io.army.serialize;
 import io.army.function.TextFunction;
 import io.army.lang.Nullable;
 import io.army.util._Exceptions;
-import io.army.util._StringUtils;
 
 import java.util.Objects;
 
+final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeserializer<RangeDeserializer.Builder>
+        implements RangeDeserializer {
 
-final class DefaultRecordDeserializer extends ArmyDeserializer.SingleBoundaryDeserializer<RecordDeserializer.Builder>
-        implements RecordDeserializer {
-
-    static RecordDeserializer.Builder newBuilder() {
+    static Builder newBuilder() {
         return new DefaultBuilder();
     }
 
 
-    private DefaultRecordDeserializer(DefaultBuilder builder) {
+    private DefaultRangeDeserializer(DefaultBuilder builder) {
         super(builder);
     }
 
 
     @Override
-    public void deserialize(String text, int offset, int endIndex, TextFunction<?> func, @Nullable StringBuilder builder) {
-
-        if (text.charAt(offset) != this.leftBoundary) {
-            throw new IllegalArgumentException();
-        } else if (offset >= endIndex) {
-            throw new IllegalArgumentException();
-        }
+    public void deserialize(final String text, final int offset, final int endIndex, TextFunction<?> func,
+                            @Nullable StringBuilder builder) {
 
         Objects.requireNonNull(func);
 
-        final char leftBoundary = this.leftBoundary, itemDelim = this.itemDelim, rightBoundary = this.rightBoundary;
-        final char quoteChar;
-        quoteChar = this.quoteChar;
+        final char firstChar = text.charAt(offset);
+        if (!isBoundaries(this.leftBoundaries, firstChar)) {
+            if (text.regionMatches(true, offset, "empty", 0, 5)) {
+                func.apply("", 0, 0);
+                return;
+            }
+            throw syntaxError(getSyntaxType(), text, offset);
+        }
+
+        final char[] leftBoundaries = this.leftBoundaries, rightBoundaries = this.rightBoundaries;
+        final char quoteChar, itemDelim;
 
         final boolean allowNothing = this.allowNothing, allowWhitespace = this.allowWhitespace;
+
+        quoteChar = this.quoteChar;
+        itemDelim = this.itemDelim;
+
 
         final StringBuilder[] holder = new StringBuilder[1];
         holder[0] = builder;
@@ -61,17 +66,26 @@ final class DefaultRecordDeserializer extends ArmyDeserializer.SingleBoundaryDes
 
         int rightIndex = -1;
 
-        for (int i = offset + 1, delimFlat = 0, itemCount = 0, delimCount = 0; i < endIndex; i++) {
+        func.apply(String.valueOf(firstChar), 0, 1);
+
+        for (int i = offset + 1, delimFlat = 0, delimCount = 0, itemCount = 0; i < endIndex; i++) {
             ch = text.charAt(i);
 
-            if (ch == rightBoundary) {
-                if (itemCount <= delimCount) {
-                    if (!allowNothing) {
-                        throw new IllegalArgumentException(String.format("expected end at nearby offset[%s] -> %s",
-                                i, _StringUtils.surroundingText(text, i, 4)));
-                    }
-                    func.apply("", 0, 0);
+            if (isBoundaries(rightBoundaries, ch)) {
+                if (itemCount == 0 && delimCount == itemCount) {
+                    func.apply(text, i, i); // call first
+                    delimCount++;
+                    itemCount++;
                 }
+
+                if (itemCount <= delimCount) {
+                    func.apply(text, i, i); // call second
+                    itemCount++;
+                }
+                if (itemCount > 2) {
+                    throw syntaxError(getSyntaxType(), text, i);
+                }
+                func.apply(String.valueOf(ch), 0, 1);
                 rightIndex = i;
                 break;
             }
@@ -87,24 +101,20 @@ final class DefaultRecordDeserializer extends ArmyDeserializer.SingleBoundaryDes
                 throw _Exceptions.missDelimError(text, i, itemDelim);
             }
 
-            if (ch == leftBoundary) {
-                // currently ,don't support nested record
-//                i = parseDirectNestedElement(text, i, endIndex, func, boundaries, skipFunc);
-//                delimFlat = 1;
-//                itemCount++;
-                throw syntaxError(getSyntaxType(), text, i);
-            } else if (ch == quoteChar) {
-                i = parseQuoteElement(text, i + 1, endIndex, ch, holder, null, func);
+            if (ch == quoteChar) {
+                i = parseQuoteElement(text, i + 1, endIndex, quoteChar, holder, null, func);
                 delimFlat = 1;
                 itemCount++;
             } else if (ch == itemDelim) {
                 if (allowNothing) {
-                    func.apply("", 0, 0);
+                    func.apply(text, i, i);
                     itemCount++;
                     delimCount++;
                     continue;
                 }
                 throw _Exceptions.redundantDelimError(text, i, itemDelim);
+            } else if (isBoundaries(leftBoundaries, ch)) {
+                throw syntaxError(getSyntaxType(), text, i);
             } else {
                 if (!allowWhitespace && Character.isWhitespace(ch)) {
                     continue;
@@ -119,30 +129,33 @@ final class DefaultRecordDeserializer extends ArmyDeserializer.SingleBoundaryDes
 
 
         if (rightIndex < 0) {
-            throw _Exceptions.missingEndingError(text, endIndex, new char[]{rightBoundary});
+            throw _Exceptions.missingEndingError(text, endIndex, rightBoundaries);
         }
+
 
     }
 
 
     @Override
     String getSyntaxType() {
-        return "record";
+        return "range";
     }
 
-    private static final class DefaultBuilder extends ArmySingleBoundaryBuilder<Builder>
+    private static final class DefaultBuilder extends ArmyMultiBoundaryBuilder<Builder>
             implements Builder {
+
 
         private DefaultBuilder() {
         }
 
 
         @Override
-        public RecordDeserializer build() {
-            return new DefaultRecordDeserializer(this);
+        public RangeDeserializer build() {
+            return new DefaultRangeDeserializer(this);
         }
 
-    } // DefaultBuilder
+
+    }
 
 
 }

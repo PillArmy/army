@@ -373,6 +373,7 @@ public abstract class PostgreArrays extends ArrayMappings {
                 .skipPrefixFunc(PostgreArrays::skipExplicitDimensions)
                 .backSlashEscapeOn(true)
                 .quoteEscapeOn(true)
+                .nullAsNull(true)
                 .quoteChar(_Constant.DOUBLE_QUOTE);
     }
 

@@ -18,46 +18,22 @@
 package io.army.serialize;
 
 import io.army.function.TextFunction;
-import io.army.function.TextToIntFunc;
 import io.army.lang.Nullable;
 
-public interface RecordDeserializer {
+public interface RecordDeserializer extends Deserializer {
 
 
-    void deserialize(String text, int offset, int endIndex, TextFunction<?> func,
-                     @Nullable char[] boundaries, @Nullable TextToIntFunc skipFunc, @Nullable StringBuilder builder);
-
-    int skipRecord(String text, int offset, int endIndex);
-
-    int skipRecord(String text, int offset, int endIndex, @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc);
+    void deserialize(String text, int offset, int endIndex, TextFunction<?> func, @Nullable StringBuilder builder);
 
     static Builder builder() {
         return DefaultRecordDeserializer.newBuilder();
     }
 
 
-    interface Builder {
+    interface Builder extends SingleBoundaryBuilder<Builder> {
 
-        Builder leftBoundary(char ch);
 
-        Builder delim(char ch);
-
-        Builder rightBoundary(char ch);
-
-        Builder backSlashEscapeOn(boolean yes);
-
-        Builder quoteEscapeOn(boolean yes);
-
-        Builder quoteChar(char ch);
-
-        /// eg : PostgreSQL composite nothing representing null
-        Builder allowNothing(boolean yes);
-
-        /// eg:  PostgreSQL composite whitespace is part of field value
-        Builder allowWhitespace(boolean yes);
-
-        Builder allowDirectNested(boolean yes);
-
+        @Override
         RecordDeserializer build();
 
     }

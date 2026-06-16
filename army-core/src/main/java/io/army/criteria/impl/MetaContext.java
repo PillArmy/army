@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public interface MetaContext {
+interface MetaContext {
 
 
     void validateColumnName(Class<?> domainClass, String columnName);

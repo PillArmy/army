@@ -34,27 +34,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-final class DefaultArrayDeserializer extends DeserializerSupport implements ArrayDeserializer {
+final class DefaultArrayDeserializer extends ArmyDeserializer.SingleBoundaryDeserializer<ArrayDeserializer.Builder>
+        implements ArrayDeserializer {
 
     static Builder newBuilder() {
         return new DefaultBuilder();
     }
 
-    final char leftBoundary;
-
-    final char rightBoundary;
 
     private final TextToIntFunc skipPrefixFunc;
 
-    private final boolean allowDirectNested;
-
-
     private DefaultArrayDeserializer(DefaultBuilder builder) {
         super(builder);
-        this.leftBoundary = builder.leftBoundary;
-        this.rightBoundary = builder.rightBoundary;
         this.skipPrefixFunc = Objects.requireNonNull(builder.skipPrefixFunc);
-        this.allowDirectNested = builder.allowDirectNested;
     }
 
 
@@ -257,6 +249,11 @@ final class DefaultArrayDeserializer extends DeserializerSupport implements Arra
         return rightIndex;
     }
 
+    @Override
+    String getSyntaxType() {
+        return "array";
+    }
+
     private static IllegalArgumentException arrayFormatError(String text, int offset) {
         String m = String.format("array format error at nearby offset[%s] -> %s",
                 offset, _StringUtils.surroundingText(text, offset, 4));
@@ -264,91 +261,6 @@ final class DefaultArrayDeserializer extends DeserializerSupport implements Arra
     }
 
 
-    /// @return the previous index of array delim or right boundary
-    /// @see #parseArray(String, int, int, StringBuilder[], Class, Class, Consumer, TextFunction, char[], TextToIntFunc)
-    private int parseUnQuoteElement(final String text, final int offset, final int endIndex,
-                                    final Consumer<Object> consumer, TextFunction<?> func,
-                                    final @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc) {
-        final char firstChar;
-        firstChar = text.charAt(offset);
-
-        final char arrayDelim = this.itemDelim, quoteChar = this.quoteChar, rightBoundary = this.rightBoundary;
-
-        final boolean firstIsN = firstChar == 'n' || firstChar == 'N';
-
-        int rightIndex = -1;
-
-        Object value;
-        boolean nullValue;
-        char ch;
-        for (int i = offset + 1, elementEndInex = -1, oldIndex; i < endIndex; i++) {
-            ch = text.charAt(i);
-
-            if (boundaries != null && isBoundaries(boundaries, ch)) {
-                if (!this.allowDirectNested) {
-                    throw syntaxError("array", text, i);
-                }
-                oldIndex = i;
-                assert subFunc != null;
-                i = subFunc.apply(text, i, endIndex);
-                if (i <= oldIndex) {
-                    throw subFuncBug(subFunc);
-                }
-                continue;
-            }
-
-            if (ch == arrayDelim || ch == rightBoundary) {
-
-                if (elementEndInex < 0) {
-                    nullValue = firstIsN
-                            && i - offset == 4
-                            && text.regionMatches(true, offset, _Constant.NULL, 0, 4);
-                    if (nullValue) {
-                        value = null;
-                    } else {
-                        value = func.apply(text, offset, i);
-                    }
-
-                    consumer.accept(value);
-                }
-
-                rightIndex = i - 1;
-                break;
-            }
-
-            if (ch == quoteChar) {
-                throw _Exceptions.unexpectedQuoteError(text, i, ch);
-            }
-
-            if (!Character.isWhitespace(ch)) {
-                continue;
-            }
-
-            if (elementEndInex < 0) {
-                nullValue = i - offset == 4
-                        && firstIsN
-                        && text.regionMatches(true, offset, _Constant.NULL, 0, 4);
-                if (nullValue) {
-                    value = null;
-                } else {
-                    value = func.apply(text, offset, i);
-                }
-
-                consumer.accept(value);
-                elementEndInex = i;
-            } else {
-                String m = String.format("unquoted element exists whitespace at nearby offset[%s] -> %s",
-                        i, _StringUtils.surroundingText(text, i, 4));
-                throw new IllegalArgumentException(m);
-            }
-
-        } // loop
-
-        if (rightIndex < 0) {
-            throw unquotedElementNotEnd(text, endIndex);
-        }
-        return rightIndex;
-    }
 
 
     private int parseArrayDimension(final String text, final int offset, final int endIndex) {
@@ -544,62 +456,14 @@ final class DefaultArrayDeserializer extends DeserializerSupport implements Arra
     } // OneDimensionConsumer
 
 
-    private static final class DefaultBuilder extends DeserializerSupport.BuilderSupport implements Builder {
-
-        char leftBoundary = _Constant.LEFT_BRACE;
-
-        char rightBoundary = _Constant.RIGHT_BRACE;
+    private static final class DefaultBuilder extends ArmySingleBoundaryBuilder<Builder>
+            implements Builder {
 
         private TextToIntFunc skipPrefixFunc;
-
-        private boolean allowDirectNested;
-
-
-        @Override
-        public Builder leftBoundary(char ch) {
-            this.leftBoundary = ch;
-            return this;
-        }
-
-        @Override
-        public Builder delim(char ch) {
-            this.itemDelim = ch;
-            return this;
-        }
-
-        @Override
-        public Builder rightBoundary(char ch) {
-            this.rightBoundary = ch;
-            return this;
-        }
 
         @Override
         public Builder skipPrefixFunc(TextToIntFunc func) {
             this.skipPrefixFunc = func;
-            return this;
-        }
-
-        @Override
-        public Builder backSlashEscapeOn(boolean yes) {
-            this.backSlashEscape = yes;
-            return this;
-        }
-
-        @Override
-        public Builder quoteEscapeOn(boolean yes) {
-            this.quoteEscape = yes;
-            return this;
-        }
-
-        @Override
-        public Builder quoteChar(char ch) {
-            this.quoteChar = ch;
-            return this;
-        }
-
-        @Override
-        public Builder allowDirectNested(boolean yes) {
-            this.allowDirectNested = yes;
             return this;
         }
 

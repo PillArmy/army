@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package io.army.mapping.postgre;
+package io.army.serialize;
 
+import io.army.function.TextFunction;
 import io.army.lang.Nullable;
-import io.army.type.DaoLayer;
 
-/// 
-/// This interface representing the function that create postgre range instance.
-/// @param <T> the range subtype
-/// @param <R> the range return type
-/// 
-/// **NOTE** :This interface present only in DAO layer,not service layer,business layer,web layer.
-/// @see PgSingleRangeType
-/// @since 0.6.0
-@DaoLayer
-public interface RangeFunction<T, R> {
+public interface RangeDeserializer extends Deserializer {
 
-    /// @param lower null representing infinity
-    /// @param upper null representing infinity
-    R apply(boolean includeLower, @Nullable T lower, @Nullable T upper, boolean includeUpper);
+    void deserialize(String text, int offset, int endIndex, TextFunction<?> func, @Nullable StringBuilder builder);
+
+    static Builder builder() {
+        return DefaultRangeDeserializer.newBuilder();
+    }
+
+    interface Builder extends MultiBoundaryBuilder<Builder> {
+
+        @Override
+        RangeDeserializer build();
+
+    }
 
 }

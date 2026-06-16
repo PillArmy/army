@@ -25,7 +25,6 @@ import io.army.lang.Nullable;
 import io.army.mapping.IntegerType;
 import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
-import io.army.mapping._MappingFactory;
 import io.army.meta.TypeMeta;
 import io.army.util._Collections;
 import io.army.util._Exceptions;

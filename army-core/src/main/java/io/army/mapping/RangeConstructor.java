@@ -14,10 +14,21 @@
  * limitations under the License.
  */
 
-package io.army.mapping.optional;
+package io.army.mapping;
 
+import io.army.lang.Nullable;
 
-/// currently , is supported by only postgre dialect
-public interface NoCastType {
+/// 
+/// This interface representing the function that create postgre range instance.
+/// @param <T> the range subtype
+/// @param <R> the range return type
+/// 
+/// **NOTE** :This interface present only in DAO layer,not service layer,business layer,web layer.
+/// @since 0.6.0
+public interface RangeConstructor<T, R> {
+
+    /// @param lower null representing infinity
+    /// @param upper null representing infinity
+    R apply(boolean includeLower, @Nullable T lower, @Nullable T upper, boolean includeUpper);
 
 }
