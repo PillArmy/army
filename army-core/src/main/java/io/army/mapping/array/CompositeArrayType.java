@@ -105,8 +105,6 @@ public class CompositeArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        final DataType elementDataType;
-        elementDataType = this.underlyingType.map(env.serverMeta());
 
         final StringBuilder tempBuilder = this.underlyingType.createStringBuilder();
 
@@ -114,7 +112,7 @@ public class CompositeArrayType extends _ArmyBuildInArrayType {
         consumer = (element, sqlBuilder) -> {
             tempBuilder.setLength(0); // firstly clear
 
-            CompositeType.bindToLiteral(this.underlyingType, elementDataType, env, element, tempBuilder);
+            CompositeType.serialize(this.underlyingType, env, element, tempBuilder);
             PostgreArrays.encodeElement(tempBuilder, sqlBuilder);
         };
         return PostgreArrays.arrayBeforeBind(source, consumer, dataType, this);
@@ -129,7 +127,7 @@ public class CompositeArrayType extends _ArmyBuildInArrayType {
         final StringBuilder builder = new StringBuilder(30);
 
         final TextFunction<?> func;
-        func = (text, offset, end) -> CompositeType.parseToPojo(this.underlyingType, elementDataType, env, text, offset, end, builder);
+        func = (text, offset, end) -> CompositeType.deserialize(this.underlyingType, elementDataType, env, text, offset, end, builder);
         return PostgreArrays.arrayAfterGet(this, dataType, source, func, builder);
     }
 

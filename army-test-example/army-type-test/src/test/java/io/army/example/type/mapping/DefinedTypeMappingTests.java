@@ -1,5 +1,8 @@
 package io.army.example.type.mapping;
 
+import com.google.common.collect.BoundType;
+import com.google.common.collect.DiscreteDomain;
+import com.google.common.collect.Range;
 import io.army.example.type.annotation.CurrentSession;
 import io.army.example.type.annotation.NewPostgreTypesId;
 import io.army.example.type.domain.ManagerInfo;
@@ -7,6 +10,7 @@ import io.army.example.type.domain.PostgreTypes_;
 import io.army.example.type.domain.ProductInfo;
 import io.army.mapping.CompositeType;
 import io.army.mapping.MappingEnv;
+import io.army.mapping.guava.GuavaRangeType;
 import io.army.session.SyncSession;
 import io.army.sqltype.DataType;
 import org.junit.jupiter.api.Test;
@@ -157,6 +161,45 @@ public class DefinedTypeMappingTests {
             Assert.assertEquals(afterGetValue, info);
 
             TestUtils.updateAndQuery(session, id, PostgreTypes_.managerInfo, info);
+        }
+
+
+    }
+
+    @Test
+    public void guavaRange(@Autowired MappingEnv env, @CurrentSession SyncSession session, @NewPostgreTypesId Long id) {
+        final GuavaRangeType type = GuavaRangeType.fromTypeArgs(Range.class, new Class<?>[]{Integer.class});
+
+        final DataType dataType;
+        dataType = type.map(env.serverMeta());
+
+        final List<Range<Integer>> list = new ArrayList<>();
+
+        list.add(Range.all());
+        list.add(Range.singleton(0));
+        list.add(Range.upTo(0, BoundType.CLOSED));
+        list.add(Range.upTo(0, BoundType.OPEN));
+
+
+        list.add(Range.downTo(0, BoundType.CLOSED));
+        list.add(Range.downTo(0, BoundType.OPEN));
+        list.add(Range.range(0, BoundType.OPEN, 10, BoundType.OPEN));
+        list.add(Range.range(0, BoundType.CLOSED, 10, BoundType.CLOSED));
+
+        list.add(Range.range(-1, BoundType.OPEN, 10, BoundType.CLOSED));
+        list.add(Range.range(-1, BoundType.CLOSED, 10, BoundType.OPEN));
+
+        Object bindValue, afterGetValue;
+
+
+        for (Range<Integer> range : list) {
+            bindValue = type.beforeBind(dataType, env, range);
+            TestUtils.printBindValue(bindValue);
+            afterGetValue = type.afterGet(dataType, env, bindValue);
+            TestUtils.printBindAndGetValue(bindValue, afterGetValue);
+            Assert.assertEquals(afterGetValue, range);
+
+            TestUtils.updateAndQuery(session, id, PostgreTypes_.int4RangeGuava, range.canonical(DiscreteDomain.integers()));
         }
 
 

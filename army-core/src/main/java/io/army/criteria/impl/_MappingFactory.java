@@ -31,10 +31,7 @@ import io.army.util.ArrayUtils;
 import io.army.util.ReflectionUtils;
 import io.army.util._StringUtils;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -188,6 +185,11 @@ public abstract class _MappingFactory {
                 method = mappingClass.getDeclaredMethod("fromSet", Class.class);
                 assertFactoryMethod(method);
                 mappingType = method.invoke(null, ReflectionUtils.typeArgumentList(field).getFirst());
+            } else if (field.getGenericType() instanceof ParameterizedType) {
+                final List<Class<?>> genericsTypeList = ReflectionUtils.typeArgumentList(field);
+                method = mappingClass.getDeclaredMethod("fromTypeArgs", Class.class, Class[].class);
+                assertFactoryMethod(method);
+                mappingType = method.invoke(null, fieldType, genericsTypeList.toArray(new Class<?>[0]));
             } else {
                 method = mappingClass.getDeclaredMethod("from", Class.class);
                 assertFactoryMethod(method);

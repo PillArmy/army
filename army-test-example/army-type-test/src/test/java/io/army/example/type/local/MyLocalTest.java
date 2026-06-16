@@ -3,9 +3,6 @@ package io.army.example.type.local;
 import com.google.common.collect.Range;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 public class MyLocalTest {
 
@@ -22,15 +19,11 @@ public class MyLocalTest {
 
     @Test
     public void range() throws Exception {
-        Range<Integer> range = Range.openClosed(1, 1);
+        Range<?> range = Range.singleton(0);
+        System.out.println(range.hasLowerBound());
+        System.out.println(range.hasUpperBound());
+        System.out.println(range);
         System.out.println(range.isEmpty());
-
-        Field field;
-        field = getClass().getField("integer");
-
-        Type type;
-        type = field.getGenericType();
-        System.out.println(type instanceof ParameterizedType);
 
     }
 }

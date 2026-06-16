@@ -25,6 +25,7 @@
         <module>army-test-example</module>
         <module>army-spring-ai-model-chat-memory</module>
         <module>army-spring-ai-vector-store</module>
+        <module>army-guava</module>
     </modules>
 
     <name>army</name>
@@ -184,6 +185,12 @@
             <dependency>
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-spring-ai-vector-store</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.qinarmy</groupId>
+                <artifactId>army-guava</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

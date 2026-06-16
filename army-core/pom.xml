@@ -69,7 +69,6 @@
             <optional>true</optional>
         </dependency>
 
-
         <!-- below test dependencies -->
         <dependency>
             <groupId>org.testng</groupId>

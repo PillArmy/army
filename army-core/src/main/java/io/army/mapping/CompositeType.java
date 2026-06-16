@@ -119,7 +119,8 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
     @Override
     public String beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return bindToLiteral(this, dataType, env, source, createStringBuilder())
+        _Assert.isTrue(dataType == this.customType, "");
+        return serialize(this, env, source, createStringBuilder())
                 .toString();
     }
 
@@ -128,11 +129,11 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         if (this.javaType.isInstance(source)) {
             return source;
         }
-        if (!(source instanceof String)) {
+        if (!(source instanceof String text)) {
             throw dataAccessError(this, dataType, source, null);
         }
-        final String text = ((String) source).trim();
-        return parseToPojo(this, dataType, env, text, 0, text.length(), null);
+        text = text.trim();
+        return deserialize(this, dataType, env, text, 0, text.length(), null);
     }
 
     @Override
@@ -177,20 +178,20 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
     }
 
 
-    public static StringBuilder bindToLiteral(final CompositeType instance, final DataType dataType, final MappingEnv env,
-                                              final Object source, final StringBuilder sqlBuilder) {
+    public static StringBuilder serialize(final CompositeType instance, final MappingEnv env,
+                                          final Object source, final StringBuilder sqlBuilder) {
         if (!instance.javaType.isInstance(source)) {
             String m = String.format("%s is instance of %s", ClassUtils.safeClassName(source), instance.javaType.getName());
-            throw paramError(instance, dataType, source, new IllegalArgumentException(m));
+            throw paramError(instance, instance.customType, source, new IllegalArgumentException(m));
         }
-
-        Objects.requireNonNull(dataType); // assert not null
 
         final LiteralHandler literalHandler = env.literalHandler();
         final ObjectAccessor accessor = ObjectAccessorFactory.forPojo(instance.javaType);
         final List<CompositeField> fieldList = instance.fieldList;
 
         final int size = fieldList.size();
+
+        final CustomType container = Objects.requireNonNull(instance.customType);
 
 
         CompositeField field;
@@ -207,14 +208,14 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
                 continue;
             }
 
-            literalHandler.safeLiteral(field.mappingType(), value, false, sqlBuilder, dataType);
+            literalHandler.safeLiteral(field.mappingType(), value, false, sqlBuilder, container);
         }
         sqlBuilder.append(_Constant.RIGHT_PAREN);
         return sqlBuilder;
     }
 
 
-    public static Object parseToPojo(final CompositeType instance, final DataType dataType, final MappingEnv env,
+    public static Object deserialize(final CompositeType instance, final DataType dataType, final MappingEnv env,
                                      final String source, final int offset, final int endIndex, @Nullable StringBuilder builder) {
         if (!_StringUtils.hasText(source)
                 || source.charAt(offset) != _Constant.LEFT_PAREN

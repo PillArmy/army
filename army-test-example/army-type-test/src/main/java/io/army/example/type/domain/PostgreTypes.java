@@ -164,6 +164,7 @@ public class PostgreTypes implements FieldAccessPojo {
     @Column(comment = "daterange type")
     public String daterange;
 
+    @Mapping("io.army.mapping.guava.GuavaRangeType")
     @Column(comment = "int4range type")
     public Range<Integer> int4RangeGuava;
 
