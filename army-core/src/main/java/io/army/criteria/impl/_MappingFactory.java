@@ -187,9 +187,15 @@ public abstract class _MappingFactory {
                 mappingType = method.invoke(null, ReflectionUtils.typeArgumentList(field).getFirst());
             } else if (field.getGenericType() instanceof ParameterizedType) {
                 final List<Class<?>> genericsTypeList = ReflectionUtils.typeArgumentList(field);
-                method = mappingClass.getDeclaredMethod("fromTypeArgs", Class.class, Class[].class);
-                assertFactoryMethod(method);
-                mappingType = method.invoke(null, fieldType, genericsTypeList.toArray(new Class<?>[0]));
+                if (genericsTypeList.size() == 1) {
+                    method = mappingClass.getDeclaredMethod("fromTypeArg", Class.class, Class.class);
+                    mappingType = method.invoke(null, fieldType, genericsTypeList.getFirst());
+                    assertFactoryMethod(method);
+                } else {
+                    method = mappingClass.getDeclaredMethod("fromTypeArgs", Class.class, Class[].class);
+                    assertFactoryMethod(method);
+                    mappingType = method.invoke(null, fieldType, genericsTypeList.toArray(new Class<?>[0]));
+                }
             } else {
                 method = mappingClass.getDeclaredMethod("from", Class.class);
                 assertFactoryMethod(method);

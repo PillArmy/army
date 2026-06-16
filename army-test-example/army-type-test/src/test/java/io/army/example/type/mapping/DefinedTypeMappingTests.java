@@ -168,7 +168,7 @@ public class DefinedTypeMappingTests {
 
     @Test
     public void guavaRange(@Autowired MappingEnv env, @CurrentSession SyncSession session, @NewPostgreTypesId Long id) {
-        final GuavaRangeType type = GuavaRangeType.fromTypeArgs(Range.class, new Class<?>[]{Integer.class});
+        final GuavaRangeType type = GuavaRangeType.fromTypeArg(Range.class, Integer.class);
 
         final DataType dataType;
         dataType = type.map(env.serverMeta());

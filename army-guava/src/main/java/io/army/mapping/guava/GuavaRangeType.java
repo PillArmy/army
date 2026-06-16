@@ -28,16 +28,13 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /// @see <a href="https://www.postgresql.org/docs/current/rangetypes.html#RANGETYPES-IO">Range Types</a>
+public abstract class GuavaRangeType extends _ArmyBuildInType implements MappingType.SqlRange, UnaryGenericsMapping {
 
-public class GuavaRangeType extends _ArmyBuildInType implements MappingType.SqlRange {
-
-    public static GuavaRangeType fromTypeArgs(final Class<?> javaType, final Class<?>[] typeArgs) {
+    public static GuavaRangeType fromTypeArg(final Class<?> javaType, final Class<?> typeArg) {
         if (javaType != Range.class) {
             throw errorJavaType(GuavaRangeType.class, javaType);
-        } else if (typeArgs.length != 1) {
-            throw new IllegalArgumentException();
         }
-        return BuildInRangeType.CLASS_VALUE.get(typeArgs[0]);
+        return BuildInRangeType.CLASS_VALUE.get(typeArg);
     }
 
 
@@ -57,7 +54,7 @@ public class GuavaRangeType extends _ArmyBuildInType implements MappingType.SqlR
             .build();
 
 
-    private final Class<?> subJavaType;
+    final Class<?> subJavaType;
 
     private final MappingType subType;
 
@@ -79,7 +76,6 @@ public class GuavaRangeType extends _ArmyBuildInType implements MappingType.SqlR
         return Range.class;
     }
 
-
     @Override
     public final DataType map(ServerMeta meta) throws UnsupportedDialectException {
         if (meta.serverDatabase() != Database.PostgreSQL) {
@@ -90,7 +86,7 @@ public class GuavaRangeType extends _ArmyBuildInType implements MappingType.SqlR
 
     /// @see <a href="https://www.postgresql.org/docs/current/rangetypes.html#RANGETYPES-IO">Range Input/Output</a>
     @Override
-    public String beforeBind(final DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
+    public final String beforeBind(final DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
         _Assert.isTrue(dataType == this.dataType, ""); // assert container match
 
         return serialize(this, env, source, new StringBuilder(3 + 10 * 2))
@@ -98,7 +94,7 @@ public class GuavaRangeType extends _ArmyBuildInType implements MappingType.SqlR
     }
 
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         _Assert.isTrue(dataType == this.dataType, ""); // assert container match
         if (!(source instanceof String text)) {
             throw dataAccessError(this, this.dataType, source, null);
@@ -108,26 +104,13 @@ public class GuavaRangeType extends _ArmyBuildInType implements MappingType.SqlR
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
         return RangeArrayType.from(ArrayUtils.arrayClassOf(this.subJavaType));
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(this.subJavaType);
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        final boolean match;
-        if (obj == this) {
-            match = true;
-        } else if (obj instanceof GuavaRangeType o) {
-            match = o.subJavaType == this.subJavaType;
-        } else {
-            match = false;
-        }
-        return match;
+    public final Class<?> genericsType() {
+        return this.subJavaType;
     }
 
 
@@ -404,6 +387,24 @@ public class GuavaRangeType extends _ArmyBuildInType implements MappingType.SqlR
         private BuildInRangeType(Class<?> subJavaType, MappingType subType, DataType dataType,
                                  Supplier<? extends Comparable<?>> subTypeSupplier) {
             super(subJavaType, subType, dataType, subTypeSupplier);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.subJavaType);
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            final boolean match;
+            if (obj == this) {
+                match = true;
+            } else if (obj instanceof BuildInRangeType o) {
+                match = o.subJavaType == this.subJavaType;
+            } else {
+                match = false;
+            }
+            return match;
         }
 
 

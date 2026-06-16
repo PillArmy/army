@@ -74,6 +74,9 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
             if (isBoundaries(rightBoundaries, ch)) {
 
                 if (itemCount <= delimCount) {
+                    if (!allowNothing) {
+                        throw syntaxError(getSyntaxType(), text, i);
+                    }
                     func.apply(text, 0, 0); // representing nothing
                     itemCount++;
                 }

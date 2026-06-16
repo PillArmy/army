@@ -36,4 +36,15 @@ public final class TypeMappingBundle {
     }
 
 
+    /// For method Reference
+    public DataType getDataType() {
+        return this.dataType;
+    }
+
+    /// For method Reference
+    public MappingType getMappingType() {
+        return this.mappingType;
+    }
+
+
 }
