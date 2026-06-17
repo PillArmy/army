@@ -72,7 +72,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
         final char itemDelim = this.itemDelim, quoteChar = this.quoteChar;
         final char firstCharOfSeparator = this.firstCharOfSeparator;
 
-        final int separatorLength = this.separatorLength;
+        final int separatorLength = this.separatorLength, lastIndex = endIndex - 1;
 
         final boolean allowNothing = this.allowNothing, allowWhitespace = this.allowWhitespace;
 
@@ -81,6 +81,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
         holder[0] = builder;
 
         final String[] keyHolder = new String[2];
+        final int[] itemFlagHolder = new int[1];
         final TextFunction<Void> function;
         function = (srcText, srcOffset, srcEnd) -> {
             final String value;
@@ -97,13 +98,13 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
             } else {
                 func.accept(keyHolder[0], value);
                 keyHolder[0] = null;
+                itemFlagHolder[0] = 0;
             }
             return null;
         };
 
 
         char ch;
-
         for (int i = offset, delimFlag = 0, separatorFlag = 0, oldIndex; i < endIndex; i++) {
             ch = text.charAt(i);
 
@@ -124,6 +125,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
             if (delimFlag > 0) {
                 if (ch == itemDelim) {
                     delimFlag = 0;
+                    itemFlagHolder[0] = 1;
                     continue;
                 } else if (Character.isWhitespace(ch)) {
                     continue;
@@ -137,7 +139,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
             } else if (boundaries != null && isBoundaries(boundaries, ch)) {
                 oldIndex = i;
                 i = skipFunc.apply(text, i, endIndex);
-                if (i <= oldIndex) {
+                if (i <= oldIndex || i > endIndex) {
                     throw subFuncBug(skipFunc);
                 }
                 function.apply(text, oldIndex, i + 1);
@@ -148,11 +150,14 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
                     continue;
                 }
                 throw _Exceptions.redundantDelimError(text, i, itemDelim);
+            } else if (ch == firstCharOfSeparator && text.regionMatches(false, i, separator, 0, separatorLength)) {
+                throw _Exceptions.redundantSeparatorError(text, i, separator);
             } else {
                 if (!allowWhitespace && Character.isWhitespace(ch)) {
                     continue;
                 }
                 i = parseUnQuoteElement(text, i, endIndex, function, boundaries, skipFunc);
+
                 delimFlag = 1;
             }
 
@@ -165,7 +170,11 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
         } // loop
 
         if (keyHolder[0] != null) {
-            throw _Exceptions.missingEndingError(text, endIndex, separator.toCharArray());
+            throw _Exceptions.missingSeparatorError(text, endIndex, separator);
+        } else if (itemFlagHolder[0] > 0) {
+            String m = String.format("error tailer at nearby offset[%s] -> %s",
+                    endIndex - 1, _StringUtils.surroundingText(text, endIndex, 4));
+            throw new IllegalArgumentException(m);
         }
 
     } // deserialize
@@ -191,9 +200,9 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
 
         int rightIndex = -1;
 
-        boolean nullValue;
+        boolean nullValue, separatorBoundary;
         char ch;
-        for (int i = offset + 1, elementEndInex = -1, oldIndex, eleLen; i < endIndex; i++) {
+        for (int i = offset + 1, elementEndInex = -1, oldIndex, eleEndIndex; i < endIndex; i++) {
             ch = text.charAt(i);
 
             if (boundaries != null && isBoundaries(boundaries, ch)) {
@@ -206,35 +215,31 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
                 continue;
             }
 
+            separatorBoundary = ch == firstCharOfSeparator
+                    && text.regionMatches(false, i, separator, 0, separatorLength);
 
-            if (ch == itemDelim || ch == firstCharOfSeparator || i == lastIndex) {
-                if (ch == firstCharOfSeparator && !text.regionMatches(false, i, separator, 0, separatorLength)) {
-                    throw containSeparatorFirstCharError(text, i);
-                }
+            if (ch == itemDelim || separatorBoundary || i == lastIndex) {
 
-                if (ch == itemDelim || i != lastIndex) {
-                    eleLen = i - offset;
+                if (i == lastIndex && !separatorBoundary && ch != itemDelim) {
+                    eleEndIndex = endIndex;
                 } else {
-                    eleLen = endIndex - offset;
+                    eleEndIndex = i;
                 }
 
 
                 if (elementEndInex < 0) {
                     nullValue = firstIsN
-                            && eleLen == 4
+                            && eleEndIndex - offset == 4
                             && text.regionMatches(true, offset, _Constant.NULL, 0, 4);
                     if (nullValue) {
                         func.apply(this.nullRepresenting, 0, 0);
-                    } else if (i == lastIndex) {
-                        func.apply(text, offset, endIndex);
                     } else {
-                        func.apply(text, offset, i);
+                        func.apply(text, offset, eleEndIndex);
                     }
-
 
                 }
 
-                if (i == lastIndex) {
+                if (eleEndIndex == endIndex) {
                     rightIndex = i;
                 } else {
                     rightIndex = i - 1;

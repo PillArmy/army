@@ -3,10 +3,12 @@ package io.army.example.type.mapping;
 import io.army.example.type.annotation.CurrentSession;
 import io.army.example.type.annotation.NewPostgreTypesId;
 import io.army.example.type.domain.PostgreTypes_;
+import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.postgre.PgHstoreType;
 import io.army.session.SyncSession;
 import io.army.sqltype.DataType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.Assert;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,15 +42,18 @@ public class DialectTypeMappingTests {
         Map<String, String> map;
         Object bindValue, afterGetValue;
 
-        final String text = "\"\"\"army's king\\\\\"\"";
+        final String text = "\"\"\"army's zoro\\\\\"\"";
 
         final List<Map<String, String>> list = new ArrayList<>();
 
         list.add(Map.of());
 
+        list.add(Map.of(text, text));
+
         map = Map.of(
                 "a", "null",
                 "b", "a",
+                "c", "",
                 "army", text,
                 text, text
         );
@@ -74,6 +80,65 @@ public class DialectTypeMappingTests {
             TestUtils.updateAndQuery(session, id, PostgreTypes_.hstore, source);
 
         }
+
+    }
+
+    @Test
+    public void hstoreError(@Autowired MappingEnv env) {
+
+        final PgHstoreType type = PgHstoreType.INSTANCE;
+
+        final DataType dataType = type.map(env.serverMeta());
+        Map<String, String> map;
+        Object bindValue, afterGetValue;
+
+        Assertions.assertThrowsExactly(DataAccessException.class, () -> {
+            type.afterGet(dataType, env, Map.of(1, ""));
+        });
+
+        Assertions.assertThrowsExactly(DataAccessException.class, () -> {
+            type.afterGet(dataType, env, Map.of("a", LocalDate.now()));
+        });
+
+
+        Assertions.assertThrowsExactly(DataAccessException.class, () -> {
+            type.afterGet(dataType, env, "null=>1");
+        });
+
+
+        Assertions.assertThrowsExactly(DataAccessException.class, () -> {
+            type.afterGet(dataType, env, ",");
+        });
+
+
+        Assertions.assertThrowsExactly(DataAccessException.class, () -> {
+            type.afterGet(dataType, env, "a");
+        });
+
+        Assertions.assertThrowsExactly(DataAccessException.class, () -> {
+            type.afterGet(dataType, env, "\"a\"");
+        });
+
+        Assertions.assertThrowsExactly(DataAccessException.class, () -> {
+            type.afterGet(dataType, env, "\"a\"=>7 b=>8");
+        });
+
+        Assertions.assertThrowsExactly(DataAccessException.class, () -> {
+            type.afterGet(dataType, env, "\"a\"=>7 =>");
+        });
+
+        Assertions.assertThrowsExactly(DataAccessException.class, () -> {
+            type.afterGet(dataType, env, "\"a\"=>7,b=>8=>");
+        });
+
+        Assertions.assertThrowsExactly(DataAccessException.class, () -> {
+            type.afterGet(dataType, env, "=>");
+        });
+
+        Assertions.assertThrowsExactly(DataAccessException.class, () -> {
+            type.afterGet(dataType, env, "\"a\"=>7,b=>8,");
+        });
+
 
     }
 

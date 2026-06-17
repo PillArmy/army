@@ -104,6 +104,13 @@ public abstract class _Exceptions {
         return new IllegalArgumentException(m);
     }
 
+    public static IllegalArgumentException redundantSeparatorError(String text, int offset, String separator) {
+        String m = String.format("redundant separator[%s] at nearby offset[%s] -> %s", separator,
+                offset, _StringUtils.surroundingText(text, offset, 4));
+        return new IllegalArgumentException(m);
+    }
+
+
     public static IllegalArgumentException missingClosingError(String text, int offset, char quote) {
         String m = String.format("miss closing char[%s] at nearby offset[%s] -> %s", quote, offset,
                 _StringUtils.surroundingText(text, offset, 4));
@@ -112,6 +119,12 @@ public abstract class _Exceptions {
 
     public static IllegalArgumentException missingEndingError(String text, int offset, char[] endList) {
         String m = String.format("miss ending char list[%s] at nearby offset[%s] -> %s", Arrays.toString(endList), offset,
+                _StringUtils.surroundingText(text, offset, 4));
+        return new IllegalArgumentException(m);
+    }
+
+    public static IllegalArgumentException missingSeparatorError(String text, int offset, String separator) {
+        String m = String.format("miss separator [%s] at nearby offset[%s] -> %s", separator, offset,
                 _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
     }
