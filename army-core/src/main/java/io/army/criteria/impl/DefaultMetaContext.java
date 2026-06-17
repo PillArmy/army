@@ -17,6 +17,7 @@
 package io.army.criteria.impl;
 
 import io.army.lang.Nullable;
+import io.army.mapping.MappingType;
 import io.army.meta.IndexColumnMeta;
 import io.army.meta.MetaException;
 import io.army.meta.SchemaMeta;
@@ -24,10 +25,10 @@ import io.army.meta.TableMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.util._ResourceUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
 
 final class DefaultMetaContext implements MetaContext {
 
@@ -46,6 +47,9 @@ final class DefaultMetaContext implements MetaContext {
     private Map<List<IndexColumnMeta>, List<IndexColumnMeta>> columnMetaMap;
 
     private Map<List<Class<?>>, List<Class<?>>> classListMap;
+
+
+    private Map<Class<?>, List<Method>> factoryMethodMap;
 
 
     @Override
@@ -138,6 +142,23 @@ final class DefaultMetaContext implements MetaContext {
     }
 
     @Override
+    public List<Method> factoryMethodList(final Class<?> typeClass) {
+        Map<Class<?>, List<Method>> map = this.factoryMethodMap;
+        List<Method> list;
+        if (map != null && (list = map.get(typeClass)) != null) {
+            return list;
+        }
+
+        list = createFactoryMethodList(typeClass);
+        if (map == null) {
+            map = new HashMap<>();
+        }
+        map.put(typeClass, list);
+        return list;
+    }
+
+
+    @Override
     public void clear() {
         this.tempBuilder = null;
 
@@ -179,6 +200,141 @@ final class DefaultMetaContext implements MetaContext {
             map.clear();
         }
 
+        map = this.factoryMethodMap;
+        this.factoryMethodMap = null;
+        if (map != null) {
+            map.clear();
+        }
+
+
+    }
+
+
+    private List<Method> createFactoryMethodList(final Class<?> typeClass) {
+        if (MappingType.class.isAssignableFrom(typeClass)) {
+            String m = String.format("%s is not %s", typeClass.getName(), MappingType.class.getName());
+            throw new MetaException(m);
+        }
+
+
+        final List<Method> list = new ArrayList<>(4);
+        int modifiers;
+        String name;
+        Class<?>[] paramTypeArray;
+
+        topLoop:
+        for (Method method : typeClass.getDeclaredMethods()) {
+            modifiers = method.getModifiers();
+            if (!Modifier.isPublic(modifiers)
+                    || !Modifier.isStatic(modifiers)
+                    || method.getReturnType() != typeClass) {
+                continue;
+            } // if
+
+            name = method.getName();
+            if (!name.startsWith("from")) {
+                continue;
+            }
+
+            paramTypeArray = method.getParameterTypes();
+            if (paramTypeArray.length == 0) {
+                continue;
+            }
+
+            if (paramTypeArray[0] != Class.class && !name.equals("fromJavaField")) {
+                continue;
+            }
+
+            switch (name) {
+                case "from":
+                case "fromList":
+                case "fromSet":
+                case "fromEnumSet": {
+                    if (paramTypeArray.length != 1) {
+                        continue;
+                    }
+                }
+                break;
+                case "fromMap":
+                case "fromEnumMap":
+                case "fromTypeArg": {
+                    if (paramTypeArray.length != 2) {
+                        continue;
+                    } else if (paramTypeArray[1] != Class.class) {
+                        continue;
+                    }
+                }
+                break;
+                case "fromTypeArgs": {
+                    if (paramTypeArray.length == 2) {
+                        if (paramTypeArray[1] != Class[].class) {
+                            continue;
+                        }
+                        break;
+                    } else if (paramTypeArray.length < 3) {
+                        continue;
+                    }
+
+                    for (int i = 1; i < paramTypeArray.length; i++) {
+                        if (paramTypeArray[i] != Class.class) {
+                            continue topLoop;
+                        }
+                    }
+                }
+                break;
+                case "fromTypeArgChain": {
+                    if (paramTypeArray.length < 3) {
+                        continue;
+                    }
+                    for (int i = 1; i < paramTypeArray.length; i++) {
+                        if (paramTypeArray[i] != Class.class && paramTypeArray[i] != Class[].class) {
+                            continue topLoop;
+                        }
+                    }
+                }
+                break;
+                case "fromParam": {
+                    if (paramTypeArray.length != 2) {
+                        continue;
+                    } else if (paramTypeArray[1] != String.class) {
+                        continue;
+                    }
+                }
+                break;
+                case "fromParams": {
+                    if (paramTypeArray.length == 2) {
+                        if (paramTypeArray[1] != String[].class) {
+                            continue;
+                        }
+                        break;
+                    } else if (paramTypeArray.length < 3) {
+                        continue;
+                    }
+
+                    for (int i = 1; i < paramTypeArray.length; i++) {
+                        if (paramTypeArray[i] != String.class) {
+                            continue topLoop;
+                        }
+                    }
+                }
+                break;
+                case "fromJavaFiled": {
+                    if (paramTypeArray.length != 1) {
+                        continue;
+                    } else if (paramTypeArray[0] != Field.class) {
+                        continue;
+                    }
+                }
+                break;
+                default:
+                    continue;
+            } // switch
+
+
+            list.add(method);
+
+        } // loop
+        return List.copyOf(list);
     }
 
 

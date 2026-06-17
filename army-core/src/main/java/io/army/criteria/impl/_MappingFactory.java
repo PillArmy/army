@@ -322,6 +322,7 @@ public abstract class _MappingFactory {
 
     }
 
+
     private static Map<Class<?>, MappingType> createDefaultMappingMap() {
         final Map<Class<?>, MappingType> map = new HashMap<>();
 

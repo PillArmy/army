@@ -19,6 +19,7 @@ package io.army.criteria.impl;
 import io.army.lang.Nullable;
 import io.army.meta.IndexColumnMeta;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -45,6 +46,9 @@ interface MetaContext {
     Map<String, String> getGeneratorParamMap(String key);
 
     void putGeneratorParamMap(String key, Map<String, String> value);
+
+
+    List<Method> factoryMethodList(Class<?> typeClass);
 
 
     void clear();

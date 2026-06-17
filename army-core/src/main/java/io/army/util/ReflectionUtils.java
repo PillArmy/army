@@ -74,7 +74,7 @@ public abstract class ReflectionUtils {
     }
 
 
-    /// @return unmodifiable list
+
     public static List<Class<?>> typeArgumentList(final Field field) {
         final Type genericType = field.getGenericType();
         if (!(genericType instanceof ParameterizedType paramType)) {
@@ -88,13 +88,14 @@ public abstract class ReflectionUtils {
         for (int i = 0; i < actualTypeArguments.length; i++) {
             t = actualTypeArguments[i];
             if (!(t instanceof Class<?>)) {
-                String m = String.format("%s.%s[%s] not actual type", field.getDeclaringClass().getName(), field.getName(), i);
-                throw new IllegalArgumentException(m);
+                continue;
             }
             list.add((Class<?>) t);
         }
-        return List.copyOf(list);
+        return list;
     }
+
+
 
     /*-------------------below private methods -------------------*/
 
