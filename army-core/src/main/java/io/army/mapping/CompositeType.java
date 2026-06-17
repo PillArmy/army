@@ -125,15 +125,17 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
     }
 
     @Override
-    public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+    public Object afterGet(DataType dataType, MappingEnv env, final Object source) throws DataAccessException {
+        final Object pojo;
         if (this.javaType.isInstance(source)) {
-            return source;
-        }
-        if (!(source instanceof String text)) {
+            pojo = source;
+        } else if (source instanceof String text) {
+            text = text.trim();
+            pojo = deserialize(this, dataType, env, text, 0, text.length(), null);
+        } else {
             throw dataAccessError(this, dataType, source, null);
         }
-        text = text.trim();
-        return deserialize(this, dataType, env, text, 0, text.length(), null);
+        return pojo;
     }
 
     @Override
@@ -229,7 +231,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
         try {
 
-            PG_DESERIALIZER.deserialize(source, offset, endIndex, fieldParser::parseField, builder);
+            PG_DESERIALIZER.deserialize(source, offset, endIndex, fieldParser::parseField, null, null, builder);
 
             if (fieldParser.fieldIndex != fieldParser.fieldCount) {
                 throw dataAccessError(instance, dataType, source, null);

@@ -20,6 +20,7 @@ import io.army.function.TextFunction;
 import io.army.lang.Nullable;
 import io.army.util._Exceptions;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeserializer<RangeDeserializer.Builder>
@@ -42,13 +43,34 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
         Objects.requireNonNull(func);
 
         final char firstChar = text.charAt(offset);
-        if (!isBoundaries(this.leftBoundaries, firstChar)) {
-            if (text.regionMatches(true, offset, "empty", 0, 5)) {
-                func.apply("", 0, 0);
-                return;
-            }
+        if (isBoundaries(this.leftBoundaries, firstChar)) {
+            parseRange(text, offset, endIndex, func, builder);
+        } else if (text.regionMatches(true, offset, "empty", 0, 5)) {
+            func.apply("", 0, 0);
+        } else {
             throw syntaxError(getSyntaxType(), text, offset);
         }
+
+    }
+
+
+    @Override
+    public int skipRange(final String text, final int offset, final int endIndex) {
+        if (!isBoundaries(this.leftBoundaries, text.charAt(offset))) {
+            throw syntaxError(getSyntaxType(), text, offset);
+        }
+        return parseDirectNestedElement(text, offset, endIndex, false, null, null, null);
+    }
+
+    @Override
+    public char[] copyLeftBoundaries() {
+        return Arrays.copyOf(this.leftBoundaries, this.leftBoundaries.length);
+    }
+
+    private void parseRange(final String text, final int offset, final int endIndex, @Nullable TextFunction<?> func,
+                            @Nullable StringBuilder builder) {
+
+        final char firstChar = text.charAt(offset);
 
         final char[] leftBoundaries = this.leftBoundaries, rightBoundaries = this.rightBoundaries;
         final char quoteChar, itemDelim;
@@ -66,7 +88,9 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
 
         int rightIndex = -1;
 
-        func.apply(String.valueOf(firstChar), 0, 1);
+        if (func != null) {
+            func.apply(String.valueOf(firstChar), 0, 1);
+        }
 
         for (int i = offset + 1, delimFlat = 0, delimCount = 0, itemCount = 0; i < endIndex; i++) {
             ch = text.charAt(i);
@@ -76,14 +100,16 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
                 if (itemCount <= delimCount) {
                     if (!allowNothing) {
                         throw syntaxError(getSyntaxType(), text, i);
+                    } else if (func != null) {
+                        func.apply(text, 0, 0); // representing nothing
                     }
-                    func.apply(text, 0, 0); // representing nothing
                     itemCount++;
                 }
                 if (itemCount != 2) {
                     throw syntaxError(getSyntaxType(), text, i);
+                } else if (func != null) {
+                    func.apply(String.valueOf(ch), 0, 1);
                 }
-                func.apply(String.valueOf(ch), 0, 1);
                 rightIndex = i;
                 break;
             }
@@ -100,12 +126,18 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
             }
 
             if (ch == quoteChar) {
-                i = parseQuoteElement(text, i + 1, endIndex, quoteChar, holder, null, func);
+                if (func == null) {
+                    i = skipQuoteElement(text, i, endIndex);
+                } else {
+                    i = parseQuoteElement(text, i + 1, endIndex, quoteChar, holder, null, func);
+                }
                 delimFlat = 1;
                 itemCount++;
             } else if (ch == itemDelim) {
                 if (allowNothing) {
-                    func.apply(text, 0, 0);  // representing nothing
+                    if (func != null) {
+                        func.apply(text, 0, 0);  // representing nothing
+                    }
                     itemCount++;
                     delimCount++;
                     continue;
@@ -117,7 +149,11 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
                 if (!allowWhitespace && Character.isWhitespace(ch)) {
                     continue;
                 }
-                i = parseUnQuoteElement(text, i, endIndex, null, func, null, null);
+                if (func == null) {
+                    i = skipUnquotedElement(text, i, endIndex, rightBoundaries, null, null);
+                } else {
+                    i = parseUnQuoteElement(text, i, endIndex, null, func, null, null);
+                }
                 delimFlat = 1;
                 itemCount++;
             }
@@ -130,9 +166,7 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
             throw _Exceptions.missingEndingError(text, endIndex, rightBoundaries);
         }
 
-
     }
-
 
     @Override
     String getSyntaxType() {

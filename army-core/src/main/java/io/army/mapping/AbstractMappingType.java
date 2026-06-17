@@ -19,6 +19,7 @@ package io.army.mapping;
 import io.army.ArmyException;
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.executor.StmtExecutor;
 import io.army.lang.Nullable;
@@ -45,6 +46,7 @@ import java.time.*;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAmount;
 import java.util.BitSet;
+import java.util.List;
 import java.util.function.BiFunction;
 
 abstract sealed class AbstractMappingType extends MappingSupport implements MappingType
@@ -502,13 +504,38 @@ abstract sealed class AbstractMappingType extends MappingSupport implements Mapp
         className = getClass().getName();
         javaTypeName = javaType().getName();
 
-        return _StringUtils.builder(className.length() + 11 + javaTypeName.length())
-                .append(className)
+        int intLength = className.length() + 11 + javaTypeName.length();
+
+        final List<String> genericsTypeNameList;
+        if (this instanceof UnaryGenericsMapping u) {
+            genericsTypeNameList = List.of(u.genericsType().getName());
+            intLength += (15 + genericsTypeNameList.getFirst().length());
+        } else if (this instanceof DualGenericsMapping u) {
+            genericsTypeNameList = List.of(u.firstGenericsType().getName(), u.secondGenericsType().getName());
+            intLength += (15 * 2);
+            intLength += genericsTypeNameList.getFirst().length();
+            intLength += genericsTypeNameList.getLast().length();
+        } else {
+            genericsTypeNameList = List.of();
+        }
+
+
+        final StringBuilder builder = _StringUtils.builder(intLength);
+
+        builder.append(className)
                 .append('[')
                 .append("javaType")
                 .append(':')
-                .append(javaTypeName)
-                .append(']')
+                .append(javaTypeName);
+
+        for (String s : genericsTypeNameList) {
+            builder.append(_Constant.COMMA)
+                    .append("genericsType")
+                    .append(':')
+                    .append(s);
+        }
+
+        return builder.append(']')
                 .toString();
     }
 

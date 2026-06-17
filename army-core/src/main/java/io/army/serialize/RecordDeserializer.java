@@ -18,12 +18,17 @@
 package io.army.serialize;
 
 import io.army.function.TextFunction;
+import io.army.function.TextToIntFunc;
 import io.army.lang.Nullable;
 
 public interface RecordDeserializer extends Deserializer {
 
 
-    void deserialize(String text, int offset, int endIndex, TextFunction<?> func, @Nullable StringBuilder builder);
+    void deserialize(String text, int offset, int endIndex, TextFunction<?> func,
+                     @Nullable char[] boundaries, @Nullable TextToIntFunc skipFunc, @Nullable StringBuilder builder);
+
+
+
 
     static Builder builder() {
         return DefaultRecordDeserializer.newBuilder();

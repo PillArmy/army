@@ -23,6 +23,11 @@ public interface RangeDeserializer extends Deserializer {
 
     void deserialize(String text, int offset, int endIndex, TextFunction<?> func, @Nullable StringBuilder builder);
 
+    /// @return the index of right boundary
+    int skipRange(String text, int offset, int endIndex);
+
+    char[] copyLeftBoundaries();
+
     static Builder builder() {
         return DefaultRangeDeserializer.newBuilder();
     }

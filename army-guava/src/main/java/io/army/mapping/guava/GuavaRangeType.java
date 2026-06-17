@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.army.mapping.guava;
 
 import com.google.common.collect.BoundType;
@@ -21,12 +37,13 @@ import io.army.util.FuncClassValue;
 import io.army.util._Assert;
 import io.army.util._Exceptions;
 
-
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+/// @see GuavaRangeSetType
+/// @see Range
 /// @see <a href="https://www.postgresql.org/docs/current/rangetypes.html#RANGETYPES-IO">Range Types</a>
 public abstract class GuavaRangeType extends _ArmyBuildInType implements MappingType.SqlRange, UnaryGenericsMapping {
 
@@ -58,7 +75,7 @@ public abstract class GuavaRangeType extends _ArmyBuildInType implements Mapping
 
     private final MappingType subType;
 
-    private final DataType dataType;
+    final DataType dataType;
 
     private final Supplier<? extends Comparable<?>> subTypeSupplier;
 
@@ -94,13 +111,21 @@ public abstract class GuavaRangeType extends _ArmyBuildInType implements Mapping
     }
 
     @Override
-    public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        _Assert.isTrue(dataType == this.dataType, ""); // assert container match
-        if (!(source instanceof String text)) {
+    public final Range<?> afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
+
+        final Range<?> value;
+        if (source instanceof Range<?> range) {
+            if (!isInstance(range)) {
+                throw dataAccessError(this, this.dataType, source, null);
+            }
+            value = range;
+        } else if (source instanceof String text) {
+            text = text.trim();
+            value = deserialize(this, env, text, 0, text.length(), null);
+        } else {
             throw dataAccessError(this, this.dataType, source, null);
         }
-        text = text.trim();
-        return deserialize(this, env, text, 0, text.length(), null);
+        return value;
     }
 
     @Override
@@ -114,13 +139,25 @@ public abstract class GuavaRangeType extends _ArmyBuildInType implements Mapping
     }
 
 
+    public final boolean isInstance(final Range<?> range) {
+        final boolean match;
+        if (range.hasUpperBound()) {
+            match = this.subJavaType.isInstance(range.upperEndpoint());
+        } else if (range.hasLowerBound()) {
+            match = this.subJavaType.isInstance(range.lowerBoundType());
+        } else {
+            match = true;
+        }
+        return match;
+    }
+
     public static StringBuilder serialize(final GuavaRangeType type, MappingEnv env, final Object source, final StringBuilder builder) {
         if (!(source instanceof Range<?> range)) {
             throw paramError(type, type.dataType, source, null);
         }
 
         if (range.isEmpty() && !range.hasLowerBound() && !range.hasUpperBound()) {
-            builder.append("empty");
+            builder.append("empty");   // Range no bug,never here
             return builder;
         }
 
@@ -184,8 +221,8 @@ public abstract class GuavaRangeType extends _ArmyBuildInType implements Mapping
     }
 
 
-    public static Object deserialize(final GuavaRangeType type, MappingEnv env, final String source, final int offset,
-                                     int endIndex, final @Nullable StringBuilder builder) {
+    public static Range<?> deserialize(final GuavaRangeType type, MappingEnv env, final String source, final int offset,
+                                       int endIndex, final @Nullable StringBuilder builder) {
 
         try {
             final RangeParserFunc func = new RangeParserFunc(type, env, source);

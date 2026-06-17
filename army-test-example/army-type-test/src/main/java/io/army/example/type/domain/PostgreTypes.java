@@ -1,6 +1,7 @@
 package io.army.example.type.domain;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 import io.army.annotation.*;
 import io.army.pojo.FieldAccessPojo;
 
@@ -167,6 +168,10 @@ public class PostgreTypes implements FieldAccessPojo {
     @Mapping("io.army.mapping.guava.GuavaRangeType")
     @Column(comment = "int4range type")
     public Range<Integer> int4RangeGuava;
+
+    @Mapping("io.army.mapping.guava.GuavaRangeSetType")
+    @Column(comment = "INT4MULTIRANGE type")
+    public RangeSet<Integer> int4RangeSetGuava;
 
     // ------------- 多范围类型 -------------
     @Column(comment = "int4multirange type")

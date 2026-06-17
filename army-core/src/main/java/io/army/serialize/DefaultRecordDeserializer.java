@@ -17,6 +17,7 @@
 package io.army.serialize;
 
 import io.army.function.TextFunction;
+import io.army.function.TextToIntFunc;
 import io.army.lang.Nullable;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
@@ -38,11 +39,18 @@ final class DefaultRecordDeserializer extends ArmyDeserializer.SingleBoundaryDes
 
 
     @Override
-    public void deserialize(String text, int offset, int endIndex, TextFunction<?> func, @Nullable StringBuilder builder) {
+    public void deserialize(String text, final int offset, final int endIndex, TextFunction<?> func,
+                            final @Nullable char[] boundaries, final @Nullable TextToIntFunc skipFunc, @Nullable StringBuilder builder) {
 
         if (text.charAt(offset) != this.leftBoundary) {
             throw new IllegalArgumentException();
         } else if (offset >= endIndex) {
+            throw new IllegalArgumentException();
+        } else if ((boundaries == null) != (skipFunc == null)) {
+            throw new IllegalArgumentException();
+        } else if (boundaries != null && isBoundaries(boundaries, this.leftBoundary)) {
+            throw new IllegalArgumentException();
+        } else if (boundaries != null && isBoundaries(boundaries, this.itemDelim)) {
             throw new IllegalArgumentException();
         }
 
@@ -61,16 +69,17 @@ final class DefaultRecordDeserializer extends ArmyDeserializer.SingleBoundaryDes
 
         int rightIndex = -1;
 
-        for (int i = offset + 1, delimFlat = 0, itemCount = 0, delimCount = 0; i < endIndex; i++) {
+        for (int i = offset + 1, delimFlat = 0, itemCount = 0, delimCount = 0, oldIndex; i < endIndex; i++) {
             ch = text.charAt(i);
 
             if (ch == rightBoundary) {
                 if (itemCount <= delimCount) {
-                    if (!allowNothing) {
+                    if (allowNothing) {
+                        func.apply(text, 0, 0);  // representing nothing
+                    } else if (itemCount != 0) {
                         throw new IllegalArgumentException(String.format("expected end at nearby offset[%s] -> %s",
                                 i, _StringUtils.surroundingText(text, i, 4)));
                     }
-                    func.apply(text, 0, 0);  // representing nothing
                 }
                 rightIndex = i;
                 break;
@@ -95,6 +104,15 @@ final class DefaultRecordDeserializer extends ArmyDeserializer.SingleBoundaryDes
                 throw syntaxError(getSyntaxType(), text, i);
             } else if (ch == quoteChar) {
                 i = parseQuoteElement(text, i + 1, endIndex, ch, holder, null, func);
+                delimFlat = 1;
+                itemCount++;
+            } else if (boundaries != null && isBoundaries(boundaries, ch)) {
+                oldIndex = i;
+                i = skipFunc.apply(text, i, endIndex);
+                if (i <= oldIndex) {
+                    throw subFuncBug(skipFunc);
+                }
+                func.apply(text, oldIndex, i + 1);
                 delimFlat = 1;
                 itemCount++;
             } else if (ch == itemDelim) {

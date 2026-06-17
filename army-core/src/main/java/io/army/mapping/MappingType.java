@@ -340,6 +340,10 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
+    interface SqlMultiRange extends SqlUserDefined {
+
+    }
+
     /// Marker interface for range types.
     ///
     /// @see <a href="https://www.postgresql.org/docs/current/rangetypes.html">Range Types</a>

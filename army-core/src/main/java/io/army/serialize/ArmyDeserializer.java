@@ -182,54 +182,6 @@ abstract class ArmyDeserializer implements Deserializer {
     }
 
 
-    /// @param offset the index of first not whitespace char
-    final int skipUnquotedElement(final String text, final int offset, final int endIndex, final char rightBoundary,
-                                  final @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc) {
-//        private method trust upper
-//        final char firstChar;
-//        firstChar = text.charAt(offset);
-//
-//        if (firstChar == arrayDelim || firstChar == rightBoundary) {
-//            throw new IllegalArgumentException();
-//        } else if (Character.isWhitespace(firstChar)) {
-//            throw new IllegalArgumentException();
-//        }
-
-
-        final char quoteChar = this.quoteChar, itemDelim = this.itemDelim;
-
-        int rightIndex = -1;
-        char ch;
-        for (int i = offset + 1, oldIndex; i < endIndex; i++) {
-            ch = text.charAt(i);
-
-            if (boundaries != null && isBoundaries(boundaries, ch)) {
-                assert subFunc != null;
-                oldIndex = i;
-                i = subFunc.apply(text, i, endIndex);
-                if (i <= oldIndex) {
-                    throw subFuncBug(subFunc);
-                }
-                continue;
-            }
-
-            if (ch == itemDelim || ch == rightBoundary) {
-                rightIndex = i - 1;
-                break;
-            }
-
-            if (ch == quoteChar) {
-                throw _Exceptions.unexpectedQuoteError(text, i, ch);
-            }
-
-        } // loop
-
-        if (rightIndex < 0) {
-            throw unquotedElementNotEnd(text, endIndex);
-        }
-        return rightIndex;
-    }
-
     abstract String getSyntaxType();
 
 
@@ -241,6 +193,21 @@ abstract class ArmyDeserializer implements Deserializer {
                 break;
             }
         }
+        return match;
+    }
+
+    static boolean containsBoundaries(final char[] boundaries, final char[] other) {
+        boolean match = false;
+
+        topLoop:
+        for (char boundary : boundaries) {
+            for (char ch : other) {
+                if (ch == boundary) {
+                    match = true;
+                    break topLoop;
+                }
+            } // inner loop
+        } // top loop
         return match;
     }
 
@@ -371,6 +338,44 @@ abstract class ArmyDeserializer implements Deserializer {
         }
 
 
+        final int skipUnquotedElement(final String text, final int offset, final int endIndex, final char rightBoundary,
+                                      final @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc) {
+
+            final char quoteChar = this.quoteChar, itemDelim = this.itemDelim;
+
+            int rightIndex = -1;
+            char ch;
+            for (int i = offset + 1, oldIndex; i < endIndex; i++) {
+                ch = text.charAt(i);
+
+                if (boundaries != null && isBoundaries(boundaries, ch)) {
+                    assert subFunc != null;
+                    oldIndex = i;
+                    i = subFunc.apply(text, i, endIndex);
+                    if (i <= oldIndex) {
+                        throw subFuncBug(subFunc);
+                    }
+                    continue;
+                }
+
+                if (ch == itemDelim || ch == rightBoundary) {
+                    rightIndex = i - 1;
+                    break;
+                }
+
+                if (ch == quoteChar) {
+                    throw _Exceptions.unexpectedQuoteError(text, i, ch);
+                }
+
+            } // loop
+
+            if (rightIndex < 0) {
+                throw unquotedElementNotEnd(text, endIndex);
+            }
+            return rightIndex;
+        }
+
+
         final int parseDirectNestedElement(final String text, final int offset, final int endIndex, @Nullable TextFunction<?> func,
                                            final @Nullable char[] boundaries, final @Nullable TextToIntFunc subFunc) {
 
@@ -443,7 +448,7 @@ abstract class ArmyDeserializer implements Deserializer {
                 func.apply(text, offset, rightBoundary); // parse sub record
             }
             return rightIndex;
-        }
+        } // parseDirectNestedElement
 
 
     } // SingleBoundaryDeserializer
@@ -558,6 +563,128 @@ abstract class ArmyDeserializer implements Deserializer {
             }
             return rightIndex;
         }
+
+        final int skipUnquotedElement(final String text, final int offset, final int endIndex, final char[] rightBoundaries,
+                                      final @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc) {
+
+            if ((boundaries == null) != (subFunc == null)) {
+                throw new IllegalArgumentException();
+            }
+
+            final char quoteChar = this.quoteChar, itemDelim = this.itemDelim;
+
+            int rightIndex = -1;
+            char ch;
+            for (int i = offset + 1, oldIndex; i < endIndex; i++) {
+                ch = text.charAt(i);
+
+                if (boundaries != null && isBoundaries(boundaries, ch)) {
+                    oldIndex = i;
+                    i = subFunc.apply(text, i, endIndex);
+                    if (i <= oldIndex) {
+                        throw subFuncBug(subFunc);
+                    }
+                    continue;
+                }
+
+                if (ch == itemDelim || isBoundaries(rightBoundaries, ch)) {
+                    rightIndex = i - 1;
+                    break;
+                }
+
+                if (ch == quoteChar) {
+                    throw _Exceptions.unexpectedQuoteError(text, i, ch);
+                }
+
+            } // loop
+
+            if (rightIndex < 0) {
+                throw unquotedElementNotEnd(text, endIndex);
+            }
+            return rightIndex;
+        } // skipUnquotedElement
+
+        final int parseDirectNestedElement(final String text, final int offset, final int endIndex,
+                                           final boolean allowNestedSelf, @Nullable TextFunction<?> func,
+                                           final @Nullable char[] boundaries, final @Nullable TextToIntFunc subFunc) {
+
+            final char[] leftBoundaries = this.leftBoundaries, rightBoundaries = this.rightBoundaries;
+            final char quoteChar = this.quoteChar, itemDelim = this.itemDelim;
+
+            final boolean allowWhitespace = this.allowWhitespace, allowNothing = this.allowNothing;
+
+            if (!isBoundaries(leftBoundaries, text.charAt(offset))) {
+                throw syntaxError(getSyntaxType(), text, offset);
+            } else if (boundaries != null && containsBoundaries(boundaries, leftBoundaries)) {
+                throw new IllegalArgumentException();
+            } else if ((boundaries == null) != (subFunc == null)) {
+                throw new IllegalArgumentException();
+            }
+
+            int rightIndex = -1;
+            char ch;
+
+            for (int i = offset + 1, delimFlat = 0, oldIndex; i < endIndex; i++) {
+                ch = text.charAt(i);
+
+                if (isBoundaries(rightBoundaries, ch)) {
+                    rightIndex = i;
+                    break;
+                }
+
+                if (delimFlat > 0) {
+                    if (ch == itemDelim) {
+                        delimFlat = 0;
+                        continue;
+                    } else if (allowWhitespace && Character.isWhitespace(ch)) {
+                        continue;
+                    }
+                    throw _Exceptions.missDelimError(text, i, itemDelim);
+                }
+
+                if (boundaries != null && isBoundaries(boundaries, ch)) {
+                    oldIndex = i;
+                    i = subFunc.apply(text, i, endIndex); // skip nested element
+                    if (i <= oldIndex) {
+                        throw subFuncBug(subFunc);
+                    }
+                    continue;
+                }
+
+                if (isBoundaries(leftBoundaries, ch)) {
+                    if (!allowNestedSelf) {
+                        throw syntaxError(getSyntaxType(), text, i);
+                    }
+                    i = parseDirectNestedElement(text, i, endIndex, true, null, boundaries, subFunc); // here func is null ,
+                    delimFlat = 1;
+                } else if (ch == quoteChar) {
+                    i = skipQuoteElement(text, i, endIndex);
+                    delimFlat = 1;
+                } else if (ch == itemDelim) {
+                    if (allowNothing) {
+                        continue;
+                    }
+                    throw _Exceptions.redundantDelimError(text, i, itemDelim);
+                } else {
+                    if (!allowWhitespace && Character.isWhitespace(ch)) {
+                        continue;
+                    }
+                    i = skipUnquotedElement(text, i, endIndex, rightBoundaries, boundaries, subFunc);
+                    delimFlat = 1;
+                }
+
+
+            } // loop
+
+            if (rightIndex < 0) {
+                throw _Exceptions.missingEndingError(text, endIndex, rightBoundaries);
+            }
+
+            if (func != null) {
+                func.apply(text, offset, rightIndex); // parse nested element
+            }
+            return rightIndex;
+        } // parseDirectNestedElement
 
 
     } // MultiBoundaryDeserializer
