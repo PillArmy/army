@@ -54,6 +54,7 @@ public abstract class GuavaRangeSetType extends _ArmyBuildInType
 
     /// private field
     private static final RecordDeserializer PG_DESERIALIZER = RecordDeserializer.builder()
+            .name("PostgreSQL Multi Range")
             .leftBoundary(_Constant.LEFT_BRACE)
             .delim(_Constant.COMMA)
             .rightBoundary(_Constant.RIGHT_BRACE)
@@ -62,8 +63,10 @@ public abstract class GuavaRangeSetType extends _ArmyBuildInType
             .quoteEscapeOn(true)
             .quoteChar(_Constant.DOUBLE_QUOTE)
 
+            .allowQuote(false)
             .allowNothing(false)
             .allowWhitespace(false)
+
             .nullAsNull(false)
             .build();
 

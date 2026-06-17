@@ -20,10 +20,7 @@ import io.army.criteria.CriteriaException;
 import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
-import io.army.mapping.IntegerType;
-import io.army.mapping.MappingEnv;
-import io.army.mapping.MappingType;
-import io.army.mapping._ArmyBuildInType;
+import io.army.mapping.*;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.ArmyType;
 import io.army.sqltype.CustomType;
@@ -34,7 +31,7 @@ import java.util.Map;
 /// Mapping type for PostgreSQL HSTORE key/value datatype.
 ///
 /// @see <a href="https://www.postgresql.org/docs/current/hstore.html">hstore key/value datatype</a>
-public final class PgHstoreType extends _ArmyBuildInType implements MappingType.SqlUserDefined {
+public final class PgHstoreType extends _ArmyBuildInType implements MappingType.SqlUserDefined, DualGenericsMapping {
 
 
     public static final PgHstoreType INSTANCE = new PgHstoreType();
@@ -80,6 +77,15 @@ public final class PgHstoreType extends _ArmyBuildInType implements MappingType.
         return super.arrayTypeOfThis();
     }
 
+    @Override
+    public Class<?> firstGenericsType() {
+        return String.class;
+    }
+
+    @Override
+    public Class<?> secondGenericsType() {
+        return String.class;
+    }
 
     @Override
     public int hashCode() {

@@ -21,6 +21,8 @@ public interface Deserializer {
 
     interface DeserializerBuilder<B extends DeserializerBuilder<B>> {
 
+        B name(String name);
+
         B delim(char ch);
 
         B backSlashEscapeOn(boolean yes);
@@ -34,6 +36,8 @@ public interface Deserializer {
 
         /// eg:  PostgreSQL composite whitespace is part of field value
         B allowWhitespace(boolean yes);
+
+        B allowQuote(boolean yes);
 
         /// eg : PostgreSQL array null is {@code null}.  PostgreSQL composite nothing is {@code null}, null is field value in composite.
         B nullAsNull(boolean yes);

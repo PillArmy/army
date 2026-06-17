@@ -61,6 +61,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
 
     public static final RecordDeserializer PG_DESERIALIZER = RecordDeserializer.builder()
+            .name("PostgreSQL Composite")
             .leftBoundary(_Constant.LEFT_PAREN)
             .delim(_Constant.COMMA)
             .rightBoundary(_Constant.RIGHT_PAREN)
@@ -69,9 +70,11 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
             .quoteEscapeOn(true)  // postgre composite input/output syntax support quote escape
             .quoteChar(_Constant.DOUBLE_QUOTE)
 
+            .allowQuote(true)
             .allowNothing(true)  // nothing representing null
             .allowWhitespace(true) // whitespace is a part of field value
             .nullAsNull(false)
+
             .build();
 
     private static final ClassValue<CompositeType> CLASS_VALUE = FuncClassValue.create(CompositeType::new);

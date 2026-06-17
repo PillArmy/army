@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 
 abstract class ArmyDeserializer implements Deserializer {
 
+    final String name;
 
     final char itemDelim;
 
@@ -42,6 +43,8 @@ abstract class ArmyDeserializer implements Deserializer {
 
     final boolean allowWhitespace;
 
+    final boolean allowQuote;
+
     final boolean nullAsNull;
 
     private ArmyDeserializer(ArmyBuilder<?> builder) {
@@ -49,13 +52,16 @@ abstract class ArmyDeserializer implements Deserializer {
             throw new IllegalArgumentException("quoteChar must be \" or '");
         } else if (builder.nullAsNull && builder.allowWhitespace) {
             throw new IllegalArgumentException("nullAsNull and allowWhitespace cannot be true at the same time");
+        } else if (!_StringUtils.hasText(builder.name)) {
+            throw new IllegalArgumentException("name must have text");
         }
-
+        this.name = Objects.requireNonNull(builder.name);
         this.itemDelim = builder.itemDelim;
         this.quoteChar = builder.quoteChar;
         this.backSlashEscape = builder.backSlashEscape;
         this.quoteEscape = builder.quoteEscape;
         this.allowNothing = builder.allowNothing;
+        this.allowQuote = builder.allowQuote;
         this.allowWhitespace = builder.allowWhitespace;
         this.nullAsNull = builder.nullAsNull;
     }
@@ -66,6 +72,9 @@ abstract class ArmyDeserializer implements Deserializer {
     final int parseQuoteElement(final String text, final int offset, final int endIndex, final char quote,
                                 final StringBuilder[] holder, @Nullable Consumer<Object> consumer, TextFunction<?> func) {
 
+        if (!this.allowQuote) {
+            throw currentDeserializerDontSupportQuote(text, offset);
+        }
         StringBuilder builder = holder[0];
         if (builder != null) {
             builder.setLength(0); // clear
@@ -82,8 +91,11 @@ abstract class ArmyDeserializer implements Deserializer {
             ch = text.charAt(i);
 
             backSlashEscape = backSlashEscapeOn && ch == _Constant.BACK_SLASH;
-            if (quoteEscapeOn) {
-                quoteEscape = (ch == quote && (nextIndex = i + 1) < endIndex && text.charAt(nextIndex) == quote);
+            if ((ch == quote && (nextIndex = i + 1) < endIndex && text.charAt(nextIndex) == quote)) {
+                if (!quoteEscapeOn) {
+                    throw dontSupportQuoteEscape(text, i);
+                }
+                quoteEscape = true;
             } else {
                 quoteEscape = false;
             }
@@ -139,10 +151,9 @@ abstract class ArmyDeserializer implements Deserializer {
 
     /// @param offset the index of left quote
     final int skipQuoteElement(final String text, final int offset, final int endIndex) {
-//         private method trust upper
-//        if (text.charAt(offset) != this.quoteChar) {
-//            throw new IllegalArgumentException();
-//        }
+        if (!this.allowQuote) {
+            throw currentDeserializerDontSupportQuote(text, offset);
+        }
 
         final boolean backSlashEscape, quoteEscape;
         backSlashEscape = this.backSlashEscape;
@@ -182,7 +193,22 @@ abstract class ArmyDeserializer implements Deserializer {
     }
 
 
-    abstract String getSyntaxType();
+    final String getSyntaxType() {
+        return this.name;
+    }
+
+
+    private IllegalArgumentException dontSupportQuoteEscape(String text, int offset) {
+        String m = String.format("current deserializer[%s] don't support quote escape,at nearby offset[%s] -> %s",
+                getSyntaxType(), offset, _StringUtils.surroundingText(text, offset, 4));
+        return new IllegalArgumentException(m);
+    }
+
+    private IllegalArgumentException currentDeserializerDontSupportQuote(String text, int offset) {
+        String m = String.format("current deserializer[%s] don't support quote,at nearby offset[%s] -> %s",
+                getSyntaxType(), offset, _StringUtils.surroundingText(text, offset, 4));
+        return new IllegalArgumentException(m);
+    }
 
 
     static boolean isBoundaries(final char[] boundaries, final char ch) {
@@ -692,6 +718,8 @@ abstract class ArmyDeserializer implements Deserializer {
     @SuppressWarnings("unchecked")
     private static abstract class ArmyBuilder<B extends DeserializerBuilder<B>> implements DeserializerBuilder<B> {
 
+        String name = "";
+
         char itemDelim = _Constant.COMMA;
 
         char quoteChar = _Constant.DOUBLE_QUOTE;
@@ -704,10 +732,18 @@ abstract class ArmyDeserializer implements Deserializer {
 
         boolean allowWhitespace;
 
+        boolean allowQuote = true;
+
         boolean nullAsNull;
 
 
         private ArmyBuilder() {
+        }
+
+        @Override
+        public final B name(String name) {
+            this.name = Objects.requireNonNull(name);
+            return (B) this;
         }
 
         @Override
@@ -746,6 +782,11 @@ abstract class ArmyDeserializer implements Deserializer {
             return (B) this;
         }
 
+        @Override
+        public final B allowQuote(boolean yes) {
+            this.allowQuote = yes;
+            return (B) this;
+        }
 
         @Override
         public final B nullAsNull(boolean yes) {

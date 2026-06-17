@@ -249,10 +249,6 @@ final class DefaultArrayDeserializer extends ArmyDeserializer.SingleBoundaryDese
         return rightIndex;
     }
 
-    @Override
-    String getSyntaxType() {
-        return "array";
-    }
 
     private static IllegalArgumentException arrayFormatError(String text, int offset) {
         String m = String.format("array format error at nearby offset[%s] -> %s",

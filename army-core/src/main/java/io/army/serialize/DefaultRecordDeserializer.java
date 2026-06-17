@@ -143,11 +143,6 @@ final class DefaultRecordDeserializer extends ArmyDeserializer.SingleBoundaryDes
     }
 
 
-    @Override
-    String getSyntaxType() {
-        return "record";
-    }
-
     private static final class DefaultBuilder extends ArmySingleBoundaryBuilder<Builder>
             implements Builder {
 

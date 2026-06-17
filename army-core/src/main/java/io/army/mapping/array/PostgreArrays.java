@@ -368,12 +368,21 @@ public abstract class PostgreArrays extends ArrayMappings {
     /// @see BoxArrayDeserializerHolder#BOX_DESERIALIZER
     private static ArrayDeserializer.Builder createDefaultDeserializerBuilder() {
         return ArrayDeserializer.builder()
+                .name("PostgreSQL Array")
                 .leftBoundary(_Constant.LEFT_BRACE)
                 .rightBoundary(_Constant.RIGHT_BRACE)
+
                 .skipPrefixFunc(PostgreArrays::skipExplicitDimensions)
+
                 .backSlashEscapeOn(true)
-                .quoteEscapeOn(true)
+                .quoteEscapeOn(false)
                 .nullAsNull(true)
+
+                .allowQuote(true)
+                .allowWhitespace(false)
+                .allowNothing(false)
+
+
                 .quoteChar(_Constant.DOUBLE_QUOTE);
     }
 
@@ -384,6 +393,7 @@ public abstract class PostgreArrays extends ArrayMappings {
         return ArraySerializer.builder()
                 .leftBoundary(_Constant.LEFT_BRACE)
                 .rightBoundary(_Constant.RIGHT_BRACE)
+
                 .rectangularMatrixArray(true);
     }
 

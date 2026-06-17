@@ -168,10 +168,6 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
 
     }
 
-    @Override
-    String getSyntaxType() {
-        return "range";
-    }
 
     private static final class DefaultBuilder extends ArmyMultiBoundaryBuilder<Builder>
             implements Builder {
