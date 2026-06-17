@@ -368,7 +368,7 @@ public abstract class PostgreArrays extends ArrayMappings {
     /// @see BoxArrayDeserializerHolder#BOX_DESERIALIZER
     private static ArrayDeserializer.Builder createDefaultDeserializerBuilder() {
         return ArrayDeserializer.builder()
-                .name("PostgreSQL Array")
+                .dataTypeLabel("PostgreSQL Array")
                 .leftBoundary(_Constant.LEFT_BRACE)
                 .rightBoundary(_Constant.RIGHT_BRACE)
 

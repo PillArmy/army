@@ -92,6 +92,12 @@ public abstract class _Exceptions {
         return new IllegalArgumentException(m);
     }
 
+    public static IllegalArgumentException missSeparatorError(String text, int offset, String separator) {
+        String m = String.format("missing separator[%s] at nearby offset[%s] -> %s", separator,
+                offset, _StringUtils.surroundingText(text, offset, 4));
+        return new IllegalArgumentException(m);
+    }
+
     public static IllegalArgumentException redundantDelimError(String text, int offset, char delim) {
         String m = String.format("redundant delim[%s] at nearby offset[%s] -> %s", delim,
                 offset, _StringUtils.surroundingText(text, offset, 4));

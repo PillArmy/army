@@ -47,7 +47,7 @@ abstract class ArmyDeserializer implements Deserializer {
 
     final boolean nullAsNull;
 
-    private ArmyDeserializer(ArmyBuilder<?> builder) {
+    ArmyDeserializer(ArmyBuilder<?> builder) {
         if (builder.quoteChar != _Constant.DOUBLE_QUOTE && builder.quoteChar != _Constant.QUOTE) {
             throw new IllegalArgumentException("quoteChar must be \" or '");
         } else if (builder.nullAsNull && builder.allowWhitespace) {
@@ -716,7 +716,7 @@ abstract class ArmyDeserializer implements Deserializer {
     } // MultiBoundaryDeserializer
 
     @SuppressWarnings("unchecked")
-    private static abstract class ArmyBuilder<B extends DeserializerBuilder<B>> implements DeserializerBuilder<B> {
+    static abstract class ArmyBuilder<B extends DeserializerBuilder<B>> implements DeserializerBuilder<B> {
 
         String name = "";
 
@@ -737,11 +737,11 @@ abstract class ArmyDeserializer implements Deserializer {
         boolean nullAsNull;
 
 
-        private ArmyBuilder() {
+        ArmyBuilder() {
         }
 
         @Override
-        public final B name(String name) {
+        public final B dataTypeLabel(String name) {
             this.name = Objects.requireNonNull(name);
             return (B) this;
         }

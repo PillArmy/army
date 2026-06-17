@@ -21,7 +21,7 @@ public interface Deserializer {
 
     interface DeserializerBuilder<B extends DeserializerBuilder<B>> {
 
-        B name(String name);
+        B dataTypeLabel(String name);
 
         B delim(char ch);
 

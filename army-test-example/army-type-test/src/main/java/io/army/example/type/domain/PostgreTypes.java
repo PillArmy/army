@@ -8,6 +8,7 @@ import io.army.pojo.FieldAccessPojo;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.BitSet;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -172,6 +173,10 @@ public class PostgreTypes implements FieldAccessPojo {
     @Mapping("io.army.mapping.guava.GuavaRangeSetType")
     @Column(comment = "INT4MULTIRANGE type")
     public RangeSet<Integer> int4RangeSetGuava;
+
+    @Mapping("io.army.mapping.postgre.PgHstoreType")
+    @Column(comment = "hstore type")
+    public Map<String, String> hstore;
 
     // ------------- 多范围类型 -------------
     @Column(comment = "int4multirange type")

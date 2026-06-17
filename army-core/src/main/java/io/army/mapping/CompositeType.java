@@ -61,7 +61,7 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
 
     public static final RecordDeserializer PG_DESERIALIZER = RecordDeserializer.builder()
-            .name("PostgreSQL Composite")
+            .dataTypeLabel("PostgreSQL Composite")
             .leftBoundary(_Constant.LEFT_PAREN)
             .delim(_Constant.COMMA)
             .rightBoundary(_Constant.RIGHT_PAREN)

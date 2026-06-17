@@ -56,7 +56,7 @@ public abstract class GuavaRangeType extends _ArmyBuildInType implements Mapping
 
 
     public static final RangeDeserializer PG_DESERIALIZER = RangeDeserializer.builder()
-            .name("PostgreSQL Range")
+            .dataTypeLabel("PostgreSQL Range")
             .leftBoundaries(new char[]{'[', '('})
             .delim(_Constant.COMMA)
             .rightBoundaries(new char[]{']', ')'})
