@@ -29,22 +29,11 @@ import java.util.Objects;
 
 final class MySQLMappingHandler extends TypeMappingHandlerSupport {
 
-    private static final Map<String, TypeMappingBundle> ALIAS_TO_BUNDLE_MAP = Map.copyOf(createTypeMappingBoundleMap());
 
     MySQLMappingHandler(DialectEnv env) {
         super(env);
     }
 
-    /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/data-types.html">MySQL Data Types</a>
-    @Override
-    public TypeMappingBundle apply(String typeName) {
-        TypeMappingBundle bundle;
-        bundle = ALIAS_TO_BUNDLE_MAP.get(typeName.toUpperCase(Locale.ROOT));
-        if (bundle == null) {
-            bundle = handleDefined(typeName);
-        }
-        return bundle;
-    }
 
     @Override
     public Isolation nameToIsolation(final String level) {
@@ -73,8 +62,10 @@ final class MySQLMappingHandler extends TypeMappingHandlerSupport {
         return standardIsolationToName(isolation);
     }
 
+
     /// @see <a href="https://www.postgresql.org/docs/current/datatype.html">Data Types</a>
-    private static Map<String, TypeMappingBundle> createTypeMappingBoundleMap() {
+    @Override
+    Map<String, TypeMappingBundle> createBuildInTypeBundleMap(DialectEnv env) {
         final MySQLType[] values = MySQLType.values();
         final Map<MySQLType, TypeMappingBundle> map = _Collections.hashMapForSize(values.length);
 

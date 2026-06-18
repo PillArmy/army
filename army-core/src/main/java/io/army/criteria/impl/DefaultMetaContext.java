@@ -241,7 +241,11 @@ final class DefaultMetaContext implements MetaContext {
                 continue;
             }
 
-            if (paramTypeArray[0] != Class.class && !name.equals("fromJavaField")) {
+            if (name.equals("fromJavaField")) {
+                if (paramTypeArray[0] != Field.class) {
+                    continue;
+                }
+            } else if (paramTypeArray[0] != Class.class) {
                 continue;
             }
 
@@ -249,7 +253,8 @@ final class DefaultMetaContext implements MetaContext {
                 case "from":
                 case "fromList":
                 case "fromSet":
-                case "fromEnumSet": {
+                case "fromEnumSet":
+                case "fromJavaFiled": {
                     if (paramTypeArray.length != 1) {
                         continue;
                     }
@@ -282,6 +287,26 @@ final class DefaultMetaContext implements MetaContext {
                     }
                 }
                 break;
+                case "fromTypeArgAndType": {
+                    if (paramTypeArray.length != 3) {
+                        continue;
+                    } else if (paramTypeArray[1] != Class.class) {
+                        continue;
+                    } else if (paramTypeArray[2] != MappingType.class) {
+                        continue;
+                    }
+                }
+                break;
+                case "fromTypeArgsAndTypes": {
+                    if (paramTypeArray.length != 3) {
+                        continue;
+                    } else if (paramTypeArray[1] != Class[].class) {
+                        continue;
+                    } else if (paramTypeArray[2] != MappingType[].class) {
+                        continue;
+                    }
+                }
+                break;
                 case "fromTypeArgChain": {
                     if (paramTypeArray.length < 3) {
                         continue;
@@ -291,6 +316,22 @@ final class DefaultMetaContext implements MetaContext {
                             continue topLoop;
                         }
                     }
+                }
+                break;
+                case "fromTypeArgChainAndTypes": {
+                    if (paramTypeArray.length < 3) {
+                        continue;
+                    } else if ((paramTypeArray.length & 1) == 0) {
+                        continue;
+                    }
+
+                    for (int i = 1; i < paramTypeArray.length; i += 2) {
+                        if (paramTypeArray[i] != Class[].class) {
+                            continue topLoop;
+                        } else if (paramTypeArray[i + 1] != MappingType[].class) {
+                            continue topLoop;
+                        }
+                    } // loop
                 }
                 break;
                 case "fromParam": {
@@ -315,14 +356,6 @@ final class DefaultMetaContext implements MetaContext {
                         if (paramTypeArray[i] != String.class) {
                             continue topLoop;
                         }
-                    }
-                }
-                break;
-                case "fromJavaFiled": {
-                    if (paramTypeArray.length != 1) {
-                        continue;
-                    } else if (paramTypeArray[0] != Field.class) {
-                        continue;
                     }
                 }
                 break;

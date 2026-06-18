@@ -31,24 +31,10 @@ import java.util.Objects;
 final class PgMappingHandler extends TypeMappingHandlerSupport {
 
 
-    private final Map<String, TypeMappingBundle> aliasToBundleMap;
-
     PgMappingHandler(DialectEnv env) {
         super(env);
-        aliasToBundleMap = Map.copyOf(createTypeMappingBoundleMap(env));
     }
 
-
-    /// @see <a href="https://www.postgresql.org/docs/current/datatype.html">Data Types</a>
-    @Override
-    public TypeMappingBundle apply(String typeName) {
-        TypeMappingBundle bundle;
-        bundle = aliasToBundleMap.get(typeName.toUpperCase(Locale.ROOT));
-        if (bundle == null) {
-            bundle = handleDefined(typeName);
-        }
-        return bundle;
-    }
 
     /// @see <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-DEFAULT-TRANSACTION-ISOLATION">default_transaction_isolation</a>
     @Override
@@ -80,7 +66,8 @@ final class PgMappingHandler extends TypeMappingHandlerSupport {
 
 
     /// @see <a href="https://www.postgresql.org/docs/current/datatype.html">Data Types</a>
-    private static Map<String, TypeMappingBundle> createTypeMappingBoundleMap(DialectEnv env) {
+    @Override
+    Map<String, TypeMappingBundle> createBuildInTypeBundleMap(DialectEnv env) {
         EnumMap<PgType, MappingType> definedTypeMap;
         definedTypeMap = createSQLTypeToMappingTypeMap(PgType.class, env.serverMeta(), env.definedTypeSet());
 

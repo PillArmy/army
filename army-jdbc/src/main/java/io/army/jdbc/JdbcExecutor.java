@@ -1224,7 +1224,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
         TypeMappingBundle bundle;
         for (int i = 0; i < columnCount; i++) {
 
-            bundle = this.typeMappingHandler.apply(meta.getColumnTypeName(i + 1));
+            bundle = this.typeMappingHandler.handleType(meta.getColumnTypeName(i + 1));
             dataTypeArray[i] = bundle.dataType;
             typeArray[i] = bundle.mappingType;
 
@@ -1691,7 +1691,7 @@ abstract class JdbcExecutor extends JdbcExecutorSupport implements SyncExecutor 
             }
 
             final TypeMappingBundle bundle;
-            bundle = this.typeMappingHandler.apply(resultSet.getMetaData().getColumnTypeName(1));
+            bundle = this.typeMappingHandler.handleType(resultSet.getMetaData().getColumnTypeName(1));
 
             final DataType sqlType;
             sqlType = bundle.dataType;

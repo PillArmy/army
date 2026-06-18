@@ -18,7 +18,6 @@ package io.army.dialect;
 
 import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
-import io.army.mapping.UserMappingType;
 import io.army.mapping._ArmyBuildInType;
 import io.army.mapping.array.StringArrayType;
 import io.army.meta.ServerMeta;
@@ -37,21 +36,38 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
 
     private final ServerMeta serverMeta;
 
-
     private final BiFunction<String, ServerMeta, TypeMappingBundle> unrecognizedMappingFunc;
+
+    private final Map<String, TypeMappingBundle> buildInTypeToBundleMap;
 
     private final Map<String, TypeMappingBundle> dataTypeToBundleMap;
 
     TypeMappingHandlerSupport(DialectEnv env) {
         this.serverMeta = env.serverMeta();
-        this.dataTypeToBundleMap = Map.copyOf(createDataTypeToBundleMap(env.definedTypeSet()));
         this.unrecognizedMappingFunc = env.unrecognizedMappingFunc();
+        this.buildInTypeToBundleMap = Map.copyOf(createBuildInTypeBundleMap(env));
+        this.dataTypeToBundleMap = Map.copyOf(createDefinedTypeToBundleMap(env.definedTypeSet()));
+
     }
 
 
-    final TypeMappingBundle handleDefined(final String typeName) {
+    @Override
+    public final TypeMappingBundle handleType(final String typeName) {
+        final String upperCaseTypeName = typeName.toUpperCase(Locale.ROOT);
+
         TypeMappingBundle bundle;
-        bundle = this.dataTypeToBundleMap.get(typeName.toUpperCase(Locale.ROOT));
+        bundle = buildInTypeToBundleMap.get(upperCaseTypeName);
+        if (bundle == null) {
+            bundle = handleDefined(typeName, upperCaseTypeName);
+        }
+        return bundle;
+    }
+
+    abstract Map<String, TypeMappingBundle> createBuildInTypeBundleMap(DialectEnv env);
+
+    private TypeMappingBundle handleDefined(final String typeName, final String upperCaseTypeName) {
+        TypeMappingBundle bundle;
+        bundle = this.dataTypeToBundleMap.get(upperCaseTypeName.toUpperCase(Locale.ROOT));
         if (bundle != null) {
             return bundle;
         }
@@ -100,9 +116,14 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
     static <E extends Enum<E>> EnumMap<E, MappingType> createSQLTypeToMappingTypeMap(Class<E> enumClass, ServerMeta serverMeta,
                                                                                      Set<MappingType> definedTypeSet) {
         final EnumMap<E, MappingType> map = new EnumMap<>(enumClass);
+        final EnumSet<E> set = EnumSet.noneOf(enumClass);
+
         DataType dataType;
         E key;
         MappingType oldValue;
+
+        boolean oldValueIsBuildIn, newIsBuildIn;
+
         for (MappingType mappingType : definedTypeSet) {
             dataType = mappingType.map(serverMeta);
             if (!(dataType instanceof SQLType)) {
@@ -111,18 +132,38 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
             if (!enumClass.isInstance(dataType)) {
                 continue;
             }
+
             key = enumClass.cast(dataType);
+
+            if (set.contains(key)) {
+                continue;
+            }
+
             oldValue = map.put(key, mappingType);
 
-            if (oldValue instanceof _ArmyBuildInType && mappingType instanceof UserMappingType) {
+            if (oldValue == null) {
+                continue;
+            }
+
+            // TODO add 配置,若重复则抛出异常
+
+            oldValueIsBuildIn = oldValue instanceof _ArmyBuildInType;
+            newIsBuildIn = mappingType instanceof _ArmyBuildInType;
+
+            if (oldValueIsBuildIn == newIsBuildIn) {
+                map.remove(key);
+                set.add(key);
+            } else if (oldValueIsBuildIn) {
                 map.put(key, oldValue);
             }
+
+
         } // loop
         return map;
     }
 
 
-    private Map<String, TypeMappingBundle> createDataTypeToBundleMap(Set<MappingType> typSet) {
+    private Map<String, TypeMappingBundle> createDefinedTypeToBundleMap(Set<MappingType> typSet) {
         final Map<String, TypeMappingBundle> map = _Collections.hashMapForSize(typSet.size() << 1);
         DataType dataType;
         TypeMappingBundle bundle;
@@ -132,6 +173,7 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
                 continue;
             }
             bundle = TypeMappingBundle.of(dataType, mappingType);
+            // TODO add 配置,若重复则抛出异常
             map.put(Objects.requireNonNull(dataType.typeName()).toUpperCase(Locale.ROOT), bundle);
             map.put(Objects.requireNonNull(dataType.safeTypeAlias()).toUpperCase(Locale.ROOT), bundle);
         }

@@ -72,7 +72,7 @@ public final class MappingTypeType extends _ArmyBuildInType implements MappingTy
 
         final TypeMappingBundle bundle;
         try {
-            bundle = env.mappingHandler().apply(s);
+            bundle = env.mappingHandler().handleType(s);
         } catch (Exception e) {
             throw dataAccessError(this, dataType, source, e);
         }

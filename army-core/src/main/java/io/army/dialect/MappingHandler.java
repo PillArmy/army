@@ -22,7 +22,7 @@ import io.army.transaction.Isolation;
 public sealed interface MappingHandler permits TypeMappingHandlerSupport {
 
 
-    TypeMappingBundle apply(String typeName);
+    TypeMappingBundle handleType(String typeName);
 
     Isolation nameToIsolation(String level);
 

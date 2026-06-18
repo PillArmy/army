@@ -22,30 +22,16 @@ import io.army.sqltype.SQLiteType;
 import io.army.transaction.Isolation;
 import io.army.util._Collections;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
 final class SQLiteMappingHandler extends TypeMappingHandlerSupport {
 
-    private static final Map<String, TypeMappingBundle> ALIAS_TO_BUNDLE_MAP = Map.copyOf(createTypeMappingBoundleMap());
 
     SQLiteMappingHandler(DialectEnv env) {
         super(env);
     }
 
-
-    /// @see <a href="https://sqlite.org/datatype3.html">Datatypes In SQLite</a>
-    /// @see <a href="https://sqlite.org/datatypes.html">Datatypes In SQLite Version 2</a>
-    @Override
-    public TypeMappingBundle apply(String typeName) {
-        TypeMappingBundle bundle;
-        bundle = ALIAS_TO_BUNDLE_MAP.get(typeName.toUpperCase(Locale.ROOT));
-        if (bundle == null) {
-            bundle = handleDefined(typeName);
-        }
-        return bundle;
-    }
 
     @Override
     public Isolation nameToIsolation(String level) {
@@ -61,7 +47,8 @@ final class SQLiteMappingHandler extends TypeMappingHandlerSupport {
 
     /// @see <a href="https://sqlite.org/datatype3.html">Datatypes In SQLite</a>
     /// @see <a href="https://sqlite.org/datatypes.html">Datatypes In SQLite Version 2</a>
-    private static Map<String, TypeMappingBundle> createTypeMappingBoundleMap() {
+    @Override
+    Map<String, TypeMappingBundle> createBuildInTypeBundleMap(DialectEnv env) {
         final SQLiteType[] values = SQLiteType.values();
         final Map<SQLiteType, TypeMappingBundle> map = _Collections.hashMapForSize(values.length);
 

@@ -98,7 +98,7 @@ public class MappingTypeArrayType extends _ArmyBuildInArrayType {
         function = (text, offset, end) -> {
             final TypeMappingBundle bundle;
             try {
-                bundle = handler.apply(text.substring(offset, end));
+                bundle = handler.handleType(text.substring(offset, end));
             } catch (Exception e) {
                 throw dataAccessError(this, dataType, source, e);
             }

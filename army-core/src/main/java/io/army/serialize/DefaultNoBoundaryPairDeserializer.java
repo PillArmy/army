@@ -145,7 +145,9 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
                 function.apply(text, oldIndex, i + 1);
                 delimFlag = 1;
             } else if (ch == itemDelim) {
-                if (allowNothing) {
+                if (keyHolder[0] == null) {
+                    throw _Exceptions.redundantDelimError(text, i, itemDelim);
+                } else if (allowNothing) {
                     function.apply(text, 0, 0);  // representing nothing
                     continue;
                 }
