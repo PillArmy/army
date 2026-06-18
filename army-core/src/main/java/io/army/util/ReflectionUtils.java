@@ -1,6 +1,7 @@
 package io.army.util;
 
 import io.army.dialect.DialectEnv;
+import io.army.lang.Nullable;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
@@ -74,7 +75,6 @@ public abstract class ReflectionUtils {
     }
 
 
-
     public static List<Class<?>> typeArgumentList(final Field field) {
         final Type genericType = field.getGenericType();
         if (!(genericType instanceof ParameterizedType paramType)) {
@@ -93,6 +93,46 @@ public abstract class ReflectionUtils {
             list.add((Class<?>) t);
         }
         return list;
+    }
+
+    @Nullable
+    public static Class<?> tryOneTypeArgument(final Field field) {
+        final Type genericType = field.getGenericType();
+        final Type[] actualTypeArguments;
+
+        final Class<?> clazz;
+        if (!(genericType instanceof ParameterizedType pt)) {
+            clazz = null;
+        } else if ((actualTypeArguments = pt.getActualTypeArguments()).length != 1) {
+            clazz = null;
+        } else if (actualTypeArguments[0] instanceof Class<?> type) {
+            clazz = type;
+        } else {
+            clazz = null;
+        }
+        return clazz;
+    }
+
+
+    public static Class<?>[] tryTwoTypeArgument(final Field field) {
+        final Type genericType = field.getGenericType();
+        final Type[] actualTypeArguments;
+
+        final Class<?>[] clazzArray;
+        if (!(genericType instanceof ParameterizedType pt)) {
+            clazzArray = new Class<?>[0];
+        } else if ((actualTypeArguments = pt.getActualTypeArguments()).length != 2) {
+            clazzArray = new Class<?>[0];
+        } else if (!(actualTypeArguments[0] instanceof Class<?>)) {
+            clazzArray = new Class<?>[0];
+        } else if (!(actualTypeArguments[1] instanceof Class<?>)) {
+            clazzArray = new Class<?>[0];
+        } else {
+            clazzArray = new Class<?>[2];
+            clazzArray[0] = (Class<?>) actualTypeArguments[0];
+            clazzArray[1] = (Class<?>) actualTypeArguments[1];
+        }
+        return clazzArray;
     }
 
 

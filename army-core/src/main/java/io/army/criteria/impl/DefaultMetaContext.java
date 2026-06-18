@@ -214,6 +214,9 @@ final class DefaultMetaContext implements MetaContext {
         if (MappingType.class.isAssignableFrom(typeClass)) {
             String m = String.format("%s is not %s", typeClass.getName(), MappingType.class.getName());
             throw new MetaException(m);
+        } else if (!Modifier.isPublic(typeClass.getModifiers())) {
+            String m = String.format("%s is not %s", typeClass.getName(), "public");
+            throw new MetaException(m);
         }
 
 

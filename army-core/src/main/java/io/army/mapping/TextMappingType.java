@@ -18,6 +18,7 @@ package io.army.mapping;
 
 import java.nio.charset.Charset;
 
+@Deprecated
 public interface TextMappingType {
 
     Charset charset();

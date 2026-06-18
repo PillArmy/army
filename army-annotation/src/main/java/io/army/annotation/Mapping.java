@@ -69,7 +69,6 @@ public @interface Mapping {
     /// is available at compile time.
     Class<?> type() default void.class;
 
-    boolean fromJavaField() default false;
 
     /// (Optional) **Extra parameters** for the mapping type configuration.
     ///
@@ -80,40 +79,7 @@ public @interface Mapping {
     /// (Optional) A **Java method reference** for constructing or creating instances
     /// of the mapped Java type.
     ///
-    /// The format follows the `"ClassName::methodName"` convention:
-    /// - `"com.example.YourClass::new"` — references the constructor
-    ///   (resolved via `_ArmyPgRangeType#loadConstructor(Class, String, int, Class)`).
-    /// - `"com.example.YourClass::forName"` — references a public static
-    ///   factory method (resolved via
-    ///   `_ArmyPgRangeType#loadFactoryMethod(Class, String, int, Class)`).
-    ///
-    /// This is consumed by `MappingType` factory methods such as:
-    /// - `PgSingleRangeType#fromMethod(Class, String, String)`
-    /// - `PgMultiRangeType#fromMethod(Class, String, String)`
-    /// - `PostgreSingleRangeArrayType#fromMethod(Class, String, String)`
-    /// - `PostgreMultiRangeArrayType#fromMethod(Class, String, String)`
-    /// which pass it to
-    /// `PgRangeType#createRangeFunction(Class, Class, String)`
-    /// to build a `RangeFunction` for range value conversion.
-    ///
-    /// For non-range types, the framework dispatches via
-    /// `_MappingFactory#doMap(Class, Field, Mapping)` — which reflectively
-    /// invokes the appropriate factory method (`from`, `fromMethod`,
-    /// `forText`, `forElements`, etc.) based on the `MappingType` subclass.
     String func() default "";
-
-    /// (Optional) The **character set name** for text-based binary mappings.
-    ///
-    /// Required when `value()` is a `TextMappingType` implementation representing
-    /// binary data (e.g., `InputStream`, `Path`). Ignored otherwise.
-    ///
-    /// ### Example
-    /// ```java
-    /// @Mapping("io.army.mapping.mysql.MySQLLongTextType", charset = "UTF-8")
-    /// @Column(comment = "User info")
-    /// public InputStream userInfo;
-    /// ```
-    String charset() default "";
 
     /// (Optional) The **element type(s)** for collection mapping types.
     ///

@@ -31,12 +31,11 @@ import io.army.util.ArrayUtils;
 import io.army.util.ReflectionUtils;
 import io.army.util._StringUtils;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
 import java.time.*;
 import java.util.*;
 import java.util.function.Function;
@@ -125,7 +124,7 @@ public abstract class _MappingFactory {
     }
 
 
-    public static MappingType map(Class<?> domainClass, Field field, MetaContext context) {
+    static MappingType map(Class<?> domainClass, Field field, MetaContext context) {
         final Mapping mapping = field.getAnnotation(Mapping.class);
         final Class<?> mappingClass;
         final MappingType type;
@@ -133,93 +132,157 @@ public abstract class _MappingFactory {
             type = _MappingFactory.getDefault(field.getType());
         } else if ((mappingClass = mapping.type()) == void.class) {
             type = getMappingTypeFromValue(domainClass, field, mapping, context);
+        } else if (MappingType.class.isAssignableFrom(mappingClass)) {
+            String m = String.format("Mapping type[%s] of %s.%s isn't sub class of %s .", mappingClass.getName(),
+                    domainClass.getName(), field.getName(), MappingType.class.getName());
+            throw new MetaException(m);
         } else {
-            type = doMap(mappingClass, field, mapping);
+            type = mapType(domainClass, field, context, mappingClass, mapping);
         }
         return type;
     }
 
-    private static MappingType doMap(final Class<?> mappingClass, Field field, Mapping mapping) {
-        if (!MappingType.class.isAssignableFrom(mappingClass)) {
-            String m = String.format("Mapping type[%s] of %s.%s isn't sub class of %s .", mappingClass.getName(),
-                    field.getDeclaringClass().getName(), field.getName(), MappingType.class.getName());
-            throw new MetaException(m);
-        }
 
-        final boolean textMapping, elementMapping;
-        textMapping = TextMappingType.class.isAssignableFrom(mappingClass);
-        elementMapping = MultiGenericsMappingType.class.isAssignableFrom(mappingClass);
+    private static MappingType mapType(final Class<?> domainClass, Field field, MetaContext context, final Class<?> mappingClass,
+                                       Mapping mapping) {
+        final List<Method> factoryMethodList;
+        factoryMethodList = context.factoryMethodList(mappingClass);
 
-        try {
-            final Method method;
-            final Object mappingType;
-            final Class<?> fieldType = field.getType();
+        final Class<?> fieldJavaType = field.getType();
 
-            if (mapping.fromJavaField()) {
-                method = mappingClass.getDeclaredMethod("fromJavaField", Field.class);
-                assertFactoryMethod(method);
-                mappingType = method.invoke(null, field);
-            } else if (textMapping && elementMapping) {
-                method = mappingClass.getDeclaredMethod("forMixture", Class.class, Class[].class, Charset.class);
-                assertFactoryMethod(method);
-                final Charset charset = Charset.forName(mapping.charset());
-                mappingType = method.invoke(null, fieldType, mapping.elements(), charset);
-            } else if (textMapping) {
-                method = mappingClass.getDeclaredMethod("forText", Class.class, Charset.class);
-                assertFactoryMethod(method);
-                mappingType = method.invoke(null, fieldType, Charset.forName(mapping.charset()));
-            } else if (elementMapping) {
-                method = mappingClass.getDeclaredMethod("forElements", Class.class, Class[].class);
-                assertFactoryMethod(method);
-                mappingType = method.invoke(null, fieldType, mapping.elements());
-            } else if (fieldType == Map.class) {
-                method = mappingClass.getDeclaredMethod("fromMap", Class.class, Class.class);
-                assertFactoryMethod(method);
-                final List<Class<?>> genericsTypeList = ReflectionUtils.typeArgumentList(field);
-                mappingType = method.invoke(null, genericsTypeList.getFirst(), genericsTypeList.get(1));
-            } else if (fieldType == List.class) {
-                method = mappingClass.getDeclaredMethod("fromList", Class.class);
-                assertFactoryMethod(method);
-                mappingType = method.invoke(null, ReflectionUtils.typeArgumentList(field).getFirst());
-            } else if (fieldType == Set.class) {
-                method = mappingClass.getDeclaredMethod("fromSet", Class.class);
-                assertFactoryMethod(method);
-                mappingType = method.invoke(null, ReflectionUtils.typeArgumentList(field).getFirst());
-            } else if (field.getGenericType() instanceof ParameterizedType) {
-                final List<Class<?>> genericsTypeList = ReflectionUtils.typeArgumentList(field);
-                if (genericsTypeList.size() == 1) {
-                    method = mappingClass.getDeclaredMethod("fromTypeArg", Class.class, Class.class);
-                    mappingType = method.invoke(null, fieldType, genericsTypeList.getFirst());
-                    assertFactoryMethod(method);
-                } else {
-                    method = mappingClass.getDeclaredMethod("fromTypeArgs", Class.class, Class[].class);
-                    assertFactoryMethod(method);
-                    mappingType = method.invoke(null, fieldType, genericsTypeList.toArray(new Class<?>[0]));
+        final boolean haveConfig, haveTypeArg;
+        haveConfig = mapping.elements().length > 0
+                || mapping.params().length > 0
+                || !mapping.func().isEmpty();
+
+        haveTypeArg = !(field.getGenericType() instanceof Class<?>);
+
+
+        MappingType type;
+        String methodName;
+        Class<?> typeClass;
+        Class<?>[] typeArray;
+
+        topLoop:
+        for (Method factoryMethod : factoryMethodList) {
+            methodName = factoryMethod.getName();
+
+            switch (methodName) {
+                case "from": {
+                    if (haveConfig || haveTypeArg) {
+                        continue;
+                    }
+                    type = oneClassFactoryMethod(domainClass, field, factoryMethod, fieldJavaType);
                 }
-            } else {
-                method = mappingClass.getDeclaredMethod("from", Class.class);
-                assertFactoryMethod(method);
-                mappingType = method.invoke(null, fieldType);
-            }
-            if (mappingType == null) {
-                String m = String.format("%s %s factory method return null.", mappingClass.getName(), method.getName());
-                throw new MetaException(m);
-            }
-            return (MappingType) mappingType;
-        } catch (NoSuchMethodException | IllegalAccessException e) {
-            String m = String.format("%s factory method definition error for %s.%s"
-                    , mappingClass.getName(), field.getDeclaringClass().getName(), field.getName());
-            throw new MetaException(m, e);
-        } catch (InvocationTargetException e) {
-            String m = String.format("Factory method of %s invocation occur error for %s.%s"
-                    , mappingClass.getName(), field.getDeclaringClass().getName(), field.getName());
-            throw new MetaException(m, e);
-        } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
-            String m = String.format("%s.%s %s.charset() error."
-                    , field.getDeclaringClass().getName(), field.getName(), Mapping.class.getName());
-            throw new MetaException(m, e);
-        }
+                break topLoop;
+                case "fromList": {
+                    if (haveConfig || !haveTypeArg || fieldJavaType != List.class) {
+                        continue;
+                    }
+                    typeClass = ReflectionUtils.tryOneTypeArgument(field);
+                    if (typeClass == null) {
+                        continue;
+                    }
+                    type = oneClassFactoryMethod(domainClass, field, factoryMethod, typeClass);
+                }
+                break topLoop;
+                case "fromSet": {
+                    if (haveConfig || !haveTypeArg || fieldJavaType != Set.class) {
+                        continue;
+                    }
+                    typeClass = ReflectionUtils.tryOneTypeArgument(field);
+                    if (typeClass == null) {
+                        continue;
+                    }
+                    type = oneClassFactoryMethod(domainClass, field, factoryMethod, typeClass);
+                }
+                break topLoop;
+                case "fromEnumSet": {
+                    if (haveConfig || !haveTypeArg || fieldJavaType != EnumSet.class) {
+                        continue;
+                    }
+                    typeClass = ReflectionUtils.tryOneTypeArgument(field);
+                    if (typeClass == null) {
+                        continue;
+                    }
+                    type = oneClassFactoryMethod(domainClass, field, factoryMethod, typeClass);
+                }
+                break topLoop;
+                case "fromMap": {
+                    if (haveConfig || !haveTypeArg || fieldJavaType != Map.class) {
+                        continue;
+                    }
+                    typeArray = ReflectionUtils.tryTwoTypeArgument(field);
+                    if (typeArray.length != 2) {
+                        continue;
+                    }
+                    type = classListFactoryMethod(domainClass, field, factoryMethod, typeArray);
+                }
+                break topLoop;
+                case "fromEnumMap": {
+                    if (haveConfig || !haveTypeArg || fieldJavaType != EnumMap.class) {
+                        continue;
+                    }
+                    typeArray = ReflectionUtils.tryTwoTypeArgument(field);
+                    if (typeArray.length != 2) {
+                        continue;
+                    }
+                    type = classListFactoryMethod(domainClass, field, factoryMethod, typeArray);
+                }
+                break topLoop;
+                case "fromJavaField":
+                    break;
 
+            } // switch
+        } // factoryMethod loop
+
+        throw new UnsupportedOperationException();
+    }
+
+
+    private static MappingType oneClassFactoryMethod(final Class<?> domainClass, Field field, Method factoryMethod,
+                                                     Class<?> javaType) {
+        try {
+            final MappingType type;
+            type = (MappingType) factoryMethod.invoke(null, javaType);
+            if (type == null) {
+                throw factoryMethodReturnNull(factoryMethod);
+            }
+            return type;
+        } catch (Exception e) {
+            throw factoryInvokeError(domainClass, field, factoryMethod, e);
+        }
+    }
+
+    private static MappingType classListFactoryMethod(final Class<?> domainClass, Field field, Method factoryMethod, Class<?>[] typeArray) {
+        try {
+            final Object[] valueArray = new Object[typeArray.length];
+            System.arraycopy(typeArray, 0, valueArray, 0, valueArray.length);
+
+            final MappingType type;
+            type = (MappingType) factoryMethod.invoke(null, valueArray);
+            if (type == null) {
+                throw factoryMethodReturnNull(factoryMethod);
+            }
+            return type;
+        } catch (Exception e) {
+            throw factoryInvokeError(domainClass, field, factoryMethod, e);
+        }
+    }
+
+    private static MappingType doMap(final Class<?> mappingClass, Field field, Mapping mapping) {
+        throw new UnsupportedOperationException();
+    }
+
+    private static MetaException factoryInvokeError(final Class<?> domainClass, Field field, Method method, Throwable e) {
+        String m = String.format("%s.%s\nfactory method[%s] invocation occur error",
+                domainClass.getName(), field.getName(), method);
+        return new MetaException(m, e);
+    }
+
+    private static MetaException factoryMethodReturnNull(Method method) {
+        String m = String.format("factory method[%s] return null.", method);
+        return new MetaException(m);
     }
 
 

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-interface MetaContext {
+sealed interface MetaContext permits DefaultMetaContext {
 
 
     void validateColumnName(Class<?> domainClass, String columnName);
