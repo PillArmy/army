@@ -32,6 +32,7 @@ import io.army.util.ReflectionUtils;
 import io.army.util._StringUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
@@ -149,19 +150,17 @@ public abstract class _MappingFactory {
         factoryMethodList = context.factoryMethodList(mappingClass);
 
         final Class<?> fieldJavaType = field.getType();
-
+        final String[] paramArray = mapping.params();
         final boolean haveConfig, haveTypeArg;
-        haveConfig = mapping.elements().length > 0
-                || mapping.params().length > 0
-                || !mapping.func().isEmpty();
+        haveConfig = paramArray.length > 0;
 
         haveTypeArg = !(field.getGenericType() instanceof Class<?>);
 
 
-        MappingType type;
+        MappingType type = null;
         String methodName;
         Class<?> typeClass;
-        Class<?>[] typeArray;
+        Class<?>[] classArray;
 
         topLoop:
         for (Method factoryMethod : factoryMethodList) {
@@ -212,31 +211,179 @@ public abstract class _MappingFactory {
                     if (haveConfig || !haveTypeArg || fieldJavaType != Map.class) {
                         continue;
                     }
-                    typeArray = ReflectionUtils.tryTwoTypeArgument(field);
-                    if (typeArray.length != 2) {
+                    classArray = ReflectionUtils.tryTwoTypeArgument(field);
+                    if (classArray.length != 2) {
                         continue;
                     }
-                    type = classListFactoryMethod(domainClass, field, factoryMethod, typeArray);
+                    type = invokeFactoryMethod(domainClass, field, factoryMethod, classArray);
                 }
                 break topLoop;
                 case "fromEnumMap": {
                     if (haveConfig || !haveTypeArg || fieldJavaType != EnumMap.class) {
                         continue;
                     }
-                    typeArray = ReflectionUtils.tryTwoTypeArgument(field);
-                    if (typeArray.length != 2) {
+                    classArray = ReflectionUtils.tryTwoTypeArgument(field);
+                    if (classArray.length != 2) {
                         continue;
                     }
-                    type = classListFactoryMethod(domainClass, field, factoryMethod, typeArray);
+                    type = invokeFactoryMethod(domainClass, field, factoryMethod, classArray);
                 }
                 break topLoop;
-                case "fromJavaField":
-                    break;
+                case "fromTypeArg": {
+                    if (haveConfig || !haveTypeArg) {
+                        continue;
+                    }
+                    typeClass = ReflectionUtils.tryOneTypeArgument(field);
+                    if (typeClass == null) {
+                        continue;
+                    }
+                    type = invokeFactoryMethod(domainClass, field, factoryMethod, new Object[]{fieldJavaType, typeClass});
+                }
+                break topLoop;
+                case "fromTypeArgs": {
+                    if (haveConfig || !haveTypeArg) {
+                        continue;
+                    }
+                    classArray = ReflectionUtils.tryMultiTypeArgument(field);
+                    if (classArray == null || classArray.length == 0) {
+                        continue;
+                    }
+                    if (factoryMethod.getParameterCount() == 2) {
+                        type = classAndArrayFactoryMethod(domainClass, field, factoryMethod, fieldJavaType, classArray);
+                    } else {
+                        classArray = merge(fieldJavaType, classArray);
+                        type = invokeFactoryMethod(domainClass, field, factoryMethod, classArray);
+                    }
+                }
+                break topLoop;
+                case "fromTypeArgAndType": {
+                    if (!haveConfig || !haveTypeArg) {
+                        continue;
+                    }
+                    typeClass = ReflectionUtils.tryOneTypeArgument(field);
+                    if (typeClass == null) {
+                        continue;
+                    }
+
+                    final Class<?> typeClassOfTypeArg;
+                    if (paramArray.length == 1) {
+                        typeClassOfTypeArg = tryLoadMappingClass(paramArray[0]);
+                        if (typeClassOfTypeArg == null) {
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
+
+                    final MappingType argType;
+                    argType = typeArgMappingFromFactoryMethod(domainClass, field, typeClass, typeClassOfTypeArg);
+                    type = typeArgAndTypeFactoryMethod(domainClass, field, factoryMethod, fieldJavaType, typeClass, argType);
+
+                }
+                break topLoop;
+                case "fromTypeArgsAndTypes": {
+                    if (!haveTypeArg) {
+                        continue;
+                    }
+
+                    classArray = ReflectionUtils.tryMultiTypeArgument(field);
+                    if (classArray == null || classArray.length == 0) {
+                        continue;
+                    }
+
+                    final Class<?>[] typeClassOfTypeArgArray;
+                    typeClassOfTypeArgArray = tryLoadMappingClassArray(mapping);
+                    if (typeClassOfTypeArgArray == null || typeClassOfTypeArgArray.length != classArray.length) {
+                        continue;
+                    }
+
+                    final MappingType[] typeArray;
+                    typeArray = typeArgumentsFromFactoryMethod(domainClass, field, context, classArray, typeClassOfTypeArgArray);
+
+                    type = typeArgArrayAndTypeArrayFactory(domainClass, field, factoryMethod, fieldJavaType, classArray, typeArray);
+
+                }
+                break topLoop;
+                case "fromTypeArgChain": {
+                    if (!haveTypeArg) {
+                        continue;
+                    }
+                    type = fromTypeArgChain(domainClass, field, factoryMethod);
+                    if (type == null) {
+                        continue;
+                    }
+                }
+                break topLoop;
+                case "fromParam": {
+                    if (paramArray.length != 1) {
+                        continue;
+                    }
+                    type = invokeFactoryMethod(domainClass, field, factoryMethod, new Object[]{fieldJavaType, paramArray[0]});
+                }
+                break topLoop;
+                case "fromParams": {
+                    if (paramArray.length == 0) {
+                        continue;
+                    }
+
+                    final Class<?>[] paramClassArray = factoryMethod.getParameterTypes();
+                    final Object[] valueArray;
+                    if (paramClassArray.length == 2) {
+                        valueArray = new Object[]{fieldJavaType, paramArray};
+                    } else {
+                        valueArray = new Object[1 + paramArray.length];
+                        valueArray[0] = fieldJavaType;
+                        System.arraycopy(paramArray, 0, valueArray, 1, paramArray.length);
+                    }
+
+                    type = invokeFactoryMethod(domainClass, field, factoryMethod, valueArray);
+                }
+                break topLoop;
+                case "fromJavaField": {
+                    type = invokeFactoryMethod(domainClass, field, factoryMethod, new Object[]{field});
+                }
+                break topLoop;
 
             } // switch
+
         } // factoryMethod loop
 
-        throw new UnsupportedOperationException();
+        if (type == null) {
+            String m = String.format("Can't find suitable factory method for %s.%s in %s.",
+                    domainClass.getName(), field.getName(), mappingClass.getName());
+            throw new MetaException(m);
+        }
+        return type;
+    }
+
+    @Nullable
+    private static MappingType fromTypeArgChain(final Class<?> domainClass, Field field, Method factoryMethod) {
+
+        final Object[] valueArray;
+        valueArray = new TypeArgChainParser(factoryMethod.getParameterTypes())
+                .parseTypeChain(field.getGenericType());
+
+        if (valueArray == null) {
+            return null;
+        }
+
+        return invokeFactoryMethod(domainClass, field, factoryMethod, valueArray);
+    }
+
+
+    private static MappingType typeArgAndTypeFactoryMethod(final Class<?> domainClass, Field field, Method factoryMethod,
+                                                           Class<?> javaType, Class<?> typeArg, MappingType typeArgType) {
+        try {
+            final MappingType type;
+            type = (MappingType) factoryMethod.invoke(null, javaType, typeArg, typeArgType);
+            if (type == null) {
+                throw factoryMethodReturnNull(factoryMethod);
+            }
+            return type;
+        } catch (Exception e) {
+            throw factoryInvokeError(domainClass, field, factoryMethod, e);
+        }
+
     }
 
 
@@ -254,11 +401,31 @@ public abstract class _MappingFactory {
         }
     }
 
-    private static MappingType classListFactoryMethod(final Class<?> domainClass, Field field, Method factoryMethod, Class<?>[] typeArray) {
-        try {
-            final Object[] valueArray = new Object[typeArray.length];
-            System.arraycopy(typeArray, 0, valueArray, 0, valueArray.length);
 
+    private static MappingType classAndArrayFactoryMethod(Class<?> domainClass, Field field,
+                                                          Method factoryMethod, Class<?> fieldJavaType,
+                                                          Class<?>[] classArray) {
+
+        final Object[] valueArray = new Object[classArray.length + 1];
+        valueArray[0] = fieldJavaType;
+        System.arraycopy(classArray, 0, valueArray, 1, classArray.length);
+        return invokeFactoryMethod(domainClass, field, factoryMethod, valueArray);
+    }
+
+
+    private static MappingType typeArgArrayAndTypeArrayFactory(Class<?> domainClass, Field field, Method factoryMethod,
+                                                               Class<?> fieldJavaType, Class<?>[] typeArgArray,
+                                                               MappingType[] typeArray) {
+        final Object[] valueArray = new Object[1 + typeArgArray.length + typeArray.length];
+        valueArray[0] = fieldJavaType;
+        System.arraycopy(typeArgArray, 0, valueArray, 1, typeArgArray.length);
+        System.arraycopy(typeArray, 0, valueArray, 1 + typeArgArray.length, typeArray.length);
+        return invokeFactoryMethod(domainClass, field, factoryMethod, valueArray);
+    }
+
+    private static MappingType invokeFactoryMethod(Class<?> domainClass, Field field, Method factoryMethod,
+                                                   Object[] valueArray) {
+        try {
             final MappingType type;
             type = (MappingType) factoryMethod.invoke(null, valueArray);
             if (type == null) {
@@ -270,13 +437,132 @@ public abstract class _MappingFactory {
         }
     }
 
-    private static MappingType doMap(final Class<?> mappingClass, Field field, Mapping mapping) {
-        throw new UnsupportedOperationException();
+    private static Class<?>[] merge(Class<?> fieldJavaType, Class<?>[] classArray) {
+        final Class<?>[] newArray = new Class<?>[classArray.length + 1];
+        newArray[0] = fieldJavaType;
+        System.arraycopy(classArray, 0, newArray, 1, classArray.length);
+        return newArray;
     }
 
+    @Nullable
+    private static Class<?> tryLoadMappingClass(final String className) {
+        if (className.indexOf('.') < 0) {
+            return null;
+        }
+        Class<?> clazz;
+        try {
+            clazz = Class.forName(className);
+            if (!MappingType.class.isAssignableFrom(clazz)) {
+                clazz = null;
+            }
+        } catch (ClassNotFoundException e) {
+            clazz = null;
+        }
+        return clazz;
+    }
+
+
+    private static MappingType typeArgMappingFromFactoryMethod(final Class<?> domainClass, Field field,
+                                                               Class<?> typeClass, Class<?> typeClassOfTypeArg) {
+
+
+        try {
+            final Method method;
+            method = typeClassOfTypeArg.getDeclaredMethod("from", Class.class);
+            final int modifiers = method.getModifiers();
+            if (!Modifier.isPublic(modifiers)
+                    || !Modifier.isStatic(modifiers)
+                    || method.getReturnType() != typeClassOfTypeArg) {
+                String m = String.format("Factory method[%s] in %s is not public static or return type is not %s",
+                        "from", typeClassOfTypeArg.getName(), typeClassOfTypeArg.getName());
+                throw new MetaException(m);
+            }
+            final MappingType type;
+            type = (MappingType) method.invoke(null, typeClass);
+            if (type == null) {
+                throw factoryMethodReturnNull(method);
+            }
+            return type;
+        } catch (NoSuchMethodException e) {
+            String m = String.format("Not found factory method[%s] in %s ,for %s.%s type argument[%s]",
+                    "from", typeClassOfTypeArg.getName(), domainClass.getName(), field.getName(), typeClass.getName());
+            throw new MetaException(m, e);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            String m = String.format("%s.%s type argument[%s] \nfactory method[%s.%s] invocation occur error",
+                    domainClass.getName(), field.getName(), typeClass.getName(), typeClassOfTypeArg.getName(), "from");
+            throw new MetaException(m, e);
+        }
+
+    }
+
+
+    @Nullable
+    private static Class<?>[] tryLoadMappingClassArray(Mapping mapping) {
+        Class<?>[] typeClassOfTypeArgArray;
+        String[] paramArray;
+        typeClassOfTypeArgArray = mapping.elements();
+        if (typeClassOfTypeArgArray.length > 0) {
+            for (int i = 0; i < typeClassOfTypeArgArray.length; i++) {
+                if (MappingType.class.isAssignableFrom(typeClassOfTypeArgArray[i])) {
+                    continue;
+                }
+                typeClassOfTypeArgArray = null;
+                break;
+            }
+        } else if ((paramArray = mapping.params()).length > 0) {
+            typeClassOfTypeArgArray = new Class<?>[paramArray.length];
+            for (int i = 0; i < paramArray.length; i++) {
+                typeClassOfTypeArgArray[i] = tryLoadMappingClass(paramArray[i]);
+                if (typeClassOfTypeArgArray[i] == null) {
+                    typeClassOfTypeArgArray = null;
+                    break;
+                }
+            }
+        } else {
+            typeClassOfTypeArgArray = null;
+        }
+        return typeClassOfTypeArgArray;
+    }
+
+    private static MappingType[] typeArgumentsFromFactoryMethod(Class<?> domainClass, Field field, MetaContext context,
+                                                                Class<?>[] typeArgArray, Class<?>[] typeClassOfTypeArgArray) {
+        final MappingType[] typeArray = new MappingType[typeClassOfTypeArgArray.length];
+        List<Method> methodList;
+        Method factoryMethod;
+        for (int i = 0; i < typeClassOfTypeArgArray.length; i++) {
+            methodList = context.factoryMethodList(typeClassOfTypeArgArray[i]);
+            if (methodList.isEmpty()) {
+                throw notFoundFactoryMethodForTypeArgument(domainClass, field, typeArgArray[i], typeClassOfTypeArgArray[i]);
+            }
+            factoryMethod = null;
+            for (Method method : methodList) {
+                if (method.getName().equals("from")) {
+                    factoryMethod = method;
+                    break;
+                }
+            } // inner loop
+
+            if (factoryMethod == null) {
+                throw notFoundFactoryMethodForTypeArgument(domainClass, field, typeArgArray[i], typeClassOfTypeArgArray[i]);
+            }
+
+            typeArray[i] = oneClassFactoryMethod(domainClass, field, factoryMethod, typeArgArray[i]);
+
+        } // top loop
+        return typeArray;
+    }
+
+    private static MetaException notFoundFactoryMethodForTypeArgument(Class<?> domainClass, Field field,
+                                                                      Class<?> typeArg, Class<?> typeClassOfTypeArg) {
+        String m = String.format("Not found factory method[%s] in %s, for %s.%s type argument[%s]",
+                "from", typeClassOfTypeArg.getName(), domainClass.getName(), field.getName(), typeArg.getName());
+        return new MetaException(m);
+    }
+
+
     private static MetaException factoryInvokeError(final Class<?> domainClass, Field field, Method method, Throwable e) {
-        String m = String.format("%s.%s\nfactory method[%s] invocation occur error",
-                domainClass.getName(), field.getName(), method);
+        String m = String.format("factory method[%s] invocation occur error, for %s.%s or it's type argument",
+                method, domainClass.getName(), field.getName());
         return new MetaException(m, e);
     }
 
@@ -352,7 +638,7 @@ public abstract class _MappingFactory {
                     field.getDeclaringClass().getName(), field.getName(), mapping.value());
             throw new MetaException(m);
         }
-        return doMap(mappingClass, field, mapping);
+        return mapType(domainClass, field, context, mappingClass, mapping);
     }
 
 
@@ -369,20 +655,6 @@ public abstract class _MappingFactory {
         configValue = context.tableMetaProperties().getProperty(key);
 
         return !_StringUtils.hasText(configValue);
-    }
-
-
-    private static void assertFactoryMethod(final Method method) {
-        final int modifiers;
-        modifiers = method.getModifiers();
-        if (!(Modifier.isPublic(modifiers)
-                && Modifier.isStatic(modifiers)
-                && method.getDeclaringClass().isAssignableFrom(method.getReturnType()))) {
-            String m = String.format("Not found %s method (static factory method) in %s ."
-                    , method.getName(), method.getDeclaringClass().getName());
-            throw new MetaException(m);
-        }
-
     }
 
 

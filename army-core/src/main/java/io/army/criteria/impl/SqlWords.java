@@ -51,7 +51,25 @@ abstract class SqlWords {
 
     enum SymColonEnum implements SQLs.SymbolColon {
 
-        COLON
+        COLON;
+
+    }
+
+    enum SymbolCommaEnum implements SQLs.Comma {
+
+        COMMA;
+
+
+        @Override
+        public String spaceRender() {
+            return " ,";
+        }
+
+        @Override
+        public final String toString() {
+            return SQLs.keyWordsToString(this);
+        }
+
     }
 
     enum WordAbsentEnum implements SQLs.WordAbsent {

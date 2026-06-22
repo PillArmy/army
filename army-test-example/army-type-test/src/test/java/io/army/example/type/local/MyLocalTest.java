@@ -2,23 +2,52 @@ package io.army.example.type.local;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
-import com.google.common.collect.RangeSet;
+import io.army.util.ArrayUtils;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
 
 
 public class MyLocalTest {
 
-    public Range<Integer> int4RangeGuava;
 
-    public Integer integer;
+    public List<Map<String, Integer>> armyType;
 
-    public RangeSet<Integer> rangeSet;
+    Map<String, Integer>[][] mapArray;
+
+    List<List<Map<String, Integer>>> mapArrayList;
+
 
     @Test
-    public void simple() {
-        String text = "\"\"";
+    public void simpleTest() {
+        System.out.println(ArrayUtils.arrayClassOf(Map.class, 3).getName());
+    }
 
-        System.out.println(text.substring(1, 1));
+
+    @Test
+    public void simple() throws Exception {
+        Field field;
+        field = getClass().getDeclaredField("mapArrayList");
+
+        Type type = field.getGenericType();
+        if (!(type instanceof ParameterizedType pt)) {
+            throw new IllegalArgumentException();
+        }
+
+        System.out.println(pt.getRawType() instanceof Class<?>);
+        System.out.println(pt.getRawType().getTypeName());
+
+//        Type[] typeArray;
+//        typeArray =   pt.getActualTypeArguments();
+//
+//        GenericArrayType arrayType;
+//        arrayType =  (GenericArrayType)typeArray[0];
+//        System.out.println( arrayType.getTypeName());
+
     }
 
     @Test

@@ -211,7 +211,7 @@ final class DefaultMetaContext implements MetaContext {
 
 
     private List<Method> createFactoryMethodList(final Class<?> typeClass) {
-        if (MappingType.class.isAssignableFrom(typeClass)) {
+        if (!MappingType.class.isAssignableFrom(typeClass)) {
             String m = String.format("%s is not %s", typeClass.getName(), MappingType.class.getName());
             throw new MetaException(m);
         } else if (!Modifier.isPublic(typeClass.getModifiers())) {
@@ -219,11 +219,13 @@ final class DefaultMetaContext implements MetaContext {
             throw new MetaException(m);
         }
 
+        final Set<String> nameSet = new HashSet<>();
 
         final List<Method> list = new ArrayList<>(4);
         int modifiers;
         String name;
         Class<?>[] paramTypeArray;
+        boolean addedFromJavaField = false;
 
         topLoop:
         for (Method method : typeClass.getDeclaredMethods()) {
@@ -256,8 +258,7 @@ final class DefaultMetaContext implements MetaContext {
                 case "from":
                 case "fromList":
                 case "fromSet":
-                case "fromEnumSet":
-                case "fromJavaFiled": {
+                case "fromEnumSet": {
                     if (paramTypeArray.length != 1) {
                         continue;
                     }
@@ -314,27 +315,13 @@ final class DefaultMetaContext implements MetaContext {
                     if (paramTypeArray.length < 3) {
                         continue;
                     }
-                    for (int i = 1; i < paramTypeArray.length; i++) {
-                        if (paramTypeArray[i] != Class.class && paramTypeArray[i] != Class[].class) {
-                            continue topLoop;
-                        }
-                    }
-                }
-                break;
-                case "fromTypeArgChainAndTypes": {
-                    if (paramTypeArray.length < 3) {
-                        continue;
-                    } else if ((paramTypeArray.length & 1) == 0) {
-                        continue;
-                    }
 
-                    for (int i = 1; i < paramTypeArray.length; i += 2) {
-                        if (paramTypeArray[i] != Class[].class) {
-                            continue topLoop;
-                        } else if (paramTypeArray[i + 1] != MappingType[].class) {
+                    for (int i = 1; i < paramTypeArray.length; i++) {
+                        if (paramTypeArray[i] != Class.class) {
                             continue topLoop;
                         }
-                    } // loop
+                    } // inner loop
+
                 }
                 break;
                 case "fromParam": {
@@ -362,11 +349,22 @@ final class DefaultMetaContext implements MetaContext {
                     }
                 }
                 break;
+                case "fromJavaFiled": {
+                    if (paramTypeArray.length != 1) {
+                        continue;
+                    }
+                    addedFromJavaField = true;
+                }
+                break;
                 default:
                     continue;
             } // switch
 
 
+            if (addedFromJavaField && !name.equals("fromJavaField")) {
+                throw new MetaException("fromJavaField factory method must be the last factory method");
+            }
+            nameSet.add(name);
             list.add(method);
 
         } // loop

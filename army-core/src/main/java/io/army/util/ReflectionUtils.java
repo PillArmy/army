@@ -136,6 +136,35 @@ public abstract class ReflectionUtils {
     }
 
 
+    @Nullable
+    public static Class<?>[] tryMultiTypeArgument(final Field field) {
+        final Type genericType = field.getGenericType();
+        final Type[] actualTypeArguments;
+
+
+        final Class<?>[] clazzArray;
+        if (!(genericType instanceof ParameterizedType pt)) {
+            clazzArray = null;
+        } else if ((actualTypeArguments = pt.getActualTypeArguments()).length == 0) {
+            clazzArray = null;
+        } else {
+            int length = actualTypeArguments.length;
+            for (Type type : actualTypeArguments) {
+                if (type instanceof Class<?>) {
+                    continue;
+                }
+                length = 0;
+                break;
+            } // loop
+            clazzArray = new Class<?>[length];
+            for (int i = 0; i < length; i++) {
+                clazzArray[i] = (Class<?>) actualTypeArguments[i];
+            } // loop
+        } // else
+        return clazzArray;
+    }
+
+
 
     /*-------------------below private methods -------------------*/
 

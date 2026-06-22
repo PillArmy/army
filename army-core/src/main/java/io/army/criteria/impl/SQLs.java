@@ -221,7 +221,7 @@ public abstract class SQLs extends SQLSyntax {
 
     public static final WordUsing USING = SqlWords.KeyWordUsing.USING;
 
-    public static final SQLToken COMMA = SqlWords.FuncWord.COMMA;
+    public static final Comma COMMA = SqlWords.SymbolCommaEnum.COMMA;
 
     public static final WordsAtTimeZone AT_TIME_ZONE = SqlWords.KeyWordsAtTimeZone.AT_TIME_ZONE;
 
@@ -663,6 +663,10 @@ public abstract class SQLs extends SQLSyntax {
 
 
     public sealed interface SymbolColon permits SqlWords.SymColonEnum {
+
+    }
+
+    public sealed interface Comma extends SQLToken permits SqlWords.SymbolCommaEnum {
 
     }
 
