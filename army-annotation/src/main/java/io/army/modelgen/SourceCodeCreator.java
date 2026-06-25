@@ -223,7 +223,7 @@ final class SourceCodeCreator {
         //7. output source code.
 
         final List<Pair> builderList = this.pairList;
-        builderList.add(new Pair(MetaUtils.getClassName(element) + _MetaBridge.META_CLASS_NAME_SUFFIX, builder));
+        builderList.add(Pair.of(MetaUtils.getClassName(element) + _MetaBridge.META_CLASS_NAME_SUFFIX, builder));
 
         if (builderList.size() > 49) {
             flush();
@@ -242,7 +242,7 @@ final class SourceCodeCreator {
             fileObject = filer.createSourceFile(pair.className);
 
             try (PrintWriter pw = new PrintWriter(fileObject.openOutputStream())) {
-                pw.println(pair.builder);
+                pw.println(pair.content);
             }
         }
 
@@ -605,20 +605,6 @@ final class SourceCodeCreator {
         }
         builder.append('>');
     }
-
-
-    private static final class Pair {
-
-        private final String className;
-
-        private final StringBuilder builder;
-
-        private Pair(String className, StringBuilder builder) {
-            this.className = className;
-            this.builder = builder;
-        }
-
-    } // Pair
 
 
 }

@@ -18,6 +18,7 @@ package io.army.modelgen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 abstract class ArmyCollections {
 
@@ -30,9 +31,18 @@ abstract class ArmyCollections {
         return new HashMap<>();
     }
 
+    static <K, V> HashMap<K, V> hashMapForSize(int size) {
+        return new HashMap<>((int) (size / 0.75F));
+    }
+
+    static <E> HashSet<E> hashSetForSize(int size) {
+        return new HashSet<>((int) (size / 0.75F));
+    }
+
     static <K, V> HashMap<K, V> hashMap(int initialCapacity) {
         return new HashMap<>(initialCapacity);
     }
+
 
     static <E> ArrayList<E> arrayList() {
         return new ArrayList<>();

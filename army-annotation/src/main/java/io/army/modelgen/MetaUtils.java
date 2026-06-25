@@ -16,14 +16,19 @@
 
 package io.army.modelgen;
 
-import io.army.struct.CodeEnum;
-
+import io.army.annotation.Mapping;
 import io.army.lang.Nullable;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.TypeElement;
+import io.army.struct.CodeEnum;
+import io.army.struct.DefinedType;
+import io.army.struct.TypeCategory;
+
+import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import java.lang.annotation.Annotation;
+import java.util.Map;
 
 abstract class MetaUtils {
 
@@ -62,6 +67,62 @@ abstract class MetaUtils {
             }
         }
         return match;
+    }
+
+
+    static boolean isEnum(VariableElement field) {
+        final TypeMirror typeMirror = field.asType();
+        return typeMirror instanceof DeclaredType
+                && ((DeclaredType) typeMirror).asElement().getKind() == ElementKind.ENUM;
+    }
+
+    static boolean isComposite(VariableElement field) {
+        final DefinedType definedType = field.getAnnotation(DefinedType.class);
+        return definedType != null && definedType.category() == TypeCategory.COMPOSITE;
+    }
+
+    static boolean isCompositeMapping(VariableElement field) {
+
+        Mapping mapping = field.getAnnotation(Mapping.class);
+
+
+        return false;
+    }
+
+    @Nullable
+    static TypeMirror typeMirror(final Element element, final Class<? extends Annotation> annoClass,
+                                 final String methodName, final Elements elements) {
+
+
+        final String annoClassName = annoClass.getName();
+
+        TypeMirror typeMirror = null;
+
+        TypeElement annoElement;
+
+        topLoop:
+        for (AnnotationMirror mirror : element.getAnnotationMirrors()) {
+            annoElement = (TypeElement) mirror.getAnnotationType().asElement();
+            if (!MetaUtils.getClassName(annoElement).equals(annoClassName)) {
+                continue;
+            }
+            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues().entrySet()) {
+                if (!entry.getKey().getSimpleName().toString().equals(methodName)) {
+                    continue;
+                }
+
+                final Object value;
+                value = entry.getValue().getValue();
+                if (value instanceof Class<?>) {
+                    typeMirror = elements.getTypeElement(((Class<?>) value).getName()).asType();
+                } else if (value instanceof DeclaredType && ((DeclaredType) value).getKind() == TypeKind.DECLARED) {
+                    typeMirror = (DeclaredType) value;
+                }
+                break topLoop;
+            } // annotation value loop
+
+        } // AnnotationMirror loop
+        return typeMirror;
     }
 
 
