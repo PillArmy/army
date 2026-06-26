@@ -340,7 +340,7 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
                 }
                 if (discriminatorField != null && discriminatorField.equals(fieldName)) {
                     foundDiscriminatorColumn = true;
-                    assertDiscriminatorEnum(domainName, className, field);
+                    // assertDiscriminatorEnum(domainName, className, field);
                     validateField(domainName, className, fieldName, field, column, true);
                 } else {
                     validateField(domainName, className, fieldName, field, column, false);

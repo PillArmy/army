@@ -57,17 +57,17 @@ import java.lang.annotation.*;
 @Documented
 public @interface Mapping {
 
-    /// (Optional) The **fully-qualified class name** of the `MappingType` implementation.
-    ///
-    /// Either this or `type()` must be specified; `type()` takes precedence.
-    /// For `TextMappingType` implementations representing binary data, `charset()` is also required.
-    String value() default "";
-
     /// (Optional) The **class of the `MappingType` implementation**.
     ///
     /// Takes precedence over `value()`. Use this when the mapping type class
     /// is available at compile time.
     Class<?> type() default void.class;
+
+    /// (Optional) The **fully-qualified class name** of the `MappingType` implementation.
+    ///
+    /// Either this or `type()` must be specified; `type()` takes precedence.
+    /// For `TextMappingType` implementations representing binary data, `charset()` is also required.
+    String value() default "";
 
 
     /// (Optional) **Extra parameters** for the mapping type configuration.

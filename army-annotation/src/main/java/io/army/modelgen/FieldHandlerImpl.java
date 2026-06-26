@@ -18,7 +18,13 @@ package io.army.modelgen;
 
 import io.army.annotation.*;
 
-import javax.lang.model.element.VariableElement;
+import javax.annotation.Nullable;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.*;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -32,13 +38,35 @@ import java.util.function.Function;
 
 final class FieldHandlerImpl implements FieldHandler {
 
+    private final Elements elements;
+
+    private final Types types;
+
+    private final TypeMirror jsonbType;
+
+    private final TypeMirror jsonType;
+
+    private final TypeMirror compositeType;
+
+    private final TypeMirror arrayType;
+
+
     private final Function<String, MappingMode> mappingModeFunc;
 
     private final Consumer<String> errorMsgConsumer;
 
     private final Map<String, Set<String>> startTimeToDomain = new HashMap<>();
 
-    private FieldHandlerImpl(Function<String, MappingMode> mappingModeFunc, Consumer<String> errorMsgConsumer) {
+    private FieldHandlerImpl(ProcessingEnvironment env, Function<String, MappingMode> mappingModeFunc,
+                             Consumer<String> errorMsgConsumer) {
+        this.elements = env.getElementUtils();
+        this.types = env.getTypeUtils();
+
+        this.jsonbType = this.elements.getTypeElement("io.army.mapping.MappingType$SqlJsonb").asType();
+        this.jsonType = this.elements.getTypeElement("io.army.mapping.MappingType$SqlJson").asType();
+        this.compositeType = this.elements.getTypeElement("io.army.mapping.MappingType$SqlComposite").asType();
+        this.arrayType = this.elements.getTypeElement("io.army.mapping.MappingType$SqlArray").asType();
+
         this.mappingModeFunc = mappingModeFunc;
         this.errorMsgConsumer = errorMsgConsumer;
     }
@@ -81,11 +109,110 @@ final class FieldHandlerImpl implements FieldHandler {
 
                 final Mapping mapping = field.getAnnotation(Mapping.class);
 
+                TypeMirror typeMirror;
+                if (mapping == null) {
+                    if (MetaUtils.isComposite(field)) {
+                        fieldType = FieldType.COMPOSITE;
+                    } else {
+                        fieldType = FieldType.DEFAULT;
+                    }
+                } else if ((typeMirror = mappingTypeMirror(domainName, field, mapping)) == null) {
+                    fieldType = FieldType.DEFAULT;
+                } else if (this.types.isAssignable(this.jsonbType, typeMirror)) {
+                    fieldType = FieldType.JSONB;
+                } else if (this.types.isAssignable(this.jsonType, typeMirror)) {
+                    fieldType = FieldType.JSON;
+                } else if (this.types.isAssignable(this.compositeType, typeMirror)) {
+                    fieldType = FieldType.COMPOSITE;
+                } else if (this.types.isAssignable(this.arrayType, typeMirror)) {
+                    fieldType = FieldType.ARRAY;
+                } else {
+                    fieldType = FieldType.DEFAULT;
+                }
+
+                if (fieldType == FieldType.COMPOSITE) {
+                    validateCompositeField(domainName, field);
+                }
 
             } // default
         } //switch
 
-        return null;
+        return FieldMeta.of(field, fieldType);
+    }
+
+
+    private void validateCompositeField(final String domainName, final VariableElement field) {
+
+    }
+
+
+    @Nullable
+    private TypeMirror mappingTypeMirror(final String domainName, final VariableElement field, final Mapping mapping) {
+        TypeMirror typeMirror;
+        typeMirror = valueOfMappingType(field);
+        if (typeMirror == null) {
+            typeMirror = valueOfMappingValue(domainName, field, mapping);
+        }
+        return typeMirror;
+    }
+
+
+    @Nullable
+    private TypeMirror valueOfMappingType(final VariableElement field) {
+
+        TypeMirror typeMirror = null;
+
+        TypeElement annoElement;
+
+        topLoop:
+        for (AnnotationMirror mirror : field.getAnnotationMirrors()) {
+            annoElement = (TypeElement) mirror.getAnnotationType().asElement();
+            if (!MetaUtils.getClassName(annoElement).equals(Mapping.class.getName())) {
+                continue;
+            }
+
+            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues().entrySet()) {
+
+                if (!entry.getKey().getSimpleName().toString().equals("type")) {
+                    continue;
+                }
+
+                final Object value;
+                value = entry.getValue().getValue();
+                if (value instanceof TypeMirror) {
+                    typeMirror = (DeclaredType) value;
+                } else if (value == void.class) {
+                    break topLoop;
+                } else if (value instanceof Class<?>) {
+                    typeMirror = this.elements.getTypeElement(((Class<?>) value).getName()).asType();
+                }
+
+                break topLoop;
+
+            } // annotation value loop
+
+        } // AnnotationMirror loop
+        return typeMirror;
+    }
+
+
+    @Nullable
+    private TypeMirror valueOfMappingValue(final String domainName, final VariableElement field, final Mapping mapping) {
+        final String value = mapping.value();
+        TypeMirror typeMirror;
+        if (MetaUtils.hasText(value)) {
+            try {
+                typeMirror = this.elements.getTypeElement(value).asType();
+            } catch (Exception e) {
+                typeMirror = null;
+                String m = String.format("Field %s.%s mapping value %s not found. error message:\n%s",
+                        domainName, field.getSimpleName(), value, e.getMessage());
+                this.errorMsgConsumer.accept(m);
+            }
+        } else {
+            typeMirror = null;
+        }
+        return typeMirror;
     }
 
     private void validateSnowflakeStartTime(final String domainName, final String fieldName, final VariableElement field) {

@@ -2,7 +2,7 @@ package io.army.example.type.local;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
-import io.army.util.ArrayUtils;
+import io.army.mapping.MappingType;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -24,7 +24,7 @@ public class MyLocalTest {
 
     @Test
     public void simpleTest() {
-        System.out.println(ArrayUtils.arrayClassOf(Map.class, 3).getName());
+        System.out.println(MappingType.SqlJson.class.getName());
     }
 
 

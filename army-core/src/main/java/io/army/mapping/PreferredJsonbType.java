@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 /// Maps the Java type to JSONB by default if supported, otherwise uses JSON.
-public class PreferredJsonbType extends ArmyJsonType implements MappingType.SqlJson {
+public class PreferredJsonbType extends ArmyJsonType implements MappingType.SqlJsonb {
 
     public static PreferredJsonbType from(final Class<?> javaType) {
         if (Map.class.isAssignableFrom(javaType) || Collection.class.isAssignableFrom(javaType)) {
@@ -57,12 +57,7 @@ public class PreferredJsonbType extends ArmyJsonType implements MappingType.SqlJ
     }
 
 
-    private static final ClassValue<PreferredJsonbType> CLASS_VALUE = new ClassValue<>() {
-        @Override
-        protected PreferredJsonbType computeValue(Class<?> type) {
-            return new PreferredJsonbType(type);
-        }
-    };
+    private static final ClassValue<PreferredJsonbType> CLASS_VALUE = FuncClassValue.create(PreferredJsonbType::new);
 
 
     private PreferredJsonbType(Class<?> javaType) {
