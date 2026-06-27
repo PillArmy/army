@@ -193,6 +193,52 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
         return pairList;
     }
 
+    @Override
+    public void endHandle() {
+        if (!this.options.snowflakeStartTimeWarning) {
+            return;
+        }
+
+        StringBuilder builder = null;
+        Set<String> set;
+        for (Map.Entry<String, Set<String>> e : this.startTimeToDomain.entrySet()) {
+            set = e.getValue();
+            if (set.size() < 2) {
+                continue;
+            }
+            if (builder == null) {
+                builder = new StringBuilder();
+            } else {
+                builder.append('\n');
+            }
+            builder.append("snowflake startTime")
+                    .append('[')
+                    .append(e.getKey())
+                    .append(']')
+                    .append(" is used by ")
+                    .append(set)
+            ;
+
+        }
+
+        if (builder == null) {
+            return;
+        }
+        builder.append('\n');
+        final String text = """
+                This may reduce concurrency during high - traffic concurrent situations.
+                You can use the following code to turn off this warning.
+                     <configuration>
+                           <annotationProcessors>io.army.modelgen.ArmyMetaModelDomainProcessor</annotationProcessors>
+                           <compilerArgs>
+                                 <arg>-Aarmy.snowflakeStartTimeWarning=false</arg>
+                           </compilerArgs>
+                     </configuration>
+                """;
+        builder.append(text);
+        System.out.printf("[%sWARNING%s] %s%n", "\u001B[33m", "\u001B[0m", builder);
+    }
+
     private void validateTable(final TypeElement domainElement, final @Nullable MappingMode mode) {
         final String className = MetaUtils.getClassName(domainElement);
 

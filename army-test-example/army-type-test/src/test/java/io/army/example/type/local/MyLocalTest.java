@@ -24,6 +24,7 @@ public class MyLocalTest {
 
     @Test
     public void simpleTest() {
+
         System.out.println(MappingType.SqlJson.class.getName());
     }
 

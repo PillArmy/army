@@ -35,4 +35,7 @@ interface TableAnnotationHandler {
     List<Pair> compositeSourceList();
 
 
+    void endHandle();
+
+
 }

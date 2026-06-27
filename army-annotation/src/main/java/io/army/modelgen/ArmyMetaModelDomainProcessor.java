@@ -79,6 +79,7 @@ public class ArmyMetaModelDomainProcessor extends AbstractProcessor {
 
             writeClassFiles(this.processingEnv.getFiler(), handler.compositeSourceList());
 
+            handler.endHandle();
 
         } catch (AnnotationMetaException e) {
             throw e;
