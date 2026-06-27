@@ -6,6 +6,7 @@ import io.army.example.type.annotation.NewPostgreTypesId;
 import io.army.example.type.domain.ManagerInfo;
 import io.army.example.type.domain.PostgreTypes_;
 import io.army.example.type.domain.ProductInfo;
+import io.army.example.type.domain.ProductInfo_;
 import io.army.mapping.CompositeType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.array.CompositeArrayType;
@@ -39,7 +40,7 @@ public class DefinedTypeMappingTests {
     @Test
     public void productInfo(@Autowired MappingEnv env, @CurrentSession SyncSession session, @NewPostgreTypesId Long id) {
 
-        final CompositeType type = CompositeType.from(ProductInfo.class);
+        final CompositeType type = ProductInfo_.T;
 
         final DataType dataType;
         dataType = type.map(env.serverMeta());

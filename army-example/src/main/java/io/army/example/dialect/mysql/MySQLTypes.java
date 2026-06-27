@@ -29,11 +29,11 @@ import java.util.Set;
 @Table(name = "mysql_army_types", comment = "mysql types for army example")
 public class MySQLTypes extends VersionDomain implements FieldAccessPojo {
 
-    private static final String CHAR_TYPE = "io.army.mapping.SQLCharType";
+    private static final String CHAR_TYPE = "io.army.mapping.SqlCharType";
 
-    private static final String BINARY_TYPE = "io.army.mapping.optional.BinaryType";
+    private static final String BINARY_TYPE = "io.army.mapping.VarBinaryType";
 
-    private static final String BIT_TYPE = "io.army.mapping.mysql.MySQLBitType";
+    private static final String BIT_TYPE = "io.army.mapping.mysql.MySqlBitType";
 
     @Generator(type = GeneratorType.POST)
     @Column
@@ -94,14 +94,14 @@ public class MySQLTypes extends VersionDomain implements FieldAccessPojo {
     @Column(comment = "tinyint type")
     public Byte myTinyint;
 
-    @Mapping("io.army.mapping.UnsignedByteType")
+    @Mapping("io.army.mapping.TinyIntUnsignedType")
     @Column(comment = "tinyint unsigned type")
     public Short myTinyintUnsigned;
 
     @Column(comment = "smallint type")
     public Short mySmallint;
 
-    @Mapping("io.army.mapping.UnsignedShortType")
+    @Mapping("io.army.mapping.SmallIntUnsignedType")
     @Column(comment = "smallint unsigned type")
     public Integer mySmallintUnsigned;
 
@@ -109,28 +109,28 @@ public class MySQLTypes extends VersionDomain implements FieldAccessPojo {
     @Column(comment = "medium type")
     public Integer myMediumint;
 
-    @Mapping("io.army.mapping.UnsignedMediumIntType")
+    @Mapping("io.army.mapping.MediumIntUnsignedType")
     @Column(comment = "medium unsigned type")
     public Integer myMediumintUnsigned;
 
     @Column(comment = "int type")
     public Integer myInt;
 
-    @Mapping("io.army.mapping.UnsignedIntegerType")
+    @Mapping("io.army.mapping.IntegerUnsignedType")
     @Column(comment = "int unsigned type")
     public Long myIntUnsigned;
 
     @Column(comment = "bigint type")
     public Long myBigint;
 
-    @Mapping("io.army.mapping.UnsignedLongType")
+    @Mapping("io.army.mapping.LongUnsignedType")
     @Column(comment = "bigint unsigned type")
     public BigInteger myBigintUnsigned;
 
     @Column(comment = "decimal unsigned type")
     public BigDecimal myDecimal;
 
-    @Mapping("io.army.mapping.UnsignedBigDecimalType")
+    @Mapping("io.army.mapping.BigDecimalUnsignedType")
     @Column(comment = "decimal unsigned type")
     public BigDecimal myDecimalUnsigned;
 
@@ -140,49 +140,49 @@ public class MySQLTypes extends VersionDomain implements FieldAccessPojo {
     @Column(comment = "double unsigned type")
     public Double myDouble;
 
-    @Mapping(value = "io.army.mapping.mysql.MySQLNameEnumSetType", elements = Month.class)
+    @Mapping(value = "io.army.mapping.mysql.MySqlNameEnumSetType")
     @Column(comment = "set of name enum")
     public Set<Month> myNameEnumSet;
 
-    @Mapping(value = "io.army.mapping.mysql.MySQLTextEnumSetType", elements = QinArmy.class)
+    @Mapping(value = "io.army.mapping.mysql.MySqlNameEnumSetType")
     @Column(comment = "set of text enum")
     public Set<QinArmy> myTextEnumSet;
 
-    @Mapping("io.army.mapping.optional.JsonStringType")
+    @Mapping("io.army.mapping.JsonType")
     @Column(comment = "json type")
     public String myJson;
 
-    @Mapping("io.army.mapping.mysql.MySQLTinyTextType")
+    @Mapping("io.army.mapping.TinyTextType")
     @Column(comment = "tiny text type")
     public String myTinyText;
 
-    @Mapping("io.army.mapping.mysql.MySQLTextType")
+    @Mapping("io.army.mapping.TextType")
     @Column(comment = "text type")
     public String myText;
 
-    @Mapping("io.army.mapping.mysql.MySQLMediumTextType")
+    @Mapping("io.army.mapping.MediumTextType")
     @Column(comment = "medium text type")
     public String myMediumText;
 
-    @Mapping("io.army.mapping.mysql.MySQLLongTextType")
-    @Column(comment = "long text type")
-    public String myLongText;
+//    @Mapping("io.army.mapping.LongTextType")
+//    @Column(comment = "long text type")
+//    public String myLongText;
 
-    @Mapping("io.army.mapping.mysql.MySQLTinyBlobType")
+    @Mapping("io.army.mapping.TinyBlobType")
     @Column(comment = "tiny blob type")
     public byte[] myTinyBlob;
 
-    @Mapping("io.army.mapping.mysql.MySQLTinyBlobType")
+    @Mapping("io.army.mapping.BlobType")
     @Column(comment = "blob type")
     public byte[] myBlob;
 
-    @Mapping("io.army.mapping.mysql.MySQLMediumBlobType")
+    @Mapping("io.army.mapping.MediumBlobType")
     @Column(comment = "medium blob type")
     public byte[] myMediumBlob;
 
-    @Mapping("io.army.mapping.mysql.MySQLLongBlobType")
-    @Column(comment = "long blob type")
-    public byte[] myLongBlob;
+//    @Mapping("io.army.mapping.LongBlobType")
+//    @Column(comment = "long blob type")
+//    public byte[] myLongBlob;
 
 
     public Long getId() {

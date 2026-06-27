@@ -28,8 +28,8 @@ import static io.army.dialect.Database.PostgreSQL;
 /// 
 /// This interface representing json {@link Expression}.
 /// @since 0.6.0
-@Deprecated
-public interface JsonExpression extends SimpleExpression,TypedExpression {
+
+public interface JsonExpression extends TypedExpression {
 
 
     @Support({MySQL, PostgreSQL})

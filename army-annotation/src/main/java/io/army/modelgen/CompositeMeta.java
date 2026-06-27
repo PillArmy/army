@@ -18,14 +18,25 @@ package io.army.modelgen;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import java.util.List;
 
-interface DiscriminatorHandler {
+final class CompositeMeta {
 
-    void handle(String domainName, VariableElement field);
+    static CompositeMeta of(TypeElement typeElement, TypeElement mappingType, List<VariableElement> fieldList) {
+        return new CompositeMeta(typeElement, mappingType, fieldList);
+    }
 
-    void storeDiscriminatorValue(TypeElement parent, String value, TypeElement domain);
+    final TypeElement typeElement;
 
-    void validateDiscriminatorValue(TypeElement domain);
+    final TypeElement mappingType;
+
+    final List<VariableElement> fieldList;
+
+    private CompositeMeta(TypeElement typeElement, TypeElement mappingType, List<VariableElement> fieldList) {
+        this.typeElement = typeElement;
+        this.mappingType = mappingType;
+        this.fieldList = List.copyOf(fieldList);
+    }
 
 
 }

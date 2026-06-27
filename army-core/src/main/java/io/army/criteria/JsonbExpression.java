@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-package io.army.modelgen;
+package io.army.criteria;
 
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-
-interface DiscriminatorHandler {
-
-    void handle(String domainName, VariableElement field);
-
-    void storeDiscriminatorValue(TypeElement parent, String value, TypeElement domain);
-
-    void validateDiscriminatorValue(TypeElement domain);
+public interface JsonbExpression extends TypedExpression {
 
 
 }

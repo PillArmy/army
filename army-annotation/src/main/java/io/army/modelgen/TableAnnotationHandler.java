@@ -16,12 +16,23 @@
 
 package io.army.modelgen;
 
+import io.army.lang.Nullable;
+
 import javax.lang.model.element.TypeElement;
+import java.util.List;
 
 interface TableAnnotationHandler {
 
 
+    /// @return null : representing existing error
+    @Nullable
     Pair handle(TypeElement domainElement);
+
+
+    List<String> getErrorMessages();
+
+
+    List<Pair> compositeSourceList();
 
 
 }

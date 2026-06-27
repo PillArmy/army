@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-package io.army.modelgen;
+package io.army.meta;
 
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
+import io.army.criteria.CompositeExpression;
 
-interface DiscriminatorHandler {
-
-    void handle(String domainName, VariableElement field);
-
-    void storeDiscriminatorValue(TypeElement parent, String value, TypeElement domain);
-
-    void validateDiscriminatorValue(TypeElement domain);
+public interface CompositeFieldMeta<T> extends FieldMeta<T>, CompositeExpression {
 
 
 }

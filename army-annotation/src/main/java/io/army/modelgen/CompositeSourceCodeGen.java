@@ -16,10 +16,7 @@
 
 package io.army.modelgen;
 
-interface TableSourceCodeCreator {
+interface CompositeSourceCodeGen {
 
-
-    Pair createSource();
-
-
+    Pair generateSource(CompositeMeta meta);
 }

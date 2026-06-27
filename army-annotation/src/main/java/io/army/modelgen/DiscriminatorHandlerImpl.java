@@ -16,6 +16,8 @@
 
 package io.army.modelgen;
 
+import io.army.annotation.DiscriminatorValue;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
@@ -41,6 +43,8 @@ final class DiscriminatorHandlerImpl implements DiscriminatorHandler {
 
     private final Map<String, String> domainToEnumMap = new HashMap<>();
 
+    private final Map<String, Map<String, TypeElement>> discriminatorValueCache = new HashMap<>();
+
 
     private DiscriminatorHandlerImpl(Consumer<String> errorMsgConsumer) {
         this.errorMsgConsumer = errorMsgConsumer;
@@ -51,14 +55,50 @@ final class DiscriminatorHandlerImpl implements DiscriminatorHandler {
         final TypeMirror typeMirror = field.asType();
         final Element element;
         if (!(typeMirror instanceof DeclaredType)) {
-            discriminatorNonCodeNum(domainName, field);
+            discriminatorNotEnum(domainName, field);
         } else if ((element = ((DeclaredType) typeMirror).asElement()).getKind() == ElementKind.ENUM) {
             storeEnumConsts(domainName, (TypeElement) element);
         } else {
-            discriminatorNonCodeNum(domainName, field);
+            discriminatorNotEnum(domainName, field);
         }
     }
 
+    @Override
+    public void storeDiscriminatorValue(TypeElement parent, String value, TypeElement domain) {
+        final String parentClassName;
+        parentClassName = MetaUtils.getClassName(parent);
+
+        final TypeElement oldDomain;
+        oldDomain = this.discriminatorValueCache.computeIfAbsent(parentClassName, _ -> new HashMap<>())
+                .putIfAbsent(value, domain);
+        if (oldDomain != null && oldDomain != domain) {
+            String m = String.format("Domain %s discriminator value[%s] duplication."
+                    , MetaUtils.getClassName(domain), value);
+            this.errorMsgConsumer.accept(m);
+        }
+    }
+
+    @Override
+    public void validateDiscriminatorValue(final TypeElement domain) {
+        final DiscriminatorValue discriminatorValue = domain.getAnnotation(DiscriminatorValue.class);
+
+        final String domainName = MetaUtils.getClassName(domain);
+
+        final String enumName = this.domainToEnumMap.get(domainName);
+
+        final Set<String> enumSet;
+        if (discriminatorValue == null
+                || enumName == null
+                || (enumSet = this.enumConstMap.get(enumName)) == null) {
+            //occur error
+            return;
+        }
+        if (!enumSet.contains(discriminatorValue.value())) {
+            String m = String.format("Domain[%s] %s value[%s] not found in enum %s.",
+                    domainName, DiscriminatorValue.class.getSimpleName(), discriminatorValue.value(), enumName);
+            this.errorMsgConsumer.accept(m);
+        }
+    }
 
     private void storeEnumConsts(final String domainName, final TypeElement enumElement) {
         final String className = MetaUtils.getClassName(enumElement);
@@ -77,7 +117,7 @@ final class DiscriminatorHandlerImpl implements DiscriminatorHandler {
         this.enumConstMap.put(className, Set.copyOf(enumConstSet));
     }
 
-    private void discriminatorNonCodeNum(final String domainName, final VariableElement field) {
+    private void discriminatorNotEnum(final String domainName, final VariableElement field) {
         String m = String.format("Discriminator field %s.%s isn't enum.", domainName, field.getSimpleName());
         this.errorMsgConsumer.accept(m);
     }

@@ -16,16 +16,15 @@
 
 package io.army.modelgen;
 
+import io.army.lang.Nullable;
+
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
+import java.util.List;
 
-interface DiscriminatorHandler {
+interface TableSourceCodeGen {
 
-    void handle(String domainName, VariableElement field);
 
-    void storeDiscriminatorValue(TypeElement parent, String value, TypeElement domain);
-
-    void validateDiscriminatorValue(TypeElement domain);
+    Pair generateSource(TypeElement domainElement, @Nullable TypeElement parentElement, MappingMode mode, List<FieldMeta> fieldMetaList);
 
 
 }

@@ -22,7 +22,6 @@ import io.army.lang.Nullable;
 import io.army.modelgen._MetaBridge;
 
 import java.util.BitSet;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -34,10 +33,6 @@ public abstract class _StringUtils {
 
     public static boolean isEmpty(@Nullable Object str) {
         return str == null || str.equals("");
-    }
-
-    public static boolean hasLength(@Nullable CharSequence str) {
-        return str != null && !str.isEmpty();
     }
 
     public static boolean hasText(@Nullable CharSequence str) {
@@ -104,7 +99,7 @@ public abstract class _StringUtils {
                 map = Map.of(array[0], 0);
                 break;
             default: {
-                final Map<String, Integer> tempMap = new HashMap<>();
+                final Map<String, Integer> tempMap = _Collections.hashMapForSize(array.length);
                 for (int i = 0; i < array.length; i++) {
                     if (tempMap.putIfAbsent(array[i], i) != null) {
                         String m = String.format("array[%s] %s duplication", i, array[i]);

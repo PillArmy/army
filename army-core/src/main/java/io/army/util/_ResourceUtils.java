@@ -17,13 +17,8 @@
 package io.army.util;
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
+import io.army.modelgen._MetaBridge;
+
 import java.util.Properties;
 
 public abstract class _ResourceUtils {
@@ -33,23 +28,7 @@ public abstract class _ResourceUtils {
 
 
     public static Properties loadArmyProperties(final String fileName) {
-        try {
-            final String location;
-            location = String.format("META-INF/army/%s.properties", fileName);
-            final Enumeration<URL> enumeration;
-            enumeration = Thread.currentThread().getContextClassLoader().getResources(location);
-            URL url;
-            final Properties properties = new Properties();
-            while (enumeration.hasMoreElements()) {
-                url = enumeration.nextElement();
-                try (Reader reader = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
-                    properties.load(reader);
-                }
-            } // while loop
-            return properties;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return _MetaBridge.loadArmyProperties(fileName);
     }
 
 

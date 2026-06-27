@@ -243,7 +243,7 @@ public class PostgreTypes implements FieldAccessPojo {
     @Column(comment = "integer 2d array type")
     public Integer[][] integer2dArray;
 
-    @Mapping("io.army.mapping.array.IntegerArrayType")
+    //@Mapping("io.army.mapping.array.IntegerArrayType")
     @Column(comment = "int array type")
     public int[] intArray;
 

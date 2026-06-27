@@ -61,8 +61,6 @@ public abstract class _TableMetaFactory {
     private static final ThreadLocal<MetaContext> CONTEXT_HOLDER = new ThreadLocal<>();
 
 
-
-
     public static <T> SimpleTableMeta<T> getSimpleTableMeta(final Class<T> domainClass) {
         final TableMeta<T> tableMeta;
         tableMeta = DefaultTableMeta.getTableMeta(domainClass, null);
@@ -214,13 +212,23 @@ public abstract class _TableMetaFactory {
     }
 
     public static IllegalStateException tableFiledSizeError(Class<?> domainClass, int fieldSize) {
-        String m = String.format("Domain[%s] field count[%s] error,please check you whether create(delete) field or not,if yes then you must recompile.",
-                domainClass.getName(), fieldSize);
-        return new IllegalStateException(m);
+        return fieldSizeError("Domain", domainClass, fieldSize);
     }
 
 
+    public static IllegalStateException compositeFieldSizeError(Class<?> domainClass, int fieldSize) {
+        return fieldSizeError("Composite", domainClass, fieldSize);
+    }
+
+
+
     /*################################## blow private method ##################################*/
+
+    private static IllegalStateException fieldSizeError(String type, Class<?> domainClass, int fieldSize) {
+        String m = String.format("%s[%s] field count[%s] error,please check you whether create(delete) field or not,if yes then you must recompile.",
+                type, domainClass.getName(), fieldSize);
+        return new IllegalStateException(m);
+    }
 
     /// @see #getTableMetaMap(SchemaMeta, List, boolean, Consumer, ClassLoader)
     private static Stream<ByteBuffer> scanJavaJarForJavaClassFile(final URL url) {

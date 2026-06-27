@@ -309,6 +309,9 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
         List<CompositeField> fieldList();
 
+
+        CompositeField field(String fieldName);
+
     }
 
     /// Marker interface for domain types.

@@ -21,10 +21,7 @@ import io.army.struct.CodeEnum;
 import io.army.struct.DefinedType;
 import io.army.struct.TypeCategory;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
@@ -34,7 +31,7 @@ abstract class MetaUtils {
         throw new UnsupportedOperationException();
     }
 
-    static String getClassName(final TypeElement domain) {
+    static String getClassName(final QualifiedNameable domain) {
         String className;
         className = domain.getQualifiedName().toString();
         if (className.lastIndexOf('>') > 0) {
@@ -43,7 +40,7 @@ abstract class MetaUtils {
         return className;
     }
 
-    static String getSimpleClassName(final TypeElement domain) {
+    static String getSimpleClassName(final QualifiedNameable domain) {
         String className;
         className = domain.getSimpleName().toString();
         if (className.lastIndexOf('>') > 0) {
@@ -74,8 +71,17 @@ abstract class MetaUtils {
                 && ((DeclaredType) typeMirror).asElement().getKind() == ElementKind.ENUM;
     }
 
-    static boolean isComposite(VariableElement field) {
-        final DefinedType definedType = field.getAnnotation(DefinedType.class);
+    static boolean isCompositeField(VariableElement field) {
+        return isCompositeType(field.asType());
+    }
+
+    static boolean isCompositeType(TypeMirror typeMirror) {
+        final DefinedType definedType;
+        if (typeMirror instanceof DeclaredType) {
+            definedType = ((DeclaredType) typeMirror).asElement().getAnnotation(DefinedType.class);
+        } else {
+            definedType = null;
+        }
         return definedType != null && definedType.category() == TypeCategory.COMPOSITE;
     }
 

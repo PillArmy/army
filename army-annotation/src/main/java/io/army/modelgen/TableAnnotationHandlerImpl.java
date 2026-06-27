@@ -22,16 +22,16 @@ import io.army.struct.DefinedType;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.NoType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.*;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
 
@@ -48,55 +48,256 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
         return new TableAnnotationHandlerImpl(env, options, tempBuilder);
     }
 
-    private final ProcessingEnvironment env;
+
+    private final Elements elements;
+
+    private final Types types;
 
     private final StringBuilder tempBuilder;
 
     private final Options options;
 
+    private final TypeMirror jsonbType;
+
+    private final TypeMirror jsonType;
+
+    private final TypeMirror compositeType;
+
+    private final TypeMirror arrayType;
+
+    private final DeclaredType buildInCompositeType;
+
+
     private final DiscriminatorHandler discriminatorHandler;
 
-
-    private final Map<String, Map<String, VariableElement>> parentFieldCache = new HashMap<>();
-
-    private final Map<String, Map<String, TypeElement>> discriminatorValueCache = new HashMap<>();
+    private final TableSourceCodeGen tableSourceCodeGen;
 
     private final Map<String, MappingMode> mappingModeMap = new HashMap<>();
 
     private final Map<String, Set<String>> startTimeToDomain = new HashMap<>();
 
+    private final Map<String, Set<String>> fieldNamesMap = new HashMap<>();
 
-    private TypeElement currentDomainElement;
+    private final Set<String> compositeClassNameSet = new HashSet<>();
 
-    private String currentDomainName;
+    private final Map<String, CompositeMeta> compositeMetaMap = new HashMap<>();
 
-    private TypeElement currentParent;
+    private final TypeElement[] parentHolder = new TypeElement[1];
+
+    private final TypeElement[] mappedHolder = new TypeElement[1];
 
     private List<String> errorMsgList;
 
+    private Properties tableMetaProperties;
+
+    private Set<String> defaultUnderlyingComponentClassNameSet;
+
 
     private TableAnnotationHandlerImpl(ProcessingEnvironment env, Options options, StringBuilder tempBuilder) {
-        this.env = env;
+        this.elements = env.getElementUtils();
+        this.types = env.getTypeUtils();
         this.options = options;
         this.tempBuilder = tempBuilder;
 
+        this.buildInCompositeType = (DeclaredType) this.elements.getTypeElement("io.army.mapping.CompositeType").asType();
+
+        final TypeElement mappingTypeElement = this.elements.getTypeElement("io.army.mapping.MappingType");
+
+        TypeMirror jsonbType, jsonType, compositeType, arrayType;
+        jsonbType = jsonType = compositeType = arrayType = null;
+        for (Element element : mappingTypeElement.getEnclosedElements()) {
+            if (element.getKind() != ElementKind.INTERFACE) {
+                continue;
+            }
+            switch (element.getSimpleName().toString()) {
+                case "SqlJsonb":
+                    jsonbType = element.asType();
+                    break;
+                case "SqlJson":
+                    jsonType = element.asType();
+                    break;
+                case "SqlComposite":
+                    compositeType = element.asType();
+                    break;
+                case "SqlArray":
+                    arrayType = element.asType();
+                    break;
+            }
+        }
+
+        assert jsonbType != null && jsonType != null && compositeType != null && arrayType != null;
+
+        this.jsonbType = jsonbType;
+        this.jsonType = jsonType;
+        this.compositeType = compositeType;
+        this.arrayType = arrayType;
+
         this.discriminatorHandler = DiscriminatorHandlerImpl.create(this::addErrorMsg);
+
+        this.tableSourceCodeGen = TableSourceCodeGenImpl.create(this.tempBuilder);
+    }
+
+    @Nullable
+    @Override
+    public Pair handle(final TypeElement domainElement) {
+
+        final TypeElement[] holder = this.parentHolder;
+
+        final List<FieldMeta> fieldMetaList;
+        fieldMetaList = createFieldMetaList(domainElement, holder);
+
+        final TypeElement parentElement = holder[0];
+
+        final MappingMode mode;
+        mode = validateMode(domainElement, parentElement);
+
+        if (mode == MappingMode.CHILD || mode == MappingMode.PARENT) {
+            this.discriminatorHandler.validateDiscriminatorValue(domainElement);
+        }
+
+        validateTable(domainElement, mode);
+
+        if (mode == null || hasError()) {
+            return null;
+        }
+        return this.tableSourceCodeGen.generateSource(domainElement, parentElement, mode, fieldMetaList);
     }
 
     @Override
-    public Pair handle(final TypeElement domainElement) {
-        this.currentDomainElement = domainElement;
-        this.currentDomainName = MetaUtils.getClassName(domainElement);
+    public List<String> getErrorMessages() {
+        List<String> list = this.errorMsgList;
+        if (list == null) {
+            list = List.of();
+        } else {
+            list = Collections.unmodifiableList(list);
+        }
+        return list;
+    }
 
-        this.currentParent = null;  // clear
-        final List<TypeElement> mappedList;
-        mappedList = createMappedList(domainElement);
+    @Override
+    public List<Pair> compositeSourceList() {
+        final Map<String, CompositeMeta> map = this.compositeMetaMap;
+        if (map.isEmpty()) {
+            return List.of();
+        }
 
-        return null;
+        final CompositeSourceCodeGen codeGen;
+        codeGen = CompositeSourceCodeGenImpl.create(((TableSourceCodeGenImpl) this.tableSourceCodeGen).sourceCodeBuilder);
+
+        final List<Pair> pairList = new ArrayList<>(map.size());
+        for (CompositeMeta meta : map.values()) {
+            pairList.add(codeGen.generateSource(meta));
+        }
+        return pairList;
+    }
+
+    private void validateTable(final TypeElement domainElement, final @Nullable MappingMode mode) {
+        final String className = MetaUtils.getClassName(domainElement);
+
+        final Table table = domainElement.getAnnotation(Table.class);
+        assert table != null;
+
+        final String tableName = table.name();
+        if (!MetaUtils.hasText(tableName)) {
+            String m = String.format("%s.Table name is empty", className);
+            addErrorMsg(m);
+        }
+
+        if (_MetaBridge.isCamelCase(tableName)) {  // army don't allow camel
+            String m = String.format("%s table name is CamelCase.", className);
+            addErrorMsg(m);
+        }
+
+        if (!tableName.equals(tableName.trim())) {
+            String m = String.format("%s table name has leading or trailing spaces.", className);
+            addErrorMsg(m);
+        }
+
+
+        final Set<String> fieldNameSet;
+        if (mode == null || mode == MappingMode.PARENT) {
+            fieldNameSet = this.fieldNamesMap.get(className);
+        } else {
+            fieldNameSet = this.fieldNamesMap.remove(className);
+        }
+
+        if (fieldNameSet == null) {
+            return;
+        }
+
+        final Index[] indexArray = table.indexes();
+
+        IndexField[] indexFields;
+        String[] fieldList;
+        Index index;
+        for (int i = 0; i < indexArray.length; i++) {
+            index = indexArray[i];
+            indexFields = index.fields();
+            if (indexFields.length > 0) {
+                for (IndexField field : indexFields) {
+                    if (!fieldNameSet.contains(field.name())) {
+                        String m = String.format("%s index[%s] field %s not found.", className, i, field.name());
+                        addErrorMsg(m);
+                    }
+                }
+            } else if ((fieldList = index.fieldList()) == null) {
+                String m = String.format("%s index[%s] no any field.", className, i);
+                addErrorMsg(m);
+            } else {
+                for (String fieldName : fieldList) {
+                    if (!fieldNameSet.contains(fieldName)) {
+                        String m = String.format("%s index[%s] field %s not found.", className, i, fieldName);
+                        addErrorMsg(m);
+                    }
+                }
+            }
+        } // index loop
+
+
     }
 
 
-    private List<FieldMeta> createFieldList(final TypeElement targetElement, final TypeElement[] holder) {
+    @Nullable
+    private MappingMode validateMode(final TypeElement domain, final @Nullable TypeElement parent) {
+
+        final Inheritance inheritance;
+        inheritance = domain.getAnnotation(Inheritance.class);
+        final DiscriminatorValue discriminatorValue;
+        discriminatorValue = domain.getAnnotation(DiscriminatorValue.class);
+
+        final MappingMode mode;
+        if (parent == null && inheritance == null) {
+            mode = MappingMode.SIMPLE;
+            if (discriminatorValue != null) {
+                String m = String.format("Domain %s no parent,couldn't be annotated by %s."
+                        , MetaUtils.getClassName(domain), DiscriminatorValue.class.getName());
+                addErrorMsg(m);
+            }
+        } else if (parent == null) {
+            mode = MappingMode.PARENT;
+            if (discriminatorValue == null) {
+                String m;
+                m = String.format("Domain %s discriminator absent.", MetaUtils.getClassName(domain));
+                addErrorMsg(m);
+            } else {
+                this.discriminatorHandler.storeDiscriminatorValue(domain, discriminatorValue.value(), domain);
+            }
+        } else if (discriminatorValue != null) {
+            mode = MappingMode.CHILD;
+            this.discriminatorHandler.storeDiscriminatorValue(domain, discriminatorValue.value(), domain);
+        } else {
+            mode = null;
+            String m = String.format("Domain %s no parent,couldn't be annotated by %s."
+                    , MetaUtils.getClassName(domain), DiscriminatorValue.class.getName());
+            addErrorMsg(m);
+        }
+        return mode;
+    }
+
+
+    private List<FieldMeta> createFieldMetaList(final TypeElement targetElement, final TypeElement[] holder) {
+        holder[0] = null; //clear
+
         TypeElement superElement = targetElement;
 
         final List<FieldMeta> fieldList = new ArrayList<>(20), tempFieldList = new ArrayList<>(20);
@@ -106,14 +307,21 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
         final String discriminatorFieldName = inheritance == null ? null : inheritance.value();
         final String domainName = MetaUtils.getClassName(targetElement);
 
+        final Set<String> columnNamSet = ArmyCollections.hashSetForSize(20);
+        final Map<String, VariableElement> fieldMap = ArmyCollections.hashMapForSize(20);
+
+
         Column column;
         VariableElement field;
         String className, fieldName, columnName;
         boolean discriminatorField, foundDiscriminatorColumn = false;
+        FieldType fieldType;
 
-        final Set<String> columnNamSet = ArmyCollections.hashSetForSize(20);
 
-        for (TypeMirror superMirror = superElement.asType(); !(superMirror instanceof NoType); superMirror = superElement.getSuperclass()) {
+        for (TypeMirror superMirror = superElement.asType(); ; superMirror = superElement.getSuperclass()) {
+            if (superMirror instanceof NoType) {
+                break;
+            }
 
             superElement = (TypeElement) ((DeclaredType) superMirror).asElement();
             if (superElement.getNestingKind() != NestingKind.TOP_LEVEL) {
@@ -121,17 +329,24 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
                 addErrorMsg(m);
                 break;
             }
-            if (superElement.getAnnotation(Inheritance.class) != null) {
-                if (targetElement.getAnnotation(Inheritance.class) != null) {
+            if (superElement != targetElement && superElement.getAnnotation(Inheritance.class) != null) {
+                if (inheritance != null) {
                     addErrorInheritance(targetElement, superElement);
                 }
                 field = findIdFieldFromParent(superElement);
                 if (field != null) {
-                    fieldList.add(FieldMeta.of(field, null));
+                    fieldName = field.getSimpleName().toString();
+                    if (fieldMap.put(fieldName, field) != null) {
+                        String m = String.format("Field %s#%s is overridden.", MetaUtils.getClassName(superElement), fieldName);
+                        addErrorMsg(m);
+                    }
+                    fieldList.add(FieldMeta.of(field, FieldType.DEFAULT));
                 }
                 holder[0] = superElement;
                 break;
             }
+
+
             if (superElement.getAnnotation(MappedSuperclass.class) == null
                     && superElement.getAnnotation(Table.class) == null) {
                 break;
@@ -139,19 +354,26 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
 
             className = MetaUtils.getClassName(superElement);
 
+
             for (Element element : superElement.getEnclosedElements()) {
                 if (element.getKind() != ElementKind.FIELD
                         || element.getModifiers().contains(Modifier.STATIC)
                         || (column = element.getAnnotation(Column.class)) == null) {
                     continue;
                 }
+
                 field = (VariableElement) element;
                 fieldName = field.getSimpleName().toString();
+
+                if (fieldMap.put(fieldName, field) != null) {
+                    String m = String.format("Field %s#%s is overridden.", className, fieldName);
+                    addErrorMsg(m);
+                }
 
                 // get column name
                 columnName = getColumnName(className, fieldName, column);
                 if (!columnName.startsWith("${") && !columnNamSet.add(columnName)) {
-                    String m = String.format("Field %s.%s column[%s] duplication.", className, fieldName, columnName);
+                    String m = String.format("Field %s#%s column[%s] duplication.", className, fieldName, columnName);
                     addErrorMsg(m);
                 }
 
@@ -161,9 +383,9 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
                     this.discriminatorHandler.handle(domainName, field);
                 }
 
-                validateField(domainName, className, fieldName, field, column, discriminatorField);
+                fieldType = validateField(domainName, className, fieldName, field, column, discriminatorField);
 
-                tempFieldList.add(FieldMeta.of(field, null));
+                tempFieldList.add(FieldMeta.of(field, fieldType));
 
             }// for getEnclosedElements
 
@@ -173,58 +395,86 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
 
         } // superElement loop
 
+        final TypeElement parentElement = holder[0];
+
+        this.fieldNamesMap.put(domainName, Set.copyOf(fieldMap.keySet()));
+
         if (inheritance != null && !foundDiscriminatorColumn) {
             String m = String.format("Domain %s discriminator field[%s] not found.",
                     domainName, discriminatorFieldName);
             addErrorMsg(m);
         }
 
+        String m;
+        if (!fieldMap.containsKey(_MetaBridge.ID)) {
+            m = String.format("Domain %s don't definite field %s."
+                    , domainName, _MetaBridge.ID);
+            addErrorMsg(m);
+        }
+
+
+        if (parentElement == null) {
+            if (!fieldMap.containsKey(_MetaBridge.CREATE_TIME)) {
+                m = String.format("Domain %s don't definite field %s."
+                        , domainName, _MetaBridge.CREATE_TIME);
+                addErrorMsg(m);
+            }
+            final Table table = targetElement.getAnnotation(Table.class);
+            assert table != null;
+            if (!table.immutable() && !fieldMap.containsKey(_MetaBridge.UPDATE_TIME)) {
+                m = String.format("Domain %s don't definite field %s."
+                        , domainName, _MetaBridge.UPDATE_TIME);
+                addErrorMsg(m);
+            }
+        } else {
+            final Set<String> parentFieldSet = obtainParentFieldSet(parentElement);
+            for (String name : fieldMap.keySet()) {
+                if (name.equals(_MetaBridge.ID)) {
+                    continue;
+                }
+                if (parentFieldSet.contains(name)) {
+                    m = String.format("Field %s.%s is overridden by parent %s."
+                            , domainName, name, MetaUtils.getClassName(parentElement));
+                    addErrorMsg(m);
+                }
+            } // filed name loop
+        }
+
+
+        final OverrideParams overrideParams = targetElement.getAnnotation(OverrideParams.class);
+        if (overrideParams != null) {
+            createOverrideParamMap(overrideParams, domainName, fieldMap::get);
+        }
+
+        Asserts.isTrue(fieldMap.size() == fieldList.size(), "bug");
+
+        fieldMap.clear();
         columnNamSet.clear();
 
+        holder[0] = parentElement; // finally write back, avoid bug
 
+        Collections.reverse(fieldList);
         return List.copyOf(fieldList);
     }
 
 
     @Nullable
     private VariableElement findIdFieldFromParent(final TypeElement targetElement) {
-        TypeElement superElement = targetElement;
+        final VariableElement[] holder = new VariableElement[1];
 
-        VariableElement field = null;
-
-        topLoop:
-        for (TypeMirror superMirror = superElement.asType(); !(superMirror instanceof NoType); superMirror = superElement.getSuperclass()) {
-
-            superElement = (TypeElement) ((DeclaredType) superMirror).asElement();
-
-            if (superElement.getNestingKind() != NestingKind.TOP_LEVEL) {
-                String m = String.format("Nested class %s is not supported.", MetaUtils.getClassName(superElement));
-                addErrorMsg(m);
-                break;
+        final Predicate<VariableElement> func;
+        func = field -> {
+            final boolean found;
+            found = field.getSimpleName().toString().equals(_MetaBridge.ID);
+            if (found) {
+                holder[0] = field;
             }
+            return found;
+        };
 
-            if (superElement.getAnnotation(MappedSuperclass.class) == null
-                    && superElement.getAnnotation(Table.class) == null) {
-                break;
-            }
+        findFields(targetElement, false, func);
 
-            for (Element element : superElement.getEnclosedElements()) {
-
-                if (element.getKind() != ElementKind.FIELD
-                        || element.getModifiers().contains(Modifier.STATIC)
-                        || element.getAnnotation(Column.class) == null) {
-                    continue;
-                }
-
-                field = (VariableElement) element;
-                if (field.getSimpleName().toString().equals(_MetaBridge.ID)) {
-                    break topLoop;
-                }
-
-            } // field loop
-
-        } // loop
-
+        final VariableElement field = holder[0];
         if (field == null) {
             String m = String.format("Domain %s don't definite field %s.", MetaUtils.getClassName(targetElement), _MetaBridge.ID);
             addErrorMsg(m);
@@ -233,201 +483,27 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
     }
 
 
-    private Map<String, VariableElement> createFieldMap(final TypeElement tableElement, final List<VariableElement> fieldList,
-                                                        final @Nullable Map<String, VariableElement> parentFieldMap) {
+    /// @see #createFieldMetaList(TypeElement, TypeElement[])
+    private Set<String> obtainParentFieldSet(final TypeElement parentElement) {
 
-        final String domainName = MetaUtils.getClassName(tableElement);
+        Asserts.isTrue(parentElement.getAnnotation(Inheritance.class) != null, "bug");
 
-        final Map<String, VariableElement> map = ArmyCollections.hashMapForSize(fieldList.size());
-        String fieldName;
-        VariableElement oldValue;
-        boolean fieldOverridden;
-        for (VariableElement field : fieldList) {
+        final String domainName = MetaUtils.getClassName(parentElement);
 
-            fieldName = field.getSimpleName().toString();
+        Set<String> set;
+        set = this.fieldNamesMap.get(domainName);
 
-            oldValue = map.put(fieldName, field);
-
-            fieldOverridden = oldValue != null;
-            if (!fieldOverridden
-                    && !fieldName.equals(_MetaBridge.ID)
-                    && parentFieldMap != null
-                    && parentFieldMap.containsKey(fieldName)) {
-                fieldOverridden = true;
-            }
-
-            if (fieldOverridden) {
-                addErrorMsg(String.format("Field %s.%s is overridden.", domainName, fieldName));
-            }
-
-        } // loop
-
-        if (parentFieldMap == null) {
-            String m;
-            if (!map.containsKey(_MetaBridge.ID)) {
-                m = String.format("Domain %s don't definite field %s."
-                        , domainName, _MetaBridge.ID);
-                addErrorMsg(m);
-            }
-            if (!map.containsKey(_MetaBridge.CREATE_TIME)) {
-                m = String.format("Domain %s don't definite field %s."
-                        , domainName, _MetaBridge.CREATE_TIME);
-                addErrorMsg(m);
-            }
-            final Table table = tableElement.getAnnotation(Table.class);
-            assert table != null;
-            if (!table.immutable() && !map.containsKey(_MetaBridge.UPDATE_TIME)) {
-                m = String.format("Domain %s don't definite field %s."
-                        , domainName, _MetaBridge.UPDATE_TIME);
-                addErrorMsg(m);
-            }
+        if (set == null) {
+            createFieldMetaList(parentElement, this.mappedHolder);
+            set = this.fieldNamesMap.get(domainName);
         }
 
-
-        final OverrideParams overrideParams = tableElement.getAnnotation(OverrideParams.class);
-        if (overrideParams != null) {
-            createOverrideParamMap(overrideParams, domainName, map::get);
+        if (set == null) {
+            throw new IllegalStateException("bug");
         }
-        return Map.copyOf(map);
+        return set;
     }
 
-    private Map<String, VariableElement> createFieldMap(final List<TypeElement> mappedList,
-                                                        final @Nullable Map<String, VariableElement> parentFieldMap) {
-
-        final TypeElement tableElement;
-        tableElement = mappedList.getFirst();
-        Asserts.isTrue(tableElement == this.currentDomainElement, "");
-        final String domainName = this.currentDomainName;
-
-
-        final Inheritance inheritance;
-        inheritance = tableElement.getAnnotation(Inheritance.class);
-        final String discriminatorField = inheritance == null ? null : inheritance.value();
-        final Table table;
-        table = tableElement.getAnnotation(Table.class);
-        assert table != null;
-
-        VariableElement field;
-        Column column;
-        boolean foundDiscriminatorColumn = false;
-        String className, fieldName, columnName;
-
-        final Map<String, VariableElement> fieldMap = ArmyCollections.hashMapForSize(20);
-        final Set<String> columnNamSet = ArmyCollections.hashSetForSize(20);
-        final List<VariableElement> fieldList = new ArrayList<>(20);
-
-        for (TypeElement mapped : mappedList) {
-            className = MetaUtils.getClassName(mapped);
-
-            for (Element element : mapped.getEnclosedElements()) {
-                if (element.getKind() != ElementKind.FIELD
-                        || element.getModifiers().contains(Modifier.STATIC)
-                        || (column = element.getAnnotation(Column.class)) == null) {
-                    continue;
-                }
-                field = (VariableElement) element;
-                fieldName = field.getSimpleName().toString();
-
-                if ((parentFieldMap != null && parentFieldMap.containsKey(fieldName))
-                        || fieldMap.putIfAbsent(fieldName, field) != null) {
-                    addErrorMsg(String.format("Field %s.%s is overridden.", className, fieldName));
-                }
-                // get column name
-                columnName = getColumnName(className, fieldName, column);
-                if (!columnName.startsWith("${") && !columnNamSet.add(columnName)) {
-                    String m = String.format("Field %s.%s column[%s] duplication.", className, fieldName, columnName);
-                    addErrorMsg(m);
-                }
-                if (discriminatorField != null && discriminatorField.equals(fieldName)) {
-                    foundDiscriminatorColumn = true;
-                    // assertDiscriminatorEnum(domainName, className, field);
-                    validateField(domainName, className, fieldName, field, column, true);
-                } else {
-                    validateField(domainName, className, fieldName, field, column, false);
-                }
-
-                fieldList.add(field);
-
-            }// for getEnclosedElements
-
-        } // class loop
-
-
-        if (inheritance != null && !foundDiscriminatorColumn) {
-            String m = String.format("Domain %s discriminator field[%s] not found.",
-                    domainName, discriminatorField);
-            addErrorMsg(m);
-        }
-
-        columnNamSet.clear();
-
-        if (parentFieldMap == null) {
-            String m;
-            if (!fieldMap.containsKey(_MetaBridge.ID)) {
-                m = String.format("Domain %s don't definite field %s."
-                        , domainName, _MetaBridge.ID);
-                addErrorMsg(m);
-            }
-            if (!fieldMap.containsKey(_MetaBridge.CREATE_TIME)) {
-                m = String.format("Domain %s don't definite field %s."
-                        , domainName, _MetaBridge.CREATE_TIME);
-                addErrorMsg(m);
-            }
-            if (!table.immutable() && !fieldMap.containsKey(_MetaBridge.UPDATE_TIME)) {
-                m = String.format("Domain %s don't definite field %s."
-                        , domainName, _MetaBridge.UPDATE_TIME);
-                addErrorMsg(m);
-            }
-        } else {
-            field = parentFieldMap.get(_MetaBridge.ID);
-            Asserts.notNull(field, "");
-            fieldMap.put(_MetaBridge.ID, field);
-        }
-
-        final OverrideParams overrideParams = tableElement.getAnnotation(OverrideParams.class);
-        if (overrideParams != null) {
-            createOverrideParamMap(overrideParams, domainName, fieldMap::get);
-        }
-
-        return Collections.unmodifiableMap(fieldMap);
-    }
-
-
-    private List<TypeElement> createMappedList(final TypeElement tableElement) {
-        TypeElement superElement = tableElement;
-        List<TypeElement> mappedList = null;
-        for (TypeMirror superMirror = superElement.getSuperclass(); !(superMirror instanceof NoType); superMirror = superElement.getSuperclass()) {
-
-            superElement = (TypeElement) ((DeclaredType) superMirror).asElement();
-            if (superElement.getNestingKind() != NestingKind.TOP_LEVEL) {
-                break;
-            }
-            if (superElement.getAnnotation(Inheritance.class) != null) {
-                if (tableElement.getAnnotation(Inheritance.class) != null) {
-                    addErrorInheritance(tableElement, superElement);
-                }
-                this.currentParent = superElement;
-                break;
-            }
-            if (superElement.getAnnotation(MappedSuperclass.class) == null
-                    && superElement.getAnnotation(Table.class) == null) {
-                break;
-            }
-            if (mappedList == null) {
-                mappedList = new ArrayList<>();
-                mappedList.add(tableElement);
-            }
-            mappedList.add(superElement);
-        } // loop
-
-        if (mappedList == null) {
-            mappedList = List.of(tableElement);
-        } else {
-            mappedList = Collections.unmodifiableList(mappedList);
-        }
-
-        return mappedList;
-    }
 
     /// @return lower case column
     private String getColumnName(final String className, final String fieldName, final Column column) {
@@ -450,34 +526,257 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
     }
 
 
-    private void validateField(final String domainName, final String className, final String fieldName,
-                               final VariableElement field, final Column column, final boolean discriminatorField) {
+    private FieldType validateField(final String domainName, final String className, final String fieldName,
+                                    final VariableElement field, final Column column, final boolean discriminatorField) {
+
+        final FieldType fieldType;
         switch (fieldName) {
             case _MetaBridge.ID:
                 validateSnowflakeStartTime(domainName, fieldName, field);
-                validateCompositeTypeMapping(className, fieldName, field);
+                fieldType = parseFieldType(domainName, field);
                 break;
             case _MetaBridge.CREATE_TIME:
             case _MetaBridge.UPDATE_TIME:
                 assertDateTime(className, field);
+                fieldType = FieldType.DEFAULT;
                 break;
             case _MetaBridge.VERSION:
                 assertVersionField(className, field);
+                fieldType = FieldType.DEFAULT;
                 break;
             case _MetaBridge.VISIBLE:
                 assertVisibleField(className, field);
+                fieldType = FieldType.DEFAULT;
                 break;
             default: {
                 if (!discriminatorField && !MetaUtils.hasText(column.comment())) {
                     noCommentError(className, field);
                 }
-                if (!discriminatorField) {
+                if (discriminatorField) {
+                    fieldType = FieldType.DEFAULT;
+                } else {
                     validateSnowflakeStartTime(domainName, fieldName, field);
-                    validateCompositeTypeMapping(className, fieldName, field);
+                    fieldType = parseFieldType(domainName, field);
                 }
             } // default
         } //switch
+        return fieldType;
     }
+
+
+    private FieldType parseFieldType(final String domainName, final VariableElement field) {
+        final Mapping mapping = field.getAnnotation(Mapping.class);
+
+        final FieldType fieldType;
+        TypeMirror typeMirror;
+        if (mapping == null) {
+            if (isDefaultArray(field)) {
+                fieldType = FieldType.ARRAY;
+            } else if (MetaUtils.isCompositeField(field)) {
+                fieldType = FieldType.COMPOSITE;
+                validateCompositeType((TypeElement) this.types.asElement(field.asType()), this.buildInCompositeType);
+            } else {
+                fieldType = FieldType.DEFAULT;
+            }
+        } else if ((typeMirror = mappingTypeMirror(domainName, field, mapping)) == null) {
+            fieldType = FieldType.DEFAULT;
+        } else if (this.types.isAssignable(typeMirror, this.jsonbType)) {
+            fieldType = FieldType.JSONB;
+        } else if (this.types.isAssignable(typeMirror, this.jsonType)) {
+            fieldType = FieldType.JSON;
+        } else if (this.types.isAssignable(typeMirror, this.compositeType)) {
+            if (MetaUtils.isCompositeField(field)) {
+                fieldType = FieldType.COMPOSITE;
+                validateCompositeType((TypeElement) this.types.asElement(field.asType()), (DeclaredType) typeMirror);
+            } else {
+                String m = String.format("Field %s#%s is not a composite field.", domainName, field.getSimpleName());
+                addErrorMsg(m);
+                fieldType = FieldType.DEFAULT;
+            }
+        } else if (this.types.isAssignable(typeMirror, this.arrayType)) {
+            fieldType = FieldType.ARRAY;
+        } else {
+            fieldType = FieldType.DEFAULT;
+        }
+
+        return fieldType;
+    }
+
+    private boolean isDefaultArray(VariableElement field) {
+        TypeMirror typeMirror = field.asType();
+
+        if (!(typeMirror instanceof ArrayType)) {
+            return false;
+        }
+
+
+        int dimension = 0;
+        while (typeMirror instanceof ArrayType) {
+            typeMirror = ((ArrayType) typeMirror).getComponentType();
+            dimension++;
+        }
+
+        final Element element;
+        if (typeMirror.getKind() == TypeKind.DECLARED) {
+            element = this.types.asElement(typeMirror);
+        } else {
+            element = null;
+        }
+
+
+        final String name;
+        if (element == null) {
+            name = typeMirror.toString();
+        } else if (element instanceof QualifiedNameable) {
+            name = ((QualifiedNameable) element).getQualifiedName().toString();
+        } else {
+            name = element.getSimpleName().toString();
+        }
+
+        final boolean match;
+        if (dimension == 1 && name.equals(byte.class.getName())) {
+            match = false;  // binary
+        } else if (typeMirror instanceof DeclaredType
+                && ((DeclaredType) typeMirror).asElement().getKind() == ElementKind.ENUM) {
+            match = true;
+        } else if (MetaUtils.isCompositeType(typeMirror)) {
+            match = true;
+        } else {
+            final Set<String> nameSet;
+            nameSet = obtainDefaultUnderlyingComponentClassNameSet();
+            match = nameSet.contains(name);
+        }
+        return match;
+    }
+
+    @Nullable
+    private DeclaredType obtainCompositeMapping(final String className, final VariableElement field) {
+        final Mapping mapping = field.getAnnotation(Mapping.class);
+
+        TypeMirror typeMirror;
+        if (mapping == null) {
+            if (MetaUtils.isCompositeField(field)) {
+                typeMirror = this.buildInCompositeType;
+            } else {
+                typeMirror = null;
+            }
+        } else if ((typeMirror = mappingTypeMirror(className, field, mapping)) == null) {
+            // no-op
+        } else if (!this.types.isAssignable(typeMirror, this.compositeType)) {
+            typeMirror = null;
+        } else if (!MetaUtils.isCompositeField(field)) {
+            String m = String.format("Field %s#%s is not a composite field.", className, field.getSimpleName());
+            addErrorMsg(m);
+            typeMirror = null;
+        }
+        return (DeclaredType) typeMirror;
+    }
+
+
+    private void validateCompositeType(final TypeElement typeElement, final DeclaredType mappingType) {
+        final String className = MetaUtils.getClassName(typeElement);
+
+        if (this.compositeClassNameSet.contains(className)) {
+            return;
+        }
+
+        final DefinedType definedType = typeElement.getAnnotation(DefinedType.class);
+        assert definedType != null;
+
+        final String typeName;
+        typeName = definedType.name();
+
+
+        if (_MetaBridge.isCamelCase(typeName)) {
+            String m = String.format("Composite type %s name[%s] is camel.", className, typeName);
+            addErrorMsg(m);
+        } else if (!typeName.equals(typeName.trim())) {
+            String m = String.format("Composite type %s name[%s] has leading or trailing spaces.", className, typeName);
+            addErrorMsg(m);
+        }
+
+        final Predicate<VariableElement> func;
+        func = field -> {
+
+            final DeclaredType typeMirror;
+            typeMirror = obtainCompositeMapping(MetaUtils.getClassName(typeElement), field);
+            if (typeMirror != null) {
+                final TypeElement compositeElement;
+                compositeElement = (TypeElement) this.types.asElement(field.asType());
+
+                if (this.compositeClassNameSet.add(MetaUtils.getClassName(compositeElement))) {
+                    validateCompositeType(compositeElement, typeMirror);
+                }
+            }
+
+            return false;
+        };
+
+        final List<VariableElement> fieldList;
+        fieldList = findFields(typeElement, true, func);
+
+
+        int errorCount = getErrorCount(), newErrorCount;
+
+        final Map<String, Integer> orderMap;
+
+        orderMap = createOrderMap(className, definedType);
+
+        newErrorCount = getErrorCount();
+        if (errorCount != newErrorCount) {
+            return;
+        }
+
+        if (orderMap.size() != fieldList.size()) {
+            String m = String.format("%s fieldOrder size %s not equal field size %s", className, orderMap.size(), fieldList.size());
+            addErrorMsg(m);
+        }
+
+        fieldList.sort(Comparator.comparingInt(field -> {
+            final String fieldName = field.getSimpleName().toString();
+            final Integer order;
+            order = orderMap.get(fieldName);
+            if (order == null) {
+                String m = String.format("%s.%s not in fieldOrder", className, fieldName);
+                addErrorMsg(m);
+            }
+            return order == null ? 0 : order;
+        }));
+
+        if (newErrorCount == getErrorCount()) {
+            this.compositeMetaMap.put(className, CompositeMeta.of(typeElement, (TypeElement) mappingType.asElement(), fieldList));
+        }
+
+    }
+
+    /// @return an unmodified map
+    private Map<String, Integer> createOrderMap(final String className, final DefinedType definedType) {
+        final String[] array = definedType.fieldOrder();
+
+        final Map<String, Integer> map;
+        switch (array.length) {
+            case 0:
+                map = Map.of();
+                break;
+            case 1:
+                map = Map.of(array[0], 0);
+                break;
+            default: {
+                final Map<String, Integer> tempMap = ArmyCollections.hashMapForSize(array.length);
+                for (int i = 0; i < array.length; i++) {
+                    if (tempMap.putIfAbsent(array[i], i) != null) {
+                        String m = String.format("%s fieldOrder[%s] %s duplication", className, i, array[i]);
+                        addErrorMsg(m);
+                    }
+                }
+                map = Map.copyOf(tempMap);
+            } // default
+
+        } // switch
+
+        return map;
+    }
+
 
     private void assertDateTime(final String className, final VariableElement field) {
         final String fieldJavaClassName;
@@ -598,134 +897,186 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
     }
 
 
-    private void validateCompositeTypeMapping(final String className, final String fieldName,
-                                              final VariableElement field) {
-        final String compositeType = "io.army.mapping.CompositeType";
-        final Mapping mapping = field.getAnnotation(Mapping.class);
-        if (mapping == null) {
-            return;
-        }
-        final String mappingTypeName = mappingTypeValue(field);
-        if (mappingTypeName.equals(void.class.getName())) {
-            if (!compositeType.equals(mapping.value())) {
-                return;
-            }
-        } else if (!compositeType.equals(mappingTypeName)) {
-            return;
-        }
-
-        final TypeMirror fieldTypeMirror = field.asType();
-        final Element beanElement;
-        if (!(fieldTypeMirror instanceof DeclaredType)
-                || (beanElement = ((DeclaredType) fieldTypeMirror).asElement()).getKind() != ElementKind.CLASS) {
-            String m = String.format("Field %s.%s is annotated with @Mapping(\"%s\")," +
-                            " but its Java type is not a class.",
-                    className, fieldName, compositeType);
-            addErrorMsg(m);
-            return;
-        }
-
-        final TypeElement pojoTypeElement = (TypeElement) beanElement;
-        final String pojoTypeName = MetaUtils.getClassName(pojoTypeElement);
-
-        final DefinedType definedType = beanElement.getAnnotation(DefinedType.class);
-        if (definedType == null) {
-            String m = String.format("Field %s.%s is annotated with @Mapping(\"%s\")," +
-                            " but its Java type[%s] isn't annotated with @%s.",
-                    className, fieldName, compositeType, MetaUtils.getClassName(pojoTypeElement),
-                    DefinedType.class.getName());
-            addErrorMsg(m);
-            return;
-        }
-        final String definedTypeName = definedType.name();
-        if (_MetaBridge.isCamelCase(definedTypeName)) {
-            String m = String.format("Pojo[%s] : @%s name()[%s] must not be camelCase.",
-                    pojoTypeName, DefinedType.class.getSimpleName(), definedTypeName);
-            addErrorMsg(m);
-        }
+    /// @param endFunc true : end loop
+    private List<VariableElement> findFields(final TypeElement targetElement, final boolean createList,
+                                             final Predicate<VariableElement> endFunc) {
+        TypeElement superElement = targetElement;
 
 
-        final Map<String, Boolean> fieldMap = new HashMap<>();
-        TypeElement superElement;
-        for (TypeMirror superMirror = fieldTypeMirror; ; superMirror = superElement.getSuperclass()) {
-            if (superMirror.getKind() == TypeKind.NONE) {
+        final List<VariableElement> fieldList;
+        final Set<String> fieldNameSet, columnNameSet;
+
+        if (createList) {
+            fieldList = new ArrayList<>(10);
+            fieldNameSet = ArmyCollections.hashSetForSize(10);
+            columnNameSet = ArmyCollections.hashSetForSize(10);
+        } else {
+            fieldList = List.of();
+            fieldNameSet = Set.of();
+            columnNameSet = fieldNameSet;
+        }
+
+        VariableElement field;
+        String fieldName, columnName;
+        Column column;
+
+        topLoop:
+        for (TypeMirror superMirror = superElement.asType(); ; superMirror = superElement.getSuperclass()) {
+
+            if (superMirror instanceof NoType) {
                 break;
             }
 
             superElement = (TypeElement) ((DeclaredType) superMirror).asElement();
 
-            if (superMirror != fieldTypeMirror && superElement.getAnnotation(MappedSuperclass.class) == null) {
+            if (superElement.getNestingKind() != NestingKind.TOP_LEVEL) {
+                String m = String.format("Nested class %s is not supported.", MetaUtils.getClassName(superElement));
+                addErrorMsg(m);
                 break;
             }
 
-            for (Element e : superElement.getEnclosedElements()) {
-                if (e.getKind() != ElementKind.FIELD || e.getModifiers().contains(Modifier.STATIC)) {
+            if (superElement != targetElement
+                    && superElement.getAnnotation(MappedSuperclass.class) == null
+                    && superElement.getAnnotation(Table.class) == null) {
+                break;
+            }
+
+            for (Element element : superElement.getEnclosedElements()) {
+
+                if (element.getKind() != ElementKind.FIELD
+                        || element.getModifiers().contains(Modifier.STATIC)
+                        || (column = element.getAnnotation(Column.class)) == null) {
                     continue;
                 }
-                if (fieldMap.putIfAbsent(e.getSimpleName().toString(), Boolean.TRUE) != null) {
-                    String m = String.format("%s.%s duplicate", pojoTypeName, e.getSimpleName());
-                    addErrorMsg(m);
+
+                field = (VariableElement) element;
+
+                if (createList) {
+                    fieldName = field.getSimpleName().toString();
+                    if (fieldNameSet.add(fieldName)) {
+                        fieldList.add(field);
+                        columnName = getColumnName(MetaUtils.getClassName(superElement), fieldName, column);
+                        if (!columnNameSet.add(columnName)) {
+                            String m = String.format("%s.%s column[%s] duplication", MetaUtils.getClassName(superElement), fieldName, columnName);
+                            addErrorMsg(m);
+                        }
+                    } else {
+                        String m = String.format("Field %s.%s is overridden", MetaUtils.getClassName(superElement), fieldName);
+                        addErrorMsg(m);
+                    }
                 }
 
-            } // bean type field  loop
+                if (endFunc.test(field)) {
+                    break topLoop;
+                }
 
-        } // super class loop
+            } // field loop
 
-        final int fieldCount = fieldMap.size();
-        final String[] orderArray;
-        if (fieldCount == 0) {
-            String m = String.format("Pojo[%s] is annotated with @%s,but it has no @%s field.",
-                    pojoTypeName, DefinedType.class.getSimpleName(), Column.class.getSimpleName());
-            addErrorMsg(m);
-        } else if (fieldCount != (orderArray = definedType.fieldOrder()).length) {
-            String m = String.format("Pojo[%s] is annotated with @%s and is mapped to %s, but fieldOrder().lentth[%s] and field count[%s] not match.",
-                    pojoTypeName, DefinedType.class.getSimpleName(), compositeType, orderArray.length, fieldCount);
-            addErrorMsg(m);
-        } else for (String s : orderArray) {
-            if (fieldMap.containsKey(s)) {
-                continue;
-            }
-            String m = String.format("Pojo[%s] is annotated with @%s and is mapped to %s, but fieldOrder()'s element[%s] isn't field",
-                    pojoTypeName, DefinedType.class.getSimpleName(), compositeType, s);
-            addErrorMsg(m);
-        }
+        } // TypeMirror  loop
 
-
+        return fieldList;
     }
 
-    private String mappingTypeValue(final VariableElement field) {
+
+    @Nullable
+    private TypeMirror mappingTypeMirror(final String domainName, final VariableElement field, final Mapping mapping) {
+        TypeMirror typeMirror;
+        typeMirror = valueOfMappingType(field);
+        if (typeMirror == null) {
+            typeMirror = valueOfMappingValue(domainName, field, mapping);
+        }
+        return typeMirror;
+    }
+
+
+    @Nullable
+    private TypeMirror valueOfMappingType(final VariableElement field) {
+
+        TypeMirror typeMirror = null;
 
         TypeElement annoElement;
-        String typeValue = void.class.getName();
+
         topLoop:
         for (AnnotationMirror mirror : field.getAnnotationMirrors()) {
             annoElement = (TypeElement) mirror.getAnnotationType().asElement();
             if (!MetaUtils.getClassName(annoElement).equals(Mapping.class.getName())) {
                 continue;
             }
+
             for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues().entrySet()) {
+
                 if (!entry.getKey().getSimpleName().toString().equals("type")) {
                     continue;
                 }
 
                 final Object value;
                 value = entry.getValue().getValue();
-                if (value instanceof Class<?>) {
-                    typeValue = ((Class<?>) value).getName();
-                } else if (value instanceof DeclaredType && ((DeclaredType) value).getKind() == TypeKind.DECLARED) {
-                    typeValue = MetaUtils.getClassName(((TypeElement) ((DeclaredType) value).asElement()));
+                if (value instanceof TypeMirror) {
+                    typeMirror = (DeclaredType) value;
+                } else if (value == void.class) {
+                    break topLoop;
+                } else if (value instanceof Class<?>) {
+                    typeMirror = this.elements.getTypeElement(((Class<?>) value).getName()).asType();
                 }
+
                 break topLoop;
+
             } // annotation value loop
 
         } // AnnotationMirror loop
-        return typeValue;
+        return typeMirror;
     }
 
-    private void discriminatorNonCodeNum(final String className, final VariableElement field) {
-        String m = String.format("Discriminator field %s.%s isn't enum."
-                , className, field.getSimpleName());
-        addErrorMsg(m);
+
+    @Nullable
+    private TypeMirror valueOfMappingValue(final String domainName, final VariableElement field, final Mapping mapping) {
+        String value = mapping.value();
+
+        if (!MetaUtils.hasText(value)) {
+            return null;
+        }
+
+        if (value.startsWith("${") && value.endsWith("}")) {
+            final String key;
+            key = getAndClearTempBuilder()
+                    .append(domainName)
+                    .append('.')
+                    .append(field.getSimpleName())
+                    .append('.')
+                    .append("Mapping")
+                    .append('.')
+                    .append("value")
+                    .toString();
+
+            value = getTableMetaProperties().getProperty(key);
+
+            if (!MetaUtils.hasText(value)) {
+                return null;
+            }
+
+        }
+
+        TypeMirror typeMirror;
+        final String msgFormat = "Field %s.%s mapping value %s not found.%s%s";
+        try {
+            final Element element;
+            element = this.elements.getTypeElement(value);
+            if (element == null) {
+                String m = String.format(msgFormat,
+                        domainName, field.getSimpleName(), value, "", "");
+                addErrorMsg(m);
+                typeMirror = null;
+            } else {
+                typeMirror = element.asType();
+            }
+
+        } catch (Exception e) {
+            typeMirror = null;
+            String m = String.format(msgFormat,
+                    domainName, field.getSimpleName(), value, "error message:\n", e.getMessage());
+            addErrorMsg(m);
+        }
+        return typeMirror;
     }
 
 
@@ -750,6 +1101,91 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
             this.errorMsgList = list = new ArrayList<>();
         }
         list.add(msg);
+    }
+
+    private boolean hasError() {
+        final List<String> list = this.errorMsgList;
+        return list != null && !list.isEmpty();
+    }
+
+    private int getErrorCount() {
+        final List<String> list = this.errorMsgList;
+        return list == null ? 0 : list.size();
+    }
+
+
+    private Properties getTableMetaProperties() {
+        Properties properties;
+        properties = this.tableMetaProperties;
+        if (properties == null) {
+            this.tableMetaProperties = properties = _MetaBridge.loadArmyProperties("TableMeta");
+        }
+        return properties;
+    }
+
+    private StringBuilder getAndClearTempBuilder() {
+        final StringBuilder builder;
+        builder = this.tempBuilder;
+        builder.setLength(0); // clear
+        return builder;
+    }
+
+
+    private Set<String> obtainDefaultUnderlyingComponentClassNameSet() {
+        Set<String> set = this.defaultUnderlyingComponentClassNameSet;
+        if (set == null) {
+            this.defaultUnderlyingComponentClassNameSet = set = createDefaultUnderlyingComponentClassNameSet();
+        }
+        return set;
+    }
+
+
+    private static Set<String> createDefaultUnderlyingComponentClassNameSet() {
+
+        final Set<String> set = ArmyCollections.hashSetForSize(20 * 4);
+
+        set.add(String.class.getName());
+
+        set.add(boolean.class.getName());
+        set.add(Boolean.class.getName());
+        set.add(int.class.getName());
+        set.add(Integer.class.getName());
+
+        set.add(long.class.getName());
+        set.add(Long.class.getName());
+        set.add(float.class.getName());
+        set.add(Float.class.getName());
+
+        set.add(double.class.getName());
+        set.add(Double.class.getName());
+        set.add(short.class.getName());
+        set.add(Short.class.getName());
+
+        set.add(byte.class.getName());
+        set.add(Byte.class.getName());
+        set.add(char.class.getName());
+        set.add(Character.class.getName());
+
+        set.add(java.math.BigInteger.class.getName());
+        set.add(java.math.BigDecimal.class.getName());
+        set.add(java.time.LocalDateTime.class.getName());
+        set.add(java.time.OffsetDateTime.class.getName());
+
+        set.add(java.time.ZonedDateTime.class.getName());
+        set.add(java.time.LocalDate.class.getName());
+        set.add(java.time.LocalTime.class.getName());
+        set.add(java.time.OffsetTime.class.getName());
+
+        set.add(java.time.Instant.class.getName());
+        set.add(java.time.Year.class.getName());
+        set.add(java.time.YearMonth.class.getName());
+        set.add(java.time.MonthDay.class.getName());
+
+        set.add(java.time.ZoneId.class.getName());
+        set.add(java.util.BitSet.class.getName());
+        set.add(java.util.UUID.class.getName());
+
+        return Set.copyOf(set);
     }
 
 

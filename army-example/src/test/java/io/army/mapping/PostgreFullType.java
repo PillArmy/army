@@ -23,8 +23,8 @@ import java.math.BigDecimal;
 import java.time.*;
 
 @Table(name = "postgre_full_type", indexes = {
-        @Index(name = "postgre_full_type_my_big_int_uni", unique = true, fieldList = {"myBigInt desc"}, type = "btree"),
-        @Index(name = "postgre_full_type_my_short_my_date_idx", fieldList = {"myShort", "myDate asc"}, type = "btree")},
+        @Index(name = "postgre_full_type_my_big_int_uni", unique = true, fieldList = {"myBigInt"}, type = "btree"),
+        @Index(name = "postgre_full_type_my_short_my_date_idx", fieldList = {"myShort", "myDate"}, type = "btree")},
         comment = "postgre full type table")
 public class PostgreFullType extends BaseVersionDomain<PostgreFullType> {
 

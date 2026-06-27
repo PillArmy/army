@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package io.army.modelgen;
+package io.army.meta;
 
-import javax.lang.model.element.VariableElement;
+import io.army.criteria.JsonbExpression;
 
-interface FieldHandler {
-
-    FieldMeta handle(String domainName, VariableElement field);
-
+public interface JsonbFieldMeta<T> extends FieldMeta<T>, JsonbExpression {
 
 }

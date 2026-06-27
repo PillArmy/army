@@ -22,8 +22,11 @@ import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.tools.FileObject;
 import java.io.IOException;
-import java.util.Map;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /// Main annotation processor.
@@ -38,19 +41,11 @@ public class ArmyMetaModelDomainProcessor extends AbstractProcessor {
 
     // private Messager messager;
 
-    private Options options;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.processingEnv = processingEnv;
-        final Map<String, String> map;
-        map = processingEnv.getOptions();
-        if (map != null && "false".equals(map.get("army.snowflakeStartTimeWarning"))) {
-            this.options = new Options(false);
-        } else {
-            this.options = new Options(true);
-        }
     }
 
     @Override
@@ -65,15 +60,29 @@ public class ArmyMetaModelDomainProcessor extends AbstractProcessor {
 
         final long startTime = System.currentTimeMillis();
         try {
-            final AnnotationHandler handler = new AnnotationHandler(this.processingEnv, this.options);
-            handler.createSourceFiles(elementSet);
-            if (!handler.errorMsgList.isEmpty()) {
+            final StringBuilder tempBuilder = new StringBuilder(30);
+
+            final TableAnnotationHandler handler;
+            handler = TableAnnotationHandlerImpl.create(this.processingEnv, tempBuilder);
+
+            generateTableStaticModelClass(elementSet, handler);
+
+            final List<String> errorMsgList = handler.getErrorMessages();
+
+            if (!errorMsgList.isEmpty()) {
                 final String m, title;
                 title = "handle army annotation occur error,detail:";
-                m = _MetaBridge.createErrorMessage(title, handler.errorMsgList);
+                m = _MetaBridge.createErrorMessage(title, errorMsgList);
                 throw new AnnotationMetaException(m);
             }
-        } catch (IOException e) {
+
+
+            writeClassFiles(this.processingEnv.getFiler(), handler.compositeSourceList());
+
+
+        } catch (AnnotationMetaException e) {
+            throw e;
+        } catch (Exception e) {
             throw new AnnotationMetaException("Army create source file occur.", e);
         }
         String msg = String.format("%s generate %s army static metamodel class source file, take %s ms.%n",
@@ -84,6 +93,61 @@ public class ArmyMetaModelDomainProcessor extends AbstractProcessor {
         // this.messager.printMessage(Diagnostic.Kind.NOTE, msg);
         System.out.printf("[%sINFO%s] %s", "\u001B[34m", "\u001B[0m", msg);
         return ALLOW_OTHER_PROCESSORS_TO_CLAIM_ANNOTATIONS;
+    }
+
+
+    private void generateTableStaticModelClass(Set<? extends Element> elementSet, TableAnnotationHandler handler)
+            throws IOException {
+
+        final Filer filer = this.processingEnv.getFiler();
+
+        final List<Pair> pairList = new ArrayList<>(50);
+
+        int count = 0;
+        Pair pair;
+        for (Element element : elementSet) {
+            pair = handler.handle((TypeElement) element);
+            if (pair == null) {
+                continue;
+            }
+
+            pairList.add(pair);
+
+            count++;
+
+            if (count < 50) {
+                continue;
+            }
+
+            writeClassFiles(filer, pairList);
+            pairList.clear();
+            count = 0;
+
+        } // loop
+
+        if (!pairList.isEmpty()) {
+            writeClassFiles(filer, pairList);
+            pairList.clear();
+        }
+
+
+    }
+
+
+    private static void writeClassFiles(Filer filer, final List<Pair> pairList) throws IOException {
+
+        for (Pair pair : pairList) {
+
+            writeOneClassFile(pair.content, filer.createSourceFile(pair.className));
+
+        } // loop
+
+    }
+
+    private static void writeOneClassFile(CharSequence content, FileObject fileObject) throws IOException {
+        try (PrintWriter pw = new PrintWriter(fileObject.openOutputStream())) {
+            pw.print(content);
+        }
     }
 
 

@@ -27,6 +27,7 @@ import io.army.function.DecodeLiteralFunc;
 import io.army.lang.Nullable;
 import io.army.mapping.array.CompositeArrayType;
 import io.army.meta.CompositeField;
+import io.army.meta.MetaException;
 import io.army.meta.ServerMeta;
 import io.army.pojo.ObjectAccessor;
 import io.army.pojo.ObjectAccessorFactory;
@@ -39,6 +40,7 @@ import io.army.struct.TypeCategory;
 import io.army.util.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -86,6 +88,8 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
 
     private final List<CompositeField> fieldList;
 
+    private final Map<String, CompositeField> fieldMap;
+
 
     private CompositeType(Class<?> javaType) {
         this.javaType = javaType;
@@ -96,7 +100,9 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
                 .componentCreateDdl(true)
                 .build();
         this.fieldList = List.copyOf(CompositeFieldFactory.forType(this));
+        this.fieldMap = Map.copyOf(createFieldMap(javaType, this.fieldList));
     }
+
 
     @Override
     public Class<?> javaType() {
@@ -146,6 +152,16 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         return this.fieldList;
     }
 
+    @Override
+    public CompositeField field(String fieldName) {
+        final CompositeField field;
+        field = this.fieldMap.get(fieldName);
+        if (field == null) {
+            String m = String.format("Composite type %s not contain field %s", this.javaType.getName(), fieldName);
+            throw new IllegalStateException(m);
+        }
+        return field;
+    }
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
@@ -246,6 +262,20 @@ public final class CompositeType extends _ArmyBuildInType implements MappingType
         }
 
         return fieldParser.object;
+    }
+
+
+    private static Map<String, CompositeField> createFieldMap(Class<?> javaType, final List<CompositeField> fieldList) {
+        final Map<String, CompositeField> fieldMap = _Collections.hashMapForSize(fieldList.size());
+        for (CompositeField field : fieldList) {
+            fieldMap.put(field.fieldName(), field);
+        }
+        if (fieldMap.size() != fieldList.size()) {
+            // no bug ,never here
+            String m = String.format("%s filed name duplicate", javaType.getName());
+            throw new MetaException(m);
+        }
+        return fieldMap;
     }
 
 
