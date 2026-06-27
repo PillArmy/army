@@ -86,6 +86,8 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
 
     private final TypeElement[] mappedHolder = new TypeElement[1];
 
+    private final MappingMode[] modeHolder = new MappingMode[1];
+
     private List<String> errorMsgList;
 
     private Properties tableMetaProperties;
@@ -142,14 +144,14 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
     public Pair handle(final TypeElement domainElement) {
 
         final TypeElement[] holder = this.parentHolder;
-
+        final MappingMode[] modeHolder = this.modeHolder;
         final List<FieldMeta> fieldMetaList;
-        fieldMetaList = createFieldMetaList(domainElement, holder);
+        fieldMetaList = createFieldMetaList(domainElement, holder, modeHolder);
 
         final TypeElement parentElement = holder[0];
 
         final MappingMode mode;
-        mode = validateMode(domainElement, parentElement);
+        mode = modeHolder[0];
 
         if (mode == MappingMode.CHILD || mode == MappingMode.PARENT) {
             this.discriminatorHandler.validateDiscriminatorValue(domainElement);
@@ -295,7 +297,8 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
     }
 
 
-    private List<FieldMeta> createFieldMetaList(final TypeElement targetElement, final TypeElement[] holder) {
+    private List<FieldMeta> createFieldMetaList(final TypeElement targetElement, final TypeElement[] holder,
+                                                final @Nullable MappingMode[] modeHolder) {
         holder[0] = null; //clear
 
         TypeElement superElement = targetElement;
@@ -441,6 +444,13 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
         }
 
 
+        final MappingMode mode;
+        mode = validateMode(targetElement, parentElement);
+        if (modeHolder != null) {
+            modeHolder[0] = mode;
+        }
+
+
         final OverrideParams overrideParams = targetElement.getAnnotation(OverrideParams.class);
         if (overrideParams != null) {
             createOverrideParamMap(overrideParams, domainName, fieldMap::get);
@@ -483,7 +493,7 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
     }
 
 
-    /// @see #createFieldMetaList(TypeElement, TypeElement[])
+
     private Set<String> obtainParentFieldSet(final TypeElement parentElement) {
 
         Asserts.isTrue(parentElement.getAnnotation(Inheritance.class) != null, "bug");
@@ -494,7 +504,7 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
         set = this.fieldNamesMap.get(domainName);
 
         if (set == null) {
-            createFieldMetaList(parentElement, this.mappedHolder);
+            createFieldMetaList(parentElement, this.mappedHolder, null);
             set = this.fieldNamesMap.get(domainName);
         }
 
