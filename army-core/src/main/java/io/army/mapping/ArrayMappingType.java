@@ -16,8 +16,7 @@
 
 package io.army.mapping;
 
-public sealed interface ArrayMappingType extends MappingType, MappingType.SqlArray
-        permits UserArrayType, _ArmyBuildInArrayType {
-
+/// @see io.army.meta.ArrayFieldMeta
+public non-sealed interface ArrayMappingType extends StructMappingType, MappingType.SqlArray {
 
 }

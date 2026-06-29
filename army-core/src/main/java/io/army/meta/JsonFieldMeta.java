@@ -17,8 +17,11 @@
 package io.army.meta;
 
 import io.army.criteria.JsonExpression;
+import io.army.mapping.JsonMappingType;
 
 public interface JsonFieldMeta<T> extends FieldMeta<T>, JsonExpression {
 
+    @Override
+    JsonMappingType mappingType();
 
 }

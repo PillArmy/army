@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
-/// Metadata interfaces for tables, fields, and types.
-@io.army.lang.NonNullApi
-package io.army.meta;
+package io.army.mapping;
+
+/// @see <a href="https://www.postgresql.org/docs/current/rowtypes.html">Composite Types</a>
+/// @see <a href="https://www.postgresql.org/docs/current/sql-createtype.html">CREATE TYPE</a>
+/// @see <a href="https://www.postgresql.org/docs/current/sql-altertype.html">ALTER TYPE</a>
+/// @see io.army.meta.CompositeFieldMeta
+public non-sealed interface CompositeMappingType extends StructMappingType, MappingType.SqlComposite {
+
+
+}

@@ -24,8 +24,17 @@ import java.util.List;
 
 /// this interface representing a Java class then tableMeta column mapping.
 ///
+///This interface is base interface of below interfaces:
+///
+/// - {@link JsonbFieldMeta}
+/// - {@link JsonFieldMeta}
+/// - {@link ArrayFieldMeta}
+/// - {@link CompositeFieldMeta}
+/// - {@link XmlFieldMeta}
+///
 /// @param <T> representing Domain Java Type
 public interface FieldMeta<T> extends TableField, DatabaseFieldObject {
+
 
     @Override
     TableMeta<T> tableMeta();

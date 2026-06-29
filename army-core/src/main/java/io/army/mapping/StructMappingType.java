@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-public non-sealed abstract class UserArrayType extends UserMappingType implements ArrayMappingType {
-
-
+public sealed interface StructMappingType extends MappingType
+        permits ArrayMappingType, JsonbMappingType, JsonMappingType, XmlMappingType, CompositeMappingType {
 }

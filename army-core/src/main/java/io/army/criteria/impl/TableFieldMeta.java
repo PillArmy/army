@@ -28,9 +28,7 @@ import io.army.generator.FieldGenerator;
 import io.army.generator.GeneratorStrategy;
 import io.army.generator.snowflake.Snowflake8Generator;
 import io.army.lang.Nullable;
-import io.army.mapping.ArrayMappingType;
-import io.army.mapping.MappingType;
-import io.army.mapping.MultiGenericsMappingType;
+import io.army.mapping.*;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
 import io.army.util._Assert;
@@ -63,36 +61,40 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
         final MappingType type;
         type = _MappingFactory.map(table.javaType(), field, context);
 
-        final boolean idField = fieldName.equals(_MetaBridge.ID);
+        final TableFieldMeta<T> fieldMeta;
 
-        final boolean arrayType;
-        arrayType = !idField && type instanceof ArrayMappingType;
-
-        final DefaultSimpleFieldMeta<T> fieldMeta;
-        if (idField) {
+        if (fieldName.equals(_MetaBridge.ID)) {
             fieldMeta = new DefaultPrimaryFieldMeta<>(table, field, type, context);
-        } else if (arrayType) {
+        } else if (!(type instanceof StructMappingType)) {
+            fieldMeta = new DefaultSimpleFieldMeta<>(table, field, type, context);
+        } else if (type instanceof JsonbMappingType) {
+            fieldMeta = new DefaultJsonbFieldMeta<>(table, field, type, context);
+        } else if (type instanceof JsonMappingType) {
+            fieldMeta = new DefaultJsonFieldMeta<>(table, field, type, context);
+        } else if (type instanceof ArrayMappingType) {
             fieldMeta = new DefaultArrayFieldMeta<>(table, field, type, context);
+        } else if (type instanceof CompositeMappingType) {
+            fieldMeta = new DefaultCompositeFieldMeta<>(table, field, type, context);
+        } else if (type instanceof XmlMappingType) {
+            fieldMeta = new DefaultXmlFieldMeta<>(table, field, type, context);
         } else {
             fieldMeta = new DefaultSimpleFieldMeta<>(table, field, type, context);
         }
+
         final TableFieldMeta<?> cache;
         cache = INSTANCE_MAP.putIfAbsent(fieldMeta, fieldMeta);
 
-        final DefaultSimpleFieldMeta<T> simple;
+        final TableFieldMeta<T> finalField;
         if (cache == null) {
-            simple = fieldMeta;
-        } else if (!(cache instanceof DefaultSimpleFieldMeta)) {
+            finalField = fieldMeta;
+        } else if (cache.getClass() == fieldMeta.getClass()) {
+            finalField = (TableFieldMeta<T>) cache;
+        } else {
             String m = String.format("%s.%s can't mapping to simple %s.", table.javaType().getName()
                     , field.getName(), FieldMeta.class.getName());
             throw new IllegalArgumentException(m);
-        } else if (arrayType) {
-            simple = (DefaultArrayFieldMeta<T>) cache;
-        } else {
-            // drop fieldMeta ,return cache.
-            simple = (DefaultSimpleFieldMeta<T>) cache;
         }
-        return simple;
+        return finalField;
 
     }
 
@@ -290,11 +292,6 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
         return this.javaType;
     }
 
-    @Override
-    public final MappingType mappingType() {
-        return this.mappingType;
-    }
-
 
     @Override
     public final boolean insertable() {
@@ -467,12 +464,13 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
     /**
      * prevent default deserialization
      */
+    @SuppressWarnings("unused")
     private void readObject(ObjectInputStream in) throws IOException,
             ClassNotFoundException {
         throw new InvalidObjectException("can't deserialize enum");
     }
 
-
+    @SuppressWarnings("unused")
     private void readObjectNoData() throws ObjectStreamException {
         throw new InvalidObjectException("can't deserialize enum");
     }
@@ -486,17 +484,91 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
             super(table, field, type, context);
         }
 
+        @Override
+        public final MappingType mappingType() {
+            return this.mappingType;
+        }
+
     } // DefaultSimpleFieldMeta
 
-    private static final class DefaultArrayFieldMeta<T> extends DefaultSimpleFieldMeta<T> implements ArrayFieldMeta<T> {
+    private static final class DefaultArrayFieldMeta<T> extends TableFieldMeta<T> implements ArrayFieldMeta<T> {
 
         private DefaultArrayFieldMeta(TableMeta<T> table, Field field, MappingType type, MetaContext context) throws MetaException {
             super(table, field, type, context);
-            _Assert.isTrue(this.mappingType instanceof ArrayMappingType, "");
+            _Assert.isTrue(this.mappingType instanceof ArrayMappingType, "bug");
+        }
+
+        @Override
+        public ArrayMappingType mappingType() {
+            return (ArrayMappingType) this.mappingType;
         }
 
 
     } // DefaultArrayFieldMeta
+
+
+    private static final class DefaultJsonFieldMeta<T> extends TableFieldMeta<T> implements JsonFieldMeta<T> {
+
+        private DefaultJsonFieldMeta(TableMeta<T> table, Field field, MappingType type, MetaContext context)
+                throws MetaException {
+            super(table, field, type, context);
+            _Assert.isTrue(this.mappingType instanceof JsonMappingType, "bug");
+        }
+
+        @Override
+        public JsonMappingType mappingType() {
+            return (JsonMappingType) this.mappingType;
+        }
+
+
+    } // DefaultJsonFieldMeta
+
+
+    private static final class DefaultJsonbFieldMeta<T> extends TableFieldMeta<T> implements JsonbFieldMeta<T> {
+
+        private DefaultJsonbFieldMeta(TableMeta<T> table, Field field, MappingType type, MetaContext context)
+                throws MetaException {
+            super(table, field, type, context);
+            _Assert.isTrue(this.mappingType instanceof JsonbMappingType, "bug");
+        }
+
+        @Override
+        public JsonbMappingType mappingType() {
+            return (JsonbMappingType) this.mappingType;
+        }
+
+
+    } // DefaultJsonbFieldMeta
+
+    private static final class DefaultXmlFieldMeta<T> extends TableFieldMeta<T> implements XmlFieldMeta<T> {
+
+        private DefaultXmlFieldMeta(TableMeta<T> table, Field field, MappingType type, MetaContext context)
+                throws MetaException {
+            super(table, field, type, context);
+            _Assert.isTrue(this.mappingType instanceof XmlMappingType, "bug");
+        }
+
+        @Override
+        public XmlMappingType mappingType() {
+            return (XmlMappingType) this.mappingType;
+        }
+
+    } //DefaultXmlFieldMeta
+
+    private static final class DefaultCompositeFieldMeta<T> extends TableFieldMeta<T> implements CompositeFieldMeta<T> {
+
+        private DefaultCompositeFieldMeta(TableMeta<T> table, Field field, MappingType type, MetaContext context)
+                throws MetaException {
+            super(table, field, type, context);
+            _Assert.isTrue(this.mappingType instanceof CompositeMappingType, "bug");
+        }
+
+        @Override
+        public CompositeMappingType mappingType() {
+            return (CompositeMappingType) this.mappingType;
+        }
+
+    }   // DefaultCompositeFieldMeta
 
 
     private static final class DefaultPrimaryFieldMeta<T> extends DefaultSimpleFieldMeta<T>
@@ -505,10 +577,7 @@ abstract class TableFieldMeta<T> extends OperationTypedField implements FieldMet
         private DefaultPrimaryFieldMeta(TableMeta<T> table, Field field, MappingType type, MetaContext context)
                 throws MetaException {
             super(table, field, type, context);
-            if (!_MetaBridge.ID.equals(field.getName())) {
-                String m = String.format("[%s] not primary.", field.getName());
-                throw new MetaException(m);
-            }
+            _Assert.isTrue(_MetaBridge.ID.equals(field.getName()), "bug");
         }
 
 

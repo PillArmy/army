@@ -17,7 +17,7 @@
 package io.army.mapping;
 
 /// Base class for built-in array mapping types.
-public abstract non-sealed class _ArmyBuildInArrayType extends _ArmyBuildInType implements ArrayMappingType {
+public abstract class _ArmyBuildInArrayType extends _ArmyBuildInType implements ArrayMappingType {
 
     /// Constructs a built-in array mapping type for subclasses.
     protected _ArmyBuildInArrayType() {

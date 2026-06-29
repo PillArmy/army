@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
-/// Metadata interfaces for tables, fields, and types.
-@io.army.lang.NonNullApi
 package io.army.meta;
+
+import io.army.criteria.XmlExpression;
+import io.army.mapping.XmlMappingType;
+
+/// @see XmlMappingType
+public interface XmlFieldMeta<T> extends FieldMeta<T>, XmlExpression {
+
+    @Override
+    XmlMappingType mappingType();
+}

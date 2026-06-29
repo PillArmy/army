@@ -18,11 +18,13 @@ package io.army.criteria.impl;
 
 import io.army.annotation.Column;
 import io.army.annotation.MappedSuperclass;
+import io.army.mapping.CompositeMappingType;
 import io.army.mapping.MappingType;
 import io.army.meta.CompositeField;
 import io.army.meta.MetaException;
 import io.army.struct.DefinedType;
 import io.army.util._Assert;
+import io.army.util._Collections;
 import io.army.util._StringUtils;
 
 import java.io.IOException;
@@ -51,7 +53,7 @@ public abstract class CompositeFieldFactory {
 
 
     /// @return an unmodifiable list
-    public static List<CompositeField> forType(final MappingType.SqlComposite compositeType) {
+    public static List<CompositeField> forType(final CompositeMappingType compositeType) {
         if (!(compositeType instanceof MappingType)) {
             throw new IllegalArgumentException();
         } else if (compositeType.javaType().getEnclosingClass() != null) {
@@ -62,7 +64,7 @@ public abstract class CompositeFieldFactory {
     }
 
 
-    private static List<CompositeField> createFieldList(final MappingType.SqlComposite compositeType) {
+    private static List<CompositeField> createFieldList(final CompositeMappingType compositeType) {
 
         final MetaContext context = _TableMetaFactory.getContext();
         final Class<?> javaType = compositeType.javaType();
@@ -107,15 +109,31 @@ public abstract class CompositeFieldFactory {
         return List.copyOf(fieldList);
     }
 
+
+    public static Map<String, CompositeField> createFieldMap(Class<?> javaType, final List<CompositeField> fieldList) {
+        final Map<String, CompositeField> fieldMap = _Collections.hashMapForSize(fieldList.size());
+        for (CompositeField field : fieldList) {
+            fieldMap.put(field.fieldName(), field);
+        }
+        if (fieldMap.size() != fieldList.size()) {
+            // no bug ,never here
+            String m = String.format("%s filed name duplicate", javaType.getName());
+            throw new MetaException(m);
+        }
+        return Map.copyOf(fieldMap);
+    }
+
+
     private static MetaException definedTypeError(Class<?> javaType, String suffixMsg) {
         String m = String.format("%s[%s] %s", DefinedType.class.getSimpleName(), javaType.getName(), suffixMsg);
         return new MetaException(m);
     }
 
 
+
     private static final class DefaultCompositeField implements CompositeField {
 
-        private final MappingType.SqlComposite compositeType;
+        private final CompositeMappingType compositeType;
 
         private final String fieldName;
 
@@ -132,7 +150,7 @@ public abstract class CompositeFieldFactory {
         private final String collation;
 
 
-        private DefaultCompositeField(final MappingType.SqlComposite compositeType, Field field, Column column, MetaContext context) {
+        private DefaultCompositeField(final CompositeMappingType compositeType, Field field, Column column, MetaContext context) {
             final Class<?> typeClass = compositeType.javaType();
 
             this.compositeType = compositeType;
@@ -147,7 +165,7 @@ public abstract class CompositeFieldFactory {
         }
 
         @Override
-        public MappingType.SqlComposite compositeType() {
+        public CompositeMappingType compositeType() {
             return this.compositeType;
         }
 
@@ -255,7 +273,7 @@ public abstract class CompositeFieldFactory {
         }
 
         @Override
-        public MappingType.SqlComposite compositeType() {
+        public CompositeMappingType compositeType() {
             throw new UnsupportedOperationException();
         }
 

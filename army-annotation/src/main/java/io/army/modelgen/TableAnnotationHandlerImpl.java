@@ -539,7 +539,6 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
     }
 
 
-
     private Set<String> obtainParentFieldSet(final TypeElement parentElement) {
 
         Asserts.isTrue(parentElement.getAnnotation(Inheritance.class) != null, "bug");
@@ -589,7 +588,7 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
         switch (fieldName) {
             case _MetaBridge.ID:
                 validateSnowflakeStartTime(domainName, fieldName, field);
-                fieldType = parseFieldType(domainName, field);
+                fieldType = FieldType.DEFAULT;
                 break;
             case _MetaBridge.CREATE_TIME:
             case _MetaBridge.UPDATE_TIME:
@@ -705,6 +704,7 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
         return match;
     }
 
+    /// @see #validateCompositeType(TypeElement, DeclaredType)
     @Nullable
     private DeclaredType obtainCompositeMapping(final String className, final VariableElement field) {
         final Mapping mapping = field.getAnnotation(Mapping.class);
@@ -732,7 +732,7 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
     private void validateCompositeType(final TypeElement typeElement, final DeclaredType mappingType) {
         final String className = MetaUtils.getClassName(typeElement);
 
-        if (this.compositeClassNameSet.contains(className)) {
+        if (!this.compositeClassNameSet.add(className)) {
             return;
         }
 
@@ -755,14 +755,12 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
         func = field -> {
 
             final DeclaredType typeMirror;
-            typeMirror = obtainCompositeMapping(MetaUtils.getClassName(typeElement), field);
+            typeMirror = obtainCompositeMapping(className, field);
+
             if (typeMirror != null) {
                 final TypeElement compositeElement;
                 compositeElement = (TypeElement) this.types.asElement(field.asType());
-
-                if (this.compositeClassNameSet.add(MetaUtils.getClassName(compositeElement))) {
-                    validateCompositeType(compositeElement, typeMirror);
-                }
+                validateCompositeType(compositeElement, typeMirror);
             }
 
             return false;
@@ -770,6 +768,12 @@ final class TableAnnotationHandlerImpl implements TableAnnotationHandler {
 
         final List<VariableElement> fieldList;
         fieldList = findFields(typeElement, true, func);
+
+        if (fieldList.isEmpty()) {
+            String m = String.format("Composite type %s has no fields.", className);
+            addErrorMsg(m);
+            return;
+        }
 
 
         int errorCount = getErrorCount(), newErrorCount;

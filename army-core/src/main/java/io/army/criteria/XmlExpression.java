@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
-/// Metadata interfaces for tables, fields, and types.
-@io.army.lang.NonNullApi
-package io.army.meta;
+package io.army.criteria;
+
+public interface XmlExpression extends TypedExpression {
+
+
+}

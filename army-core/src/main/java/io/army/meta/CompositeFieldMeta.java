@@ -17,8 +17,11 @@
 package io.army.meta;
 
 import io.army.criteria.CompositeExpression;
+import io.army.mapping.CompositeMappingType;
 
 public interface CompositeFieldMeta<T> extends FieldMeta<T>, CompositeExpression {
 
+    @Override
+    CompositeMappingType mappingType();
 
 }

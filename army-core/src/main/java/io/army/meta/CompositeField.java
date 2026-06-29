@@ -16,13 +16,14 @@
 
 package io.army.meta;
 
-import io.army.mapping.MappingType;
+import io.army.mapping.CompositeMappingType;
+
 
 /// Represents a field within a composite type.
 ///
 /// @see io.army.mapping.CompositeType
 public interface CompositeField extends DatabaseFieldObject {
 
-    MappingType.SqlComposite compositeType();
+    CompositeMappingType compositeType();
 
 }

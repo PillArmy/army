@@ -112,6 +112,15 @@ public interface TableMeta<T> extends TabularItem, DatabaseTypeObject {
     @Nullable
     FieldMeta<T> tryField(String fieldName);
 
+    JsonbFieldMeta<T> jsonbField(String fieldName);
+
+    JsonFieldMeta<T> jsonField(String fieldName);
+
+    ArrayFieldMeta<T> arrayField(String fieldName);
+
+    CompositeFieldMeta<T> compositeField(String fieldName);
+
+    XmlFieldMeta<T> xmlField(String fieldName);
 
     FieldMeta<? super T> complexFiled(String filedName);
 
@@ -124,7 +133,6 @@ public interface TableMeta<T> extends TabularItem, DatabaseTypeObject {
     /// @throws IllegalArgumentException when not found matched {@link UniqueFieldMeta} for fieldName
     UniqueFieldMeta<T> uniqueField(String fieldName);
 
-    ArrayFieldMeta<T> arrayField(String fieldName);
 
     List<FieldMeta<?>> fieldChain();
 

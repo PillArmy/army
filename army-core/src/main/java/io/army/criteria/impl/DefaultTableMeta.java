@@ -328,6 +328,86 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
     }
 
     @Override
+    public final JsonbFieldMeta<T> jsonbField(String fieldName) {
+        final FieldMeta<T> fieldMeta;
+        fieldMeta = this.fieldNameToFields.get(fieldName);
+        if (fieldMeta == null) {
+            throw notFoundField(fieldName);
+        }
+
+        if (!(fieldMeta instanceof JsonbFieldMeta<?>)) {
+            String m = String.format("%s's %s[%s] java type not match", this
+                    , JsonbFieldMeta.class.getName(), fieldName);
+            throw new IllegalArgumentException(m);
+        }
+        return (JsonbFieldMeta<T>) fieldMeta;
+    }
+
+    @Override
+    public final JsonFieldMeta<T> jsonField(String fieldName) {
+        final FieldMeta<T> fieldMeta;
+        fieldMeta = this.fieldNameToFields.get(fieldName);
+        if (fieldMeta == null) {
+            throw notFoundField(fieldName);
+        }
+
+        if (!(fieldMeta instanceof JsonFieldMeta<?>)) {
+            String m = String.format("%s's %s[%s] java type not match", this
+                    , JsonFieldMeta.class.getName(), fieldName);
+            throw new IllegalArgumentException(m);
+        }
+        return (JsonFieldMeta<T>) fieldMeta;
+    }
+
+    @Override
+    public final CompositeFieldMeta<T> compositeField(String fieldName) {
+        final FieldMeta<T> fieldMeta;
+        fieldMeta = this.fieldNameToFields.get(fieldName);
+        if (fieldMeta == null) {
+            throw notFoundField(fieldName);
+        }
+
+        if (!(fieldMeta instanceof CompositeFieldMeta<?>)) {
+            String m = String.format("%s's %s[%s] java type not match", this
+                    , CompositeFieldMeta.class.getName(), fieldName);
+            throw new IllegalArgumentException(m);
+        }
+        return (CompositeFieldMeta<T>) fieldMeta;
+    }
+
+    @Override
+    public final ArrayFieldMeta<T> arrayField(String fieldName) {
+        final FieldMeta<T> fieldMeta;
+        fieldMeta = this.fieldNameToFields.get(fieldName);
+        if (fieldMeta == null) {
+            throw notFoundField(fieldName);
+        }
+
+        if (!(fieldMeta instanceof ArrayFieldMeta)) {
+            String m = String.format("%s's %s[%s] java type not match", this
+                    , ArrayFieldMeta.class.getName(), fieldName);
+            throw new IllegalArgumentException(m);
+        }
+        return (ArrayFieldMeta<T>) fieldMeta;
+    }
+
+    @Override
+    public final XmlFieldMeta<T> xmlField(String fieldName) {
+        final FieldMeta<T> fieldMeta;
+        fieldMeta = this.fieldNameToFields.get(fieldName);
+        if (fieldMeta == null) {
+            throw notFoundField(fieldName);
+        }
+
+        if (!(fieldMeta instanceof XmlFieldMeta<?>)) {
+            String m = String.format("%s's %s[%s] java type not match", this
+                    , XmlFieldMeta.class.getName(), fieldName);
+            throw new IllegalArgumentException(m);
+        }
+        return (XmlFieldMeta<T>) fieldMeta;
+    }
+
+    @Override
     public final boolean isThisField(final FieldMeta<?> field) {
         return field.tableMeta() == this;
     }
@@ -356,21 +436,6 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
         return (UniqueFieldMeta<T>) fieldMeta;
     }
 
-    @Override
-    public final ArrayFieldMeta<T> arrayField(String fieldName) {
-        final FieldMeta<T> fieldMeta;
-        fieldMeta = this.fieldNameToFields.get(fieldName);
-        if (fieldMeta == null) {
-            throw notFoundField(fieldName);
-        }
-
-        if (!(fieldMeta instanceof ArrayFieldMeta)) {
-            String m = String.format("%s's %s[%s] java type not match", this
-                    , ArrayFieldMeta.class.getName(), fieldName);
-            throw new IllegalArgumentException(m);
-        }
-        return (ArrayFieldMeta<T>) fieldMeta;
-    }
 
     @Override
     public final List<FieldMeta<?>> fieldChain() {

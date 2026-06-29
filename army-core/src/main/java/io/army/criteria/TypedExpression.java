@@ -33,6 +33,11 @@ import static io.army.dialect.Database.PostgreSQL;
 /// - {@link TypedField}
 /// - {@link ValueExpression}
 /// - {@link IPredicate}
+/// - {@link JsonbExpression}
+/// - {@link JsonExpression}
+/// - {@link ArrayExpression}
+/// - {@link CompositeExpression}
+/// - {@link XmlExpression}
 /// 
 public interface TypedExpression extends Expression, TypeInfer {
 

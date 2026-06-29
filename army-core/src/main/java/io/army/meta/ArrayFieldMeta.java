@@ -17,8 +17,11 @@
 package io.army.meta;
 
 import io.army.criteria.ArrayExpression;
+import io.army.mapping.ArrayMappingType;
 
 public interface ArrayFieldMeta<T> extends FieldMeta<T>, ArrayExpression {
 
+    @Override
+    ArrayMappingType mappingType();
 
 }

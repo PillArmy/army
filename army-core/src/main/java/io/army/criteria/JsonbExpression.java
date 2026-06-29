@@ -16,6 +16,7 @@
 
 package io.army.criteria;
 
+/// @see JsonExpression
 public interface JsonbExpression extends TypedExpression {
 
 

@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
-/// Metadata interfaces for tables, fields, and types.
-@io.army.lang.NonNullApi
-package io.army.meta;
+package io.army.mapping;
+
+/// @see io.army.meta.JsonFieldMeta
+public non-sealed interface JsonMappingType extends StructMappingType, MappingType.SqlJson {
+
+
+}

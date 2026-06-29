@@ -22,6 +22,7 @@ import io.army.criteria.TypeItem;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.executor.StmtExecutor;
+import io.army.lang.Nullable;
 import io.army.meta.CompositeField;
 import io.army.meta.ServerMeta;
 import io.army.meta.TypeMeta;
@@ -30,7 +31,8 @@ import io.army.sqltype.SQLType;
 
 import java.util.List;
 
-public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permits AbstractMappingType, ArrayMappingType {
+public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem
+        permits AbstractMappingType, StructMappingType {
 
     /// document type mapping ,perhaps return null value ,for example : {@link JsonType#afterGet(DataType, MappingEnv, Object)}
     Object DOCUMENT_NULL_VALUE = new Object();
@@ -138,12 +140,18 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     ///
     /// - {@link SqlJsonb}
     ///
+    /// @see JsonMappingType
     interface SqlJson extends SqlDocument {
 
     }
 
-
+    /// @see JsonbMappingType
     interface SqlJsonb extends SqlDocument {
+
+    }
+
+    /// @see XmlMappingType
+    interface SqlXml extends SqlDocument {
 
     }
 
@@ -207,6 +215,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
     }
 
+    /// @see ArrayMappingType
     interface SqlArray {
 
         Class<?> underlyingJavaType();
@@ -304,6 +313,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
     /// @see <a href="https://www.postgresql.org/docs/current/rowtypes.html">Composite Types</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-createtype.html">CREATE TYPE</a>
     /// @see <a href="https://www.postgresql.org/docs/current/sql-altertype.html">ALTER TYPE</a>
+    /// @see CompositeMappingType
     interface SqlComposite extends SqlUserDefined {
 
 
@@ -311,6 +321,9 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem permit
 
 
         CompositeField field(String fieldName);
+
+        @Nullable
+        CompositeField tryField(String fieldName);
 
     }
 

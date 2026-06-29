@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
-/// Metadata interfaces for tables, fields, and types.
-@io.army.lang.NonNullApi
-package io.army.meta;
+package io.army.mapping;
+
+/// @see io.army.meta.XmlFieldMeta
+public non-sealed interface XmlMappingType extends StructMappingType, MappingType.SqlXml {
+}

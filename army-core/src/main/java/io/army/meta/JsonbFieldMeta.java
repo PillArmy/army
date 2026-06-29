@@ -17,7 +17,11 @@
 package io.army.meta;
 
 import io.army.criteria.JsonbExpression;
+import io.army.mapping.JsonbMappingType;
 
 public interface JsonbFieldMeta<T> extends FieldMeta<T>, JsonbExpression {
+
+    @Override
+    JsonbMappingType mappingType();
 
 }

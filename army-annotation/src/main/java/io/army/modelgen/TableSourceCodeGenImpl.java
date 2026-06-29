@@ -82,8 +82,8 @@ final class TableSourceCodeGenImpl extends CodeGenSupport implements TableSource
         importClass(builder, "io.army.meta.PrimaryFieldMeta");
 
 
-        boolean hasJsonbField, hasJsonField, hasArrayField, hasCompositeField;
-        hasJsonbField = hasJsonField = hasArrayField = hasCompositeField = false;
+        boolean hasJsonbField, hasJsonField, hasArrayField, hasCompositeField, hasXmlFiled;
+        hasJsonbField = hasJsonField = hasArrayField = hasCompositeField = hasXmlFiled = false;
 
         for (FieldMeta fieldMeta : fieldMetaList) {
 
@@ -99,6 +99,9 @@ final class TableSourceCodeGenImpl extends CodeGenSupport implements TableSource
                     break;
                 case COMPOSITE:
                     hasCompositeField = true;
+                    break;
+                case XML:
+                    hasXmlFiled = true;
                     break;
             } // switch
 
@@ -119,6 +122,10 @@ final class TableSourceCodeGenImpl extends CodeGenSupport implements TableSource
 
         if (hasCompositeField) {
             importClass(builder, "io.army.meta.CompositeFieldMeta");
+        }
+
+        if (hasXmlFiled) {
+            importClass(builder, "io.army.meta.XmlFieldMeta");
         }
 
         builder.append(LF);
@@ -460,9 +467,25 @@ final class TableSourceCodeGenImpl extends CodeGenSupport implements TableSource
 
             switch (fieldMeta.type) {
                 case JSONB:
+                    methodName = "jsonbField";
+                    metaTypeName = "JsonbFieldMeta";
+                    break;
                 case JSON:
+                    methodName = "jsonField";
+                    metaTypeName = "JsonFieldMeta";
+                    break;
                 case ARRAY:
+                    methodName = "arrayField";
+                    metaTypeName = "ArrayFieldMeta";
+                    break;
                 case COMPOSITE:
+                    methodName = "compositeField";
+                    metaTypeName = "CompositeFieldMeta";
+                    break;
+                case XML:
+                    methodName = "xmlField";
+                    metaTypeName = "XmlFieldMeta";
+                    break;
                 default: {
                     if (fieldName.equals(_MetaBridge.ID)) {
                         methodName = "id";

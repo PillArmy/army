@@ -22,5 +22,6 @@ enum FieldType {
     ARRAY,
     JSON,
     JSONB,
-    COMPOSITE
+    COMPOSITE,
+    XML
 }
