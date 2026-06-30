@@ -49,6 +49,18 @@ abstract class MetaUtils {
         return className;
     }
 
+    static String getSimpleClassNameFromClassName(final String className) {
+        final int index;
+        index = className.lastIndexOf('.');
+        final String simpleName;
+        if (index > -1) {
+            simpleName = className.substring(index + 1);
+        } else {
+            simpleName = className;
+        }
+        return simpleName;
+    }
+
 
     static boolean hasText(@Nullable String str) {
         boolean match = false;

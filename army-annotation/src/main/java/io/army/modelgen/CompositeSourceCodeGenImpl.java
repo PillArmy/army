@@ -67,7 +67,7 @@ final class CompositeSourceCodeGenImpl extends CodeGenSupport implements Composi
 
         importClass(builder, "javax.annotation.processing.Generated");
         importClass(builder, "io.army.criteria.impl._TableMetaFactory");
-        importClass(builder, MetaUtils.getClassName(meta.mappingType));
+        importClass(builder, meta.mappingType);
         builder.append(LF);
         importClass(builder, "io.army.meta.CompositeField");
 
@@ -85,7 +85,7 @@ final class CompositeSourceCodeGenImpl extends CodeGenSupport implements Composi
 
     private void appendStaticBlock(final CompositeMeta meta, final String simpleClassName, final int fieldCount,
                                    final StringBuilder builder) {
-        final String simpleClassNameOfMapping = MetaUtils.getSimpleClassName(meta.mappingType);
+        final String simpleClassNameOfMapping = MetaUtils.getSimpleClassNameFromClassName(meta.mappingType);
 
         final String varFieldSize = "fieldSize";
 

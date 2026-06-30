@@ -22,17 +22,17 @@ import java.util.List;
 
 final class CompositeMeta {
 
-    static CompositeMeta of(TypeElement typeElement, TypeElement mappingType, List<VariableElement> fieldList) {
+    static CompositeMeta of(TypeElement typeElement, String mappingType, List<VariableElement> fieldList) {
         return new CompositeMeta(typeElement, mappingType, fieldList);
     }
 
     final TypeElement typeElement;
 
-    final TypeElement mappingType;
+    final String mappingType;
 
     final List<VariableElement> fieldList;
 
-    private CompositeMeta(TypeElement typeElement, TypeElement mappingType, List<VariableElement> fieldList) {
+    private CompositeMeta(TypeElement typeElement, String mappingType, List<VariableElement> fieldList) {
         this.typeElement = typeElement;
         this.mappingType = mappingType;
         this.fieldList = List.copyOf(fieldList);

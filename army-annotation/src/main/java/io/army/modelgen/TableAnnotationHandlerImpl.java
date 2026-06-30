@@ -56,12 +56,9 @@ final class TableAnnotationHandlerImpl extends FieldHandlerSupport implements Ta
 
     private final TableSourceCodeGen tableSourceCodeGen;
 
-    private final Map<String, MappingMode> mappingModeMap = new HashMap<>();
-
     private final Map<String, Set<String>> startTimeToDomain = new HashMap<>();
 
     private final Map<String, Set<String>> fieldNamesMap = new HashMap<>();
-
 
     private final TypeElement[] parentHolder = new TypeElement[1];
 
@@ -76,7 +73,13 @@ final class TableAnnotationHandlerImpl extends FieldHandlerSupport implements Ta
         super(tempBuilder);
         this.options = options;
 
-        this.fieldTypeParser = MirrorFieldTypeParser.create(new Context(env, tempBuilder, this::addErrorMsg, this::getErrorCount));
+        final Context context = new Context(env, tempBuilder, this::addErrorMsg, this::getErrorCount);
+
+        if (env.getElementUtils().getTypeElement(InferFieldTypeParser.COMPOSITE_TYPE) == null) {
+            this.fieldTypeParser = InferFieldTypeParser.create(context);
+        } else {
+            this.fieldTypeParser = MirrorFieldTypeParser.create(context);
+        }
 
         this.discriminatorHandler = DiscriminatorHandlerImpl.create(this::addErrorMsg);
 
@@ -345,6 +348,8 @@ final class TableAnnotationHandlerImpl extends FieldHandlerSupport implements Ta
         final String discriminatorFieldName = inheritance == null ? null : inheritance.value();
         final String domainName = MetaUtils.getClassName(targetElement);
 
+        final boolean childTable = inheritance == null && targetElement.getAnnotation(DiscriminatorValue.class) != null;
+
         final Set<String> columnNamSet = ArmyCollections.hashSetForSize(20);
         final Map<String, VariableElement> fieldMap = ArmyCollections.hashMapForSize(20);
 
@@ -390,8 +395,6 @@ final class TableAnnotationHandlerImpl extends FieldHandlerSupport implements Ta
                 break;
             }
 
-            className = MetaUtils.getClassName(superElement);
-
 
             for (Element element : superElement.getEnclosedElements()) {
                 if (element.getKind() != ElementKind.FIELD
@@ -404,14 +407,14 @@ final class TableAnnotationHandlerImpl extends FieldHandlerSupport implements Ta
                 fieldName = field.getSimpleName().toString();
 
                 if (fieldMap.put(fieldName, field) != null) {
-                    String m = String.format("Field %s#%s is overridden.", className, fieldName);
+                    String m = String.format("Field %s#%s is overridden.", MetaUtils.getClassName(superElement), fieldName);
                     addErrorMsg(m);
                 }
 
                 // get column name
-                columnName = getColumnName(className, fieldName, column);
+                columnName = getColumnName(domainName, fieldName, column);
                 if (!columnName.startsWith("${") && !columnNamSet.add(columnName)) {
-                    String m = String.format("Field %s#%s column[%s] duplication.", className, fieldName, columnName);
+                    String m = String.format("Field %s#%s column[%s] duplication.", domainName, fieldName, columnName);
                     addErrorMsg(m);
                 }
 
@@ -421,7 +424,7 @@ final class TableAnnotationHandlerImpl extends FieldHandlerSupport implements Ta
                     this.discriminatorHandler.handle(domainName, field);
                 }
 
-                fieldType = validateField(domainName, className, fieldName, field, column, discriminatorField);
+                fieldType = validateField(domainName, childTable, fieldName, field, column, discriminatorField);
 
                 tempFieldList.add(FieldMeta.of(field, fieldType));
 
@@ -488,7 +491,7 @@ final class TableAnnotationHandlerImpl extends FieldHandlerSupport implements Ta
 
         final OverrideParams overrideParams = targetElement.getAnnotation(OverrideParams.class);
         if (overrideParams != null) {
-            createOverrideParamMap(overrideParams, domainName, fieldMap::get);
+            createOverrideParamMap(overrideParams, domainName, mode, fieldMap::get);
         }
 
         Asserts.isTrue(fieldMap.size() == fieldList.size(), "bug");
@@ -549,36 +552,37 @@ final class TableAnnotationHandlerImpl extends FieldHandlerSupport implements Ta
     }
 
 
-    private FieldType validateField(final String domainName, final String className, final String fieldName,
-                                    final VariableElement field, final Column column, final boolean discriminatorField) {
+    private FieldType validateField(final String domainName, final boolean childTable,
+                                    final String fieldName, final VariableElement field, final Column column,
+                                    final boolean discriminatorField) {
 
         final FieldType fieldType;
         switch (fieldName) {
             case _MetaBridge.ID:
-                validateSnowflakeStartTime(domainName, fieldName, field);
+                validateSnowflakeStartTime(domainName, childTable, fieldName, field);
                 fieldType = FieldType.DEFAULT;
                 break;
             case _MetaBridge.CREATE_TIME:
             case _MetaBridge.UPDATE_TIME:
-                assertDateTime(className, field);
+                assertDateTime(domainName, field);
                 fieldType = FieldType.DEFAULT;
                 break;
             case _MetaBridge.VERSION:
-                assertVersionField(className, field);
+                assertVersionField(domainName, field);
                 fieldType = FieldType.DEFAULT;
                 break;
             case _MetaBridge.VISIBLE:
-                assertVisibleField(className, field);
+                assertVisibleField(domainName, field);
                 fieldType = FieldType.DEFAULT;
                 break;
             default: {
                 if (!discriminatorField && !MetaUtils.hasText(column.comment())) {
-                    noCommentError(className, field);
+                    noCommentError(domainName, field);
                 }
                 if (discriminatorField) {
                     fieldType = FieldType.DEFAULT;
                 } else {
-                    validateSnowflakeStartTime(domainName, fieldName, field);
+                    validateSnowflakeStartTime(domainName, childTable, fieldName, field);
                     fieldType = this.fieldTypeParser.parseType(domainName, field);
                 }
             } // default
@@ -639,7 +643,8 @@ final class TableAnnotationHandlerImpl extends FieldHandlerSupport implements Ta
     }
 
 
-    private void createOverrideParamMap(final OverrideParams overrideParams, final String domainName, final Function<String, VariableElement> func) {
+    private void createOverrideParamMap(final OverrideParams overrideParams, final String domainName,
+                                        final @Nullable MappingMode mode, final Function<String, VariableElement> func) {
 
         String fieldName, paramName;
         VariableElement fieldElement;
@@ -648,8 +653,7 @@ final class TableAnnotationHandlerImpl extends FieldHandlerSupport implements Ta
         for (FieldParam field : overrideParams.fields()) {
             fieldName = field.name();
 
-            if (_MetaBridge.ID.equals(fieldName)
-                    && this.mappingModeMap.get(domainName) == MappingMode.CHILD) {
+            if (_MetaBridge.ID.equals(fieldName) && mode == MappingMode.CHILD) {
                 String m = String.format("%s is child table, couldn't override id field.", domainName);
                 addErrorMsg(m);
                 continue;
@@ -680,15 +684,14 @@ final class TableAnnotationHandlerImpl extends FieldHandlerSupport implements Ta
         } // for field loop
     }
 
-    private void validateSnowflakeStartTime(final String domainName, final String fieldName, final VariableElement field) {
+    private void validateSnowflakeStartTime(final String domainName, final boolean childTable, final String fieldName, final VariableElement field) {
         final Generator generator;
         if ((generator = field.getAnnotation(Generator.class)) == null
                 || generator.type() == GeneratorType.POST
                 || !generator.value().equals("io.army.generator.snowflake.SnowflakeGenerator")) {
             return;
         }
-        if (_MetaBridge.ID.equals(fieldName)
-                && this.mappingModeMap.get(domainName) == MappingMode.CHILD) {
+        if (childTable && _MetaBridge.ID.equals(fieldName)) {
             return;
         }
 

@@ -66,6 +66,8 @@ abstract class FieldHandlerSupport {
     /// @param endFunc true : end loop
     final List<VariableElement> findFields(final TypeElement targetElement, final boolean createList,
                                            final Predicate<VariableElement> endFunc) {
+        final String domainName = MetaUtils.getClassName(targetElement);
+
         TypeElement superElement = targetElement;
 
 
@@ -121,9 +123,9 @@ abstract class FieldHandlerSupport {
                     fieldName = field.getSimpleName().toString();
                     if (fieldNameSet.add(fieldName)) {
                         fieldList.add(field);
-                        columnName = getColumnName(MetaUtils.getClassName(superElement), fieldName, column);
+                        columnName = getColumnName(domainName, fieldName, column);
                         if (!columnName.startsWith("${") && !columnNameSet.add(columnName)) {
-                            String m = String.format("%s.%s column[%s] duplication", MetaUtils.getClassName(superElement), fieldName, columnName);
+                            String m = String.format("%s.%s column[%s] duplication", domainName, fieldName, columnName);
                             addErrorMsg(m);
                         }
                     } else {
@@ -144,7 +146,7 @@ abstract class FieldHandlerSupport {
     }
 
     /// @return lower case column
-    final String getColumnName(final String className, final String fieldName, final Column column) {
+    final String getColumnName(final String domainName, final String fieldName, final Column column) {
 
         final String value = column.name();
         final String finalValue;
@@ -153,7 +155,7 @@ abstract class FieldHandlerSupport {
             case RUNTIME_EXP: {
                 final String key, configValue;
                 key = getAndClearTempBuilder()
-                        .append(className)
+                        .append(domainName)
                         .append('.')
                         .append(fieldName)
                         .append('.')
@@ -164,7 +166,7 @@ abstract class FieldHandlerSupport {
 
                 configValue = getTableMetaMap().get(key);
                 if (MetaUtils.hasText(configValue)) {
-                    validateColumnName(className, fieldName, configValue.trim());
+                    validateColumnName(domainName, fieldName, configValue.trim());
                     finalValue = configValue.trim().toLowerCase(Locale.ROOT);
                 } else if (value.equals(DEFAULT_EXP)) {
                     finalValue = _MetaBridge.camelToLowerCase(fieldName, this.tempBuilder);
@@ -174,7 +176,7 @@ abstract class FieldHandlerSupport {
             }
             break;
             case OPTIONAL_EXP: {
-                String m = String.format("%s in %s.%s %s.%s is unsupported", value, className, fieldName,
+                String m = String.format("%s in %s.%s %s.%s is unsupported", value, domainName, fieldName,
                         "Column", "name");
                 addErrorMsg(m);
                 finalValue = value;
@@ -184,7 +186,7 @@ abstract class FieldHandlerSupport {
                 if (value.isEmpty()) {
                     finalValue = _MetaBridge.camelToLowerCase(fieldName, this.tempBuilder);
                 } else {
-                    validateColumnName(className, fieldName, value);
+                    validateColumnName(domainName, fieldName, value);
                     finalValue = value.toLowerCase(Locale.ROOT);
                 }
             } // default
