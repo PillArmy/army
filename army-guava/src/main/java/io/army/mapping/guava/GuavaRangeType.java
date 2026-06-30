@@ -27,12 +27,11 @@ import io.army.executor.DataAccessException;
 import io.army.function.TextFunction;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
-import io.army.mapping.array.RangeArrayType;
+import io.army.mapping.guava.array.GuavaRangeArrayType;
 import io.army.meta.ServerMeta;
 import io.army.serialize.RangeDeserializer;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
-import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
 import io.army.util._Assert;
 import io.army.util._Exceptions;
@@ -133,7 +132,7 @@ public abstract class GuavaRangeType extends _ArmyBuildInType implements Mapping
 
     @Override
     public final MappingType arrayTypeOfThis() throws CriteriaException {
-        return RangeArrayType.from(ArrayUtils.arrayClassOf(this.subJavaType));
+        return GuavaRangeArrayType.fromTypeArg(Range[].class, genericsType());
     }
 
     @Override

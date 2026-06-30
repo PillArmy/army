@@ -29,6 +29,7 @@ import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
 import io.army.mapping.UnaryGenericsMapping;
 import io.army.mapping._ArmyBuildInType;
+import io.army.mapping.guava.array.GuavaRangeSetArrayType;
 import io.army.meta.ServerMeta;
 import io.army.serialize.RangeDeserializer;
 import io.army.serialize.RecordDeserializer;
@@ -128,7 +129,7 @@ public abstract class GuavaRangeSetType extends _ArmyBuildInType
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return super.arrayTypeOfThis();
+        return GuavaRangeSetArrayType.fromTypeArg(RangeSet[].class, genericsType());
     }
 
 
