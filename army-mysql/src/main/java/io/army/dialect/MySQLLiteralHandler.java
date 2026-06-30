@@ -20,6 +20,7 @@ package io.army.dialect;
 import io.army.criteria.CriteriaException;
 import io.army.executor.ExecutorSupport;
 import io.army.lang.Nullable;
+import io.army.mapping.VectorType;
 import io.army.meta.TypeMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -221,8 +222,19 @@ final class MySQLLiteralHandler extends ArmyLiteralHandler<MySQLParser> {
                 if (!(value instanceof byte[])) {
                     throw ExecutorSupport.beforeBindMethodError(typeMeta.mappingType(), dataType, value);
                 }
-                sqlBuilder.append("0x")
-                        .append(HexUtils.hexEscapesText(true, (byte[]) value));
+                final String textValue;
+                textValue = VectorType.binaryLeToVectorText((byte[]) value);
+
+                if (typeName) {
+                    sqlBuilder.append("STRING_TO_VECTOR")
+                            .append(_Constant.LEFT_PAREN);
+                }
+
+                MySQLLiterals.mysqlEscapes(this.literalEscapeMode, textValue, sqlBuilder);
+
+                if (typeName) {
+                    sqlBuilder.append(_Constant.RIGHT_PAREN);
+                }
             }
             break;
             case NULL:

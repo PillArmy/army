@@ -59,6 +59,7 @@ public class DefinedTypeMappingTests {
 
         }
 
+        // below test dot operator, https://www.postgresql.org/docs/current/rowtypes.html#ROWTYPES-ACCESSING
 
         final ProductInfo info = new ProductInfo()
                 .setProductId(4L)

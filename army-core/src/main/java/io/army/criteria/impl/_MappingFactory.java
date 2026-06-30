@@ -149,6 +149,8 @@ public abstract class _MappingFactory {
         final List<Method> factoryMethodList;
         factoryMethodList = context.factoryMethodList(mappingClass);
 
+        final int methodCount = factoryMethodList.size();
+
         final Class<?> fieldJavaType = field.getType();
         final String[] paramArray = mapping.params();
         final boolean haveConfig, haveTypeArg;
@@ -168,9 +170,13 @@ public abstract class _MappingFactory {
 
             switch (methodName) {
                 case "from": {
-                    if (haveConfig || haveTypeArg) {
+                    if (haveConfig) {
                         continue;
                     }
+                    if (haveTypeArg && methodCount > 1) {
+                        continue;
+                    }
+
                     type = oneClassFactoryMethod(domainClass, field, factoryMethod, fieldJavaType);
                 }
                 break topLoop;

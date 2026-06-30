@@ -19,6 +19,7 @@ package io.army.mapping;
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
+import io.army.lang.Nullable;
 import io.army.mapping.array.VectorArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.ArmyType;
@@ -78,47 +79,12 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
 
     @Override
     public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        if (!(source instanceof float[] vector)) {
-            throw paramError(this, dataType, source, null);
-        }
-        final Object value;
-        try {
-            if (dataType == MySQLType.VECTOR) {
-                value = vectorToBinaryLe(vector);
-            } else {
-                value = vectorToString(vector);
-            }
-        } catch (CriteriaException e) {
-            throw e;
-        } catch (Exception e) {
-            throw paramError(this, dataType, source, e);
-        }
-        return value;
+        return serialize(this, dataType, env, source);
     }
 
     @Override
     public float[] afterGet(final DataType dataType, MappingEnv env, final Object source) throws DataAccessException {
-
-        final float[] value;
-        try {
-            if (source instanceof float[]) {
-                value = (float[]) source;
-            } else if (dataType == MySQLType.VECTOR) {
-                if (!(source instanceof byte[])) {
-                    throw dataAccessError(this, dataType, source, null);
-                }
-                value = binaryToVectorLe((byte[]) source);
-            } else if (source instanceof String s) {
-                value = stringToVector(s, 0, s.length());
-            } else {
-                throw paramError(this, dataType, source, null);
-            }
-        } catch (DataAccessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw dataAccessError(this, dataType, source, e);
-        }
-        return value;
+        return deserialize(this, dataType, env, source);
     }
 
     @Override
@@ -148,6 +114,50 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
                     .build();
         }
         return dataType;
+    }
+
+    @SuppressWarnings("unused")
+    public static Object serialize(final VectorType type, final DataType dataType, MappingEnv env, final Object source) {
+        if (!(source instanceof float[] vector)) {
+            throw paramError(type, dataType, source, null);
+        }
+        final Object value;
+        try {
+            if (dataType == MySQLType.VECTOR) {
+                value = vectorToBinaryLe(vector);
+            } else {
+                value = vectorToString(vector);
+            }
+        } catch (CriteriaException e) {
+            throw e;
+        } catch (Exception e) {
+            throw paramError(type, dataType, source, e);
+        }
+        return value;
+    }
+
+    @SuppressWarnings("unused")
+    public static float[] deserialize(final VectorType type, final DataType dataType, MappingEnv env, final Object source) {
+        final float[] value;
+        try {
+            if (source instanceof float[]) {
+                value = (float[]) source;
+            } else if (dataType == MySQLType.VECTOR) {
+                if (!(source instanceof byte[])) {
+                    throw dataAccessError(type, dataType, source, null);
+                }
+                value = binaryLeToVector((byte[]) source);
+            } else if (source instanceof String s) {
+                value = stringToVector(s, 0, s.length());
+            } else {
+                throw paramError(type, dataType, source, null);
+            }
+        } catch (DataAccessException e) {
+            throw e;
+        } catch (Exception e) {
+            throw dataAccessError(type, dataType, source, e);
+        }
+        return value;
     }
 
 
@@ -194,11 +204,11 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
         return offset;
     }
 
-    public static float[] binaryToVectorLe(final byte[] bytes) {
-        return binaryToVectorLe(bytes, 0, bytes.length);
+    public static float[] binaryLeToVector(final byte[] bytes) {
+        return binaryLeToVector(bytes, 0, bytes.length);
     }
 
-    public static float[] binaryToVectorLe(final byte[] bytes, int offset, final int endPos) {
+    public static float[] binaryLeToVector(final byte[] bytes, int offset, final int endPos) {
         final int byteLength = endPos - offset;
         if (byteLength < 1 || byteLength % 4 != 0) {
             throw new IllegalArgumentException("invalid vector");
@@ -209,6 +219,22 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
             offset += 4;
         }
         return vector;
+    }
+
+
+    public static String binaryLeToVectorText(final byte[] bytes) {
+        return binaryLeToVectorText(bytes, 0, bytes.length, null)
+                .toString();
+    }
+
+
+    public static StringBuilder binaryLeToVectorText(final byte[] bytes, int offset, final int endPos, @Nullable StringBuilder builder) {
+        final float[] vector;
+        vector = binaryLeToVector(bytes, offset, endPos);
+        if (builder == null) {
+            builder = new StringBuilder(2 + vector.length * 10);
+        }
+        return vectorToString(vector, builder);
     }
 
     @SuppressWarnings("unused")
