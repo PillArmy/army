@@ -19,10 +19,12 @@ package io.army.criteria.impl;
 import io.army.criteria.*;
 import io.army.criteria.impl.inner._DerivedTable;
 import io.army.dialect.Database;
+import io.army.dialect.DialectParser;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
+import io.army.meta.CompositeField;
 import io.army.meta.TypeMeta;
 import io.army.util.*;
 import org.slf4j.Logger;
@@ -129,7 +131,6 @@ abstract class Expressions {
         }
         return (ArmyExpression) exp;
     }
-
 
 
     static ArmyExpression wrapNonNull(final Object value) {
@@ -1504,6 +1505,7 @@ abstract class Expressions {
 
             this.expression.appendSql(sqlBuilder, context);
 
+            final DialectParser dialectParser = context.parser();
 
             String sub;
             for (Object subscript : this.subscriptList) {
@@ -1522,6 +1524,10 @@ abstract class Expressions {
                             throw subscriptError(subscript, "COMPOSITE");
                         }
                         ((ArmyExpression) subscript).appendSql(sqlBuilder, context);
+                    }
+                    break;
+                    case CompositeField _: {
+                        dialectParser.safeBoundedObjectName((CompositeField) subscript, sqlBuilder);
                     }
                     break;
                     case String _: {

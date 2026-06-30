@@ -42,10 +42,7 @@ import io.army.schema.TypeResult;
 import io.army.session.SessionSpec;
 import io.army.sqltype.DataType;
 import io.army.stmt.*;
-import io.army.util.ArrayUtils;
-import io.army.util._Collections;
-import io.army.util._Exceptions;
-import io.army.util._StringUtils;
+import io.army.util.*;
 
 import java.lang.ref.WeakReference;
 import java.time.LocalDateTime;
@@ -627,6 +624,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
         return finalObjectName;
     }
 
+
     public final StringBuilder safeObjectName(final DatabaseObject object, final StringBuilder builder) {
         final Map<String, String> map = this.objectNameMap;
         final String objectName, cacheObjectName;
@@ -667,6 +665,14 @@ abstract non-sealed class ArmyParser implements DialectParser {
         return builder;
     }
 
+    @Override
+    public final StringBuilder safeBoundedObjectName(DatabaseObject object, StringBuilder builder) {
+        if (object instanceof CompositeField || object instanceof DataType) {
+            return safeObjectName(object, builder);
+        }
+        String m = String.format("%s isn't supported by safeBoundedObjectName", ClassUtils.safeClassName(object));
+        throw new IllegalArgumentException(m);
+    }
 
     @Override
     public final String identifier(final String identifier) {

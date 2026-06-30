@@ -426,7 +426,8 @@ public interface Expression extends SortItem, RowElement, RightOperand,
     ///
     /// @param key key is one of below:
     /// 1. {@link Expression} : subscript expression
-    /// 2. {@link String} literal
+    /// 2. {@link io.army.meta.CompositeField} : composite field
+    /// 3. {@link String} literal
     /// @see <a href="https://www.postgresql.org/docs/current/rowtypes.html#ROWTYPES-ACCESSING">Accessing Composite Types</a>
     Expression dot(Object key);
 

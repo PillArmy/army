@@ -19,6 +19,7 @@ package io.army.dialect;
 import io.army.criteria.*;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
+import io.army.meta.DatabaseObject;
 import io.army.meta.ServerMeta;
 import io.army.schema.SchemaResult;
 import io.army.session.SessionSpec;
@@ -109,6 +110,11 @@ public sealed interface DialectParser permits ArmyParser {
 
 
     String identifier(String identifier);
+
+    /// @param object one of below:
+    /// - {@link io.army.meta.CompositeField}
+    /// - {@link io.army.sqltype.DataType}
+    StringBuilder safeBoundedObjectName(DatabaseObject object, StringBuilder builder);
 
     void typeName(MappingType type, StringBuilder sqlBuilder);
 

@@ -1,12 +1,12 @@
 package io.army.example.type.mapping;
 
 import com.google.common.collect.*;
+import io.army.criteria.Select;
+import io.army.criteria.Update;
+import io.army.criteria.impl.SQLs;
 import io.army.example.type.annotation.CurrentSession;
 import io.army.example.type.annotation.NewPostgreTypesId;
-import io.army.example.type.domain.ManagerInfo;
-import io.army.example.type.domain.PostgreTypes_;
-import io.army.example.type.domain.ProductInfo;
-import io.army.example.type.domain.ProductInfo_;
+import io.army.example.type.domain.*;
 import io.army.mapping.CompositeType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.array.CompositeArrayType;
@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.army.criteria.impl.SQLs.AS;
 import static org.springframework.boot.test.context.SpringBootTest.UseMainMethod.ALWAYS;
 
 @SpringBootTest(useMainMethod = ALWAYS)
@@ -57,6 +58,37 @@ public class DefinedTypeMappingTests {
             TestUtils.updateAndQuery(session, id, PostgreTypes_.productInfo, info);
 
         }
+
+
+        final ProductInfo info = new ProductInfo()
+                .setProductId(4L)
+                .setAvailable(true)
+                .setProductName("")   // empty string
+                .setPrice(new BigDecimal("1.25"))
+                .setReleaseDate(LocalDate.now())
+                .setIntArray(null)
+                .setTextArray(null)
+                .setManagerInfo(new ManagerInfo().setId(23223L));
+
+        final Update updateStmt;
+        updateStmt = SQLs.singleUpdate()
+                .update(PostgreTypes_.T, AS, "t")
+                .set(PostgreTypes_.productInfo, info)
+                .where(PostgreTypes_.id.equal(id))
+                .asUpdate();
+
+        session.update(updateStmt);
+
+        final Select stmt;
+        stmt = SQLs.query()
+                .select(s -> s.space(PostgreTypes_.productInfo.dot(ProductInfo_.managerInfo, ManagerInfo_.id).as("managerId")))
+                .from(PostgreTypes_.T, AS, "t")
+                .where(PostgreTypes_.id.equal(id))
+                .asQuery();
+
+        final Long managerId = session.queryOne(stmt, Long.class);
+        Assert.assertEquals(managerId, info.managerInfo.id);
+
 
     }
 
