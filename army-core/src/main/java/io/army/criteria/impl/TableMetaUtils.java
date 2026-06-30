@@ -69,7 +69,7 @@ import java.util.*;
 /// @see io.army.meta.TableMeta
 /// @see io.army.annotation.Table
 /// @see io.army.annotation.Column
-public abstract class TableMetaUtils {
+abstract class TableMetaUtils {
 
     TableMetaUtils() {
         throw new UnsupportedOperationException();
@@ -81,25 +81,25 @@ public abstract class TableMetaUtils {
     ///
     /// For column names, the default is camelCase-to-snake_case conversion.
     /// For table names, it converts the simple class name to lowercase with underscores.
-    public static final String DEFAULT_EXP = "${DEFAULT}";
+    static final String DEFAULT_EXP = "${DEFAULT}";
 
     /// Placeholder expression that **must** be resolved from `TableMeta.properties` at runtime.
     ///
     /// Throws `MetaException` if no corresponding property entry is found.
     /// Use this when the value is environment-specific and has no sensible built-in default.
-    public static final String RUNTIME_EXP = "${RUNTIME}";
+    static final String RUNTIME_EXP = "${RUNTIME}";
 
     /// Placeholder expression for **optional** metadata overrides.
     ///
     /// If the property is not found, the annotated element (e.g., an index) is silently skipped
     /// rather than causing an error. Not all attributes support this expression.
-    public static final String OPTIONAL_EXP = "${OPTIONAL}";
+    static final String OPTIONAL_EXP = "${OPTIONAL}";
 
     /// Placeholder expression that resolves to a **convention-based default value**.
     ///
     /// Currently used primarily for index name generation, where the framework
     /// automatically constructs names like `uni_{table}_{column}` or `idx_{table}_{column}`.
-    public static final String DEFAULT_VALUE_EXP = "${DEFAULT_VALUE}";
+    static final String DEFAULT_VALUE_EXP = "${DEFAULT_VALUE}";
 
 
     /// Resolves the **database column name** for a given field based on the `@Column` annotation

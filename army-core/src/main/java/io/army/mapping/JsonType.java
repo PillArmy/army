@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class JsonType extends ArmyJsonType implements MappingType.SqlJson {
+public class JsonType extends ArmyJsonType implements JsonMappingType {
 
     public static JsonType from(final Class<?> javaType) {
         final JsonType instance;

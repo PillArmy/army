@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class JsonbType extends ArmyJsonType implements MappingType.SqlJsonb {
+public class JsonbType extends ArmyJsonType implements JsonbMappingType {
 
     public static JsonbType from(final Class<?> javaType) {
         if (javaType == String.class) {
