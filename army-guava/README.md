@@ -41,7 +41,7 @@ Maps `com.google.common.collect.Range<C>` to PostgreSQL range types:
 | `Range<LocalDate>`      | `daterange`     |
 
 **Array Support**: `Range<C>[]` → PostgreSQL range array types (e.g., `int4range[]`) is implemented via
-`RangeArrayType`.
+[GuavaRangeArrayType](file:///Users/zoro/repositories/java/hub/army/army-guava/src/main/java/io/army/mapping/guava/array/GuavaRangeArrayType.java).
 
 ### Multirange Types (`GuavaRangeSetType`)
 
@@ -55,6 +55,47 @@ Maps `com.google.common.collect.RangeSet<C>` to PostgreSQL multirange types:
 | `RangeSet<LocalDateTime>`  | `tsmultirange`   |
 | `RangeSet<OffsetDateTime>` | `tstzmultirange` |
 | `RangeSet<LocalDate>`      | `datemultirange` |
+
+**Array Support**: `RangeSet<C>[]` → PostgreSQL multirange array types (e.g., `int4multirange[]`) is implemented via
+[GuavaRangeSetArrayType](file:///Users/zoro/repositories/java/hub/army/army-guava/src/main/java/io/army/mapping/guava/array/GuavaRangeSetArrayType.java).
+
+## Array Types
+
+### Range Array Types (`GuavaRangeArrayType`)
+
+Maps `Range<C>[]` to PostgreSQL range array types:
+
+| Java Type                 | PostgreSQL Type |
+|---------------------------|-----------------|
+| `Range<Integer>[]`        | `int4range[]`   |
+| `Range<Long>[]`           | `int8range[]`   |
+| `Range<BigDecimal>[]`     | `numrange[]`    |
+| `Range<LocalDateTime>[]`  | `tsrange[]`     |
+| `Range<OffsetDateTime>[]` | `tstzrange[]`   |
+| `Range<LocalDate>[]`      | `daterange[]`   |
+
+### Multirange Array Types (`GuavaRangeSetArrayType`)
+
+Maps `RangeSet<C>[]` to PostgreSQL multirange array types:
+
+| Java Type                    | PostgreSQL Type    |
+|------------------------------|--------------------|
+| `RangeSet<Integer>[]`        | `int4multirange[]` |
+| `RangeSet<Long>[]`           | `int8multirange[]` |
+| `RangeSet<BigDecimal>[]`     | `nummultirange[]`  |
+| `RangeSet<LocalDateTime>[]`  | `tsmultirange[]`   |
+| `RangeSet<OffsetDateTime>[]` | `tstzmultirange[]` |
+| `RangeSet<LocalDate>[]`      | `datemultirange[]` |
+
+### Multi-dimensional Arrays
+
+Both array types support multi-dimensional arrays:
+
+| Java Type               | PostgreSQL Type      |
+|-------------------------|----------------------|
+| `Range<Integer>[][]`    | `int4range[][]`      |
+| `RangeSet<Integer>[][]` | `int4multirange[][]` |
+| `Range<Integer>[][][]`  | `int4range[][][]`    |
 
 ## Usage Example
 
@@ -75,6 +116,15 @@ public class PostgreTypes {
     @Mapping("io.army.mapping.guava.GuavaRangeSetType")
     @Column(comment = "int4multirange type")
     public RangeSet<Integer> int4RangeSetGuava;
+
+    // Array types
+    @Mapping("io.army.mapping.guava.array.GuavaRangeArrayType")
+    @Column(comment = "int4range array type")
+    public Range<Integer>[] int4RangeArrayGuava;
+
+    @Mapping("io.army.mapping.guava.array.GuavaRangeSetArrayType")
+    @Column(comment = "int4multirange array type")
+    public RangeSet<Integer>[] int4RangeSetArrayGuava;
 }
 ```
 
