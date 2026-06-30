@@ -1,6 +1,5 @@
 package io.army.example.type.local;
 
-import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import io.army.mapping.MappingType;
 import org.junit.jupiter.api.Test;
@@ -53,7 +52,7 @@ public class MyLocalTest {
 
     @Test
     public void range() throws Exception {
-        Range<?> range = Range.downTo(0, BoundType.CLOSED);
+        Range<?> range = Range.closedOpen(0, 0);
         System.out.println(range.hasLowerBound());
         System.out.println(range.hasUpperBound());
         System.out.println(range);

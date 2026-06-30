@@ -148,54 +148,113 @@ public class PostgreTypes implements FieldAccessPojo {
     public String macaddr8;
 
     // ------------- 范围类型 -------------
-    @Column(comment = "int4range type")
-    public String int4range;
-
-    @Column(comment = "int8range type")
-    public String int8range;
-
-    @Column(comment = "numrange type")
-    public String numrange;
-
-    @Column(comment = "tsrange type")
-    public String tsrange;
-
-    @Column(comment = "tstzrange type")
-    public String tstzrange;
-
-    @Column(comment = "daterange type")
-    public String daterange;
 
     @Mapping("io.army.mapping.guava.GuavaRangeType")
     @Column(comment = "int4range type")
     public Range<Integer> int4RangeGuava;
 
+    @Mapping("io.army.mapping.guava.GuavaRangeType")
+    @Column(comment = "int8range type")
+    public Range<Long> int8range;
+
+    @Mapping("io.army.mapping.guava.GuavaRangeType")
+    @Column(comment = "numrange type")
+    public Range<BigDecimal> numrange;
+
+    @Mapping("io.army.mapping.guava.GuavaRangeType")
+    @Column(comment = "tsrange type")
+    public Range<LocalDateTime> tsrange;
+
+    @Mapping("io.army.mapping.guava.GuavaRangeType")
+    @Column(comment = "tstzrange type")
+    public Range<OffsetDateTime> tstzrange;
+
+    @Mapping("io.army.mapping.guava.GuavaRangeType")
+    @Column(comment = "daterange type")
+    public Range<LocalDate> daterange;
+
+
+    @Mapping("io.army.mapping.guava.array.GuavaRangeArrayType")
+    @Column(comment = "int4range type")
+    public Range<Integer>[] int4RangeArray;
+
+    @Mapping("io.army.mapping.guava.array.GuavaRangeArrayType")
+    @Column(comment = "int8range type")
+    public Range<Long>[] int8rangeArray;
+
+    @Mapping("io.army.mapping.guava.array.GuavaRangeArrayType")
+    @Column(comment = "numrange type")
+    public Range<BigDecimal>[] numrangeArray;
+
+    @Mapping("io.army.mapping.guava.array.GuavaRangeArrayType")
+    @Column(comment = "tsrange type")
+    public Range<LocalDateTime>[] tsrangeArray;
+
+    @Mapping("io.army.mapping.guava.array.GuavaRangeArrayType")
+    @Column(comment = "tstzrange type")
+    public Range<OffsetDateTime>[] tstzrangeArray;
+
+    @Mapping("io.army.mapping.guava.array.GuavaRangeArrayType")
+    @Column(comment = "daterange type")
+    public Range<LocalDate>[] daterangeArray;
+
+
     @Mapping("io.army.mapping.guava.GuavaRangeSetType")
     @Column(comment = "INT4MULTIRANGE type")
     public RangeSet<Integer> int4RangeSetGuava;
+
+    @Mapping("io.army.mapping.guava.GuavaRangeSetType")
+    @Column(comment = "int8multirange type")
+    public RangeSet<Long> int8multirange;
+
+    @Mapping("io.army.mapping.guava.GuavaRangeSetType")
+    @Column(comment = "nummultirange type")
+    public RangeSet<BigDecimal> nummultirange;
+
+    @Mapping("io.army.mapping.guava.GuavaRangeSetType")
+    @Column(comment = "tsmultirange type")
+    public RangeSet<LocalDateTime> tsmultirange;
+
+    @Mapping("io.army.mapping.guava.GuavaRangeSetType")
+    @Column(comment = "tstzmultirange type")
+    public RangeSet<OffsetDateTime> tstzmultirange;
+
+    @Mapping("io.army.mapping.guava.GuavaRangeSetType")
+    @Column(comment = "datemultirange type")
+    public RangeSet<LocalDate> datemultirange;
+
+
+    @Mapping("io.army.mapping.guava.array.GuavaRangeSetArrayType")
+    @Column(comment = "INT4MULTIRANGE type")
+    public RangeSet<Integer>[] int4RangeSetGuavaArray;
+
+    @Mapping("io.army.mapping.guava.array.GuavaRangeSetArrayType")
+    @Column(comment = "int8multirange type")
+    public RangeSet<Long>[] int8multirangeArray;
+
+    @Mapping("io.army.mapping.guava.array.GuavaRangeSetArrayType")
+    @Column(comment = "nummultirange type")
+    public RangeSet<BigDecimal>[] nummultirangeArray;
+
+    @Mapping("io.army.mapping.guava.array.GuavaRangeSetArrayType")
+    @Column(comment = "tsmultirange type")
+    public RangeSet<LocalDateTime>[] tsmultirangeArray;
+
+    @Mapping("io.army.mapping.guava.array.GuavaRangeSetArrayType")
+    @Column(comment = "tstzmultirange type")
+    public RangeSet<OffsetDateTime>[] tstzmultirangeArray;
+
+    @Mapping("io.army.mapping.guava.array.GuavaRangeSetArrayType")
+    @Column(comment = "datemultirange type")
+    public RangeSet<LocalDate>[] datemultirangeArray;
+
 
     @Mapping("io.army.mapping.postgre.PgHstoreType")
     @Column(comment = "hstore type")
     public Map<String, String> hstore;
 
     // ------------- 多范围类型 -------------
-    @Column(comment = "int4multirange type")
-    public String int4multirange;
 
-    @Column(comment = "int8multirange type")
-    public String int8multirange;
-
-    @Column(comment = "nummultirange type")
-    public String nummultirange;
-
-    @Column(comment = "tsmultirange type")
-    public String tsmultirange;
-
-    @Column(comment = "tstzmultirange type")
-    public String tstzmultirange;
-
-    @Column(comment = "datemultirange type")
-    public String datemultirange;
 
     // ------------- 文本搜索类型 -------------
     @Column(comment = "tsvector type")

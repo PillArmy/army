@@ -100,8 +100,14 @@ public abstract class ReflectionUtils {
         final Type genericType = field.getGenericType();
         final Type[] actualTypeArguments;
 
+        Type underlyingType = genericType;
+        while (underlyingType instanceof GenericArrayType) {
+            underlyingType = ((GenericArrayType) underlyingType).getGenericComponentType();
+        }
+
+
         final Class<?> clazz;
-        if (!(genericType instanceof ParameterizedType pt)) {
+        if (!(underlyingType instanceof ParameterizedType pt)) {
             clazz = null;
         } else if ((actualTypeArguments = pt.getActualTypeArguments()).length != 1) {
             clazz = null;

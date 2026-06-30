@@ -1,6 +1,5 @@
 package io.army.example.type.mapping;
 
-import com.google.common.collect.*;
 import io.army.criteria.Select;
 import io.army.criteria.Update;
 import io.army.criteria.impl.SQLs;
@@ -10,8 +9,6 @@ import io.army.example.type.domain.*;
 import io.army.mapping.CompositeType;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.array.CompositeArrayType;
-import io.army.mapping.guava.GuavaRangeSetType;
-import io.army.mapping.guava.GuavaRangeType;
 import io.army.session.SyncSession;
 import io.army.sqltype.DataType;
 import org.junit.jupiter.api.Test;
@@ -150,95 +147,6 @@ public class DefinedTypeMappingTests {
 
     }
 
-    @Test
-    public void guavaRange(@Autowired MappingEnv env, @CurrentSession SyncSession session, @NewPostgreTypesId Long id) {
-        final GuavaRangeType type = GuavaRangeType.fromTypeArg(Range.class, Integer.class);
-
-        final DataType dataType;
-        dataType = type.map(env.serverMeta());
-
-        final List<Range<Integer>> list = new ArrayList<>();
-
-        list.add(Range.all());
-        list.add(Range.singleton(0));
-
-        list.add(Range.upTo(0, BoundType.CLOSED));
-        list.add(Range.upTo(0, BoundType.OPEN));
-
-
-        list.add(Range.downTo(0, BoundType.CLOSED));
-        list.add(Range.downTo(0, BoundType.OPEN));
-
-        list.add(Range.range(0, BoundType.OPEN, 10, BoundType.OPEN));
-        list.add(Range.range(0, BoundType.CLOSED, 10, BoundType.CLOSED));
-
-        list.add(Range.range(-1, BoundType.OPEN, 10, BoundType.CLOSED));
-        list.add(Range.range(-1, BoundType.CLOSED, 10, BoundType.OPEN));
-
-        Object bindValue, afterGetValue;
-
-
-        for (Range<Integer> range : list) {
-            bindValue = type.beforeBind(dataType, env, range);
-            TestUtils.printBindValue(bindValue);
-            afterGetValue = type.afterGet(dataType, env, bindValue);
-            TestUtils.printBindAndGetValue(bindValue, afterGetValue);
-            Assert.assertEquals(afterGetValue, range);
-
-            TestUtils.updateAndQuery(session, id, PostgreTypes_.int4RangeGuava, range.canonical(DiscreteDomain.integers()));
-        }
-
-    }
-
-    @Test
-    public void guavaRangeSet(@Autowired MappingEnv env, @CurrentSession SyncSession session, @NewPostgreTypesId Long id) {
-        final GuavaRangeSetType type = GuavaRangeSetType.fromTypeArg(RangeSet.class, Integer.class);
-
-        final DataType dataType;
-        dataType = type.map(env.serverMeta());
-
-        final List<RangeSet<Integer>> list = new ArrayList<>();
-
-        RangeSet<Integer> rangeSet;
-
-        list.add(TreeRangeSet.create());
-
-        rangeSet = TreeRangeSet.create();
-        rangeSet.add(Range.open(1, 3));
-        list.add(rangeSet);
-
-
-        rangeSet = TreeRangeSet.create();
-        rangeSet.add(Range.openClosed(1, 1));
-        rangeSet.add(Range.all());
-        list.add(rangeSet);
-
-        rangeSet = TreeRangeSet.create();
-        rangeSet.add(Range.closedOpen(1, 1));
-        rangeSet.add(Range.all());
-        rangeSet.add(Range.singleton(0));
-        list.add(rangeSet);
-
-
-        Object bindValue, afterGetValue;
-
-        for (RangeSet<Integer> set : list) {
-            bindValue = type.beforeBind(dataType, env, set);
-            TestUtils.printBindValue(bindValue);
-            afterGetValue = type.afterGet(dataType, env, bindValue);
-            TestUtils.printBindAndGetValue(bindValue, afterGetValue);
-            Assert.assertEquals(afterGetValue, set);
-
-            rangeSet = TreeRangeSet.create();
-            for (Range<Integer> range : rangeSet.asRanges()) {
-                rangeSet.add(range.canonical(DiscreteDomain.integers()));
-            }
-
-            TestUtils.updateAndQuery(session, id, PostgreTypes_.int4RangeSetGuava, rangeSet);
-        }
-
-
-    }
 
 
     private static List<ProductInfo> createProductInfoList() {

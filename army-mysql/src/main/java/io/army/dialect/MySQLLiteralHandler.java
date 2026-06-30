@@ -225,7 +225,7 @@ final class MySQLLiteralHandler extends ArmyLiteralHandler<MySQLParser> {
                 final String textValue;
                 textValue = VectorType.binaryLeToVectorText((byte[]) value);
 
-                if (typeName) {
+                if (typeName) { // https://dev.mysql.com/doc/refman/9.7/en/vector-functions.html#function_string-to-vector
                     sqlBuilder.append("STRING_TO_VECTOR")
                             .append(_Constant.LEFT_PAREN);
                 }
