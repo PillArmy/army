@@ -16,54 +16,82 @@
 
 package io.army.mapping.array;
 
+import io.army.codec.XmlCodec;
 import io.army.criteria.CriteriaException;
 import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
-import io.army.mapping.MappingEnv;
-import io.army.mapping.MappingType;
-import io.army.mapping.XmlType;
-import io.army.mapping._ArmyBuildInArrayType;
+import io.army.function.TextFunction;
+import io.army.mapping.*;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
 
-import java.util.Objects;
+import java.util.*;
+import java.util.function.BiConsumer;
 
 public class XmlArrayType extends _ArmyBuildInArrayType {
 
 
     public static XmlArrayType from(final Class<?> javaType) {
+        final Class<?> componentType;
+
         final XmlArrayType instance;
         if (javaType == String[].class) {
             instance = TEXT_LINEAR;
         } else if (!javaType.isArray()) {
             throw errorJavaType(XmlArrayType.class, javaType);
-        } else if (ArrayUtils.underlyingComponent(javaType) == String.class) {
-            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
-        } else {
+        } else if (Map.class.isAssignableFrom((componentType = ArrayUtils.underlyingComponent(javaType)))) {
             throw errorJavaType(XmlArrayType.class, javaType);
+        } else if (Collection.class.isAssignableFrom(componentType)) {
+            throw errorJavaType(XmlArrayType.class, javaType);
+        } else {
+            instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         }
         return instance;
     }
 
-    public static final XmlArrayType UNLIMITED = new XmlArrayType(Object.class);
-
-    public static final XmlArrayType TEXT_LINEAR = new XmlArrayType(String[].class);
-
-    private final Class<?> javaType;
-
-    private final Class<?> underlyingType;
-
-    private XmlArrayType(Class<?> javaType) {
-        this.javaType = javaType;
-        if (javaType == Object.class) {
-            this.underlyingType = String.class;
-        } else {
-            this.underlyingType = ArrayUtils.underlyingComponent(javaType);
+    public static XmlArrayType fromTypeArg(final Class<?> javaType, final Class<?> typeArg) {
+        if (!javaType.isArray()) {
+            throw errorJavaType(XmlArrayType.class, javaType);
         }
+        final Class<?> componentType = ArrayUtils.underlyingComponent(javaType);
+        final XmlType underlyingType;
+        if (componentType == List.class) {
+            underlyingType = XmlType.fromList(typeArg);
+        } else if (componentType == Set.class) {
+            underlyingType = XmlType.fromSet(typeArg);
+        } else {
+            throw errorJavaType(XmlArrayType.class, javaType);
+        }
+        return new CollectionXmlArrayType(javaType, underlyingType);
+    }
+
+    public static XmlArrayType fromTypeArgs(final Class<?> javaType, final Class<?> keyClass, final Class<?> valueClass) {
+        if (!javaType.isArray()) {
+            throw errorJavaType(XmlArrayType.class, javaType);
+        }
+        final Class<?> componentType = ArrayUtils.underlyingComponent(javaType);
+        if (componentType != Map.class) {
+            throw errorJavaType(XmlArrayType.class, javaType);
+        }
+
+        return new MapXmlArrayType(javaType, XmlType.fromMap(keyClass, valueClass));
+    }
+
+    public static final XmlArrayType UNLIMITED = new XmlArrayType(Object.class, XmlType.TEXT);
+
+    public static final XmlArrayType TEXT_LINEAR = new XmlArrayType(String[].class, XmlType.TEXT);
+
+    final Class<?> javaType;
+
+    final XmlType underlyingType;
+
+    private XmlArrayType(Class<?> javaType, XmlType underlyingType) {
+        this.javaType = javaType;
+        this.underlyingType = underlyingType;
     }
 
     @Override
@@ -81,31 +109,70 @@ public class XmlArrayType extends _ArmyBuildInArrayType {
 
     @Override
     public final Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        // TODO
-        throw new UnsupportedOperationException();
+        final XmlCodec codec;
+        codec = env.xmlCodec();
+
+        final BiConsumer<Object, StringBuilder> consumer;
+        consumer = (element, appender) -> {
+            PostgreArrays.encodeElement(codec.encode(element), appender);
+        };
+        return PostgreArrays.arrayBeforeBind(source, consumer, dataType, this);
     }
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        // TODO
-        throw new UnsupportedOperationException();
+        final TextFunction<?> function;
+        function = (text, offset, end) -> XmlType.deserialize(this.underlyingType, dataType, env, text.substring(offset, end));
+        return PostgreArrays.arrayAfterGet(this, dataType, source, function, null);
     }
 
     @Override
     public final Class<?> underlyingJavaType() {
-        return this.underlyingType;
+        return this.underlyingType.javaType();
     }
 
     @Override
     public final MappingType underlyingType() {
-        return XmlType.from(this.underlyingType);
+        return this.underlyingType;
     }
 
     @Override
     public final MappingType elementType() {
-        // TODO
-        throw new UnsupportedOperationException();
+        final Class<?> javaType, componentType;
+        javaType = this.javaType;
+
+        final MappingType instance;
+        if (javaType == Object.class) {
+            instance = this;
+        } else if (!(componentType = this.javaType.getComponentType()).isArray()) {
+            instance = this.underlyingType;
+        } else if (this instanceof UnaryGenericsMapping ug) {
+            instance = fromTypeArg(componentType, ug.genericsType());
+        } else if (this instanceof DualGenericsMapping du) {
+            instance = fromTypeArgs(componentType, du.firstGenericsType(), du.secondGenericsType());
+        } else {
+            instance = from(componentType);
+        }
+        return instance;
     }
+
+    @Override
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
+        final Class<?> javaType = this.javaType;
+
+        final MappingType instance;
+        if (javaType == Object.class) {
+            instance = this;
+        } else if (this instanceof UnaryGenericsMapping ug) {
+            instance = fromTypeArg(ArrayUtils.arrayClassOf(javaType), ug.genericsType());
+        } else if (this instanceof DualGenericsMapping du) {
+            instance = fromTypeArgs(ArrayUtils.arrayClassOf(javaType), du.firstGenericsType(), du.secondGenericsType());
+        } else {
+            instance = from(ArrayUtils.arrayClassOf(javaType));
+        }
+        return instance;
+    }
+
 
     @Override
     public final int hashCode() {
@@ -118,8 +185,9 @@ public class XmlArrayType extends _ArmyBuildInArrayType {
         if (obj == this) {
             match = true;
         } else if (obj instanceof XmlArrayType o) {
-            match = o.javaType == this.javaType
-                    && o.underlyingType == this.underlyingType;
+            match = o.getClass() == this.getClass()
+                    && o.javaType == this.javaType
+                    && o.underlyingType.equals(this.underlyingType);
         } else {
             match = false;
         }
@@ -127,11 +195,48 @@ public class XmlArrayType extends _ArmyBuildInArrayType {
     }
 
 
+    private static final class CollectionXmlArrayType extends XmlArrayType implements UnaryGenericsMapping {
+
+        private CollectionXmlArrayType(Class<?> javaType, XmlType underlyingType) {
+            super(javaType, underlyingType);
+        }
+
+        @Override
+        public Class<?> genericsType() {
+            return ((UnaryGenericsMapping) this.underlyingType).genericsType();
+        }
+
+
+    } // CollectionXmlArrayType
+
+    private static final class MapXmlArrayType extends XmlArrayType implements DualGenericsMapping {
+
+        private MapXmlArrayType(Class<?> javaType, XmlType underlyingType) {
+            super(javaType, underlyingType);
+        }
+
+        @Override
+        public Class<?> firstGenericsType() {
+            return ((DualGenericsMapping) this.underlyingType).firstGenericsType();
+        }
+
+        @Override
+        public Class<?> secondGenericsType() {
+            return ((DualGenericsMapping) this.underlyingType).secondGenericsType();
+        }
+
+
+    } // MapXmlArrayType
+
     private static final class ClassValueHolder {
 
-        private static final ClassValue<XmlArrayType> CLASS_VALUE = FuncClassValue.create(XmlArrayType::new);
+        private static XmlArrayType fromObj(Class<?> javaType) {
+            return new XmlArrayType(javaType, XmlType.from(ArrayUtils.underlyingComponent(javaType)));
+        }
 
-    }
+        private static final ClassValue<XmlArrayType> CLASS_VALUE = FuncClassValue.create(ClassValueHolder::fromObj);
+
+    } //PojoClassValueHolder
 
 
 }

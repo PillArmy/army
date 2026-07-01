@@ -18,6 +18,7 @@ package io.army.session;
 
 
 import io.army.codec.JsonCodec;
+import io.army.codec.XmlCodec;
 import io.army.dialect.Database;
 import io.army.executor.StmtExecutor;
 import io.army.lang.Nullable;
@@ -180,6 +181,8 @@ public sealed interface Session extends CloseableSpec, SessionSpec permits Local
     Set<Map.Entry<Object, Object>> attributeEntrySet();
 
     JsonCodec jsonCodec();
+
+    XmlCodec xmlCodec();
 
     /// override {@link Object#toString()}
     /// @return driver info, contain :

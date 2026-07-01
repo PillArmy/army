@@ -17,6 +17,7 @@
 package io.army.session;
 
 import io.army.codec.JsonCodec;
+import io.army.codec.XmlCodec;
 import io.army.criteria.Visible;
 import io.army.dialect.Database;
 import io.army.env.AllowMode;
@@ -57,6 +58,8 @@ public sealed interface SessionFactory extends CloseableSpec, OptionSpec permits
     Database dialectDatabase();
 
     JsonCodec jsonCodec();
+
+    XmlCodec xmlCodec();
 
     MappingEnv mappingEnv();
 

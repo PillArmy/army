@@ -20,10 +20,7 @@ package io.army.mapping;
 import io.army.codec.JsonCodec;
 import io.army.sqltype.DataType;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -62,6 +59,9 @@ abstract class ArmyJsonType extends _ArmyBuildInType {
 
     @Override
     public final String beforeBind(DataType dataType, MappingEnv env, final Object source) {
+        if (!this.javaType.isInstance(source)) {
+            throw PARAM_ERROR_HANDLER.apply(this, dataType, source, null);
+        }
         final String value;
         if (source instanceof String) {
             value = (String) source;
@@ -69,7 +69,7 @@ abstract class ArmyJsonType extends _ArmyBuildInType {
             try {
                 value = env.jsonCodec().encode(source);
             } catch (Exception e) {
-                throw paramError(this, dataType, source, e);
+                throw PARAM_ERROR_HANDLER.apply(this, dataType, source, e);
             }
         }
         return value;
@@ -149,6 +149,44 @@ abstract class ArmyJsonType extends _ArmyBuildInType {
     abstract MappingType createSetType(Class<?> elementClass);
 
 
+    static boolean isMatchCollection(final Collection<?> collection, final Class<?> elementClass) {
+        boolean match = true;
+        for (Object o : collection) {
+            if (o == null) {
+                continue;
+            }
+            if (!elementClass.isInstance(o)) {
+                match = false;
+                break;
+            }
+        } // loop
+
+        return match;
+    }
+
+    static boolean isMatchMap(final Map<?, ?> map, final Class<?> keyClass, final Class<?> valueClass) {
+        boolean match = true;
+        Object value;
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
+            if (!keyClass.isInstance(entry.getKey())) {
+                match = false;
+                break;
+            }
+
+            value = entry.getValue();
+            if (value == null) {
+                continue;
+            }
+            if (!valueClass.isInstance(value)) {
+                match = false;
+                break;
+            }
+
+        } // loop
+        return match;
+    }
+
+
     private static BiFunction<String, JsonCodec, Object> createDecodeFunc(final ArmyJsonType type) {
         final BiFunction<String, JsonCodec, Object> func;
         if (type instanceof DualGenericsMapping t) {
@@ -189,30 +227,7 @@ abstract class ArmyJsonType extends _ArmyBuildInType {
                 if (!(source instanceof Map<?, ?> m)) {
                     return false;
                 }
-
-                Object key, value;
-                boolean keyMatch = false, valueMatch = false;
-                for (Map.Entry<?, ?> entry : m.entrySet()) {
-                    if (!keyMatch) {
-                        key = entry.getKey();
-                        if (key == null) {
-                            keyMatch = true;
-                        } else {
-                            keyMatch = keyClass.isInstance(key);
-                            break;
-                        }
-                    }
-
-                    value = entry.getValue();
-                    if (value == null) {
-                        valueMatch = true;
-                    } else {
-                        valueMatch = valueClass.isInstance(value);
-                        break;
-                    }
-                } // loop
-
-                return keyMatch && valueMatch;
+                return isMatchMap(m, keyClass, valueClass);
             };
         } else if (!(type instanceof UnaryGenericsMapping t)) {
             throw new IllegalArgumentException("bug");
@@ -222,17 +237,7 @@ abstract class ArmyJsonType extends _ArmyBuildInType {
                 if (!(source instanceof List<?> c)) {
                     return false;
                 }
-
-                boolean match = false;
-                for (Object o : c) {
-                    if (o == null) {
-                        match = true;
-                    } else {
-                        match = elementClass.isInstance(o);
-                        break;
-                    }
-                } // loop
-                return match;
+                return isMatchCollection(c, elementClass);
             };
         } else if (type.javaType == Set.class) {
             final Class<?> elementClass = t.genericsType();
@@ -241,16 +246,7 @@ abstract class ArmyJsonType extends _ArmyBuildInType {
                     return false;
                 }
 
-                boolean match = false;
-                for (Object o : c) {
-                    if (o == null) {
-                        match = true;
-                    } else {
-                        match = elementClass.isInstance(o);
-                        break;
-                    }
-                } // loop
-                return match;
+                return isMatchCollection(c, elementClass);
             };
         } else {
             throw new IllegalArgumentException("bug");

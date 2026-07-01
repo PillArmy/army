@@ -16,15 +16,24 @@
 
 package io.army.codec;
 
+import io.army.lang.Nullable;
+
 import java.util.List;
+import java.util.Map;
 
 public interface XmlCodec {
 
-    String encode(Object obj);
 
-    <T> T decode(String xml, Class<T> objectClass);
+    String encode(Object obj) throws CodecException;
 
-    <T> List<T> decodeList(String xml, Class<T> elementClass);
+    @Nullable
+    <T> T decode(String xml, Class<T> objectClass) throws CodecException;
+
+    @Nullable
+    <T> List<T> decodeList(String xml, Class<T> elementClass) throws CodecException;
+
+    @Nullable
+    <K, V> Map<K, V> decodeMap(String xml, Class<K> keyClass, Class<V> valueClass) throws CodecException;
 
 
 }

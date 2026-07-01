@@ -39,6 +39,7 @@ import io.army.schema.TableResult;
 import io.army.schema.TypeResult;
 import io.army.util.*;
 import org.slf4j.Logger;
+import tools.jackson.dataformat.xml.XmlMapper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -317,7 +318,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
                 .serverMeta(serverMeta)
                 .zoneOffset(env.get(ArmyKey.ZONE_OFFSET))
                 .jsonCodec(findJsonCodec())
-                .xmlCodec(this.xmlCodec)
+                .xmlCodec(findXmlCodec())
                 .tableMap(Objects.requireNonNull(this.tableMap))
                 .unrecognizedMappingFunc(this.unrecognizedMappingFunc)
                 .definedTypeSet(Set.copyOf(this.definedTypeSet))
@@ -522,6 +523,19 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
             jsonCodec = DefaultFastJsonCodec.getInstance();
         }
         return jsonCodec;
+    }
+
+    @Nullable
+    private XmlCodec findXmlCodec() {
+        XmlCodec xmlCodec;
+        xmlCodec = this.xmlCodec;
+        if (xmlCodec != null) {
+            return xmlCodec;
+        }
+        if (ClassUtils.isPresent("tools.jackson.dataformat.xml.XmlMapper", null)) {
+            xmlCodec = DefaultJacksonXmlCodec.create(new XmlMapper());
+        }
+        return xmlCodec;
     }
 
 

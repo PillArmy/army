@@ -18,6 +18,7 @@ package io.army.session;
 
 import io.army.ArmyException;
 import io.army.codec.JsonCodec;
+import io.army.codec.XmlCodec;
 import io.army.criteria.Visible;
 import io.army.dialect.Database;
 import io.army.dialect.DialectParser;
@@ -175,6 +176,11 @@ abstract class ArmySessionFactory implements PackageSessionFactory {
     @Override
     public final JsonCodec jsonCodec() {
         return this.dialectParser.mappingEnv().jsonCodec();
+    }
+
+    @Override
+    public final XmlCodec xmlCodec() {
+        return this.dialectParser.mappingEnv().xmlCodec();
     }
 
     @Override

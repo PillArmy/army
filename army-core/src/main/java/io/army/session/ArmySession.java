@@ -18,6 +18,7 @@ package io.army.session;
 
 import io.army.ArmyException;
 import io.army.codec.JsonCodec;
+import io.army.codec.XmlCodec;
 import io.army.criteria.*;
 import io.army.criteria.impl.inner._Insert;
 import io.army.criteria.impl.inner._MultiDml;
@@ -236,6 +237,11 @@ abstract class ArmySession<F extends ArmySessionFactory> implements PackageSessi
     @Override
     public final JsonCodec jsonCodec() {
         return this.factory.jsonCodec();
+    }
+
+    @Override
+    public final XmlCodec xmlCodec() {
+        return this.factory.xmlCodec();
     }
 
     @Override

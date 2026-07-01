@@ -109,6 +109,14 @@ public class PostgreTypes implements FieldAccessPojo {
     @Column(comment = "xml type")
     public String xml;
 
+    @Mapping("io.army.mapping.XmlType")
+    @Column(comment = "xml type")
+    public Map<String, String> xmlMap;
+
+    @Mapping("io.army.mapping.array.XmlArrayType")
+    @Column(comment = "xml type")
+    public Map<String, String>[] xmlMapArray;
+
     // ------------- UUID 类型 -------------
     @Column(comment = "uuid type")
     public UUID uuid;
