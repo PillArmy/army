@@ -209,9 +209,58 @@ PostgreSQL-specific operators available via `Postgres`:
 
 ### HSTORE Type
 
-`PgHstoreType` maps PostgreSQL `HSTORE` key/value type to Java `Map<String, String>`.
+`PgHstoreType` maps PostgreSQL `HSTORE` key/value type to Java types. It supports three mapping modes:
 
-**Note**: Currently marked as TODO, not fully implemented.
+#### Mapping Modes
+
+| Java Type                       | Factory Method                        | Description                                                              |
+|---------------------------------|---------------------------------------|--------------------------------------------------------------------------|
+| `Map<K, V>`                     | `fromMap(keyType, valueType)`         | Key-value mapping where K and V have default mappings                    |
+| `EnumMap<K extends Enum<K>, V>` | `fromEnumMap(enumKeyType, valueType)` | Enum keys with arbitrary values                                          |
+| POJO class                      | `from(pojoClass)`                     | POJO fields (with `@Column` annotation) mapped to hstore key-value pairs |
+
+**Constraints**:
+
+- Key type cannot be a composite type
+- When value type is a composite type, it must be immutable (annotated with `@DefinedType(immutable = true)`)
+- Both key and value types must have default mappings available (see [
+  `_MappingFactory#getDefaultIfMatch`](../army-core/src/main/java/io/army/criteria/impl/_MappingFactory.java#L68-L123)
+  for default mapping implementation)
+
+#### Entity Field Examples
+
+```java
+import io.army.annotation.Column;
+import io.army.annotation.Mapping;
+
+import java.util.Map;
+import java.util.EnumMap;
+import java.time.DayOfWeek;
+
+public class PostgreTypes {
+
+  // Map<String, String> mapping
+  @Mapping("io.army.mapping.postgre.PgHstoreType")
+  @Column(comment = "hstore type")
+  public Map<String, String> hstore;
+
+  // EnumMap<DayOfWeek, String> mapping
+  @Mapping("io.army.mapping.postgre.PgHstoreType")
+  @Column(comment = "hstore type")
+  public EnumMap<DayOfWeek, String> dayOfWeekStringEnumMap;
+
+  // POJO mapping
+  @Mapping("io.army.mapping.postgre.PgHstoreType")
+  @Column(comment = "hstore type")
+  public HstorePojo hstorePojo;
+}
+```
+
+#### HSTORE Array Type
+
+`PgHstoreArrayType` is not yet implemented. Support for `Map[]` → `HSTORE[]` is planned for a future release.
+
+**Note**: `PgHstoreArrayType` currently throws `UnsupportedOperationException` for all methods.
 
 ## License
 
