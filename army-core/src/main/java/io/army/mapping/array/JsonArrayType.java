@@ -16,36 +16,73 @@
 
 package io.army.mapping.array;
 
-import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.mapping.DualGenericsMapping;
 import io.army.mapping.JsonType;
 import io.army.mapping.MappingType;
+import io.army.mapping.UnaryGenericsMapping;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 public class JsonArrayType extends ArmyJsonArrayType {
 
     public static JsonArrayType from(final Class<?> javaType) {
         final JsonArrayType instance;
-        if (!javaType.isArray()) {
-            throw errorJavaType(JsonArrayType.class, javaType);
-        } else if (javaType == String[].class) {
+        if (javaType == String[].class) {
             instance = TEXT_LINEAR;
+        } else if (!javaType.isArray()) {
+            throw errorJavaType(JsonArrayType.class, javaType);
         } else {
             instance = ClassValueHolder.CLASS_VALUE.get(javaType);
         }
         return instance;
     }
 
+    public static JsonArrayType fromTypeArg(final Class<?> javaType, final Class<?> typeArg) {
+        if (!javaType.isArray()) {
+            throw errorJavaType(JsonArrayType.class, javaType);
+        }
+        final Class<?> componentType = ArrayUtils.underlyingComponent(javaType);
+        final JsonType underlyingType;
+        if (componentType == List.class) {
+            underlyingType = JsonType.fromList(typeArg);
+        } else if (componentType == Set.class) {
+            underlyingType = JsonType.fromSet(typeArg);
+        } else {
+            throw errorJavaType(JsonArrayType.class, javaType);
+        }
+        return new CollectionJsonArrayType(javaType, underlyingType);
+    }
 
-    public static final JsonArrayType TEXT_LINEAR = new JsonArrayType(String[].class);
+    public static JsonArrayType fromTypeArgs(final Class<?> javaType, final Class<?> keyClass, final Class<?> valueClass) {
+        if (!javaType.isArray()) {
+            throw errorJavaType(JsonArrayType.class, javaType);
+        }
+        final Class<?> componentType = ArrayUtils.underlyingComponent(javaType);
+        if (componentType != Map.class) {
+            throw errorJavaType(JsonArrayType.class, javaType);
+        }
+
+        return new MapJsonArrayType(javaType, JsonType.fromMap(keyClass, valueClass));
+    }
+
+
+    public static final JsonArrayType TEXT_LINEAR = new JsonArrayType(String[].class, JsonType.TEXT);
+
+
+    final JsonType underlyingType;
 
     /// private constructor
-    private JsonArrayType(Class<?> javaType) {
-        super(javaType, ArrayUtils.underlyingComponent(javaType));
+    private JsonArrayType(Class<?> javaType, JsonType underlyingType) {
+        super(javaType);
+        this.underlyingType = underlyingType;
     }
 
 
@@ -68,54 +105,73 @@ public class JsonArrayType extends ArmyJsonArrayType {
 
 
     @Override
+    public final Class<?> underlyingJavaType() {
+        return this.underlyingType.javaType();
+    }
+
+    @Override
     public final MappingType underlyingType() {
-        return JsonType.from(this.underlyingJavaType);
-    }
-
-    @Override
-    public final MappingType elementType() {
-        final MappingType instance;
-        final Class<?> javaType = this.javaType;
-        if (javaType == Object.class) {
-            instance = this;
-        } else if (ArrayUtils.dimensionOf(javaType) == 1) {
-            instance = JsonType.from(this.underlyingJavaType);
-        } else {
-            instance = from(javaType.getComponentType());
-        }
-        return instance;
-    }
-
-    @Override
-    public final MappingType arrayTypeOfThis() throws CriteriaException {
-        final Class<?> javaType = this.javaType;
-        if (javaType == Object.class) { // unlimited dimension array
-            return this;
-        }
-        return from(ArrayUtils.arrayClassOf(javaType));
+        return this.underlyingType;
     }
 
 
     @Override
-    public final boolean equals(final Object obj) {
-        final boolean match;
-        if (obj == this) {
-            match = true;
-        } else if (obj instanceof JsonArrayType o) {
-            match = o.javaType == this.javaType
-                    && o.underlyingJavaType == this.underlyingJavaType
-            ;
-        } else {
-            match = false;
-        }
-        return match;
+    final ArmyJsonArrayType doFromTypeArg(Class<?> javaType, Class<?> typeArg) {
+        return JsonArrayType.fromTypeArg(javaType, typeArg);
+    }
+
+    @Override
+    final ArmyJsonArrayType doFromTypeArgs(Class<?> javaType, Class<?> keyClass, Class<?> valueClass) {
+        return JsonArrayType.fromTypeArgs(javaType, keyClass, valueClass);
+    }
+
+    @Override
+    final ArmyJsonArrayType doFrom(Class<?> javaType) {
+        return JsonArrayType.from(javaType);
     }
 
 
     private static final class ClassValueHolder {
 
-        private static final ClassValue<JsonArrayType> CLASS_VALUE = FuncClassValue.create(JsonArrayType::new);
+        private static JsonArrayType fromObj(Class<?> javaType) {
+            return new JsonArrayType(javaType, JsonType.from(ArrayUtils.underlyingComponent(javaType)));
+        }
+
+        private static final ClassValue<JsonArrayType> CLASS_VALUE = FuncClassValue.create(ClassValueHolder::fromObj);
 
     }
+
+    private static final class CollectionJsonArrayType extends JsonArrayType implements UnaryGenericsMapping {
+
+        private CollectionJsonArrayType(Class<?> javaType, JsonType underlyingType) {
+            super(javaType, underlyingType);
+        }
+
+        @Override
+        public Class<?> genericsType() {
+            return ((UnaryGenericsMapping) this.underlyingType).genericsType();
+        }
+
+    } // CollectionJsonArrayType
+
+    private static final class MapJsonArrayType extends JsonArrayType implements DualGenericsMapping {
+
+        private MapJsonArrayType(Class<?> javaType, JsonType underlyingType) {
+            super(javaType, underlyingType);
+        }
+
+        @Override
+        public Class<?> firstGenericsType() {
+            return ((DualGenericsMapping) this.underlyingType).firstGenericsType();
+        }
+
+        @Override
+        public Class<?> secondGenericsType() {
+            return ((DualGenericsMapping) this.underlyingType).secondGenericsType();
+        }
+
+
+    } // MapJsonArrayType
+
 
 }

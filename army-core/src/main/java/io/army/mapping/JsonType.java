@@ -23,6 +23,7 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
+import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
 
 import java.util.Collection;
@@ -95,10 +96,15 @@ public class JsonType extends ArmyJsonType implements JsonMappingType {
 
     @Override
     public final MappingType arrayTypeOfThis() throws CriteriaException {
-        if (getClass() != JsonType.class) {
-            throw dontSupportArrayType(this);
+        final MappingType instance;
+        if (this instanceof UnaryGenericsMapping ug) {
+            instance = JsonArrayType.fromTypeArg(ArrayUtils.arrayClassOf(this.javaType), ug.genericsType());
+        } else if (this instanceof DualGenericsMapping dg) {
+            instance = JsonArrayType.fromTypeArgs(ArrayUtils.arrayClassOf(this.javaType), dg.firstGenericsType(), dg.secondGenericsType());
+        } else {
+            instance = JsonArrayType.from(ArrayUtils.arrayClassOf(this.javaType));
         }
-        return JsonArrayType.from(this.javaType);
+        return instance;
     }
 
 

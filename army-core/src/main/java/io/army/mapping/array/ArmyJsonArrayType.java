@@ -21,9 +21,9 @@ import io.army.codec.JsonCodec;
 import io.army.criteria.CriteriaException;
 import io.army.executor.DataAccessException;
 import io.army.function.TextFunction;
-import io.army.mapping.MappingEnv;
-import io.army.mapping._ArmyBuildInArrayType;
+import io.army.mapping.*;
 import io.army.sqltype.DataType;
+import io.army.util.ArrayUtils;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -42,22 +42,15 @@ abstract class ArmyJsonArrayType extends _ArmyBuildInArrayType {
 
     final Class<?> javaType;
 
-    final Class<?> underlyingJavaType;
 
     /// package constructor
-    ArmyJsonArrayType(Class<?> javaType, Class<?> underlyingJavaType) {
+    ArmyJsonArrayType(Class<?> javaType) {
         this.javaType = javaType;
-        this.underlyingJavaType = underlyingJavaType;
     }
 
     @Override
     public final Class<?> javaType() {
         return this.javaType;
-    }
-
-    @Override
-    public final Class<?> underlyingJavaType() {
-        return this.underlyingJavaType;
     }
 
 
@@ -67,28 +60,87 @@ abstract class ArmyJsonArrayType extends _ArmyBuildInArrayType {
         codec = env.jsonCodec();
 
         final BiConsumer<Object, StringBuilder> consumer;
-        consumer = (element, appender) -> {
-            PostgreArrays.encodeElement(codec.encode(element), appender);
-        };
+        consumer = (element, appender) -> PostgreArrays.encodeElement(codec.encode(element), appender);
 
         return PostgreArrays.arrayBeforeBind(source, consumer, dataType, this);
     }
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        final JsonCodec codec;
-        codec = env.jsonCodec();
+
+        final MappingType underlyingType;
+        underlyingType = underlyingType();
+
+        final DataType underlyingDataType;
+        underlyingDataType = underlyingType.map(env.serverMeta());
 
         final TextFunction<?> function;
-        function = (text, offset, end) -> codec.decode(text.substring(offset, end), this.underlyingJavaType);
-
+        function = (text, offset, end) -> underlyingType.afterGet(underlyingDataType, env, text.substring(offset, end));
         return PostgreArrays.arrayAfterGet(this, dataType, source, function, null);
+    }
+
+
+    @Override
+    public final MappingType elementType() {
+        final MappingType instance;
+        final Class<?> javaType = this.javaType, componentType;
+
+        if (javaType == Object.class) {
+            instance = this;
+        } else if (!(componentType = ArrayUtils.underlyingComponent(javaType)).isArray()) {
+            instance = underlyingType();
+        } else if (this instanceof UnaryGenericsMapping ug) {
+            instance = doFromTypeArg(componentType, ug.genericsType());
+        } else if (this instanceof DualGenericsMapping dg) {
+            instance = doFromTypeArgs(componentType, dg.firstGenericsType(), dg.secondGenericsType());
+        } else {
+            instance = doFrom(componentType);
+        }
+        return instance;
+    }
+
+    @Override
+    public final MappingType arrayTypeOfThis() throws CriteriaException {
+        final MappingType instance;
+        final Class<?> javaType = this.javaType;
+        if (javaType == Object.class) { // unlimited dimension array
+            instance = this;
+        } else if (this instanceof UnaryGenericsMapping ug) {
+            instance = doFromTypeArg(ArrayUtils.arrayClassOf(javaType), ug.genericsType());
+        } else if (this instanceof DualGenericsMapping dg) {
+            instance = doFromTypeArgs(ArrayUtils.arrayClassOf(javaType), dg.firstGenericsType(), dg.secondGenericsType());
+        } else {
+            instance = doFrom(ArrayUtils.arrayClassOf(javaType));
+        }
+        return instance;
     }
 
     @Override
     public final int hashCode() {
-        return Objects.hash(this.javaType, this.underlyingJavaType);
+        return Objects.hash(this.javaType, underlyingType());
     }
+
+    @Override
+    public final boolean equals(final Object obj) {
+        final boolean match;
+        if (obj == this) {
+            match = true;
+        } else if (!(obj instanceof ArmyJsonArrayType o)) {
+            match = false;
+        } else if (obj.getClass() != this.getClass()) {
+            match = false;
+        } else {
+            match = o.javaType == this.javaType
+                    && Objects.equals(o.underlyingType(), this.underlyingType());
+        }
+        return match;
+    }
+
+    abstract ArmyJsonArrayType doFromTypeArg(Class<?> javaType, Class<?> typeArg);
+
+    abstract ArmyJsonArrayType doFromTypeArgs(Class<?> javaType, Class<?> keyClass, Class<?> valueClass);
+
+    abstract ArmyJsonArrayType doFrom(Class<?> javaType);
 
 
 }

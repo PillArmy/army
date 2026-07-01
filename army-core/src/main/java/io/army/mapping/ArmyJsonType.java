@@ -104,7 +104,15 @@ abstract class ArmyJsonType extends _ArmyBuildInType {
 
     @Override
     public final int hashCode() {
-        return this.javaType.hashCode();
+        final int code;
+        if (this instanceof UnaryGenericsMapping ug) {
+            code = Objects.hash(this.javaType, ug.genericsType());
+        } else if (this instanceof DualGenericsMapping dg) {
+            code = Objects.hash(this.javaType, dg.firstGenericsType(), dg.secondGenericsType());
+        } else {
+            code = Objects.hash(this.javaType);
+        }
+        return code;
     }
 
     @Override
@@ -112,10 +120,19 @@ abstract class ArmyJsonType extends _ArmyBuildInType {
         final boolean match;
         if (obj == this) {
             match = true;
-        } else if (obj.getClass() == this.getClass()) {
-            match = ((ArmyJsonType) obj).javaType.equals(this.javaType);
-        } else {
+        } else if (!(obj instanceof ArmyJsonType o)) {
             match = false;
+        } else if (obj.getClass() != this.getClass()) {
+            match = false;
+        } else if (obj instanceof UnaryGenericsMapping ug) {
+            match = o.javaType == this.javaType
+                    && ug.genericsType() == ((UnaryGenericsMapping) this).genericsType();
+        } else if (obj instanceof DualGenericsMapping dg) {
+            match = o.javaType == this.javaType
+                    && dg.firstGenericsType() == ((DualGenericsMapping) this).firstGenericsType()
+                    && dg.secondGenericsType() == ((DualGenericsMapping) this).secondGenericsType();
+        } else {
+            match = o.javaType == this.javaType;
         }
         return match;
     }

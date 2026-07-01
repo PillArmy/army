@@ -22,6 +22,8 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
+import io.army.util.ArrayUtils;
+import io.army.util.FuncClassValue;
 
 import java.util.Collection;
 import java.util.List;
@@ -59,12 +61,7 @@ public class JsonbType extends ArmyJsonType implements JsonbMappingType {
     public static final JsonbType TEXT = new JsonbType(String.class);
 
 
-    private static final ClassValue<JsonbType> CLASS_VALUE = new ClassValue<>() {
-        @Override
-        protected JsonbType computeValue(Class<?> type) {
-            return new JsonbType(type);
-        }
-    };
+    private static final ClassValue<JsonbType> CLASS_VALUE = FuncClassValue.create(JsonbType::new);
 
 
     /// private constructor
@@ -92,10 +89,15 @@ public class JsonbType extends ArmyJsonType implements JsonbMappingType {
 
     @Override
     public final MappingType arrayTypeOfThis() throws CriteriaException {
-        if (getClass() != JsonbType.class) {
-            throw dontSupportArrayType(this);
+        final MappingType instance;
+        if (this instanceof UnaryGenericsMapping ug) {
+            instance = JsonbArrayType.fromTypeArg(ArrayUtils.arrayClassOf(this.javaType), ug.genericsType());
+        } else if (this instanceof DualGenericsMapping dg) {
+            instance = JsonbArrayType.fromTypeArgs(ArrayUtils.arrayClassOf(this.javaType), dg.firstGenericsType(), dg.secondGenericsType());
+        } else {
+            instance = JsonbArrayType.from(ArrayUtils.arrayClassOf(this.javaType));
         }
-        return JsonbArrayType.from(this.javaType);
+        return instance;
     }
 
     @Override

@@ -24,6 +24,7 @@ import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
+import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
 
 import java.util.Collection;
@@ -57,9 +58,13 @@ public class PreferredJsonbType extends ArmyJsonType implements JsonbMappingType
     }
 
 
+    public static final PreferredJsonbType TEXT = new PreferredJsonbType(String.class);
+
+
     private static final ClassValue<PreferredJsonbType> CLASS_VALUE = FuncClassValue.create(PreferredJsonbType::new);
 
 
+    /// private constructor
     private PreferredJsonbType(Class<?> javaType) {
         super(javaType);
     }
@@ -85,10 +90,15 @@ public class PreferredJsonbType extends ArmyJsonType implements JsonbMappingType
 
     @Override
     public final MappingType arrayTypeOfThis() throws CriteriaException {
-        if (getClass() != PreferredJsonbType.class) {
-            throw dontSupportArrayType(this);
+        final MappingType instance;
+        if (this instanceof UnaryGenericsMapping ug) {
+            instance = PreferredJsonbArrayType.fromTypeArg(ArrayUtils.arrayClassOf(this.javaType), ug.genericsType());
+        } else if (this instanceof DualGenericsMapping dg) {
+            instance = PreferredJsonbArrayType.fromTypeArgs(ArrayUtils.arrayClassOf(this.javaType), dg.firstGenericsType(), dg.secondGenericsType());
+        } else {
+            instance = PreferredJsonbArrayType.from(ArrayUtils.arrayClassOf(this.javaType));
         }
-        return PreferredJsonbArrayType.from(this.javaType);
+        return instance;
     }
 
     @Override
