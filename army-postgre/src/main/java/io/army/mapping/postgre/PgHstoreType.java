@@ -166,6 +166,13 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
     }
 
 
+    public abstract MappingType keyType();
+
+    public abstract boolean hasValueType(String keyName);
+
+    public abstract MappingType valueType(String keyName);
+
+
     abstract CustomType obtainDataType();
 
     abstract boolean isInstance(Object source);
@@ -222,7 +229,6 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
     }
 
 
-
     private static abstract class AbstractHstoreMapType extends PgHstoreType implements DualGenericsMapping {
 
         private final MappingType keyType;
@@ -250,6 +256,21 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
             return this.valueType.javaType();
         }
 
+        @Override
+        public final MappingType keyType() {
+            return this.keyType;
+        }
+
+        @Override
+        public final boolean hasValueType(String keyName) {
+            // always true
+            return true;
+        }
+
+        @Override
+        public final MappingType valueType(String keyName) {
+            return this.valueType;
+        }
 
         @Override
         final void serialize(DataType dataType, MappingEnv env, final Object source, StringBuilder builder) {
@@ -539,6 +560,28 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
         }
 
         @Override
+        public MappingType keyType() {
+            return StringType.INSTANCE;
+        }
+
+        @Override
+        public boolean hasValueType(String keyName) {
+            return this.typeMap.get(keyName) != null;
+        }
+
+        @Override
+        public MappingType valueType(String keyName) {
+            final MappingType type;
+            type = this.typeMap.get(keyName);
+            if (type == null) {
+                String m = String.format("HstorePojoType key %s not found", keyName);
+                throw new IllegalArgumentException(keyName);
+            }
+            return type;
+        }
+
+
+        @Override
         public int hashCode() {
             return Objects.hash(this.javaType);
         }
@@ -555,6 +598,7 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
             }
             return match;
         }
+
 
         @Override
         CustomType obtainDataType() {
