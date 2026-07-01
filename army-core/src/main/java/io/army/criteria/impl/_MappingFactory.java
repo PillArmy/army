@@ -252,7 +252,7 @@ public abstract class _MappingFactory {
                         continue;
                     }
                     classArray = ReflectionUtils.tryTwoTypeArgument(field);
-                    if (classArray.length != 2) {
+                    if (classArray == null || classArray.length != 2) {
                         continue;
                     }
                     type = invokeFactoryMethod(domainClass, field, factoryMethod, classArray);
@@ -263,7 +263,7 @@ public abstract class _MappingFactory {
                         continue;
                     }
                     classArray = ReflectionUtils.tryTwoTypeArgument(field);
-                    if (classArray.length != 2) {
+                    if (classArray == null || classArray.length != 2) {
                         continue;
                     }
                     type = invokeFactoryMethod(domainClass, field, factoryMethod, classArray);

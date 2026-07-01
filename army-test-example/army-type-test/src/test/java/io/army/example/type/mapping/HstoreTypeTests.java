@@ -8,6 +8,7 @@ import io.army.example.type.domain.PostgreTypes_;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.postgre.PgHstoreType;
+import io.army.mapping.postgre.array.PgHstoreArrayType;
 import io.army.session.SyncSession;
 import io.army.sqltype.DataType;
 import org.junit.jupiter.api.Assertions;
@@ -143,6 +144,136 @@ public class HstoreTypeTests {
             Assert.assertEquals(afterGetValue, source);
 
             TestUtils.updateAndQuery(session, id, PostgreTypes_.hstorePojo, source);
+
+        }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void hstoreArray(@Autowired MappingEnv env, @CurrentSession SyncSession session, @NewPostgreTypesId Long id) {
+
+        final PgHstoreArrayType type = (PgHstoreArrayType) PostgreTypes_.hstoreArray.mappingType();
+
+        final DataType dataType = type.map(env.serverMeta());
+        Map<String, String> map;
+        Object bindValue, afterGetValue;
+
+        final String text = "\"\"\"army's zoro\\\\\"\"";
+
+        final List<Map<String, String>[]> list = new ArrayList<>();
+
+        list.add(new Map[]{Map.of()});
+
+        list.add(new Map[]{Map.of(text, text)});
+
+        map = Map.of(
+                "a", "null",
+                "b", "a",
+                "c", "",
+                "army", text,
+                text, text
+        );
+        list.add(new Map[]{map});
+
+        map = new HashMap<>();
+        map.put("a", null);
+        list.add(new Map[]{map});
+
+        map = new HashMap<>();
+        map.put("a", text);
+        map.put("army", null);
+        map.put(text, null);
+        list.add(new Map[]{map, Map.of(text, text)});
+
+
+        for (Map<String, String>[] source : list) {
+            bindValue = type.beforeBind(dataType, env, source);
+            TestUtils.printBindValue(bindValue);
+            afterGetValue = type.afterGet(dataType, env, bindValue);
+            TestUtils.printBindAndGetValue(bindValue, afterGetValue);
+            Assert.assertEquals(afterGetValue, source);
+
+            TestUtils.updateAndQuery(session, id, PostgreTypes_.hstoreArray, source);
+
+        }
+
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void hstoreEnumMapArray(@Autowired MappingEnv env, @CurrentSession SyncSession session, @NewPostgreTypesId Long id) {
+
+        final PgHstoreArrayType type = (PgHstoreArrayType) PostgreTypes_.dayOfWeekStringEnumMapArray.mappingType();
+
+        final DataType dataType = type.map(env.serverMeta());
+        EnumMap<DayOfWeek, String> map, map2;
+        Object bindValue, afterGetValue;
+
+        final String text = "\"\"\"army's zoro\\\\\"\"";
+
+        final List<EnumMap<DayOfWeek, String>[]> list = new ArrayList<>();
+
+        list.add(new EnumMap[]{new EnumMap<>(DayOfWeek.class)});
+
+        map2 = map = new EnumMap<>(DayOfWeek.class);
+        map.put(DayOfWeek.MONDAY, text);
+        map.put(DayOfWeek.FRIDAY, DayOfWeek.FRIDAY.name());
+
+
+        list.add(new EnumMap[]{map});
+
+        map = new EnumMap<>(DayOfWeek.class);
+        map.put(DayOfWeek.FRIDAY, null);
+
+        list.add(new EnumMap[]{map});
+
+        map = new EnumMap<>(DayOfWeek.class);
+        map.put(DayOfWeek.FRIDAY, text);
+
+        list.add(new EnumMap[]{map, map2});
+
+
+        for (EnumMap<DayOfWeek, String>[] source : list) {
+            bindValue = type.beforeBind(dataType, env, source);
+            TestUtils.printBindValue(bindValue);
+            afterGetValue = type.afterGet(dataType, env, bindValue);
+            TestUtils.printBindAndGetValue(bindValue, afterGetValue);
+            Assert.assertEquals(afterGetValue, source);
+
+            TestUtils.updateAndQuery(session, id, PostgreTypes_.dayOfWeekStringEnumMapArray, source);
+
+        }
+    }
+
+
+    @Test
+    public void hstorePojoArray(@Autowired MappingEnv env, @CurrentSession SyncSession session, @NewPostgreTypesId Long id) {
+        final PgHstoreArrayType type = (PgHstoreArrayType) PostgreTypes_.hstorePojoArray.mappingType();
+        final DataType dataType = type.map(env.serverMeta());
+
+        final List<HstorePojo> pojoList = createHstorePojoList();
+
+        final List<HstorePojo[]> list = new ArrayList<>();
+
+        list.add(new HstorePojo[0]);
+
+        list.add(new HstorePojo[]{pojoList.getFirst()});
+
+        list.add(new HstorePojo[]{pojoList.getLast()});
+
+        list.add(pojoList.toArray(new HstorePojo[0]));
+
+
+        Object bindValue, afterGetValue;
+        for (HstorePojo[] source : list) {
+            bindValue = type.beforeBind(dataType, env, source);
+            TestUtils.printBindValue(bindValue);
+            afterGetValue = type.afterGet(dataType, env, bindValue);
+            TestUtils.printBindAndGetValue(bindValue, afterGetValue);
+            Assert.assertEquals(afterGetValue, source);
+
+            TestUtils.updateAndQuery(session, id, PostgreTypes_.hstorePojoArray, source);
 
         }
     }

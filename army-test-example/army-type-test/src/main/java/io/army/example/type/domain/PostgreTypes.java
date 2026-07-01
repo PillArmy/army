@@ -263,6 +263,17 @@ public class PostgreTypes implements FieldAccessPojo {
     public HstorePojo hstorePojo;
 
 
+    @Mapping("io.army.mapping.postgre.array.PgHstoreArrayType")
+    @Column(comment = "hstore type")
+    public Map<String, String>[] hstoreArray;
+
+    @Mapping("io.army.mapping.postgre.array.PgHstoreArrayType")
+    @Column(comment = "hstore type")
+    public EnumMap<DayOfWeek, String>[] dayOfWeekStringEnumMapArray;
+
+    @Mapping("io.army.mapping.postgre.array.PgHstoreArrayType")
+    @Column(comment = "hstore type")
+    public HstorePojo[] hstorePojoArray;
 
 
     // ------------- 多范围类型 -------------

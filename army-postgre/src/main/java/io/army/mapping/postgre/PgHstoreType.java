@@ -26,6 +26,7 @@ import io.army.executor.DataAccessException;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.mapping.array.PostgreArrays;
+import io.army.mapping.postgre.array.PgHstoreArrayType;
 import io.army.meta.ServerMeta;
 import io.army.pojo.ObjectAccessor;
 import io.army.pojo.ObjectAccessorFactory;
@@ -34,6 +35,7 @@ import io.army.sqltype.ArmyType;
 import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
 import io.army.struct.DefinedType;
+import io.army.util.ArrayUtils;
 import io.army.util.ClassUtils;
 import io.army.util.FuncClassValue;
 
@@ -110,12 +112,6 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
 
             .build();
 
-    private static final DataType DATA_TYPE = CustomType.builder()
-            .typeName("HSTORE")
-            .javaType(Map.class)
-            .componentType(ArmyType.DIALECT_TYPE)
-            .componentCreateDdl(false)
-            .build();
 
     final Class<?> javaType;
 
@@ -134,7 +130,7 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
         if (meta.serverDatabase() != Database.PostgreSQL) {
             throw mapError(this, meta);
         }
-        return DATA_TYPE;
+        return obtainDataType();
     }
 
     @Override
@@ -169,10 +165,8 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
         return value;
     }
 
-    @Override
-    public final MappingType arrayTypeOfThis() throws CriteriaException {
-        return super.arrayTypeOfThis();
-    }
+
+    abstract CustomType obtainDataType();
 
     abstract boolean isInstance(Object source);
 
@@ -227,13 +221,6 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
         return new IllegalArgumentException("key must not be null");
     }
 
-    private static IllegalArgumentException keyMustBeString() {
-        return new IllegalArgumentException("key must be String");
-    }
-
-    private static IllegalArgumentException valueMustBeString() {
-        return new IllegalArgumentException("value must be String");
-    }
 
 
     private static abstract class AbstractHstoreMapType extends PgHstoreType implements DualGenericsMapping {
@@ -248,6 +235,10 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
             this.valueType = valueType;
         }
 
+        @Override
+        public final MappingType arrayTypeOfThis() throws CriteriaException {
+            return PgHstoreArrayType.fromTypeArgs(ArrayUtils.arrayClassOf(this.javaType), firstGenericsType(), this.secondGenericsType());
+        }
 
         @Override
         public final Class<?> firstGenericsType() {
@@ -265,6 +256,7 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
             // PostgreSQL allow empty hstore
 
             final LiteralHandler handler = env.literalHandler();
+            final DataType hstoreDataType = obtainDataType();
 
             Object key, value;
             int count = 0;
@@ -278,12 +270,12 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
                     throw paramError(this, dataType, source, keyMustNotBeNull());
                 }
 
-                handler.safeLiteral(this.keyType, key, false, builder, DATA_TYPE);
+                handler.safeLiteral(this.keyType, key, false, builder, hstoreDataType);
                 builder.append("=>");
                 if (value == null) {
                     builder.append("null");
                 } else {
-                    handler.safeLiteral(this.valueType, value, false, builder, DATA_TYPE);
+                    handler.safeLiteral(this.valueType, value, false, builder, hstoreDataType);
                 }
 
                 count++;
@@ -335,6 +327,13 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
 
     private static final class HstoreMapType extends AbstractHstoreMapType {
 
+        private static final CustomType DATA_TYPE = CustomType.builder()
+                .typeName("HSTORE")
+                .javaType(Map.class)
+                .componentType(ArmyType.DIALECT_TYPE)
+                .componentCreateDdl(false)
+                .build();
+
         private HstoreMapType(MappingType keyType, MappingType valueType) {
             super(Map.class, keyType, valueType);
         }
@@ -358,6 +357,11 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
                 match = false;
             }
             return match;
+        }
+
+        @Override
+        CustomType obtainDataType() {
+            return DATA_TYPE;
         }
 
         @Override
@@ -404,6 +408,13 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
 
     private static final class HstoreEnumMapType extends AbstractHstoreMapType {
 
+        private static final CustomType DATA_TYPE = CustomType.builder()
+                .typeName("HSTORE")
+                .javaType(EnumMap.class)
+                .componentType(ArmyType.DIALECT_TYPE)
+                .componentCreateDdl(false)
+                .build();
+
         private HstoreEnumMapType(MappingType keyType, MappingType valueType) {
             super(EnumMap.class, keyType, valueType);
         }
@@ -426,6 +437,11 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
                 match = false;
             }
             return match;
+        }
+
+        @Override
+        CustomType obtainDataType() {
+            return DATA_TYPE;
         }
 
 
@@ -501,11 +517,25 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
 
         private final Map<String, MappingType> typeMap;
 
+        private final CustomType dataType;
+
         private HstorePojoType(Class<?> javaType, Map<String, MappingType> typeMap) {
             super(javaType);
             this.constructor = ObjectAccessorFactory.pojoConstructor(javaType);
             this.accessor = ObjectAccessorFactory.forPojo(javaType);
             this.typeMap = Map.copyOf(typeMap);
+
+            this.dataType = CustomType.builder()
+                    .typeName("HSTORE")
+                    .javaType(javaType)
+                    .componentType(ArmyType.DIALECT_TYPE)
+                    .componentCreateDdl(false)
+                    .build();
+        }
+
+        @Override
+        public MappingType arrayTypeOfThis() throws CriteriaException {
+            return PgHstoreArrayType.from(ArrayUtils.arrayClassOf(this.javaType));
         }
 
         @Override
@@ -524,6 +554,11 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
                 match = false;
             }
             return match;
+        }
+
+        @Override
+        CustomType obtainDataType() {
+            return this.dataType;
         }
 
         @Override
@@ -589,7 +624,7 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
                 if (value == null) {
                     builder.append("null");
                 } else {
-                    handler.safeLiteral(e.getValue(), value, false, builder, DATA_TYPE);
+                    handler.safeLiteral(e.getValue(), value, false, builder, this.dataType);
                 }
 
                 count++;

@@ -120,19 +120,25 @@ public abstract class ReflectionUtils {
     }
 
 
+    @Nullable
     public static Class<?>[] tryTwoTypeArgument(final Field field) {
         final Type genericType = field.getGenericType();
         final Type[] actualTypeArguments;
 
+        Type underlyingType = genericType;
+        while (underlyingType instanceof GenericArrayType) {
+            underlyingType = ((GenericArrayType) underlyingType).getGenericComponentType();
+        }
+
         final Class<?>[] clazzArray;
-        if (!(genericType instanceof ParameterizedType pt)) {
-            clazzArray = new Class<?>[0];
+        if (!(underlyingType instanceof ParameterizedType pt)) {
+            clazzArray = null;
         } else if ((actualTypeArguments = pt.getActualTypeArguments()).length != 2) {
-            clazzArray = new Class<?>[0];
+            clazzArray = null;
         } else if (!(actualTypeArguments[0] instanceof Class<?>)) {
-            clazzArray = new Class<?>[0];
+            clazzArray = null;
         } else if (!(actualTypeArguments[1] instanceof Class<?>)) {
-            clazzArray = new Class<?>[0];
+            clazzArray = null;
         } else {
             clazzArray = new Class<?>[2];
             clazzArray[0] = (Class<?>) actualTypeArguments[0];
@@ -147,9 +153,13 @@ public abstract class ReflectionUtils {
         final Type genericType = field.getGenericType();
         final Type[] actualTypeArguments;
 
+        Type underlyingType = genericType;
+        while (underlyingType instanceof GenericArrayType) {
+            underlyingType = ((GenericArrayType) underlyingType).getGenericComponentType();
+        }
 
         final Class<?>[] clazzArray;
-        if (!(genericType instanceof ParameterizedType pt)) {
+        if (!(underlyingType instanceof ParameterizedType pt)) {
             clazzArray = null;
         } else if ((actualTypeArguments = pt.getActualTypeArguments()).length == 0) {
             clazzArray = null;
