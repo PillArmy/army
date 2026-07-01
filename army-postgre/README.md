@@ -239,28 +239,75 @@ import java.time.DayOfWeek;
 
 public class PostgreTypes {
 
-  // Map<String, String> mapping
-  @Mapping("io.army.mapping.postgre.PgHstoreType")
-  @Column(comment = "hstore type")
-  public Map<String, String> hstore;
+    // Map<String, String> mapping
+    @Mapping("io.army.mapping.postgre.PgHstoreType")
+    @Column(comment = "hstore type")
+    public Map<String, String> hstore;
 
-  // EnumMap<DayOfWeek, String> mapping
-  @Mapping("io.army.mapping.postgre.PgHstoreType")
-  @Column(comment = "hstore type")
-  public EnumMap<DayOfWeek, String> dayOfWeekStringEnumMap;
+    // EnumMap<DayOfWeek, String> mapping
+    @Mapping("io.army.mapping.postgre.PgHstoreType")
+    @Column(comment = "hstore type")
+    public EnumMap<DayOfWeek, String> dayOfWeekStringEnumMap;
 
-  // POJO mapping
-  @Mapping("io.army.mapping.postgre.PgHstoreType")
-  @Column(comment = "hstore type")
-  public HstorePojo hstorePojo;
+    // POJO mapping
+    @Mapping("io.army.mapping.postgre.PgHstoreType")
+    @Column(comment = "hstore type")
+    public HstorePojo hstorePojo;
 }
 ```
 
 #### HSTORE Array Type
 
-`PgHstoreArrayType` is not yet implemented. Support for `Map[]` → `HSTORE[]` is planned for a future release.
+`PgHstoreArrayType` maps PostgreSQL `HSTORE[]` array type to Java array types. It supports the same three mapping modes
+as `PgHstoreType`:
 
-**Note**: `PgHstoreArrayType` currently throws `UnsupportedOperationException` for all methods.
+| Java Type                              | Factory Method                                   | Description                                      |
+|----------------------------------------|--------------------------------------------------|--------------------------------------------------|
+| `Map<K, V>[]`                          | `fromTypeArgs(javaType, keyType, valueType)`     | Array of `Map<K, V>` elements                    |
+| `EnumMap<K extends Enum<K>, V>[]`      | `fromTypeArgs(javaType, enumKeyType, valueType)` | Array of `EnumMap<K, V>` elements                |
+| POJO class array (e.g. `HstorePojo[]`) | `from(javaType)`                                 | Internal POJO type inferred from array component |
+
+**Constraints**: Same as `PgHstoreType` — key type cannot be composite; composite value type must be immutable; key and
+value must have default mappings (see [
+`_MappingFactory#getDefaultIfMatch`](../army-core/src/main/java/io/army/criteria/impl/_MappingFactory.java#L68-L123)).
+
+**Internals**: `PgHstoreArrayType` extends `_ArmyBuildInArrayType`, with three subclasses:
+
+- `PgHstoreMapArrayType` — handles `Map<K,V>[]`, implements `DualGenericsMapping`
+- `PgHstoreEnumMapArrayType` — handles `EnumMap<K extends Enum<K>,V>[]`, implements `DualGenericsMapping`
+- `PgHstorePojoArrayType` — handles POJO arrays, cached via `ClassValue`
+
+Serialization/deserialization per element delegates to `PgHstoreType.serialize` / `PgHstoreType.deserialize`, wrapping
+with `PostgreArrays.arrayBeforeBind` / `PostgreArrays.arrayAfterGet`.
+
+#### Entity Field Examples
+
+```java
+import io.army.annotation.Column;
+import io.army.annotation.Mapping;
+
+import java.util.Map;
+import java.util.EnumMap;
+import java.time.DayOfWeek;
+
+public class PostgreTypes {
+
+    // Map<String, String> array
+    @Mapping("io.army.mapping.postgre.array.PgHstoreArrayType")
+    @Column(comment = "hstore array type")
+    public Map<String, String>[] hstoreArray;
+
+    // EnumMap<DayOfWeek, String> array
+    @Mapping("io.army.mapping.postgre.array.PgHstoreArrayType")
+    @Column(comment = "hstore array type")
+    public EnumMap<DayOfWeek, String>[] dayOfWeekStringEnumMapArray;
+
+    // POJO array
+    @Mapping("io.army.mapping.postgre.array.PgHstoreArrayType")
+    @Column(comment = "hstore array type")
+    public HstorePojo[] hstorePojoArray;
+}
+```
 
 ## License
 
