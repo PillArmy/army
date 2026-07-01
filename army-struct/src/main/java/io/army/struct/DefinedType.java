@@ -32,4 +32,6 @@ public @interface DefinedType {
 
     String[] fieldOrder() default {};
 
+    boolean immutable() default false;
+
 }

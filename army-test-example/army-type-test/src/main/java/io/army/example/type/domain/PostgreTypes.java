@@ -8,6 +8,7 @@ import io.army.pojo.FieldAccessPojo;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.BitSet;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -252,6 +253,17 @@ public class PostgreTypes implements FieldAccessPojo {
     @Mapping("io.army.mapping.postgre.PgHstoreType")
     @Column(comment = "hstore type")
     public Map<String, String> hstore;
+
+    @Mapping("io.army.mapping.postgre.PgHstoreType")
+    @Column(comment = "hstore type")
+    public EnumMap<DayOfWeek, String> dayOfWeekStringEnumMap;
+
+    @Mapping("io.army.mapping.postgre.PgHstoreType")
+    @Column(comment = "hstore type")
+    public HstorePojo hstorePojo;
+
+
+
 
     // ------------- 多范围类型 -------------
 

@@ -16,9 +16,7 @@
 
 package io.army.criteria.impl;
 
-import io.army.annotation.Generator;
-import io.army.annotation.GeneratorType;
-import io.army.annotation.Mapping;
+import io.army.annotation.*;
 import io.army.generator.GeneratorStrategy;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
@@ -141,6 +139,41 @@ public abstract class _MappingFactory {
             type = mapType(domainClass, field, context, mappingClass, mapping);
         }
         return type;
+    }
+
+    /// @return an unmodifiable map
+    public static Map<String, MappingType> createPojoMappingTypeMap(final Class<?> javaType) {
+        final Map<String, MappingType> map = new HashMap<>();
+
+        final MetaContext context = new DefaultMetaContext();
+
+
+        MappingType oldValue;
+
+        for (Class<?> superClass = javaType; superClass != Object.class; superClass = superClass.getSuperclass()) {
+
+            if (superClass != javaType
+                    && superClass.getAnnotation(MappedSuperclass.class) == null
+                    && superClass.getAnnotation(Table.class) == null) {
+                break;
+            }
+
+            for (Field field : superClass.getDeclaredFields()) {
+                if (field.getAnnotation(Column.class) == null) {
+                    continue;
+                }
+
+                oldValue = map.put(field.getName(), map(javaType, field, context));
+                if (oldValue != null) {
+                    String m = String.format("%s#%s is overridden", superClass.getName(), javaType.getName());
+                    throw new MetaException(m);
+                }
+
+            } // field loop
+
+        } // class loop
+
+        return Map.copyOf(map);
     }
 
 

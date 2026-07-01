@@ -1,6 +1,7 @@
 package io.army.example.type.domain;
 
 import io.army.annotation.Column;
+import io.army.annotation.MappedSuperclass;
 import io.army.pojo.FieldAccessPojo;
 import io.army.struct.DefinedType;
 import io.army.util._StringUtils;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Objects;
 
+@MappedSuperclass
 @DefinedType(name = "PRODUCT_INFO",
         fieldOrder = {"productId", "productName", "price", "available", "releaseDate", "intArray", "textArray", "managerInfo"})
 public class ProductInfo implements FieldAccessPojo {
@@ -131,7 +133,8 @@ public class ProductInfo implements FieldAccessPojo {
         if (obj == this) {
             match = true;
         } else if (obj instanceof ProductInfo o) {
-            match = Objects.equals(o.productId, this.productId)
+            match = obj.getClass() == this.getClass()
+                    && Objects.equals(o.productId, this.productId)
                     && Objects.equals(o.productName, this.productName)
                     && Objects.equals(o.price, this.price)
                     && Objects.equals(o.available, this.available)
