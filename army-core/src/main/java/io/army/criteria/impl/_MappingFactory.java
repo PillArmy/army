@@ -159,7 +159,8 @@ public abstract class _MappingFactory {
             }
 
             for (Field field : superClass.getDeclaredFields()) {
-                if (field.getAnnotation(Column.class) == null) {
+                if (Modifier.isStatic(field.getModifiers())
+                        || field.getAnnotation(Column.class) == null) {
                     continue;
                 }
 
