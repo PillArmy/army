@@ -88,6 +88,8 @@ public class CompositeTypeTests {
         Assert.assertEquals(managerId, info.managerInfo.id);
 
 
+        Assert.assertTrue(type.arrayTypeOfThis() instanceof CompositeArrayType);
+
     }
 
     @Test
