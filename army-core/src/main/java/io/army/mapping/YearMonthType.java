@@ -18,7 +18,6 @@ package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
-import io.army.mapping.array.YearMonthArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 import io.army.util._TimeUtils;
@@ -26,6 +25,7 @@ import io.army.util._TimeUtils;
 import java.time.*;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
+import java.util.function.Function;
 
 /// 
 /// This class is mapping class of {@link YearMonth}.
@@ -114,7 +114,7 @@ public final class YearMonthType extends _ArmyNoInjectionType implements Mapping
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return YearMonthArrayType.LINEAR;
+        return ArrayFactoryFuncHolder.FUNCTION.apply(YearMonth[].class);
     }
 
     @Override
@@ -177,6 +177,16 @@ public final class YearMonthType extends _ArmyNoInjectionType implements Mapping
         return YearMonth.of(source / 100, source % 100);
 
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(YearMonthType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

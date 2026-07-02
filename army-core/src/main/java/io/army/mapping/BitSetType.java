@@ -17,13 +17,13 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.BitSetArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 import io.army.util._StringUtils;
 
 import java.math.BigInteger;
 import java.util.BitSet;
+import java.util.function.Function;
 
 /// 
 /// This class is mapping class of {@link BitSet}.
@@ -65,7 +65,7 @@ public final class BitSetType extends _ArmyNoInjectionType implements MappingTyp
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return BitSetArrayType.LINEAR;
+        return ArrayFactoryFuncHolder.FUNCTION.apply(BitSet[].class);
     }
 
     @Override
@@ -285,6 +285,16 @@ public final class BitSetType extends _ArmyNoInjectionType implements MappingTyp
 
         return builder.toString();
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(BitSetType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

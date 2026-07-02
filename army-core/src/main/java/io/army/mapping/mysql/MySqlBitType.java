@@ -19,7 +19,7 @@ package io.army.mapping.mysql;
 import io.army.dialect.Database;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -29,7 +29,7 @@ import java.util.BitSet;
 /// Mapping type for MySQL BIT columns, maps to {@link Long}.
 ///
 /// @see Long
-public final class MySqlBitType extends _ArmyNoInjectionType {
+public final class MySqlBitType extends _ArmyBuildInType {
 
     public static MySqlBitType from(Class<?> javaType) {
         if (javaType != Long.class) {

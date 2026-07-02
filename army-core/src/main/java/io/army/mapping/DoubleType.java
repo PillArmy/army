@@ -17,7 +17,6 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.DoubleArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -27,6 +26,7 @@ import io.army.util.ClassUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.function.Function;
 
 /// 
 /// This class is mapping class of {@link Double}.
@@ -41,7 +41,7 @@ import java.math.BigInteger;
 /// 
 /// to {@link Double},if overflow,throw {@link io.army.ArmyException}
 /// @since 0.6.0
-public final class DoubleType extends _ArmyNoInjectionType implements MappingType.SqlFloat {
+public final class DoubleType extends _ArmyBuildInCoreType implements MappingType.SqlFloat {
 
 
     public static DoubleType from(final Class<?> javaType) {
@@ -60,11 +60,6 @@ public final class DoubleType extends _ArmyNoInjectionType implements MappingTyp
     @Override
     public Class<?> javaType() {
         return Double.class;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return DoubleArrayType.LINEAR;
     }
 
     @Override
@@ -94,6 +89,12 @@ public final class DoubleType extends _ArmyNoInjectionType implements MappingTyp
     @Override
     public Double afterGet(DataType dataType, MappingEnv env, Object source) {
         return toDouble(this, dataType, source, ACCESS_ERROR_HANDLER);
+    }
+
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(Double[].class);
     }
 
     @Override
@@ -144,6 +145,16 @@ public final class DoubleType extends _ArmyNoInjectionType implements MappingTyp
 
         return value;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(DoubleType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

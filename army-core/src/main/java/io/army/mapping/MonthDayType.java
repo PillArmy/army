@@ -18,7 +18,6 @@ package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.Database;
-import io.army.mapping.array.MonthDayArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.SQLiteType;
@@ -30,6 +29,7 @@ import java.time.MonthDay;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.Locale;
+import java.util.function.Function;
 
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
@@ -72,11 +72,6 @@ public final class MonthDayType extends _ArmyNoInjectionType implements MappingT
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return MonthDayArrayType.LINEAR;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         final DataType dataType;
         if (meta.serverDatabase() == Database.SQLite) {
@@ -107,6 +102,12 @@ public final class MonthDayType extends _ArmyNoInjectionType implements MappingT
     public MonthDay afterGet(DataType dataType, MappingEnv env, final Object source) {
         return toMonthDay(this, dataType, source, ACCESS_ERROR_HANDLER);
 
+    }
+
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(MonthDay[].class);
     }
 
 
@@ -152,6 +153,16 @@ public final class MonthDayType extends _ArmyNoInjectionType implements MappingT
     public boolean equals(final Object obj) {
         return obj instanceof MonthDayType;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(MonthDayType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

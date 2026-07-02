@@ -11,7 +11,7 @@ import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 
 /// Just for {@link SQLs#NULL}
-public final class NullType extends _ArmyBuildInType {
+public final class NullType extends _ArmyBuildInCoreType {
 
 
     public final static NullType INSTANCE = new NullType();

@@ -26,6 +26,7 @@
         <module>army-spring-ai-model-chat-memory</module>
         <module>army-spring-ai-vector-store</module>
         <module>army-guava</module>
+        <module>army-array</module>
     </modules>
 
     <name>army</name>
@@ -113,6 +114,12 @@
             <dependency>
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.qinarmy</groupId>
+                <artifactId>army-array</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -326,7 +333,7 @@
             <dependency>
                 <groupId>com.mysql</groupId>
                 <artifactId>mysql-connector-j</artifactId>
-                <version>${mysql.versioin}</version>
+                <version>${mysql.version}</version>
             </dependency>
 
             <dependency>

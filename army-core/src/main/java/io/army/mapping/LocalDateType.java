@@ -17,7 +17,6 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.LocalDateArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -25,6 +24,7 @@ import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
 import java.time.*;
+import java.util.function.Function;
 
 /// 
 /// This class is mapping class of {@link LocalDate}.
@@ -61,11 +61,6 @@ public final class LocalDateType extends _ArmyNoInjectionType implements Mapping
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return LocalDateArrayType.LINEAR;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         return mapToDataType(this, meta);
     }
@@ -78,6 +73,12 @@ public final class LocalDateType extends _ArmyNoInjectionType implements Mapping
     @Override
     public LocalDate afterGet(DataType dataType, MappingEnv env, Object source) {
         return toLocalDateTime(this, dataType, source, ACCESS_ERROR_HANDLER);
+    }
+
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(LocalDate[].class);
     }
 
 
@@ -134,6 +135,16 @@ public final class LocalDateType extends _ArmyNoInjectionType implements Mapping
     public boolean equals(final Object obj) {
         return obj instanceof LocalDateType;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(LocalDateType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

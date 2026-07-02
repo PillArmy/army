@@ -17,7 +17,6 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.LongArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -27,6 +26,7 @@ import io.army.util.ClassUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.function.Function;
 
 /// 
 /// This class is mapping class of {@link Long}.
@@ -64,11 +64,6 @@ public final class LongType extends _ArmyNoInjectionType implements MappingType.
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return LongArrayType.LINEAR;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         return mapToDataType(this, meta);
     }
@@ -82,6 +77,12 @@ public final class LongType extends _ArmyNoInjectionType implements MappingType.
     @Override
     public Long afterGet(DataType dataType, MappingEnv env, Object source) {
         return toLong(this, dataType, source, Long.MIN_VALUE, Long.MAX_VALUE, ACCESS_ERROR_HANDLER);
+    }
+
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(Long[].class);
     }
 
     @Override
@@ -157,6 +158,16 @@ public final class LongType extends _ArmyNoInjectionType implements MappingType.
         }
         return value;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(LongType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

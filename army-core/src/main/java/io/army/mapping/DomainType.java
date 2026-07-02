@@ -27,7 +27,7 @@ import io.army.sqltype.DataType;
 /// @see <a href="https://www.postgresql.org/docs/current/domains.html">Domain Types</a>
 /// @see <a href="https://www.postgresql.org/docs/current/sql-createdomain.html">CREATE DOMAIN</a>
 /// @see <a href="https://www.postgresql.org/docs/current/sql-alterdomain.html">ALTER DOMAIN</a>
-public final class DomainType extends _ArmyBuildInType implements MappingType.SqlDomain {
+public final class DomainType extends _ArmyBuildInCoreType implements MappingType.SqlDomain {
 
 
     private DomainType() {

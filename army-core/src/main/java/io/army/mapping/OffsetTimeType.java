@@ -17,7 +17,6 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.OffsetTimeArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 import io.army.util._TimeUtils;
@@ -26,6 +25,7 @@ import java.time.DateTimeException;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZonedDateTime;
+import java.util.function.Function;
 
 /// 
 /// This class is mapping class of {@link OffsetTime}.
@@ -57,11 +57,6 @@ public final class OffsetTimeType extends _ArmyNoInjectionType implements Mappin
     @Override
     public Class<?> javaType() {
         return OffsetTime.class;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return OffsetTimeArrayType.LINEAR;
     }
 
     @Override
@@ -98,6 +93,12 @@ public final class OffsetTimeType extends _ArmyNoInjectionType implements Mappin
     }
 
 
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(OffsetTime[].class);
+    }
+
+
     static OffsetTime toOffsetTime(MappingType type, DataType dataType, final Object source,
                                    ErrorHandler errorHandler) {
         final OffsetTime value;
@@ -128,4 +129,14 @@ public final class OffsetTimeType extends _ArmyNoInjectionType implements Mappin
     public boolean equals(final Object obj) {
         return obj instanceof OffsetTimeType;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(OffsetTimeType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 }

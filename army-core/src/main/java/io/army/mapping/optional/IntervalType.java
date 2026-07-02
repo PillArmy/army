@@ -21,11 +21,11 @@ import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
-public final class IntervalType extends _ArmyNoInjectionType implements MappingType.SqlInterval {
+public final class IntervalType extends _ArmyBuildInType implements MappingType.SqlInterval {
 
 
     public static IntervalType from(Class<?> javaType) {

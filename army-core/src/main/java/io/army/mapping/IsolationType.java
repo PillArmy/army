@@ -24,7 +24,7 @@ import io.army.sqltype.DataType;
 import io.army.transaction.Isolation;
 
 
-public final class IsolationType extends _ArmyBuildInType implements MappingType.SqlString {
+public final class IsolationType extends _ArmyBuildInCoreType implements MappingType.SqlString {
 
 
     public static IsolationType from(Class<?> javaType) {

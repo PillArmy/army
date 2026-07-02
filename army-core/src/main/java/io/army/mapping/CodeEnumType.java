@@ -18,7 +18,6 @@ package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
 import io.army.executor.DataAccessException;
-import io.army.mapping.array.CodeEnumArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.struct.CodeEnum;
@@ -31,6 +30,7 @@ import io.army.util._Collections;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 ///
 /// This class is mapping of enum that implements {@link CodeEnum}.
@@ -122,7 +122,7 @@ public final class CodeEnumType extends _ArmyNoInjectionType {
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return CodeEnumArrayType.from(ArrayUtils.arrayClassOf(this.enumClass));
+        return ArrayFactoryFuncHolder.FUNCTION.apply(ArrayUtils.arrayClassOf(this.enumClass));
     }
 
     /// @return an unmodifiable map
@@ -182,6 +182,16 @@ public final class CodeEnumType extends _ArmyNoInjectionType {
         }
         return ClassUtils.enumClass(javaType);
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(CodeEnumType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

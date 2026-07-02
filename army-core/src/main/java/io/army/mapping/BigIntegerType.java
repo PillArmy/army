@@ -17,12 +17,12 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.BigIntegerArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.function.Function;
 
 /// 
 /// This class is mapping class of {@link BigInteger}.
@@ -66,11 +66,6 @@ public final class BigIntegerType extends _ArmyNoInjectionType implements Mappin
         return BigDecimalType.mapToDataType(this, meta);
     }
 
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return BigIntegerArrayType.LINEAR;
-    }
-
 
     @Override
     public BigDecimal beforeBind(DataType dataType, MappingEnv env, final Object source) {
@@ -86,6 +81,12 @@ public final class BigIntegerType extends _ArmyNoInjectionType implements Mappin
     @Override
     public BigInteger afterGet(final DataType dataType, MappingEnv env, final Object source) {
         return toBigInteger(this, dataType, source, ACCESS_ERROR_HANDLER);
+    }
+
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(BigInteger[].class);
     }
 
     @Override
@@ -129,6 +130,16 @@ public final class BigIntegerType extends _ArmyNoInjectionType implements Mappin
         }
         return value;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(BigIntegerType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

@@ -34,7 +34,7 @@ import java.util.List;
 /// This class is base class of following :
 /// 
 /// - {@link SqlRecordType}
-/// - {@link io.army.mapping.array.SqlRecordArrayType}
+/// - {@code  io.army.mapping.array.SqlRecordArrayType}
 /// 
 public abstract class _SqlRecordSupport extends _ArmyBuildInType {
 

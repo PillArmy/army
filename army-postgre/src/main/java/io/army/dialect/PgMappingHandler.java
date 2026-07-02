@@ -65,6 +65,11 @@ final class PgMappingHandler extends TypeMappingHandlerSupport {
     }
 
 
+    @Override
+    MappingType obtainStringArrayType() {
+        return StringArrayType.UNLIMITED;
+    }
+
     /// @see <a href="https://www.postgresql.org/docs/current/datatype.html">Data Types</a>
     @Override
     Map<String, TypeMappingBundle> createBuildInTypeBundleMap(DialectEnv env) {

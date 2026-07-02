@@ -20,12 +20,12 @@ import io.army.annotation.*;
 import io.army.generator.GeneratorStrategy;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
-import io.army.mapping.array.*;
 import io.army.meta.MetaException;
 import io.army.modelgen._MetaBridge;
 import io.army.struct.CodeEnum;
 import io.army.struct.DefinedType;
 import io.army.util.ArrayUtils;
+import io.army.util.ClassUtils;
 import io.army.util.ReflectionUtils;
 import io.army.util._StringUtils;
 
@@ -105,7 +105,7 @@ public abstract class _MappingFactory {
                 type = null;
             } else switch (definedType.category()) {
                 case COMPOSITE:
-                    type = CompositeArrayType.from(javaType);
+                    type = ArrayFuncHolder.COMPOSITE_ARRAY_TYPE_FUNC.apply(javaType);
                     break;
                 case DOMAIN:
                 case RANGE:
@@ -113,11 +113,11 @@ public abstract class _MappingFactory {
                     type = null;
             }
         } else if (CodeEnum.class.isAssignableFrom(componentClass)) {
-            type = CodeEnumArrayType.from(javaType);
+            type = ArrayFuncHolder.CODE_ENUM_ARRAY_TYPE_FUNC.apply(javaType);
         } else if (LabelEnumType.class.isAssignableFrom(componentClass)) {
-            type = LabelEnumArrayType.from(javaType);
+            type = ArrayFuncHolder.LABEL_ENUM_ARRAY_TYPE_FUNC.apply(javaType);
         } else {
-            type = NameEnumArrayType.from(javaType);
+            type = ArrayFuncHolder.NAME_ENUM_ARRAY_TYPE_FUNC.apply(javaType);
         }
         return type;
     }
@@ -746,51 +746,58 @@ public abstract class _MappingFactory {
         return map;
     }
 
+
+    @SuppressWarnings("unchecked")
     private static Map<Class<?>, Function<Class<?>, MappingType>> createDefaultArrayFuncMap() {
-        final Map<Class<?>, Function<Class<?>, MappingType>> map = new HashMap<>();
+        final Map<Class<?>, Function<Class<?>, MappingType>> map;
 
-        map.put(String.class, StringArrayType::from);
-
-        map.put(boolean.class, BooleanArrayType::from);
-        map.put(Boolean.class, BooleanArrayType::from);
-        map.put(int.class, IntegerArrayType::from);
-        map.put(Integer.class, IntegerArrayType::from);
-
-        map.put(long.class, LongArrayType::from);
-        map.put(Long.class, LongArrayType::from);
-        map.put(float.class, FloatArrayType::from);
-        map.put(Float.class, FloatArrayType::from);
-
-        map.put(double.class, DoubleArrayType::from);
-        map.put(Double.class, DoubleArrayType::from);
-        map.put(short.class, ShortArrayType::from);
-        map.put(Short.class, ShortArrayType::from);
-
-        map.put(byte.class, ByteArrayType::from);
-        map.put(Byte.class, ByteArrayType::from);
-        map.put(char.class, SqlCharArrayType::from);
-        map.put(Character.class, SqlCharArrayType::from);
-
-        map.put(BigInteger.class, BigIntegerArrayType::from);
-        map.put(BigDecimal.class, BigDecimalArrayType::from);
-        map.put(LocalDateTime.class, LocalDateTimeArrayType::from);
-        map.put(OffsetDateTime.class, OffsetDateTimeArrayType::from);
-
-        map.put(ZonedDateTime.class, ZonedDateTimeArrayType::from);
-        map.put(LocalDate.class, LocalDateArrayType::from);
-        map.put(LocalTime.class, LocalTimeArrayType::from);
-        map.put(OffsetTime.class, OffsetTimeArrayType::from);
-
-        map.put(Instant.class, InstantArrayType::from);
-        map.put(Year.class, YearArrayType::from);
-        map.put(YearMonth.class, YearMonthArrayType::from);
-        map.put(MonthDay.class, MonthDayArrayType::from);
-
-        map.put(ZoneId.class, ZoneIdArrayType::from);
-        map.put(BitSet.class, BitSetArrayType::from);
-        map.put(UUID.class, UUIDArrayType::from);
-
+        final String className = "io.army.mapping.array._ArmyCoreArrayType";
+        if (ClassUtils.isPresent(className, null)) {
+            map = (Map<Class<?>, Function<Class<?>, MappingType>>) ReflectionUtils.invokeStaticFactoryMethod(className, Map.class, "createCoreArrayFuncMap");
+        } else {
+            map = Map.of();
+        }
         return map;
+    }
+
+
+    private static final class ArrayFuncHolder {
+
+        private static final Function<Class<?>, MappingType> COMPOSITE_ARRAY_TYPE_FUNC;
+
+        private static final Function<Class<?>, MappingType> CODE_ENUM_ARRAY_TYPE_FUNC;
+
+        private static final Function<Class<?>, MappingType> LABEL_ENUM_ARRAY_TYPE_FUNC;
+
+        private static final Function<Class<?>, MappingType> NAME_ENUM_ARRAY_TYPE_FUNC;
+
+
+        static {
+            COMPOSITE_ARRAY_TYPE_FUNC = obtainFunc("compositeArrayTypeFunc");
+            CODE_ENUM_ARRAY_TYPE_FUNC = obtainFunc("codeEnumArrayTypeFunc");
+            LABEL_ENUM_ARRAY_TYPE_FUNC = obtainFunc("labelEnumArrayTypeFunc");
+            NAME_ENUM_ARRAY_TYPE_FUNC = obtainFunc("nameEnumArrayTypeFunc");
+        }
+
+        @SuppressWarnings("unchecked")
+        private static Function<Class<?>, MappingType> obtainFunc(String methodName) {
+            final String className = "io.army.mapping.array._ArmyCoreArrayType";
+
+            final Function<Class<?>, MappingType> function;
+            if (ClassUtils.isPresent(className, null)) {
+                function = (Function<Class<?>, MappingType>) ReflectionUtils.invokeStaticFactoryMethod(className, Function.class, methodName);
+            } else {
+                function = ArrayFuncHolder::nullFunc;
+            }
+            return function;
+        }
+
+
+        private static MappingType nullFunc(Class<?> javaType) {
+            String m = String.format("army-array module not in classpath,couldn't load %s", "io.army.mapping.array._ArmyCoreArrayType");
+            throw new RuntimeException(m);
+        }
+
     }
 
 

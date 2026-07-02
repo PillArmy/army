@@ -17,7 +17,6 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.LocalTimeArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -28,6 +27,7 @@ import io.army.util._TimeUtils;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.function.Function;
 
 /// 
 /// This class is mapping class of {@link LocalTime}.
@@ -61,11 +61,6 @@ public final class LocalTimeType extends _ArmyNoInjectionType implements Mapping
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return LocalTimeArrayType.LINEAR;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         final DataType dataType;
         switch (meta.serverDatabase()) {
@@ -96,6 +91,13 @@ public final class LocalTimeType extends _ArmyNoInjectionType implements Mapping
         return toLocalTime(this, dataType, source, ACCESS_ERROR_HANDLER);
     }
 
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(LocalTime[].class);
+    }
+
+
     static LocalTime toLocalTime(final MappingType type, final DataType dataType, final Object nonNull,
                                  final ErrorHandler errorHandler) {
         final LocalTime value;
@@ -124,6 +126,16 @@ public final class LocalTimeType extends _ArmyNoInjectionType implements Mapping
     public boolean equals(final Object obj) {
         return obj instanceof LocalTimeType;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(LocalTimeType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

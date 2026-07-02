@@ -19,7 +19,6 @@ package io.army.dialect;
 import io.army.mapping.MappingType;
 import io.army.mapping.StringType;
 import io.army.mapping._ArmyBuildInType;
-import io.army.mapping.array.StringArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.ArmyType;
 import io.army.sqltype.CustomType;
@@ -65,6 +64,12 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
 
     abstract Map<String, TypeMappingBundle> createBuildInTypeBundleMap(DialectEnv env);
 
+
+    MappingType obtainStringArrayType() {
+        String m = String.format("%s don't support array type", this.serverMeta.usedDialect());
+        throw new RuntimeException(m);
+    }
+
     private TypeMappingBundle handleDefined(final String typeName, final String upperCaseTypeName) {
         TypeMappingBundle bundle;
         bundle = this.dataTypeToBundleMap.get(upperCaseTypeName.toUpperCase(Locale.ROOT));
@@ -88,7 +93,7 @@ abstract non-sealed class TypeMappingHandlerSupport implements MappingHandler {
                 .componentType(ArmyType.UNKNOWN)
                 .build();
         if (dataType.isArray()) {
-            bundle = TypeMappingBundle.of(dataType, StringArrayType.UNLIMITED);
+            bundle = TypeMappingBundle.of(dataType, obtainStringArrayType());
         } else {
             bundle = TypeMappingBundle.of(dataType, StringType.INSTANCE);
         }

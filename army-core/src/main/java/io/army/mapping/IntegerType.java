@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.mapping.array.IntegerArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -26,6 +25,7 @@ import io.army.util.ClassUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.function.Function;
 
 /// This class is mapping class of {@link Integer}.
 /// This mapping type can convert below java type:
@@ -64,11 +64,6 @@ public final class IntegerType extends _ArmyNoInjectionType implements MappingTy
 
 
     @Override
-    public MappingType arrayTypeOfThis() {
-        return IntegerArrayType.LINEAR;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         return mapToDataType(this, meta);
     }
@@ -82,6 +77,12 @@ public final class IntegerType extends _ArmyNoInjectionType implements MappingTy
     @Override
     public Integer afterGet(DataType dataType, final MappingEnv env, Object source) {
         return toInt(this, dataType, source, Integer.MIN_VALUE, Integer.MAX_VALUE, ACCESS_ERROR_HANDLER);
+    }
+
+
+    @Override
+    public MappingType arrayTypeOfThis() {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(Integer[].class);
     }
 
     @Override
@@ -163,6 +164,16 @@ public final class IntegerType extends _ArmyNoInjectionType implements MappingTy
         }
         return dataType;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(IntegerType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

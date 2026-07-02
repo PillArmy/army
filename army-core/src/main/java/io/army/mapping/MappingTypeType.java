@@ -21,13 +21,13 @@ import io.army.criteria.CriteriaException;
 import io.army.dialect.TypeMappingBundle;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
-import io.army.mapping.array.MappingTypeArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
-import io.army.util.ArrayUtils;
+
+import java.util.function.Function;
 
 /// Map {@link MappingType} to SQL string
-public final class MappingTypeType extends _ArmyBuildInType implements MappingType.SqlString {
+public final class MappingTypeType extends _ArmyBuildInCoreType implements MappingType.SqlString {
 
     public static MappingTypeType from(Class<?> javaType) {
         if (javaType != MappingType.class) {
@@ -81,7 +81,7 @@ public final class MappingTypeType extends _ArmyBuildInType implements MappingTy
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return MappingTypeArrayType.from(ArrayUtils.arrayClassOf(MappingType.class));
+        return ArrayFactoryFuncHolder.FUNCTION.apply(MappingType[].class);
     }
 
     @Override
@@ -93,6 +93,16 @@ public final class MappingTypeType extends _ArmyBuildInType implements MappingTy
     public boolean equals(final Object obj) {
         return obj instanceof MappingTypeType;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(MappingTypeType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

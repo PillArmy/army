@@ -26,7 +26,7 @@ import java.math.BigDecimal;
 
 /// This class representing the mapping from {@link BigDecimal} to unsigned decimal.
 /// @see BigDecimal
-public final class BigDecimalUnsignedType extends _ArmyNoInjectionType
+public final class BigDecimalUnsignedType extends _ArmyBuildInCoreType
         implements MappingType.SqlDecimal, MappingType.SqlUnsignedNumber {
 
 

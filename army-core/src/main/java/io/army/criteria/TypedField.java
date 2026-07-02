@@ -27,7 +27,7 @@ import static io.army.dialect.Database.PostgreSQL;
 /// 1. {@link TableField} field of table
 /// 2. {@link TypedDerivedField} derived field
 /// 
-public interface TypedField extends SqlField, TypedExpression, SimpleExpression {
+public interface TypedField extends SqlField, TypedExpression, SimpleExpression, UpdatableExpression {
 
     /// 
     /// {@code =} operator for batch statement

@@ -19,7 +19,6 @@ package io.army.mapping;
 import io.army.codec.XmlCodec;
 import io.army.criteria.CriteriaException;
 import io.army.lang.Nullable;
-import io.army.mapping.array.XmlArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -29,9 +28,11 @@ import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
 
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
-/// @see io.army.mapping.array.XmlArrayType
-public class XmlType extends _ArmyBuildInType implements XmlMappingType {
+/// see {@code io.army.mapping.array.XmlArrayType}
+public class XmlType extends _ArmyBuildInCoreType implements XmlMappingType {
 
 
     public static XmlType from(final Class<?> javaType) {
@@ -136,7 +137,7 @@ public class XmlType extends _ArmyBuildInType implements XmlMappingType {
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return XmlArrayType.from(ArrayUtils.arrayClassOf(this.javaType));
+        return ArrayFactoryFuncHolder.FUNCTION.apply(ArrayUtils.arrayClassOf(this.javaType));
     }
 
     @Override
@@ -203,7 +204,7 @@ public class XmlType extends _ArmyBuildInType implements XmlMappingType {
 
         @Override
         public MappingType arrayTypeOfThis() throws CriteriaException {
-            return XmlArrayType.fromTypeArg(Set[].class, this.elementClass);
+            return ArrayFactoryFuncHolder.TYPE_ARG_FUNC.apply(Set[].class, this.elementClass);
         }
 
         @Override
@@ -276,7 +277,7 @@ public class XmlType extends _ArmyBuildInType implements XmlMappingType {
 
         @Override
         public MappingType arrayTypeOfThis() throws CriteriaException {
-            return XmlArrayType.fromTypeArg(List[].class, this.elementClass);
+            return ArrayFactoryFuncHolder.TYPE_ARG_FUNC.apply(List[].class, this.elementClass);
         }
 
         @Override
@@ -349,7 +350,7 @@ public class XmlType extends _ArmyBuildInType implements XmlMappingType {
 
         @Override
         public MappingType arrayTypeOfThis() throws CriteriaException {
-            return XmlArrayType.fromTypeArgs(Map[].class, this.keyClass, this.valueClass);
+            return ArrayFactoryFuncHolder.TYPE_ARGS_FUNC.apply(Map[].class, this.keyClass, this.valueClass);
         }
 
         @Override
@@ -411,6 +412,22 @@ public class XmlType extends _ArmyBuildInType implements XmlMappingType {
 
 
     } // MapXmlType
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        private static final BiFunction<Class<?>, Class<?>, MappingType> TYPE_ARG_FUNC;
+
+        private static final TeClassFunc TYPE_ARGS_FUNC;
+
+        static {
+            FUNCTION = removeArrayFromFunc(XmlType.class);
+            TYPE_ARG_FUNC = removeArrayFromTypeArgFunc(XmlType.class);
+            TYPE_ARGS_FUNC = removeArrayFromTypeArgsFunc(XmlType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

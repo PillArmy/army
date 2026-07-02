@@ -19,12 +19,12 @@ package io.army.mapping;
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
-import io.army.mapping.array.UUIDArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Function;
 
 public final class UUIDType extends _ArmyNoInjectionType {
 
@@ -124,7 +124,7 @@ public final class UUIDType extends _ArmyNoInjectionType {
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return UUIDArrayType.from(this.javaType);
+        return ArrayFactoryFuncHolder.FUNCTION.apply(this.javaType);
     }
 
     @Override
@@ -161,6 +161,16 @@ public final class UUIDType extends _ArmyNoInjectionType {
         }
         return value;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(UUIDType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

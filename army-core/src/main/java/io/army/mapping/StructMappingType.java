@@ -18,4 +18,5 @@ package io.army.mapping;
 
 public sealed interface StructMappingType extends MappingType
         permits ArrayMappingType, JsonbMappingType, JsonMappingType, XmlMappingType, CompositeMappingType {
+
 }

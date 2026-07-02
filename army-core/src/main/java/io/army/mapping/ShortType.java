@@ -17,13 +17,14 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.ShortArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 import io.army.util.ClassUtils;
+
+import java.util.function.Function;
 
 /// 
 /// This class is mapping class of {@link Short}.
@@ -61,11 +62,6 @@ public final class ShortType extends _ArmyNoInjectionType implements MappingType
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return ShortArrayType.LINEAR;
-    }
-
-    @Override
     public DataType map(final ServerMeta meta) {
         final DataType dataType;
         switch (meta.serverDatabase()) {
@@ -97,6 +93,12 @@ public final class ShortType extends _ArmyNoInjectionType implements MappingType
         return (short) IntegerType.toInt(this, dataType, source, Short.MIN_VALUE, Short.MAX_VALUE, ACCESS_ERROR_HANDLER);
     }
 
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(Short[].class);
+    }
+
     @Override
     public int hashCode() {
         return System.identityHashCode(this);
@@ -106,6 +108,16 @@ public final class ShortType extends _ArmyNoInjectionType implements MappingType
     public boolean equals(final Object obj) {
         return obj instanceof ShortType;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(ShortType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

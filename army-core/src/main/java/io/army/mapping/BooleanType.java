@@ -18,7 +18,6 @@ package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
-import io.army.mapping.array.BooleanArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 import io.army.util.ClassUtils;
@@ -26,6 +25,7 @@ import io.army.util.ClassUtils;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Locale;
+import java.util.function.Function;
 
 /// This class is mapping class of {@link Boolean}.
 /// This mapping type can convert below java type:
@@ -41,7 +41,7 @@ import java.util.Locale;
 /// to {@link Boolean},if overflow,throw {@link io.army.ArmyException}
 /// * @since 0.6.0
 /// @see <a href="https://www.postgresql.org/docs/current/catalog-pg-type.html">Postgre pg_type table ,oid : 16</a>
-public final class BooleanType extends _ArmyNoInjectionType implements MappingType.SqlBoolean {
+public final class BooleanType extends _ArmyBuildInCoreType implements MappingType.SqlBoolean {
 
 
     public static BooleanType from(Class<?> fieldType) {
@@ -67,11 +67,6 @@ public final class BooleanType extends _ArmyNoInjectionType implements MappingTy
         return Boolean.class;
     }
 
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return BooleanArrayType.LINEAR;
-    }
 
     @Override
     public DataType map(final ServerMeta meta) throws UnsupportedDialectException {
@@ -101,6 +96,12 @@ public final class BooleanType extends _ArmyNoInjectionType implements MappingTy
     @Override
     public Boolean afterGet(DataType dataType, MappingEnv env, final Object source) {
         return toBoolean(this, dataType, source, ACCESS_ERROR_HANDLER);
+    }
+
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(Boolean[].class);
     }
 
     @Override
@@ -157,6 +158,16 @@ public final class BooleanType extends _ArmyNoInjectionType implements MappingTy
         }
         return value;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(BooleanType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

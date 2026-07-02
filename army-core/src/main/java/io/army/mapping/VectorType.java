@@ -20,14 +20,14 @@ import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.lang.Nullable;
-import io.army.mapping.array.VectorArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.ArmyType;
 import io.army.sqltype.CustomType;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
-import io.army.util.ArrayUtils;
 import io.army.util.BinaryUtils;
+
+import java.util.function.Function;
 
 
 ///
@@ -89,7 +89,7 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return VectorArrayType.from(ArrayUtils.arrayClassOf(float[].class));
+        return ArrayFactoryFuncHolder.FUNCTION.apply(float[].class);
     }
 
 
@@ -252,6 +252,16 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
             throw dataAccessError(type, dataType, source, e);
         }
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(VectorType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

@@ -17,17 +17,18 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.BinaryArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLiteType;
 
+import java.util.function.Function;
+
 /// This class map {@code byte[]} to sql binary type.
 /// If you need to map varbinary ,you can use {@link VarBinaryType} instead of this class.
 /// @see VarBinaryType
-public final class BinaryType extends _ArmyBuildInType implements MappingType.SqlBinary {
+public final class BinaryType extends _ArmyBuildInCoreType implements MappingType.SqlBinary {
 
 
     public static BinaryType from(final Class<?> fieldType) {
@@ -71,7 +72,7 @@ public final class BinaryType extends _ArmyBuildInType implements MappingType.Sq
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return BinaryArrayType.LINEAR;
+        return ArrayFactoryFuncHolder.FUNCTION.apply(byte[].class);
     }
 
 
@@ -100,6 +101,16 @@ public final class BinaryType extends _ArmyBuildInType implements MappingType.Sq
     public boolean equals(final Object obj) {
         return obj instanceof BinaryType;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(BinaryType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

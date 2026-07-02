@@ -17,16 +17,17 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.BlobArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
+
+import java.util.function.Function;
 
 /// 
 /// This class is mapping class of {@code byte[]}.
 /// * @see BinaryType
 /// @see MediumBlobType
 /// @since 0.6.0
-public final class BlobType extends _ArmyBuildInType implements MappingType.SqlBlob {
+public final class BlobType extends _ArmyBuildInCoreType implements MappingType.SqlBlob {
 
 
     public static BlobType from(final Class<?> fieldType) {
@@ -50,7 +51,7 @@ public final class BlobType extends _ArmyBuildInType implements MappingType.SqlB
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return BlobArrayType.LINEAR;
+        return ArrayFactoryFuncHolder.FUNCTION.apply(byte[].class);
     }
 
     @Override
@@ -105,6 +106,16 @@ public final class BlobType extends _ArmyBuildInType implements MappingType.SqlB
     public boolean equals(final Object obj) {
         return obj instanceof BlobType;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(BlobType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

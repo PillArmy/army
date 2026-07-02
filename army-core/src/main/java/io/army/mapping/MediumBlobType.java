@@ -25,7 +25,7 @@ import io.army.sqltype.*;
 /// @see VarBinaryType
 /// @see BlobType
 /// @since 0.6.0
-public final class MediumBlobType extends _ArmyBuildInType implements MappingType.SqlBlob {
+public final class MediumBlobType extends _ArmyBuildInCoreType implements MappingType.SqlBlob {
 
     public static MediumBlobType from(final Class<?> fieldType) {
         if (fieldType != byte[].class) {

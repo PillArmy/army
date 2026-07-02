@@ -17,10 +17,11 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.ByteArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 import io.army.util.ClassUtils;
+
+import java.util.function.Function;
 
 /// 
 /// This class is mapping class of {@link Byte}.
@@ -56,11 +57,6 @@ public final class ByteType extends _ArmyNoInjectionType implements MappingType.
     @Override
     public Class<?> javaType() {
         return Byte.class;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return ByteArrayType.LINEAR;
     }
 
     @Override
@@ -109,6 +105,12 @@ public final class ByteType extends _ArmyNoInjectionType implements MappingType.
         return (byte) IntegerType.toInt(this, dataType, source, Byte.MIN_VALUE, Byte.MAX_VALUE, ACCESS_ERROR_HANDLER);
     }
 
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(Byte[].class);
+    }
+
     @Override
     public int hashCode() {
         return System.identityHashCode(this);
@@ -119,6 +121,15 @@ public final class ByteType extends _ArmyNoInjectionType implements MappingType.
         return obj instanceof ByteType;
     }
 
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(ByteType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

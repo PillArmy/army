@@ -17,11 +17,11 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.YearArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
 import java.time.*;
+import java.util.function.Function;
 
 ///
 /// This class is mapping class of {@link Year}.
@@ -123,7 +123,7 @@ public final class YearType extends _ArmyNoInjectionType implements MappingType.
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return YearArrayType.from(Year[].class);
+        return ArrayFactoryFuncHolder.FUNCTION.apply(Year[].class);
     }
 
 
@@ -170,6 +170,16 @@ public final class YearType extends _ArmyNoInjectionType implements MappingType.
         }
         return value;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(YearType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

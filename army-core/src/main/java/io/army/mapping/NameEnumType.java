@@ -18,7 +18,6 @@ package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
 import io.army.lang.Nullable;
-import io.army.mapping.array.NameEnumArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 import io.army.struct.CodeEnum;
@@ -31,6 +30,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /// Mapping type for Java {@code enum} constants that use {@link Enum#name()} as database value.
@@ -125,9 +125,9 @@ public final class NameEnumType extends _ArmyNoInjectionType implements MappingT
         final String typeName = this.typeName;
         final MappingType instance;
         if (typeName != null && this.enumClass.getAnnotation(DefinedType.class) == null) {
-            instance = NameEnumArrayType.fromParam(ArrayUtils.arrayClassOf(this.enumClass), typeName);
+            instance = ArrayFactoryFuncHolder.PARAM_FUNC.apply(ArrayUtils.arrayClassOf(this.enumClass), typeName);
         } else {
-            instance = NameEnumArrayType.from(ArrayUtils.arrayClassOf(this.enumClass));
+            instance = ArrayFactoryFuncHolder.FUNCTION.apply(ArrayUtils.arrayClassOf(this.enumClass));
         }
         return instance;
     }
@@ -339,6 +339,19 @@ public final class NameEnumType extends _ArmyNoInjectionType implements MappingT
         }
         return value;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        private static final BiFunction<Class<?>, String, MappingType> PARAM_FUNC;
+
+        static {
+            FUNCTION = removeArrayFromFunc(NameEnumType.class);
+            PARAM_FUNC = removeArrayFromParamFunc(NameEnumType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

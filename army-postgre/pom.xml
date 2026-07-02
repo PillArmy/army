@@ -25,6 +25,11 @@
             <artifactId>army-core</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>io.qinarmy</groupId>
+            <artifactId>army-array</artifactId>
+        </dependency>
+
         <!-- below test dependencies-->
 
         <dependency>

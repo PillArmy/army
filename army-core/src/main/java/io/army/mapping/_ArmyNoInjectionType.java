@@ -16,10 +16,10 @@
 
 package io.army.mapping;
 
-public abstract class _ArmyNoInjectionType extends _ArmyBuildInType {
+public abstract class _ArmyNoInjectionType extends _ArmyBuildInCoreType {
 
-
-    protected _ArmyNoInjectionType() {
+    /// package constructor
+    _ArmyNoInjectionType() {
         assertNonString(this);
     }
 

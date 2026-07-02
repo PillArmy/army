@@ -16,9 +16,6 @@
 
 package io.army.mapping;
 
-
-import io.army.sqltype.DataType;
-
 /// Base class for all built-in mapping types.
 public non-sealed abstract class _ArmyBuildInType extends AbstractMappingType {
 
@@ -33,11 +30,6 @@ public non-sealed abstract class _ArmyBuildInType extends AbstractMappingType {
             throw new UnsupportedOperationException(m);
         }
 
-    }
-
-    @Override
-    public <Z> MappingType compatibleFor(DataType dataType, Class<Z> targetType) throws NoMatchMappingException {
-        return super.compatibleFor(dataType, targetType);
     }
 
 

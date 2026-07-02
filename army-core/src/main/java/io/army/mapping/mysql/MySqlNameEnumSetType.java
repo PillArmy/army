@@ -20,7 +20,7 @@ import io.army.dialect.Database;
 import io.army.dialect._Constant;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MultiGenericsMappingType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 
-public final class MySqlNameEnumSetType extends _ArmyNoInjectionType implements MultiGenericsMappingType {
+public final class MySqlNameEnumSetType extends _ArmyBuildInType implements MultiGenericsMappingType {
 
     private static final ConcurrentMap<Class<?>, MySqlNameEnumSetType> INSTANCE_MAP = new ConcurrentHashMap<>();
 

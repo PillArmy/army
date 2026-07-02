@@ -16,7 +16,7 @@
 
 package io.army.mapping;
 
-import io.army.mapping.array.StringArrayType;
+import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 import io.army.struct.CodeEnum;
@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.*;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalAmount;
+import java.util.function.Function;
 
 /// This class map {@link String} to sql varchar .
 /// If you need to map char ,you can use {@link SqlCharType} instead of this class.
@@ -55,7 +56,7 @@ import java.time.temporal.TemporalAmount;
 /// @see TextType
 /// @see MediumTextType
 /// @since 0.6.0
-public final class StringType extends _ArmyBuildInType implements MappingType.SqlString {
+public final class StringType extends _ArmyBuildInCoreType implements MappingType.SqlString {
 
 
     public static StringType from(final Class<?> fieldType) {
@@ -77,8 +78,8 @@ public final class StringType extends _ArmyBuildInType implements MappingType.Sq
     }
 
     @Override
-    public MappingType arrayTypeOfThis() {
-        return StringArrayType.LINEAR;
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(String[].class);
     }
 
     @Override
@@ -183,6 +184,16 @@ public final class StringType extends _ArmyBuildInType implements MappingType.Sq
         }
         return value;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(StringType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

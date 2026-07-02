@@ -21,7 +21,7 @@ import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
@@ -29,7 +29,7 @@ import io.army.sqltype.DataType;
 /// 
 /// This class representing Postgre pg_lsn type {@link MappingType}
 /// * @see <a href="https://www.postgresql.org/docs/15/datatype-pg-lsn.html">pg_lsn</a>
-public final class PgLsnType extends _ArmyNoInjectionType {
+public final class PgLsnType extends _ArmyBuildInType {
 
 
     public static final PgLsnType TEXT = new PgLsnType(String.class);

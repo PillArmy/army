@@ -19,15 +19,15 @@ package io.army.mapping;
 import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
-import io.army.mapping.array.CharacterArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 import io.army.util.ClassUtils;
 
 import java.math.BigDecimal;
 import java.util.BitSet;
+import java.util.function.Function;
 
-public final class CharacterType extends _ArmyBuildInType implements MappingType.SqlString {
+public final class CharacterType extends _ArmyBuildInCoreType implements MappingType.SqlString {
 
 
     public static CharacterType from(final Class<?> javaType) {
@@ -46,11 +46,6 @@ public final class CharacterType extends _ArmyBuildInType implements MappingType
     @Override
     public Class<?> javaType() {
         return Character.class;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return CharacterArrayType.LINEAR;
     }
 
     @Override
@@ -118,6 +113,12 @@ public final class CharacterType extends _ArmyBuildInType implements MappingType
         return toCharacter(this, dataType, source, ACCESS_ERROR_HANDLER);
     }
 
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(Character[].class);
+    }
+
     @Override
     public int hashCode() {
         return System.identityHashCode(this);
@@ -145,6 +146,16 @@ public final class CharacterType extends _ArmyBuildInType implements MappingType
         return value;
 
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(CharacterType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

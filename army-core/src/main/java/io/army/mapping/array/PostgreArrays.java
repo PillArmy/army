@@ -21,6 +21,7 @@ import io.army.dialect._Constant;
 import io.army.function.TextFunction;
 import io.army.function.TextToIntFunc;
 import io.army.lang.Nullable;
+import io.army.mapping.MappingSupport;
 import io.army.mapping.MappingType;
 import io.army.mapping.UnaryGenericsMapping;
 import io.army.mapping.UserMappingType;
@@ -122,7 +123,6 @@ public abstract class PostgreArrays extends ArrayMappings {
 
     /// escape array element
     ///
-    /// @see #decodeElement(String, int, int)
     /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
     public static void encodeElement(final CharSequence element, final StringBuilder builder) {
 
@@ -152,7 +152,7 @@ public abstract class PostgreArrays extends ArrayMappings {
 
     public static String arrayBeforeBind(final Object source, final BiConsumer<Object, StringBuilder> consumer,
                                          final DataType dataType, final MappingType type,
-                                         final ErrorHandler handler) {
+                                         final MappingSupport.ErrorHandler handler) {
 
         throw new UnsupportedOperationException();
     }
@@ -231,13 +231,13 @@ public abstract class PostgreArrays extends ArrayMappings {
 
     @Deprecated
     public static Object arrayAfterGet(MappingType type, DataType dataType, final Object source,
-                                       final boolean nonNull, final TextFunction<?> elementFunc, ErrorHandler errorHandler) {
+                                       final boolean nonNull, final TextFunction<?> elementFunc, MappingSupport.ErrorHandler errorHandler) {
         throw new UnsupportedOperationException();
     }
 
 
     public static StringBuilder byteaArrayToText(final MappingType type, final DataType dataType, final Object source,
-                                                 final StringBuilder builder, final ErrorHandler errorHandler) {
+                                                 final StringBuilder builder, final MappingSupport.ErrorHandler errorHandler) {
         final Class<?> sourceClass = source.getClass();
         final int dimension;
         if (!sourceClass.isArray()
@@ -251,10 +251,10 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    /// @see #byteaArrayToText(MappingType, DataType, Object, StringBuilder, ErrorHandler)
+    /// @see #byteaArrayToText(MappingType, DataType, Object, StringBuilder, MappingSupport.ErrorHandler)
     private static void _byteaArrayToText(final MappingType type, final DataType dataType, final Object source,
                                           final int dimension, final StringBuilder builder,
-                                          final ErrorHandler errorHandler) {
+                                          final MappingSupport.ErrorHandler errorHandler) {
 
 
         final int length;

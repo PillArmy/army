@@ -18,7 +18,6 @@ package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
 import io.army.lang.Nullable;
-import io.army.mapping.array.LabelEnumArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.SQLType;
@@ -30,6 +29,8 @@ import io.army.util.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 ///
 /// This class representing the mapping from {@link LabelEnum} to {@link SQLType}.
@@ -37,7 +38,7 @@ import java.util.Objects;
 /// @see LabelEnum
 /// @see NameEnumType
 /// @see CodeEnumType
-public final class LabelEnumType extends _ArmyBuildInType implements MappingType.SqlEnum {
+public final class LabelEnumType extends _ArmyBuildInCoreType implements MappingType.SqlEnum {
 
     public static LabelEnumType from(final Class<?> javaType) {
         return CLASS_VALUE.get(checkEnumClass(LabelEnumType.class, javaType));
@@ -116,9 +117,9 @@ public final class LabelEnumType extends _ArmyBuildInType implements MappingType
         final String typeName = this.typeName;
         final MappingType instance;
         if (typeName != null && this.enumClass.getAnnotation(DefinedType.class) == null) {
-            instance = LabelEnumArrayType.fromParam(ArrayUtils.arrayClassOf(this.enumClass), typeName);
+            instance = ArrayFactoryFuncHolder.PARAM_FUNC.apply(ArrayUtils.arrayClassOf(this.enumClass), typeName);
         } else {
-            instance = LabelEnumArrayType.from(ArrayUtils.arrayClassOf(this.enumClass));
+            instance = ArrayFactoryFuncHolder.FUNCTION.apply(ArrayUtils.arrayClassOf(this.enumClass));
         }
         return instance;
     }
@@ -193,6 +194,19 @@ public final class LabelEnumType extends _ArmyBuildInType implements MappingType
         }
         return ClassUtils.enumClass(javaType);
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        private static final BiFunction<Class<?>, String, MappingType> PARAM_FUNC;
+
+        static {
+            FUNCTION = _ArmyBuildInCoreType.removeArrayFromFunc(LabelEnumType.class);
+            PARAM_FUNC = _ArmyBuildInCoreType.removeArrayFromParamFunc(LabelEnumType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

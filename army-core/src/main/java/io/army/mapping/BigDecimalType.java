@@ -17,17 +17,17 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.BigDecimalArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.function.Function;
 
-/// 
+///
 /// This class is mapping class of {@link BigDecimal}.
 /// This mapping type can convert below java type:
-/// 
+///
 /// - {@link Byte}
 /// - {@link Short}
 /// - {@link Integer}
@@ -37,8 +37,9 @@ import java.math.BigInteger;
 /// - {@link Float}
 /// - {@link Boolean} true : {@link BigDecimal#ONE} , false: {@link BigDecimal#ZERO}
 /// - {@link String}
-/// 
+///
 /// to {@link BigDecimal},if overflow,throw {@link io.army.ArmyException}
+///
 /// @since 0.6.0
 public final class BigDecimalType extends _ArmyNoInjectionType implements MappingType.SqlDecimal {
 
@@ -70,11 +71,6 @@ public final class BigDecimalType extends _ArmyNoInjectionType implements Mappin
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return BigDecimalArrayType.LINEAR;
-    }
-
-    @Override
     public BigDecimal beforeBind(DataType dataType, MappingEnv env, final Object source) {
         return toBigDecimal(this, dataType, source, PARAM_ERROR_HANDLER);
     }
@@ -83,6 +79,12 @@ public final class BigDecimalType extends _ArmyNoInjectionType implements Mappin
     public BigDecimal afterGet(DataType dataType, MappingEnv env, final Object source) {
         return toBigDecimal(this, dataType, source, ACCESS_ERROR_HANDLER);
     }
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(BigDecimal[].class);
+    }
+
 
     @Override
     public int hashCode() {
@@ -150,6 +152,16 @@ public final class BigDecimalType extends _ArmyNoInjectionType implements Mappin
         }
         return dataType;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(BigDecimalType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

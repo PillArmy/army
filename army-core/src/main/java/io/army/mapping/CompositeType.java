@@ -25,7 +25,6 @@ import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.function.DecodeLiteralFunc;
 import io.army.lang.Nullable;
-import io.army.mapping.array.CompositeArrayType;
 import io.army.meta.CompositeField;
 import io.army.meta.ServerMeta;
 import io.army.pojo.ObjectAccessor;
@@ -41,12 +40,13 @@ import io.army.util.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /// Mapping the pojo annotated by {@link DefinedType} to sql composite type
 ///
 /// @see <a href="https://www.postgresql.org/docs/current/rowtypes.html">Composite Types</a>
-public final class CompositeType extends _ArmyBuildInType implements CompositeMappingType {
+public final class CompositeType extends _ArmyBuildInCoreType implements CompositeMappingType {
 
     public static CompositeType from(final Class<?> javaType) {
         final DefinedType definedType = javaType.getAnnotation(DefinedType.class);
@@ -170,7 +170,7 @@ public final class CompositeType extends _ArmyBuildInType implements CompositeMa
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return CompositeArrayType.from(ArrayUtils.arrayClassOf(this.javaType));
+        return ArrayFactoryFuncHolder.FUNCTION.apply(ArrayUtils.arrayClassOf(this.javaType));
     }
 
     @SuppressWarnings("unused")
@@ -332,6 +332,16 @@ public final class CompositeType extends _ArmyBuildInType implements CompositeMa
         }
 
     } // FieldParser
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(CompositeType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

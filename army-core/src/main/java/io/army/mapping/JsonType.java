@@ -17,7 +17,6 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.JsonArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -30,6 +29,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 
 public class JsonType extends ArmyJsonType implements JsonMappingType {
@@ -98,11 +99,11 @@ public class JsonType extends ArmyJsonType implements JsonMappingType {
     public final MappingType arrayTypeOfThis() throws CriteriaException {
         final MappingType instance;
         if (this instanceof UnaryGenericsMapping ug) {
-            instance = JsonArrayType.fromTypeArg(ArrayUtils.arrayClassOf(this.javaType), ug.genericsType());
+            instance = ArrayFactoryFuncHolder.TYPE_ARG_FUNC.apply(ArrayUtils.arrayClassOf(this.javaType), ug.genericsType());
         } else if (this instanceof DualGenericsMapping dg) {
-            instance = JsonArrayType.fromTypeArgs(ArrayUtils.arrayClassOf(this.javaType), dg.firstGenericsType(), dg.secondGenericsType());
+            instance = ArrayFactoryFuncHolder.TYPE_ARGS_FUNC.apply(ArrayUtils.arrayClassOf(this.javaType), dg.firstGenericsType(), dg.secondGenericsType());
         } else {
-            instance = JsonArrayType.from(ArrayUtils.arrayClassOf(this.javaType));
+            instance = ArrayFactoryFuncHolder.FUNCTION.apply(ArrayUtils.arrayClassOf(this.javaType));
         }
         return instance;
     }
@@ -187,6 +188,22 @@ public class JsonType extends ArmyJsonType implements JsonMappingType {
 
 
     } // MapJsonType
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        private static final BiFunction<Class<?>, Class<?>, MappingType> TYPE_ARG_FUNC;
+
+        private static final TeClassFunc TYPE_ARGS_FUNC;
+
+        static {
+            FUNCTION = removeArrayFromFunc(JsonType.class);
+            TYPE_ARG_FUNC = removeArrayFromTypeArgFunc(JsonType.class);
+            TYPE_ARGS_FUNC = removeArrayFromTypeArgsFunc(JsonType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

@@ -21,7 +21,7 @@ import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
-import io.army.mapping._ArmyNoInjectionType;
+import io.army.mapping._ArmyBuildInType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
@@ -29,7 +29,7 @@ import io.army.sqltype.DataType;
 /// 
 /// This class representing Postgre cidr type {@link MappingType}
 /// @see <a href="https://www.postgresql.org/docs/current/datatype-net-types.html#DATATYPE-CIDR">cidr</a>
-public final class PgCidrType extends _ArmyNoInjectionType {
+public final class PgCidrType extends _ArmyBuildInType {
 
 
     public static final PgCidrType INSTANCE = new PgCidrType();

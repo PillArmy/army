@@ -29,9 +29,10 @@ import java.util.function.Predicate;
 ///
 /// - {@link JsonType}
 /// - {@link JsonbType}
+/// - {@link PreferredJsonbType}
 ///
 /// @since 0.6.0
-abstract class ArmyJsonType extends _ArmyBuildInType {
+abstract class ArmyJsonType extends _ArmyBuildInCoreType {
 
     final Class<?> javaType;
 

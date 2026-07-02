@@ -17,15 +17,16 @@
 package io.army.mapping;
 
 import io.army.criteria.CriteriaException;
-import io.army.mapping.array.SqlCharArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
+
+import java.util.function.Function;
 
 /// This class map {@link String} to sql char .
 /// If you need to map varchar ,you can use {@link StringType} instead of this class.
 ///
 /// @since 0.6.0
-public final class SqlCharType extends _ArmyBuildInType implements MappingType.SqlString {
+public final class SqlCharType extends _ArmyBuildInCoreType implements MappingType.SqlString {
 
     public static SqlCharType from(Class<?> javaType) {
         if (javaType != String.class) {
@@ -43,11 +44,6 @@ public final class SqlCharType extends _ArmyBuildInType implements MappingType.S
     @Override
     public Class<?> javaType() {
         return String.class;
-    }
-
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return SqlCharArrayType.LINEAR;
     }
 
     @Override
@@ -88,6 +84,21 @@ public final class SqlCharType extends _ArmyBuildInType implements MappingType.S
     public String afterGet(DataType dataType, MappingEnv env, Object source) {
         return StringType.toString(this, dataType, source, ACCESS_ERROR_HANDLER);
     }
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(String[].class);
+    }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(SqlCharType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }

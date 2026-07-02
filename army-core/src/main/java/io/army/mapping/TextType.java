@@ -17,7 +17,6 @@
 package io.army.mapping;
 
 import io.army.dialect.UnsupportedDialectException;
-import io.army.mapping.array.TextArrayType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
@@ -27,6 +26,7 @@ import io.army.struct.CodeEnum;
 import io.army.struct.LabelEnum;
 
 import java.time.*;
+import java.util.function.Function;
 
 
 /// 
@@ -73,7 +73,7 @@ public final class TextType extends ArmyTextType {
 
     @Override
     public MappingType arrayTypeOfThis() {
-        return TextArrayType.LINEAR;
+        return ArrayFactoryFuncHolder.FUNCTION.apply(String[].class);
     }
 
 
@@ -109,6 +109,16 @@ public final class TextType extends ArmyTextType {
         }
         return dataType;
     }
+
+    private static class ArrayFactoryFuncHolder {
+
+        private static final Function<Class<?>, MappingType> FUNCTION;
+
+        static {
+            FUNCTION = removeArrayFromFunc(TextType.class);
+        }
+
+    } // ArrayFactoryFuncHolder
 
 
 }
