@@ -28,6 +28,7 @@ import io.army.meta.SingleTableMeta;
 import io.army.meta.TableMeta;
 import io.army.modelgen._MetaBridge;
 import io.army.session.SessionSpec;
+import io.army.session.Visible;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 

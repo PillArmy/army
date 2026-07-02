@@ -18,8 +18,8 @@ package io.army.criteria.postgre.statement;
 
 import io.army.criteria.CriteriaUnitTests;
 import io.army.criteria.PrimaryStatement;
-import io.army.criteria.Visible;
 import io.army.dialect.PostgreDialect;
+import io.army.session.Visible;
 import org.slf4j.Logger;
 
 abstract class PostgreUnitTests extends CriteriaUnitTests {

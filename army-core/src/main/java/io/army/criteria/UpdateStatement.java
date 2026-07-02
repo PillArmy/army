@@ -38,10 +38,6 @@ import java.util.function.Supplier;
 /// @since 0.6.0
 public interface UpdateStatement extends NarrowDmlStatement {
 
-    @Deprecated
-    interface _UpdateSpec extends DmlStatement._DmlUpdateSpec<UpdateStatement> {
-
-    }
 
 
     interface _ItemPairBuilder {
@@ -49,6 +45,7 @@ public interface UpdateStatement extends NarrowDmlStatement {
     }
 
     interface _DynamicSetClause<B extends _ItemPairBuilder, SR> {
+
         SR sets(Consumer<B> consumer);
 
     }

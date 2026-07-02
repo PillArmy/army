@@ -29,6 +29,7 @@ import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.mapping.optional.JsonPathType;
 import io.army.meta.ChildTableMeta;
+import io.army.session.Visible;
 import io.army.sqltype.MySQLType;
 import io.army.stmt.SimpleStmt;
 import io.army.stmt.SingleParam;

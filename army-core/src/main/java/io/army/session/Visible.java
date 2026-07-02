@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package io.army.criteria;
-
-import io.army.util._Exceptions;
+package io.army.session;
 
 import io.army.lang.Nullable;
+import io.army.util._Exceptions;
 
 public enum Visible {
 

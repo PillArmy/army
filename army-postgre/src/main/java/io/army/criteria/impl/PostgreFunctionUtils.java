@@ -31,6 +31,7 @@ import io.army.mapping.TextType;
 import io.army.mapping.XmlType;
 import io.army.meta.TableMeta;
 import io.army.meta.TypeMeta;
+import io.army.session.Visible;
 import io.army.stmt.SimpleStmt;
 import io.army.util._Collections;
 import io.army.util._Exceptions;

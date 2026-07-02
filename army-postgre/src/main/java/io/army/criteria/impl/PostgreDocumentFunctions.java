@@ -25,6 +25,7 @@ import io.army.mapping.array.XmlArrayType;
 import io.army.mapping.optional.JsonPathType;
 import io.army.mapping.postgre.PgTsQueryType;
 import io.army.meta.TableMeta;
+import io.army.session.Visible;
 import io.army.util.ArrayUtils;
 import io.army.util._Collections;
 

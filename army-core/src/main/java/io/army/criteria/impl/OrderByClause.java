@@ -21,6 +21,7 @@ import io.army.criteria.impl.inner.*;
 import io.army.dialect.Dialect;
 import io.army.dialect.DialectParser;
 import io.army.dialect._MockDialects;
+import io.army.session.Visible;
 import io.army.stmt.Stmt;
 import io.army.util._Collections;
 import io.army.util._Exceptions;

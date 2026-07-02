@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.army.criteria;
 
 ///
-/// This interface is base interface of below:
+/// This interface representing one or more row.
+/// This interface is base interface of :
 ///
-/// - {@link TypedField}
-/// - {@link DerivedField}
+/// - {@link RowExpression}
+/// - {@link SubQuery}
 ///
-/// @since 0.6.0
-public interface SqlField extends NamedExpression, UpdatableExpression {
-
-    String fieldName();
+public interface SQLColumnList extends RightOperand {
 
 
 }

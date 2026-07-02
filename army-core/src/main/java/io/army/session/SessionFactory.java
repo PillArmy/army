@@ -18,7 +18,6 @@ package io.army.session;
 
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
-import io.army.criteria.Visible;
 import io.army.dialect.Database;
 import io.army.env.AllowMode;
 import io.army.env.ArmyEnvironment;

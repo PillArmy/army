@@ -29,6 +29,7 @@ import io.army.meta.ChildTableMeta;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.ServerMeta;
 import io.army.modelgen._MetaBridge;
+import io.army.session.Visible;
 import io.army.sqltype.DataType;
 import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;

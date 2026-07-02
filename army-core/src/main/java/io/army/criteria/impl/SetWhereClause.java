@@ -20,7 +20,6 @@ import io.army.criteria.*;
 import io.army.criteria.impl.inner._DomainUpdate;
 import io.army.criteria.impl.inner._ItemPair;
 import io.army.criteria.impl.inner._Statement;
-import io.army.dialect.Dialect;
 import io.army.lang.Nullable;
 import io.army.meta.ChildTableMeta;
 import io.army.meta.TableMeta;
@@ -75,7 +74,7 @@ abstract class SetWhereClause<F extends TableField, SR, WR, WA, OR, OD, LR, LO, 
 
     @Override
     public final <E> SR set(F field, BiFunction<F, Expression, AssignmentItem> fieldOperator,
-                            BiFunction<F, E, Expression> valueOperator, E value) {
+                            BiFunction<F, E, Expression> valueOperator, @Nullable E value) {
         return this.onAddAssignmentItemPair(field, fieldOperator.apply(field, valueOperator.apply(field, value)));
     }
 
@@ -226,7 +225,7 @@ abstract class SetWhereClause<F extends TableField, SR, WR, WA, OR, OD, LR, LO, 
 
     final List<_ItemPair> endUpdateSetClause() {
         List<_ItemPair> itemPairList = this.itemPairList;
-        if (itemPairList == null || itemPairList.size() == 0) {
+        if (itemPairList == null || itemPairList.isEmpty()) {
             if (!(this instanceof _DomainUpdate) || this.isNoChildItemPair()) {
                 throw ContextStack.criteriaError(this.context, _Exceptions::setClauseNotExists);
             }
@@ -283,7 +282,7 @@ abstract class SetWhereClause<F extends TableField, SR, WR, WA, OR, OD, LR, LO, 
         if (item == null) {
             throw ContextStack.nullPointer(this.context);
         } else if (item instanceof Expression) {
-            pair = SQLs._itemPair(field, null, (Expression) item);
+            pair = SQLs._itemPair(field, null, item);
         } else if (item instanceof ItemPair) {
             pair = (ItemPair) item;
         } else {
@@ -299,10 +298,6 @@ abstract class SetWhereClause<F extends TableField, SR, WR, WA, OR, OD, LR, LO, 
             super(context, updateTable, tableAlias);
         }
 
-        @Override
-        final Dialect statementDialect() {
-            throw ContextStack.clearStackAndCastCriteriaApi();
-        }
 
     }//SetWhereClauseClause
 

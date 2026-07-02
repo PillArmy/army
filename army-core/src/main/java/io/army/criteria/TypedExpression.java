@@ -32,6 +32,7 @@ import static io.army.dialect.Database.PostgreSQL;
 /// 
 /// - {@link TypedField}
 /// - {@link ValueExpression}
+/// - {@link UpdatableExpression}
 /// - {@link IPredicate}
 /// - {@link JsonbExpression}
 /// - {@link JsonExpression}

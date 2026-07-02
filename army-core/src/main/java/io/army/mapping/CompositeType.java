@@ -61,7 +61,7 @@ public final class CompositeType extends _ArmyBuildInType implements CompositeMa
     }
 
 
-    public static final RecordDeserializer PG_DESERIALIZER = RecordDeserializer.builder()
+    private static final RecordDeserializer PG_DESERIALIZER = RecordDeserializer.builder()
             .dataTypeLabel("PostgreSQL Composite")
             .leftBoundary(_Constant.LEFT_PAREN)
             .delim(_Constant.COMMA)

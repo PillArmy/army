@@ -25,6 +25,7 @@ import io.army.modelgen._MetaBridge;
 import io.army.option.Option;
 import io.army.session.Session;
 import io.army.session.SessionSpec;
+import io.army.session.Visible;
 import io.army.stmt.MultiParam;
 import io.army.stmt.SingleParam;
 import io.army.stmt.StmtParams;

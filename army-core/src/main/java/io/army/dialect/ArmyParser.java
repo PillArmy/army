@@ -40,6 +40,7 @@ import io.army.schema.SchemaResult;
 import io.army.schema.TableResult;
 import io.army.schema.TypeResult;
 import io.army.session.SessionSpec;
+import io.army.session.Visible;
 import io.army.sqltype.DataType;
 import io.army.stmt.*;
 import io.army.util.*;

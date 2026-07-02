@@ -19,7 +19,6 @@ package io.army.criteria.impl;
 import io.army.annotation.GeneratorType;
 import io.army.criteria.QualifiedField;
 import io.army.criteria.TableField;
-import io.army.criteria.Visible;
 import io.army.criteria.impl.inner._Expression;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
@@ -29,6 +28,7 @@ import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
 import io.army.meta.TypeMeta;
 import io.army.modelgen._MetaBridge;
+import io.army.session.Visible;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 

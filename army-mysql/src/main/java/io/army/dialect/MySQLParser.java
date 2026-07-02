@@ -16,7 +16,10 @@
 
 package io.army.dialect;
 
-import io.army.criteria.*;
+import io.army.criteria.CriteriaException;
+import io.army.criteria.SQLElement;
+import io.army.criteria.SQLToken;
+import io.army.criteria.UpdateStatement;
 import io.army.criteria.impl._SQLConsultant;
 import io.army.criteria.impl._UnionType;
 import io.army.criteria.impl.inner.*;
@@ -28,6 +31,7 @@ import io.army.meta.ChildTableMeta;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.ServerMeta;
 import io.army.modelgen._MetaBridge;
+import io.army.session.Visible;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.util._Exceptions;

@@ -1,6 +1,6 @@
 package io.army.example.stock.anonotation;
 
-import io.army.criteria.Visible;
+import io.army.session.Visible;
 
 import java.lang.annotation.*;
 

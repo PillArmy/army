@@ -17,10 +17,10 @@
 package io.army.criteria.standard.unit;
 
 import io.army.criteria.PrimaryStatement;
-import io.army.criteria.Visible;
 import io.army.dialect.Database;
 import io.army.dialect.Dialect;
 import io.army.example.bank.domain.user.ChinaProvince;
+import io.army.session.Visible;
 import io.army.util._Collections;
 import org.slf4j.Logger;
 

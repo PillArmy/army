@@ -17,10 +17,10 @@
 package io.army.criteria;
 
 
-/// 
+///
 /// This interface representing SQL sub query.
 /// * @since 0.6.0
-public interface SubQuery extends DerivedTable, Query, SubStatement, SQLValueList, RowElement {
+public interface SubQuery extends DerivedTable, Query, SubStatement, SQLValueList, SQLColumnList, RowElement {
 
 
 }

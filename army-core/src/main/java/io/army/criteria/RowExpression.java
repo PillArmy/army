@@ -27,7 +27,7 @@ import io.army.criteria.impl.SQLs;
 /// @see <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ROW-CONSTRUCTORS">Row Constructors</a>
 /// @see <a href="https://www.postgresql.org/docs/current/functions-comparisons.html#ROW-WISE-COMPARISON">Row Constructor Comparison</a>
 /// @since 0.6.0
-public interface RowExpression extends Expression, SQLValueList {
+public interface RowExpression extends Expression, SQLValueList, SQLColumnList {
 
 
     /// Get column size , if return negative then representing unknown,

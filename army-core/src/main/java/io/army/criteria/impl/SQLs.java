@@ -946,7 +946,7 @@ public abstract class SQLs extends SQLSyntax {
         }
     }//ArmyItemPair
 
-    /// @see #_itemPair(SqlField, AssignOperator, Expression)
+    /// @see #_itemPair(SqlField, AssignOperator, Object)
     static class FieldItemPair extends ArmyItemPair implements _ItemPair._FieldItemPair {
 
         final SqlField field;

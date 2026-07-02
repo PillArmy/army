@@ -19,7 +19,6 @@ package io.army.dialect;
 
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
-import io.army.criteria.Visible;
 import io.army.env.ArmyEnvironment;
 import io.army.env.StandardEnvironment;
 import io.army.generator.FieldGenerator;
@@ -30,6 +29,7 @@ import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
 import io.army.option.Option;
 import io.army.session.SessionSpec;
+import io.army.session.Visible;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 

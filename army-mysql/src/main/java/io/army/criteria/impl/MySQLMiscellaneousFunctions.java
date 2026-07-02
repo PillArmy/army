@@ -20,6 +20,7 @@ package io.army.criteria.impl;
 import io.army.criteria.*;
 import io.army.mapping.*;
 import io.army.meta.FieldMeta;
+import io.army.session.Visible;
 
 import java.util.ArrayList;
 import java.util.List;

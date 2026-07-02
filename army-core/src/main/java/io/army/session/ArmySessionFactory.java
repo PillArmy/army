@@ -19,7 +19,6 @@ package io.army.session;
 import io.army.ArmyException;
 import io.army.codec.JsonCodec;
 import io.army.codec.XmlCodec;
-import io.army.criteria.Visible;
 import io.army.dialect.Database;
 import io.army.dialect.DialectParser;
 import io.army.env.AllowMode;

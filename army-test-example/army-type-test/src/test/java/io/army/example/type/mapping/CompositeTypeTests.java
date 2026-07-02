@@ -31,9 +31,9 @@ import static org.springframework.boot.test.context.SpringBootTest.UseMainMethod
 @SpringBootTest(useMainMethod = ALWAYS)
 @Transactional
 @Rollback
-public class DefinedTypeMappingTests {
+public class CompositeTypeTests {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefinedTypeMappingTests.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CompositeTypeTests.class);
 
     @Test
     public void productInfo(@Autowired MappingEnv env, @CurrentSession SyncSession session, @NewPostgreTypesId Long id) {

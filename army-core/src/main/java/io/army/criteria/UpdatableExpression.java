@@ -16,16 +16,8 @@
 
 package io.army.criteria;
 
-///
-/// This interface is base interface of below:
-///
-/// - {@link TypedField}
-/// - {@link DerivedField}
-///
-/// @since 0.6.0
-public interface SqlField extends NamedExpression, UpdatableExpression {
-
-    String fieldName();
+/// This interface representing SET clause Left Hand Side.
+public interface UpdatableExpression extends TypedExpression {
 
 
 }

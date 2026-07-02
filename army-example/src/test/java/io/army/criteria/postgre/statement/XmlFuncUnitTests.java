@@ -18,13 +18,13 @@ package io.army.criteria.postgre.statement;
 
 import io.army.criteria.Expression;
 import io.army.criteria.Select;
-import io.army.criteria.Visible;
 import io.army.criteria.impl.Postgres;
 import io.army.criteria.impl.SQLs;
 import io.army.example.bank.domain.user.ChinaRegion_;
 import io.army.mapping.*;
 import io.army.mapping.array.TextArrayType;
 import io.army.meta.TableMeta;
+import io.army.session.Visible;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;

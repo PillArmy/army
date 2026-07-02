@@ -17,11 +17,15 @@
 package io.army.criteria.mysql.unit;
 
 import io.army.annotation.GeneratorType;
-import io.army.criteria.*;
+import io.army.criteria.CriteriaException;
+import io.army.criteria.ErrorChildInsertException;
+import io.army.criteria.Insert;
+import io.army.criteria.LiteralMode;
 import io.army.criteria.dialect.Hint;
 import io.army.criteria.impl.MySQLs;
 import io.army.criteria.impl.SQLs;
 import io.army.example.bank.domain.user.*;
+import io.army.session.Visible;
 import io.army.util._Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

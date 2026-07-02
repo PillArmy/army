@@ -24,6 +24,7 @@ import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.meta.TableMeta;
 import io.army.meta.TypeMeta;
+import io.army.session.Visible;
 import io.army.stmt.Stmt;
 import io.army.util.ArrayUtils;
 import io.army.util._Collections;
@@ -31,7 +32,6 @@ import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;

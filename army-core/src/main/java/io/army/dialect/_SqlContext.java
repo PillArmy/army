@@ -19,10 +19,10 @@ package io.army.dialect;
 import io.army.criteria.NamedLiteral;
 import io.army.criteria.SQLParam;
 import io.army.criteria.SubQuery;
-import io.army.criteria.Visible;
 import io.army.lang.Nullable;
 import io.army.meta.TypeMeta;
 import io.army.session.SessionSpec;
+import io.army.session.Visible;
 
 /// 
 /// This interface representing sql context,that is used by {@link  DialectParser} and the implementation of criteria api,

@@ -26,6 +26,7 @@ import io.army.meta.FieldMeta;
 import io.army.meta.ParentTableMeta;
 import io.army.meta.TableMeta;
 import io.army.modelgen._MetaBridge;
+import io.army.session.Visible;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
 

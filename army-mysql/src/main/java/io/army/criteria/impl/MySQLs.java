@@ -25,6 +25,7 @@ import io.army.mapping.LocalTimeType;
 import io.army.mapping.MappingType;
 import io.army.session.Session;
 import io.army.session.StmtOption;
+import io.army.session.Visible;
 
 public abstract class MySQLs extends MySQLSyntax {
 

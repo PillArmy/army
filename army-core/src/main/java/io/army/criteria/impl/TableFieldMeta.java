@@ -20,7 +20,6 @@ import io.army.ArmyException;
 import io.army.annotation.*;
 import io.army.criteria.Expression;
 import io.army.criteria.TableField;
-import io.army.criteria.Visible;
 import io.army.criteria.impl.inner._Selection;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
@@ -31,6 +30,7 @@ import io.army.lang.Nullable;
 import io.army.mapping.*;
 import io.army.meta.*;
 import io.army.modelgen._MetaBridge;
+import io.army.session.Visible;
 import io.army.util._Assert;
 import io.army.util._Exceptions;
 

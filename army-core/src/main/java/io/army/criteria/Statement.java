@@ -27,6 +27,7 @@ import io.army.function.TeFunction;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 import io.army.meta.TableMeta;
+import io.army.session.Visible;
 import io.army.stmt.Stmt;
 
 import java.util.List;

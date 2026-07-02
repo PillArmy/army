@@ -24,6 +24,7 @@ import io.army.example.bank.domain.account.BankAccount_;
 import io.army.example.bank.domain.user.*;
 import io.army.example.common.Criteria;
 import io.army.example.pill.domain.PillUser_;
+import io.army.session.Visible;
 import io.army.util._Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
