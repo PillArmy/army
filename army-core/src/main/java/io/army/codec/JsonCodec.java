@@ -34,4 +34,8 @@ public interface JsonCodec {
     @Nullable
     <K, V> Map<K, V> decodeMap(String json, Class<K> keyClass, Class<V> valueClass) throws CodecException;
 
+    @Nullable
+    <K, V> List<Map<K, V>> decodeMapList(String json, Class<K> keyClass, Class<V> valueClass) throws CodecException;
+
+
 }

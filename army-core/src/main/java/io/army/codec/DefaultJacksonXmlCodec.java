@@ -79,5 +79,17 @@ public class DefaultJacksonXmlCodec implements XmlCodec {
         }
     }
 
+    @Override
+    public <K, V> List<Map<K, V>> decodeMapList(String xml, Class<K> keyClass, Class<V> valueClass) throws CodecException {
+        try {
+            final MapType mapType;
+            mapType = this.xmlMapper.getTypeFactory().constructMapType(HashMap.class, keyClass, valueClass);
 
+            final CollectionType javaType;
+            javaType = this.xmlMapper.getTypeFactory().constructCollectionType(ArrayList.class, mapType);
+            return this.xmlMapper.readValue(xml, javaType);
+        } catch (JacksonException e) {
+            throw new CodecException(e);
+        }
+    }
 }

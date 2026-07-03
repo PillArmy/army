@@ -53,4 +53,8 @@ public final class FastJsonCodec implements JsonCodec {
         return JSON.parseObject(json, keyClass, valueClass);
     }
 
+    @Override
+    public <K, V> List<Map<K, V>> decodeMapList(String json, Class<K> keyClass, Class<V> valueClass) throws CodecException {
+        throw new UnsupportedOperationException();
+    }
 }

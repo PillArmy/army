@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,8 +58,9 @@ public final class DefaultGsonCodec implements JsonCodec {
 
     @Override
     public <T> List<T> decodeList(String json, Class<T> elementClass) throws CodecException {
-        final var listType = TypeToken.getParameterized(ArrayList.class, elementClass).getType();
+
         try {
+            final var listType = TypeToken.getParameterized(ArrayList.class, elementClass).getType();
             return this.gson.fromJson(json, listType);
         } catch (JsonSyntaxException e) {
             throw new CodecException(e);
@@ -67,12 +69,26 @@ public final class DefaultGsonCodec implements JsonCodec {
 
     @Override
     public <K, V> Map<K, V> decodeMap(String json, Class<K> keyClass, Class<V> valueClass) throws CodecException {
-        final var listType = TypeToken.getParameterized(HashMap.class, keyClass, valueClass).getType();
+
         try {
+            final var listType = TypeToken.getParameterized(HashMap.class, keyClass, valueClass).getType();
+
             return this.gson.fromJson(json, listType);
         } catch (JsonSyntaxException e) {
             throw new CodecException(e);
         }
     }
+
+    @Override
+    public <K, V> List<Map<K, V>> decodeMapList(String json, Class<K> keyClass, Class<V> valueClass) throws CodecException {
+        try {
+            Type mapType = TypeToken.getParameterized(Map.class, keyClass, valueClass).getType();
+            Type listMapType = TypeToken.getParameterized(List.class, mapType).getType();
+            return gson.fromJson(json, listMapType);
+        } catch (Exception e) {
+            throw new CodecException(e);
+        }
+    }
+
 
 }

@@ -80,4 +80,18 @@ public final class DefaultJacksonCodec implements JsonCodec {
         }
     }
 
+    @Override
+    public <K, V> List<Map<K, V>> decodeMapList(String json, Class<K> keyClass, Class<V> valueClass) throws CodecException {
+        try {
+            final MapType mapType;
+            mapType = this.objectMapper.getTypeFactory().constructMapType(HashMap.class, keyClass, valueClass);
+
+            final CollectionType javaType;
+            javaType = this.objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, mapType);
+            return this.objectMapper.readValue(json, javaType);
+        } catch (JsonProcessingException e) {
+            throw new CodecException(e);
+        }
+    }
+
 }

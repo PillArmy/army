@@ -35,5 +35,7 @@ public interface XmlCodec {
     @Nullable
     <K, V> Map<K, V> decodeMap(String xml, Class<K> keyClass, Class<V> valueClass) throws CodecException;
 
+    @Nullable
+    <K, V> List<Map<K, V>> decodeMapList(String xml, Class<K> keyClass, Class<V> valueClass) throws CodecException;
 
 }
