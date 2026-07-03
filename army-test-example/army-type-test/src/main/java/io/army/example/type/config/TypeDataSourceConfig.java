@@ -4,10 +4,10 @@ import io.army.generator.FieldGeneratorFactory;
 import io.army.generator.StandaloneFieldGeneratorFactory;
 import io.army.session.SyncSessionContext;
 import io.army.session.SyncSessionFactory;
-import io.army.spring.DefaultArmyTransactionTemplate;
-import io.army.spring.TransactionTemplate;
 import io.army.spring.sync.ArmySyncLocalTransactionManager;
 import io.army.spring.sync.ArmySyncSessionFactoryBean;
+import io.army.spring.sync.DefaultArmyTransactionTemplate;
+import io.army.spring.sync.TransactionTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

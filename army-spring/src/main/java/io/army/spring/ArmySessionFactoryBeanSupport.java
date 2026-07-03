@@ -43,7 +43,7 @@ import java.util.function.Function;
 /// This class is base class of following :
 /// 
 /// - {@link io.army.spring.sync.ArmySyncSessionFactoryBean}
-/// - {@link io.army.spring.reactive.ArmyReactiveSessionFactoryBean}
+/// - {@code  io.army.spring.reactive.ArmyReactiveSessionFactoryBean}
 /// 
 /// @since 0.6.0
 public abstract class ArmySessionFactoryBeanSupport implements InitializingBean,

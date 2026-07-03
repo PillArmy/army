@@ -83,8 +83,8 @@ abstract class Expressions {
             throw ContextStack.clearStackAndNullPointer("right operand couldn't be absent.");
         } else if (right instanceof Expression) {
             rightExp = (Expression) right;
-        } else if (left instanceof TypedExpression) {
-            rightExp = wrapValue((TypedExpression) left, right);
+        } else if (left instanceof TypedField) {
+            rightExp = wrapValue((TypedField) left, right);
         } else if (right == null) {
             throw ContextStack.clearStackAndNullPointer("right operand must non-null");
         } else {

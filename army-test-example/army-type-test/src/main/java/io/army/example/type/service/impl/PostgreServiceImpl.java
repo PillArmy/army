@@ -3,7 +3,7 @@ package io.army.example.type.service.impl;
 import io.army.example.type.dao.PostgreDao;
 import io.army.example.type.dao.TypeBaseDao;
 import io.army.example.type.service.PostgreService;
-import io.army.spring.TransactionTemplate;
+import io.army.spring.sync.TransactionTemplate;
 import org.springframework.stereotype.Service;
 
 @Service("postgreService")

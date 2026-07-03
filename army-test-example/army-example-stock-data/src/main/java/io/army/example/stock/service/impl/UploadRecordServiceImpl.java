@@ -3,7 +3,7 @@ package io.army.example.stock.service.impl;
 import io.army.example.stock.dao.StockBaseDao;
 import io.army.example.stock.dao.UploadRecordDao;
 import io.army.example.stock.service.UploadRecordService;
-import io.army.spring.TransactionTemplate;
+import io.army.spring.sync.TransactionTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 

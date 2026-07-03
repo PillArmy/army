@@ -17,7 +17,6 @@
 package io.army.spring.sync;
 
 import io.army.dao.SyncBaseDao;
-import io.army.spring.TransactionTemplate;
 import org.jspecify.annotations.Nullable;
 import org.springframework.transaction.annotation.Isolation;
 

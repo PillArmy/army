@@ -4,7 +4,7 @@ import io.army.example.stock.dao.StockBaseDao;
 import io.army.example.stock.dao.StockChatConversationDao;
 import io.army.example.stock.domain.StockChatConversation;
 import io.army.example.stock.service.StockChatConversationService;
-import io.army.spring.TransactionTemplate;
+import io.army.spring.sync.TransactionTemplate;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;

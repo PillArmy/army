@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.army.spring;
+package io.army.spring.sync;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.transaction.TransactionDefinition;

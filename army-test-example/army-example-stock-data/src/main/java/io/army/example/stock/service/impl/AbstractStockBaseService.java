@@ -2,8 +2,8 @@ package io.army.example.stock.service.impl;
 
 import io.army.example.stock.dao.StockBaseDao;
 import io.army.example.stock.service.StockBaseService;
-import io.army.spring.TransactionTemplate;
 import io.army.spring.sync.ArmySyncBaseService;
+import io.army.spring.sync.TransactionTemplate;
 
 
 /// Abstract base service for the stock module, extending `ArmySyncBaseService`

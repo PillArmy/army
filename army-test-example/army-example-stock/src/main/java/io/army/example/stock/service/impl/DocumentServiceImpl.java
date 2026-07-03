@@ -8,7 +8,7 @@ import io.army.example.stock.service.DocumentService;
 import io.army.example.stock.utils.CollectionUtils;
 import io.army.example.stock.utils.FileUtils;
 import io.army.generator.snowflake.Snowflake8s;
-import io.army.spring.TransactionTemplate;
+import io.army.spring.sync.TransactionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
