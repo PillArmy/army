@@ -15,6 +15,8 @@
  */
 package io.army.mapping;
 
+import io.army.lang.Nullable;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -61,21 +63,60 @@ public abstract class _ArmyBuildInCoreType extends _ArmyBuildInType {
 
 
     protected static Function<Class<?>, MappingType> removeArrayFromFunc(Class<? extends MappingType> javaType) {
-        return doRemoveFunc(javaType, fromMap, "from");
+        Function<Class<?>, MappingType> function;
+        function = doRemoveFunc(javaType, fromMap, "from");
+        if (function == null) {
+            function = _ArmyBuildInCoreType::nullFunc;
+        }
+        return function;
     }
 
     protected static BiFunction<Class<?>, String, MappingType> removeArrayFromParamFunc(Class<? extends MappingType> javaType) {
-        return doRemoveFunc(javaType, fromParamFuncMap, "fromParam");
+        BiFunction<Class<?>, String, MappingType> function;
+        function = doRemoveFunc(javaType, fromParamFuncMap, "fromParam");
+        if (function == null) {
+            function = _ArmyBuildInCoreType::nullParamFunc;
+        }
+        return function;
     }
 
     protected static BiFunction<Class<?>, Class<?>, MappingType> removeArrayFromTypeArgFunc(Class<? extends MappingType> javaType) {
-        return doRemoveFunc(javaType, fromTypeArgFuncMap, "fromTypeArg");
+        BiFunction<Class<?>, Class<?>, MappingType> function;
+        function = doRemoveFunc(javaType, fromTypeArgFuncMap, "fromTypeArg");
+        if (function == null) {
+            function = _ArmyBuildInCoreType::nullBiFunc;
+        }
+        return function;
     }
 
     protected static TeClassFunc removeArrayFromTypeArgsFunc(Class<? extends MappingType> javaType) {
-        return doRemoveFunc(javaType, fromTypeArgsFuncMap, "fromTypeArgs");
+        TeClassFunc function;
+        function = doRemoveFunc(javaType, fromTypeArgsFuncMap, "fromTypeArgs");
+        if (function == null) {
+            function = _ArmyBuildInCoreType::nullTeFunc;
+        }
+        return function;
     }
 
+
+    private static MappingType nullFunc(Class<?> javaType) {
+        throw notFoundArrayModuleError();
+    }
+
+    private static MappingType nullParamFunc(Class<?> javaType, String param) {
+        throw notFoundArrayModuleError();
+    }
+
+    private static MappingType nullBiFunc(Class<?> javaType, Class<?> typeArg) {
+        throw notFoundArrayModuleError();
+    }
+
+    private static MappingType nullTeFunc(Class<?> javaType, Class<?> keyClass, Class<?> valueClass) {
+        throw notFoundArrayModuleError();
+    }
+
+
+    @Nullable
     private static <T> T doRemoveFunc(Class<?> javaType, Map<Class<?>, T> map, String methodName) {
 
         final String simpleName;
@@ -92,19 +133,23 @@ public abstract class _ArmyBuildInCoreType extends _ArmyBuildInType {
         try {
             clazz = Class.forName(className);
         } catch (ClassNotFoundException e) {
-            String m = String.format("army-array module not in classpath,couldn't load %s", className);
-            throw new RuntimeException(m, e);
+            return null;
         }
-
 
         final T function;
         function = map.remove(clazz);
         if (function == null) {
             String m = String.format("bug: not found static factory '%s' method of %s for %s", methodName, className, javaType.getName());
-            throw new IllegalArgumentException(m);
+            throw new IllegalStateException(m);
         }
         return function;
     }
+
+
+    private static IllegalStateException notFoundArrayModuleError() {
+        return new IllegalStateException("army-array module not in classpath,couldn't load core ArrayType");
+    }
+
 
     protected interface TeClassFunc {
 

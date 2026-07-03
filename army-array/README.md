@@ -9,7 +9,6 @@ This module extends `army-core` by adding support for array data types, enabling
 
 - Single-dimensional arrays (e.g., `String[]`)
 - Multi-dimensional arrays (e.g., `String[][]`, `String[][][]`)
-- Unlimited dimension arrays
 
 ## Architecture
 
