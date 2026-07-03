@@ -16,10 +16,7 @@
 
 package io.army.dialect;
 
-import io.army.criteria.CriteriaException;
-import io.army.criteria.Expression;
-import io.army.criteria.SqlField;
-import io.army.criteria.TabularItem;
+import io.army.criteria.*;
 import io.army.criteria.impl.inner._Merge;
 import io.army.lang.Nullable;
 import io.army.meta.FieldMeta;
@@ -92,8 +89,8 @@ final class JoinableMergeContext extends StatementContext implements _JoinableMe
     }
 
     @Override
-    public void appendSetLeftItem(SqlField dataField, @Nullable Expression updateTimePlaceholder) {
-        this.multiTableContext.appendSetLeftItem(dataField, updateTimePlaceholder);
+    public void appendSetLeftItem(UpdatableExpression left, @Nullable Expression updateTimePlaceholder) {
+        this.multiTableContext.appendSetLeftItem(left, updateTimePlaceholder);
     }
 
     @Override

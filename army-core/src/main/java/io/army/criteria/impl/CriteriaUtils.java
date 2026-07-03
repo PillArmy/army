@@ -118,10 +118,10 @@ abstract class CriteriaUtils {
 
 
     static void addAllField(final List<_ItemPair> itemPairList, final Consumer<FieldMeta<?>> consumer) {
-        SqlField sqlField;
+        UpdatableExpression sqlField;
         for (_ItemPair itemPair : itemPairList) {
             if (itemPair instanceof _ItemPair._FieldItemPair) {
-                sqlField = ((_ItemPair._FieldItemPair) itemPair).field();
+                sqlField = ((_ItemPair._FieldItemPair) itemPair).left();
                 if (sqlField instanceof FieldMeta) {
                     consumer.accept((FieldMeta<?>) sqlField);
                 } else if (sqlField instanceof QualifiedField) {
@@ -135,7 +135,7 @@ abstract class CriteriaUtils {
             if (!(itemPair instanceof _ItemPair._RowItemPair)) {
                 throw new IllegalArgumentException("unknown itemPair");
             }
-            for (SqlField field : ((_ItemPair._RowItemPair) itemPair).rowFieldList()) {
+            for (UpdatableExpression field : ((_ItemPair._RowItemPair) itemPair).rowFieldList()) {
                 if (field instanceof FieldMeta) {
                     consumer.accept((FieldMeta<?>) field);
                 } else if (field instanceof QualifiedField) {

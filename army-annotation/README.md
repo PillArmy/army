@@ -29,6 +29,156 @@ Define database mapping metadata for domain entity classes:
 3. Generates static metamodel classes with type-safe field references
 4. Supports placeholder expressions (`${DEFAULT}`, `${RUNTIME}`) resolved from `TableMeta.properties`
 
+### How to Use ArmyMetaModelDomainProcessor
+
+#### 1. Add Dependency
+
+Add `army-annotation` as a compile-time dependency in your build tool:
+
+**Maven**:
+
+```xml
+
+<dependency>
+  <groupId>io.army</groupId>
+  <artifactId>army-annotation</artifactId>
+  <version>${army.version}</version>
+  <scope>provided</scope>
+</dependency>
+```
+
+**Gradle**:
+
+```groovy
+implementation "io.army:army-annotation:${armyVersion}"
+```
+
+#### 2. Configure Annotation Processor
+
+Configure the Maven compiler plugin to use `ArmyMetaModelDomainProcessor`:
+
+**Maven**:
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <annotationProcessors>io.army.modelgen.ArmyMetaModelDomainProcessor</annotationProcessors>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+**Gradle**:
+
+```groovy
+annotationProcessor "io.army:army-annotation:${armyVersion}"
+```
+
+#### 3. Annotate Domain Classes
+
+Add `@Table` annotation to your domain classes:
+
+```java
+@Table(name = "stock", comment = "股票表")
+public class Stock {
+    @Column(notNull = true)
+    public long id;
+    
+    @Column(notNull = true, precision = 130)
+    public String name;
+    
+    @Column
+    public BigDecimal price;
+}
+```
+
+#### 4. Compile Your Project
+
+The processor runs automatically during compilation. Generated classes are placed in:
+
+```
+target/generated-sources/annotations/
+```
+
+**Maven Compile**:
+
+```bash
+mvn compile
+```
+
+**Gradle Compile**:
+
+```bash
+gradle compileJava
+```
+
+#### 5. Processor Output
+
+During compilation, the processor outputs progress information:
+
+```
+[INFO] io.army.modelgen.ArmyMetaModelDomainProcessor generate 5 army static metamodel class source file, take 120 ms.
+```
+
+#### 6. Use Generated Metamodel
+
+The processor generates `<DomainName>_` classes that you can use in your Criteria API queries:
+
+```java
+// Type-safe table reference
+SimpleTableMeta<Stock> stockTable = Stock_.T;
+
+// Type-safe field references
+FieldMeta<Stock> nameField = Stock_.name;
+PrimaryFieldMeta<Stock> idField = Stock_.id;
+
+// Build queries with type safety
+Query query = SQLs.query()
+        .select(Stock_.id, Stock_.name)
+        .from(Stock_.T)
+        .where(Stock_.price.greaterThan(new BigDecimal("100")))
+        .asQuery();
+```
+
+#### 7. Processor Configuration
+
+The processor supports configuration through:
+
+- **`TableMeta.properties`**: Resolves placeholder expressions (`${DEFAULT}`)
+- **Supported Java Version**: Java 25 (`@SupportedSourceVersion(SourceVersion.RELEASE_25)`)
+- **Supported Annotations**: Only `@Table` annotation (`@SupportedAnnotationTypes("io.army.annotation.Table")`)
+
+#### 8. Composite Type Processing
+
+The processor also generates metamodel for classes annotated with `@DefinedType` (composite types):
+
+```java
+
+@DefinedType(name = "PRODUCT_INFO", fieldOrder = {"name", "price"})
+public class ProductInfo {
+  public String name;
+  public BigDecimal price;
+}
+```
+
+Generates `ProductInfo_.java` with `CompositeType` metadata.
+
+#### Processor Implementation Details
+
+The processor follows the standard Java annotation processing lifecycle:
+
+1. **`init(ProcessingEnvironment)`**: Initializes the processor with the processing environment
+2. **`process(Set<TypeElement>, RoundEnvironment)`**: Processes `@Table` annotated elements
+3. **`generateTableStaticModelClass()`**: Generates metamodel source code
+4. **`writeClassFiles()`**: Writes generated source files to the output directory
+
+The processor batches file writes (50 classes at a time) for better performance.
+
 ### Generated Static Metamodel
 
 For each domain class annotated with `@Table`, the processor generates a corresponding static metamodel class named

@@ -17,7 +17,7 @@
 package io.army.criteria;
 
 /// This interface representing SET clause Left Hand Side.
-public interface UpdatableExpression extends TypedExpression {
+public interface UpdatableExpression extends Expression {
 
 
 }

@@ -99,6 +99,8 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
     static final int SUPPORT_VALIDATE_UNION_TYPE = 1 << 15;
 
+    static final int SUPPORT_UPDATE_EXPRESSION = 1 << 16;
+
 
     /// The dialect this parser is bound to.
     protected final Dialect dialect;
@@ -158,8 +160,9 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
     final boolean supportUpdateDerivedField;
 
-
     final boolean supportReturningClause;
+
+    final boolean supportUpdateExpression;
 
 
     final ChildUpdateMode childUpdateMode;
@@ -243,6 +246,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
         this.supportWithClauseInInsert = (capabilities & SUPPORT_WITH_CLAUSE_IN_INSERT) != 0;
         this.supportWindowClause = (capabilities & SUPPORT_WINDOW_CLAUSE) != 0;
 
+        this.supportUpdateExpression = (capabilities & SUPPORT_UPDATE_EXPRESSION) != 0;
 
         if (this.mockEnv) {
             this.generator = FieldValuesGenerators.mock();
@@ -1348,7 +1352,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
         sqlBuilder.append(_Constant.SPACE_SET);
         //2. append item pairs in SET clause
         _ItemPair pair;
-        SqlField dataField;
+        UpdatableExpression dataField;
         for (int i = 0; i < itemPairSize; i++) {
             if (i > 0) {
                 sqlBuilder.append(_Constant.SPACE_COMMA);
@@ -1357,15 +1361,19 @@ abstract non-sealed class ArmyParser implements DialectParser {
             pair.appendItemPair(sqlBuilder, context);
 
             if (pair instanceof _ItemPair._FieldItemPair) {
-                dataField = ((_ItemPair._FieldItemPair) pair).field();
-                aliasMap.putIfAbsent(context.singleTableAliasOf(dataField), Boolean.TRUE);
+                dataField = ((_ItemPair._FieldItemPair) pair).left();
+                if (dataField instanceof SqlField) {
+                    aliasMap.putIfAbsent(context.singleTableAliasOf((SqlField) dataField), Boolean.TRUE);
+                }
             } else {
                 assert pair instanceof _ItemPair._RowItemPair;
-                for (SqlField field : ((_ItemPair._RowItemPair) pair).rowFieldList()) {
-                    aliasMap.putIfAbsent(context.singleTableAliasOf(field), Boolean.TRUE);
-                }
+                for (UpdatableExpression field : ((_ItemPair._RowItemPair) pair).rowFieldList()) {
+                    if (field instanceof SqlField) {
+                        aliasMap.putIfAbsent(context.singleTableAliasOf((SqlField) field), Boolean.TRUE);
+                    }
+                } // inner loop
             }
-        }
+        } // outer loop
 
         assert !aliasMap.isEmpty();
         //3. append updateTime and visible for multi-table update target table
@@ -2074,9 +2082,9 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
 
     /// @see #appendUpdateTimeAndVersion(SingleTableMeta, String, _StmtContext, boolean)
-    /// @see InsertContext#appendSetLeftItem(SqlField, Expression)
-    /// @see SingleUpdateContext#appendSetLeftItem(SqlField, Expression)
-    /// @see MultiUpdateContext#appendSetLeftItem(SqlField, Expression)
+    /// @see InsertContext#appendSetLeftItem(UpdatableExpression, Expression)
+    /// @see SingleUpdateContext#appendSetLeftItem(UpdatableExpression, Expression)
+    /// @see MultiUpdateContext#appendSetLeftItem(UpdatableExpression, Expression)
     final Temporal createUpdateTimeValue(final FieldMeta<?> updateTime) {
         final Temporal updateTimeValue;
         final Class<?> javaType = updateTime.javaType();

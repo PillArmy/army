@@ -255,9 +255,9 @@ abstract class SetWhereClause<F extends TableField, SR, WR, WA, OR, OD, LR, LO, 
             itemPairList.add((SQLs.RowItemPair) pair);
         } else if (!(pair instanceof SQLs.FieldItemPair)) {
             throw ContextStack.criteriaError(this.context, String.format("unknown %s", ItemPair.class.getName()));
-        } else if (!((fieldPair = (SQLs.FieldItemPair) pair).field instanceof TableField)) {
+        } else if (!((fieldPair = (SQLs.FieldItemPair) pair).left instanceof TableField)) {
             throw ContextStack.clearStackAndCastCriteriaApi();
-        } else if (!(field = (TableField) fieldPair.field).updatable()) {
+        } else if (!(field = (TableField) fieldPair.left).updatable()) {
             throw ContextStack.criteriaError(this.context, _Exceptions::immutableField, field);
         } else if (field.notNull() && ((ArmyExpression) fieldPair.right).isNullValue()) {
             throw ContextStack.criteriaError(this.context, _Exceptions::nonNullField, field);

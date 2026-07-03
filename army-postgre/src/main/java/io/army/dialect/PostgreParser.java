@@ -296,6 +296,7 @@ abstract class PostgreParser extends _ArmyDialectParser {
                 | SUPPORT_SINGLE_DELETE_ALIAS       // Postgre support single table DELETE alias
                 | SUPPORT_ROW_ALIAS
                 | SUPPORT_TABLE_ONLY
+                | SUPPORT_UPDATE_EXPRESSION
                 ;
     }
 

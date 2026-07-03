@@ -101,9 +101,9 @@ final class TableContext {
         Map<ChildTableMeta<?>, Boolean> childMap = null;
         for (_ItemPair pair : stmt.itemPairList()) {
             if (pair instanceof _ItemPair._FieldItemPair) {
-                childMap = handleUpdateField(((_ItemPair._FieldItemPair) pair).field(), childMap);
+                childMap = handleUpdateField(((_ItemPair._FieldItemPair) pair).left(), childMap);
             } else if (pair instanceof _ItemPair._RowItemPair) {
-                for (SqlField dataField : ((_ItemPair._RowItemPair) pair).rowFieldList()) {
+                for (UpdatableExpression dataField : ((_ItemPair._RowItemPair) pair).rowFieldList()) {
                     childMap = handleUpdateField(dataField, childMap);
                 }
             } else {
@@ -185,8 +185,9 @@ final class TableContext {
 
     /// @see #forUpdate(_JoinableUpdate, ArmyParser, Visible)
     @Nullable
-    private static Map<ChildTableMeta<?>, Boolean> handleUpdateField(final SqlField dataField
+    private static Map<ChildTableMeta<?>, Boolean> handleUpdateField(final UpdatableExpression dataField
             , @Nullable Map<ChildTableMeta<?>, Boolean> childMap) {
+
         if (!(dataField instanceof TableField)) {
             //TODO
             throw new UnsupportedOperationException();

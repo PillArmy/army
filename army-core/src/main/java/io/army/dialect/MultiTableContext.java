@@ -19,6 +19,7 @@ package io.army.dialect;
 import io.army.criteria.*;
 import io.army.criteria.impl.inner._DerivedTable;
 import io.army.criteria.impl.inner._Selection;
+import io.army.criteria.impl.inner._SelfDescribed;
 import io.army.lang.Nullable;
 import io.army.meta.FieldMeta;
 import io.army.meta.TableMeta;
@@ -167,40 +168,49 @@ final class MultiTableContext implements _MultiTableContext,
     }
 
     @Override
-    public void appendSetLeftItem(final SqlField dataField, final @Nullable Expression updateTimePlaceholder) {
+    public void appendSetLeftItem(final UpdatableExpression left, final @Nullable Expression updateTimePlaceholder) {
         final ArmyParser parser = this.stmtContext.parser;
         final StringBuilder sqlBuilder = this.stmtContext.sqlBuilder;
 
         final boolean updatable;
-        if (dataField instanceof TableField) {
-            updatable = ((TableField) dataField).updatable();
+        if (!(left instanceof SqlField)) {
+            updatable = parser.supportUpdateExpression;
+        } else if (left instanceof TableField) {
+            updatable = ((TableField) left).updatable();
         } else if (parser.supportUpdateDerivedField) {
             final TableField f;
-            f = ((_Selection) dataField).tableField();
+            f = ((_Selection) left).tableField();
             if (f == null) {
-                throw _Exceptions.immutableField(dataField);
+                throw _Exceptions.immutableField((SqlField) left);
             }
             updatable = f.updatable();
         } else {
-            throw _Exceptions.immutableField(dataField);
+            throw _Exceptions.immutableField((SqlField) left);
         }
 
         if (!updatable) {
-            throw _Exceptions.immutableField(dataField);
+            if (left instanceof SqlField) {
+                throw _Exceptions.immutableField((SqlField) left);
+            } else {
+                throw _Exceptions.dontSupportUpdateExpression(left);
+            }
         }
 
-        final String fieldName = dataField.fieldName();
-
-        if (updateTimePlaceholder == null && dataField instanceof TableField && _MetaBridge.UPDATE_TIME.equals(fieldName)) {
-            throw _Exceptions.armyManageField((TableField) dataField);
+        if (updateTimePlaceholder == null
+                && left instanceof TableField
+                && _MetaBridge.UPDATE_TIME.equals(((SqlField) left).fieldName())) {
+            throw _Exceptions.armyManageField((TableField) left);
         }
 
-        if (!(dataField instanceof TableField)) {
-            final DerivedField field = (DerivedField) dataField;
+
+        if (!(left instanceof SqlField sqlField)) {
+            ((_SelfDescribed) left).appendSql(sqlBuilder, this.stmtContext);
+        } else if (!(left instanceof TableField)) {
+            final DerivedField field = (DerivedField) left;
             final String tableAlias = field.tableAlias();
             final TabularItem tableItem = this.aliasToTable.get(tableAlias);
             if (!(tableItem instanceof DerivedTable)
-                    || ((_DerivedTable) tableItem).refSelection(fieldName) == null) {
+                    || ((_DerivedTable) tableItem).refSelection(sqlField.fieldName()) == null) {
                 throw _Exceptions.unknownColumn(field);
             }
             final String safeTableAlias;
@@ -209,9 +219,8 @@ final class MultiTableContext implements _MultiTableContext,
             sqlBuilder.append(_Constant.SPACE)
                     .append(safeTableAlias)
                     .append(_Constant.PERIOD);
-            parser.identifier(fieldName, sqlBuilder);
-        } else if (dataField instanceof FieldMeta) {
-            final FieldMeta<?> field = (FieldMeta<?>) dataField;
+            parser.identifier(sqlField.fieldName(), sqlBuilder);
+        } else if (left instanceof FieldMeta<?> field) {
             final String safeTableAlias;
             safeTableAlias = this.tableToSafeAlias.get(field.tableMeta());
             if (safeTableAlias == null) {
@@ -224,7 +233,7 @@ final class MultiTableContext implements _MultiTableContext,
                         .append(_Constant.PERIOD);
             }
             parser.safeObjectName(field, sqlBuilder);
-        } else if (dataField instanceof QualifiedField<?> field) {
+        } else if (left instanceof QualifiedField<?> field) {
             final String tableAlias = field.tableAlias();
             if (this.aliasToTable.get(tableAlias) != field.tableMeta()) {
                 throw _Exceptions.unknownColumn(field);
@@ -238,18 +247,18 @@ final class MultiTableContext implements _MultiTableContext,
                     .append(_Constant.PERIOD);
             parser.safeObjectName(field.fieldMeta(), sqlBuilder);
         } else {
-            throw _Exceptions.immutableField(dataField);
+            throw _Exceptions.immutableField(sqlField);
         }
 
         if (updateTimePlaceholder != null) {
             this.appendedUpdateTime = true;
-            if (dataField instanceof FieldMeta) {
-                this.stmtContext.appendUpdateTimePlaceholder((FieldMeta<?>) dataField, updateTimePlaceholder);
-            } else if (dataField instanceof QualifiedField) {
-                this.stmtContext.appendUpdateTimePlaceholder(((QualifiedField<?>) dataField).fieldMeta(), updateTimePlaceholder);
+            if (left instanceof FieldMeta) {
+                this.stmtContext.appendUpdateTimePlaceholder((FieldMeta<?>) left, updateTimePlaceholder);
+            } else if (left instanceof QualifiedField) {
+                this.stmtContext.appendUpdateTimePlaceholder(((QualifiedField<?>) left).fieldMeta(), updateTimePlaceholder);
             } else {
                 // no bug,never here
-                throw _Exceptions.illegalExpression(dataField);
+                throw _Exceptions.illegalExpression(left);
             }
         }
 

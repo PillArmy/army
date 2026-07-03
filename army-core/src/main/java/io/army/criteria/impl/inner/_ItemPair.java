@@ -17,7 +17,7 @@
 package io.army.criteria.impl.inner;
 
 import io.army.criteria.ItemPair;
-import io.army.criteria.SqlField;
+import io.army.criteria.UpdatableExpression;
 import io.army.dialect._SetClauseContext;
 import io.army.dialect._SqlContext;
 
@@ -32,7 +32,7 @@ public interface _ItemPair extends ItemPair {
 
     interface _FieldItemPair extends _ItemPair {
 
-        SqlField field();
+        UpdatableExpression left();
 
         _Expression value();
 
@@ -40,7 +40,7 @@ public interface _ItemPair extends ItemPair {
 
     interface _RowItemPair extends _ItemPair {
 
-        List<? extends SqlField> rowFieldList();
+        List<UpdatableExpression> rowFieldList();
 
     }
 

@@ -670,9 +670,9 @@ abstract class CriteriaSupports {
             if (!(pair instanceof SQLs.FieldItemPair)) {
                 //here, support only simple filed
                 throw ContextStack.clearStackAndCastCriteriaApi();
-            } else if (!((fieldPair = (SQLs.FieldItemPair) pair).field instanceof TableField)) {
+            } else if (!((fieldPair = (SQLs.FieldItemPair) pair).left instanceof TableField)) {
                 throw ContextStack.clearStackAndCastCriteriaApi();
-            } else if ((field = (TableField) fieldPair.field).tableMeta() != this.updateTable) {
+            } else if ((field = (TableField) fieldPair.left).tableMeta() != this.updateTable) {
                 throw ContextStack.criteriaError(this.context, _Exceptions::unknownColumn, field);
             } else if (!field.updatable() ) {
                 throw ContextStack.criteriaError(this.context, _Exceptions::immutableField, field);

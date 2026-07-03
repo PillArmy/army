@@ -16,10 +16,7 @@
 
 package io.army.dialect;
 
-import io.army.criteria.Expression;
-import io.army.criteria.QualifiedField;
-import io.army.criteria.SqlField;
-import io.army.criteria.TableField;
+import io.army.criteria.*;
 import io.army.criteria.impl.inner._Delete;
 import io.army.criteria.impl.inner._SingleDml;
 import io.army.criteria.impl.inner._Statement;
@@ -33,13 +30,13 @@ import io.army.modelgen._MetaBridge;
 import io.army.session.SessionSpec;
 import io.army.util._Exceptions;
 
-/// 
+///
 /// This class is base class of below:
-/// 
+///
 /// - {@link  DomainDmlStmtContext}
 /// - {@link  SingleDmlContext}
 /// - {@link  SingleJoinableDmlContext}
-/// 
+///
 abstract class SingleTableDmlContext extends NarrowDmlStmtContext implements _SingleTableContext
         , _DmlContext._SetClauseContextSpec {
 
@@ -92,8 +89,9 @@ abstract class SingleTableDmlContext extends NarrowDmlStmtContext implements _Si
     }
 
 
-    /// 
+    ///
     /// For {@link  ChildTableMeta}
+    ///
     /// @see #decideParentContext(SingleTableDmlContext)
     SingleTableDmlContext(_SingleDml stmt, SingleTableDmlContext parentContext) {
         super(decideParentContext(parentContext), stmt, parentContext.parser, parentContext.sessionSpec);
@@ -141,12 +139,15 @@ abstract class SingleTableDmlContext extends NarrowDmlStmtContext implements _Si
     }
 
     @Override
-    public final void appendSetLeftItem(final SqlField dataField, final @Nullable Expression updateTimePlaceholder) {
+    public final void appendSetLeftItem(final UpdatableExpression left, final @Nullable Expression updateTimePlaceholder) {
         assert this instanceof _UpdateContext;
-        if (!(dataField instanceof TableField field)) {
-            throw _Exceptions.immutableField(dataField);
-        }
-        if (field.tableMeta() != this.targetTable) {
+        if (!(left instanceof TableField field)) {
+            if (left instanceof SqlField) {
+                throw _Exceptions.immutableField((SqlField) left);
+            } else {
+                throw _Exceptions.dontSupportUpdateExpression(left);
+            }
+        } else if (field.tableMeta() != this.targetTable) {
             throw _Exceptions.unknownColumn(field);
         } else if (!field.updatable()) {
             throw _Exceptions.immutableField(field);
@@ -173,7 +174,7 @@ abstract class SingleTableDmlContext extends NarrowDmlStmtContext implements _Si
         }
 
         if (!(field instanceof QualifiedField)) {
-            this.parser.safeObjectName((FieldMeta<?>)field, sqlBuilder);
+            this.parser.safeObjectName((FieldMeta<?>) field, sqlBuilder);
         } else if (this.targetTableAlias.equals(((QualifiedField<?>) field).tableAlias())) {
             this.parser.safeObjectName(field.fieldMeta(), sqlBuilder);
         } else {

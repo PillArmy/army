@@ -23,7 +23,7 @@ package io.army.criteria;
 /// - {@link DerivedField}
 ///
 /// @since 0.6.0
-public interface SqlField extends NamedExpression {
+public interface SqlField extends NamedExpression, UpdatableExpression {
 
     String fieldName();
 

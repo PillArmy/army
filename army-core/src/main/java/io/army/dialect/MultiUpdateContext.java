@@ -84,8 +84,8 @@ final class MultiUpdateContext extends MultiTableDmlContext implements _MultiUpd
 
 
     @Override
-    public void appendSetLeftItem(SqlField dataField, @Nullable Expression updateTimePlaceholder) {
-        this.multiTableContext.appendSetLeftItem(dataField, updateTimePlaceholder);
+    public void appendSetLeftItem(UpdatableExpression left, @Nullable Expression updateTimePlaceholder) {
+        this.multiTableContext.appendSetLeftItem(left, updateTimePlaceholder);
     }
 
     @Override

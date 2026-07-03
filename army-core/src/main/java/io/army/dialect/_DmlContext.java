@@ -17,7 +17,7 @@
 package io.army.dialect;
 
 import io.army.criteria.Expression;
-import io.army.criteria.SqlField;
+import io.army.criteria.UpdatableExpression;
 import io.army.lang.Nullable;
 import io.army.meta.FieldMeta;
 import io.army.stmt.BatchStmt;
@@ -57,7 +57,7 @@ public interface _DmlContext extends _StmtContext {
 
         boolean isAppendedUpdateTime();
 
-        void appendSetLeftItem(SqlField dataField, @Nullable Expression updateTimePlaceholder);
+        void appendSetLeftItem(UpdatableExpression left, @Nullable Expression updateTimePlaceholder);
 
 
     }

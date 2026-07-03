@@ -585,31 +585,35 @@ abstract class InsertContext extends StatementContext
     }
 
     @Override
-    public void appendSetLeftItem(final SqlField dataField, final @Nullable Expression updateTimePlaceholder) {
-        final FieldMeta<?> field;
-        final String fieldName = dataField.fieldName();
-        if (!(dataField instanceof FieldMeta)) {
-            String m = String.format("Insert statement conflict clause don't support %s", dataField);
+    public void appendSetLeftItem(final UpdatableExpression left, final @Nullable Expression updateTimePlaceholder) {
+
+        if (!(left instanceof SqlField)) {
+            if (!this.parser.supportUpdateExpression) {
+                throw _Exceptions.dontSupportUpdateExpression(left);
+            }
+            ((_SelfDescribed) left).appendSql(this.sqlBuilder, this);
+        } else if (!(left instanceof FieldMeta<?> field)) {
+            String m = String.format("Insert statement conflict clause don't support %s", left);
             throw new CriteriaException(m);
-        } else if ((field = (FieldMeta<?>) dataField).tableMeta() != this.insertTable) {
-            throw _Exceptions.unknownColumn(dataField);
+        } else if (field.tableMeta() != this.insertTable) {
+            throw _Exceptions.unknownColumn(field);
         } else if (!(this.valuesClauseEnd && this.hasConflictClause && field.tableMeta() == this.insertTable)) {
             throw _Exceptions.unknownColumn(field);
-        } else if (updateTimePlaceholder == null && _MetaBridge.UPDATE_TIME.equals(fieldName)) {
+        } else if (updateTimePlaceholder == null && _MetaBridge.UPDATE_TIME.equals(field.fieldName())) {
             throw _Exceptions.armyManageField(field);
-        } else if (_MetaBridge.VERSION.equals(fieldName)) {
+        } else if (_MetaBridge.VERSION.equals(field.fieldName())) {
             throw _Exceptions.armyManageField(field);
         } else if (! field.updatable()) {
             throw _Exceptions.immutableField(field);
-        }
+        } else {
+            final StringBuilder sqlBuilder;
+            sqlBuilder = this.sqlBuilder.append(_Constant.SPACE);
+            this.parser.safeObjectName(field, sqlBuilder);
 
-        final StringBuilder sqlBuilder;
-        sqlBuilder = this.sqlBuilder.append(_Constant.SPACE);
-        this.parser.safeObjectName(field, sqlBuilder);
-
-        if (updateTimePlaceholder != null) {
-            this.appendedUpdateTime = true;
-            appendUpdateTimePlaceholder(field, updateTimePlaceholder);
+            if (updateTimePlaceholder != null) {
+                this.appendedUpdateTime = true;
+                appendUpdateTimePlaceholder(field, updateTimePlaceholder);
+            }
         }
 
     }

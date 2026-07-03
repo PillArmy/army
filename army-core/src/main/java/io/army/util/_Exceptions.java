@@ -160,6 +160,11 @@ public abstract class _Exceptions {
         return new CriteriaException("void.class is supported by procedure.");
     }
 
+    public static CriteriaException dontSupportUpdateExpression(UpdatableExpression expression) {
+        String m = String.format("Insert statement conflict clause don't support %s", expression.getClass().getName());
+        return new CriteriaException(m);
+    }
+
 
     public static TransactionTimeOutException timeout(int timeout, long restMills) {
         String m;

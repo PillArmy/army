@@ -539,7 +539,7 @@ public abstract class SQLs extends SQLSyntax {
     /// *
     /// @param value {@link Expression} or parameter.
     /// @see #plusEqual(SqlField, Object)
-    static SQLs.ArmyItemPair _itemPair(final @Nullable SqlField field, final @Nullable AssignOperator operator,
+    static SQLs.ArmyItemPair _itemPair(final @Nullable UpdatableExpression field, final @Nullable AssignOperator operator,
                                        final @Nullable Object value) {
         if (field == null || value == null) {
             throw ContextStack.clearStackAndNullPointer();
@@ -949,16 +949,16 @@ public abstract class SQLs extends SQLSyntax {
     /// @see #_itemPair(SqlField, AssignOperator, Object)
     static class FieldItemPair extends ArmyItemPair implements _ItemPair._FieldItemPair {
 
-        final SqlField field;
+        final UpdatableExpression left;
 
-        private FieldItemPair(SqlField field, ArmyExpression value) {
+        private FieldItemPair(UpdatableExpression left, ArmyExpression value) {
             super(value);
-            this.field = field;
+            this.left = left;
         }
 
         @Override
         public final void appendItemPair(final StringBuilder sqlBuilder, final _SetClauseContext context) {
-            final SqlField field = this.field;
+            final UpdatableExpression field = this.left;
             final _Expression right = (_Expression) this.right;
 
             if (right == SQLs.UPDATE_TIME_PLACEHOLDER) {
@@ -984,8 +984,8 @@ public abstract class SQLs extends SQLSyntax {
 
 
         @Override
-        public final SqlField field() {
-            return this.field;
+        public final UpdatableExpression left() {
+            return this.left;
         }
 
         @Override
@@ -996,7 +996,7 @@ public abstract class SQLs extends SQLSyntax {
         @Override
         public final String toString() {
             final StringBuilder builder = new StringBuilder();
-            builder.append(this.field);
+            builder.append(this.left);
             if (this instanceof OperatorItemPair) {
                 builder.append(((OperatorItemPair) this).operator);
             } else {
@@ -1017,8 +1017,8 @@ public abstract class SQLs extends SQLSyntax {
 
         final AssignOperator operator;
 
-        private OperatorItemPair(SqlField field, AssignOperator operator, ArmyExpression value) {
-            super(field, value);
+        private OperatorItemPair(UpdatableExpression left, AssignOperator operator, ArmyExpression value) {
+            super(left, value);
             this.operator = operator;
         }
 
@@ -1027,9 +1027,9 @@ public abstract class SQLs extends SQLSyntax {
 
     static final class RowItemPair extends ArmyItemPair implements _ItemPair._RowItemPair {
 
-        final List<SqlField> fieldList;
+        final List<UpdatableExpression> fieldList;
 
-        private RowItemPair(List<? extends SqlField> fieldList, SubQuery subQuery) {
+        private RowItemPair(List<? extends UpdatableExpression> fieldList, SubQuery subQuery) {
             super(subQuery);
             final int selectionCount;
             selectionCount = ((_RowSet) subQuery).selectionSize();
@@ -1038,27 +1038,27 @@ public abstract class SQLs extends SQLSyntax {
                         , fieldList.size(), selectionCount);
                 throw new CriteriaException(m);
             }
-            final List<SqlField> tempList = _Collections.arrayList(fieldList.size());
-            for (SqlField field : fieldList) {
-                if (!(field instanceof TableField)) {
-                    tempList.add(field);
+            final List<UpdatableExpression> tempList = _Collections.arrayList(fieldList.size());
+            for (UpdatableExpression left : fieldList) {
+                if (!(left instanceof TableField field)) {
+                    tempList.add(left);
                     continue;
                 }
-                if (!((TableField) field).updatable()) {
-                    throw _Exceptions.immutableField(field);
+                if (!field.updatable()) {
+                    throw _Exceptions.immutableField((SqlField) left);
                 }
                 final String fieldName = field.fieldName();
                 if (_MetaBridge.UPDATE_TIME.equals(fieldName) || _MetaBridge.VERSION.equals(fieldName)) {
-                    throw _Exceptions.armyManageField((TableField) field);
+                    throw _Exceptions.armyManageField(field);
                 }
-                tempList.add(field);
+                tempList.add(left);
             }
             this.fieldList = Collections.unmodifiableList(tempList);
         }
 
         @Override
         public void appendItemPair(final StringBuilder sqlBuilder, final _SetClauseContext context) {
-            final List<? extends SqlField> fieldList = this.fieldList;
+            final List<UpdatableExpression> fieldList = this.fieldList;
             final int fieldSize = fieldList.size();
             //1. append left paren
             sqlBuilder.append(_Constant.SPACE_LEFT_PAREN);
@@ -1081,7 +1081,7 @@ public abstract class SQLs extends SQLSyntax {
         }
 
         @Override
-        public List<? extends SqlField> rowFieldList() {
+        public List<UpdatableExpression> rowFieldList() {
             return this.fieldList;
         }
 
@@ -1091,7 +1091,7 @@ public abstract class SQLs extends SQLSyntax {
 
             //1. append left paren
             builder.append(_Constant.SPACE_LEFT_PAREN);
-            final List<? extends SqlField> fieldList = this.fieldList;
+            final List<UpdatableExpression> fieldList = this.fieldList;
             final int fieldSize = fieldList.size();
             //2. append field list
             for (int i = 0; i < fieldSize; i++) {

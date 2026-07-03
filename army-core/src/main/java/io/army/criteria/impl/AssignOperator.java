@@ -16,7 +16,7 @@
 
 package io.army.criteria.impl;
 
-import io.army.criteria.SqlField;
+import io.army.criteria.UpdatableExpression;
 import io.army.criteria.impl.inner._SelfDescribed;
 import io.army.dialect._Constant;
 import io.army.dialect._SqlContext;
@@ -62,13 +62,13 @@ enum AssignOperator {
     }
 
 
-    final void appendOperator(final SqlField field, final StringBuilder sqlBuilder, final _SqlContext context) {
+    final void appendOperator(final UpdatableExpression left, final StringBuilder sqlBuilder, final _SqlContext context) {
         switch (context.dialectDatabase()) {
             case MySQL:
             case PostgreSQL:
             case SQLite: {
                 sqlBuilder.append(_Constant.SPACE_EQUAL);
-                ((_SelfDescribed) field).appendSql(sqlBuilder, context);
+                ((_SelfDescribed) left).appendSql(sqlBuilder, context);
                 appendAppropriateExpressionOperator(sqlBuilder);
             }
             break;
