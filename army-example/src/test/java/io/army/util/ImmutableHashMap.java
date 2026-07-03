@@ -21,6 +21,7 @@ import io.army.type.ImmutableSpec;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public final class ImmutableHashMap<K, V> extends HashMap<K, V> implements ImmutableSpec {
 
     public static <K, V> ImmutableHashMap<K, V> hashMap() {

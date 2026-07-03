@@ -21,6 +21,7 @@ import io.army.type.ImmutableSpec;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Deprecated
 public final class ImmutableArrayList<E> extends ArrayList<E> implements ImmutableSpec {
 
     public static <E> ImmutableArrayList<E> arrayList() {
