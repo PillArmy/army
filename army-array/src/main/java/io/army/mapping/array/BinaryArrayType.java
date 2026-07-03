@@ -17,7 +17,9 @@
 package io.army.mapping.array;
 
 import io.army.criteria.CriteriaException;
+import io.army.dialect.Database;
 import io.army.dialect.UnsupportedDialectException;
+import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.mapping.BinaryType;
 import io.army.mapping.MappingEnv;
@@ -28,6 +30,7 @@ import io.army.sqltype.PgType;
 import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
+import io.army.util.HexUtils;
 
 import java.util.Objects;
 
@@ -93,14 +96,13 @@ public class BinaryArrayType extends _ArmyCoreArrayType {
 
     @Override
     public String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
-        return PostgreArrays.byteaArrayToText(this, dataType, source, new StringBuilder(), PARAM_ERROR_HANDLER)
-                .toString();
+        return PostgreArrays.arrayBeforeBind(source, BinaryArrayType::serializeElement, dataType, this);
     }
+
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, PostgreArrays::parseBytea,
-                ACCESS_ERROR_HANDLER);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, BinaryArrayType::deserializeElement, null);
     }
 
     @Override
@@ -117,7 +119,9 @@ public class BinaryArrayType extends _ArmyCoreArrayType {
     public MappingType elementType() {
         final MappingType instance;
         final Class<?> javaType = this.javaType;
-        if (javaType == byte[][].class) {
+        if (javaType == Object.class) {
+            instance = this;
+        } else if (javaType == byte[][].class) {
             instance = BinaryType.INSTANCE;
         } else {
             instance = from(javaType.getComponentType());
@@ -127,7 +131,14 @@ public class BinaryArrayType extends _ArmyCoreArrayType {
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return from(ArrayUtils.arrayClassOf(this.javaType));
+        final Class<?> javaType = this.javaType;
+        final MappingType instance;
+        if (javaType == Object.class) {
+            instance = this;
+        } else {
+            instance = from(ArrayUtils.arrayClassOf(this.javaType));
+        }
+        return instance;
     }
 
     @Override
@@ -146,6 +157,20 @@ public class BinaryArrayType extends _ArmyCoreArrayType {
             match = false;
         }
         return match;
+    }
+
+    static void serializeElement(Object element, StringBuilder builder) {
+        if (!(element instanceof byte[])) {
+            throw new IllegalArgumentException();
+        }
+        builder.append(_Constant.BACK_SLASH)  // escape
+                .append(_Constant.BACK_SLASH)
+                .append('x')
+                .append(HexUtils.hexEscapesText(true, (byte[]) element));
+    }
+
+    static byte[] deserializeElement(String text, int offset, int end) {
+        return BinaryType.decodeBinaryLiteral(Database.PostgreSQL, text, offset, end);
     }
 
     private static final class ClassValueHolder {

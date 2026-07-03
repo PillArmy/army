@@ -49,26 +49,24 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.function.BiFunction;
 
-abstract sealed class AbstractMappingType extends MappingSupport implements MappingType
+abstract sealed class AbstractMappingType implements MappingType
         permits _ArmyBuildInType, UserMappingType {
 
 
-    /// Error handler for parameter binding errors (deprecated).
-    @Deprecated
-    protected static final BiFunction<MappingType, Object, ArmyException> PARAM_ERROR_HANDLER_0 = AbstractMappingType::paramError0;
+    protected interface ErrorHandler {
 
-    /// Error handler for data access errors (deprecated).
-    @Deprecated
-    protected static final BiFunction<MappingType, Object, ArmyException> DATA_ACCESS_ERROR_HANDLER_0 = AbstractMappingType::dataAccessError0;
+        ArmyException apply(MappingType type, DataType sqlType, Object value, @Nullable Throwable e);
+
+    }
 
     /// Error handler for unsupported dialect mapping errors.
     protected static final BiFunction<MappingType, ServerMeta, UnsupportedDialectException> MAP_ERROR_HANDLER = AbstractMappingType::mapError;
 
     /// Error handler for parameter binding errors.
-    protected static final MappingSupport.ErrorHandler PARAM_ERROR_HANDLER = AbstractMappingType::paramError;
+    protected static final ErrorHandler PARAM_ERROR_HANDLER = AbstractMappingType::paramError;
 
     /// Error handler for data access errors.
-    protected static final MappingSupport.ErrorHandler ACCESS_ERROR_HANDLER = AbstractMappingType::dataAccessError;
+    protected static final ErrorHandler ACCESS_ERROR_HANDLER = AbstractMappingType::dataAccessError;
 
     /// package constructor
     AbstractMappingType() {

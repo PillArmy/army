@@ -24,7 +24,8 @@ import java.util.function.Function;
 
 /// 
 /// This class is mapping class of {@code byte[]}.
-/// * @see BinaryType
+/// @see BinaryType
+/// @see TinyBlobType
 /// @see MediumBlobType
 /// @since 0.6.0
 public final class BlobType extends _ArmyBuildInCoreType implements MappingType.SqlBlob {
@@ -49,10 +50,6 @@ public final class BlobType extends _ArmyBuildInCoreType implements MappingType.
         return byte[].class;
     }
 
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return ArrayFactoryFuncHolder.FUNCTION.apply(byte[].class);
-    }
 
     @Override
     public DataType map(final ServerMeta meta) {
@@ -80,22 +77,24 @@ public final class BlobType extends _ArmyBuildInCoreType implements MappingType.
         return dataType;
     }
 
-
     @Override
     public byte[] beforeBind(DataType dataType, MappingEnv env, final Object source) {
         if (!(source instanceof byte[])) {
-            throw PARAM_ERROR_HANDLER.apply(this, dataType, source, null);
+            throw paramError(this, dataType, source, null);
         }
         return (byte[]) source;
     }
 
     @Override
     public byte[] afterGet(DataType dataType, MappingEnv env, final Object source) {
-        if (!(source instanceof byte[])) {
-            throw ACCESS_ERROR_HANDLER.apply(this, dataType, source, null);
-        }
-        return (byte[]) source;
+        return BinaryType.deserialize(this, dataType, env, source);
     }
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(byte[][].class);
+    }
+
 
     @Override
     public int hashCode() {

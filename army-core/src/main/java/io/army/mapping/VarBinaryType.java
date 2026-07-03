@@ -25,6 +25,8 @@ import java.util.function.Function;
 /// This class map {@code byte[]} to sql varbinary type.
 /// If you need to map binary ,you can use {@link BinaryType} instead of this class.
 /// @see BinaryType
+///@see  <a href="https://www.postgresql.org/docs/current/datatype-binary.html">PostgreSQL Binary Data Types</a>
+///@see  <a href="https://dev.mysql.com/doc/refman/9.7/en/binary-varbinary.html">MySQL VARBINARY Data Types</a>
 public final class VarBinaryType extends _ArmyBuildInCoreType implements MappingType.SqlBinary {
 
     public static VarBinaryType from(final Class<?> fieldType) {
@@ -73,26 +75,23 @@ public final class VarBinaryType extends _ArmyBuildInCoreType implements Mapping
     }
 
     @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        return ArrayFactoryFuncHolder.FUNCTION.apply(byte[].class);
-    }
-
-
-    @Override
     public byte[] beforeBind(DataType dataType, MappingEnv env, final Object source) {
         if (!(source instanceof byte[])) {
-            throw PARAM_ERROR_HANDLER.apply(this, dataType, source, null);
+            throw paramError(this, dataType, source, null);
         }
         return (byte[]) source;
     }
 
     @Override
     public byte[] afterGet(DataType dataType, MappingEnv env, final Object source) {
-        if (!(source instanceof byte[])) {
-            throw ACCESS_ERROR_HANDLER.apply(this, dataType, source, null);
-        }
-        return (byte[]) source;
+        return BinaryType.deserialize(this, dataType, env, source);
     }
+
+    @Override
+    public MappingType arrayTypeOfThis() throws CriteriaException {
+        return ArrayFactoryFuncHolder.FUNCTION.apply(byte[][].class);
+    }
+
 
     private static class ArrayFactoryFuncHolder {
 

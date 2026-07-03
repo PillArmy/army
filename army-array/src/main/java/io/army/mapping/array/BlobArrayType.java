@@ -80,15 +80,14 @@ public class BlobArrayType extends _ArmyCoreArrayType {
     }
 
     @Override
-    public Object beforeBind(DataType dataType, MappingEnv env, Object source) throws CriteriaException {
-        return PostgreArrays.byteaArrayToText(this, dataType, source, new StringBuilder(), PARAM_ERROR_HANDLER)
-                .toString();
+    public String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
+        return PostgreArrays.arrayBeforeBind(source, BinaryArrayType::serializeElement, dataType, this);
     }
+
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, PostgreArrays::parseBytea,
-                PARAM_ERROR_HANDLER);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, BinaryArrayType::deserializeElement, null);
     }
 
     @Override

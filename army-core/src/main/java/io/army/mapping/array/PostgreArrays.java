@@ -21,7 +21,6 @@ import io.army.dialect._Constant;
 import io.army.function.TextFunction;
 import io.army.function.TextToIntFunc;
 import io.army.lang.Nullable;
-import io.army.mapping.MappingSupport;
 import io.army.mapping.MappingType;
 import io.army.mapping.UnaryGenericsMapping;
 import io.army.mapping.UserMappingType;
@@ -33,12 +32,11 @@ import io.army.util.ArrayUtils;
 import io.army.util.HexUtils;
 import io.army.util._Exceptions;
 
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public abstract class PostgreArrays extends ArrayMappings {
+public abstract class PostgreArrays {
 
     private PostgreArrays() {
     }
@@ -150,12 +148,6 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    public static String arrayBeforeBind(final Object source, final BiConsumer<Object, StringBuilder> consumer,
-                                         final DataType dataType, final MappingType type,
-                                         final MappingSupport.ErrorHandler handler) {
-
-        throw new UnsupportedOperationException();
-    }
 
 
     public static String arrayBeforeBind(final Object source, final BiConsumer<Object, StringBuilder> consumer,
@@ -229,66 +221,6 @@ public abstract class PostgreArrays extends ArrayMappings {
     }
 
 
-    @Deprecated
-    public static Object arrayAfterGet(MappingType type, DataType dataType, final Object source,
-                                       final boolean nonNull, final TextFunction<?> elementFunc, MappingSupport.ErrorHandler errorHandler) {
-        throw new UnsupportedOperationException();
-    }
-
-
-    public static StringBuilder byteaArrayToText(final MappingType type, final DataType dataType, final Object source,
-                                                 final StringBuilder builder, final MappingSupport.ErrorHandler errorHandler) {
-        final Class<?> sourceClass = source.getClass();
-        final int dimension;
-        if (!sourceClass.isArray()
-                || ArrayUtils.underlyingComponent(sourceClass) != byte.class
-                || (dimension = ArrayUtils.dimensionOf(sourceClass) - 1) < 1) {
-            throw errorHandler.apply(type, dataType, source, null);
-        }
-
-        _byteaArrayToText(type, dataType, source, dimension, builder, errorHandler);
-        return builder;
-    }
-
-
-    /// @see #byteaArrayToText(MappingType, DataType, Object, StringBuilder, MappingSupport.ErrorHandler)
-    private static void _byteaArrayToText(final MappingType type, final DataType dataType, final Object source,
-                                          final int dimension, final StringBuilder builder,
-                                          final MappingSupport.ErrorHandler errorHandler) {
-
-
-        final int length;
-        length = Array.getLength(source);
-
-        builder.append(_Constant.LEFT_BRACE);
-
-        Object element;
-        for (int i = 0; i < length; i++) {
-            element = Array.get(source, i);
-
-            if (i > 0) {
-                builder.append(_Constant.COMMA);
-            }
-
-            if (element == null) {
-                if (dimension > 1) {
-                    final IllegalArgumentException e;
-                    e = new IllegalArgumentException("multi-dimension must not null");
-                    throw errorHandler.apply(type, dataType, source, e);
-                }
-                builder.append("null");
-            } else if (dimension > 1) {
-                _byteaArrayToText(type, dataType, element, dimension - 1, builder, errorHandler);
-            } else {
-                builder.append("0x")
-                        .append(HexUtils.hexEscapesText(false, (byte[]) element));
-            }
-
-        } // for loop
-
-        builder.append(_Constant.RIGHT_BRACE);
-
-    }
 
 
     /// @see #arrayAfterGet(MappingType, DataType, Object, TextFunction, StringBuilder)

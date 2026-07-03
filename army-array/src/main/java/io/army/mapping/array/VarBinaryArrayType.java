@@ -95,14 +95,12 @@ public class VarBinaryArrayType extends _ArmyCoreArrayType {
 
     @Override
     public String beforeBind(DataType dataType, MappingEnv env, final Object source) throws CriteriaException {
-        return PostgreArrays.byteaArrayToText(this, dataType, source, new StringBuilder(), PARAM_ERROR_HANDLER)
-                .toString();
+        return PostgreArrays.arrayBeforeBind(source, BinaryArrayType::serializeElement, dataType, this);
     }
 
     @Override
     public Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, false, PostgreArrays::parseBytea,
-                ACCESS_ERROR_HANDLER);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, BinaryArrayType::deserializeElement, null);
     }
 
 
@@ -133,10 +131,13 @@ public class VarBinaryArrayType extends _ArmyCoreArrayType {
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
         final Class<?> javaType = this.javaType;
+        final MappingType instance;
         if (javaType == Object.class) { // unlimited dimension array
-            return this;
+            instance = this;
+        } else {
+            instance = from(ArrayUtils.arrayClassOf(javaType));
         }
-        return from(ArrayUtils.arrayClassOf(javaType));
+        return instance;
     }
 
 

@@ -76,17 +76,14 @@ public final class MediumBlobType extends _ArmyBuildInCoreType implements Mappin
     @Override
     public byte[] beforeBind(DataType dataType, MappingEnv env, final Object source) {
         if (!(source instanceof byte[])) {
-            throw PARAM_ERROR_HANDLER.apply(this, dataType, source, null);
+            throw paramError(this, dataType, source, null);
         }
         return (byte[]) source;
     }
 
     @Override
     public byte[] afterGet(DataType dataType, MappingEnv env, final Object source) {
-        if (!(source instanceof byte[])) {
-            throw ACCESS_ERROR_HANDLER.apply(this, dataType, source, null);
-        }
-        return (byte[]) source;
+        return BinaryType.deserialize(this, dataType, env, source);
     }
 
     @Override

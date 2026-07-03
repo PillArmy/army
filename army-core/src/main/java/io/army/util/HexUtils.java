@@ -84,6 +84,8 @@ public abstract class HexUtils {
     public static byte[] decodeHex(final byte[] hexBytes, final int offset, final int end) {
         if (offset < 0 || end > hexBytes.length || offset > end) {
             throw offsetAndEndError(hexBytes, offset, end);
+        } else if (((end - offset) & 1) != 0) {
+            throw offsetAndEndError(hexBytes, offset, end);
         }
         final byte[] digitArray = new byte[(end - offset) >> 1];
         final int num0 = '0', num9 = '9', a = 'a', f = 'f', A = 'A', F = 'F';

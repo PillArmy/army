@@ -16,7 +16,6 @@
 
 package io.army.mapping;
 
-import io.army.criteria.CriteriaException;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 
@@ -42,11 +41,6 @@ public final class TinyBlobType extends _ArmyBuildInCoreType implements MappingT
         return byte[].class;
     }
 
-    @Override
-    public MappingType arrayTypeOfThis() throws CriteriaException {
-        // TODO fix me ,add TinyBlobArrayType
-        throw new UnsupportedOperationException();
-    }
 
     @Override
     public DataType map(final ServerMeta meta) {
@@ -78,17 +72,14 @@ public final class TinyBlobType extends _ArmyBuildInCoreType implements MappingT
     @Override
     public byte[] beforeBind(DataType dataType, MappingEnv env, final Object source) {
         if (!(source instanceof byte[])) {
-            throw PARAM_ERROR_HANDLER.apply(this, dataType, source, null);
+            throw paramError(this, dataType, source, null);
         }
         return (byte[]) source;
     }
 
     @Override
     public byte[] afterGet(DataType dataType, MappingEnv env, final Object source) {
-        if (!(source instanceof byte[])) {
-            throw ACCESS_ERROR_HANDLER.apply(this, dataType, source, null);
-        }
-        return (byte[]) source;
+        return BinaryType.deserialize(this, dataType, env, source);
     }
 
     @Override
