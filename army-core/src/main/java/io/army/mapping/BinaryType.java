@@ -133,7 +133,7 @@ public final class BinaryType extends _ArmyBuildInCoreType implements MappingTyp
         switch (database) {
             case PostgreSQL: {
                 if (source.startsWith("\\x", offset)) {
-                    value = HexUtils.decodeHex(source.substring(offset + 2, endIndex).getBytes(StandardCharsets.UTF_8));
+                    value = HexUtils.decodeHex(source.substring(offset + 2, endIndex).getBytes(StandardCharsets.US_ASCII));
                 } else {
                     value = decodePostgreOtcEscapeBinaryString(source, offset, endIndex);
                 }
@@ -141,7 +141,7 @@ public final class BinaryType extends _ArmyBuildInCoreType implements MappingTyp
             break;
             case MySQL: {
                 if (source.startsWith("0x", offset)) {
-                    value = HexUtils.decodeHex(source.substring(offset + 2, endIndex).getBytes(StandardCharsets.UTF_8));
+                    value = HexUtils.decodeHex(source.substring(offset + 2, endIndex).getBytes(StandardCharsets.US_ASCII));
                 } else {
                     throw new IllegalArgumentException("MySQL binary literal must start with 0x");
                 }
@@ -158,6 +158,7 @@ public final class BinaryType extends _ArmyBuildInCoreType implements MappingTyp
     private static byte[] decodePostgreOtcEscapeBinaryString(final CharSequence source, final int offset, final int endIndex) {
 
         try {
+
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
             int lastWritten = offset;
@@ -170,7 +171,7 @@ public final class BinaryType extends _ArmyBuildInCoreType implements MappingTyp
                 }
 
                 if (i > lastWritten) {
-                    out.write(source.subSequence(lastWritten, i).toString().getBytes(StandardCharsets.UTF_8));
+                    out.write(source.subSequence(lastWritten, i).toString().getBytes(StandardCharsets.ISO_8859_1));
                 }
 
                 if ((boundary = i + 4) <= endIndex && isOtcEscape(source, i, boundary)) {
@@ -187,7 +188,7 @@ public final class BinaryType extends _ArmyBuildInCoreType implements MappingTyp
             } // loop
 
             if (lastWritten < endIndex) {
-                out.write(source.subSequence(lastWritten, endIndex).toString().getBytes(StandardCharsets.UTF_8));
+                out.write(source.subSequence(lastWritten, endIndex).toString().getBytes(StandardCharsets.ISO_8859_1));
             }
 
             return out.toByteArray();

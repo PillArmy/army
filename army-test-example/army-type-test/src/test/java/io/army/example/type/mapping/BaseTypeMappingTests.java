@@ -86,21 +86,23 @@ public class BaseTypeMappingTests {
                 .append(HexUtils.hexEscapesText(true, textArray[2].getBytes(StandardCharsets.UTF_8)));
 
         final String[] sourceArray = new String[]{
-                "abc \\153\\154\\155 \\052\\251\\124",
+                "abc中国 \\153\\154\\155 \\052\\251\\124",
                 "\\153 \\154\\155 \\052\\251\\124",
                 "\\000 \\047 \\\\ \\134 ' \\\\",
                 builder.toString()
         };
 
         final String[] decodeArray = new String[]{
-                "abc \153\154\155 \052\251\124",
+                "abc中国 \153\154\155 \052\251\124",
                 "\153 \154\155 \052\251\124",
                 "\000 \047 \\ \134 ' \\",
                 textArray[2]
         };
 
 
+
         String oct;
+        byte[] sourceBytea;
         for (int i = 0; i < sourceArray.length; i++) {
             oct = sourceArray[i];
 
@@ -115,8 +117,9 @@ public class BaseTypeMappingTests {
                 TestUtils.printBindAndGetValue(bindValue, afterGetValue);
 
 
-                LOG.debug("value1:\n{}\nvalue2:\n{} ", afterGetValue, decodeArray[i].getBytes(StandardCharsets.ISO_8859_1));
-                Assert.assertEquals(new String((byte[]) afterGetValue, StandardCharsets.ISO_8859_1), decodeArray[i]);
+                sourceBytea = decodeArray[i].getBytes(StandardCharsets.ISO_8859_1);
+                LOG.debug("value1:\n{}\nvalue2:\n{} ", afterGetValue, sourceBytea);
+                Assert.assertEquals(afterGetValue, sourceBytea);
 
 
             }
