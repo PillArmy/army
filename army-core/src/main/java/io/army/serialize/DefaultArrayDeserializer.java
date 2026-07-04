@@ -309,7 +309,7 @@ final class DefaultArrayDeserializer extends ArmyDeserializer.SingleBoundaryDese
                 } else if (Character.isWhitespace(ch)) {
                     continue;
                 }
-                throw _Exceptions.missDelimError(text, offset, arrayDelim);
+                throw _Exceptions.missDelimError(text, i, arrayDelim);
             }
 
 
@@ -369,7 +369,7 @@ final class DefaultArrayDeserializer extends ArmyDeserializer.SingleBoundaryDese
                 } else if (Character.isWhitespace(ch)) {
                     continue;
                 }
-                throw _Exceptions.missDelimError(text, offset, arrayDelim);
+                throw _Exceptions.missDelimError(text, i, arrayDelim);
             }
 
             if (ch == leftBoundary) {
