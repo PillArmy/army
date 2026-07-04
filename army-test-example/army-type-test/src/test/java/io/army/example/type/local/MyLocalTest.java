@@ -1,18 +1,25 @@
 package io.army.example.type.local;
 
 import com.google.common.collect.Range;
-import io.army.mapping.MappingType;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
 
 public class MyLocalTest {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MyLocalTest.class);
 
     public List<Map<String, Integer>> armyType;
 
@@ -23,8 +30,9 @@ public class MyLocalTest {
 
     @Test
     public void simpleTest() {
+        String text = "\000 \047 \134 '";
 
-        System.out.println(MappingType.SqlJson.class.getName());
+        LOG.info("{}", text.getBytes(StandardCharsets.UTF_8));
     }
 
 
@@ -59,4 +67,24 @@ public class MyLocalTest {
         System.out.println(range.isEmpty());
 
     }
+
+    @Test
+    public void pgConnect() throws Exception {
+        String url = "jdbc:postgresql://localhost:5432/postgres?currentSchema=army_types,my_stock,public";
+
+        try (Connection conn = DriverManager.getConnection(url, "army_w", "army123")) {
+
+            try (Statement statement = conn.createStatement()) {
+                //select  '{"\\x2727222261726D7927732C5C6F6B5C5C"}'::bytea[] as r
+                String sql = "select  '{\"\\\\x2727222261726D7927732C5C6F6B5C5C\"}'::bytea[] as r";
+
+                try (ResultSet resultSet = statement.executeQuery(sql)) {
+                    while (resultSet.next()) {
+                        System.out.println(resultSet.getString(1));
+                    }
+                }
+            }
+        }
+    }
+
 }

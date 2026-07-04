@@ -82,6 +82,36 @@ public class PostgreTypes implements FieldAccessPojo {
     @Column(comment = "bytea type")
     public byte[] bytea;
 
+    @Mapping("io.army.mapping.BinaryType")
+    @Column(comment = "bytea type")
+    public byte[] binary;
+
+    @Mapping("io.army.mapping.TinyBlobType")
+    @Column(comment = "bytea type")
+    public byte[] tinyBlob;
+
+    @Mapping("io.army.mapping.BlobType")
+    @Column(comment = "bytea type")
+    public byte[] blob;
+
+    @Mapping("io.army.mapping.MediumBlobType")
+    @Column(comment = "bytea type")
+    public byte[] mediumBlob;
+
+
+    @Column(comment = "bytea type")
+    @Mapping("io.army.mapping.array.VarBinaryArrayType")
+    public byte[][] byteaArray;
+
+    @Mapping("io.army.mapping.array.BinaryArrayType")
+    @Column(comment = "bytea type")
+    public byte[][] binaryArray;
+
+    @Mapping("io.army.mapping.array.BlobArrayType")
+    @Column(comment = "bytea type")
+    public byte[][] blobArray;
+
+
     // ------------- 字符串类型 -------------
     @Mapping("io.army.mapping.SqlCharType")
     @Column(precision = 100, comment = "char type")
@@ -385,9 +415,6 @@ public class PostgreTypes implements FieldAccessPojo {
     // @Column(comment = "interval array type")
     public String[] intervalArray;
 
-    @Mapping("io.army.mapping.array.BlobArrayType")
-    @Column(comment = "bytea array type")
-    public byte[][] byteaArray;
 
     @Mapping("io.army.mapping.array.SqlCharArrayType")
     @Column(comment = "char array type")

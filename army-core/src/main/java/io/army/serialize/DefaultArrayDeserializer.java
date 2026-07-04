@@ -87,7 +87,7 @@ final class DefaultArrayDeserializer extends ArmyDeserializer.SingleBoundaryDese
             arrayJavaType = javaType;
         } else if (!ArrayUtils.underlyingComponentMatch(underlyingJavaType, javaType)) {
             throw _Exceptions.arrayUnderlyingComponentMatch(underlyingJavaType, javaType);
-        } else if (ArrayUtils.dimensionOf(javaType) == dimension) {
+        } else if (ArrayUtils.dimensionOfType(type) == dimension) {
             arrayJavaType = javaType;
         } else {
             throw new IllegalArgumentException("array dimension not match");

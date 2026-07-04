@@ -3,10 +3,13 @@ package io.army.example.type.mapping;
 import io.army.criteria.CriteriaException;
 import io.army.example.type.annotation.CurrentSession;
 import io.army.example.type.annotation.NewPostgreTypesId;
+import io.army.example.type.domain.PostgreTypes;
 import io.army.example.type.domain.PostgreTypes_;
 import io.army.mapping.MappingEnv;
+import io.army.mapping.MappingType;
 import io.army.mapping.array.IntegerArrayType;
 import io.army.mapping.array.StringArrayType;
+import io.army.meta.FieldMeta;
 import io.army.meta.ServerMeta;
 import io.army.session.SyncSession;
 import io.army.sqltype.DataType;
@@ -20,6 +23,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.Assert;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -154,6 +158,59 @@ public class BaseArrayMappingTests {
         TestUtils.printBindAndGetValue(bindValue, afterGetValue);
         Assert.assertEquals(afterGetValue, sourceValue);
         TestUtils.updateAndQuery(session, id, PostgreTypes_.text2dArray, sourceValue);
+
+    }
+
+
+    @Test
+    public void binaryArray(@Autowired MappingEnv env, @CurrentSession SyncSession session, @NewPostgreTypesId Long id) {
+
+        final String[] textArray = new String[]{
+                "a",
+                "天下",
+                "''\"\"army's,\\ok\\\\",
+                "\\\"'qe,中国\\\"",
+                "天下's  \\ \" "
+        };
+
+        final List<FieldMeta<PostgreTypes>> fieldList;
+        fieldList = List.of(PostgreTypes_.byteaArray, PostgreTypes_.binaryArray, PostgreTypes_.blobArray);
+
+        final List<byte[][]> arrayList = new ArrayList<>();
+
+
+        arrayList.add(new byte[][]{textArray[2].getBytes(StandardCharsets.UTF_8)});
+
+        final byte[][] byteArray = new byte[textArray.length][];
+        for (int i = 0; i < byteArray.length; i++) {
+            byteArray[i] = textArray[i].getBytes(StandardCharsets.UTF_8);
+        }
+
+        arrayList.add(byteArray);
+
+        MappingType type;
+        DataType dataType;
+
+        Object bindValue, afterGetValue;
+        for (byte[][] array : arrayList) {
+
+            for (FieldMeta<PostgreTypes> field : fieldList) {
+
+                type = field.mappingType();
+                dataType = type.map(env.serverMeta());
+
+                bindValue = type.beforeBind(dataType, env, array);
+                TestUtils.printBindValue(bindValue);
+                afterGetValue = type.afterGet(dataType, env, bindValue);
+                TestUtils.printBindAndGetValue(bindValue, afterGetValue);
+                Assert.assertEquals(afterGetValue, array);
+
+                TestUtils.updateAndQuery(session, id, field, array);
+
+            }
+
+        }
+
 
     }
 

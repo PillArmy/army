@@ -52,6 +52,7 @@ public abstract class TestUtils {
 
 
         result = session.queryOne(selectStmt, field.javaType());
+        LOG.debug("source:\n{}\nresult:\n{}", value, result);
         Assert.assertEquals(result, value);
 
 

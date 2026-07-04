@@ -132,7 +132,7 @@ public final class BinaryType extends _ArmyBuildInCoreType implements MappingTyp
         final byte[] value;
         switch (database) {
             case PostgreSQL: {
-                if (source.startsWith("0x", offset)) {
+                if (source.startsWith("\\x", offset)) {
                     value = HexUtils.decodeHex(source.substring(offset + 2, endIndex).getBytes(StandardCharsets.UTF_8));
                 } else {
                     value = decodePostgreOtcEscapeBinaryString(source, offset, endIndex);
@@ -162,8 +162,9 @@ public final class BinaryType extends _ArmyBuildInCoreType implements MappingTyp
 
             int lastWritten = offset;
             char ch;
-            for (int i = offset, boundary; i < endIndex; i++) {
+            for (int i = offset, oct, boundary; i < endIndex; i++) {
                 ch = source.charAt(i);
+
                 if (ch != _Constant.BACK_SLASH) {
                     continue;
                 }
@@ -173,14 +174,25 @@ public final class BinaryType extends _ArmyBuildInCoreType implements MappingTyp
                 }
 
                 if ((boundary = i + 4) <= endIndex && isOtcEscape(source, i, boundary)) {
-                    out.write(Integer.parseInt(source, i + 1, boundary, 8));
+                    oct = Integer.parseInt(source, i + 1, boundary, 8);
+                    if (oct > Byte.MAX_VALUE) {
+                        out.write(Character.toString(oct).getBytes(StandardCharsets.UTF_8));
+                    } else {
+                        out.write(oct);
+                    }
                     lastWritten = boundary;
                     i += 3;
                 } else {
-                    lastWritten = i + 1;
+                    i++;
+                    lastWritten = i;
+
                 }
 
             } // loop
+
+            if (lastWritten < endIndex) {
+                out.write(source.subSequence(lastWritten, endIndex).toString().getBytes(StandardCharsets.UTF_8));
+            }
 
             return out.toByteArray();
         } catch (Exception e) {

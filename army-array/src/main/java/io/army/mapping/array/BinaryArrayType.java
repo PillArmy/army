@@ -163,10 +163,12 @@ public class BinaryArrayType extends _ArmyCoreArrayType {
         if (!(element instanceof byte[])) {
             throw new IllegalArgumentException();
         }
-        builder.append(_Constant.BACK_SLASH)  // escape
+        builder.append(_Constant.DOUBLE_QUOTE)
+                .append(_Constant.BACK_SLASH)  // escape
                 .append(_Constant.BACK_SLASH)
                 .append('x')
-                .append(HexUtils.hexEscapesText(true, (byte[]) element));
+                .append(HexUtils.hexEscapesText(true, (byte[]) element))
+                .append(_Constant.DOUBLE_QUOTE);
     }
 
     static byte[] deserializeElement(String text, int offset, int end) {

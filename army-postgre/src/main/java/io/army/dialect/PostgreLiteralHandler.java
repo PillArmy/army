@@ -305,8 +305,11 @@ final class PostgreLiteralHandler extends ArmyLiteralHandler<PostgreParser> {
                             .append(_Constant.SPACE); //use dataType 'string' syntax not 'string'::dataType syntax,because XMLEXISTS function not work, see PostgreSQL 15.1 on x86_64-apple-darwin20.6.0, compiled by Apple clang version 12.0.0 (clang-1200.0.32.29), 64-bit
                 }
 
-                sqlBuilder.append(currentQuote)
-                        .append(_Constant.BACK_SLASH)
+                sqlBuilder.append(currentQuote);
+                if (container != null) {
+                    sqlBuilder.append(_Constant.BACK_SLASH);
+                }
+                sqlBuilder.append(_Constant.BACK_SLASH)
                         .append('x')
                         .append(HexUtils.hexEscapesText(true, (byte[]) value))
                         .append(currentQuote);
