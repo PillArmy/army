@@ -75,7 +75,7 @@ final class DefaultArrayDeserializer extends ArmyDeserializer.SingleBoundaryDese
             throw dimensionFuncBug(this.skipPrefixFunc);
         }
 
-        dimension = parseArrayDimension(text, offset, endIndex);
+        dimension = parseArrayDimension(text, offsetIndex, endIndex);
 
         // determine array java type
         if (javaType == Object.class) {
@@ -379,7 +379,7 @@ final class DefaultArrayDeserializer extends ArmyDeserializer.SingleBoundaryDese
                 i = skipQuoteElement(text, i, endIndex);
                 commaFlag = i;
             } else if (ch == arrayDelim) {
-                throw _Exceptions.redundantDelimError(text, i, quoteChar);
+                throw _Exceptions.redundantDelimError(text, i, ch);
             } else if (!Character.isWhitespace(ch)) {
                 i = skipUnquotedElement(text, i, endIndex, rightBoundary, boundaries, subFunc);
                 commaFlag = i;

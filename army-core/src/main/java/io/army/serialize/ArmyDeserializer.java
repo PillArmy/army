@@ -448,7 +448,7 @@ abstract class ArmyDeserializer implements Deserializer {
             int rightIndex = -1;
             char ch;
 
-            for (int i = offset + 1, delimFlat = 0; i < endIndex; i++) {
+            for (int i = offset + 1, delimFlat = 0, oldIndex; i < endIndex; i++) {
                 ch = text.charAt(i);
 
                 if (ch == rightBoundary) {
@@ -467,7 +467,11 @@ abstract class ArmyDeserializer implements Deserializer {
                 }
 
                 if (boundaries != null && isBoundaries(boundaries, ch)) {
+                    oldIndex = i;
                     i = subFunc.apply(text, i, endIndex); // skip nested element
+                    if (i <= oldIndex) {
+                        throw subFuncBug(subFunc);
+                    }
                     continue;
                 }
 
@@ -498,7 +502,7 @@ abstract class ArmyDeserializer implements Deserializer {
             }
 
             if (func != null) {
-                func.apply(text, offset, rightBoundary); // parse sub record
+                func.apply(text, offset, rightIndex); // parse sub record
             }
             return rightIndex;
         } // parseDirectNestedElement
