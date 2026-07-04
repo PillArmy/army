@@ -113,8 +113,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
                         continue;
                     }
                     throw _Exceptions.missSeparatorError(text, i, separator);
-                } else if (//i + separatorLength <= endIndex &&
-                        regionMatches(text, false, i, endIndex, separator, null)) {
+                } else if (i + separatorLength <= endIndex && regionMatches(text, false, i, endIndex, separator, null)) {
                     i += (separatorLength - 1);
                     separatorFlag = 0;
                     continue;
@@ -153,7 +152,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
                 }
                 throw _Exceptions.redundantDelimError(text, i, itemDelim);
             } else if (ch == firstCharOfSeparator
-                    //&& i + separatorLength <= endIndex
+                    && i + separatorLength <= endIndex
                     && regionMatches(text, false, i, endIndex, separator, null)) {
                 throw _Exceptions.redundantSeparatorError(text, i, separator);
             } else {
@@ -220,7 +219,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
             }
 
             separatorBoundary = ch == firstCharOfSeparator
-                    //&& i + separatorLength <= endIndex
+                    && i + separatorLength <= endIndex
                     && regionMatches(text, false, i, endIndex, separator, null);
 
             if (ch == itemDelim || separatorBoundary || i == lastIndex) {
