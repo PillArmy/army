@@ -70,14 +70,11 @@ public abstract class _PostgreLiterals extends _Literals {
     public static void backslashEscape(final CharSequence literal, final int offset, final int end,
                                        final StringBuilder sqlBuilder) {
 
-
-        final int startIndex;
-        startIndex = sqlBuilder.length();
-
-        sqlBuilder.append(_Constant.QUOTE);
+        sqlBuilder.append('E')
+                .append(_Constant.QUOTE);
 
         int lastWritten = offset;
-        char ch, followChar = _Constant.NUL_CHAR;
+        char ch, followChar;
         for (int i = offset; i < end; i++) {
             ch = literal.charAt(i);
             switch (ch) {
@@ -127,10 +124,6 @@ public abstract class _PostgreLiterals extends _Literals {
 
         if (lastWritten < end) {
             sqlBuilder.append(literal, lastWritten, end);
-        }
-
-        if (followChar != _Constant.NUL_CHAR) {
-            sqlBuilder.insert(startIndex, 'E');
         }
 
         sqlBuilder.append(_Constant.QUOTE);
