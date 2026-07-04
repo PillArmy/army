@@ -351,6 +351,8 @@ final class PostgreLiteralHandler extends ArmyLiteralHandler<PostgreParser> {
         if (container == null) {
             switch (this.literalEscapeMode) {
                 case DEFAULT:
+                    _PostgreLiterals.quoteEscape(value, 0, value.length(), builder);
+                    break;
                 case BACK_SLASH:
                     _PostgreLiterals.backslashEscape(value, 0, value.length(), builder);
                     break;

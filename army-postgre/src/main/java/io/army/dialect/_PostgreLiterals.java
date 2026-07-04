@@ -30,6 +30,35 @@ public abstract class _PostgreLiterals extends _Literals {
     private _PostgreLiterals() {
     }
 
+    /// @see <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS">String Constants</a>
+    public static void quoteEscape(final CharSequence literal, final int offset, final int end, final StringBuilder sqlBuilder) {
+
+        sqlBuilder.append(_Constant.QUOTE);
+
+        int lastWritten = offset;
+        char ch;
+        for (int i = offset; i < end; i++) {
+            ch = literal.charAt(i);
+            if (ch != _Constant.QUOTE) {
+                continue;
+            }
+
+            if (i > lastWritten) {
+                sqlBuilder.append(literal, lastWritten, i);
+            }
+            sqlBuilder.append(_Constant.QUOTE);
+            lastWritten = i; // not i + 1 as current char wasn't written
+
+        } // for loop
+
+        if (lastWritten < end) {
+            sqlBuilder.append(literal, lastWritten, end);
+        }
+
+        sqlBuilder.append(_Constant.QUOTE);
+
+    }
+
 
     /// Escape backslash sequences in a string literal for PostgreSQL C-style string constants.
     ///
@@ -47,7 +76,7 @@ public abstract class _PostgreLiterals extends _Literals {
 
         sqlBuilder.append(_Constant.QUOTE);
 
-        int lastWritten = 0;
+        int lastWritten = offset;
         char ch, followChar = _Constant.NUL_CHAR;
         for (int i = offset; i < end; i++) {
             ch = literal.charAt(i);
@@ -131,7 +160,7 @@ public abstract class _PostgreLiterals extends _Literals {
 
         sqlBuilder.append("U&'");
 
-        int lastWritten = 0;
+        int lastWritten = offset;
         String hexStr;
         char ch;
         for (int i = offset, codePoint; i < end; i++) {
