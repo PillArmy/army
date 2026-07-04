@@ -205,7 +205,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
 
         boolean nullValue, separatorBoundary;
         char ch;
-        for (int i = offset + 1, elementEndInex = -1, oldIndex, eleEndIndex; i < endIndex; i++) {
+        for (int i = offset, elementEndInex = -1, oldIndex, eleEndIndex; i < endIndex; i++) {
             ch = text.charAt(i);
 
             if (boundaries != null && isBoundaries(boundaries, ch)) {

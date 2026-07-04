@@ -314,7 +314,7 @@ abstract class ArmyDeserializer implements Deserializer {
             Object value;
             boolean nullValue;
             char ch;
-            for (int i = offset + 1, elementEndInex = -1, oldIndex; i < endIndex; i++) {
+            for (int i = offset, elementEndInex = -1, oldIndex; i < endIndex; i++) {
                 ch = text.charAt(i);
 
                 if (boundaries != null && isBoundaries(boundaries, ch)) {
@@ -398,7 +398,7 @@ abstract class ArmyDeserializer implements Deserializer {
 
             int rightIndex = -1;
             char ch;
-            for (int i = offset + 1, oldIndex; i < endIndex; i++) {
+            for (int i = offset, oldIndex; i < endIndex; i++) {
                 ch = text.charAt(i);
 
                 if (boundaries != null && isBoundaries(boundaries, ch)) {
@@ -549,7 +549,7 @@ abstract class ArmyDeserializer implements Deserializer {
             Object value;
             boolean nullValue;
             char ch;
-            for (int i = offset + 1, elementEndInex = -1, oldIndex; i < endIndex; i++) {
+            for (int i = offset, elementEndInex = -1, oldIndex; i < endIndex; i++) {
                 ch = text.charAt(i);
 
                 if (boundaries != null && isBoundaries(boundaries, ch)) {

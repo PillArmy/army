@@ -294,6 +294,10 @@ public class PostgreTypes implements FieldAccessPojo {
 
     @Mapping("io.army.mapping.postgre.PgHstoreType")
     @Column(comment = "hstore type")
+    public Map<String, Integer> hstoreInt;
+
+    @Mapping("io.army.mapping.postgre.PgHstoreType")
+    @Column(comment = "hstore type")
     public EnumMap<DayOfWeek, String> dayOfWeekStringEnumMap;
 
     @Mapping("io.army.mapping.postgre.PgHstoreType")

@@ -85,6 +85,57 @@ public class HstoreTypeTests {
 
     }
 
+
+    @Test
+    public void hstoreInt(@Autowired MappingEnv env, @CurrentSession SyncSession session, @NewPostgreTypesId Long id) {
+
+        final PgHstoreType type = (PgHstoreType) PostgreTypes_.hstoreInt.mappingType();
+
+        final DataType dataType = type.map(env.serverMeta());
+        Map<String, Integer> map;
+        Object bindValue, afterGetValue;
+
+        final String text = "\"\"\"army's zoro\\\\\"\"";
+
+        final List<Map<String, Integer>> list = new ArrayList<>();
+
+        list.add(Map.of());
+
+        list.add(Map.of(text, 0));
+
+        map = Map.of(
+                "a", 1,
+                "b", 0,
+                "c", Integer.MAX_VALUE,
+                "army", Integer.MIN_VALUE,
+                text, -1
+        );
+        list.add(map);
+
+        map = new HashMap<>();
+        map.put("a", null);
+        list.add(map);
+
+        map = new HashMap<>();
+        map.put("a", 0);
+        map.put("army", null);
+        map.put(text, null);
+        list.add(map);
+
+
+        for (Map<String, Integer> source : list) {
+            bindValue = type.beforeBind(dataType, env, source);
+            TestUtils.printBindValue(bindValue);
+            afterGetValue = type.afterGet(dataType, env, bindValue);
+            TestUtils.printBindAndGetValue(bindValue, afterGetValue);
+            Assert.assertEquals(afterGetValue, source);
+
+            TestUtils.updateAndQuery(session, id, PostgreTypes_.hstoreInt, source);
+
+        }
+
+    }
+
     @Test
     public void hstoreEnumMap(@Autowired MappingEnv env, @CurrentSession SyncSession session, @NewPostgreTypesId Long id) {
 
