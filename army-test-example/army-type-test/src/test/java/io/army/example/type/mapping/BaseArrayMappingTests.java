@@ -1,12 +1,18 @@
 package io.army.example.type.mapping;
 
 import io.army.criteria.CriteriaException;
+import io.army.criteria.Select;
+import io.army.criteria.dialect.DmlCommand;
+import io.army.criteria.impl.Postgres;
+import io.army.criteria.impl.SQLs;
 import io.army.example.type.annotation.CurrentSession;
 import io.army.example.type.annotation.NewPostgreTypesId;
 import io.army.example.type.domain.PostgreTypes;
 import io.army.example.type.domain.PostgreTypes_;
 import io.army.mapping.MappingEnv;
 import io.army.mapping.MappingType;
+import io.army.mapping.StringType;
+import io.army.mapping.array.BinaryArrayType;
 import io.army.mapping.array.IntegerArrayType;
 import io.army.mapping.array.StringArrayType;
 import io.army.meta.FieldMeta;
@@ -141,7 +147,6 @@ public class BaseArrayMappingTests {
         }
 
 
-
         sourceValue = new String[][]{
                 {null, null, "\"2\\\"", "", "3"},
                 {null, null, null, null, null},
@@ -192,24 +197,55 @@ public class BaseArrayMappingTests {
         DataType dataType;
 
         Object bindValue, afterGetValue;
-        for (byte[][] array : arrayList) {
 
-            for (FieldMeta<PostgreTypes> field : fieldList) {
 
-                type = field.mappingType();
-                dataType = type.map(env.serverMeta());
+        for (int i = 0; i < 2; i++) {
 
-                bindValue = type.beforeBind(dataType, env, array);
-                TestUtils.printBindValue(bindValue);
-                afterGetValue = type.afterGet(dataType, env, bindValue);
-                TestUtils.printBindAndGetValue(bindValue, afterGetValue);
-                Assert.assertEquals(afterGetValue, array);
 
-                TestUtils.updateAndQuery(session, id, field, array);
+            for (byte[][] array : arrayList) {
+
+                for (FieldMeta<PostgreTypes> field : fieldList) {
+
+                    type = field.mappingType();
+                    dataType = type.map(env.serverMeta());
+
+                    bindValue = type.beforeBind(dataType, env, array);
+                    TestUtils.printBindValue(bindValue);
+                    afterGetValue = type.afterGet(dataType, env, bindValue);
+                    TestUtils.printBindAndGetValue(bindValue, afterGetValue);
+                    Assert.assertEquals(afterGetValue, array);
+
+                    TestUtils.updateAndQuery(session, id, field, array);
+
+                }
 
             }
 
+
+            if (i == 0) {
+                final DmlCommand command;
+                command = Postgres.setStmt()
+                        .set(SQLs.LOCAL, "bytea_output", SQLs.EQUAL, "escape")
+                        .asCommand();
+                session.update(command);
+            }
+
+
         }
+
+        final String sourceTextValue = "abc \153\154\155 \052\251\124";
+
+        final String textValue = "{\"abc \\\\153\\\\154\\\\155 \\\\052\\\\251\\\\124\"}";
+        final Select stmt;
+        stmt = SQLs.query()
+                .select(s -> s.space(SQLs.constant(StringType.INSTANCE, textValue).castToArray(BinaryArrayType.LINEAR).as("r")))
+                .asQuery();
+
+        final Object result, expectedValue;
+        result = session.queryOne(stmt, Object.class);
+
+        expectedValue = new byte[][]{sourceTextValue.getBytes(StandardCharsets.ISO_8859_1)};
+        Assert.assertEquals(result, expectedValue);
 
 
     }
@@ -233,7 +269,6 @@ public class BaseArrayMappingTests {
         Assertions.assertThrows(CriteriaException.class, () -> {
             type.beforeBind(dataType, env, sourceValue);
         });
-
 
 
     }

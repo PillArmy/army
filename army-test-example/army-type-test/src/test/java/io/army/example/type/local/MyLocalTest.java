@@ -78,7 +78,7 @@ public class MyLocalTest {
 
                 statement.executeUpdate("SET bytea_output = 'escape'");
 
-                String sql = "select '中国Army\251'::bytea as r";
+                String sql = "select  '{\"abc \\\\153\\\\154\\\\155 \\\\052\\\\251\\\\124\"}'::bytea[] as r ";
 
                 //  sql = "SELECT  '\\344\\270\\255\\345\\233\\275Army\\302\\251'::bytea as r ";
 

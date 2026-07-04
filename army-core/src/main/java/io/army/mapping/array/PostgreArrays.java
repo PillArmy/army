@@ -201,11 +201,7 @@ public abstract class PostgreArrays {
         }
 
         final ArrayDeserializer deserializer;
-        if (dataType == PgType.BOX_ARRAY) {
-            deserializer = BoxArrayDeserializerHolder.BOX_DESERIALIZER;
-        } else {
-            deserializer = DEFAULT_DESERIALIZER;
-        }
+        deserializer = getArrayDeserializer(dataType);
 
         try {
             return deserializer.deserialize(sourceText, 0, sourceText.length(), type, elementFunc, null, null, builder);
@@ -221,6 +217,15 @@ public abstract class PostgreArrays {
     }
 
 
+    public static ArrayDeserializer getArrayDeserializer(final DataType dataType) {
+        final ArrayDeserializer deserializer;
+        if (dataType == PgType.BOX_ARRAY) {
+            deserializer = BoxArrayDeserializerHolder.BOX_DESERIALIZER;
+        } else {
+            deserializer = DEFAULT_DESERIALIZER;
+        }
+        return deserializer;
+    }
 
 
     /// @see #arrayAfterGet(MappingType, DataType, Object, TextFunction, StringBuilder)

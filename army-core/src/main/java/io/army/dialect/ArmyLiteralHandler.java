@@ -58,7 +58,7 @@ abstract class ArmyLiteralHandler<T extends ArmyParser> implements LiteralHandle
     }
 
     @Override
-    public void safeLiteral(TypeMeta typeMeta, @Nullable Object value, boolean typeName, StringBuilder sqlBuilder
+    public final void safeLiteral(TypeMeta typeMeta, @Nullable Object value, boolean typeName, StringBuilder sqlBuilder
             , @Nullable DataType container) {
         final MappingType type;
         if (typeMeta instanceof MappingType) {
