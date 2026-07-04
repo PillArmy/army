@@ -152,8 +152,8 @@ public class LocalTimeArrayType extends _ArmyCoreArrayType {
 
     /*-------------------below static methods -------------------*/
 
-    private static LocalTime parseText(final String text, final int offset, final int end) {
-        return LocalTime.parse(text.substring(offset, end), _TimeUtils.TIME_FORMATTER_6);
+    private static LocalTime parseText(final CharSequence text, final int offset, final int end) {
+        return LocalTime.parse(text.subSequence(offset, end), _TimeUtils.TIME_FORMATTER_6);
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

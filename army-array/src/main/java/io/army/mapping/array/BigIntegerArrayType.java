@@ -139,8 +139,8 @@ public class BigIntegerArrayType extends _ArmyCoreArrayType {
 
     /*-------------------below static methods -------------------*/
 
-    public static BigInteger parseBigInteger(String text, int offset, int end) {
-        return new BigInteger(text.substring(offset, end));
+    public static BigInteger parseBigInteger(CharSequence text, int offset, int end) {
+        return new BigInteger(text.subSequence(offset, end).toString());
     }
 
     public static void appendToText(final Object element, final StringBuilder appender) {

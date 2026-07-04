@@ -153,8 +153,8 @@ public class LocalDateTimeArrayType extends _ArmyCoreArrayType {
 
     /*-------------------below static methods -------------------*/
 
-    private static LocalDateTime parseText(final String text, final int offset, final int end) {
-        return LocalDateTime.parse(text.substring(offset, end), _TimeUtils.DATETIME_FORMATTER_6);
+    private static LocalDateTime parseText(final CharSequence text, final int offset, final int end) {
+        return LocalDateTime.parse(text.subSequence(offset, end), _TimeUtils.DATETIME_FORMATTER_6);
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

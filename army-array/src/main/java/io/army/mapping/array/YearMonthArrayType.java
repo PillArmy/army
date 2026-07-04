@@ -145,8 +145,8 @@ public class YearMonthArrayType extends _ArmyCoreArrayType {
 
     }
 
-    private static YearMonth parseText(final String text, final int offset, final int end) {
-        return YearMonth.from(LocalDate.parse(text.substring(offset, end)));
+    private static YearMonth parseText(final CharSequence text, final int offset, final int end) {
+        return YearMonth.from(LocalDate.parse(text.subSequence(offset, end)));
     }
 
 

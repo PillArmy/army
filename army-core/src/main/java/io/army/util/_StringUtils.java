@@ -114,13 +114,72 @@ public abstract class _StringUtils {
         return map;
     }
 
-    public static String surroundingText(String text, int offset, int subLength) {
+    public static CharSequence surroundingText(CharSequence text, int offset, int subLength) {
         final int start, end;
 
         start = Math.max(offset - subLength, 0);
         end = Math.min(offset + subLength, text.length());
 
-        return text.substring(start, end);
+        return text.subSequence(start, end);
+    }
+
+
+    public static boolean startsWith(final CharSequence cs, final CharSequence searchCharSequence) {
+        return regionMatches(cs, false, 0, searchCharSequence, 0, searchCharSequence.length());
+    }
+
+    public static int indexOf(final CharSequence cs, final char ch, int fromIndex) {
+        int index;
+        if (cs instanceof String) {
+            index = ((String) cs).indexOf(ch, fromIndex);
+        } else {
+            final int len = cs.length();
+            index = -1;
+            for (int i = fromIndex; i < len; i++) {
+                if (cs.charAt(i) == ch) {
+                    index = i;
+                    break;
+                }
+            } // loop
+        }
+
+        return index;
+    }
+
+
+    public static boolean regionMatches(CharSequence cs, boolean ignoreCase, final int toffset,
+                                        CharSequence other, final int ooffset, final int len) {
+        final int stopIndex;
+
+        boolean match;
+        if (cs instanceof String && other instanceof String) {
+            match = ((String) cs).regionMatches(ignoreCase, toffset, (String) other, ooffset, len);
+        } else if (toffset < 0 || ooffset < 0 || len < 1) {
+            match = false;
+        } else if (ooffset + len > other.length()) {
+            match = false;
+        } else if ((stopIndex = toffset + len) > cs.length()) {
+            match = false;
+        } else {
+            match = true;
+            char c1, c2;
+            for (int i = toffset, index = ooffset; i < stopIndex; i++, index++) {
+                c1 = cs.charAt(i);
+                c2 = other.charAt(index);
+                if (c1 == c2) {
+                    continue;
+                }
+
+                if (ignoreCase && Character.toUpperCase(c1) == Character.toUpperCase(c2)) {
+                    continue;
+                }
+
+                match = false;
+                break;
+
+            } // loop
+        }
+        return match;
     }
 
 
@@ -199,7 +258,7 @@ public abstract class _StringUtils {
 
     /// @throws IllegalArgumentException when bitString isn't bit string.
     /// @see #bitSetToBitString(BitSet, boolean)
-    public static BitSet bitStringToBitSet(final String bitString, final boolean bitEndian)
+    public static BitSet bitStringToBitSet(final CharSequence bitString, final boolean bitEndian)
             throws IllegalArgumentException {
         final int length;
         length = bitString.length();
@@ -227,7 +286,7 @@ public abstract class _StringUtils {
         return bitSet;
     }
 
-    public static BitSet bitStringToBitSet(final String bitStr, final int offset, final int end) throws IllegalArgumentException {
+    public static BitSet bitStringToBitSet(final CharSequence bitStr, final int offset, final int end) throws IllegalArgumentException {
         final int bitLength;
         bitLength = end - offset;
         if (bitLength < 1 || bitStr.length() < end) {

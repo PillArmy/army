@@ -223,7 +223,7 @@ public abstract class GuavaRangeType extends _ArmyBuildInType implements Mapping
     }
 
 
-    public static Range<?> deserialize(final GuavaRangeType type, MappingEnv env, final String source, final int offset,
+    public static Range<?> deserialize(final GuavaRangeType type, MappingEnv env, final CharSequence source, final int offset,
                                        int endIndex, final @Nullable StringBuilder builder) {
 
         try {
@@ -317,7 +317,7 @@ public abstract class GuavaRangeType extends _ArmyBuildInType implements Mapping
     }
 
 
-    private static IllegalStateException formatError(String source) {
+    private static IllegalStateException formatError(CharSequence source) {
         String m = String.format("%s unsupported by  %s", source, Range.class.getName());
         return new IllegalStateException(m);
     }
@@ -349,7 +349,7 @@ public abstract class GuavaRangeType extends _ArmyBuildInType implements Mapping
         }
 
         @Override
-        public Object apply(final String text, final int offset, final int end) {
+        public Object apply(final CharSequence text, final int offset, final int end) {
             final int length = text.length();
             final int count = this.consumeCount++;
 
@@ -359,7 +359,7 @@ public abstract class GuavaRangeType extends _ArmyBuildInType implements Mapping
             } else if (offset == 0 && end == offset) {  // text not empty and offset == 0 and offset == end : representing nothing
                 textValue = null;
             } else {
-                textValue = text.substring(offset, end);
+                textValue = text.subSequence(offset, end).toString();
             }
 
             if (length == 0) {

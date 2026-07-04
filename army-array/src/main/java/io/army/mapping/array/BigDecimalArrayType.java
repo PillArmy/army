@@ -164,8 +164,8 @@ public class BigDecimalArrayType extends _ArmyCoreArrayType {
         return dataType;
     }
 
-    public static BigDecimal parseBigDecimal(String text, int offset, int end) {
-        return new BigDecimal(text.substring(offset, end));
+    public static BigDecimal parseBigDecimal(CharSequence text, int offset, int end) {
+        return new BigDecimal(text.subSequence(offset, end).toString());
     }
 
     public static void appendToText(final Object element, final StringBuilder appender) {

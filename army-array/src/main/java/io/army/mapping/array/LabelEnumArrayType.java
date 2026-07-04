@@ -186,8 +186,8 @@ public class LabelEnumArrayType extends _ArmyCoreArrayType {
     }
 
 
-    private LabelEnum parseText(final String text, final int offset, final int end) {
-        final String textValue = text.substring(offset, end);
+    private LabelEnum parseText(final CharSequence text, final int offset, final int end) {
+        final String textValue = text.subSequence(offset, end).toString();
         final LabelEnum value;
         value = this.textMap.get(textValue);
         if (value == null) {

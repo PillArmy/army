@@ -176,7 +176,7 @@ public class IntegerArrayType extends _ArmyCoreArrayType {
     }
 
 
-    private static int parseText(final String text, final int offset, final int end) {
+    private static int parseText(final CharSequence text, final int offset, final int end) {
         return Integer.parseInt(text, offset, end, 10);
     }
 

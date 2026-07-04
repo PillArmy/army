@@ -170,8 +170,8 @@ public class DoubleArrayType extends _ArmyCoreArrayType {
 
     /*-------------------below static methods -------------------*/
 
-    private static double parseText(final String text, final int offset, final int end) {
-        return Double.parseDouble(text.substring(offset, end));
+    private static double parseText(final CharSequence text, final int offset, final int end) {
+        return Double.parseDouble(text.subSequence(offset, end).toString());
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

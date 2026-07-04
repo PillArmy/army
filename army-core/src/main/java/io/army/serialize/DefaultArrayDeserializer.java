@@ -51,7 +51,7 @@ final class DefaultArrayDeserializer extends ArmyDeserializer.SingleBoundaryDese
 
 
     @Override
-    public Object deserialize(String text, int offset, int endIndex, MappingType type, TextFunction<?> func,
+    public Object deserialize(CharSequence text, int offset, int endIndex, MappingType type, TextFunction<?> func,
                               @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc, @Nullable StringBuilder builder) {
 
         if ((boundaries == null) != (subFunc == null)) {
@@ -120,7 +120,7 @@ final class DefaultArrayDeserializer extends ArmyDeserializer.SingleBoundaryDese
     /// @param offset the index of left boundary
     /// @return the index of right boundary
     @SuppressWarnings("unchecked")
-    private int parseArray(final String text, final int offset, final int endIndex, final StringBuilder[] holder,
+    private int parseArray(final CharSequence text, final int offset, final int endIndex, final StringBuilder[] holder,
                            final Class<?> javaType, final Class<?> underlyingJavaType,
                            final Consumer<Object> outerConsumer, TextFunction<?> func,
                            final @Nullable char[] boundaries, final @Nullable TextToIntFunc subFunc) {
@@ -250,16 +250,14 @@ final class DefaultArrayDeserializer extends ArmyDeserializer.SingleBoundaryDese
     }
 
 
-    private static IllegalArgumentException arrayFormatError(String text, int offset) {
+    private static IllegalArgumentException arrayFormatError(CharSequence text, int offset) {
         String m = String.format("array format error at nearby offset[%s] -> %s",
                 offset, _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
     }
 
 
-
-
-    private int parseArrayDimension(final String text, final int offset, final int endIndex) {
+    private int parseArrayDimension(final CharSequence text, final int offset, final int endIndex) {
 
         final char leftBoundary = this.leftBoundary;
 
@@ -280,7 +278,7 @@ final class DefaultArrayDeserializer extends ArmyDeserializer.SingleBoundaryDese
         return dimension;
     }
 
-    private int parseArrayLength(final String text, final int offset, final int endIndex,
+    private int parseArrayLength(final CharSequence text, final int offset, final int endIndex,
                                  final @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc) {
 
         final char leftBoundary = this.leftBoundary, arrayDelim = this.itemDelim, rightBoundary = this.rightBoundary;
@@ -343,9 +341,9 @@ final class DefaultArrayDeserializer extends ArmyDeserializer.SingleBoundaryDese
 
 
     /// @param offset the index of left boundary
-    /// @see #skipQuoteElement(String, int, int)
+    /// @see #skipQuoteElement(CharSequence, int, int)
     /// @see #skipUnquotedElement(String, int, int, char, char[], TextToIntFunc)
-    private int skipArrayElement(final String text, final int offset, final int endIndex,
+    private int skipArrayElement(final CharSequence text, final int offset, final int endIndex,
                                  final @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc) {
 //        private method trust upper
 //        if (text.charAt(offset) != leftBoundary) {

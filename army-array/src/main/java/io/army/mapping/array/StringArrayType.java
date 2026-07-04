@@ -79,7 +79,7 @@ public class StringArrayType extends _ArmyCoreArrayType {
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, String::substring, null);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, StringType::subSequence, null);
     }
 
 

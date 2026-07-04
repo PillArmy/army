@@ -155,9 +155,9 @@ public class CodeEnumArrayType extends _ArmyCoreArrayType {
     }
 
 
-    private CodeEnum parseText(final String text, final int offset, final int end) {
+    private CodeEnum parseText(final CharSequence text, final int offset, final int end) {
         final int code;
-        code = Integer.parseInt(text.substring(offset, end));
+        code = Integer.parseInt(text, offset, end, 10);
         final CodeEnum value;
         value = this.codeMap.get(code);
         if (value == null) {

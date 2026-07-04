@@ -157,8 +157,8 @@ public class ByteArrayType extends _ArmyCoreArrayType {
     }
 
 
-    private static byte parseText(final String text, final int offset, final int end) {
-        return Byte.parseByte(text.substring(offset, end));
+    private static byte parseText(final CharSequence text, final int offset, final int end) {
+        return Byte.parseByte(text.subSequence(offset, end).toString());
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

@@ -178,12 +178,12 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
         return sqlBuilder.append(']');
     }
 
-    public static float[] stringToVector(final String text, final int offset, final int end)
+    public static float[] stringToVector(final CharSequence text, final int offset, final int end)
             throws IllegalArgumentException {
         if (text.charAt(offset) != '[' || text.charAt(end - 1) != ']') {
             throw new IllegalArgumentException("format error");
         }
-        final String[] items = text.substring(offset + 1, end - 1).split(",");
+        final String[] items = text.subSequence(offset + 1, end - 1).toString().split(",");
         final float[] vector = new float[items.length];
         for (int i = 0; i < items.length; i++) {
             vector[i] = Float.parseFloat(items[i]);

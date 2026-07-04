@@ -17,6 +17,7 @@
 package io.army.serialize;
 
 import io.army.dialect._Constant;
+import io.army.function.CharPredicate;
 import io.army.function.TextFunction;
 import io.army.function.TextToIntFunc;
 import io.army.lang.Nullable;
@@ -69,7 +70,7 @@ abstract class ArmyDeserializer implements Deserializer {
 
     /// @param offset the next index of left quote
     /// @return the index of right quote
-    final int parseQuoteElement(final String text, final int offset, final int endIndex, final char quote,
+    final int parseQuoteElement(final CharSequence text, final int offset, final int endIndex, final char quote,
                                 final StringBuilder[] holder, @Nullable Consumer<Object> consumer, TextFunction<?> func) {
 
         if (!this.allowQuote) {
@@ -150,7 +151,7 @@ abstract class ArmyDeserializer implements Deserializer {
 
 
     /// @param offset the index of left quote
-    final int skipQuoteElement(final String text, final int offset, final int endIndex) {
+    final int skipQuoteElement(final CharSequence text, final int offset, final int endIndex) {
         if (!this.allowQuote) {
             throw currentDeserializerDontSupportQuote(text, offset);
         }
@@ -198,16 +199,38 @@ abstract class ArmyDeserializer implements Deserializer {
     }
 
 
-    private IllegalArgumentException dontSupportQuoteEscape(String text, int offset) {
+    private IllegalArgumentException dontSupportQuoteEscape(CharSequence text, int offset) {
         String m = String.format("current deserializer[%s] don't support quote escape,at nearby offset[%s] -> %s",
                 getSyntaxType(), offset, _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
     }
 
-    private IllegalArgumentException currentDeserializerDontSupportQuote(String text, int offset) {
+    private IllegalArgumentException currentDeserializerDontSupportQuote(CharSequence text, int offset) {
         String m = String.format("current deserializer[%s] don't support quote,at nearby offset[%s] -> %s",
                 getSyntaxType(), offset, _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
+    }
+
+
+    static boolean regionMatches(final CharSequence text, boolean ignoreCase, final int offset,
+                                 final int endIndex, final String other, final @Nullable CharPredicate predicate) {
+        final int otherLength = other.length();
+        final int stopIndex = offset + otherLength;
+
+
+        boolean match;
+        if (stopIndex > endIndex) {
+            match = false;
+        } else if (stopIndex == endIndex) {
+            match = true;
+        } else {
+            match = predicate == null || predicate.test(text.charAt(stopIndex));
+        }
+
+        if (match) {
+            match = _StringUtils.regionMatches(text, ignoreCase, offset, other, 0, otherLength);
+        }
+        return match;
     }
 
 
@@ -241,13 +264,13 @@ abstract class ArmyDeserializer implements Deserializer {
         return new IllegalArgumentException(String.format("subFunc[%s] bug", subFunc));
     }
 
-    static IllegalArgumentException unquotedElementNotEnd(String text, int offset) {
+    static IllegalArgumentException unquotedElementNotEnd(CharSequence text, int offset) {
         String m = String.format("unquoted element not end at nearby offset[%s] -> %s",
                 offset, _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
     }
 
-    static IllegalArgumentException syntaxError(String target, String text, int offset) {
+    static IllegalArgumentException syntaxError(String target, CharSequence text, int offset) {
         String m = String.format("syntax[%s] error at nearby offset[%s] -> %s",
                 target, offset, _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
@@ -267,8 +290,12 @@ abstract class ArmyDeserializer implements Deserializer {
         }
 
 
+        final boolean isDelimOrRightBoundary(final char ch) {
+            return ch == this.itemDelim || ch == this.rightBoundary || Character.isWhitespace(ch);
+        }
+
         /// @return the previous index of array delim or right boundary
-        final int parseUnQuoteElement(final String text, final int offset, final int endIndex,
+        final int parseUnQuoteElement(final CharSequence text, final int offset, final int endIndex,
                                       final @Nullable Consumer<Object> consumer, TextFunction<?> func,
                                       final @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc) {
             final char firstChar;
@@ -305,7 +332,7 @@ abstract class ArmyDeserializer implements Deserializer {
                     if (elementEndInex < 0) {
                         nullValue = firstIsN
                                 && i - offset == 4
-                                && text.regionMatches(true, offset, _Constant.NULL, 0, 4);
+                                && regionMatches(text, true, offset, endIndex, "null", this::isDelimOrRightBoundary);
                         if (nullValue) {
                             value = null;
                         } else {
@@ -342,7 +369,7 @@ abstract class ArmyDeserializer implements Deserializer {
 
                 nullValue = i - offset == 4
                         && firstIsN
-                        && text.regionMatches(true, offset, _Constant.NULL, 0, 4);
+                        && regionMatches(text, true, offset, endIndex, "null", this::isDelimOrRightBoundary);
                 if (nullValue) {
                     value = null;
                 } else {
@@ -364,7 +391,7 @@ abstract class ArmyDeserializer implements Deserializer {
         }
 
 
-        final int skipUnquotedElement(final String text, final int offset, final int endIndex, final char rightBoundary,
+        final int skipUnquotedElement(final CharSequence text, final int offset, final int endIndex, final char rightBoundary,
                                       final @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc) {
 
             final char quoteChar = this.quoteChar, itemDelim = this.itemDelim;
@@ -402,7 +429,7 @@ abstract class ArmyDeserializer implements Deserializer {
         }
 
 
-        final int parseDirectNestedElement(final String text, final int offset, final int endIndex, @Nullable TextFunction<?> func,
+        final int parseDirectNestedElement(final CharSequence text, final int offset, final int endIndex, @Nullable TextFunction<?> func,
                                            final @Nullable char[] boundaries, final @Nullable TextToIntFunc subFunc) {
 
             final char leftBoundary = this.leftBoundary, itemDelim = this.itemDelim, rightBoundary = this.rightBoundary;
@@ -492,9 +519,13 @@ abstract class ArmyDeserializer implements Deserializer {
             this.rightBoundaries = Objects.requireNonNull(builder.rightBoundaries);
         }
 
+        final boolean isDelimOrRightBoundary(final char ch) {
+            return ch == this.itemDelim || isBoundaries(this.rightBoundaries, ch) || Character.isWhitespace(ch);
+        }
+
 
         /// @return the previous index of array delim or right boundary
-        final int parseUnQuoteElement(final String text, final int offset, final int endIndex,
+        final int parseUnQuoteElement(final CharSequence text, final int offset, final int endIndex,
                                       final @Nullable Consumer<Object> consumer, TextFunction<?> func,
                                       final @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc) {
             final char firstChar;
@@ -532,7 +563,7 @@ abstract class ArmyDeserializer implements Deserializer {
                     if (elementEndInex < 0) {
                         nullValue = firstIsN
                                 && i - offset == 4
-                                && text.regionMatches(true, offset, _Constant.NULL, 0, 4);
+                                && regionMatches(text, true, offset, endIndex, "null", this::isDelimOrRightBoundary);
                         if (nullValue) {
                             value = null;
                         } else {
@@ -569,7 +600,7 @@ abstract class ArmyDeserializer implements Deserializer {
 
                 nullValue = i - offset == 4
                         && firstIsN
-                        && text.regionMatches(true, offset, _Constant.NULL, 0, 4);
+                        && regionMatches(text, true, offset, endIndex, "null", this::isDelimOrRightBoundary);
                 if (nullValue) {
                     value = null;
                 } else {
@@ -590,7 +621,7 @@ abstract class ArmyDeserializer implements Deserializer {
             return rightIndex;
         }
 
-        final int skipUnquotedElement(final String text, final int offset, final int endIndex, final char[] rightBoundaries,
+        final int skipUnquotedElement(final CharSequence text, final int offset, final int endIndex, final char[] rightBoundaries,
                                       final @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc) {
 
             if ((boundaries == null) != (subFunc == null)) {
@@ -630,7 +661,7 @@ abstract class ArmyDeserializer implements Deserializer {
             return rightIndex;
         } // skipUnquotedElement
 
-        final int parseDirectNestedElement(final String text, final int offset, final int endIndex,
+        final int parseDirectNestedElement(final CharSequence text, final int offset, final int endIndex,
                                            final boolean allowNestedSelf, @Nullable TextFunction<?> func,
                                            final @Nullable char[] boundaries, final @Nullable TextToIntFunc subFunc) {
 

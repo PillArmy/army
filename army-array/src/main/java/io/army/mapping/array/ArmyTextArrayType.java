@@ -20,6 +20,7 @@ import io.army.criteria.CriteriaException;
 import io.army.dialect.UnsupportedDialectException;
 import io.army.executor.DataAccessException;
 import io.army.mapping.MappingEnv;
+import io.army.mapping.StringType;
 import io.army.meta.ServerMeta;
 import io.army.sqltype.DataType;
 
@@ -63,7 +64,7 @@ abstract class ArmyTextArrayType extends _ArmyCoreArrayType {
 
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
-        return PostgreArrays.arrayAfterGet(this, dataType, source, String::substring, null);
+        return PostgreArrays.arrayAfterGet(this, dataType, source, StringType::subSequence, null);
     }
 
 

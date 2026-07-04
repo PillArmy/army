@@ -128,7 +128,7 @@ public class XmlArrayType extends _ArmyCoreArrayType {
     @Override
     public final Object afterGet(DataType dataType, MappingEnv env, Object source) throws DataAccessException {
         final TextFunction<?> function;
-        function = (text, offset, end) -> XmlType.deserialize(this.underlyingType, dataType, env, text.substring(offset, end));
+        function = (text, offset, end) -> XmlType.deserialize(this.underlyingType, dataType, env, text.subSequence(offset, end).toString());
         return PostgreArrays.arrayAfterGet(this, dataType, source, function, null);
     }
 

@@ -181,7 +181,7 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
 
     abstract Object newInstance();
 
-    abstract BiConsumer<String, String> createDeserializeConsumer(Object newInstance, DataType dataType, MappingEnv env, final Object source);
+    abstract BiConsumer<CharSequence, CharSequence> createDeserializeConsumer(Object newInstance, DataType dataType, MappingEnv env, final Object source);
 
 
     @SuppressWarnings("unused")
@@ -203,7 +203,7 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
 
     @SuppressWarnings("unused")
     public static Object deserialize(PgHstoreType type, DataType dataType, MappingEnv env,
-                                     final String source, final int offset, final int endIndex,
+                                     final CharSequence source, final int offset, final int endIndex,
                                      @Nullable StringBuilder builder) {
         final Object instance;
         instance = type.newInstance();
@@ -212,7 +212,7 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
             return instance;
         }
         try {
-            final BiConsumer<String, String> func;
+            final BiConsumer<CharSequence, CharSequence> func;
             func = type.createDeserializeConsumer(instance, dataType, env, source);
             DESERIALIZER.deserialize(source, offset, endIndex, func, null, null, builder);
         } catch (DataAccessException e) {
@@ -307,7 +307,7 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
 
 
         @Override
-        final BiConsumer<String, String> createDeserializeConsumer(Object newInstance, DataType dataType, MappingEnv env, final Object source) {
+        final BiConsumer<CharSequence, CharSequence> createDeserializeConsumer(Object newInstance, DataType dataType, MappingEnv env, final Object source) {
 
             final DataType keyDataType, valueDataType;
             keyDataType = this.keyType.map(env.serverMeta());
@@ -316,6 +316,14 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
             @SuppressWarnings("unchecked") final Map<Object, Object> map = (Map<Object, Object>) newInstance;
 
             return (keyStr, valueStr) -> {
+
+                if (keyStr != null && !(keyStr instanceof String)) {
+                    keyStr = keyStr.toString();
+                }
+                if (valueStr != null && !(valueStr instanceof String)) {
+                    valueStr = valueStr.toString();
+                }
+
                 Object key, value;
                 if (keyStr == null) {
                     key = null;
@@ -616,12 +624,16 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
         }
 
         @Override
-        BiConsumer<String, String> createDeserializeConsumer(Object newInstance, DataType dataType, MappingEnv env, Object source) {
+        BiConsumer<CharSequence, CharSequence> createDeserializeConsumer(Object newInstance, DataType dataType, MappingEnv env, Object source) {
 
             return (keyStr, valueStr) -> {
                 if (keyStr == null) {
                     throw dataAccessError(this, dataType, source, keyMustNotBeNull());
+                } else if (!(keyStr instanceof String)) {
+                    keyStr = keyStr.toString();
                 }
+
+
                 final MappingType type;
                 type = this.typeMap.get(keyStr);
                 if (type == null) {
@@ -632,13 +644,16 @@ public abstract class PgHstoreType extends _ArmyBuildInType implements MappingTy
                 if (valueStr == null) {
                     value = null;
                 } else {
+                    if (!(valueStr instanceof String)) {
+                        valueStr = valueStr.toString();
+                    }
                     value = type.afterGet(type.map(env.serverMeta()), env, valueStr);
                     if (value == MappingType.DOCUMENT_NULL_VALUE) {
                         value = null;
                     }
                 }
 
-                this.accessor.set(newInstance, keyStr, value);
+                this.accessor.set(newInstance, (String) keyStr, value);
             };
         }
 

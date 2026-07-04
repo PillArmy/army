@@ -132,9 +132,9 @@ public class MonthDayArrayType extends _ArmyCoreArrayType {
     /*-------------------below static methods -------------------*/
 
 
-    private static MonthDay parseText(final String text, final int offset, final int end) {
+    private static MonthDay parseText(final CharSequence text, final int offset, final int end) {
         final String timeStr;
-        timeStr = text.substring(offset, end);
+        timeStr = text.subSequence(offset, end).toString();
 
         final MonthDay value;
         if (timeStr.length() == 5) {

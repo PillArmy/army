@@ -46,7 +46,7 @@ public abstract class _SqlRecordSupport extends _ArmyBuildInType {
     }
 
 
-    protected final io.army.type.SqlRecord parseSqlRecord(final MappingEnv env, final String source, final int offset, final int end) {
+    protected final io.army.type.SqlRecord parseSqlRecord(final MappingEnv env, final CharSequence source, final int offset, final int end) {
         final ServerMeta meta = env.serverMeta();
         final List<MappingType> columnTypeList = this.columnTypeList;
         final int columnTypeSize = columnTypeList.size();
@@ -76,14 +76,14 @@ public abstract class _SqlRecordSupport extends _ArmyBuildInType {
                 }
             } else if (ch == _Constant.LEFT_PAREN) {
                 if (recordEnd) {
-                    throw _Exceptions.parenNotMatch(source.substring(offset, offset + 5));
+                    throw _Exceptions.parenNotMatch(source.subSequence(offset, offset + 5));
                 }
                 if (leftParenCount == 1 && startIndex < 0) {
                     startIndex = i;
                 }
                 leftParenCount++;
             } else if (leftParenCount == 0) {
-                throw _Exceptions.parenNotMatch(source.substring(offset, offset + 5));
+                throw _Exceptions.parenNotMatch(source.subSequence(offset, offset + 5));
             } else if (startIndex < 0) {
                 if (!Character.isWhitespace(ch)) {
                     startIndex = i;
@@ -110,7 +110,7 @@ public abstract class _SqlRecordSupport extends _ArmyBuildInType {
                 if (source.charAt(startIndex) == _Constant.DOUBLE_QUOTE) {
                     elementText = PostgreArrays.decodeElement(source, startIndex, endIndex);
                 } else {
-                    elementText = source.substring(startIndex, endIndex);
+                    elementText = source.subSequence(startIndex, endIndex).toString();
                 }
 
                 if (_Constant.NULL.equalsIgnoreCase(elementText)) {
@@ -140,7 +140,7 @@ public abstract class _SqlRecordSupport extends _ArmyBuildInType {
         } // outer loop for
 
         if (!recordEnd) {
-            throw _Exceptions.parenNotMatch(source.substring(offset, offset + 5));
+            throw _Exceptions.parenNotMatch(source.subSequence(offset, offset + 5));
         } else if (inDoubleQuote) {
             throw _Exceptions.doubleQuoteNotMatch();
         }

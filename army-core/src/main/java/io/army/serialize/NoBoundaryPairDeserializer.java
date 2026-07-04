@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 
 public interface NoBoundaryPairDeserializer extends Deserializer {
 
-    void deserialize(String text, int offset, int endIndex, BiConsumer<String, String> func,
+    void deserialize(CharSequence text, int offset, int endIndex, BiConsumer<CharSequence, CharSequence> func,
                      @Nullable char[] boundaries, @Nullable TextToIntFunc skipFunc, @Nullable StringBuilder builder);
 
 

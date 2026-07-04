@@ -172,7 +172,7 @@ public class CharacterArrayType extends _ArmyCoreArrayType {
 
     /*-------------------below static methods -------------------*/
 
-    private static char parseText(final String text, final int offset, final int end) {
+    private static char parseText(final CharSequence text, final int offset, final int end) {
         if (end - offset != 1) {
             throw new IllegalArgumentException("not char");
         }

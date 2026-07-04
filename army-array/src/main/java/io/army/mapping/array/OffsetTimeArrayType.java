@@ -143,8 +143,8 @@ public class OffsetTimeArrayType extends _ArmyCoreArrayType {
 
     /*-------------------below static methods -------------------*/
 
-    private static OffsetTime parseText(final String text, final int offset, final int end) {
-        return OffsetTime.parse(text.substring(offset, end), _TimeUtils.OFFSET_TIME_FORMATTER_6);
+    private static OffsetTime parseText(final CharSequence text, final int offset, final int end) {
+        return OffsetTime.parse(text.subSequence(offset, end), _TimeUtils.OFFSET_TIME_FORMATTER_6);
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

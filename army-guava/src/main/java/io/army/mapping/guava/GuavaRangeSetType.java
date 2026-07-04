@@ -155,7 +155,7 @@ public abstract class GuavaRangeSetType extends _ArmyBuildInType
 
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static RangeSet deserialize(GuavaRangeSetType type, MappingEnv env, final String source,
+    public static RangeSet deserialize(GuavaRangeSetType type, MappingEnv env, final CharSequence source,
                                        final int srcOffset, final int srcEndIndex, StringBuilder builder) {
 
         final RangeSet rangeSet = TreeRangeSet.create();

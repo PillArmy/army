@@ -17,7 +17,9 @@
 package io.army.function;
 
 @FunctionalInterface
-public interface TextToIntFunc {
+public interface CharPredicate {
 
-    int apply(CharSequence text, int offset, int endIndex);
+    boolean test(char ch);
+
+
 }

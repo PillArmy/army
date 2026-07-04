@@ -147,8 +147,8 @@ public class OffsetDateTimeArrayType extends _ArmyCoreArrayType {
         return PgType.TIMESTAMPTZ_ARRAY;
     }
 
-    private static OffsetDateTime parseText(final String text, final int offset, final int end) {
-        return OffsetDateTime.parse(text.substring(offset, end), _TimeUtils.OFFSET_DATETIME_FORMATTER_6);
+    private static OffsetDateTime parseText(final CharSequence text, final int offset, final int end) {
+        return OffsetDateTime.parse(text.subSequence(offset, end), _TimeUtils.OFFSET_DATETIME_FORMATTER_6);
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

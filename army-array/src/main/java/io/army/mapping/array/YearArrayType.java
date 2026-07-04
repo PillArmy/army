@@ -147,8 +147,8 @@ public class YearArrayType extends _ArmyCoreArrayType {
 
     }
 
-    private static Year parseText(final String text, final int offset, final int end) {
-        return Year.from(LocalDate.parse(text.substring(offset, end)));
+    private static Year parseText(final CharSequence text, final int offset, final int end) {
+        return Year.from(LocalDate.parse(text.subSequence(offset, end)));
     }
 
     private static final class ClassValueHolder {

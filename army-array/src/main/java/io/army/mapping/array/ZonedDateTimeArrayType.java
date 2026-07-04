@@ -114,8 +114,8 @@ public class ZonedDateTimeArrayType extends _ArmyCoreArrayType {
 
     /*-------------------below static methods -------------------*/
 
-    private static ZonedDateTime parseText(final String text, final int offset, final int end) {
-        return ZonedDateTime.parse(text.substring(offset, end), _TimeUtils.OFFSET_DATETIME_FORMATTER_6);
+    private static ZonedDateTime parseText(final CharSequence text, final int offset, final int end) {
+        return ZonedDateTime.parse(text.subSequence(offset, end), _TimeUtils.OFFSET_DATETIME_FORMATTER_6);
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

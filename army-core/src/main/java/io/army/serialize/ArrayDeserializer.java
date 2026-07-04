@@ -26,7 +26,7 @@ import io.army.mapping.MappingType;
 public interface ArrayDeserializer extends Deserializer {
 
 
-    Object deserialize(String text, int offset, int endIndex, MappingType type, TextFunction<?> func,
+    Object deserialize(CharSequence text, int offset, int endIndex, MappingType type, TextFunction<?> func,
                        @Nullable char[] boundaries, @Nullable TextToIntFunc skipFunc, @Nullable StringBuilder builder);
 
 

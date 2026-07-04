@@ -171,7 +171,7 @@ public class BinaryArrayType extends _ArmyCoreArrayType {
                 .append(_Constant.DOUBLE_QUOTE);
     }
 
-    static byte[] deserializeElement(String text, int offset, int end) {
+    static byte[] deserializeElement(CharSequence text, int offset, int end) {
         return BinaryType.decodeBinaryLiteral(Database.PostgreSQL, text, offset, end);
     }
 

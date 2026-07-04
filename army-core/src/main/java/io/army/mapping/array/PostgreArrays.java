@@ -31,6 +31,7 @@ import io.army.sqltype.PgType;
 import io.army.util.ArrayUtils;
 import io.army.util.HexUtils;
 import io.army.util._Exceptions;
+import io.army.util._StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -68,7 +69,7 @@ public abstract class PostgreArrays {
     ///
     /// @see #encodeElement(CharSequence, StringBuilder)
     /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
-    public static String decodeElement(final String text, int offset, int end) {
+    public static String decodeElement(final CharSequence text, int offset, int end) {
         final boolean enclose;
         if (text.charAt(offset) == _Constant.DOUBLE_QUOTE) {
             if (text.charAt(end - 1) != _Constant.DOUBLE_QUOTE) {
@@ -112,9 +113,9 @@ public abstract class PostgreArrays {
         if (builder != null) {
             elementText = builder.toString();
         } else if (enclose) {
-            elementText = text.substring(offset, end);
+            elementText = text.subSequence(offset, end).toString();
         } else {
-            elementText = text;
+            elementText = text.toString();
         }
         return elementText;
     }
@@ -267,7 +268,7 @@ public abstract class PostgreArrays {
     /// @return int[2] , int[0] is dimension, int[1] is the index of left boundary.
     /// @see ArrayDeserializer.Builder#skipPrefixFunc(TextToIntFunc)
     /// @see <a href="https://www.postgresql.org/docs/current/arrays.html#ARRAYS-IO">Array Input and Output Syntax</a>
-    private static int skipExplicitDimensions(final String text, int offset, final int endIndex) {
+    private static int skipExplicitDimensions(final CharSequence text, int offset, final int endIndex) {
 
         final int oldOffset = offset;
 
@@ -281,7 +282,9 @@ public abstract class PostgreArrays {
             if (ch != _Constant.LEFT_SQUARE_BRACKET) {
                 break;
             }
-            offset = text.indexOf('=');
+
+            offset = _StringUtils.indexOf(text, '=', offset);
+
             if (offset < 0) {
                 throw new IllegalArgumentException("postgre array meta error");
             }

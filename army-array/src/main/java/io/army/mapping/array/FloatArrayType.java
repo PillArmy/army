@@ -168,8 +168,8 @@ public class FloatArrayType extends _ArmyCoreArrayType {
 
     /*-------------------below static methods -------------------*/
 
-    private static float parseText(final String text, final int offset, final int end) {
-        return Float.parseFloat(text.substring(offset, end));
+    private static float parseText(final CharSequence text, final int offset, final int end) {
+        return Float.parseFloat(text.subSequence(offset, end).toString());
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

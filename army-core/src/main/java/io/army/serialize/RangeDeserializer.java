@@ -21,10 +21,10 @@ import io.army.lang.Nullable;
 
 public interface RangeDeserializer extends Deserializer {
 
-    void deserialize(String text, int offset, int endIndex, TextFunction<?> func, @Nullable StringBuilder builder);
+    void deserialize(CharSequence text, int offset, int endIndex, TextFunction<?> func, @Nullable StringBuilder builder);
 
     /// @return the index of right boundary
-    int skipRange(String text, int offset, int endIndex);
+    int skipRange(CharSequence text, int offset, int endIndex);
 
     char[] copyLeftBoundaries();
 

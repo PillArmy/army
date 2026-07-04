@@ -29,6 +29,7 @@ import io.army.sqltype.SQLType;
 import io.army.util.ArrayUtils;
 import io.army.util.FuncClassValue;
 import io.army.util._Assert;
+import io.army.util._StringUtils;
 
 import java.util.Objects;
 
@@ -174,15 +175,15 @@ public class BooleanArrayType extends _ArmyCoreArrayType {
 
     /*-------------------below static methods -------------------*/
 
-    private static Boolean parseText(final String text, final int offset, final int end) {
+    private static Boolean parseText(final CharSequence text, final int offset, final int end) {
 
         final Boolean value;
-        if (text.regionMatches(true, offset, "true", 0, 4)) {
+        if (_StringUtils.regionMatches(text, true, offset, "true", 0, 4)) {
             if (offset + 4 != end) {
                 throw new IllegalArgumentException("not boolean");
             }
             value = Boolean.TRUE;
-        } else if (text.regionMatches(true, offset, "false", 0, 5)) {
+        } else if (_StringUtils.regionMatches(text, true, offset, "false", 0, 5)) {
             if (offset + 5 != end) {
                 throw new IllegalArgumentException("not boolean");
             }

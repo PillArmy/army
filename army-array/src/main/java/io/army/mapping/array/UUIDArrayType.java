@@ -157,12 +157,12 @@ public class UUIDArrayType extends _ArmyCoreArrayType {
     }
 
 
-    private Object parseText(final String text, final int offset, final int end) {
+    private Object parseText(final CharSequence text, final int offset, final int end) {
         final Object element;
         if (this.underlyingJavaType == String.class) {
-            element = text.substring(offset, end);
+            element = text.subSequence(offset, end).toString();
         } else {
-            element = UUID.fromString(text.substring(offset, end));
+            element = UUID.fromString(text.subSequence(offset, end).toString());
         }
         return element;
 

@@ -16,7 +16,6 @@
 
 package io.army.serialize;
 
-import io.army.dialect._Constant;
 import io.army.function.TextFunction;
 import io.army.function.TextToIntFunc;
 import io.army.lang.Nullable;
@@ -51,7 +50,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
 
 
     @Override
-    public void deserialize(final String text, final int offset, final int endIndex, BiConsumer<String, String> func,
+    public void deserialize(final CharSequence text, final int offset, final int endIndex, BiConsumer<CharSequence, CharSequence> func,
                             @Nullable char[] boundaries, @Nullable TextToIntFunc skipFunc, @Nullable StringBuilder builder) {
         if (offset >= endIndex) {
             throw new IllegalArgumentException();
@@ -72,7 +71,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
         final char itemDelim = this.itemDelim, quoteChar = this.quoteChar;
         final char firstCharOfSeparator = this.firstCharOfSeparator;
 
-        final int separatorLength = this.separatorLength, lastIndex = endIndex - 1;
+        final int separatorLength = this.separatorLength;
 
         final boolean allowNothing = this.allowNothing, allowWhitespace = this.allowWhitespace;
 
@@ -80,15 +79,15 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
         final StringBuilder[] holder = new StringBuilder[1];
         holder[0] = builder;
 
-        final String[] keyHolder = new String[2];
+        final CharSequence[] keyHolder = new CharSequence[2];
         final int[] itemFlagHolder = new int[1];
         final TextFunction<Void> function;
         function = (srcText, srcOffset, srcEnd) -> {
-            final String value;
-            if (srcOffset == 0 && srcEnd == srcOffset && this.nullRepresenting.equals(srcText)) {
+            final CharSequence value;
+            if (srcOffset == 0 && srcEnd == srcOffset && this.nullRepresenting.contentEquals(srcText)) {
                 value = null;
             } else {
-                value = srcText.substring(srcOffset, srcEnd);
+                value = srcText.subSequence(srcOffset, srcEnd);
             }
             if (keyHolder[0] == null) {
                 if (value == null) {
@@ -114,7 +113,8 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
                         continue;
                     }
                     throw _Exceptions.missSeparatorError(text, i, separator);
-                } else if (text.regionMatches(false, i, separator, 0, separatorLength)) {
+                } else if (//i + separatorLength <= endIndex &&
+                        regionMatches(text, false, i, endIndex, separator, null)) {
                     i += (separatorLength - 1);
                     separatorFlag = 0;
                     continue;
@@ -152,7 +152,9 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
                     continue;
                 }
                 throw _Exceptions.redundantDelimError(text, i, itemDelim);
-            } else if (ch == firstCharOfSeparator && text.regionMatches(false, i, separator, 0, separatorLength)) {
+            } else if (ch == firstCharOfSeparator
+                    //&& i + separatorLength <= endIndex
+                    && regionMatches(text, false, i, endIndex, separator, null)) {
                 throw _Exceptions.redundantSeparatorError(text, i, separator);
             } else {
                 if (!allowWhitespace && Character.isWhitespace(ch)) {
@@ -182,7 +184,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
     } // deserialize
 
     /// @return the previous index of array delim or right boundary
-    private int parseUnQuoteElement(final String text, final int offset, final int endIndex, TextFunction<?> func,
+    private int parseUnQuoteElement(final CharSequence text, final int offset, final int endIndex, TextFunction<?> func,
                                     final @Nullable char[] boundaries, @Nullable TextToIntFunc subFunc) {
         final char firstChar;
         firstChar = text.charAt(offset);
@@ -218,7 +220,8 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
             }
 
             separatorBoundary = ch == firstCharOfSeparator
-                    && text.regionMatches(false, i, separator, 0, separatorLength);
+                    //&& i + separatorLength <= endIndex
+                    && regionMatches(text, false, i, endIndex, separator, null);
 
             if (ch == itemDelim || separatorBoundary || i == lastIndex) {
 
@@ -232,7 +235,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
                 if (elementEndInex < 0) {
                     nullValue = firstIsN
                             && eleEndIndex - offset == 4
-                            && text.regionMatches(true, offset, _Constant.NULL, 0, 4);
+                            && regionMatches(text, true, offset, endIndex, "null", null);
                     if (nullValue) {
                         func.apply(this.nullRepresenting, 0, 0);
                     } else {
@@ -271,7 +274,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
 
             nullValue = i - offset == 4
                     && firstIsN
-                    && text.regionMatches(true, offset, _Constant.NULL, 0, 4);
+                    && regionMatches(text, true, offset, endIndex, "null", null);
             if (nullValue) {
                 func.apply(this.nullRepresenting, 0, 0);
             } else {
@@ -288,11 +291,6 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
         return rightIndex;
     }
 
-    private IllegalArgumentException containSeparatorFirstCharError(String text, int offset) {
-        String m = String.format("unquoted element contain separator first char[%s] at nearby offset[%s] -> %s",
-                this.firstCharOfSeparator, offset, _StringUtils.surroundingText(text, offset, 4));
-        return new IllegalArgumentException(m);
-    }
 
     private static IllegalArgumentException keyIsNull() {
         return new IllegalArgumentException("exists key is null");

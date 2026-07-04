@@ -37,7 +37,7 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
 
 
     @Override
-    public void deserialize(final String text, final int offset, final int endIndex, TextFunction<?> func,
+    public void deserialize(final CharSequence text, final int offset, final int endIndex, TextFunction<?> func,
                             @Nullable StringBuilder builder) {
 
         Objects.requireNonNull(func);
@@ -45,7 +45,7 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
         final char firstChar = text.charAt(offset);
         if (isBoundaries(this.leftBoundaries, firstChar)) {
             parseRange(text, offset, endIndex, func, builder);
-        } else if (text.regionMatches(true, offset, "empty", 0, 5)) {
+        } else if (regionMatches(text, true, offset, endIndex, "empty", null)) {
             func.apply("", 0, 0);
         } else {
             throw syntaxError(getSyntaxType(), text, offset);
@@ -55,7 +55,7 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
 
 
     @Override
-    public int skipRange(final String text, final int offset, final int endIndex) {
+    public int skipRange(final CharSequence text, final int offset, final int endIndex) {
         if (!isBoundaries(this.leftBoundaries, text.charAt(offset))) {
             throw syntaxError(getSyntaxType(), text, offset);
         }
@@ -67,7 +67,7 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
         return Arrays.copyOf(this.leftBoundaries, this.leftBoundaries.length);
     }
 
-    private void parseRange(final String text, final int offset, final int endIndex, @Nullable TextFunction<?> func,
+    private void parseRange(final CharSequence text, final int offset, final int endIndex, @Nullable TextFunction<?> func,
                             @Nullable StringBuilder builder) {
 
         final char firstChar = text.charAt(offset);

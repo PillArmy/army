@@ -157,8 +157,8 @@ public class LocalDateArrayType extends _ArmyCoreArrayType {
         return dataType;
     }
 
-    private static LocalDate parseText(final String text, final int offset, final int end) {
-        return LocalDate.parse(text.substring(offset, end));
+    private static LocalDate parseText(final CharSequence text, final int offset, final int end) {
+        return LocalDate.parse(text.subSequence(offset, end));
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

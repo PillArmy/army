@@ -39,7 +39,7 @@ final class DefaultRecordDeserializer extends ArmyDeserializer.SingleBoundaryDes
 
 
     @Override
-    public void deserialize(String text, final int offset, final int endIndex, TextFunction<?> func,
+    public void deserialize(CharSequence text, final int offset, final int endIndex, TextFunction<?> func,
                             final @Nullable char[] boundaries, final @Nullable TextToIntFunc skipFunc, @Nullable StringBuilder builder) {
 
         if (text.charAt(offset) != this.leftBoundary) {

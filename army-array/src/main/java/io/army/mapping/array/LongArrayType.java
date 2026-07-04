@@ -175,7 +175,7 @@ public class LongArrayType extends _ArmyCoreArrayType {
     }
 
 
-    private static long parseText(final String text, final int offset, final int endIndex) {
+    private static long parseText(final CharSequence text, final int offset, final int endIndex) {
         return Long.parseLong(text, offset, endIndex, 10);
     }
 

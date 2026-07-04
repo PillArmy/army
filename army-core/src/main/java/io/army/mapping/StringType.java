@@ -33,7 +33,7 @@ import java.util.function.Function;
 /// This class map {@link String} to sql varchar .
 /// If you need to map char ,you can use {@link SqlCharType} instead of this class.
 /// This mapping type can convert below java type:
-/// 
+///
 /// - {@link Number}
 /// - {@link Boolean}
 /// - {@link CodeEnum}
@@ -51,8 +51,9 @@ import java.util.function.Function;
 /// - {@link Instant} to {@link Instant#getEpochSecond()} string
 /// - {@link java.time.Duration}
 /// - {@link java.time.Period}
-/// 
+///
 /// to {@link String},if error,throw {@link io.army.ArmyException}
+///
 /// @see TextType
 /// @see MediumTextType
 /// @since 0.6.0
@@ -130,6 +131,16 @@ public final class StringType extends _ArmyBuildInCoreType implements MappingTyp
 
         }
         return dataType;
+    }
+
+
+    public static String subSequence(CharSequence sequence, int offset, int endIndex) {
+        CharSequence sub;
+        sub = sequence.subSequence(offset, endIndex);
+        if (!(sub instanceof String)) {
+            sub = sub.toString();
+        }
+        return (String) sub;
     }
 
     public static String toString(final MappingType type, final DataType dataType, final Object source,

@@ -23,6 +23,7 @@ import io.army.meta.ServerMeta;
 import io.army.sqltype.*;
 import io.army.util.HexUtils;
 import io.army.util._Exceptions;
+import io.army.util._StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -128,20 +129,20 @@ public final class BinaryType extends _ArmyBuildInCoreType implements MappingTyp
     }
 
 
-    public static byte[] decodeBinaryLiteral(Database database, final String source, final int offset, final int endIndex) {
+    public static byte[] decodeBinaryLiteral(Database database, final CharSequence source, final int offset, final int endIndex) {
         final byte[] value;
         switch (database) {
             case PostgreSQL: {
-                if (source.startsWith("\\x", offset)) {
-                    value = HexUtils.decodeHex(source.substring(offset + 2, endIndex).getBytes(StandardCharsets.US_ASCII));
+                if (_StringUtils.startsWith(source, "\\x")) {
+                    value = HexUtils.decodeHex(source.subSequence(offset + 2, endIndex).toString().getBytes(StandardCharsets.US_ASCII));
                 } else {
                     value = decodePostgreOtcEscapeBinaryString(source, offset, endIndex);
                 }
             }
             break;
             case MySQL: {
-                if (source.startsWith("0x", offset)) {
-                    value = HexUtils.decodeHex(source.substring(offset + 2, endIndex).getBytes(StandardCharsets.US_ASCII));
+                if (_StringUtils.startsWith(source, "0x")) {
+                    value = HexUtils.decodeHex(source.subSequence(offset + 2, endIndex).toString().getBytes(StandardCharsets.US_ASCII));
                 } else {
                     throw new IllegalArgumentException("MySQL binary literal must start with 0x");
                 }

@@ -174,8 +174,8 @@ public class ShortArrayType extends _ArmyCoreArrayType {
         return dataType;
     }
 
-    private static short parseText(final String text, final int offset, final int end) {
-        return Short.parseShort(text.substring(offset, end));
+    private static short parseText(final CharSequence text, final int offset, final int end) {
+        return Short.parseShort(text.subSequence(offset, end).toString());
     }
 
     private static void appendToText(final Object element, final StringBuilder appender) {

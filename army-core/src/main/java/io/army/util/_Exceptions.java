@@ -86,50 +86,50 @@ public abstract class _Exceptions {
         return new ArmyException("unknown error," + e.getMessage(), e);
     }
 
-    public static IllegalArgumentException missDelimError(String text, int offset, char delim) {
+    public static IllegalArgumentException missDelimError(CharSequence text, int offset, char delim) {
         String m = String.format("missing delim[%s] at nearby offset[%s] -> %s", delim,
                 offset, _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
     }
 
-    public static IllegalArgumentException missSeparatorError(String text, int offset, String separator) {
+    public static IllegalArgumentException missSeparatorError(CharSequence text, int offset, String separator) {
         String m = String.format("missing separator[%s] at nearby offset[%s] -> %s", separator,
                 offset, _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
     }
 
-    public static IllegalArgumentException redundantDelimError(String text, int offset, char delim) {
+    public static IllegalArgumentException redundantDelimError(CharSequence text, int offset, char delim) {
         String m = String.format("redundant delim[%s] at nearby offset[%s] -> %s", delim,
                 offset, _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
     }
 
-    public static IllegalArgumentException redundantSeparatorError(String text, int offset, String separator) {
+    public static IllegalArgumentException redundantSeparatorError(CharSequence text, int offset, String separator) {
         String m = String.format("redundant separator[%s] at nearby offset[%s] -> %s", separator,
                 offset, _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
     }
 
 
-    public static IllegalArgumentException missingClosingError(String text, int offset, char quote) {
+    public static IllegalArgumentException missingClosingError(CharSequence text, int offset, char quote) {
         String m = String.format("miss closing char[%s] at nearby offset[%s] -> %s", quote, offset,
                 _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
     }
 
-    public static IllegalArgumentException missingEndingError(String text, int offset, char[] endList) {
+    public static IllegalArgumentException missingEndingError(CharSequence text, int offset, char[] endList) {
         String m = String.format("miss ending char list[%s] at nearby offset[%s] -> %s", Arrays.toString(endList), offset,
                 _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
     }
 
-    public static IllegalArgumentException missingSeparatorError(String text, int offset, String separator) {
+    public static IllegalArgumentException missingSeparatorError(CharSequence text, int offset, String separator) {
         String m = String.format("miss separator [%s] at nearby offset[%s] -> %s", separator, offset,
                 _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
     }
 
-    public static IllegalArgumentException unexpectedQuoteError(String text, int offset, char quote) {
+    public static IllegalArgumentException unexpectedQuoteError(CharSequence text, int offset, char quote) {
         String m = String.format("unexpected quote[%s] at nearby offset[%s] -> %s", quote, offset,
                 _StringUtils.surroundingText(text, offset, 4));
         return new IllegalArgumentException(m);
@@ -1503,7 +1503,7 @@ public abstract class _Exceptions {
         return new IllegalArgumentException(m);
     }
 
-    public static IllegalArgumentException parenNotMatch(String fragment) {
+    public static IllegalArgumentException parenNotMatch(CharSequence fragment) {
         String m = String.format("fragment[%s] left paren and right paren not match", fragment);
         return new IllegalArgumentException(m);
     }

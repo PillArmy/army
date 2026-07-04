@@ -24,7 +24,7 @@ import io.army.lang.Nullable;
 public interface RecordDeserializer extends Deserializer {
 
 
-    void deserialize(String text, int offset, int endIndex, TextFunction<?> func,
+    void deserialize(CharSequence text, int offset, int endIndex, TextFunction<?> func,
                      @Nullable char[] boundaries, @Nullable TextToIntFunc skipFunc, @Nullable StringBuilder builder);
 
 

@@ -180,8 +180,8 @@ public class NameEnumArrayType extends _ArmyCoreArrayType {
         return match;
     }
 
-    private Enum<?> parseText(final String text, final int offset, final int end) {
-        return NameEnumType.valueOf(this.enumClass, text.substring(offset, end));
+    private Enum<?> parseText(final CharSequence text, final int offset, final int end) {
+        return NameEnumType.valueOf(this.enumClass, text.subSequence(offset, end).toString());
     }
 
     private void appendToText(final Object element, final StringBuilder appender) {

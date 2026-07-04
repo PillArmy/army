@@ -78,7 +78,7 @@ abstract class ArmyJsonArrayType extends _ArmyCoreArrayType {
         underlyingDataType = underlyingType.map(env.serverMeta());
 
         final TextFunction<?> function;
-        function = (text, offset, end) -> underlyingType.afterGet(underlyingDataType, env, text.substring(offset, end));
+        function = (text, offset, end) -> underlyingType.afterGet(underlyingDataType, env, text.subSequence(offset, end).toString());
         return PostgreArrays.arrayAfterGet(this, dataType, source, function, null);
     }
 

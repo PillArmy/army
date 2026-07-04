@@ -24,6 +24,7 @@ import io.army.dialect.UnsupportedDialectException;
 import io.army.dialect._Constant;
 import io.army.executor.DataAccessException;
 import io.army.function.DecodeLiteralFunc;
+import io.army.function.TextFunction;
 import io.army.lang.Nullable;
 import io.army.meta.CompositeField;
 import io.army.meta.ServerMeta;
@@ -242,7 +243,7 @@ public final class CompositeType extends _ArmyBuildInCoreType implements Composi
 
 
     public static Object deserialize(final CompositeType instance, final DataType dataType, final MappingEnv env,
-                                     final String source, final int offset, final int endIndex, @Nullable StringBuilder builder) {
+                                     final CharSequence source, final int offset, final int endIndex, @Nullable StringBuilder builder) {
         if (!_StringUtils.hasText(source)
                 || source.charAt(offset) != _Constant.LEFT_PAREN
                 || source.charAt(endIndex - 1) != _Constant.RIGHT_PAREN) {
@@ -255,7 +256,7 @@ public final class CompositeType extends _ArmyBuildInCoreType implements Composi
 
         try {
 
-            PG_DESERIALIZER.deserialize(source, offset, endIndex, fieldParser::parseField, null, null, builder);
+            PG_DESERIALIZER.deserialize(source, offset, endIndex, fieldParser, null, null, builder);
 
             if (fieldParser.fieldIndex != fieldParser.fieldCount) {
                 throw dataAccessError(instance, dataType, source, null);
@@ -270,7 +271,7 @@ public final class CompositeType extends _ArmyBuildInCoreType implements Composi
     }
 
 
-    private static final class FieldParser {
+    private static final class FieldParser implements TextFunction<Boolean> {
 
         private final ObjectAccessor accessor;
 
@@ -298,7 +299,8 @@ public final class CompositeType extends _ArmyBuildInCoreType implements Composi
             this.fieldCount = fieldList.size();
         }
 
-        Object parseField(final String text, final int offest, final int endIndex) {
+        @Override
+        public Boolean apply(final CharSequence text, final int offest, final int endIndex) {
             final int fieldIndex = this.fieldIndex;
             if (fieldIndex >= this.fieldCount) {
                 throw new IllegalArgumentException("composite filed count error");
@@ -310,7 +312,7 @@ public final class CompositeType extends _ArmyBuildInCoreType implements Composi
             if (offest == 0 && endIndex == offest && !text.isEmpty()) { // representing nothing
                 literal = null;
             } else {
-                literal = text.substring(offest, endIndex);
+                literal = text.subSequence(offest, endIndex).toString();
             }
 
             //TODO add decode literal
