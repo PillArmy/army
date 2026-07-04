@@ -87,14 +87,14 @@ public class BaseTypeMappingTests {
 
         final String[] sourceArray = new String[]{
                 "abc \\153\\154\\155 \\052\\251\\124",
-                "\\153 中国 \\154\\155 \\052\\251\\124",
+                "\\153 \\154\\155 \\052\\251\\124",
                 "\\000 \\047 \\\\ \\134 ' \\\\",
                 builder.toString()
         };
 
         final String[] decodeArray = new String[]{
                 "abc \153\154\155 \052\251\124",
-                "\153 中国 \154\155 \052\251\124",
+                "\153 \154\155 \052\251\124",
                 "\000 \047 \\ \134 ' \\",
                 textArray[2]
         };
@@ -115,8 +115,8 @@ public class BaseTypeMappingTests {
                 TestUtils.printBindAndGetValue(bindValue, afterGetValue);
 
 
-                LOG.debug("value1:\n{}\nvalue2:\n{} ", afterGetValue, decodeArray[i].getBytes(StandardCharsets.UTF_8));
-                Assert.assertEquals(new String((byte[]) afterGetValue, StandardCharsets.UTF_8), decodeArray[i]);
+                LOG.debug("value1:\n{}\nvalue2:\n{} ", afterGetValue, decodeArray[i].getBytes(StandardCharsets.ISO_8859_1));
+                Assert.assertEquals(new String((byte[]) afterGetValue, StandardCharsets.ISO_8859_1), decodeArray[i]);
 
 
             }

@@ -33,7 +33,8 @@ import java.util.function.Function;
 ///
 /// This class representing vector type {@link MappingType}
 ///
-/// @see VectorArrayType
+/// see {@code  io.army.mapping.array.VectorArrayType}
+///
 /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
 /// @see <a href="https://github.com/pgvector/pgvector-java">pgvector-java</a>
 /// @see <a href="https://dev.mysql.com/doc/refman/9.7/en/vector.html">MySQL Vector Type</a>
@@ -89,7 +90,7 @@ public final class VectorType extends _ArmyNoInjectionType implements MappingTyp
 
     @Override
     public MappingType arrayTypeOfThis() throws CriteriaException {
-        return ArrayFactoryFuncHolder.FUNCTION.apply(float[].class);
+        return ArrayFactoryFuncHolder.FUNCTION.apply(float[][].class);
     }
 
 

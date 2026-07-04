@@ -75,8 +75,12 @@ public class MyLocalTest {
         try (Connection conn = DriverManager.getConnection(url, "army_w", "army123")) {
 
             try (Statement statement = conn.createStatement()) {
-                //select  '{"\\x2727222261726D7927732C5C6F6B5C5C"}'::bytea[] as r
-                String sql = "select  '{\"\\\\x2727222261726D7927732C5C6F6B5C5C\"}'::bytea[] as r";
+
+                statement.executeUpdate("SET bytea_output = 'escape'");
+
+                String sql = "select '中国Army\251'::bytea as r";
+
+                //  sql = "SELECT  '\\344\\270\\255\\345\\233\\275Army\\302\\251'::bytea as r ";
 
                 try (ResultSet resultSet = statement.executeQuery(sql)) {
                     while (resultSet.next()) {

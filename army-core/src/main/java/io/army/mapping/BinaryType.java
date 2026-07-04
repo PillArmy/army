@@ -175,11 +175,7 @@ public final class BinaryType extends _ArmyBuildInCoreType implements MappingTyp
 
                 if ((boundary = i + 4) <= endIndex && isOtcEscape(source, i, boundary)) {
                     oct = Integer.parseInt(source, i + 1, boundary, 8);
-                    if (oct > Byte.MAX_VALUE) {
-                        out.write(Character.toString(oct).getBytes(StandardCharsets.UTF_8));
-                    } else {
-                        out.write(oct);
-                    }
+                    out.write(oct);
                     lastWritten = boundary;
                     i += 3;
                 } else {
@@ -209,7 +205,7 @@ public final class BinaryType extends _ArmyBuildInCoreType implements MappingTyp
             char ch;
             for (int index = offset + 1; index < endIndex; index++) {
                 ch = source.charAt(index);
-                if (ch >= '0' && ch <= '9') {
+                if (ch >= '0' && ch <= '7') {
                     continue;
                 }
                 match = false;
