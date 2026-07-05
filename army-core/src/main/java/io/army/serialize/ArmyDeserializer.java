@@ -124,9 +124,7 @@ abstract class ArmyDeserializer implements Deserializer {
             final Object value;
             if (escapeCount > 0) {
                 builder.append(text, lastWritten, i);
-                final String effectiveText;
-                effectiveText = builder.toString();
-                value = func.apply(effectiveText, 0, effectiveText.length());
+                value = func.apply(builder, 0, builder.length());
             } else {
                 value = func.apply(text, offset, i);
             }
