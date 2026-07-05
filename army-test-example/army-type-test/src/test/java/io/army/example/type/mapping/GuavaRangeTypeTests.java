@@ -93,14 +93,17 @@ public class GuavaRangeTypeTests {
 
 
         rangeSet = TreeRangeSet.create();
-        rangeSet.add(Range.openClosed(1, 1));
-        rangeSet.add(Range.all());
+        rangeSet.add(Range.openClosed(1, 3));
+        rangeSet.add(Range.openClosed(100, 2000));
         list.add(rangeSet);
 
         rangeSet = TreeRangeSet.create();
-        rangeSet.add(Range.closedOpen(1, 1));
-        rangeSet.add(Range.all());
-        rangeSet.add(Range.singleton(0));
+        rangeSet.add(Range.closedOpen(-12, -10));
+        rangeSet.add(Range.openClosed(-8, -2));
+        rangeSet.add(Range.openClosed(-1, 9999));
+        rangeSet.add(Range.openClosed(99999, 34567890));
+
+        Assert.assertFalse(rangeSet.isEmpty());
         list.add(rangeSet);
 
 
@@ -114,7 +117,7 @@ public class GuavaRangeTypeTests {
             Assert.assertEquals(afterGetValue, set);
 
             rangeSet = TreeRangeSet.create();
-            for (Range<Integer> range : rangeSet.asRanges()) {
+            for (Range<Integer> range : set.asRanges()) {
                 rangeSet.add(range.canonical(DiscreteDomain.integers()));
             }
 
