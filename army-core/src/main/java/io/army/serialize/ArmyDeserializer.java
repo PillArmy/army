@@ -17,7 +17,6 @@
 package io.army.serialize;
 
 import io.army.dialect._Constant;
-import io.army.function.CharPredicate;
 import io.army.function.TextFunction;
 import io.army.function.TextToIntFunc;
 import io.army.lang.Nullable;
@@ -213,24 +212,10 @@ abstract class ArmyDeserializer implements Deserializer {
 
 
     static boolean regionMatches(final CharSequence text, boolean ignoreCase, final int offset,
-                                 final int endIndex, final String other, final @Nullable CharPredicate predicate) {
+                                 final int endIndex, final String other) {
         final int otherLength = other.length();
-        final int stopIndex = offset + otherLength;
-
-
-        boolean match;
-        if (stopIndex > endIndex) {
-            match = false;
-        } else if (stopIndex == endIndex) {
-            match = true;
-        } else {
-            match = predicate == null || predicate.test(text.charAt(stopIndex));
-        }
-
-        if (match) {
-            match = _StringUtils.regionMatches(text, ignoreCase, offset, other, 0, otherLength);
-        }
-        return match;
+        return (offset + otherLength) <= endIndex
+                && _StringUtils.regionMatches(text, ignoreCase, offset, other, 0, otherLength);
     }
 
 
@@ -289,11 +274,6 @@ abstract class ArmyDeserializer implements Deserializer {
             this.rightBoundary = builder.rightBoundary;
         }
 
-
-        final boolean isDelimOrRightBoundary(final char ch) {
-            return ch == this.itemDelim || ch == this.rightBoundary || Character.isWhitespace(ch);
-        }
-
         /// @return the previous index of array delim or right boundary
         final int parseUnQuoteElement(final CharSequence text, final int offset, final int endIndex,
                                       final @Nullable Consumer<Object> consumer, TextFunction<?> func,
@@ -332,7 +312,7 @@ abstract class ArmyDeserializer implements Deserializer {
                     if (elementEndInex < 0) {
                         nullValue = firstIsN
                                 && i - offset == 4
-                                && regionMatches(text, true, offset, endIndex, "null", this::isDelimOrRightBoundary);
+                                && regionMatches(text, true, offset, endIndex, "null");
                         if (nullValue) {
                             value = null;
                         } else {
@@ -369,7 +349,7 @@ abstract class ArmyDeserializer implements Deserializer {
 
                 nullValue = i - offset == 4
                         && firstIsN
-                        && regionMatches(text, true, offset, endIndex, "null", this::isDelimOrRightBoundary);
+                        && regionMatches(text, true, offset, endIndex, "null");
                 if (nullValue) {
                     value = null;
                 } else {
@@ -523,9 +503,6 @@ abstract class ArmyDeserializer implements Deserializer {
             this.rightBoundaries = Objects.requireNonNull(builder.rightBoundaries);
         }
 
-        final boolean isDelimOrRightBoundary(final char ch) {
-            return ch == this.itemDelim || isBoundaries(this.rightBoundaries, ch) || Character.isWhitespace(ch);
-        }
 
 
         /// @return the previous index of array delim or right boundary
@@ -567,7 +544,7 @@ abstract class ArmyDeserializer implements Deserializer {
                     if (elementEndInex < 0) {
                         nullValue = firstIsN
                                 && i - offset == 4
-                                && regionMatches(text, true, offset, endIndex, "null", this::isDelimOrRightBoundary);
+                                && regionMatches(text, true, offset, endIndex, "null");
                         if (nullValue) {
                             value = null;
                         } else {
@@ -604,7 +581,7 @@ abstract class ArmyDeserializer implements Deserializer {
 
                 nullValue = i - offset == 4
                         && firstIsN
-                        && regionMatches(text, true, offset, endIndex, "null", this::isDelimOrRightBoundary);
+                        && regionMatches(text, true, offset, endIndex, "null");
                 if (nullValue) {
                     value = null;
                 } else {

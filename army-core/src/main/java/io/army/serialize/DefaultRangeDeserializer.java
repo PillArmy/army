@@ -45,7 +45,7 @@ final class DefaultRangeDeserializer extends ArmyDeserializer.MultiBoundaryDeser
         final char firstChar = text.charAt(offset);
         if (isBoundaries(this.leftBoundaries, firstChar)) {
             parseRange(text, offset, endIndex, func, builder);
-        } else if (regionMatches(text, true, offset, endIndex, "empty", null)) {
+        } else if (regionMatches(text, true, offset, endIndex, "empty")) {
             func.apply("", 0, 0);
         } else {
             throw syntaxError(getSyntaxType(), text, offset);

@@ -56,6 +56,7 @@ public class HstoreTypeTests {
                 "a", "null",
                 "b", "a",
                 "c", "",
+                "d", "nulls",
                 "army", text,
                 text, text
         );
@@ -82,6 +83,12 @@ public class HstoreTypeTests {
             TestUtils.updateAndQuery(session, id, PostgreTypes_.hstore, source);
 
         }
+
+        // special case
+        map = Map.of("a", "nulls");
+        afterGetValue = type.afterGet(dataType, env, "a=>nulls ");
+        Assert.assertEquals(afterGetValue, map);
+
 
     }
 

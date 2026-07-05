@@ -113,7 +113,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
                         continue;
                     }
                     throw _Exceptions.missSeparatorError(text, i, separator);
-                } else if (i + separatorLength <= endIndex && regionMatches(text, false, i, endIndex, separator, null)) {
+                } else if (i + separatorLength <= endIndex && regionMatches(text, false, i, endIndex, separator)) {
                     i += (separatorLength - 1);
                     separatorFlag = 0;
                     continue;
@@ -153,7 +153,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
                 throw _Exceptions.redundantDelimError(text, i, itemDelim);
             } else if (ch == firstCharOfSeparator
                     && i + separatorLength <= endIndex
-                    && regionMatches(text, false, i, endIndex, separator, null)) {
+                    && regionMatches(text, false, i, endIndex, separator)) {
                 throw _Exceptions.redundantSeparatorError(text, i, separator);
             } else {
                 if (!allowWhitespace && Character.isWhitespace(ch)) {
@@ -220,21 +220,21 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
 
             separatorBoundary = ch == firstCharOfSeparator
                     && i + separatorLength <= endIndex
-                    && regionMatches(text, false, i, endIndex, separator, null);
+                    && regionMatches(text, false, i, endIndex, separator);
 
             if (ch == itemDelim || separatorBoundary || i == lastIndex) {
 
-                if (i == lastIndex && !separatorBoundary && ch != itemDelim) {
-                    eleEndIndex = endIndex;
-                } else {
+                if (separatorBoundary || ch == itemDelim || (!allowWhitespace && Character.isWhitespace(ch))) {
                     eleEndIndex = i;
+                } else {
+                    eleEndIndex = endIndex;
                 }
 
 
                 if (elementEndInex < 0) {
                     nullValue = firstIsN
                             && eleEndIndex - offset == 4
-                            && regionMatches(text, true, offset, endIndex, "null", null);
+                            && regionMatches(text, true, offset, endIndex, "null");
                     if (nullValue) {
                         func.apply(this.nullRepresenting, 0, 0);
                     } else {
@@ -273,7 +273,7 @@ final class DefaultNoBoundaryPairDeserializer extends ArmyDeserializer implement
 
             nullValue = i - offset == 4
                     && firstIsN
-                    && regionMatches(text, true, offset, endIndex, "null", null);
+                    && regionMatches(text, true, offset, endIndex, "null");
             if (nullValue) {
                 func.apply(this.nullRepresenting, 0, 0);
             } else {
