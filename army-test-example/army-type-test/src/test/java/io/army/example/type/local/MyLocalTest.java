@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -30,9 +29,11 @@ public class MyLocalTest {
 
     @Test
     public void simpleTest() {
-        String text = "\000 \047 \134 '";
-
-        LOG.info("{}", text.getBytes(StandardCharsets.UTF_8));
+        StringBuilder builder = new StringBuilder("32423534566764321356754325675432456543");
+        final int length = builder.length();
+        for (int i = 0; i < length; i++) {
+            builder.charAt(i);
+        }
     }
 
 

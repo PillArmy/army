@@ -87,6 +87,8 @@ abstract class ArmyDeserializer implements Deserializer {
         int rightIndex = -1;
         int lastWritten = offset;
         boolean backSlashEscape, quoteEscape;
+        String unquoteStr;
+
         for (int i = offset, nextIndex, escapeCount = 0; i < endIndex; i++) {
             ch = text.charAt(i);
 
@@ -124,7 +126,8 @@ abstract class ArmyDeserializer implements Deserializer {
             final Object value;
             if (escapeCount > 0) {
                 builder.append(text, lastWritten, i);
-                value = func.apply(builder, 0, builder.length());
+                unquoteStr = builder.toString();
+                value = func.apply(unquoteStr, 0, unquoteStr.length());
             } else {
                 value = func.apply(text, offset, i);
             }
