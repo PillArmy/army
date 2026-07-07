@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: army-codere
+  servlet:
+    encoding:
+      charset: UTF-8
+      force-request: true
+      force-response: true
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 1024MB
+      file-size-threshold: 10MB
+
+
+nacos:
+  username: nacos
+  password: NvoZD0jomivo
+
+
+#logging:
+#  level:
+#    com.alibaba.nacos: DEBUG
+#    org.springframework: INFO

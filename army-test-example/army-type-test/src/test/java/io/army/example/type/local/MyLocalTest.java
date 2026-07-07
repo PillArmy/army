@@ -60,7 +60,7 @@ public class MyLocalTest {
     }
 
     @Test
-    public void range() throws Exception {
+    public void range() {
         Range<?> range = Range.closedOpen(0, 0);
         System.out.println(range.hasLowerBound());
         System.out.println(range.hasUpperBound());
@@ -77,11 +77,10 @@ public class MyLocalTest {
 
             try (Statement statement = conn.createStatement()) {
 
-                statement.executeUpdate("SET bytea_output = 'escape'");
+                //   statement.executeUpdate("SET bytea_output = 'escape'");
 
-                String sql = "select  '{\"abc \\\\153\\\\154\\\\155 \\\\052\\\\251\\\\124\"}'::bytea[] as r ";
+                String sql = "SELECT 'a fat cat sat on a mat and ate a fat rat'::tsvector";
 
-                //  sql = "SELECT  '\\344\\270\\255\\345\\233\\275Army\\302\\251'::bytea as r ";
 
                 try (ResultSet resultSet = statement.executeQuery(sql)) {
                     while (resultSet.next()) {

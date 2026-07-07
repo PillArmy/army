@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>AI 智能助手 - 新对话</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.css">
+    <link rel="stylesheet" href="css/style.css?v=20260518">
+</head>
+<body>
+<!-- 通知区域 -->
+<div id="notification-container"></div>
+
+<!-- 主容器 -->
+<div class="app-container">
+    <!-- 左侧聊天历史 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <button id="new-chat-btn" class="btn btn-primary" title="新建会话">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 2a1 1 0 0 1 1 1v4h4a1 1 0 1 1 0 2H9v4a1 1 0 1 1-2 0V9H3a1 1 0 0 1 0-2h4V3a1 1 0 0 1 1-1z"/>
+                </svg>
+                新建会话
+            </button>
+        </div>
+        <div id="chat-history" class="chat-history">
+            <!-- 聊天历史列表将动态生成 -->
+        </div>
+    </aside>
+
+    <!-- 主内容区 - 无消息状态 -->
+    <main class="main-content empty-state">
+        <!-- 整体居中容器 -->
+        <div class="empty-state-content">
+            <!-- 欢迎区域 -->
+            <div class="welcome-container">
+                <div class="welcome-message">
+                    <h2>👋 欢迎使用 AI 智能助手</h2>
+                    <p>我可以帮您解答问题、编写代码、分析数据等。请随时向我提问！</p>
+                </div>
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="input-area centered-input">
+                <div class="input-container">
+                    <textarea
+                            id="message-input"
+                            class="message-input"
+                            placeholder="输入消息... (Enter 发送，Shift + Enter 换行)"
+                            rows="1"
+                    ></textarea>
+                    <div class="input-actions">
+                        <button id="upload-file-btn" class="btn btn-icon" title="上传文件">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 2a1 1 0 0 1 1 1v7.586l2.293-2.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L9 10.586V3a1 1 0 0 1 1-1z"/>
+                                <path d="M3 13a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z"/>
+                            </svg>
+                        </button>
+                        <button id="send-btn" class="btn btn-primary">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10.894 2.553a1 1 0 0 0-1.788 0l-7 14a1 1 0 0 0 1.169 1.409l5-1.429A1 1 0 0 0 9 15.571V11a1 1 0 1 1 2 0v4.571a1 1 0 0 0 .725.962l5 1.428a1 1 0 0 0 1.17-1.408l-7-14z"/>
+                            </svg>
+                            发送
+                        </button>
+                    </div>
+                </div>
+                <input type="file" id="file-input" class="file-input" multiple style="display: none;">
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- 文件预览区域 -->
+<div id="file-preview" class="file-preview" style="display: none;">
+    <div class="file-preview-header">
+        <span>已选择的文件：</span>
+        <button id="clear-files-btn" class="btn btn-small">清除全部</button>
+    </div>
+    <div id="file-list" class="file-list"></div>
+</div>
+
+<!-- 拖拽上传遮罩 -->
+<div id="drop-overlay" class="drop-overlay" style="display: none;">
+    <div class="drop-content">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="currentColor">
+            <path d="M32 8a1 1 0 0 1 1 1v28.586l8.293-8.293a1 1 0 0 1 1.414 1.414l-10 10a1 1 0 0 1-1.414 0l-10-10a1 1 0 0 1 1.414-1.414L31 37.586V9a1 1 0 0 1 1-1z"/>
+            <path d="M12 44a1 1 0 0 1 1-1h38a1 1 0 1 1 0 2H13a1 1 0 0 1-1-1z"/>
+        </svg>
+        <p>拖拽文件到此处上传</p>
+    </div>
+</div>
+
+<!-- 引入 Markdown-it -->
+<script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+<!-- API URL 全局常量 -->
+<script src="js/api-urls.js"></script>
+<!-- empty-chat 专属逻辑 -->
+<script>
+    // 全局变量保存会话信息
+    window.currentConversationId = null;
+    window.initialContent = null;
+    window.initialUserMessage = null;
+
+    // 文件上传相关变量
+    window.uploadState = {
+        isUploading: false,
+        selectedFiles: [],
+        currentConversationId: null
+    };
+
+    // 页面加载后绑定发送事件
+    document.addEventListener('DOMContentLoaded', () => {
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        console.log('empty-chat - DOMContentLoaded 触发');
+        console.log('empty-chat - messageInput 元素:', messageInput);
+        console.log('empty-chat - sendBtn 元素:', sendBtn);
+
+        if (!messageInput || !sendBtn) {
+            console.error('empty-chat - 必要的 DOM 元素未找到!');
+            return;
+        }
+
+        console.log('empty-chat - 开始绑定事件');
+
+        // 文件上传按钮点击事件
+        const uploadFileBtn = document.getElementById('upload-file-btn');
+        const fileInput = document.getElementById('file-input');
+
+        uploadFileBtn.addEventListener('click', () => {
+            // 检查输入框是否有文本
+            const inputContent = messageInput.value.trim();
+            if (inputContent) {
+                showNotification('输入框有文本的情况下不能上传文件', 'warning');
+                return;
+            }
+
+            // 触发文件选择
+            fileInput.click();
+        });
+
+        // 文件选择事件
+        fileInput.addEventListener('change', (e) => {
+            handleFileSelect(e);
+        });
+
+        // 发送消息函数
+        async function sendMessage() {
+            // 优先检查是否有待上传的文件（最高优先级，不依赖 content）
+            if (window.uploadState.selectedFiles && window.uploadState.selectedFiles.length > 0) {
+                await uploadFiles();
+                return;
+            }
+
+            const content = messageInput.value.trim();
+
+            console.log('sendMessage - 原始值:', messageInput.value);
+            console.log('sendMessage - trim后:', content);
+            console.log('sendMessage - 是否为空:', !content);
+
+            // 若无有效文本，不请求服务器
+            if (!content) {
+                console.log('sendMessage - 内容为空，返回');
+                return;
+            }
+
+            console.log('sendMessage - 开始请求服务器');
+
+            try {
+                // 禁用按钮防止重复提交
+                sendBtn.disabled = true;
+
+                // 请求创建会话
+                const response = await fetch(API_CONVERSATION_CREATE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `content=${encodeURIComponent(content)}`
+                });
+
+                console.log('sendMessage - 服务器响应状态:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('sendMessage - 服务器响应结果:', result);
+
+                if (result.code === 0 && result.data) {
+                    const {conversationId, content: responseContent} = result.data;
+
+                    // 保存会话信息到全局变量
+                    window.currentConversationId = conversationId;
+                    window.initialUserMessage = content;
+                    // 注意：不保存 responseContent，因为需要流式显示
+
+                    console.log('sendMessage - 准备切换到 chat 视图');
+
+                    // 无刷新切换到 chat.html 视图
+                    await loadChatView();
+
+                    // 切换完成后，发送消息并流式显示
+                    await sendAndStreamResponse(conversationId, content, responseContent);
+                } else {
+                    console.error('创建会话失败:', result.msg);
+                    sendBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('创建会话异常:', error);
+                sendBtn.disabled = false;
+            }
+        }
+
+        // 加载 chat.html 视图（无刷新）
+        async function loadChatView() {
+            try {
+                // 加载 chat.html 的内容
+                const chatResponse = await fetch(PAGE_CHAT);
+                if (!chatResponse.ok) {
+                    throw new Error('加载 chat.html 失败');
+                }
+
+                const chatHtml = await chatResponse.text();
+
+                // 解析 HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(chatHtml, 'text/html');
+
+                // 替换 body 内容
+                document.body.innerHTML = doc.body.innerHTML;
+
+                // 重新加载必要的脚本
+                const mdScript = document.createElement('script');
+                mdScript.src = 'https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js';
+                mdScript.onload = () => {
+                    const appScript = document.createElement('script');
+                    appScript.src = 'js/app.js';
+                    appScript.onload = () => {
+                        // 初始化 chat 视图
+                        initializeChatView();
+                    };
+                    document.body.appendChild(appScript);
+                };
+                document.body.appendChild(mdScript);
+
+            } catch (error) {
+                console.error('加载 chat 视图失败:', error);
+                alert('加载聊天视图失败，请刷新页面重试');
+            }
+        }
+
+        // 初始化 chat 视图
+        function initializeChatView() {
+            // 等待 DOM 渲染完成
+            setTimeout(() => {
+                const chatMessages = document.getElementById('chat-messages');
+                const messageInput = document.getElementById('message-input');
+                const sendBtn = document.getElementById('send-btn');
+                const mainElement = document.querySelector('main');
+
+                if (!chatMessages || !messageInput || !sendBtn) {
+                    console.error('必要的 DOM 元素未找到');
+                    return;
+                }
+
+                // 存储 conversationId 到 data 属性
+                document.body.dataset.conversationId = window.currentConversationId;
+
+                // 初始化 markdown-it
+                const md = window.markdownit({
+                    html: true,
+                    linkify: true,
+                    typographer: true,
+                    breaks: true
+                });
+
+                // 检查是否有上传完成消息
+                if (window.uploadCompleteMessage) {
+                    // 显示上传完成消息
+                    appendMessage('assistant', window.uploadCompleteMessage, md, chatMessages);
+
+                    // 更新 main 元素的类
+                    if (mainElement) {
+                        mainElement.classList.remove('empty-state');
+                        mainElement.classList.add('has-messages', 'has-conversation');
+                    }
+
+                    // 清除上传消息变量
+                    window.uploadCompleteMessage = null;
+
+                    // 异步刷新左侧会话列表
+                    refreshChatHistory();
+                    return;
+                }
+
+                // 显示初始消息并请求 talk 接口
+                if (window.initialContent) {
+                    // 显示用户消息
+                    appendMessage('user', window.initialUserMessage, md, chatMessages);
+                    // 显示 AI 响应
+                    appendMessage('assistant', window.initialContent, md, chatMessages);
+
+                    // 重要：更新 main 元素的类，从 empty-state 切换到 has-messages has-conversation
+                    if (mainElement) {
+                        mainElement.classList.remove('empty-state');
+                        mainElement.classList.add('has-messages', 'has-conversation');
+                        console.log('initializeChatView - 已更新 main 元素的类:', mainElement.className);
+                    }
+
+                    // 异步刷新左侧会话列表
+                    refreshChatHistory();
+                }
+
+                // 替换 sendBtn 节点以清除 ChatApp 绑定的旧事件
+                const newSendBtn = sendBtn.cloneNode(true);
+                sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
+
+                // 获取文件上传相关元素
+                const uploadFileBtn = document.getElementById('upload-file-btn');
+                const fileInput = document.getElementById('file-input');
+
+                // 绑定发送按钮（新节点，无 ChatApp 干扰）
+                newSendBtn.addEventListener('click', () => sendNewMessage(messageInput, newSendBtn, md, chatMessages));
+
+                // 绑定文件上传按钮
+                if (uploadFileBtn) {
+                    uploadFileBtn.addEventListener('click', () => {
+                        const inputContent = messageInput.value.trim();
+                        if (inputContent) {
+                            showNotification('输入框有文本的情况下不能上传文件', 'warning');
+                            return;
+                        }
+                        fileInput.click();
+                    });
+                }
+
+                // 绑定文件选择事件
+                if (fileInput) {
+                    fileInput.addEventListener('change', (e) => handleFileSelect(e));
+                }
+
+                messageInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        // 如果有待上传的文件，回车无动作（只有点击发送按钮才上传）
+                        if (window.uploadState.selectedFiles && window.uploadState.selectedFiles.length > 0) {
+                            return;
+                        }
+                        sendNewMessage(messageInput, newSendBtn, md, chatMessages);
+                    }
+                });
+
+                messageInput.addEventListener('input', () => {
+                    messageInput.style.height = 'auto';
+                    messageInput.style.height = Math.min(messageInput.scrollHeight, 200) + 'px';
+                });
+            }, 100);
+        }
+
+        // 添加消息
+        function appendMessage(role, content, md, container) {
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${role}`;
+
+            const time = new Date().toLocaleString('zh-CN');
+            const avatar = role === 'user' ? '👤' : '🤖';
+            const label = role === 'user' ? '我: ' : '';
+            const renderedContent = role === 'user'
+                ? escapeHtml(content)
+                : md.render(content);
+
+            messageEl.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    ${label ? `<div class="message-label">${label}</div>` : ''}
+                    <div class="message-bubble">${renderedContent}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+
+            container.appendChild(messageEl);
+
+            // 使用 requestAnimationFrame 确保滚动生效
+            requestAnimationFrame(() => {
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        // 转义 HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 流式显示 AI 响应
+        async function streamResponse(conversationId, content, md, chatMessages) {
+            try {
+                const response = await fetch(API_CONVERSATION_TALK(conversationId), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `content=${encodeURIComponent(content)}`
+                });
+
+                // 只要 HTTP 状态是 200 就是成功
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // 创建 AI 消息元素
+                const messageEl = document.createElement('div');
+                messageEl.className = 'message assistant streaming';
+
+                const time = new Date().toLocaleString('zh-CN');
+                messageEl.innerHTML = `
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <div class="message-bubble"></div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+                chatMessages.appendChild(messageEl);
+
+                const bubble = messageEl.querySelector('.message-bubble');
+                let aiContent = '';
+
+                // 读取流式响应
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder('utf-8');
+
+                while (true) {
+                    const {done, value} = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, {stream: true});
+                    aiContent += chunk;
+
+                    // 响应式更新内容
+                    bubble.innerHTML = md.render(aiContent);
+
+                    // 使用 requestAnimationFrame 确保滚动生效
+                    requestAnimationFrame(() => {
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    });
+                }
+
+                // 移除 streaming 标记
+                messageEl.classList.remove('streaming');
+
+            } catch (error) {
+                console.error('流式响应异常:', error);
+                appendMessage('assistant', '抱歉，处理您的请求时出现错误。请稍后重试。', md, chatMessages);
+            }
+        }
+
+        // 发送消息并流式显示（用于首次创建会话后）
+        async function sendAndStreamResponse(conversationId, userContent, initialResponse) {
+            // 等待 DOM 准备好
+            setTimeout(async () => {
+                const chatMessages = document.getElementById('chat-messages');
+                const messageInput = document.getElementById('message-input');
+                const mainElement = document.querySelector('main');
+
+                if (!chatMessages) return;
+
+                // 初始化 markdown-it
+                const md = window.markdownit({
+                    html: true,
+                    linkify: true,
+                    typographer: true,
+                    breaks: true
+                });
+
+                // 显示用户消息
+                appendMessage('user', userContent, md, chatMessages);
+
+                // 如果有初始响应，流式显示
+                if (initialResponse) {
+                    await streamResponse(conversationId, userContent, md, chatMessages);
+                }
+
+                // 重要：更新 main 元素的类，从 empty-state 切换到 has-messages has-conversation
+                if (mainElement) {
+                    mainElement.classList.remove('empty-state');
+                    mainElement.classList.add('has-messages', 'has-conversation');
+                    console.log('sendAndStreamResponse - 已更新 main 元素的类:', mainElement.className);
+                }
+
+                // 清空输入框
+                if (messageInput) {
+                    messageInput.value = '';
+                    messageInput.style.height = 'auto';
+                }
+
+                // 异步刷新左侧会话列表
+                refreshChatHistory();
+
+                // 强制滚动到底部
+                requestAnimationFrame(() => {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                });
+            }, 200);
+        }
+
+        // 发送新消息（支持文本消息和文件上传）
+        async function sendNewMessage(messageInput, sendBtn, md, chatMessages) {
+            // 检查是否有待上传的文件
+            if (window.uploadState.selectedFiles && window.uploadState.selectedFiles.length > 0) {
+                await chatViewUploadFiles(sendBtn, md, chatMessages);
+                return;
+            }
+
+            const content = messageInput.value.trim();
+            if (!content) return;
+
+            try {
+                sendBtn.disabled = true;
+
+                appendMessage('user', content, md, chatMessages);
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+
+                const conversationId = document.body.dataset.conversationId;
+
+                // 流式显示 AI 响应
+                await streamResponse(conversationId, content, md, chatMessages);
+            } catch (error) {
+                console.error('发送消息异常:', error);
+                appendMessage('assistant', '抱歉，处理您的请求时出现错误。请稍后重试。', md, chatMessages);
+            } finally {
+                sendBtn.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        // chat 视图中的文件上传（不创建会话，直接使用已有 conversationId）
+        async function chatViewUploadFiles(sendBtn, md, chatMessages) {
+            const files = window.uploadState.selectedFiles;
+            if (!files || files.length === 0) return;
+
+            // 防止重复上传
+            if (window.uploadState.isUploading) {
+                showNotification('文件正在上传中，请稍候', 'warning');
+                return;
+            }
+
+            try {
+                window.uploadState.isUploading = true;
+
+                // 禁用发送按钮，变灰
+                sendBtn.disabled = true;
+                sendBtn.textContent = '上传中...';
+
+                // 显示进度条
+                showUploadProgress(0, files);
+
+                // 获取当前会话 ID
+                const conversationId = document.body.dataset.conversationId;
+                if (!conversationId) {
+                    throw new Error('没有找到会话 ID');
+                }
+
+                // 上传文件
+                await uploadFilesToServer(conversationId, files);
+
+            } catch (error) {
+                console.error('上传文件失败:', error);
+                showNotification('上传文件失败: ' + error.message, 'error');
+                hideUploadProgress();
+            } finally {
+                window.uploadState.isUploading = false;
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 0 0-1.788 0l-7 14a1 1 0 0 0 1.169 1.409l5-1.429A1 1 0 0 0 9 15.571V11a1 1 0 1 1 2 0v4.571a1 1 0 0 0 .725.962l5 1.428a1 1 0 0 0 1.17-1.408l-7-14z"/></svg>发送';
+                window.uploadState.selectedFiles = [];
+            }
+        }
+
+        // 刷新会话列表
+        async function refreshChatHistory() {
+            try {
+                const response = await fetch(API_CONVERSATION_LIST, {
+                    method: 'GET'
+                });
+
+                if (!response.ok) return;
+
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    const chatHistory = document.getElementById('chat-history');
+                    if (!chatHistory) return;
+
+                    const conversationList = result.data?.list || [];
+                    chatHistory.innerHTML = '';
+
+                    // 按创建时间倒序排序（最新的在顶部）
+                    conversationList.sort((a, b) => {
+                        const timeA = new Date(a.createTime || 0).getTime();
+                        const timeB = new Date(b.createTime || 0).getTime();
+                        return timeB - timeA;
+                    });
+
+                    conversationList.forEach(item => {
+                        const chatItem = document.createElement('div');
+                        chatItem.className = 'chat-item';
+                        chatItem.innerHTML = `
+                            <div class="chat-item-content">
+                                <span class="chat-item-title">${escapeHtml(item.title || '未命名会话')}</span>
+                            </div>
+                        `;
+                        chatHistory.appendChild(chatItem);
+                    });
+                }
+            } catch (error) {
+                console.error('刷新会话列表失败:', error);
+            }
+        }
+
+        // 绑定发送按钮点击事件
+        sendBtn.addEventListener('click', sendMessage);
+        console.log('empty-chat - 已绑定 sendBtn click 事件');
+
+        // 绑定输入框键盘事件
+        messageInput.addEventListener('keydown', (e) => {
+            console.log('empty-chat - keydown 事件触发, key:', e.key);
+            if (e.key === 'Enter' && !e.shiftKey) {
+                console.log('empty-chat - Enter 键按下');
+                e.preventDefault();
+                // 如果有待上传的文件，回车无动作（只有点击发送按钮才上传）
+                if (window.uploadState.selectedFiles && window.uploadState.selectedFiles.length > 0) {
+                    console.log('empty-chat - 有待上传文件，回车无动作');
+                    return;
+                }
+                sendMessage();
+            }
+        });
+        console.log('empty-chat - 已绑定 messageInput keydown 事件');
+        console.log('empty-chat - 事件绑定完成');
+
+        // 文件选择处理函数
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            if (files.length === 0) return;
+
+            // 检查输入框是否有文本
+            const inputContent = messageInput.value.trim();
+            if (inputContent) {
+                showNotification('输入框有文本的情况下不能上传文件，请先发送或清空文本', 'warning');
+                event.target.value = '';
+                return;
+            }
+
+            // 保存选择的文件
+            window.uploadState.selectedFiles = files;
+
+            // 显示文件已选择提示
+            showNotification(`已选择 ${files.length} 个文件，点击发送按钮上传`, 'info');
+
+            // 重置 input
+            event.target.value = '';
+        }
+
+        // 上传文件函数
+        async function uploadFiles() {
+            const files = window.uploadState.selectedFiles;
+            if (files.length === 0) return;
+
+            // 防止重复上传
+            if (window.uploadState.isUploading) {
+                showNotification('文件正在上传中，请稍候', 'warning');
+                return;
+            }
+
+            try {
+                window.uploadState.isUploading = true;
+
+                // 禁用发送按钮
+                sendBtn.disabled = true;
+                sendBtn.textContent = '上传中...';
+
+                // 显示进度条
+                showUploadProgress(0, files);
+
+                // 1. 先创建会话
+                const conversationId = await createConversationForUpload();
+
+                // 2. 上传文件
+                await uploadFilesToServer(conversationId, files);
+
+            } catch (error) {
+                console.error('上传文件失败:', error);
+                showNotification('上传文件失败: ' + error.message, 'error');
+                hideUploadProgress();
+            } finally {
+                window.uploadState.isUploading = false;
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 0 0-1.788 0l-7 14a1 1 0 0 0 1.169 1.409l5-1.429A1 1 0 0 0 9 15.571V11a1 1 0 1 1 2 0v4.571a1 1 0 0 0 .725.962l5 1.428a1 1 0 0 0 1.17-1.408l-7-14z"/></svg>发送';
+                window.uploadState.selectedFiles = [];
+            }
+        }
+
+        // 创建会话用于上传
+        async function createConversationForUpload() {
+            const response = await fetch(API_CONVERSATION_CREATE, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `content=${encodeURIComponent('${upload_document}')}`
+            });
+
+            if (!response.ok) {
+                throw new Error(`创建会话失败: HTTP ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.code !== 0 || !result.data) {
+                throw new Error(result.msg || '创建会话失败');
+            }
+
+            const conversationId = result.data.conversationId;
+            window.uploadState.currentConversationId = conversationId;
+
+            return conversationId;
+        }
+
+        // 上传文件到服务器
+        async function uploadFilesToServer(conversationId, files) {
+            const formData = new FormData();
+
+            // 添加多个文件
+            files.forEach(file => {
+                formData.append('files', file);
+            });
+
+            // 更新进度条
+            updateUploadProgress(30, files);
+
+            const response = await fetch(API_CONVERSATION_UPLOAD_DOCUMENTS(conversationId), {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`上传文件失败: HTTP ${response.status}`);
+            }
+
+            updateUploadProgress(100, files);
+
+            const result = await response.json();
+
+            if (result.code !== 0) {
+                throw new Error(result.msg || '上传文件失败');
+            }
+
+            // 隐藏进度条
+            setTimeout(() => {
+                hideUploadProgress();
+
+                // 显示上传完成消息
+                showUploadCompleteMessage(files);
+
+                showNotification('文件上传成功', 'success');
+            }, 500);
+        }
+
+        // 显示上传进度
+        function showUploadProgress(percent, files) {
+            // 移除已存在的进度条
+            hideUploadProgress();
+
+            const inputArea = document.querySelector('.input-area');
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'upload-progress-container';
+            progressContainer.id = 'upload-progress';
+
+            const fileNames = files.map(f => f.name).join(', ');
+
+            progressContainer.innerHTML = `
+                <div class="upload-progress-bar">
+                    <div class="upload-progress-fill" style="width: ${percent}%"></div>
+                </div>
+                <div class="upload-progress-text">上传中... ${percent}%</div>
+                <div class="upload-progress-files">${fileNames}</div>
+            `;
+
+            inputArea.appendChild(progressContainer);
+        }
+
+        // 更新上传进度
+        function updateUploadProgress(percent, files) {
+            const progressContainer = document.getElementById('upload-progress');
+            if (!progressContainer) return;
+
+            const fill = progressContainer.querySelector('.upload-progress-fill');
+            const text = progressContainer.querySelector('.upload-progress-text');
+
+            if (fill) fill.style.width = `${percent}%`;
+            if (text) text.textContent = `上传中... ${percent}%`;
+        }
+
+        // 隐藏上传进度
+        function hideUploadProgress() {
+            const progressContainer = document.getElementById('upload-progress');
+            if (progressContainer) {
+                progressContainer.remove();
+            }
+        }
+
+        // 显示上传完成消息
+        function showUploadCompleteMessage(files) {
+            // 创建会话消息 Markdown 内容
+            const fileListMarkdown = files.map((file, index) =>
+                `${index + 1}. ${file.name}`
+            ).join('\n');
+
+            const messageContent = `文件已上传完成：\n\n${fileListMarkdown}`;
+
+            console.log('上传完成，文件列表:', fileListMarkdown);
+
+            // 检查是否已经在 chat 视图中（聊天消息区域存在）
+            const chatMessages = document.getElementById('chat-messages');
+            if (chatMessages) {
+                // 已经在 chat 视图中，直接添加消息到聊天区域
+                const md = window.markdownit({
+                    html: true,
+                    linkify: true,
+                    typographer: true,
+                    breaks: true
+                });
+                appendMessage('assistant', messageContent, md, chatMessages);
+                // 确保 main 元素有正确的类
+                const mainEl = document.querySelector('main');
+                if (mainEl) {
+                    mainEl.classList.remove('empty-state');
+                    mainEl.classList.add('has-messages', 'has-conversation');
+                }
+                refreshChatHistory();
+            } else {
+                // 还在 empty-chat 视图，需要加载 chat 视图并显示上传完成消息
+                loadChatViewWithUploadResult(messageContent);
+            }
+        }
+
+        // 加载 chat 视图并显示上传结果
+        async function loadChatViewWithUploadResult(messageContent) {
+            try {
+                // 保存上传完成消息到全局变量
+                window.uploadCompleteMessage = messageContent;
+                window.initialUserMessage = null;
+                window.initialContent = null;
+                // 将上传创建的会话ID传递给chat视图
+                window.currentConversationId = window.uploadState.currentConversationId;
+
+                // 加载 chat 视图
+                await loadChatView();
+            } catch (error) {
+                console.error('加载 chat 视图失败:', error);
+                showNotification('上传成功，但加载聊天视图失败，请刷新页面', 'warning');
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            if (!container) return;
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+
+            container.appendChild(notification);
+
+            // 3秒后自动消失
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    });
+</script>
+</body>
+</html>

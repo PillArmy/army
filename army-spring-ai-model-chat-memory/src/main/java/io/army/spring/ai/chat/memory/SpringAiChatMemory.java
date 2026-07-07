@@ -17,6 +17,7 @@
 package io.army.spring.ai.chat.memory;
 
 import io.army.annotation.*;
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
@@ -46,6 +47,7 @@ public abstract class SpringAiChatMemory {
 
     @Column(name = "${DEFAULT}", notNull = true, comment = "${DEFAULT}")
     @Mapping("io.army.mapping.TextType")
+    @Nullable
     private String content;
 
     /// store one of below :
@@ -53,6 +55,7 @@ public abstract class SpringAiChatMemory {
     /// 2. {@link ToolResponseMessage#getResponses()}
     @Column(name = "${DEFAULT}", notNull = true, defaultValue = "'[]'", comment = "${DEFAULT}")
     @Mapping("io.army.mapping.PreferredJsonbType")
+    @Nullable
     private String specializedData;
 
     @Column(name = "${DEFAULT}", notNull = true, precision = 10, comment = "${DEFAULT}")
@@ -85,14 +88,16 @@ public abstract class SpringAiChatMemory {
         return this;
     }
 
+
     public String getContent() {
         return content;
     }
 
-    public SpringAiChatMemory setContent(String content) {
+    public SpringAiChatMemory setContent(@Nullable String content) {
         this.content = content;
         return this;
     }
+
 
     public String getSpecializedData() {
         return specializedData;

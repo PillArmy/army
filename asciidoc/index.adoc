@@ -1527,7 +1527,7 @@ public DayOfWeek tradingDay;  // → NameEnumType + DayOfWeek special handling
 === Navigation: stock-data Example
 
 The `army-example-stock-data` module contains a complete stock market application demonstrating all mapping patterns discussed in this chapter.
-Browse its `domain/` package to see real `@Mapping` usages across `Stock`, `StockQuotes`, `StockChatConversation`, `UploadRecord`, and vector store entities.
+Browse its `domain/` package to see real `@Mapping` usages across `Stock`, `StockQuotes`, `CoderChatConversation`, `UploadRecord`, and vector store entities.
 
 === @Mapping Annotation: Explicit Mapping Control
 

@@ -35,7 +35,7 @@ public abstract class TestUtils {
         updateStmt = SQLs.singleUpdate()
                 .update(PostgreTypes_.T, AS, "t")
                 .set(field, SQLs::literal, value)
-                .where(PostgreTypes_.id.equal(id))
+                .where(PostgreTypes_.id.equal(SQLs::literal, id))
                 .asUpdate();
 
         session.update(updateStmt);
@@ -47,7 +47,7 @@ public abstract class TestUtils {
         selectStmt = SQLs.query()
                 .select(field)
                 .from(PostgreTypes_.T, AS, "t")
-                .where(PostgreTypes_.id.equal(id))
+                .where(PostgreTypes_.id.equal(SQLs::literal, id))
                 .asQuery();
 
 
@@ -59,7 +59,7 @@ public abstract class TestUtils {
         updateStmt = SQLs.singleUpdate()
                 .update(PostgreTypes_.T, AS, "t")
                 .set(field, SQLs::param, value)
-                .where(PostgreTypes_.id.equal(id))
+                .where(PostgreTypes_.id.equal(SQLs::literal, id))
                 .asUpdate();
 
         session.update(updateStmt);

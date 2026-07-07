@@ -1,0 +1,2066 @@
+= Army Framework 入门指南
+:author: Army Community
+:toc: left
+:toclevels: 4
+:sectnumlevels: 4
+:icons: font
+:source-highlighter: prettify
+:experimental:
+
+[[chapter-what-is-army]]
+== 什么是 Army
+
+[[intro]]
+=== Army 是什么
+
+Army 是一个 Java SQL 框架，提供三种核心能力：
+
+. *更好的 SQL 编写方式* —— 忠于 SQL 语义而非模仿其他框架
+. *更好的阻塞式 ORM* —— 不做 JPA 式的脏检查、一级缓存、自动 merge/persist
+. *方言感知的数据库驱动* —— 精确到数据库版本号
+
+设计哲学：
+
+[quote]
+____
+Don't create a new world, just map the real world. +
+We need standard, we need dialect — it's the real world.
+____
+
+[[pipeline]]
+=== 核心工作流
+
+[source]
+----
+Domain 类（@Table 注解）
+  → 注解处理器在编译期生成静态元模型类（Stock_）
+  → Criteria API 构建 SQL 语句（类型安全，步骤约束）
+  → Dialect Parser 根据目标方言生成原生 SQL
+  → Session API 执行语句并返回结果
+----
+
+[[convention]]
+=== 约定
+
+. 以 `_` 开头的接口/类是框架私有 API，代码中不应直接使用
+. Domain 类字段名默认映射为数据库列名（驼峰转下划线），可通过 `@Column(name="...")` 覆盖
+. 预留字段 `id`、`createTime`、`updateTime`、`version`、`visible` 拥有自动行为（见 <<chapter-advanced>>）
+
+// ============================================================
+// 第二章：快速开始
+// ============================================================
+
+[[chapter-quick-start]]
+== 快速开始
+
+[[maven-deps]]
+=== 添加依赖
+
+[source,xml]
+----
+<dependencies>
+    <dependency>
+        <groupId>io.qinarmy</groupId>
+        <artifactId>army-jdbc</artifactId>
+        <version>0.6.8-SNAPSHOT</version>
+    </dependency>
+    <!-- 根据数据库选择方言模块 -->
+    <dependency>
+        <groupId>io.qinarmy</groupId>
+        <artifactId>army-postgre</artifactId> <!-- 或 army-mysql / army-oracle / army-sqlite -->
+        <version>0.6.8-SNAPSHOT</version>
+    </dependency>
+</dependencies>
+----
+
+[[annotation-processor]]
+=== 配置注解处理器
+
+在包含 Domain 类的 Maven module 中：
+
+[source,xml]
+----
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <annotationProcessors>
+                    io.army.modelgen.ArmyMetaModelDomainProcessor
+                </annotationProcessors>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+----
+
+编译后会在 `target/generated-sources/annotations/` 下生成元模型类。
+
+[[first-domain-class]]
+=== 第一个 Domain 类
+
+[source,java]
+----
+@Table(name = "stock",
+       indexes = @Index(name = "uni_stock_exchange_code",
+                        fieldList = {"exchange", "code"},
+                        unique = true),
+       comment = "stock info table")
+public class Stock {
+
+    @Generator("ID_GEN")
+    @Column(name = "id", comment = "primary key")
+    public Long id;
+
+    @Column(name = "create_time", comment = "create time")
+    public LocalDateTime createTime;
+
+    @Column(name = "update_time", comment = "update time")
+    public LocalDateTime updateTime;
+
+    @Column(name = "version", comment = "optimistic lock version")
+    public Integer version;
+
+    @Column(name = "exchange", comment = "stock exchange")
+    public String exchange;
+
+    @Column(name = "code", comment = "stock code")
+    public String code;
+
+    @Column(name = "name", comment = "stock name")
+    public String name;
+
+    @Column(name = "status", comment = "stock status")
+    public StockStatus status;       // 枚举会自动映射
+
+    @Column(name = "offer_price", comment = "offer price")
+    public BigDecimal offerPrice;
+
+    @Column(name = "listing_date", comment = "listing date")
+    public LocalDate listingDate;
+
+    // getter / setter 省略
+}
+
+public enum StockStatus {
+    OPEN, CLOSE, DELISTING
+}
+----
+
+[[first-metamodel]]
+=== 编译生成的元模型类
+
+`ArmyMetaModelDomainProcessor` 自动生成：
+
+[source,java]
+----
+public abstract class Stock_ {
+
+    public static final String ID = "id";
+    public static final String NAME = "name";
+    // ... 其他字段名常量
+
+    // 表引用
+    public static final SimpleTableMeta<Stock> T = ...;
+
+    // 字段引用 —— 带完整泛型信息
+    public static final PrimaryFieldMeta<Stock, Long> id = ...;
+    public static final FieldMeta<Stock, String> code = ...;
+    public static final FieldMeta<Stock, String> name = ...;
+    public static final FieldMeta<Stock, StockStatus> status = ...;
+    public static final FieldMeta<Stock, BigDecimal> offerPrice = ...;
+    // ... 其他字段
+
+    static {
+        if (fieldSize != 10) {
+            throw new RuntimeException("Field count mismatch...");
+        }
+    }
+}
+----
+
+[[first-session-factory]]
+=== 创建 SessionFactory
+
+[source,java]
+----
+SessionFactory factory = SyncFactoryBuilder.builder()
+    .name("myApp")                          // 必须
+    .environment(ArmyEnvironment.getInstance())  // 必须
+    .datasource(dataSource)                 // 必须
+    .packagesToScan("com.example.domain")   // 必须
+    .build();
+
+SyncLocalSession session = ((SyncSessionFactory) factory).localSession();
+----
+
+FactoryBuilder 完整方法：
+
+|===
+| 方法 | 必须? | 说明
+| `name(String)`         | 是 | 应用名称标识
+| `environment(ArmyEnvironment)` | 是 | Army 环境实例
+| `datasource(DataSource)`       | 是 | JDBC 数据源
+| `packagesToScan(String...)`    | 是 | Domain 类所在包路径，逗号分隔
+| `classLoader(ClassLoader)`     | 否 | 自定义类加载器
+| `loadStaticModel(boolean)`     | 否 | 是否加载静态模型类，默认 true
+| `validateOnStartup(boolean)`   | 否 | 启动时校验表结构，默认 false
+| `jsonCodec(JsonCodec)`         | 否 | JSON 编解码器
+| `xmlCodec(XmlCodec)`           | 否 | XML 编解码器
+| `fieldGeneratorFactory(...)`   | 否 | 字段生成器工厂
+| `build()`                      | - | 构建 SessionFactory（阻塞模式）
+|===
+
+ArmyKey 环境变量：
+
+|===
+| Key | 必须? | 说明
+| `ArmyKey.DATABASE`     | 是 | 数据库名称（用于匹配方言模块）
+| `ArmyKey.DIALECT`      | 否 | 方言枚举，不指定则自动检测
+| `ArmyKey.ZONE_OFFSET`  | 否 | 时区偏移量
+| `ArmyKey.DDL_MODE`     | 否 | DDL 生成模式：`CREATE` / `NONE` / `DEFAULT`
+| `ArmyKey.VISIBLE_MODE` | 否 | 可见性模式：`ONLY_VISIBLE` / `ONLY_INVISIBLE` / `ALL`
+| `ArmyKey.SQL_LOG_MODE` | 否 | SQL 日志模式：`ON` / `OFF`
+|===
+
+[[first-insert]]
+=== 第一次插入
+
+[source,java]
+----
+Stock stock = new Stock();
+stock.setExchange("NASDAQ");
+stock.setCode("TSLA");
+stock.setName("Tesla Inc.");
+stock.setStatus(StockStatus.OPEN);
+stock.setOfferPrice(new BigDecimal("250.50"));
+
+Insert stmt = SQLs.singleInsert()
+    .insertInto(Stock_.T)
+    .values(List.of(stock))
+    .asInsert();
+
+long rows = session.update(stmt);
+----
+
+生成 SQL（PostgreSQL）：
+
+[source,sql]
+----
+INSERT INTO stock (id, create_time, update_time, version,
+                   exchange, code, name, status, offer_price)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+----
+
+[[first-query]]
+=== 第一次查询
+
+[source,java]
+----
+Query stmt = SQLs.query()
+    .select(Stock_.id, Stock_.code, Stock_.name, Stock_.offerPrice)
+    .from(Stock_.T, AS, "s")
+    .where(Stock_.exchange.equal("NASDAQ"))
+    .orderBy(Stock_.offerPrice, Order.DESC)
+    .limit(10)
+    .asQuery();
+
+Stock row = session.queryOne(stmt, Stock.class);
+List<Stock> list = session.queryList(stmt, Stock.class);
+----
+
+生成 SQL：
+
+[source,sql]
+----
+SELECT s.id, s.code, s.name, s.offer_price
+FROM stock AS s
+WHERE s.exchange = ?
+ORDER BY s.offer_price DESC
+LIMIT 10
+----
+
+// ============================================================
+// 第三章：Domain 模型定义
+// ============================================================
+
+[[chapter-domain-model]]
+== Domain 模型定义
+
+[[annotation-overview]]
+=== 注解一览
+
+Army 提供以下注解用于 Domain 类定义：
+
+|===
+| 注解 | 作用 | 作用域
+| `@Table`              | 将类映射为数据库表 | 类
+| `@Column`             | 将字段映射为数据库列 | 字段
+| `@Generator`          | 指定字段的主键生成策略 | 字段
+| `@GeneratorType`      | 注册自定义生成器类 | 类型
+| `@Param`              | 生成器参数（运行时常量） | 字段/类型
+| `@FieldParam`         | 生成器参数（另一字段引用） | 字段/类型
+| `@OverrideParams`     | 覆盖父类生成器参数 | 字段
+| `@Mapping`            | 显式指定 MappingType | 字段
+| `@Index`              | 表索引定义 | 类/字段
+| `@IndexField`         | 索引字段详细配置 | 字段
+| `@SortOrder`          | 索引字段排序 | 字段
+| `@NullsOrder`         | 索引字段 NULL 排序 | 字段
+| `@Inheritance`        | 单表继承映射 | 类
+| `@DiscriminatorValue` | 继承判别值 | 类
+| `@MappedSuperclass`   | 映射超类（不映射为独立表） | 类
+| `@DdlMode`            | DDL 生成行为控制 | 类/字段
+| `@Codec`              | 标记性注解（预留） | 类
+|===
+
+[[table-annotation]]
+=== @Table
+
+将 Java 类映射为数据库表。
+
+属性：
+
+|===
+| 属性 | 类型 | 必须? | 说明
+| `name`         | String             | 是 | 表名
+| `comment`      | String             | 是 | 表注释
+| `catalog`      | String             | 否 | 数据库 catalog
+| `schema`       | String             | 否 | 数据库 schema
+| `indexes`      | @Index[]           | 否 | 索引定义
+| `immutable`    | boolean            | 否 | 是否为不可变表（如日志表）
+| `allColumnNotNull` | boolean        | 否 | 所有列是否为 NOT NULL
+| `ddlMode`      | DdlMode            | 否 | DDL 生成模式
+| `tableOptions` | String             | 否 | 表选项（ENGINE 等），方言相关
+| `partitionOptions` | String         | 否 | 分区选项
+|===
+
+示例：
+
+[source,java]
+----
+@Table(name = "china_region",
+       comment = "china region table",
+       indexes = {
+           @Index(name = "uni_region_parent_name", fieldList = {"parentCode", "name"}, unique = true),
+           @Index(name = "idx_region_name", fieldList = "name")
+       })
+public class ChinaRegion {
+    // ...
+}
+
+// 不可变表（插入后不修改）
+@Table(name = "stock_quotes",
+       immutable = true,
+       comment = "stock quotes table")
+public class StockQuotes { /* ... */ }
+----
+
+[[column-annotation]]
+=== @Column
+
+将 Java 字段映射为数据库列。
+
+内置约定（零配置）—— 以下 Java 类型字段无需 `@Column(name = "...")`：
+
+|===
+| 类型 | 默认列名 | 默认 JDBC 类型 | 说明
+| `long` / `Long`        | 字段名（驼峰转下划线） | BIGINT          | 整数
+| `int` / `Integer`      | 同上                   | INTEGER         | 整数
+| `String`               | 同上                   | VARCHAR(255)    | 变长字符串
+| `BigDecimal`           | 同上                   | NUMERIC(19,4)   | 定点数
+| `boolean` / `Boolean`  | 同上                   | BOOLEAN         | 布尔
+| `LocalDateTime`        | 同上                   | TIMESTAMP       | 日期时间
+| `LocalDate`            | 同上                   | DATE            | 日期
+| `LocalTime`            | 同上                   | TIME            | 时间
+| `byte[]`               | 同上                   | VARBINARY(255)  | 字节数组
+| `BigInteger`           | 同上                   | NUMERIC(38)     | 大整数
+| `UUID`                 | 同上                   | UUID            | UUID
+|===
+
+属性：
+
+|===
+| 属性 | 类型 | 说明
+| `name`         | String  | 列名（不指定则自动生成）
+| `comment`      | String  | 列注释（不指定则自动生成）
+| `notNull`      | boolean | 是否 NOT NULL
+| `insertable`   | boolean | 是否参与 INSERT，默认 true
+| `updatable`    | boolean | 是否参与 UPDATE，默认 true
+| `precision`    | int     | 数字精度
+| `scale`        | int     | 小数位数
+| `defaultValue` | String  | 默认值（支持占位符）
+| `collation`    | String  | 字符排序规则
+|===
+
+[[reserved-fields]]
+==== 预留字段（自动行为）
+
+以下字段名拥有框架自动行为：
+
+|===
+| 字段名 | Java 类型 | 自动行为
+| `id`          | Long/long     | 主键，必须存在
+| `createTime`  | LocalDateTime | INSERT 时自动注入当前时间
+| `updateTime`  | LocalDateTime | UPDATE 时自动注入当前时间
+| `version`     | Integer/int   | 乐观锁字段，UPDATE 时自动 version+1 且加 WHERE version=?
+| `visible`     | Boolean/boolean | 软删除，SELECT 时自动注入 WHERE visible=TRUE
+|===
+
+[[generator-annotation]]
+=== @Generator
+
+指定字段的主键生成策略。Army 不支持数据库自增键，所有 ID 由应用生成。
+
+生成器类型：
+
+|===
+| 类型 | 说明
+| `PRECEDE`  | 前置生成：DAO 层返回 ID（如 Snowflake），INSERT 前确定
+| `POST`     | 后置生成：INSERT 后从 ResultSet.getGeneratedKeys() 获取
+| `RUNTIME`  | 运行时生成：如数据库 SEQUENCE / AUTO_INCREMENT
+| `DEFAULT`  | 框架默认生成器
+|===
+
+内置生成器：
+
+|===
+| 生成器 | 说明
+| `Snowflake8Generator`  | 8 字节 Snowflake（42 位时间戳 + 5 位工作机 + 5 位数据中心 + 12 位序列）
+| `Snowflake12Generator` | 12 字节 Snowflake
+| `UuidGenerator`        | UUID 生成器
+|===
+
+Snowflake 需要配置 `startTime` 参数：
+
+[source,java]
+----
+@Generator(value = "ID_GEN", startTime = "2020-01-01 00:00:00")
+@Column(name = "id", comment = "primary key")
+public Long id;
+----
+
+自定义生成器通过 `@GeneratorType` 注册：
+
+[source,java]
+----
+@GeneratorType(MyCustomGenerator.class)
+public @interface MyGenerator {
+    String value() default "";
+}
+----
+
+[[mapping-annotation]]
+=== @Mapping
+
+显式指定字段的 MappingType，覆盖默认的类型推断：
+
+[source,java]
+----
+// 指定使用固定长度字符类型
+@Mapping("io.army.mapping.SqlCharType")
+@Column(name = "file_hash")
+public String fileHash;  // CHAR(32) 而非 VARCHAR(255)
+
+// 指定使用 JSONB 类型
+@Mapping("io.army.mapping.postgre.PreferredJsonbType")
+@Column(name = "tags")
+public List<String> tags;
+----
+
+解析优先级：`@Mapping` > 默认 Java 类型推断 > 全局 TypeMappingHandler。
+
+[[index-annotation]]
+=== @Index
+
+定义表索引。
+
+[source,java]
+----
+// 类级别索引
+@Table(name = "stock",
+       indexes = {
+           @Index(name = "uni_stock_code", fieldList = {"exchange", "code"},
+                  unique = true),
+           @Index(name = "idx_stock_name", fieldList = "name",
+                  type = IndexType.BTREE)
+       })
+
+// 字段级别索引
+@Index(name = "idx_stock_status")
+@Column(name = "status")
+public StockStatus status;
+----
+
+索引名约定（自动生成）：
+
+|===
+| 类型            | 格式        | 示例
+| 唯一索引       | `uni_{table}_{fields}` | `uni_stock_exchange_code`
+| 非唯一索引     | `idx_{table}_{fields}` | `idx_stock_name`
+|===
+
+`@IndexField` 对每个索引字段进行详细配置：
+
+|===
+| 属性 | 说明
+| `collation`      | 排序规则
+| `operatorClass`  | 操作符类（PostgreSQL）
+| `sortOrder`      | 排序方向：ASC / DESC / UNSET
+| `nullsOrder`     | NULL 排序：FIRST / LAST / UNSET / LARGE / SMALL
+|===
+
+[[ddl-mode]]
+=== @DdlMode — DDL 生成控制
+
+控制 DDL 生成行为，用于混合管理（部分表由框架管理，部分外部管理）：
+
+|===
+| 模式 | 说明
+| `CREATE`   | 框架负责 CREATE TABLE
+| `NONE`     | 框架不生成 DDL（表由外部管理，如 Flyway/Liquibase）
+| `DEFAULT`  | 跟随全局 `ArmyKey.DDL_MODE` 配置
+|===
+
+[source,java]
+----
+// 表级别：该表不生成 DDL
+@Table(name = "external_log",
+       ddlMode = DdlMode.NONE,
+       comment = "externally managed log table")
+
+// 字段级别：该列不生成 DDL
+@Column(name = "legacy_field", ddlMode = DdlMode.NONE)
+public String legacyField;
+
+// 全局配置
+ArmyEnvironment.getInstance()
+    .set(ArmyKey.DDL_MODE, DdlMode.CREATE);
+----
+
+[[mapped-superclass]]
+=== @MappedSuperclass
+
+映射超类：超类的字段被子实体继承，但超类自身不映射为独立表。
+
+[source,java]
+----
+@MappedSuperclass
+public class BaseDomain {
+    @Column(name = "id")
+    public Long id;
+    @Column(name = "create_time")
+    public LocalDateTime createTime;
+    @Column(name = "update_time")
+    public LocalDateTime updateTime;
+}
+
+@Table(name = "stock", comment = "stock table")
+public class Stock extends BaseDomain {
+    @Column(name = "name")
+    public String name;
+    // id / createTime / updateTime 自动继承
+}
+----
+
+[[inheritance-annotation]]
+=== @Inheritance
+
+单表继承：父类和所有子类共用一个表，通过 discriminator 列区分类型。
+
+[source,java]
+----
+@Table(name = "user", comment = "user table")
+@Inheritance(discriminator = @Column(name = "user_type"))
+public class User {
+    @Column(name = "id")
+    public Long id;
+    @Column(name = "name")
+    public String name;
+}
+
+@DiscriminatorValue("ADMIN")
+public class Admin extends User {
+    @Column(name = "admin_level", comment = "admin level")
+    public Integer adminLevel;
+}
+
+@DiscriminatorValue("MEMBER")
+public class Member extends User {
+    @Column(name = "member_level", comment = "member level")
+    public Integer memberLevel;
+}
+----
+
+查询、更新、删除子实体时，Army 自动注入 discriminator 条件。
+
+[[properties-placeholder]]
+=== TableMeta.properties 占位符
+
+在 `META-INF/army/TableMeta.properties` 中覆盖默认的注解值：
+
+占位符列表：
+
+|===
+| 占位符 | 解析时机 | 用途
+| `${DEFAULT}`        | 编译时解析 | 固定不变的值（如表名、列名）
+| `${RUNTIME}`        | 编译时读取默认，运行时重新读取 | 部署期可覆盖的值
+| `${OPTIONAL}`       | 可选值 | 省略时使用注解原始值
+| `${DEFAULT_VALUE}`  | 默认值占位 | 列默认值表达式
+|===
+
+可覆盖的属性：
+
+|===
+| 属性 | 说明
+| `_name`         | 表名
+| `_comment`      | 表注释
+| `_catalog`      | Catalog
+| `_schema`       | Schema
+| `_type`         | 泛化类型（如 `parent_user` 作为父表名）
+| `{field}._name`        | 字段列名
+| `{field}._comment`     | 字段注释
+| `{field}._precision`   | 字段精度
+| `{field}._scale`       | 字段小数位
+| `{field}._default`     | 字段默认值
+| `{field}.GeneratorType`| 生成器类型
+|===
+
+完整配置示例：
+
+[source,properties]
+----
+# META-INF/army/TableMeta.properties
+
+# 表级配置
+stock._name=${DEFAULT}army_stock
+stock._comment=${DEFAULT}stock information table v2
+stock._schema=${OPTIONAL}public
+
+# 字段级配置
+stock.exchange._comment=${DEFAULT}exchange market name
+stock.offer_price._precision=${DEFAULT}19
+stock.offer_price._scale=${DEFAULT}4
+
+# 生成器覆盖
+stock.id.GeneratorType=${DEFAULT}Snowflake8Generator
+----
+
+// ============================================================
+// 第四章：Session 与会话管理
+// ============================================================
+
+[[chapter-session]]
+== Session 与会话管理
+
+[[session-api-overview]]
+=== Session API 概览
+
+Army 使用 *两步模式*：先构建 Statement，再通过 Session 执行。
+
+Session 接口的核心方法：
+
+|===
+| 方法 | 返回类型 | 说明
+| `queryOne(Query, Class<T>)`     | T              | 查询单条记录
+| `queryList(Query, Class<T>)`    | List\<T\>      | 查询多条记录
+| `queryCount(Query)`             | long           | 查询计数
+| `queryExists(Query)`            | boolean        | 查询是否包含数据
+| `update(DmlStatement)`          | long           | 执行 INSERT / UPDATE / DELETE，返回影响行数
+| `update(BatchUpdate)`           | long           | 批量更新
+| `save(List<T>, SaveMode)`       | List\<T\>      | 批量插入 Domain 对象
+|===
+
+两步模式的示例：
+
+[source,java]
+----
+// 步骤 1：构建 Statement（不执行 SQL）
+Query stmt = SQLs.query()
+    .select(Stock_.code, Stock_.name)
+    .from(Stock_.T, AS, "s")
+    .where(Stock_.exchange.equal("NASDAQ"))
+    .asQuery();
+
+// 步骤 2：通过 Session 执行
+List<Stock> results = session.queryList(stmt, Stock.class);
+----
+
+[[army-environment]]
+=== ArmyEnvironment
+
+`ArmyEnvironment` 是全局环境配置对象，持有所有 `ArmyKey` 到值的映射。
+
+[source,java]
+----
+ArmyEnvironment env = ArmyEnvironment.getInstance()
+    .set(ArmyKey.DATABASE, "postgresql")
+    .set(ArmyKey.DIALECT, Dialect.POSTGRE17)
+    .set(ArmyKey.ZONE_OFFSET, ZoneOffset.of("+8"))
+    .set(ArmyKey.DDL_MODE, DdlMode.NONE)
+    .set(ArmyKey.VISIBLE_MODE, Visible.ONLY_VISIBLE)
+    .set(ArmyKey.SQL_LOG_MODE, SqlLogMode.ON);
+----
+
+[[transaction]]
+=== 事务管理
+
+[source,java]
+----
+SyncLocalSession session = ((SyncSessionFactory) factory).localSession();
+
+// 手动事务
+session.startTransaction();
+try {
+    session.update(insertStmt);
+    session.update(updateStmt);
+    session.commit();
+} catch (Exception e) {
+    session.rollback();
+    throw e;
+}
+
+// 函数式事务
+session.transactional(tx -> {
+    tx.update(insertStmt);
+    tx.update(updateStmt);
+    return null;
+});
+----
+
+Transaction 接口的方法：
+
+|===
+| 方法 | 说明
+| `commit()`             | 提交事务
+| `rollback()`           | 回滚事务
+| `setRollbackOnly()`    | 标记为只回滚
+| `commitOrRollback()`   | 根据状态提交或回滚
+|===
+
+// ============================================================
+// 第五章：Criteria API —— 编写 SQL
+// ============================================================
+
+[[chapter-criteria-api]]
+== Criteria API —— 编写 SQL
+
+[[sqls-entry]]
+=== SQLs 入口类
+
+所有语句的入口是 `SQLs` 工具类：
+
+[source,java]
+----
+// 查询
+SQLs.query()           // SELECT
+
+// 单表插入
+SQLs.singleInsert()    // INSERT INTO single_table
+
+// 单表更新
+SQLs.singleUpdate()    // UPDATE single_table
+
+// 单表删除
+SQLs.singleDelete()    // DELETE FROM single_table
+
+// Domain 更新（支持父子表）
+SQLs.domainUpdate()    // UPDATE child_table with CTE / multi-table
+
+// Domain 删除
+SQLs.domainDelete()    // DELETE FROM child_table with CTE / multi-table
+
+// 批量 Domain 更新
+SQLs.batchDomainUpdate()
+
+// 批量 Domain 删除
+SQLs.batchDomainDelete()
+
+// 批量单表更新
+SQLs.batchSingleUpdate()
+----
+
+[[select-statement]]
+=== SELECT 语句
+
+[[basic-select]]
+==== 基础查询
+
+[source,java]
+----
+Query stmt = SQLs.query()
+    .select(Stock_.id, Stock_.code, Stock_.name, Stock_.offerPrice)
+    .from(Stock_.T, AS, "s")
+    .where(Stock_.exchange.equal("NASDAQ"))
+    .orderBy(Stock_.offerPrice, Order.DESC)
+    .limit(10)
+    .offset(0)
+    .asQuery();
+----
+
+完整子句链（按 SQL 顺序）：
+
+[source]
+----
+select() → from() → join() → where() → groupBy() → having()
+→ orderBy() → limit() → offset() → forUpdate() → asQuery()
+----
+
+[[where-clause]]
+==== WHERE 条件
+
+比较运算符：
+
+[source,java]
+----
+// 等于
+Stock_.code.equal("TSLA")
+Stock_.code.spaceEqual("TSLA")    // space() 版本
+
+// 不等于
+Stock_.status.notEqual(StockStatus.DELISTING)
+
+// 大于 / 小于
+Stock_.offerPrice.greaterThan(new BigDecimal("100"))
+Stock_.offerPrice.lessThan(new BigDecimal("500"))
+
+// BETWEEN
+Stock_.offerPrice.between(new BigDecimal("100"), new BigDecimal("500"))
+
+// LIKE
+Stock_.name.like("Tesla%")
+
+// IN
+Stock_.code.in_(List.of("TSLA", "AAPL", "GOOGL"))
+
+// IS NULL / IS NOT NULL
+Stock_.listingDate.isNull()
+Stock_.listingDate.isNotNull()
+----
+
+AND / OR 组合：
+
+[source,java]
+----
+SQLs.query()
+    .select(Stock_.code, Stock_.name)
+    .from(Stock_.T, AS, "s")
+    .where(w -> w
+        .and(Stock_.exchange.equal("NASDAQ"))
+        .or(Stock_.offerPrice.greaterThan(100), Stock_.code.in_(hotCodes))
+    )
+    .asQuery();
+----
+
+子查询：
+
+[source,java]
+----
+// 子查询作为 WHERE 条件
+SQLs.query()
+    .select(User_.id, User_.name)
+    .from(User_.T, AS, "u")
+    .where(User_.id.in_(
+        SQLs.query()
+            .select(Order_.userId)
+            .from(Order_.T, AS, "o")
+            .where(Order_.amount.greaterThan(new BigDecimal("1000")))
+            .asQuery()
+    ))
+    .asQuery();
+----
+
+[[join]]
+==== JOIN
+
+支持的 JOIN 类型：
+
+|===
+| 方法 | SQL
+| `innerJoin(TableRef, AS, alias)`    | `INNER JOIN table AS alias`
+| `leftJoin(TableRef, AS, alias)`     | `LEFT JOIN table AS alias`
+| `rightJoin(TableRef, AS, alias)`    | `RIGHT JOIN table AS alias`
+| `fullJoin(TableRef, AS, alias)`     | `FULL JOIN table AS alias`
+| `crossJoin(TableRef, AS, alias)`    | `CROSS JOIN table AS alias`
+|===
+
+示例：
+
+[source,java]
+----
+SQLs.query()
+    .select(Stock_.code, Stock_.name, Quotes_.price, Quotes_.volume)
+    .from(Stock_.T, AS, "s")
+    .innerJoin(Quotes_.T, AS, "q")
+    .on(Stock_.code.equal(Quotes_.stockCode))
+    .where(Stock_.exchange.equal("NASDAQ"))
+    .asQuery();
+----
+
+[[aggregate]]
+==== 聚合函数
+
+[source,java]
+----
+SQLs.query()
+    .select(
+        Stock_.exchange,
+        SQLs.count(Stock_.id).as_("cnt"),     // COUNT
+        SQLs.avg(Stock_.offerPrice).as_("avg"),  // AVG
+        SQLs.max(Stock_.offerPrice).as_("max"),  // MAX
+        SQLs.min(Stock_.offerPrice).as_("min")   // MIN
+    )
+    .from(Stock_.T, AS, "s")
+    .groupBy(Stock_.exchange)
+    .having(SQLs.count(Stock_.id).greaterThan(10))
+    .orderBy(SQLs.count(Stock_.id), Order.DESC)
+    .asQuery();
+----
+
+[[window-functions]]
+==== 窗口函数
+
+支持的窗口函数：
+
+|===
+| 方法 | SQL
+| `SQLs.rowNumber()`      | ROW_NUMBER()
+| `SQLs.rank()`           | RANK()
+| `SQLs.denseRank()`      | DENSE_RANK()
+| `SQLs.ntile(int)`       | NTILE(n)
+| `SQLs.cumeDist()`       | CUME_DIST()
+| `SQLs.lag(expr)`        | LAG(expr)
+| `SQLs.lead(expr)`       | LEAD(expr)
+| `SQLs.firstValue(expr)` | FIRST_VALUE(expr)
+| `SQLs.lastValue(expr)`  | LAST_VALUE(expr)
+| `SQLs.nthValue(expr, n)`| NTH_VALUE(expr, n)
+|===
+
+示例：
+
+[source,java]
+----
+SQLs.query()
+    .select(
+        Stock_.code,
+        Stock_.offerPrice,
+        SQLs.rowNumber().over(w -> w
+            .partitionBy(Stock_.exchange)
+            .orderBy(Stock_.offerPrice, Order.DESC)
+        ).as_("rank_in_exchange")
+    )
+    .from(Stock_.T, AS, "s")
+    .asQuery();
+----
+
+生成 SQL：
+
+[source,sql]
+----
+SELECT s.code, s.offer_price,
+       ROW_NUMBER() OVER (PARTITION BY s.exchange ORDER BY s.offer_price DESC)
+       AS rank_in_exchange
+FROM stock AS s
+----
+
+[[union]]
+==== UNION / INTERSECT / EXCEPT
+
+[source,java]
+----
+SQLs.query()
+    .select(User_.id, User_.name)
+    .from(User_.T, AS, "u")
+    .where(User_.status.equal("ACTIVE"))
+
+    .union()          // UNION, .unionAll(), .unionDistinct()
+
+    .select(Vip_.id, Vip_.name)
+    .from(Vip_.T, AS, "v")
+
+    .asQuery();
+----
+
+支持的集合操作：`UNION` / `UNION_ALL` / `INTERSECT` / `INTERSECT_ALL` / `EXCEPT` / `EXCEPT_ALL` / `MINUS`（Oracle）。
+
+[[scalar-functions]]
+==== 标量函数
+
+`SQLs` 提供丰富的标量函数，映射 SQL 标准函数：
+
+*数学函数*
+
+[source,java]
+----
+SQLs.abs(Stock_.offerPrice)           // ABS(offer_price)
+SQLs.round(Stock_.offerPrice, 2)      // ROUND(offer_price, 2)
+SQLs.ceil(Stock_.offerPrice)          // CEIL(offer_price)
+SQLs.floor(Stock_.offerPrice)         // FLOOR(offer_price)
+SQLs.power(Stock_.price, 2)           // POWER(price, 2)
+SQLs.sqrt(Stock_.price)              // SQRT(price)
+SQLs.mod(Stock_.quantity, 10)         // MOD(quantity, 10)
+----
+
+*字符串函数*
+
+[source,java]
+----
+SQLs.length(Stock_.name)              // LENGTH(name)
+SQLs.lower(Stock_.code)               // LOWER(code)
+SQLs.upper(Stock_.code)               // UPPER(code)
+SQLs.trim(Stock_.name)               // TRIM(name)
+SQLs.substring(Stock_.name, 1, 3)     // SUBSTRING(name, 1, 3)
+SQLs.concat(Stock_.exchange, SQLs.literal(", "), Stock_.code)  // 字符串拼接
+----
+
+*条件函数与 CASE 表达式*
+
+[source,java]
+----
+// COALESCE
+SQLs.coalesce(Stock_.offerPrice, SQLs.literal(0))
+
+// NULLIF
+SQLs.nullif(Stock_.offerPrice, SQLs.literal(0))
+
+// CASE WHEN
+SQLs.cases()
+    .when(Stock_.offerPrice.greaterThan(1000), SQLs.literal("HIGH"))
+    .when(Stock_.offerPrice.greaterThan(100), SQLs.literal("MID"))
+    .elseValue(SQLs.literal("LOW"))
+    .end(SqlVarcharType.INSTANCE)
+    .as_("price_level");
+----
+
+[[expression-api]]
+==== Expression API
+
+Army 中，所有 SQL 表达式都实现 `Expression` 或 `TypedExpression` 接口：
+
+[source]
+----
+Expression → 无类型表达式（如 1*x，不同数据库结果类型不同）
+TypedExpression → 带类型信息的表达式（绑定 MappingType）
+    ├── IPredicate       → BOOLEAN 类型（WHERE 条件）
+    ├── FieldMeta        → 列引用（字段元数据）
+    ├── SubQuery         → 子查询表达式
+    └── FuncExpression   → 函数表达式
+----
+
+关键区别：`Expression` 用于 `SET` 赋值、`SELECT` 列、`ORDER BY` 等场景；
+`TypedExpression` 可用于需要推断 SQL 类型的场合（如 CASE WHEN 的 `end()` 方法需要类型）。
+
+[source,java]
+----
+// Expression: 无类型，可以出现在 SET / SELECT / ORDER BY 中
+Expression<?> expr = SQLs.add(Stock_.price, 10);
+
+// TypedExpression: 带类型，可用于 CASE 等需要类型推断的场景
+TypedExpression<BigDecimal> typed = Stock_.offerPrice;  // FieldMeta 继承 TypedExpression
+
+// IPredicate 是 TypedExpression<Boolean> 的子类型
+IPredicate condition = Stock_.offerPrice.greaterThan(100);
+// 可以出现在 CASE WHEN 中
+SQLs.cases().when(condition, SQLs.literal("HIGH"));
+----
+
+[[insert-statement]]
+=== INSERT 语句
+
+[[single-insert]]
+==== 单表插入
+
+Domain 模式（传入 Domain 对象）：
+
+[source,java]
+----
+Stock stock = new Stock();
+stock.setExchange("NASDAQ");
+stock.setCode("AAPL");
+// ...
+
+Insert stmt = SQLs.singleInsert()
+    .insertInto(Stock_.T)
+    .values(List.of(stock))      // 单条或多条
+    .asInsert();
+
+long rows = session.update(stmt);
+----
+
+值模式（动态列）：
+
+[source,java]
+----
+Insert stmt = SQLs.singleInsert()
+    .insertInto(Stock_.T)
+    .parens(s -> s
+        .space(Stock_.exchange)
+        .space(Stock_.code)
+        .space(Stock_.name)
+        .space(Stock_.offerPrice)
+    )
+    .values(List.of(
+        List.of("NASDAQ", "AAPL", "Apple Inc.", 180),
+        List.of("NASDAQ", "GOOGL", "Alphabet Inc.", 140)
+    ))
+    .asInsert();
+----
+
+通过子查询插入：
+
+[source,java]
+----
+Insert stmt = SQLs.singleInsert()
+    .insertInto(History_.T)
+    .parens(s -> s
+        .space(History_.code)
+        .space(History_.name)
+        .space(History_.price)
+    )
+    .space()                         // 进入子查询 SELECT
+    .select(Stock_.code, Stock_.name, Stock_.offerPrice)
+    .from(Stock_.T, AS, "s")
+    .where(Stock_.exchange.equal("NASDAQ"))
+    .asInsert();
+----
+
+[[insert-options]]
+==== INSERT 选项
+
+|===
+| 选项 | 说明
+| `literalMode(InsertLiteralMode)` | SQL 字面量模式（参数化 vs 直接拼接）
+| `nullMode(InsertNullMode)`       | NULL 列处理模式（生成占位符 vs 省略列）
+| `migration(boolean)`             | 数据迁移模式（不注入 createTime / 不检查 NOT NULL）
+| `ignoreReturnIds(boolean)`       | 忽略返回的 ID
+|===
+
+[[child-insert]]
+==== 父子表 INSERT
+
+`@Inheritance` 父子表支持链式 `.child()` 插入：
+
+[source,java]
+----
+Insert stmt = SQLs.singleInsert()
+    .insertInto(ParentUser_.T)
+    .values(List.of(parentUser))
+    .child()                         // 进入子表插入上下文
+    .insertInto(Admin_.T)
+    .values(List.of(adminUser))
+    .asInsert();
+----
+
+[[on-conflict]]
+==== ON CONFLICT（PostgreSQL Upsert）
+
+`army-postgre` 方言支持 `ON CONFLICT`：
+
+[source,java]
+----
+// DO NOTHING
+Insert stmt = Postgres.singleInsert()
+    .insertInto(Stock_.T)
+    .values(List.of(stock))
+    .onConflict(Stock_.code)         // 冲突列
+    .doNothing()
+    .asInsert();
+
+// DO UPDATE
+Insert stmt = Postgres.singleInsert()
+    .insertInto(Stock_.T)
+    .values(List.of(stock))
+    .onConflict(Stock_.code)
+    .doUpdate()                      // ON CONFLICT DO UPDATE
+    .set(Stock_.name, Postgres.excluded(Stock_.name))
+    .set(Stock_.offerPrice, Postgres.excluded(Stock_.offerPrice))
+    .where(Stock_.status.notEqual(StockStatus.DELISTING))
+    .asInsert();
+----
+
+生成 SQL：
+
+[source,sql]
+----
+INSERT INTO stock (code, name, offer_price, ...)
+VALUES (?, ?, ?, ...)
+ON CONFLICT (code) DO UPDATE
+SET name = EXCLUDED.name,
+    offer_price = EXCLUDED.offer_price,
+    update_time = NOW()
+WHERE stock.status <> ?
+----
+
+[[update-statement]]
+=== UPDATE 语句
+
+[[single-update]]
+==== 单表更新
+
+[source,java]
+----
+Update stmt = SQLs.singleUpdate()
+    .update(Stock_.T, AS, "s")
+    .set(Stock_.name, "Tesla Inc (updated)")
+    .set(Stock_.offerPrice, new BigDecimal("255.00"))
+    .where(Stock_.code.equal("TSLA"))
+    .asUpdate();
+
+long rows = session.update(stmt);
+----
+
+[[domain-update]]
+==== Domain 更新（父子表）
+
+Domain UPDATE 自动处理 `@Inheritance` 父子表：
+
+[source,java]
+----
+SQLs.domainUpdate()
+    .update(Admin_.T, AS, "a")
+    .set(Admin_.adminLevel, 9)           // 子表字段
+    .set(ParentUser_.name, "Alice")      // 父表字段
+    .where(Admin_.id.equal(1L))
+    .asUpdate();
+----
+
+PostgreSQL 生成 SQL（CTE 双阶段更新）：
+
+[source,sql]
+----
+WITH a_update_cte AS (
+    UPDATE u_admin AS a
+    SET admin_level = ?
+    FROM u_parent_user AS p_of_a
+    WHERE a.id = p_of_a.id
+    AND p_of_a.status = 'ADMIN'     -- discriminator 自动注入
+    AND p_of_a.visible = true       -- visible 自动过滤
+    RETURNING a.id
+)
+UPDATE u_parent_user AS p_of_a
+SET name = ?, update_time = ?, version = p_of_a.version + 1
+FROM a_update_cte
+WHERE p_of_a.id = a_update_cte.id
+----
+
+MySQL 生成 SQL（多表 JOIN）：
+
+[source,sql]
+----
+UPDATE u_admin AS a
+JOIN u_parent_user AS p_of_a ON a.id = p_of_a.id
+SET p_of_a.name = ?, a.admin_level = ?,
+    p_of_a.update_time = ?, p_of_a.version = p_of_a.version + 1
+WHERE p_of_a.id = ?
+AND p_of_a.status = 'ADMIN'        -- discriminator 自动注入
+AND p_of_a.visible = true          -- visible 自动过滤
+----
+
+NOTE: Domain 更新/删除必须在事务中执行，否则抛出 `ChildDmlNoTractionException`。
+
+SET 子句支持运算符：
+
+[source,java]
+----
+// 除了直接赋值，还支持算术运算
+stmt = SQLs.singleUpdate()
+    .update(Stock_.T, AS, "s")
+    .set(Stock_.offerPrice, SQLs.add(Stock_.offerPrice, new BigDecimal("5")))
+    // 生成: SET offer_price = offer_price + ?
+    .set(Stock_.version, SQLs.add(Stock_.version, 1))
+    // 生成: SET version = version + 1
+    .where(Stock_.code.equal("TSLA"))
+    .asUpdate();
+----
+
+[[batch-update]]
+==== 批量更新
+
+[source,java]
+----
+List<Map<String, Object>> paramList = List.of(
+    Map.of("name", "Tesla", "price", 255, "id", 1L),
+    Map.of("name", "Apple", "price", 180, "id", 2L)
+);
+
+BatchUpdate stmt = SQLs.batchSingleUpdate()
+    .update(Stock_.T, AS, "s")
+    .sets(pairs -> pairs
+        .setSpace(Stock_.name, SQLs::namedParam)
+        .setSpace(Stock_.offerPrice, SQLs::namedParam)
+    )
+    .where(Stock_.id.spaceEqual(SQLs::namedParam))
+    .asUpdate()
+    .namedParamList(paramList);
+
+long rows = session.update(stmt);
+----
+
+[[dynamic-set]]
+==== 动态 SET（ifSet 模式）
+
+[source,java]
+----
+SQLs.singleUpdate()
+    .update(Stock_.T, AS, "s")
+    .ifSets(sets -> {
+        sets.set(Stock_.name, newName);          // 总是更新
+        if (price != null) {
+            sets.set(Stock_.offerPrice, price);  // 条件更新
+        }
+        if (status != null) {
+            sets.set(Stock_.status, status);     // 条件更新
+        }
+    })
+    .where(Stock_.id.equal(id))
+    .asUpdate();
+----
+
+[[delete-statement]]
+=== DELETE 语句
+
+[source,java]
+----
+Delete stmt = SQLs.singleDelete()
+    .deleteFrom(Stock_.T, AS, "s")
+    .where(Stock_.status.equal(StockStatus.DELISTING))
+    .asDelete();
+
+long rows = session.update(stmt);
+----
+
+[[returning]]
+=== RETURNING 子句
+
+PostgreSQL 支持 RETURNING，让 INSERT / UPDATE / DELETE 同时返回数据。
+
+[source,java]
+----
+// RETURNING INSERT
+Postgres.singleInsert()
+    .insertInto(Stock_.T)
+    .values(List.of(stock))
+    .returning(Stock_.id, Stock_.code, Stock_.name)
+    .asReturningInsert();
+
+// 此时 stmt 是 DqlStatement 类型（查询），可以用 queryOne / queryList
+Stock saved = session.queryOne(stmt, Stock.class);
+
+// RETURNING UPDATE
+Postgres.singleUpdate()
+    .update(Stock_.T, AS, "s")
+    .set(Stock_.offerPrice, newPrice)
+    .where(Stock_.id.equal(id))
+    .returning(Stock_.id, Stock_.offerPrice, Stock_.version)
+    .asReturningUpdate();
+
+// RETURNING DELETE
+Postgres.singleDelete()
+    .deleteFrom(Stock_.T, AS, "s")
+    .where(Stock_.id.equal(id))
+    .returning(Stock_.id, Stock_.code)
+    .asReturningDelete();
+----
+
+[[jsonb-operators]]
+==== PostgreSQL JSONB 运算符
+
+Army 通过 `space()` 方法支持 PostgreSQL 特有的 JSONB 运算符（`?`、`?|`、`?&`、`@>`、`<@` 等），这些运算符无法直接映射为 Java 方法名：
+
+[source,java]
+----
+// JSONB 包含运算符 @>
+SQLs.query()
+    .select(User_.ALL)
+    .from(User_.T, AS, "u")
+    .where(User_.tags.space(PgBiOperator.CONTAINS, SQLs.literal("{\"vip\":true}")))
+    .asQuery();
+
+// JSONB 被包含运算符 <@
+expression.space(PgBiOperator.CONTAINED_BY, SQLs.literal("[\"admin\"]"))
+
+// JSONB 键存在运算符 ?
+expression.space(PgBiOperator.EXISTS, SQLs.literal("key_name"))
+
+// 路径提取运算符 #>
+expression.space(PgDualOperator.PATH_GET, SQLs.literal("{nested,key}"))
+----
+
+`space()` 方法接受 `DualOperator`（返回 `Expression`）或 `BiOperator`（返回 `IPredicate`），支持链式调用。
+
+[[dynamic-sql]]
+=== 动态 SQL
+
+Army 用纯 Java 实现动态 SQL，不需要模板语言。
+
+[[if-and]]
+==== whereIf / ifAnd
+
+[source,java]
+----
+// whereIf：条件为 null 时跳过整个 WHERE
+SQLs.query()
+    .select(Stock_.ALL)
+    .from(Stock_.T, AS, "s")
+    .whereIf(exchange != null, () -> Stock_.exchange.equal(exchange))
+    .whereIf(priceLow != null && priceHigh != null,
+             () -> Stock_.offerPrice.between(priceLow, priceHigh))
+    .asQuery();
+----
+
+[[consumer-predicate]]
+==== Consumer\<Consumer\<IPredicate\>\> 模式
+
+[source,java]
+----
+SQLs.query()
+    .select(Stock_.ALL)
+    .from(Stock_.T, AS, "s")
+    .where(w -> {                    // w 就是 this::and
+        // 每个条件独立判断是否出现
+        if (exchange != null) {
+            w.and(Stock_.exchange.equal(exchange));
+        }
+        if (minPrice != null) {
+            w.and(Stock_.offerPrice.greaterThan(minPrice));
+        }
+        if (maxPrice != null) {
+            w.and(Stock_.offerPrice.lessThan(maxPrice));
+        }
+        // statuses 可能为空
+        if (statuses != null && !statuses.isEmpty()) {
+            w.and(Stock_.status.in_(statuses));
+        }
+    })
+    .asQuery();
+----
+
+[[if-sets-dynamic]]
+==== ifSets 动态 SET
+
+[source,java]
+----
+SQLs.singleInsert()
+    .insertInto(Stock_.T)
+    .ifSets(sets -> {
+        sets.set(Stock_.code, code);
+        sets.set(Stock_.exchange, exchange);
+        // offerPrice 为 null 时列不出现在 INSERT 中（依赖数据库默认值）
+        sets.setIfSet(Stock_.offerPrice, offerPrice);
+        sets.setIfSet(Stock_.listingDate, listingDate);
+    })
+    .asInsert();
+----
+
+// ============================================================
+// 第六章：高级特性
+// ============================================================
+
+[[chapter-advanced]]
+== 高级特性
+
+[[visible-soft-delete]]
+=== 软删除（Visible）
+
+Army 通过 `visible` 字段实现零注解零配置软删除：
+
+[source,java]
+----
+public class User {
+    @Column(name = "visible", comment = "visible flag")
+    public Boolean visible;  // true 表示可见，false 表示已删除
+}
+----
+
+三种可见性模式：
+
+|===
+| 模式 | 效果
+| `Visible.ONLY_VISIBLE`    | SELECT 自动注入 `WHERE visible = TRUE`
+| `Visible.ONLY_INVISIBLE`  | SELECT 自动注入 `WHERE visible = FALSE`
+| `Visible.ALL`             | 不注入任何条件
+|===
+
+配置方式：
+
+[source,java]
+----
+// 全局配置
+ArmyEnvironment env = ArmyEnvironment.getInstance()
+    .set(ArmyKey.VISIBLE_MODE, Visible.ONLY_VISIBLE);
+----
+
+查询时的 `visible` 过滤完全由框架 parser 在 SQL 生成层面注入，不依赖 AOP、拦截器或回调。
+
+[[optimistic-lock]]
+=== 乐观锁（Version）
+
+通过字段名 `version` 识别（无需注解）：
+
+[source,java]
+----
+public class Stock {
+    @Column(name = "version")
+    public Integer version;  // 框架自动管理
+}
+----
+
+自动行为：
+
+. UPDATE 时自动将 `version` 加 1：`SET version = version + 1`
+. WHERE 子句自动添加：`AND version = ?`
+. 执行器检测更新行数为 0 时，抛出 `OptimisticLockException`
+
+[[auto-timestamp]]
+=== 自动时间戳
+
+`createTime` 和 `updateTime` 字段名由框架自动管理：
+
+* `createTime`：INSERT 时自动注入 `NOW()`（方言相关）
+* `updateTime`：UPDATE 时自动注入 `NOW()`
+
+无需任何注解，只需字段名匹配即可。
+
+[[parent-child]]
+=== 父子表（@Inheritance）
+
+当使用 `@Inheritance` 定义单表继承时，UPDATE / DELETE 子实体自动生成正确的 SQL：
+
+. PostgreSQL：使用 CTE（公共表表达式）先更新子表，再更新父表
+. MySQL：使用多表 JOIN UPDATE / DELETE 语法
+
+父子表更新在事务中先子后父执行。如果不在事务中，会抛出 `ChildDmlNoTractionException`。
+
+[source,java]
+----
+// 更新 Admin（User 的子类）时自动处理父子表
+SQLs.domainUpdate()
+    .update(Admin_.T, AS, "a")
+    .set(Admin_.adminLevel, 9)
+    .set(ParentUser_.name, "Alice Updated")
+    .where(Admin_.id.equal(1L))
+    .asUpdate();
+----
+
+生成 SQL（PostgreSQL）：
+
+[source,sql]
+----
+-- CTE 先更新子表
+WITH a_update_cte AS (
+    UPDATE u_admin AS a
+    SET admin_level = ?
+    FROM u_parent_user AS p_of_a
+    WHERE a.id = p_of_a.id
+    AND p_of_a.status = 'ADMIN'    -- discriminator 自动注入
+    AND p_of_a.visible = true      -- visible 自动注入
+    RETURNING a.id
+)
+-- 再更新父表
+UPDATE u_parent_user AS p_of_a
+SET name = ?, update_time = ?, version = p_of_a.version + 1
+FROM a_update_cte
+WHERE p_of_a.id = a_update_cte.id
+----
+
+[[snowflake-generator]]
+=== 主键生成器
+
+Army 不支持数据库自增键。所有 ID 由应用端生成。
+
+Snowflake8Generator 配置：
+
+[source,java]
+----
+@Generator(value = "ID_GEN", startTime = "2020-01-01 00:00:00")
+@Column(name = "id", comment = "primary key")
+public Long id;
+----
+
+8 字节雪花算法结构：42 位时间戳 + 5 位工作机 + 5 位数据中心 + 12 位序列号。
+
+// ============================================================
+// 第七章：类型系统
+// ============================================================
+
+[[chapter-types]]
+== 类型系统
+
+[[mappingtype-overview]]
+=== MappingType 体系
+
+`MappingType` 是 Army 的类型映射核心 —— 每一个 Java 类型到每一个 SQL 类型都有一个 `MappingType` 实例。
+
+[source,java]
+----
+public sealed interface MappingType
+    permits AbstractMappingType, ArrayMappingType {
+
+    Class<?> javaType();              // Java 类型
+    String map(ServerMeta meta);     // 输出 SQL 类型名（如 "VARCHAR(255)"）
+    Object beforeBind(...);          // Java → JDBC 转换
+    Object afterGet(...);           // JDBC → Java 转换
+}
+----
+
+体系结构：
+
+[source]
+----
+MappingType (sealed)
+├── _ArmyBuildInType (sealed, package guard)
+│   ├── SqlVarcharType
+│   ├── SqlIntegerType
+│   ├── SqlBigIntType
+│   ├── SqlTimestampType
+│   └── ... (50+ 内置类型)
+├── UserMappingType (non-sealed, 用户扩展点)
+└── MappingTypeType (自反元类型)
+----
+
+[[default-type-inference]]
+=== 默认类型推断
+
+Army 根据 Java 字段类型自动推断 MappingType：
+
+|===
+| Java 类型 | MappingType | SQL 类型
+| `String`             | `SqlVarcharType(255)`        | VARCHAR(255)
+| `long` / `Long`      | `SqlBigIntType`              | BIGINT
+| `int` / `Integer`    | `SqlIntegerType`             | INTEGER
+| `float` / `Float`    | `SqlRealType`                | REAL
+| `double` / `Double`  | `SqlDoubleType`              | DOUBLE
+| `short` / `Short`    | `SqlSmallIntType`            | SMALLINT
+| `byte` / `Byte`      | `SqlTinyIntType`             | TINYINT
+| `boolean` / `Boolean`| `SqlBooleanType`             | BOOLEAN
+| `BigDecimal`         | `SqlNumericType(19,4)`       | NUMERIC(19,4)
+| `BigInteger`         | `SqlNumericType(38)`         | NUMERIC(38)
+| `LocalDateTime`      | `SqlLocalDateTimeType`       | TIMESTAMP
+| `LocalDate`          | `SqlLocalDateType`           | DATE
+| `LocalTime`          | `SqlLocalTimeType`           | TIME
+| `OffsetDateTime`     | `SqlOffsetDateTimeType`      | TIMESTAMP WITH TZ
+| `ZonedDateTime`      | `SqlZonedDateTimeType`       | TIMESTAMP WITH TZ
+| `Instant`            | `SqlInstantType`             | TIMESTAMP
+| `UUID`               | `SqlUUIDType`                | UUID
+| `byte[]`             | `SqlVarBinaryType`           | VARBINARY(255)
+| `BitSet`             | `SqlBitSetType`              | 方言相关
+| `ZoneId`             | `SqlZoneIdType`              | VARCHAR
+|===
+
+[[type-mapping-handler]]
+=== TypeMappingHandler 类型解析
+
+字段类型到 SQL 类型的解析分三步：
+
+. 检查 `@Mapping` 注解：如果指定了 MappingType 全限定名，直接使用
+. 类型推断：根据 Java 字段类型查找默认 MappingType
+. `MappingType.map(ServerMeta)`：将 MappingType 转换为 SQL 类型字符串
+
+`TypeMappingHandler` 是一个 sealed 接口，由 `TypeMappingHandlerSupport` 提供默认实现。
+
+[[enum-mapping]]
+=== 枚举映射
+
+Army 支持三种枚举映射方式：
+
+[source,java]
+----
+// 1. 普通枚举 → 映射 name()，DDL 生成 CHECK 约束
+public enum StockStatus { OPEN, CLOSE, DELISTING }
+
+// 2. TextEnum → 映射 String label()
+public enum OrderStatus implements TextEnum {
+    PENDING("pending"), PROCESSING("processing"), DONE("done");
+    private final String text;
+    @Override public String text() { return text; }
+}
+
+// 3. CodeEnum → 映射 int code()
+public enum BankAccountType implements CodeEnum {
+    SAVINGS(1), CHECKING(2), CREDIT(3);
+    private final int code;
+    @Override public int code() { return code; }
+}
+----
+
+数据库端枚举（PostgreSQL Native ENUM）：
+
+[source,java]
+----
+@DefinedType(name = "stock_status_enum", category = TypeCategory.ENUM)
+public enum StockStatusWithPgEnum {
+    OPEN, CLOSE, DELISTING
+}
+----
+
+[[json-types]]
+=== JSON / JSONB 类型
+
+[source,java]
+----
+// JSON 文本类型
+@Column(name = "metadata")
+public String metadata;  // 作为原始 JSON 字符串存储
+
+// JSONB（PostgreSQL 原生）
+@Mapping("io.army.mapping.postgre.PreferredJsonbType")
+@Column(name = "tags")
+public List<String> tags;  // 自动序列化/反序列化 JSONB 数组
+
+// JSONB 映射到 POJO
+@Mapping("io.army.mapping.postgre.PreferredJsonbType")
+@Column(name = "extra_info")
+public UserExtraInfo extraInfo;  // 自动映射到 POJO
+----
+
+[[array-types]]
+=== 数组类型
+
+`army-array` 模块为所有内置类型提供数组映射：
+
+[source,java]
+----
+// 一维数组
+@Column(name = "tags")
+public String[] tags;          // → TEXT[]（PostgreSQL）
+
+// 集合映射数组
+@Column(name = "scores")
+public List<Integer> scores;   // → INTEGER[]
+----
+
+数组映射全表（部分）：
+
+|===
+| 元素类型 | 数组类型类 | SQL 类型
+| `Integer`      | `IntArrayType`        | INTEGER[]
+| `Long`         | `LongArrayType`       | BIGINT[]
+| `String`       | `TextArrayType`       | TEXT[]
+| `BigDecimal`   | `NumericArrayType`    | NUMERIC[]
+| `LocalDateTime`| `TimestampArrayType`  | TIMESTAMP[]
+| `UUID`         | `UUIDArrayType`       | UUID[]
+| `Boolean`      | `BoolArrayType`       | BOOLEAN[]
+|===
+
+多维数组：`underlyingType().arrayTypeOfThis()` 创建下一维度。
+
+[[custom-mappingtype]]
+=== 自定义 MappingType
+
+. 选择一个基类继承（以下任选其一）：
+
+|===
+| 基类 | 适用场景
+| `UserMappingType`     | 单值自定义类型
+| `UserArrayType`       | 数组自定义类型
+| `_ArmyCoreBuildInType`| 需要更底层控制
+|===
+
+. 实现合适的 `Sql*` 标记接口，声明该类型在 SQL 中的角色：
+
+|===
+| 标记接口 | 说明
+| `MappingType.SqlNumericType`  | 数字类型
+| `MappingType.SqlCharacterType`| 字符类型
+| `MappingType.SqlDateTimeType` | 日期时间类型
+| `MappingType.SqlBinaryType`   | 二进制类型
+| `MappingType.SqlBooleanType`  | 布尔类型
+| `MappingType.SqlUUIDType`     | UUID 类型
+| `MappingType.SqlJsonType`     | JSON 类型
+| `MappingType.SqlXmlType`      | XML 类型
+|===
+
+. 实现核心方法：
+
+[source,java]
+----
+// 自定义货币类型（完整实现）
+public class CurrencyType extends UserMappingType
+        implements MappingType.SqlNumericType {
+
+    public static CurrencyType from(Class<?> javaType) {
+        return new CurrencyType(javaType);
+    }
+
+    public CurrencyType(Class<?> javaType) {
+        super(javaType);     // 如 BigDecimal.class
+    }
+
+    @Override
+    public String map(ServerMeta meta) {
+        return "NUMERIC(19,6)";
+    }
+
+    @Override
+    public Object beforeBind(ServerMeta meta, Object value) {
+        return value;
+    }
+
+    @Override
+    public Object afterGet(ResultSet rs, int index,
+                            DataAccess access, Session session,
+                            ServerMeta meta) throws SQLException {
+        return rs.getBigDecimal(index);
+    }
+
+    @Override
+    public int hashCode() { return CurrencyType.class.hashCode(); }
+
+    @Override
+    public boolean equals(Object obj) { return obj instanceof CurrencyType; }
+}
+----
+
+. 使用：
+
+[source,java]
+----
+@Mapping("com.example.CurrencyType")
+@Column(name = "total_fee")
+public BigDecimal totalFee;
+----
+
+[[composite-type]]
+=== 复合类型（PostgreSQL Row Type）
+
+[source,java]
+----
+@DefinedType(name = "currency_pair", category = TypeCategory.COMPOSITE)
+public class CurrencyPair {
+    @CompositeField
+    public String baseCurrency;
+
+    @CompositeField
+    public String quoteCurrency;
+
+    @CompositeField
+    public BigDecimal rate;
+}
+
+// 使用
+@Mapping("io.army.mapping.postgre.CompositeType")
+@Column(name = "pair")
+public CurrencyPair pair;
+----
+
+[[vector-type]]
+=== Vector 类型（pgvector 向量嵌入）
+
+`army-postgre` 提供 pgvector 支持，用于 AI 向量存储：
+
+[source,java]
+----
+// 向量类型
+@Mapping("io.army.mapping.postgre.VectorType")
+@Column(name = "embedding")
+public float[] embedding;
+
+// HNSW 索引
+@Table(name = "document",
+       indexes = @Index(name = "idx_doc_embedding",
+                        fieldList = "embedding",
+                        type = IndexType.HNSW,
+                        indexOptions = "vector_cosine_ops"))
+public class Document {
+    @Column(name = "embedding")
+    public float[] embedding;
+}
+----
+
+`army-spring-ai-vector-store` 模块基于此实现 Spring AI 向量存储。
+
+// ============================================================
+// 第八章：方言支持
+// ============================================================
+
+[[chapter-dialect]]
+== 方言支持
+
+[[dialect-enum]]
+=== Dialect 枚举
+
+`Dialect` 枚举精确到数据库版本号：
+
+[source,java]
+----
+public enum Dialect {
+    // MySQL
+    MYSQL55, MYSQL56, MYSQL57, MYSQL80,
+
+    // PostgreSQL
+    POSTGRE11, POSTGRE12, POSTGRE13, POSTGRE14,
+    POSTGRE15, POSTGRE16, POSTGRE17, POSTGRE18,
+
+    // Oracle
+    ORACLE18, ORACLE19, ORACLE21, ORACLE23,
+
+    // SQLite
+    SQLITE30, SQLITE32, SQLITE36
+}
+----
+
+[[version-aware]]
+=== 版本感知
+
+每个 Dialect 枚举值内置版本比较功能：
+
+[source,java]
+----
+// 比较方言版本
+boolean support = dialect.compareWith(Dialect.MYSQL80) >= 0;
+
+// Parser 内部使用版本布尔开关做特性门控
+if (parser.asOf80()) {
+    // MySQL 8.0+ 特性（如窗口函数、CTE）
+}
+----
+
+[[support-annotation]]
+=== @Support 注解
+
+标注方法支持的数据库家族（SOURCE 保留级别，编译时可见）：
+
+[source,java]
+----
+@Support({ MySQL.class, Postgre.class })
+public MyClause space(Function func) { ... }
+
+@Support(Postgre.class)
+public MyClause returning(FieldMeta<?, ?>... fields) { ... }
+----
+
+[[dialect-modules]]
+=== 方言模块列表
+
+|===
+| 模块 | 依赖 | 说明
+| `army-postgre` | `army-jdbc` | PostgreSQL 方言（JSONB, RETURNING, CTE, 数组, 复合类型）
+| `army-mysql`   | `army-jdbc` | MySQL 方言（多表 UPDATE/DELETE）
+| `army-oracle`  | `army-jdbc` | Oracle 方言（MINUS, SEQUENCE）
+| `army-sqlite`  | `army-jdbc` | SQLite 方言
+|===
+
+// ============================================================
+// 第九章：Spring 集成
+// ============================================================
+
+[[chapter-spring]]
+== Spring 集成
+
+[[spring-config]]
+=== Spring Boot 自动配置
+
+`army-spring` 模块提供 Spring Boot 自动配置：
+
+[source,java]
+----
+@Configuration
+public class ArmyConfig {
+
+    @Bean
+    public SessionFactory sessionFactory(DataSource ds) {
+        return SyncFactoryBuilder.builder()
+            .name("spring-app")
+            .environment(ArmyEnvironment.getInstance()
+                .set(ArmyKey.DATABASE, "postgresql"))
+            .datasource(ds)
+            .packagesToScan("com.example.domain")
+            .build();
+    }
+
+    @Bean
+    public SyncLocalSession session(SessionFactory factory) {
+        return ((SyncSessionFactory) factory).localSession();
+    }
+}
+----
+
+[[spring-ai]]
+=== Spring AI 集成
+
+Army 提供 Spring AI 向量存储和聊天记忆模块：
+
+. `army-spring-ai-vector-store` — 基于 Army 的向量存储实现
+. `army-spring-ai-model-chat-memory` — 基于 Army 的聊天记忆实现
+
+// ============================================================
+// 附录
+// ============================================================
+
+[[appendix]]
+== 附录
+
+[[faq]]
+=== A. 常见问题
+
+. *Army 和 MyBatis 有什么区别？* +
+Army 是纯 Java API（无 XML/模板），编译期类型安全，阶梯构建器约束 SQL 语法顺序。MyBatis 用 XML/注解写 SQL 字符串。
+
+. *Army 和 JOOQ 有什么区别？* +
+两个都是类型安全的 Java SQL 框架。关键区别：Army 不做代码生成（用注解处理器生成静态元模型），类型以 sealed 体系精确分型，space() 做子句切换而非方法爆炸，方言版本精确到版本号。
+
+. *Army 和 JPA/Hibernate 有什么区别？* +
+Army 不做 ORM（不做脏检查、一级缓存、自动 merge/persist）。开发者显式控制 INSERT 还是 UPDATE。适合对 SQL 有精确控制需求的场景。
+
+. *支持哪些数据库？* +
+PostgreSQL（最完整）、MySQL、Oracle、SQLite。
+
+. *怎么开启 SQL 日志？* +
+`ArmyEnvironment.getInstance().set(ArmyKey.SQL_LOG_MODE, SqlLogMode.ON)`
+
+. *字段名必须是驼峰命名吗？* +
+不必须。驼峰自动转下划线是默认行为，通过 `@Column(name = "...")` 可以指定任意列名。
+
+. *支持自增主键吗？* +
+不支持。Army 设计哲学是应用端生成 ID（Snowflake / UUID），保证分布式一致性。
+
+[[config-reference]]
+=== B. 配置参考
+
+ArmyKey 环境变量：
+
+|===
+| Key | 类型 | 默认值 | 说明
+| `DATABASE`       | String     | 无       | 数据库名称
+| `DIALECT`        | Dialect    | 自动检测 | 方言版本
+| `ZONE_OFFSET`    | ZoneOffset | UTC      | 时区偏移
+| `DDL_MODE`       | DdlMode    | NONE     | DDL 生成模式
+| `VISIBLE_MODE`   | Visible    | ALL      | 可见性过滤模式
+| `SQL_LOG_MODE`   | SqlLogMode | OFF      | SQL 日志
+|===
+
+[[reserved-field-summary]]
+=== C. 保留字段约定
+
+|===
+| 字段名 | Java 类型 | 作用 | 自动行为
+| `id`           | `Long` / `long`        | 主键          | 必须存在
+| `createTime`   | `LocalDateTime`        | 创建时间       | INSERT 自动注入
+| `updateTime`   | `LocalDateTime`        | 更新时间       | UPDATE 自动注入
+| `version`      | `Integer` / `int`      | 乐观锁版本号   | UPDATE 自动 +1 + WHERE 校验
+| `visible`      | `Boolean` / `boolean`  | 软删除标记     | SELECT 自动 WHERE visible=TRUE
+|===
+
+[[modules]]
+=== D. 模块列表
+
+|===
+| 模块 | 说明
+| `army-core`       | 核心 API：类型系统、Criteria API、Session API、Dialect Parser
+| `army-annotation` | 注解定义 + `ArmyMetaModelDomainProcessor`
+| `army-array`      | 数组类型映射（INTEGER[], TEXT[] 等）
+| `army-jdbc`       | JDBC 执行器
+| `army-sync`       | 同步（阻塞）Session 实现
+| `army-postgre`    | PostgreSQL 方言
+| `army-mysql`      | MySQL 方言
+| `army-oracle`     | Oracle 方言
+| `army-sqlite`     | SQLite 方言
+| `army-struct`     | 结构类型（复合类型等）
+| `army-spring`     | Spring Boot 自动配置
+| `army-guava`      | Guava 集成
+|===
+
+////
+Army — A Better Way to Write SQL in Java.
+https://github.com/PillArmy/army
+////

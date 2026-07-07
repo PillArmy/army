@@ -15,6 +15,7 @@
         <module>army-example-stock-data</module>
         <module>army-example-stock</module>
         <module>army-type-test</module>
+        <module>army-test-coder</module>
     </modules>
 
 
