@@ -75,14 +75,7 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> extends A
                     .orderBy(this.id.desc())
                     .limit(this.maxMessages)
                     .asQuery();
-
-
-            final List<Message> list;
-            list = session.queryRecordList(stmt, this.rowFunc);
-            if (list.size() == this.maxMessages) {
-                deleteMessageByConversationId("get", conversationId);
-            }
-            return list;
+            return session.queryRecordList(stmt, this.rowFunc);
         };
         final String sessionName = getClass().getName() + '.' + "get";
         return this.sessionContext.executeNotNull(sessionName, false, callBack);

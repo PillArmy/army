@@ -235,5 +235,7 @@ public abstract class _Constant {
 
     public static final char SEMICOLON = ';';
 
+    public static final char LF = '\n';
+
 
 }

@@ -4,7 +4,7 @@ package io.army.example.coder.config;
 import io.army.example.coder.domain.CoderChatMemory_;
 import io.army.example.coder.domain.CoderChatVectorStore_;
 import io.army.session.SyncSessionContext;
-import io.army.spring.ai.chat.memory.ArmyChatMemoryRepository;
+import io.army.spring.ai.chat.memory.ArmyMessageChatMemory;
 import io.army.spring.ai.vectorstore.ArmyVectorStore;
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.ai.chat.client.ChatClient;
@@ -14,34 +14,34 @@ import org.springframework.ai.chat.client.advisor.observation.AdvisorObservation
 import org.springframework.ai.chat.client.advisor.vectorstore.VectorStoreChatMemoryAdvisor;
 import org.springframework.ai.chat.client.observation.ChatClientObservationConvention;
 import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.ChatMemoryRepository;
-import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.model.chat.client.autoconfigure.ChatClientBuilderConfigurer;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 import java.util.List;
 
 @Configuration
-public class CoderAiConfiguration {
+public class CoderAiConfiguration implements EnvironmentAware {
 
+    private Environment environment;
 
-    @Bean
-    public ChatMemoryRepository chatMemoryRepository(SyncSessionContext context) {
-        return ArmyChatMemoryRepository.builder(context, CoderChatMemory_.T)
-                .build();
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
 
     }
 
+
     @Bean
-    public ChatMemory chatMemory(ChatMemoryRepository repository) {
-        return MessageWindowChatMemory.builder()
-                .chatMemoryRepository(repository)
+    public ChatMemory coderChatMemory(SyncSessionContext context) {
+        return ArmyMessageChatMemory.builder(context, CoderChatMemory_.T)
                 .maxMessages(30)
                 .build();
     }
@@ -62,7 +62,9 @@ public class CoderAiConfiguration {
         ChatClient.Builder builder = ChatClient.builder(chatModel,
                 observationRegistry.getIfUnique(() -> ObservationRegistry.NOOP),
                 chatClientObservationConvention.getIfUnique(), advisorObservationConvention.getIfUnique());
-        return chatClientBuilderConfigurer.configure(builder);
+        return chatClientBuilderConfigurer
+                .configure(builder)
+                .defaultTemplateRenderer(ArmyTemplateRenderer.defaultInstance());
     }
 
     @Bean
@@ -71,10 +73,15 @@ public class CoderAiConfiguration {
         final List<Advisor> advisorList = List.of(
                 MessageChatMemoryAdvisor.builder(chatMemory).build(),
                 VectorStoreChatMemoryAdvisor.builder(vectorStore).build()
+                //   ToolCallingAdvisor.builder().build()
         );
-        return builder.defaultAdvisors(advisorList)
-                //.defaultTools(Tools.INSTANCE)
-                .build();
+
+        builder.defaultAdvisors(advisorList);
+
+        AgentTool.createAgent(builder, this.environment);
+
+        return builder.build();
     }
+
 
 }

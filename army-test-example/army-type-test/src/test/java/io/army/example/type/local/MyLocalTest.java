@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 
@@ -29,11 +30,7 @@ public class MyLocalTest {
 
     @Test
     public void simpleTest() {
-        StringBuilder builder = new StringBuilder("32423534566764321356754325675432456543");
-        final int length = builder.length();
-        for (int i = 0; i < length; i++) {
-            builder.charAt(i);
-        }
+        System.out.println(ZoneOffset.ofHours(8));
     }
 
 
