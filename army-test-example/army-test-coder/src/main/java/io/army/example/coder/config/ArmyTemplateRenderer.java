@@ -8,8 +8,8 @@ import org.springframework.ai.template.TemplateRenderer;
 import org.springframework.ai.template.st.StTemplateRenderer;
 
 import java.time.OffsetDateTime;
-import java.time.Period;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 final class ArmyTemplateRenderer implements TemplateRenderer {
@@ -55,8 +55,7 @@ final class ArmyTemplateRenderer implements TemplateRenderer {
                     value = now.format(_TimeUtils.OFFSET_DATETIME_FORMATTER_6);
                     break;
                 case BIRTH_PERIOD:
-                    value = Period.between(AgentTool.BIRTH_DAY.toLocalDate(), now.toLocalDate()).getDays();
-                    value = String.format("这个你诞生的第 %s 天", value);
+                    value = String.format(" %s 天", AgentTool.BIRTH_DAY.until(now, ChronoUnit.DAYS));
                     break;
             }
 
@@ -66,7 +65,7 @@ final class ArmyTemplateRenderer implements TemplateRenderer {
 
         final String finalTemplate;
         finalTemplate = this.templateRenderer.apply(template, newMap);
-        LOG.debug("finalTemplate :\n{}", finalTemplate);
+        //  LOG.debug("finalTemplate :\n{}", finalTemplate);
         return finalTemplate;
     }
 

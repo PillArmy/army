@@ -9,6 +9,7 @@ import io.army.spring.ai.vectorstore.ArmyVectorStore;
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.observation.AdvisorObservationConvention;
 import org.springframework.ai.chat.client.advisor.vectorstore.VectorStoreChatMemoryAdvisor;
@@ -72,8 +73,8 @@ public class CoderAiConfiguration implements EnvironmentAware {
                                       @Qualifier("chatVectorStore") VectorStore vectorStore) {
         final List<Advisor> advisorList = List.of(
                 MessageChatMemoryAdvisor.builder(chatMemory).build(),
-                VectorStoreChatMemoryAdvisor.builder(vectorStore).build()
-                //   ToolCallingAdvisor.builder().build()
+                VectorStoreChatMemoryAdvisor.builder(vectorStore).build(),
+                ToolCallingAdvisor.builder().build()
         );
 
         builder.defaultAdvisors(advisorList);

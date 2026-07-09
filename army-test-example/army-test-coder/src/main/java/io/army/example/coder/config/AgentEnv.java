@@ -91,6 +91,8 @@ final class AgentEnv {
                 .append(env.getRequiredProperty("user.region"))
                 .append(_Constant.LF)
 
+                .append("Your output client : Chinese markdown")
+
                 .toString();
 
     }

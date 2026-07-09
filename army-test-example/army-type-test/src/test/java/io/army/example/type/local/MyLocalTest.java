@@ -12,7 +12,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +32,11 @@ public class MyLocalTest {
 
     @Test
     public void simpleTest() {
-        System.out.println(ZoneOffset.ofHours(8));
+        OffsetDateTime now, tomorrow;
+        now = OffsetDateTime.now(ZoneOffset.ofHours(8));
+        tomorrow = now.plusDays(1);
+
+        System.out.println(now.until(tomorrow, ChronoUnit.DAYS));
     }
 
 
