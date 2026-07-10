@@ -20,6 +20,7 @@ import io.army.criteria.impl.SQLs;
 import io.army.meta.SimpleTableMeta;
 import io.army.session.SyncSession;
 import io.army.session.SyncSessionContext;
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.util.Assert;
@@ -110,6 +111,12 @@ public final class ArmyChatMemoryRepository<T extends SpringAiChatMemory> extend
         deleteMessageByConversationId("deleteByConversationId", conversationId);
     }
 
+    @Nullable
+    @Override
+    Integer maxMessages() {
+        // null
+        return null;
+    }
 
     public static <T extends SpringAiChatMemory> Builder<T> builder(SyncSessionContext sessionContext, SimpleTableMeta<T> tableMeta) {
         final Builder<T> builder = new Builder<>();

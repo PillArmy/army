@@ -1,0 +1,27 @@
+/*
+ * Copyright 2023-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.army.spring.ai.vectorstore;
+
+
+import org.jspecify.annotations.Nullable;
+import org.springframework.ai.tool.annotation.ToolParam;
+
+public record MemoryCall(@ToolParam(description = "conversation id") String conversationId,
+                         @ToolParam(description = "query, Retrieve texts related to long-term memory") String query,
+                         @ToolParam(description = "similarity threshold,default 0.0", required = false) @Nullable Double similarityThreshold,
+                         @ToolParam(description = "the top 'k' similar results to return,default 4", required = false) @Nullable Integer topK) {
+
+}

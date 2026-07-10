@@ -399,6 +399,42 @@ SQLs.batchSingleUpdate()
 | `VALUES(col)`  | MySQL      | `MySQLs::values`     | `SQLs::values` ❌   | `MySQLMiscellaneousFunctions` → `MySQLSyntax` → `MySQLs` |
 | `EXCLUDED.col` | PostgreSQL | `Postgres::excluded` | `SQLs::excluded` ❌ | `PostgreSyntax` → `Postgres`                             |
 
+### Rule 13: 声明-赋值分离风格 (MANDATORY)
+
+Army 示例代码中，`final` 变量采用**声明与赋值分离**的风格：先声明变量类型，再在下一行赋值。声明行 `final` 修饰，赋值行不带
+`final`。
+
+```java
+// ✅ 正确：声明与赋值分离
+final Select stmt;              // ← 声明（带 final）
+stmt = SQLs.query()             // ← 赋值（隔一行，不带 final）
+        .select(...)
+        .from(...)
+        .where(...)
+        .asQuery();
+
+final BatchUpdate stmt;
+stmt = SQLs.batchSingleUpdate()
+        .update(...)
+        .sets(...)
+        .where(...)
+        .asUpdate()
+        .namedParamList(paramList);
+
+// ❌ 错误：声明与赋值合为一行
+final Select stmt = SQLs.query()
+        .select(...)
+        .from(...)
+        .asQuery();
+```
+
+**规则**：
+
+- `final` 只出现在声明行，赋值行不重复 `final`
+- 声明行以 `;` 结尾，方法链缩进从赋值行开始
+- 适用于所有 Statement 类型：`Select`、`Insert`、`Update`、`Delete`、`BatchUpdate`、`BatchDelete`、`SubQuery` 等
+- 也适用于其他 `final` 局部变量
+
 ## 常见错误模式速查
 
 ### ❌ 错误：把单参函数当作 BiFunction

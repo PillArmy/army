@@ -68,8 +68,7 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> extends A
 
             final Select stmt;
             stmt = SQLs.query()
-                    .select(this.content)
-                    .comma(this.type, this.specializedData, this.id)
+                    .select(this.content, this.type, this.specializedData, this.id)
                     .from(this.tableMeta, AS, "t")
                     .where(this.conversationId.equal(conversationId))
                     .orderBy(this.id.desc())
@@ -87,6 +86,11 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> extends A
         deleteMessageByConversationId("clear", conversationId);
     }
 
+
+    @Override
+    Integer maxMessages() {
+        return this.maxMessages;
+    }
 
     public static <T extends SpringAiChatMemory> Builder<T> builder(SyncSessionContext sessionContext, SimpleTableMeta<T> tableMeta) {
         final Builder<T> builder = new Builder<>();

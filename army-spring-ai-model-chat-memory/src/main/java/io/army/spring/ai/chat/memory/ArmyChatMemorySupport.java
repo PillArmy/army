@@ -16,10 +16,7 @@
 package io.army.spring.ai.chat.memory;
 
 import io.army.codec.JsonCodec;
-import io.army.criteria.Delete;
-import io.army.criteria.Insert;
-import io.army.criteria.LiteralMode;
-import io.army.criteria.NullMode;
+import io.army.criteria.*;
 import io.army.criteria.impl.SQLs;
 import io.army.meta.FieldMeta;
 import io.army.meta.PrimaryFieldMeta;
@@ -28,9 +25,13 @@ import io.army.pojo.ObjectAccessorFactory;
 import io.army.result.CurrentRecord;
 import io.army.session.SyncSession;
 import io.army.session.SyncSessionContext;
+import io.army.util.RowMaps;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.messages.*;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.function.FunctionToolCallback;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -85,6 +86,9 @@ abstract class ArmyChatMemorySupport<T extends SpringAiChatMemory> {
 
         this.rowFunc = messageReadFunc(this.sessionContext.sessionFactory().jsonCodec());
     }
+
+    @Nullable
+    abstract Integer maxMessages();
 
 
     final void saveMessages(SyncSession session, String conversationId, List<Message> messages) {
@@ -152,6 +156,38 @@ abstract class ArmyChatMemorySupport<T extends SpringAiChatMemory> {
         } // loop
 
         return list;
+    }
+
+    private List<Map<String, Object>> getMemoryList(MemoryCall call) {
+        Objects.requireNonNull(call);
+        assertConversationId(call.conversationId());
+
+        final Function<SyncSession, List<Map<String, Object>>> callBack;
+        callBack = session -> {
+            final Select stmt;
+            stmt = SQLs.query()
+                    .select(this.content, this.type, this.tableMeta.createTime())
+                    .from(this.tableMeta, AS, "t")
+                    .where(this.conversationId.equal(conversationId))
+                    .orderBy(this.id.desc())
+                    .ifLimit(maxMessages())
+                    .asQuery();
+            return session.queryObjectList(stmt, RowMaps.hashMapConstructor(3));
+        };
+        final String sessionName = getClass().getName() + '.' + "getMemoryList";
+        return this.sessionContext.executeNotNull(sessionName, true, callBack);
+    }
+
+
+    public ToolCallback memoryTool(@Nullable String name) {
+        if (name == null) {
+            name = "ShortTermMemory";
+        }
+        return FunctionToolCallback
+                .builder(name, this::getMemoryList)
+                .description("Get short term memory")
+                .inputType(MemoryCall.class)
+                .build();
     }
 
 

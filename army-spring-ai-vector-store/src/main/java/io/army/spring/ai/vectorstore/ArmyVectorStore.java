@@ -27,6 +27,7 @@ import io.army.pojo.ObjectAccessorFactory;
 import io.army.result.CurrentRecord;
 import io.army.session.SyncSession;
 import io.army.session.SyncSessionContext;
+import io.army.util.RowMaps;
 import io.army.util._Exceptions;
 import io.army.util._StringUtils;
 import org.jspecify.annotations.Nullable;
@@ -38,9 +39,10 @@ import org.springframework.ai.embedding.EmbeddingOptions;
 import org.springframework.ai.embedding.EmbeddingRequest;
 import org.springframework.ai.observation.conventions.VectorStoreProvider;
 import org.springframework.ai.observation.conventions.VectorStoreSimilarityMetric;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.function.FunctionToolCallback;
 import org.springframework.ai.vectorstore.AbstractVectorStoreBuilder;
 import org.springframework.ai.vectorstore.SearchRequest;
-import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.vectorstore.filter.FilterExpressionConverter;
 import org.springframework.ai.vectorstore.observation.AbstractObservationVectorStore;
@@ -69,6 +71,8 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
     private final SyncSessionContext sessionContext;
 
     private final DistanceType distanceType;
+
+    private final SQLs.DualOperator operator;
 
     private final String model;
 
@@ -105,6 +109,7 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
         this.sessionContext = builder.sessionContext;
         this.distanceType = builder.distanceType;
+        this.operator = this.distanceType.operator;
         this.model = builder.model;
 
         this.tableMeta = builder.tableMeta;
@@ -300,43 +305,20 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
         final double distance = 1 - request.getSimilarityThreshold();
 
         final float[] queryEmbedding;
-        queryEmbedding = this.embeddingModel.call(new EmbeddingRequest(List.of(request.getQuery()), embeddingOptions()))
-                .getResults()
-                .stream()
-                .map(Embedding::getOutput)
-                .findFirst()
-                .orElseThrow();
-
-        final SQLs.DualOperator operator;
-        operator = switch (this.distanceType) {
-            case L2_DISTANCE -> SQLs.L2_DISTANCE;
-            case COSINE_DISTANCE -> SQLs.COSINE_DISTANCE;
-            case NEG_DOT -> SQLs.NEG_DOT;
-            default -> throw _Exceptions.unexpectedEnum(this.distanceType);
-        };
+        queryEmbedding = embeddingText(request.getQuery());
 
         final String distanceLabel = "distance";
 
         final Select stmt;
         stmt = SQLs.query()
-                .selects(s -> {
-                    s.selection(this.documentId, this.content, this.metadata);
-                    if (operator == SQLs.NEG_DOT) {
-                        s.selection(SQLs.LITERAL_1.plus(this.embedding.space(operator, queryEmbedding)).as(distanceLabel));
-                    } else {
-                        s.selection(this.embedding.space(operator, queryEmbedding).as(distanceLabel));
-                    }
-                })
+                .select(this.documentId, this.content, this.metadata)
+                .comma(distanceSelection(queryEmbedding, distanceLabel))
                 .from(this.tableMeta, AS, "t")
                 .where(wb -> {
                     if (conversationIdPredicate != null) {
                         wb.accept(conversationIdPredicate);
                     }
-                    if (operator == SQLs.NEG_DOT) {
-                        wb.accept(SQLs.LITERAL_1.plus(this.embedding.space(operator, queryEmbedding)).less(distance));
-                    } else {
-                        wb.accept(this.embedding.space(operator, queryEmbedding).less(distance));
-                    }
+                    wb.accept(distancePredicate(queryEmbedding, distance));
                     if (jsonPath != null) {
                         wb.accept(this.metadata.space(Postgres.AT_AT, SQLs.literal(JsonPathType.INSTANCE, jsonPath)));
                     }
@@ -407,6 +389,95 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
                 .dimensions(this.embedding.precision())
                 .namespace(nameSpace)
                 .similarityMetric(metric.value());
+    }
+
+
+    public ToolCallback memoryTool(@Nullable String name) {
+        if (name == null) {
+            name = "LongTermMemory";
+        }
+        return FunctionToolCallback
+                .builder(name, this::getMemoryList)
+                .description("Get long term memory")
+                .inputType(MemoryCall.class)
+                .build();
+    }
+
+
+    private Selection distanceSelection(float[] queryEmbedding, String label) {
+        final Selection selection;
+        if (this.operator == SQLs.NEG_DOT) {
+            selection = SQLs.LITERAL_1.plus(this.embedding.space(this.operator, queryEmbedding)).as(label);
+        } else {
+            selection = this.embedding.space(this.operator, queryEmbedding).as(label);
+        }
+        return selection;
+    }
+
+    private IPredicate distancePredicate(float[] queryEmbedding, double distance) {
+        final IPredicate predicate;
+        if (this.operator == SQLs.NEG_DOT) {
+            predicate = SQLs.LITERAL_1.plus(this.embedding.space(operator, queryEmbedding)).less(distance);
+        } else {
+            predicate = this.embedding.space(operator, queryEmbedding).less(distance);
+        }
+        return predicate;
+    }
+
+    private float[] embeddingText(String text) {
+        return this.embeddingModel.call(new EmbeddingRequest(List.of(text), embeddingOptions()))
+                .getResults()
+                .stream()
+                .map(Embedding::getOutput)
+                .findFirst()
+                .orElseThrow();
+    }
+
+
+    private List<Map<String, Object>> getMemoryList(MemoryCall call) {
+        Objects.requireNonNull(call);
+
+        final String conversationId, query;
+        conversationId = call.conversationId();
+        query = call.query();
+        Objects.requireNonNull(conversationId);
+
+
+        final Function<SyncSession, List<Map<String, Object>>> function;
+        function = session -> {
+            Double similarityThreshold = call.similarityThreshold();
+            if (similarityThreshold == null) {
+                similarityThreshold = SearchRequest.SIMILARITY_THRESHOLD_ACCEPT_ALL;
+            }
+            Integer topK = call.topK();
+            if (topK == null) {
+                topK = SearchRequest.DEFAULT_TOP_K;
+            }
+
+            final double distance = 1 - similarityThreshold;
+
+            final float[] queryEmbedding;
+            queryEmbedding = embeddingText(query);
+
+            final String distanceLabel = "distance";
+
+            final Select stmt;
+            stmt = SQLs.query()
+                    .select(this.content, this.metadata.space(Postgres.DARROW, "messageType").as("messageType"))
+                    .comma(this.tableMeta.createTime())
+                    .comma(distanceSelection(queryEmbedding, distanceLabel))
+                    .from(this.tableMeta, AS, "t")
+                    .where(this.conversationId.equal(conversationId))
+                    .and(this.distancePredicate(queryEmbedding, distance))
+                    .orderBy(SQLs.refSelection(distanceLabel))
+                    .limit(topK)
+                    .asQuery();
+
+            return session.queryObjectList(stmt, RowMaps.hashMapConstructor(4));
+        };
+
+        final String sessionName = getClass().getName() + '.' + "getMemoryList";
+        return this.sessionContext.executeNotNull(sessionName, true, function);
     }
 
 
@@ -624,27 +695,24 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
     public enum DistanceType {
 
-
         /// <-> - L2 distance
         ///
         /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
-        L2_DISTANCE("vector_l2_ops"),
+        L2_DISTANCE(SQLs.L2_DISTANCE),
 
         ///  <=> - Cosine distance
         ///
         /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
-        COSINE_DISTANCE("vector_cosine_ops"),
+        COSINE_DISTANCE(SQLs.COSINE_DISTANCE),
 
         /// (negative) inner product
-        NEG_DOT("vector_ip_ops");
+        NEG_DOT(SQLs.NEG_DOT);
 
-        public final String opclass;
+        public final SQLs.DualOperator operator;
 
-        DistanceType(String opclass) {
-            this.opclass = opclass;
+        DistanceType(SQLs.DualOperator operator) {
+            this.operator = operator;
         }
-
-
     }
 
     public static final class Builder<T extends SpringAiVectorStore> extends AbstractVectorStoreBuilder<Builder<T>> {
@@ -705,7 +773,7 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
 
         @Override
-        public VectorStore build() {
+        public ArmyVectorStore<T> build() {
             if (this.distanceType == null) {
                 this.distanceType = findDistanceType();
             }
@@ -734,12 +802,18 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
                     break;
                 }
                 opclass = opclass.toLowerCase(Locale.ROOT);
-                for (DistanceType v : DistanceType.values()) {
-                    if (v.opclass.equals(opclass)) {
-                        distanceType = v;
+                switch (opclass) {
+                    case "vector_l2_ops":
+                        distanceType = DistanceType.L2_DISTANCE;
                         break topLoop;
-                    }
-                }
+                    case "vector_cosine_ops":
+                        distanceType = DistanceType.COSINE_DISTANCE;
+                        break topLoop;
+                    case "vector_ip_ops":
+                        distanceType = DistanceType.NEG_DOT;
+                        break topLoop;
+                } // switch
+
             } // top loop
 
             if (distanceType == null) {

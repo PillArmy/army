@@ -1,29 +1,31 @@
 package io.army.example.coder.config;
 
 
+import io.army.example.coder.domain.CoderChatMemory;
 import io.army.example.coder.domain.CoderChatMemory_;
+import io.army.example.coder.domain.CoderChatVectorStore;
 import io.army.example.coder.domain.CoderChatVectorStore_;
 import io.army.session.SyncSessionContext;
 import io.army.spring.ai.chat.memory.ArmyMessageChatMemory;
+import io.army.spring.ai.chat.memory.ArmyMessageChatMemoryAdvisor;
+import io.army.spring.ai.chat.memory.SystemMessageAdvisor;
 import io.army.spring.ai.vectorstore.ArmyVectorStore;
+import io.army.spring.ai.vectorstore.ArmyVectorStoreChatMemoryAdvisor;
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.observation.AdvisorObservationConvention;
-import org.springframework.ai.chat.client.advisor.vectorstore.VectorStoreChatMemoryAdvisor;
 import org.springframework.ai.chat.client.observation.ChatClientObservationConvention;
-import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.model.chat.client.autoconfigure.ChatClientBuilderConfigurer;
-import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 
 import java.util.List;
@@ -41,7 +43,7 @@ public class CoderAiConfiguration implements EnvironmentAware {
 
 
     @Bean
-    public ChatMemory coderChatMemory(SyncSessionContext context) {
+    public ArmyMessageChatMemory<CoderChatMemory> coderChatMemory(SyncSessionContext context) {
         return ArmyMessageChatMemory.builder(context, CoderChatMemory_.T)
                 .maxMessages(30)
                 .build();
@@ -49,7 +51,7 @@ public class CoderAiConfiguration implements EnvironmentAware {
 
 
     @Bean
-    public VectorStore chatVectorStore(EmbeddingModel embeddingModel, SyncSessionContext context) {
+    public ArmyVectorStore<CoderChatVectorStore> chatVectorStore(EmbeddingModel embeddingModel, SyncSessionContext context) {
         return ArmyVectorStore.builder(embeddingModel, context, CoderChatVectorStore_.T)
                 .build();
     }
@@ -69,19 +71,34 @@ public class CoderAiConfiguration implements EnvironmentAware {
     }
 
     @Bean
-    public ChatClient coderChatClient(ChatClient.Builder builder, ChatMemory chatMemory,
-                                      @Qualifier("chatVectorStore") VectorStore vectorStore) {
+    public ChatClient coderChatClient(ChatClient.Builder builder, ArmyMessageChatMemory<CoderChatMemory> chatMemory,
+                                      ArmyVectorStore<CoderChatVectorStore> vectorStore) {
+
+
         final List<Advisor> advisorList = List.of(
-                MessageChatMemoryAdvisor.builder(chatMemory).build(),
-                VectorStoreChatMemoryAdvisor.builder(vectorStore).build(),
+                SystemMessageAdvisor.of(Ordered.HIGHEST_PRECEDENCE + 10),
+                ArmyMessageChatMemoryAdvisor.builder(chatMemory).build(),
+                ArmyVectorStoreChatMemoryAdvisor.builder(vectorStore).build(),
                 ToolCallingAdvisor.builder().build()
         );
 
         builder.defaultAdvisors(advisorList);
 
-        AgentTool.createAgent(builder, this.environment);
+        AgentTool.createAgent(builder);
 
-        return builder.build();
+        builder.defaultTools(
+                chatMemory.memoryTool(null),
+                vectorStore.memoryTool(null)
+        );
+
+        return builder.defaultSystem(p -> p.text(AgentTool.loadSystemPrompt()) // system prompt
+                        .param(AgentEnv.ENVIRONMENT_INFO, AgentEnv.info(this.environment))
+                        .param(AgentEnv.GIT_STATUS, AgentEnv.gitStatus())
+                        .param(AgentEnv.OFFSET_NOW, ArmyTemplateRenderer.OFFSET_NOW)
+                        .param(AgentEnv.BIRTH_PERIOD, ArmyTemplateRenderer.BIRTH_PERIOD)
+                        .param("EMPTY", "{}")
+                )
+                .build();
     }
 
 
