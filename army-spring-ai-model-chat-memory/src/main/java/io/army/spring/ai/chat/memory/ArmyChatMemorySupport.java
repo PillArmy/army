@@ -87,6 +87,18 @@ abstract class ArmyChatMemorySupport<T extends SpringAiChatMemory> {
         this.rowFunc = messageReadFunc(this.sessionContext.sessionFactory().jsonCodec());
     }
 
+
+    public ToolCallback memoryTool(@Nullable String name) {
+        if (name == null) {
+            name = "ShortTermMemory";
+        }
+        return FunctionToolCallback
+                .builder(name, this::getMemoryList)
+                .description("Get short term memory")
+                .inputType(MemoryCall.class)
+                .build();
+    }
+
     @Nullable
     abstract Integer maxMessages();
 
@@ -160,17 +172,24 @@ abstract class ArmyChatMemorySupport<T extends SpringAiChatMemory> {
 
     private List<Map<String, Object>> getMemoryList(MemoryCall call) {
         Objects.requireNonNull(call);
-        assertConversationId(call.conversationId());
+
+        final String conversationId = call.conversationId();
+        assertConversationId(conversationId);
 
         final Function<SyncSession, List<Map<String, Object>>> callBack;
         callBack = session -> {
+            Integer maxRow;
+            maxRow = call.maxRow();
+            if (maxRow == null) {
+                maxRow = maxMessages();
+            }
             final Select stmt;
             stmt = SQLs.query()
                     .select(this.content, this.type, this.tableMeta.createTime())
                     .from(this.tableMeta, AS, "t")
                     .where(this.conversationId.equal(conversationId))
                     .orderBy(this.id.desc())
-                    .ifLimit(maxMessages())
+                    .ifLimit(maxRow)
                     .asQuery();
             return session.queryObjectList(stmt, RowMaps.hashMapConstructor(3));
         };
@@ -179,16 +198,6 @@ abstract class ArmyChatMemorySupport<T extends SpringAiChatMemory> {
     }
 
 
-    public ToolCallback memoryTool(@Nullable String name) {
-        if (name == null) {
-            name = "ShortTermMemory";
-        }
-        return FunctionToolCallback
-                .builder(name, this::getMemoryList)
-                .description("Get short term memory")
-                .inputType(MemoryCall.class)
-                .build();
-    }
 
 
     static void assertConversationId(String conversationId) {

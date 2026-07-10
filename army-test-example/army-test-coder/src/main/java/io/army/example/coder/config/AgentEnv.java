@@ -87,6 +87,14 @@ final class AgentEnv {
                 .append(Path.of(armyPath.toString(), "army-test-example/army-test-coder/src/main/resources/prompt"))
                 .append(_Constant.LF)
 
+                .append("Your memory directory : ")
+                .append(Path.of(armyPath.toString(), ".trae/memory"))
+                .append(_Constant.LF)
+
+                .append("Your rules directory : ")
+                .append(Path.of(armyPath.toString(), ".trae/rules"))
+                .append(_Constant.LF)
+
                 .append("Your geographical location : ")
                 .append(env.getRequiredProperty("user.region"))
                 .append(_Constant.LF)

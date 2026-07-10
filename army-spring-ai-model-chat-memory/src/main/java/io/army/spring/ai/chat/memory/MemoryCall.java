@@ -15,8 +15,10 @@
  */
 package io.army.spring.ai.chat.memory;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.tool.annotation.ToolParam;
 
-public record MemoryCall(@ToolParam(description = "conversation id") String conversationId) {
+public record MemoryCall(@ToolParam(description = "conversation id") String conversationId,
+                         @ToolParam(description = "max row count", required = false) @Nullable Integer maxRow) {
 
 }

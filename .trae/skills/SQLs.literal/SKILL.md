@@ -471,6 +471,16 @@ SQLs.literalValue("hello").concat(SQLs.literalValue(" world"))
 2. **使用预定义常量**：对于常见的数值（如 0、1、100），使用 SQLs 类预定义的常量。
 3. **明确类型**：当类型推断可能出错时，显式指定类型。
 4. **多行值使用 rowLiteral**：对于 IN 条件中的多个值，使用 `rowLiteral` 而不是多个 OR 条件。
+5. **⭐ 作为右操作数时可省略**：当值作为 Expression 方法（如 `equal()`、`space()`、`plus()`、`like()` 等）的右操作数时，可直接传原始
+   Java 值，无需 `literal()` 包装。框架通过 `Expressions.wrapRight()` 自动从左侧字段推断类型并包装。详见
+   `expression-interface-usage` skill 的"隐式值包装"章节。
+
+```java
+// ❌ 冗余
+field.space(Postgres.DARROW, SQLs.literal(TextType.INSTANCE, "value"))
+// ✅ 简洁
+field.space(Postgres.DARROW, "value")
+```
 
 ---
 
