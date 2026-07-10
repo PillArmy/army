@@ -36,18 +36,50 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/// ChatClient Advisor that integrates vector store for long-term memory storage.
+///
+/// This advisor automatically saves user and assistant messages to the vector store
+/// for long-term memory retrieval. Messages are embedded and stored with conversation ID metadata.
+///
+/// ### Behavior:
+/// 1. **Before**: Saves user messages to the vector store
+/// 2. **After**: Saves assistant messages to the vector store
+/// 3. Messages are filtered to only include USER and ASSISTANT types
+///
+/// ### Important Design Note:
+/// This advisor **only performs save operations** and does NOT automatically retrieve and inject
+/// long-term memory into the prompt. Long-term memory is sent to the AI model through the
+/// {@link ArmyVectorStore#memoryTool(String)} method (configured as `defaultTools`),
+/// allowing the AI agent to actively query long-term memory when needed through similarity search.
+/// This is more efficient than sending all memory with every request.
+///
+/// ### Usage:
+/// ```java
+/// ArmyVectorStoreChatMemoryAdvisor advisor = ArmyVectorStoreChatMemoryAdvisor.builder(vectorStore)
+///         .order(Advisor.DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER)
+///         .build();
+/// ```
+///
+/// @see ArmyVectorStore
+/// @see ArmyVectorStore#memoryTool(String)
+/// @see org.springframework.ai.chat.client.advisor.api.BaseChatMemoryAdvisor
 public final class ArmyVectorStoreChatMemoryAdvisor implements BaseChatMemoryAdvisor {
 
 
+    /// Metadata key for conversation ID.
     private static final String DOCUMENT_METADATA_CONVERSATION_ID = "conversationId";
 
+    /// Metadata key for message type.
     private static final String DOCUMENT_METADATA_MESSAGE_TYPE = "messageType";
 
 
+    /// The advisor order.
     private final int order;
 
+    /// The scheduler for async operations.
     private final Scheduler scheduler;
 
+    /// The vector store for storing messages.
     private final VectorStore vectorStore;
 
     private ArmyVectorStoreChatMemoryAdvisor(int order, Scheduler scheduler, VectorStore vectorStore) {
@@ -139,53 +171,56 @@ public final class ArmyVectorStoreChatMemoryAdvisor implements BaseChatMemoryAdv
                 .toList();
     }
 
+    /// Creates a new builder for ArmyVectorStoreChatMemoryAdvisor.
+    ///
+    /// @param vectorStore The vector store to use for storing messages
+    /// @return The builder
     public static Builder builder(VectorStore vectorStore) {
         return new Builder(vectorStore);
     }
 
 
-    /**
-     * Builder for VectorStoreChatMemoryAdvisor.
-     */
+    /// Builder for ArmyVectorStoreChatMemoryAdvisor.
     public static final class Builder {
 
+        /// Default scheduler.
         private Scheduler scheduler = BaseAdvisor.DEFAULT_SCHEDULER;
 
+        /// Default advisor order.
         private int order = Advisor.DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER;
 
+        /// The vector store.
         private final VectorStore vectorStore;
 
-        /**
-         * Creates a new builder instance.
-         *
-         * @param vectorStore the vector store to use
-         */
+        /// Creates a new builder instance.
+        ///
+        /// @param vectorStore The vector store to use
         private Builder(VectorStore vectorStore) {
             this.vectorStore = vectorStore;
         }
 
 
+        /// Sets the scheduler for async operations.
+        ///
+        /// @param scheduler The scheduler
+        /// @return The builder
         public Builder scheduler(Scheduler scheduler) {
             this.scheduler = scheduler;
             return this;
         }
 
-        /**
-         * Set the order.
-         *
-         * @param order the order
-         * @return the builder
-         */
+        /// Sets the advisor order.
+        ///
+        /// @param order The order
+        /// @return The builder
         public Builder order(int order) {
             this.order = order;
             return this;
         }
 
-        /**
-         * Build the advisor.
-         *
-         * @return the advisor
-         */
+        /// Builds the advisor.
+        ///
+        /// @return The advisor instance
         public ArmyVectorStoreChatMemoryAdvisor build() {
             return new ArmyVectorStoreChatMemoryAdvisor(this.order, this.scheduler, this.vectorStore);
         }

@@ -44,30 +44,55 @@ import java.util.function.Supplier;
 
 import static io.army.criteria.impl.SQLs.AS;
 
+/// Base class for chat memory implementations.
+///
+/// This class provides common functionality for both {@link ArmyMessageChatMemory}
+/// and {@link ArmyChatMemoryRepository}, including:
+///
+/// - Session management
+/// - Message saving and loading
+/// - Memory tool creation
+/// - Message conversion utilities
+///
+/// @param <T> The domain class type extending {@link SpringAiChatMemory}
+/// @see ArmyMessageChatMemory
+/// @see ArmyChatMemoryRepository
 abstract class ArmyChatMemorySupport<T extends SpringAiChatMemory> {
 
+    /// Metadata key for primary ID.
     public static final String PRIMARY_ID = "chat_memory_primary_id";
 
+    /// The Army session context.
     final SyncSessionContext sessionContext;
 
+    /// The compile-time metamodel for the domain class.
     final SimpleTableMeta<T> tableMeta;
 
+    /// The primary key field.
     final PrimaryFieldMeta<T> id;
 
+    /// The message type field.
     final FieldMeta<T> type;
 
+    /// The message content field.
     final FieldMeta<T> content;
 
+    /// The specialized data field (JSONB).
     final FieldMeta<T> specializedData;
 
+    /// The conversation ID field.
     final FieldMeta<T> conversationId;
 
+    /// The null handling mode.
     final NullMode nullMode;
 
+    /// The literal handling mode.
     final LiteralMode literalMode;
 
+    /// The domain class constructor.
     final Supplier<T> constructor;
 
+    /// The row-to-message conversion function.
     final Function<CurrentRecord, Message> rowFunc;
 
     ArmyChatMemorySupport(BuilderSupport<?, T> builder) {

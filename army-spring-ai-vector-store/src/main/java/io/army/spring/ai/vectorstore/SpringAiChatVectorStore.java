@@ -21,17 +21,37 @@ import io.army.annotation.MappedSuperclass;
 import io.army.annotation.Mapping;
 
 
-/// Subclass for long-term memory storage of AI Agent
+/// Subclass for AI agent long-term memory storage.
+///
+/// This class extends {@link SpringAiVectorStore} with a conversation ID field,
+/// enabling vector-based retrieval of long-term chat session memory.
+///
+/// ### Usage:
+/// ```java
+/// @Table(name = "coder_chat_vector_store")
+/// public class CoderChatVectorStore extends SpringAiChatVectorStore {
+///     // Inherits conversationId + all fields from SpringAiVectorStore
+/// }
+/// ```
+///
+/// ### Important:
+/// - The {@link #conversationId} field must be indexed for optimal performance
+/// - When using with {@link ArmyVectorStore}, the metadata must contain a "conversationId" key
+///
+/// @see ArmyVectorStore
+/// @see ArmyVectorStoreChatMemoryAdvisor
 @MappedSuperclass
 public abstract class SpringAiChatVectorStore extends SpringAiVectorStore {
 
+    /// Conversation identifier.
+    ///
     /// {@link Mapping#value()} should be one of below:
     /// - {@link io.army.mapping.SqlBigIntType}
     /// - {@link io.army.mapping.StringType}
     /// - {@link io.army.mapping.UUIDType}
     ///
-    /// If the entity is used to store long-term chat session memory, the conversationId field is required; otherwise,
-    ///  it is unnecessary and shall not be configurable.
+    /// **Note:** This field is required for long-term chat session memory storage.
+    /// It must be indexed for optimal query performance.
     ///
     /// @see org.springframework.ai.chat.memory.ChatMemory#CONVERSATION_ID
     @Column(name = "${DEFAULT}", notNull = true, defaultValue = "${DEFAULT}", precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")

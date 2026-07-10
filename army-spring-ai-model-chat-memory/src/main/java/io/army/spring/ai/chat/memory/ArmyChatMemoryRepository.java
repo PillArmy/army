@@ -32,13 +32,34 @@ import java.util.function.Function;
 import static io.army.criteria.impl.SQLs.AS;
 
 
-/// Unlike {@link ArmyMessageChatMemory}, this class is a lower-level persistence layer:
-/// <ul>
-///     <li>{@link #saveAll(String, List)} : FULL REPLACE (delete existing then insert), NOT append-only</li>
-///     <li>{@link #findByConversationId(String)} : Returns ALL messages in chronological order (ASC), no limit</li>
-///     <li>{@link #findConversationIds()} : Returns distinct conversation IDs (new query)</li>
-///     <li>No message windowing logic (maxMessages is ChatMemory's responsibility, not Repository's)</li>
-/// </ul>
+/// Army implementation of Spring AI's {@link ChatMemoryRepository} interface.
+///
+/// This class provides a lower-level persistence layer for chat memory with the following features:
+///
+/// - **Full Replace Storage**: {@link #saveAll(String, List)} deletes existing messages before inserting new ones
+/// - **No Windowing**: Returns all messages without limit
+/// - **Distinct Query**: {@link #findConversationIds()} returns all distinct conversation IDs
+/// - **Type-Safe**: Uses Army's compile-time metamodel
+///
+/// ### Key Differences from {@link ArmyMessageChatMemory}:
+/// - No message windowing logic ({@link #maxMessages()} returns null)
+/// - {@link #saveAll(String, List)} replaces all messages, does NOT append
+/// - {@link #findByConversationId(String)} returns all messages without limit
+/// - Provides {@link #findConversationIds()} which is not available in ArmyMessageChatMemory
+///
+/// ### Usage:
+/// ```java
+/// ArmyChatMemoryRepository&lt;CoderChatMemory&gt; repository = ArmyChatMemoryRepository.builder(context, CoderChatMemory_.T)
+///         .build();
+///
+/// // With Spring AI's MessageWindowChatMemory
+/// MessageWindowChatMemory chatMemory = MessageWindowChatMemory.builder(repository)
+///         .maxMessages(20)
+///         .build();
+/// ```
+///
+/// @param <T> The domain class type extending {@link SpringAiChatMemory}
+/// @see ArmyMessageChatMemory
 public final class ArmyChatMemoryRepository<T extends SpringAiChatMemory> extends ArmyChatMemorySupport<T>
         implements ChatMemoryRepository {
 
@@ -48,6 +69,9 @@ public final class ArmyChatMemoryRepository<T extends SpringAiChatMemory> extend
     }
 
 
+    /// Returns all distinct conversation IDs.
+    ///
+    /// @return The list of distinct conversation IDs
     @Override
     public List<String> findConversationIds() {
 
@@ -69,6 +93,12 @@ public final class ArmyChatMemoryRepository<T extends SpringAiChatMemory> extend
     }
 
 
+    /// Finds all messages for a conversation.
+    ///
+    /// Returns ALL messages in descending order (newest first), without any limit.
+    ///
+    /// @param conversationId The conversation identifier
+    /// @return The list of all messages for the conversation
     @Override
     public List<Message> findByConversationId(String conversationId) {
         assertConversationId(conversationId);
@@ -90,6 +120,13 @@ public final class ArmyChatMemoryRepository<T extends SpringAiChatMemory> extend
     }
 
 
+    /// Saves messages for a conversation with full replace semantics.
+    ///
+    /// Deletes all existing messages for the conversation, then inserts the new messages.
+    /// This is different from {@link ArmyMessageChatMemory#add(String, List)} which appends messages.
+    ///
+    /// @param conversationId The conversation identifier
+    /// @param messages       The messages to save
     @Override
     public void saveAll(String conversationId, List<Message> messages) {
         assertConversationId(conversationId);
@@ -106,18 +143,29 @@ public final class ArmyChatMemoryRepository<T extends SpringAiChatMemory> extend
     }
 
 
+    /// Deletes all messages for a conversation.
+    ///
+    /// @param conversationId The conversation identifier
     @Override
     public void deleteByConversationId(String conversationId) {
         deleteMessageByConversationId("deleteByConversationId", conversationId);
     }
 
+    /// Returns null as this repository does not support message windowing.
+    ///
+    /// @return Always returns null
     @Nullable
     @Override
     Integer maxMessages() {
-        // null
         return null;
     }
 
+    /// Creates a new builder for ArmyChatMemoryRepository.
+    ///
+    /// @param sessionContext The Army SyncSessionContext
+    /// @param tableMeta The compile-time metamodel for the domain class
+    /// @param <T> The domain class type extending SpringAiChatMemory
+    /// @return The builder
     public static <T extends SpringAiChatMemory> Builder<T> builder(SyncSessionContext sessionContext, SimpleTableMeta<T> tableMeta) {
         final Builder<T> builder = new Builder<>();
         return builder.sessionContext(sessionContext)

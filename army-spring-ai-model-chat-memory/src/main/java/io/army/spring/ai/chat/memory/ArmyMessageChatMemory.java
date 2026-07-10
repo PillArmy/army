@@ -32,10 +32,35 @@ import java.util.function.Function;
 import static io.army.criteria.impl.SQLs.AS;
 
 
-/// Unlike org.springframework.ai.chat.memory.MessageWindowChatMemory, this class does not delete previous messages. in {@link #add(String, List)}.
+/// Army implementation of Spring AI's {@link ChatMemory} interface.
+///
+/// This class provides a higher-level chat memory implementation with the following features:
+///
+/// - **Append-Only Storage**: Messages are appended without deleting previous ones
+/// - **Message Windowing**: Configurable max message count per conversation
+/// - **Tool Integration**: Built-in memory tool for AI agent calling
+/// - **Type-Safe**: Uses Army's compile-time metamodel
+///
+/// ### Key Differences from Spring AI's MessageWindowChatMemory:
+/// - Does NOT delete previous messages in {@link #add(String, List)}
+/// - Messages are retained in storage, only limited during retrieval
+/// - Automatic message retention via {@link #maxMessages} during {@link #get(String)}
+///
+/// ### Usage:
+/// ```java
+/// ArmyMessageChatMemory&lt;CoderChatMemory&gt; memory = ArmyMessageChatMemory.builder(context, CoderChatMemory_.T)
+///         .maxMessages(30)
+///         .build();
+/// ```
+///
+/// @param <T> The domain class type extending {@link SpringAiChatMemory}
+/// @see ArmyChatMemoryRepository
+/// @see ArmyMessageChatMemoryAdvisor
 public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> extends ArmyChatMemorySupport<T> implements ChatMemory {
 
 
+    /// Maximum number of messages per conversation.
+    /// Messages beyond this limit are still stored but not retrieved.
     private final int maxMessages;
 
     private ArmyMessageChatMemory(Builder<T> builder) {
@@ -44,9 +69,16 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> extends A
     }
 
 
+    /// Adds messages to the chat memory.
+    ///
+    /// Messages are appended to storage without deleting previous messages.
+    /// This is different from Spring AI's {@link org.springframework.ai.chat.memory.MessageWindowChatMemory}
+    /// which deletes old messages when adding new ones.
+    ///
+    /// @param conversationId The conversation identifier
+    /// @param messages       The messages to add
     @Override
     public void add(String conversationId, List<Message> messages) {
-        // Unlike org.springframework.ai.chat.memory.MessageWindowChatMemory, this class does not delete previous messages.
         assertConversationId(conversationId);
         Assert.notNull(messages, "messages cannot be null");
 
@@ -59,6 +91,13 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> extends A
     }
 
 
+    /// Retrieves messages for a conversation.
+    ///
+    /// Returns up to {@link #maxMessages} most recent messages in descending order (newest first).
+    /// Messages beyond the limit are still stored but not returned.
+    ///
+    /// @param conversationId The conversation identifier
+    /// @return The list of messages, limited by maxMessages
     @Override
     public List<Message> get(final String conversationId) {
         assertConversationId(conversationId);
@@ -81,17 +120,27 @@ public final class ArmyMessageChatMemory<T extends SpringAiChatMemory> extends A
     }
 
 
+    /// Clears all messages for a conversation.
+    ///
+    /// @param conversationId The conversation identifier
     @Override
     public void clear(String conversationId) {
         deleteMessageByConversationId("clear", conversationId);
     }
 
 
+    /// Returns the maximum number of messages per conversation.
     @Override
     Integer maxMessages() {
         return this.maxMessages;
     }
 
+    /// Creates a new builder for ArmyMessageChatMemory.
+    ///
+    /// @param sessionContext The Army SyncSessionContext
+    /// @param tableMeta The compile-time metamodel for the domain class
+    /// @param <T> The domain class type extending SpringAiChatMemory
+    /// @return The builder
     public static <T extends SpringAiChatMemory> Builder<T> builder(SyncSessionContext sessionContext, SimpleTableMeta<T> tableMeta) {
         final Builder<T> builder = new Builder<>();
         return builder.sessionContext(sessionContext)

@@ -25,16 +25,43 @@ import org.springframework.ai.chat.messages.ToolResponseMessage;
 import java.time.LocalDateTime;
 
 
+/// Base domain class for Spring AI chat memory.
+///
+/// This class provides the foundation for storing chat messages in Army ORM.
+/// It extends Army's default domain model with Spring AI-specific fields.
+///
+/// ### Fields:
+/// - {@link #id} - Primary key
+/// - {@link #createTime} - Creation timestamp
+/// - {@link #conversationId} - Conversation identifier
+/// - {@link #content} - Message content
+/// - {@link #specializedData} - JSONB field for tool calls/responses
+/// - {@link #type} - Message type (USER, SYSTEM, ASSISTANT, TOOL)
+///
+/// ### Usage:
+/// ```java
+/// @Table(name = "coder_chat_memory")
+/// public class CoderChatMemory extends SpringAiChatMemory {
+///     // Inherits all fields from SpringAiChatMemory
+/// }
+/// ```
+///
+/// @see ArmyMessageChatMemory
+/// @see ArmyChatMemoryRepository
 @MappedSuperclass
 public abstract class SpringAiChatMemory {
 
+    /// Primary key.
     @Generator(type = GeneratorType.DEFAULT)
     @Column(name = "${DEFAULT}", precision = Column.DEFAULT_EXP, scale = Column.DEFAULT_EXP)
     private Long id;
 
+    /// Creation timestamp.
     @Column(name = "${DEFAULT}", defaultValue = "'1979-01-01 00:00:00'")
     private LocalDateTime createTime;
 
+    /// Conversation identifier.
+    ///
     /// {@link Mapping#value()} should be one of below:
     /// - {@link io.army.mapping.SqlBigIntType}
     /// - {@link io.army.mapping.StringType}
@@ -45,12 +72,15 @@ public abstract class SpringAiChatMemory {
     @Mapping("${DEFAULT}")
     private String conversationId;
 
+    /// Message content.
     @Column(name = "${DEFAULT}", notNull = true, comment = "${DEFAULT}")
     @Mapping("io.army.mapping.TextType")
     @Nullable
     private String content;
 
-    /// store one of below :
+    /// JSONB field for specialized message data.
+    ///
+    /// Stores one of below:
     /// 1. {@link AssistantMessage#getToolCalls()}
     /// 2. {@link ToolResponseMessage#getResponses()}
     @Column(name = "${DEFAULT}", notNull = true, defaultValue = "'[]'", comment = "${DEFAULT}")
@@ -58,6 +88,7 @@ public abstract class SpringAiChatMemory {
     @Nullable
     private String specializedData;
 
+    /// Message type.
     @Column(name = "${DEFAULT}", notNull = true, precision = 10, comment = "${DEFAULT}")
     private MessageType type;
 

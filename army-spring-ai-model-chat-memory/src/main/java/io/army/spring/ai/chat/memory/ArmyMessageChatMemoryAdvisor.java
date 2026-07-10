@@ -30,12 +30,39 @@ import reactor.core.scheduler.Scheduler;
 
 import java.util.List;
 
+/// ChatClient Advisor for automatic chat memory management.
+///
+/// This advisor automatically saves messages to chat memory before and after chat requests:
+///
+/// - **Before**: Saves user messages before the chat request
+/// - **After**: Saves assistant messages after the chat response
+///
+/// ### Important Design Note:
+/// This advisor **only performs save operations** and does NOT automatically retrieve and inject
+/// memory into the prompt. Memory is sent to the AI model through the
+/// {@link ArmyChatMemorySupport#memoryTool(String)} method (configured as `defaultTools`),
+/// allowing the AI agent to actively query short-term memory when needed.
+/// This is more efficient than sending all memory with every request.
+///
+/// ### Usage:
+/// ```java
+/// ArmyMessageChatMemoryAdvisor advisor = ArmyMessageChatMemoryAdvisor.builder(chatMemory)
+///         .order(Advisor.DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER)
+///         .build();
+/// ```
+///
+/// @see ArmyMessageChatMemory
+/// @see ArmyChatMemorySupport#memoryTool(String)
+/// @see org.springframework.ai.chat.client.advisor.api.BaseChatMemoryAdvisor
 public final class ArmyMessageChatMemoryAdvisor implements BaseChatMemoryAdvisor {
 
+    /// The chat memory to manage.
     private final ChatMemory chatMemory;
 
+    /// The advisor order.
     private final int order;
 
+    /// The scheduler for async operations.
     private final Scheduler scheduler;
 
     private ArmyMessageChatMemoryAdvisor(ChatMemory chatMemory, int order, Scheduler scheduler) {

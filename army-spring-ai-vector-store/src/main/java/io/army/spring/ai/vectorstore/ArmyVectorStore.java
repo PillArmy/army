@@ -56,46 +56,91 @@ import java.util.function.Supplier;
 
 import static io.army.criteria.impl.SQLs.AS;
 
+/// Army implementation of Spring AI's {@link org.springframework.ai.vectorstore.VectorStore} interface.
+///
+/// This class provides a type-safe vector store implementation for Army ORM with the following features:
+///
+/// - **PostgreSQL Vector Support**: Built-in pgvector integration for similarity search
+/// - **MySQL Support**: Support for MySQL vector types
+/// - **Chat Memory Integration**: Specialized support for AI agent long-term memory
+/// - **Batch Operations**: Efficient batch insert/update with configurable batch size
+/// - **Tool Integration**: Built-in memory tool for AI agent calling
+/// - **Type-Safe**: Uses Army's compile-time metamodel
+///
+/// ### Supported Distance Types:
+/// - {@link DistanceType#L2_DISTANCE} - L2 distance (&lt;-&gt;)
+/// - {@link DistanceType#COSINE_DISTANCE} - Cosine distance (&lt;=&gt;)
+/// - {@link DistanceType#NEG_DOT} - Negative inner product
+///
+/// ### Usage:
+/// ```java
+/// ArmyVectorStore&lt;CoderChatVectorStore&gt; vectorStore = ArmyVectorStore.builder(embeddingModel, context, CoderChatVectorStore_.T)
+///         .maxDocumentBatchSize(1000)
+///         .distanceType(ArmyVectorStore.DistanceType.COSINE_DISTANCE)
+///         .mode("text-embedding-3-small")
+///         .build();
+/// ```
+///
 /// @see <a href="https://github.com/pgvector/pgvector">pgvector</a>
+/// @param <T> The domain class type extending {@link SpringAiVectorStore}
 public final class ArmyVectorStore<T extends SpringAiVectorStore> extends AbstractObservationVectorStore {
 
 
+    /// The null handling mode.
     private final NullMode nullMode;
 
+    /// The literal handling mode.
     private final LiteralMode literalMode;
 
+    /// Maximum batch size for insert operations.
     private final int maxDocumentBatchSize;
 
+    /// Threshold for switching to batch delete mode.
     private final int batchDeleteThreshold;
 
+    /// The Army session context.
     private final SyncSessionContext sessionContext;
 
+    /// The distance type for similarity search.
     private final DistanceType distanceType;
 
+    /// The SQL operator for distance calculation.
     private final SQLs.DualOperator operator;
 
+    /// The embedding model name.
     private final String model;
 
+    /// The compile-time metamodel for the domain class.
     private final SimpleTableMeta<T> tableMeta;
 
+    /// Whether this store is used for chat memory.
     private final boolean chatStore;
 
+    /// The primary key field.
     private final PrimaryFieldMeta<T> id;
 
+    /// The document content field.
     private final FieldMeta<T> content;
 
+    /// The document metadata field.
     private final FieldMeta<T> metadata;
 
+    /// The vector embedding field.
     private final FieldMeta<T> embedding;
 
+    /// The document ID field.
     private final FieldMeta<T> documentId;
 
+    /// The conversation ID field (for chat memory stores).
     private final FieldMeta<T> conversationId;
 
+    /// The field used for ON CONFLICT clause.
     private final FieldMeta<T> onConflictField;
 
+    /// The domain class constructor.
     private final Supplier<T> constructor;
 
+    /// The filter expression converter.
     private final FilterExpressionConverter converter;
 
 
@@ -153,6 +198,12 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
     }
 
 
+    /// Adds documents to the vector store with batch processing.
+    ///
+    /// Embeds documents and inserts them into the database in batches.
+    /// For chat memory stores, the metadata must contain a "conversationId" key.
+    ///
+    /// @param documents The documents to add
     @Override
     public void doAdd(final List<Document> documents) {
 
@@ -217,6 +268,11 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
     }
 
 
+    /// Deletes documents from the vector store.
+    ///
+    /// Uses single delete for small batches and batch delete for large batches.
+    ///
+    /// @param idList The document IDs to delete
     @Override
     public void doDelete(final List<String> idList) {
         final int idCount = idList.size();
@@ -254,6 +310,11 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
     }
 
 
+    /// Deletes documents from the vector store using a filter expression.
+    ///
+    /// For chat memory stores, automatically filters by conversation ID if present in the filter.
+    ///
+    /// @param filterExpression The filter expression
     @Override
     protected void doDelete(Filter.Expression filterExpression) {
         final String jsonPath;
@@ -284,6 +345,13 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
         this.sessionContext.executeVoid(sessionName, false, function);
     }
 
+    /// Performs similarity search on the vector store.
+    ///
+    /// Embeds the query text and searches for similar documents using the configured distance type.
+    /// Results are sorted by distance (closest first).
+    ///
+    /// @param request The search request containing query, similarity threshold, and filter
+    /// @return The list of matching documents with distance metadata
     @Override
     public List<Document> doSimilaritySearch(final SearchRequest request) {
         final Filter.Expression expression = request.getFilterExpression();
@@ -392,6 +460,21 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
     }
 
 
+    /// Creates a memory tool callback for AI agent calling.
+    ///
+    /// This tool allows AI agents to retrieve long-term memory through function calls.
+    /// The tool accepts a {@link MemoryCall} parameter with conversationId and query fields.
+    ///
+    /// ### Usage in AI Agent:
+    /// ```java
+    /// ToolCallback memoryTool = vectorStore.memoryTool();
+    /// ChatClient client = ChatClient.builder(chatModel)
+    ///         .addTools(memoryTool)
+    ///         .build();
+    /// ```
+    ///
+    /// @param name The tool name (defaults to "LongTermMemory")
+    /// @return The tool callback
     public ToolCallback memoryTool(@Nullable String name) {
         if (name == null) {
             name = "LongTermMemory";

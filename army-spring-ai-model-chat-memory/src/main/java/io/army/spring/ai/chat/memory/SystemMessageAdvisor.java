@@ -28,13 +28,37 @@ import org.springframework.ai.chat.messages.SystemMessage;
 import java.util.ArrayList;
 import java.util.List;
 
+/// ChatClient Advisor that adds conversation ID to system messages.
+///
+/// This advisor modifies system messages to include the current conversation ID,
+/// making it available to the AI model in the system prompt.
+///
+/// ### Usage:
+/// ```java
+/// SystemMessageAdvisor advisor = SystemMessageAdvisor.of(Ordered.HIGHEST_PRECEDENCE + 10);
+/// ```
+///
+/// ### Behavior:
+/// For each SystemMessage in the prompt, appends the conversation ID at the end:
+///
+/// ```
+/// original system text
+/// current conversation id : abc123
+/// ```
+///
+/// @see org.springframework.ai.chat.client.advisor.api.BaseAdvisor
 public final class SystemMessageAdvisor implements BaseAdvisor {
 
+    /// Creates a new SystemMessageAdvisor with the given order.
+    ///
+    /// @param order The advisor order
+    /// @return The SystemMessageAdvisor instance
     public static SystemMessageAdvisor of(int order) {
         return new SystemMessageAdvisor(order);
     }
 
 
+    /// The advisor order.
     private final int order;
 
     private SystemMessageAdvisor(int order) {

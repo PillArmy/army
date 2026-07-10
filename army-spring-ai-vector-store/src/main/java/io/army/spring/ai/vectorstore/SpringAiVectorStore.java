@@ -22,54 +22,86 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 
-/// This class is base class of below:
-/// - {@link io.army.spring.ai.vectorstore.SpringAiChatVectorStore}
+/// Base domain class for Spring AI vector store.
+///
+/// This class provides the foundation for storing vector-embedded documents in Army ORM.
+/// It extends Army's default domain model with Spring AI-specific fields.
+///
+/// ### Fields:
+/// - {@link #id} - Primary key
+/// - {@link #createTime} - Creation timestamp
+/// - {@link #updateTime} - Last update timestamp
+/// - {@link #version} - Optimistic lock
+/// - {@link #documentId} - Document identifier
+/// - {@link #content} - Document content
+/// - {@link #metadata} - Document metadata (JSONB)
+/// - {@link #embedding} - Vector embedding
+///
+/// ### Usage:
+/// ```java
+/// @Table(name = "document_vector_store")
+/// public class DocumentVectorStore extends SpringAiVectorStore {
+///     // Inherits all fields from SpringAiVectorStore
+/// }
+/// ```
+///
+/// @see ArmyVectorStore
+/// @see SpringAiChatVectorStore
 @MappedSuperclass
 public abstract class SpringAiVectorStore {
 
 
-
-    /// In Army, id are of type Object, allowing users to supply configurations at runtime via the property file:
-    /// classpath:META-INF/army/TableMeta.properties:
+    /// Primary key.
+    ///
+    /// In Army, id can be configured at runtime via property file:
+    /// ```
     /// entity_class_name.field_name.class=classname
     /// entity_class_name.field_name.Column.name=column_name
+    /// ```
+    /// If not specified, {@link Long} will be used.
     ///
-    /// If you do not specify it, {@link Long} will be used as the id java type.
-    ///
-    /// Do not take org.springframework.ai.document.Document#id as the value of
-    /// io.army.spring.ai.vectorstore.SpringAiVectorStore#id. The former is uncertain, and such usage represents bad design.
+    /// **Note:** Do not use {@link org.springframework.ai.document.Document#id}
+    /// as the value of this field. The former is uncertain and represents bad design.
     @Generator(type = GeneratorType.DEFAULT)
     @Column(name = "${DEFAULT}")
     @Mapping("${DEFAULT}")
     private String id;
 
+    /// Creation timestamp.
     @Column(name = "${DEFAULT}")
     private LocalDateTime createTime;
 
+    /// Last update timestamp.
     @Column(name = "${DEFAULT}")
     private LocalDateTime updateTime;
 
+    /// Optimistic lock version.
     @Column(name = "${DEFAULT}")
     private Integer version;
 
+    /// Document identifier (unique).
     @Column(name = "${DEFAULT}", notNull = true, precision = 36, comment = "${DEFAULT}")
     @Mapping("${DEFAULT}")
     private String documentId;
 
+    /// Document content.
     @Column(name = "${DEFAULT}", comment = "${DEFAULT}")
     @Mapping("io.army.mapping.TextType")
     private String content;
 
+    /// Document metadata (JSONB format).
     @Column(name = "${DEFAULT}", notNull = true, defaultValue = "'{}'", comment = "${DEFAULT}")
     @Mapping("io.army.mapping.PreferredJsonbType")
     private Map<String, Object> metadata;
 
 
-    /// In Army, precision is {@link Integer#MIN_VALUE}, allowing users to supply configurations at runtime via the property file:
-    /// classpath:META-INF/army/TableMeta.properties:
-    /// entity_class_name.field_name.Column.precision=precision
-    /// If you do not specify it, will throw {@link io.army.meta.MetaException}
+    /// Vector embedding.
     ///
+    /// The precision (vector dimension) can be configured at runtime via property file:
+    /// ```
+    /// entity_class_name.field_name.Column.precision=precision
+    /// ```
+    /// If not specified, will throw {@link io.army.meta.MetaException}.
     @Column(name = "${DEFAULT}", notNull = true, precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
     @Mapping("io.army.mapping.VectorType")
     private float[] embedding;
