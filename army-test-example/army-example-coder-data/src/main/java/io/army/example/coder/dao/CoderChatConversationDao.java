@@ -1,7 +1,7 @@
 package io.army.example.coder.dao;
 
 import io.army.example.coder.domain.CoderChatConversation;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;

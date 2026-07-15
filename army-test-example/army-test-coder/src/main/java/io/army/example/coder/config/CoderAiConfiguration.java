@@ -77,9 +77,11 @@ public class CoderAiConfiguration implements EnvironmentAware {
 
         final List<Advisor> advisorList = List.of(
                 SystemMessageAdvisor.of(Ordered.HIGHEST_PRECEDENCE + 10),
-                ArmyMessageChatMemoryAdvisor.builder(chatMemory).build(),
                 ArmyVectorStoreChatMemoryAdvisor.builder(vectorStore).build(),
-                ToolCallingAdvisor.builder().build()
+                ToolCallingAdvisor.builder().conversationHistoryEnabled(true).build(),
+                ArmyMessageChatMemoryAdvisor.builder(chatMemory)
+                        .order(Ordered.HIGHEST_PRECEDENCE + 500)
+                        .build()
         );
 
         builder.defaultAdvisors(advisorList);

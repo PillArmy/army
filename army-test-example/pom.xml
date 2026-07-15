@@ -16,6 +16,8 @@
         <module>army-example-stock</module>
         <module>army-type-test</module>
         <module>army-test-coder</module>
+        <module>army-example-coder-domain</module>
+        <module>army-example-coder-data</module>
     </modules>
 
 
@@ -25,6 +27,18 @@
             <dependency>
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-example-stock-data</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.qinarmy</groupId>
+                <artifactId>army-example-coder-domain</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.qinarmy</groupId>
+                <artifactId>army-example-coder-data</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

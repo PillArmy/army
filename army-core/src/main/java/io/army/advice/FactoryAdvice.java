@@ -22,7 +22,6 @@ import io.army.session.SessionFactory;
 
 public interface FactoryAdvice {
 
-    int order();
 
    default void beforeInstance(ServerMeta serverMeta, ArmyEnvironment environment) {
 

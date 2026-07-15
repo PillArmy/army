@@ -54,8 +54,7 @@ public class CoderChatConversationDaoImpl extends CoderArmySyncDao implements Co
                 .orderBy(CoderChatMemory_.id.desc())
                 .limit(1)
                 .asQuery();
-        return this.sessionContext.currentSession()
-                .queryOne(stmt, Long.class);
+        return this.sessionContext.currentSession().queryOne(stmt, Long.class);
     }
 
     @Override
@@ -69,6 +68,7 @@ public class CoderChatConversationDaoImpl extends CoderArmySyncDao implements Co
                 .where(CoderChatMemory_.conversationId.equal(conversationId))
                 .and(CoderChatConversation_.userId.equal(userId))
                 .and(CoderChatMemory_.type.in(SQLs::rowLiteral, List.of(MessageType.USER, MessageType.ASSISTANT)))
+                .and(CoderChatMemory_.specializedData.equal("[]"))
                 .orderBy(CoderChatMemory_.id)
                 .asQuery();
         return this.sessionContext.currentSession().queryObjectList(stmt, RowMaps.hashMapConstructor(3));

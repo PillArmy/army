@@ -213,6 +213,7 @@ abstract class ArmyChatMemorySupport<T extends SpringAiChatMemory> {
                     .select(this.content, this.type, this.tableMeta.createTime())
                     .from(this.tableMeta, AS, "t")
                     .where(this.conversationId.equal(conversationId))
+                    .and(this.type.in(SQLs::rowLiteral, List.of(MessageType.USER, MessageType.ASSISTANT)))
                     .orderBy(this.id.desc())
                     .ifLimit(maxRow)
                     .asQuery();
@@ -221,8 +222,6 @@ abstract class ArmyChatMemorySupport<T extends SpringAiChatMemory> {
         final String sessionName = getClass().getName() + '.' + "getMemoryList";
         return this.sessionContext.executeNotNull(sessionName, true, callBack);
     }
-
-
 
 
     static void assertConversationId(String conversationId) {

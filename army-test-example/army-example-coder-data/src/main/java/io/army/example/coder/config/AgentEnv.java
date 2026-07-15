@@ -84,7 +84,7 @@ final class AgentEnv {
                 .append(_Constant.LF)
 
                 .append("Your system prompt directory : ")
-                .append(Path.of(armyPath.toString(), "army-test-example/army-test-coder/src/main/resources/prompt"))
+                .append(Path.of(armyPath.toString(), "army-test-example/army-example-coder-data/src/main/resources/prompt"))
                 .append(_Constant.LF)
 
                 .append("Your memory directory : ")

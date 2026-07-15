@@ -21,6 +21,7 @@ import io.army.criteria.impl.MySQLs;
 import io.army.criteria.impl.Postgres;
 import io.army.criteria.impl.SQLs;
 import io.army.dialect.Database;
+import io.army.mapping.TextType;
 import io.army.mapping.optional.JsonPathType;
 import io.army.meta.*;
 import io.army.pojo.ObjectAccessorFactory;
@@ -546,9 +547,9 @@ public final class ArmyVectorStore<T extends SpringAiVectorStore> extends Abstra
 
             final Select stmt;
             stmt = SQLs.query()
-                    .select(this.content, this.metadata.space(Postgres.DARROW, "messageType").as("messageType"))
-                    .comma(this.tableMeta.createTime())
+                    .select(this.content, this.metadata.space(Postgres.DARROW, SQLs.literal(TextType.INSTANCE, "messageType")).as("messageType"))
                     .comma(distanceSelection(queryEmbedding, distanceLabel))
+                    .comma(this.tableMeta.createTime())
                     .from(this.tableMeta, AS, "t")
                     .where(this.conversationId.equal(conversationId))
                     .and(this.distancePredicate(queryEmbedding, distance))

@@ -65,7 +65,7 @@ final class ArmyTemplateRenderer implements TemplateRenderer {
 
         final String finalTemplate;
         finalTemplate = this.templateRenderer.apply(template, newMap);
-        //  LOG.debug("finalTemplate :\n{}", finalTemplate);
+        //   LOG.debug("finalTemplate :\n{}", finalTemplate);
         return finalTemplate;
     }
 

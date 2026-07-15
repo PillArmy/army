@@ -166,6 +166,27 @@
 
     </dependencies>
 
+    <build>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>static/**</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>static/**</include>
+                </includes>
+            </resource>
+        </resources>
+
+    </build>
+
     <profiles>
         <profile>
             <id>ossrh-army</id>

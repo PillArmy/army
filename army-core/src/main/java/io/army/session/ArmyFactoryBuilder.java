@@ -73,7 +73,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
     XmlCodec xmlCodec;
 
-    Collection<FactoryAdvice> factoryAdvices;
+    List<FactoryAdvice> factoryAdvices;
 
     List<String> packagesToScan;
 
@@ -166,7 +166,7 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
     }
 
     @Override
-    public final B factoryAdvice(@Nullable Collection<FactoryAdvice> factoryAdvices) {
+    public final B factoryAdvice(@Nullable List<FactoryAdvice> factoryAdvices) {
         this.factoryAdvices = factoryAdvices;
         return (B) this;
     }
@@ -554,15 +554,11 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
 
     @Nullable
-    protected static FactoryAdvice createFactoryAdviceComposite(Collection<FactoryAdvice> factoryAdvices) {
+    protected static FactoryAdvice createFactoryAdviceComposite(List<FactoryAdvice> factoryAdvices) {
         if (_Collections.isEmpty(factoryAdvices)) {
             return null;
         }
-        List<FactoryAdvice> orderedAdviceList;
-        orderedAdviceList = _Collections.arrayList(factoryAdvices);
-        orderedAdviceList.sort(Comparator.comparingInt(FactoryAdvice::order));
-        orderedAdviceList = Collections.unmodifiableList(orderedAdviceList);
-        return new SessionFactoryAdviceComposite(orderedAdviceList);
+        return new SessionFactoryAdviceComposite(factoryAdvices);
     }
 
 
@@ -808,11 +804,6 @@ abstract class ArmyFactoryBuilder<B, R> implements PackageFactoryBuilder<B, R> {
 
         private SessionFactoryAdviceComposite(List<FactoryAdvice> adviceList) {
             this.adviceList = adviceList;
-        }
-
-        @Override
-        public int order() {
-            return 0;
         }
 
         @Override

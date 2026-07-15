@@ -29,11 +29,6 @@ import static io.army.criteria.impl.SQLs.*;
 ///    soft-deleted yet, cleaning up both filesystem and database records
 final class StockSessionFactoryAdvisor implements FactoryAdvice {
 
-    @Override
-    public int order() {
-        return 0;
-    }
-
 
     @Override
     public void afterInitialize(SessionFactory sessionFactory) {

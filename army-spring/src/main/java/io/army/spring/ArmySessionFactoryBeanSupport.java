@@ -32,7 +32,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -63,7 +62,7 @@ public abstract class ArmySessionFactoryBeanSupport implements InitializingBean,
 
     private List<String> packageList;
 
-    private Collection<FactoryAdvice> factoryAdviceCollection;
+    private List<FactoryAdvice> factoryAdviceCollection;
 
     private FieldGeneratorFactory fieldGeneratorFactory;
 
@@ -138,7 +137,7 @@ public abstract class ArmySessionFactoryBeanSupport implements InitializingBean,
         return this;
     }
 
-    public final ArmySessionFactoryBeanSupport setFactoryAdviceCollection(@Nullable Collection<FactoryAdvice> factoryAdviceCollection) {
+    public final ArmySessionFactoryBeanSupport setFactoryAdviceCollection(@Nullable List<FactoryAdvice> factoryAdviceCollection) {
         this.factoryAdviceCollection = factoryAdviceCollection;
         return this;
     }
@@ -215,7 +214,7 @@ public abstract class ArmySessionFactoryBeanSupport implements InitializingBean,
     }
 
     @Nullable
-    protected final Collection<FactoryAdvice> getFactoryAdviceCollection() {
+    protected final List<FactoryAdvice> getFactoryAdviceCollection() {
         return this.factoryAdviceCollection;
     }
 

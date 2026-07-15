@@ -23,10 +23,6 @@ import java.time.LocalDateTime;
 ///    soft-deleted yet, cleaning up both filesystem and database records
 final class CoderSessionFactoryAdvisor implements FactoryAdvice {
 
-    @Override
-    public int order() {
-        return 0;
-    }
 
 
     @Override

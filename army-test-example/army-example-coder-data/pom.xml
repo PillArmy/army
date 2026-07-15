@@ -5,71 +5,97 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.qinarmy</groupId>
-        <artifactId>army</artifactId>
+        <artifactId>army-test-example</artifactId>
         <version>0.6.8-SNAPSHOT</version><!--Army maven version-->
     </parent>
 
-    <artifactId>army-spring-ai-vector-store</artifactId>
+    <artifactId>army-example-coder-data</artifactId>
 
 
     <dependencies>
+
         <dependency>
             <groupId>io.qinarmy</groupId>
-            <artifactId>army-annotation</artifactId>
+            <artifactId>army-example-coder-domain</artifactId>
         </dependency>
 
         <dependency>
             <groupId>io.qinarmy</groupId>
             <artifactId>army-jdbc</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>io.qinarmy</groupId>
             <artifactId>army-postgre</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>io.qinarmy</groupId>
-            <artifactId>army-mysql</artifactId>
-            <optional>true</optional>
+            <artifactId>army-spring</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-rag</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-vector-store</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
 
 
         <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
-
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j2-impl</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jul</artifactId>
-            <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba.nacos</groupId>
+            <artifactId>nacos-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.nacos</groupId>
+            <artifactId>nacos-spring-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
+
     </dependencies>
+
+    <build>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>static/**</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>static/**</include>
+                </includes>
+            </resource>
+
+        </resources>
+    </build>
 
 </project>

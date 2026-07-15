@@ -31,7 +31,6 @@ import io.army.meta.ServerMeta;
 import io.army.meta.TableMeta;
 import io.army.option.Option;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -98,7 +97,7 @@ public sealed interface FactoryBuilder<B, R> permits PackageFactoryBuilder {
     /// Optional.
     ///
     /// @return **this**
-    B factoryAdvice(@Nullable Collection<FactoryAdvice> factoryAdvices);
+    B factoryAdvice(@Nullable List<FactoryAdvice> factoryAdvices);
 
 
     /// Optional.

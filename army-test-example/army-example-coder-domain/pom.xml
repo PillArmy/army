@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.qinarmy</groupId>
+        <artifactId>army-test-example</artifactId>
+        <version>0.6.8-SNAPSHOT</version><!--Army maven version-->
+    </parent>
+
+    <artifactId>army-example-coder-domain</artifactId>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>io.qinarmy</groupId>
+            <artifactId>army-annotation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.qinarmy</groupId>
+            <artifactId>army-spring-ai-model-chat-memory</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.qinarmy</groupId>
+            <artifactId>army-spring-ai-vector-store</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessors>io.army.modelgen.ArmyMetaModelDomainProcessor</annotationProcessors>
+                    <compilerArgs>
+                        <arg>-Aarmy.snowflakeStartTimeWarning=true</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+    <profiles>
+        <profile>
+            <id>ossrh-army</id>
+            <build>
+                <plugins>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <configuration>
+                            <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
