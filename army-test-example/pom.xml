@@ -18,7 +18,12 @@
         <module>army-test-coder</module>
         <module>army-example-coder-domain</module>
         <module>army-example-coder-data</module>
+        <module>army-test-agent-scope</module>
     </modules>
+
+    <properties>
+        <agentscope.version>2.0.0</agentscope.version>
+    </properties>
 
 
     <dependencyManagement>
@@ -40,6 +45,13 @@
                 <groupId>io.qinarmy</groupId>
                 <artifactId>army-example-coder-data</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-harness</artifactId>
+                <version>${agentscope.version}</version>
             </dependency>
 
 

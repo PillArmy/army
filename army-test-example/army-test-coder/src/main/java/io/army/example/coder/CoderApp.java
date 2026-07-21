@@ -11,6 +11,7 @@ public class CoderApp {
         final SpringApplication app = new SpringApplication(CoderApp.class);
         app.setWebApplicationType(WebApplicationType.SERVLET);
         app.run(args);
+
     }
 
 }

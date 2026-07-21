@@ -62,7 +62,7 @@ public final class AgentTool {
 
 
     static String loadSystemPrompt() {
-        Path path = Path.of(AgentEnv.armyProjectPath().toString(), "army-test-example/army-test-coder/src/main/resources/prompt/Army.md");
+        Path path = Path.of(AgentEnv.armyProjectPath().toString(), "army-test-example/army-example-coder-data/src/main/resources/prompt/Army.md");
         try {
             return Files.readString(path, StandardCharsets.UTF_8);
         } catch (IOException e) {
