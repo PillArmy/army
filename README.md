@@ -121,21 +121,13 @@ Java `short`. Army picks the smallest Java type that can't overflow. You don't c
 
 All five MySQL unsigned integer types are first-class citizens:
 
-```java
-TINYINT_UNSIGNED   →Short .
-
-class       // 0 to 255
-SMALLINT_UNSIGNED  →Integer .
-
-class     // 0 to 65,535 (won't fit in short)
-MEDIUMINT_UNSIGNED →Integer .
-
-class     // 0 to 16,777,215
-INT_UNSIGNED       →Long .
-
-class        // 0 to 4,294,967,295 (won't fit in int)
-BIGINT_UNSIGNED    →BigInteger .class  // 0 to 2^64 − 1
-```
+| MySQL Type           | Java Type    | Range             | Why this type?            |
+|----------------------|--------------|-------------------|---------------------------|
+| `TINYINT UNSIGNED`   | `Short`      | 0 ~ 255           | 255 塞不进 `byte`（-128~127）  |
+| `SMALLINT UNSIGNED`  | `Integer`    | 0 ~ 65,535        | 65535 塞不进 `short`（±32767） |
+| `MEDIUMINT UNSIGNED` | `Integer`    | 0 ~ 16,777,215    | 还在 `int` 范围内              |
+| `INT UNSIGNED`       | `Long`       | 0 ~ 4,294,967,295 | 42 亿 塞不进 `int`（±21 亿）     |
+| `BIGINT UNSIGNED`    | `BigInteger` | 0 ~ 2^64 − 1      | 已超 `long` 上限              |
 
 #### 3. Results are plain POJOs — no state machine, no proxy, no `RecordN`
 
@@ -151,9 +143,9 @@ You can serialize it, cache it, pass it across threads — it's just data.
 
 **Army deliberately does NOT manage:**
 
-- Database connections → use HikariCP
-- Transactions → use Spring `@Transactional`
-- Caches → use Redis or Caffeine
+- Database connections → use your preferred connection pool
+- Transactions → use Spring `@Transactional` or JTA
+- Caches → use Redis, Caffeine, or your own
 - Schema migrations → use Flyway or Liquibase
 
 It's a type-safe SQL API. It does one thing and gets out of your way.
@@ -186,20 +178,17 @@ MySQL `SET` type → `EnumSet`.
 
 ---
 
-### PostgreSQL: the full type catalog, built in
+### PostgreSQL: first-class dialect support
 
-Army's `PgType` is a sealed enum covering the entire PostgreSQL type system — no plugins, no code-gen config, no
+Army's `PgType` enum covers PostgreSQL-specific types — no plugins, no code-gen config, no
 TypeHandler:
 
-| Category    | Types                                                                                                                                            |
-|-------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| Range (12)  | `INT4RANGE`, `INT8RANGE`, `NUMRANGE`, `TSRANGE`, `TSTZRANGE`, `DATERANGE`, plus 6 multirange variants                                            |
-| Array (40+) | `BOOLEAN_ARRAY`, `INTEGER_ARRAY`, `BIGINT_ARRAY`, `TEXT_ARRAY`, `UUID_ARRAY`, `JSONB_ARRAY`, ...                                                 |
-| Network     | `INET`, `CIDR`, `MACADDR`, `MACADDR8`                                                                                                            |
-| Geometric   | `POINT`, `LINE`, `LSEG`, `BOX`, `PATH`, `POLYGON`, `CIRCLE`                                                                                      |
-| Full-text   | `TSVECTOR`, `TSQUERY`                                                                                                                            |
-| pgvector    | `l2Distance`, `cosineDistance`, `hammingDistance`, `jaccardDistance`, `innerProduct`, `l1Distance` — all six as first-class expression operators |
-| Other       | `UUID` (→ `java.util.UUID`), `JSONB`, `JSONPATH`, `MONEY`, `PG_LSN`, `REF_CURSOR`, `RECORD`, ...                                                 |
+| Category   | Types                                                                                                                                            |
+|------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| Range (12) | `INT4RANGE`, `INT8RANGE`, `NUMRANGE`, `TSRANGE`, `TSTZRANGE`, `DATERANGE`, plus 6 multirange variants                                            |
+| Array (54) | `BOOLEAN_ARRAY`, `INTEGER_ARRAY`, `BIGINT_ARRAY`, `TEXT_ARRAY`, `UUID_ARRAY`, `JSONB_ARRAY`, ...                                                 |
+| pgvector   | `l2Distance`, `cosineDistance`, `hammingDistance`, `jaccardDistance`, `innerProduct`, `l1Distance` — all six as first-class expression operators |
+| Built-in   | `UUID` → `java.util.UUID`, `JSONB`                                                                                                               |
 
 ---
 
