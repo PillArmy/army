@@ -5,11 +5,12 @@
     <parent>
         <artifactId>army</artifactId>
         <groupId>io.qinarmy</groupId>
-        <version>0.6.8-SNAPSHOT</version><!--Army maven version-->
+        <version>0.6.7</version><!--Army maven version-->
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>army-example</artifactId>
+
 
     <url>https://github.com/PillArmy/army</url>
 
@@ -18,10 +19,13 @@
             <groupId>io.qinarmy</groupId>
             <artifactId>army-jdbc</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.qinarmy</groupId>
-            <artifactId>army-jdbd</artifactId>
-        </dependency>
+
+
+        <!--        <dependency>-->
+        <!--            <groupId>io.jdbd.mysql</groupId>-->
+        <!--            <artifactId>jdbd-mysql</artifactId>-->
+        <!--        </dependency>-->
+
         <dependency>
             <groupId>io.qinarmy</groupId>
             <artifactId>army-spring</artifactId>
@@ -95,10 +99,6 @@
 
         <!-- JDBD driver start -->
 
-        <dependency>
-            <groupId>io.jdbd.mysql</groupId>
-            <artifactId>jdbd-mysql</artifactId>
-        </dependency>
 
         <!--        <dependency>-->
         <!--            <groupId>io.jdbd</groupId>-->

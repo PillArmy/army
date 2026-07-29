@@ -209,8 +209,8 @@
     <div class="details">
         <span id="author" class="author">zoro&lt;zoro@qinarmy.io&gt;</span><br>
         <span id="email" class="email"><a href="mailto:zoro@qinarmy.io">zoro@qinarmy.io</a></span><br>
-        <span id="revnumber">version 0.6.8-SNAPSHOT,</span>
-        <span id="revdate">2026-06-13</span>
+        <span id="revnumber">version 0.6.7,</span>
+        <span id="revdate">2026-07-28</span>
         <br><span id="revremark">Snapshot</span>
     </div>
     <div id="toc" class="toc2">
@@ -1120,12 +1120,12 @@
     <span class="tag">&lt;dependency&gt;</span>
         <span class="tag">&lt;groupId&gt;</span>io.qinarmy<span class="tag">&lt;/groupId&gt;</span>
         <span class="tag">&lt;artifactId&gt;</span>army-jdbc<span class="tag">&lt;/artifactId&gt;</span>
-        <span class="tag">&lt;version&gt;</span>0.6.8-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+        <span class="tag">&lt;version&gt;</span>0.6.7<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;/dependency&gt;</span>
     <span class="tag">&lt;dependency&gt;</span>
         <span class="tag">&lt;groupId&gt;</span>io.qinarmy<span class="tag">&lt;/groupId&gt;</span>
         <span class="tag">&lt;artifactId&gt;</span>army-postgre<span class="tag">&lt;/artifactId&gt;</span>
-        <span class="tag">&lt;version&gt;</span>0.6.8-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+        <span class="tag">&lt;version&gt;</span>0.6.7<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;/dependency&gt;</span>
 <span class="tag">&lt;/dependencies&gt;</span></code></pre>
                         </div>
@@ -4023,7 +4023,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
                     Inference</h3>
                 <div class="paragraph">
                     <p>When a domain field has <strong>no</strong> <code>@Mapping</code> annotation, Army infers the
-                        <code>MappingType</code> from the field&#8217;s Java type via <code>io.army.criteria.impl._MappingFactory.getDefaultIfMatch()</code>.
+                        <code>MappingType</code> from the field&#8217;s Java type via <code>io.army.mapping._MappingFactory.getDefaultIfMatch()</code>.
                     </p>
                 </div>
                 <div class="sect3">
@@ -4681,7 +4681,7 @@ com.example.domain.LegacyData.Table.ddlMode=NONE</code></pre>
                     <p>The <code>army-example-stock-data</code> module contains a complete stock market application
                         demonstrating all mapping patterns discussed in this chapter.
                         Browse its <code>domain/</code> package to see real <code>@Mapping</code> usages across <code>Stock</code>,
-                        <code>StockQuotes</code>, <code>StockChatConversation</code>, <code>UploadRecord</code>, and
+                        <code>StockQuotes</code>, <code>CoderChatConversation</code>, <code>UploadRecord</code>, and
                         vector store entities.</p>
                 </div>
             </div>
@@ -19267,8 +19267,8 @@ envMap.put(ArmyKey.SQL_LOG_EXECUTION_TAKE_TIME.name, <span class="predefined-con
 </div>
 <div id="footer">
     <div id="footer-text">
-        Version 0.6.8-SNAPSHOT<br>
-        Last updated 2026-06-13 00:27:01 +0800
+        Version 0.6.7<br>
+        Last updated 2026-07-28 00:43:11 +0800
     </div>
 </div>
 </body>

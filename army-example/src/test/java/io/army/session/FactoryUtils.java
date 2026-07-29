@@ -25,8 +25,7 @@ import io.army.example.common.SimpleFieldGeneratorFactory;
 import io.army.example.util.FastJsonCodec;
 import io.army.util._Collections;
 import io.army.util._Exceptions;
-import io.jdbd.Driver;
-import io.jdbd.session.DatabaseSessionFactory;
+
 
 import java.util.Collections;
 import java.util.Map;
@@ -49,38 +48,38 @@ public abstract class FactoryUtils {
                 .build();
     }
 
-    public static ReactiveSessionFactory createArmyBankReactiveFactory(final Database database) {
-        final String url;
-        url = mapDatabaseToJdbdUrl(database);
-        final Map<String, Object> map = _Collections.hashMap();
-
-        map.put(Driver.USER, "army_w");
-        map.put(Driver.PASSWORD, "army123");
-        map.put("factoryWorkerCount", 10);
-
-        if (MyPaths.isMyLocal()) {
-            map.put("sslMode", "DISABLED");
-            map.put("allowLoadLocalInfile", Boolean.TRUE);
-        }
-
-
-        final DatabaseSessionFactory databaseSessionFactory;
-        databaseSessionFactory = Driver.findDriver(url).forDeveloper(url, map);
-
-        final ReactiveSessionFactory factory;
-        factory = ReactiveFactoryBuilder.builder()
-                .name(mapDatabaseToFactoryName(database))
-                .packagesToScan(Collections.singletonList("io.army.example.bank.domain"))
-                .datasource(databaseSessionFactory)
-                .environment(createEnvironment(database))
-                .fieldGeneratorFactory(new SimpleFieldGeneratorFactory())
-                .jsonCodec(FastJsonCodec.getInstance())
-                .build()
-                .block();
-
-        assert factory != null;
-        return factory;
-    }
+//    public static ReactiveSessionFactory createArmyBankReactiveFactory(final Database database) {
+//        final String url;
+//        url = mapDatabaseToJdbdUrl(database);
+//        final Map<String, Object> map = _Collections.hashMap();
+//
+//        map.put(Driver.USER, "army_w");
+//        map.put(Driver.PASSWORD, "army123");
+//        map.put("factoryWorkerCount", 10);
+//
+//        if (MyPaths.isMyLocal()) {
+//            map.put("sslMode", "DISABLED");
+//            map.put("allowLoadLocalInfile", Boolean.TRUE);
+//        }
+//
+//
+//        final DatabaseSessionFactory databaseSessionFactory;
+//        databaseSessionFactory = Driver.findDriver(url).forDeveloper(url, map);
+//
+//        final ReactiveSessionFactory factory;
+//        factory = ReactiveFactoryBuilder.builder()
+//                .name(mapDatabaseToFactoryName(database))
+//                .packagesToScan(Collections.singletonList("io.army.example.bank.domain"))
+//                .datasource(databaseSessionFactory)
+//                .environment(createEnvironment(database))
+//                .fieldGeneratorFactory(new SimpleFieldGeneratorFactory())
+//                .jsonCodec(FastJsonCodec.getInstance())
+//                .build()
+//                .block();
+//
+//        assert factory != null;
+//        return factory;
+//    }
 
 
     private static ArmyEnvironment createEnvironment(final Database database) {

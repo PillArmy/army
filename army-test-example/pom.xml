@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.qinarmy</groupId>
         <artifactId>army</artifactId>
-        <version>0.6.8-SNAPSHOT</version><!--Army maven version-->
+        <version>0.6.7</version><!--Army maven version-->
     </parent>
 
     <artifactId>army-test-example</artifactId>
@@ -18,7 +18,6 @@
         <module>army-test-coder</module>
         <module>army-example-coder-domain</module>
         <module>army-example-coder-data</module>
-        <module>army-test-agent-scope</module>
     </modules>
 
     <properties>
@@ -58,21 +57,5 @@
         </dependencies>
     </dependencyManagement>
 
-    <profiles>
-        <profile>
-            <id>ossrh-army</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <configuration>
-                            <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
 </project>

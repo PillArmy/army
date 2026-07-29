@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.qinarmy</groupId>
         <artifactId>army-test-example</artifactId>
-        <version>0.6.8-SNAPSHOT</version><!--Army maven version-->
+        <version>0.6.7</version><!--Army maven version-->
     </parent>
 
     <artifactId>army-type-test</artifactId>
@@ -202,13 +202,6 @@
                         </configuration>
                     </plugin>
 
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <configuration>
-                            <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
-                        </configuration>
-                    </plugin>
                 </plugins>
             </build>
         </profile>

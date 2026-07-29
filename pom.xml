@@ -8,7 +8,7 @@
     <groupId>io.qinarmy</groupId>
     <artifactId>army</artifactId>
     <packaging>pom</packaging>
-    <version>0.6.8-SNAPSHOT</version><!--Army maven version-->
+    <version>0.6.7</version><!--Army maven version-->
     <!-- SNAPSHOT  -->
     <modules>
         <module>army-core</module>
@@ -47,8 +47,9 @@
         </developer>
     </developers>
 
-    <scm><!-- see https://maven.apache.org/scm/git.html  -->
-        <connection>scm:git:https://github.com/PillArmy/army</connection>
+    <scm>
+        <connection>scm:git:git://github.com:PillArmy/army.git</connection>
+        <developerConnection>scm:git:ssh://github.com:PillArmy/army.git</developerConnection>
         <url>https://github.com/PillArmy/army</url>
     </scm>
 
@@ -454,7 +455,7 @@
             </dependency>
             <dependency>
 
-            <groupId>com.zaxxer</groupId>
+                <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
                 <version>4.0.3</version>
             </dependency>
@@ -598,21 +599,26 @@
     <profiles>
         <profile>
             <id>ossrh-army</id>
+            <properties>
+                <central.publishing.skip>false</central.publishing.skip>
+            </properties>
+
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.12.0</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
+                    <!--                    <plugin>-->
+                    <!--                        <groupId>org.apache.maven.plugins</groupId>-->
+                    <!--                        <artifactId>maven-javadoc-plugin</artifactId>-->
+                    <!--                        <version>3.12.0</version>-->
+                    <!--                        <executions>-->
+                    <!--                            <execution>-->
+                    <!--                                <id>attach-javadocs</id>-->
+                    <!--                                <goals>-->
+                    <!--                                    <goal>jar</goal>-->
+                    <!--                                </goals>-->
+                    <!--                            </execution>-->
+                    <!--                        </executions>-->
+                    <!--                    </plugin>-->
+
                     <plugin>
                         <groupId>org.asciidoctor</groupId>
                         <artifactId>asciidoctor-maven-plugin</artifactId>
@@ -679,6 +685,7 @@
                             <!--                            </execution>-->
                         </executions>
                     </plugin>
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -700,31 +707,21 @@
                             </execution>
                         </executions>
                     </plugin>
+
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.13</version>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.11.0</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                            <stagingProgressTimeoutMinutes>50</stagingProgressTimeoutMinutes>
+                            <publishingServerId>ossrh</publishingServerId>
+                            <autoPublish>false</autoPublish>
                         </configuration>
                     </plugin>
 
                 </plugins>
+
             </build>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>ossrh</id>
-                    <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository>
-                <repository>
-                    <id>ossrh</id>
-                    <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-            </distributionManagement>
         </profile>
     </profiles>
 </project>
