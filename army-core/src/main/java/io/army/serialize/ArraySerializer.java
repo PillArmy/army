@@ -19,6 +19,7 @@ package io.army.serialize;
 
 import java.util.function.BiConsumer;
 
+/// Serializes Java arrays to SQL array literal strings.
 /// @see ArrayDeserializer
 public interface ArraySerializer {
 

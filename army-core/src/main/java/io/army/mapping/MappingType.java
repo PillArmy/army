@@ -60,10 +60,15 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem
 
 
     /// Create an array mapping type for this element type.
+    /// @return the array mapping type, never null
     MappingType arrayTypeOfThis() throws CriteriaException;
 
     /// Find a compatible mapping type for the given data type and target Java type.
     ///
+    /// @param <Z> the target Java type
+    /// @param dataType the SQL data type to match
+    /// @param targetType the desired target Java class
+    /// @return the compatible mapping type, never null
     /// @throws NoMatchMappingException if no compatible mapping found
     <Z> MappingType compatibleFor(final DataType dataType, final Class<Z> targetType)
             throws NoMatchMappingException;
@@ -145,11 +150,13 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem
 
     }
 
+    /// Marker interface for SQL JSONB type mapping.
     /// @see JsonbMappingType
     interface SqlJsonb extends SqlDocument {
 
     }
 
+    /// Marker interface for SQL XML type mapping.
     /// @see XmlMappingType
     interface SqlXml extends SqlDocument {
 
@@ -215,6 +222,7 @@ public sealed interface MappingType extends TypeMeta, TypeInfer, TypeItem
 
     }
 
+    /// Marker interface for SQL array type mapping.
     /// @see ArrayMappingType
     interface SqlArray {
 

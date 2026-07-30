@@ -22,6 +22,7 @@ import io.army.function.TextToIntFunc;
 import io.army.lang.Nullable;
 import io.army.mapping.MappingType;
 
+/// Deserializes SQL array literal strings back to Java arrays.
 /// @see ArraySerializer
 public interface ArrayDeserializer extends Deserializer {
 

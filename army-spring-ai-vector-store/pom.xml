@@ -9,6 +9,7 @@
         <version>0.6.7</version><!--Army maven version-->
     </parent>
 
+    <name>army-spring-ai-vector-store</name>
     <artifactId>army-spring-ai-vector-store</artifactId>
 
 

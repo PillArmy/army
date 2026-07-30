@@ -16,6 +16,7 @@
 
 package io.army.mapping;
 
+/// Structured mapping type for SQL JSON fields.
 /// @see io.army.meta.JsonFieldMeta
 public non-sealed interface JsonMappingType extends StructMappingType, MappingType.SqlJson {
 

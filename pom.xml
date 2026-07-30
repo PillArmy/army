@@ -345,6 +345,8 @@
                 <version>${mysql.version}</version>
             </dependency>
 
+            <!-- SNAPSHOT versions not allowed in published dependencyManagement -->
+            <!--
             <dependency>
                 <groupId>io.jdbd</groupId>
                 <artifactId>jdbd-spi</artifactId>
@@ -356,6 +358,7 @@
                 <artifactId>jdbd-mysql</artifactId>
                 <version>${jdbd.mysql.version}</version>
             </dependency>
+            -->
 
             <dependency>
                 <groupId>io.milvus</groupId>
@@ -605,19 +608,29 @@
 
             <build>
                 <plugins>
-                    <!--                    <plugin>-->
-                    <!--                        <groupId>org.apache.maven.plugins</groupId>-->
-                    <!--                        <artifactId>maven-javadoc-plugin</artifactId>-->
-                    <!--                        <version>3.12.0</version>-->
-                    <!--                        <executions>-->
-                    <!--                            <execution>-->
-                    <!--                                <id>attach-javadocs</id>-->
-                    <!--                                <goals>-->
-                    <!--                                    <goal>jar</goal>-->
-                    <!--                                </goals>-->
-                    <!--                            </execution>-->
-                    <!--                        </executions>-->
-                    <!--                    </plugin>-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.12.0</version>
+                        <configuration>
+                            <doclint>-missing,-reference</doclint>
+                            <additionalDependencies>
+                                <additionalDependency>
+                                    <groupId>io.qinarmy</groupId>
+                                    <artifactId>army-array</artifactId>
+                                    <version>${project.version}</version>
+                                </additionalDependency>
+                            </additionalDependencies>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
 
                     <plugin>
                         <groupId>org.asciidoctor</groupId>
@@ -715,7 +728,7 @@
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>ossrh</publishingServerId>
-                            <autoPublish>false</autoPublish>
+                            <autoPublish>true</autoPublish>
                         </configuration>
                     </plugin>
 

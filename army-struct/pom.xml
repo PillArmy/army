@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>army-struct</name>
     <artifactId>army-struct</artifactId>
     <url>https://github.com/PillArmy/army</url>
 

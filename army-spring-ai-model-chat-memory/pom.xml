@@ -9,6 +9,7 @@
         <version>0.6.7</version><!--Army maven version-->
     </parent>
 
+    <name>army-spring-ai-model-chat-memory</name>
     <artifactId>army-spring-ai-model-chat-memory</artifactId>
 
 

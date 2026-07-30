@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>army-mysql</name>
     <artifactId>army-mysql</artifactId>
 
     <description>Army mysql module,provide mysql dialect api and dialect parser.</description>

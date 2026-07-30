@@ -16,6 +16,7 @@
 
 package io.army.mapping;
 
+/// Structured mapping type for SQL array fields.
 /// @see io.army.meta.ArrayFieldMeta
 public non-sealed interface ArrayMappingType extends StructMappingType, MappingType.SqlArray {
 

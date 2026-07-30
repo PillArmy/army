@@ -108,10 +108,13 @@ abstract non-sealed class ArmyParser implements DialectParser {
     /// The database of the dialect.
     protected final Database dialectDatabase;
 
+    /// The server-side database metadata.
     protected final Database serverDatabase;
 
+    /// The mapping environment for type resolution.
     protected final MappingEnv mappingEnv;
 
+    /// The server metadata for the current session.
     protected final ServerMeta serverMeta;
 
     final ArmyEnvironment env;
@@ -124,6 +127,7 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
     private final LiteralHandler literalHandler;
 
+    /// The escape mode for string literals.
     protected final EscapeMode literalEscapeMode;
 
     /// The escape mode for SQL identifiers.
@@ -132,8 +136,10 @@ abstract non-sealed class ArmyParser implements DialectParser {
     final boolean mockEnv;
 
 
+    /// The quote character used for SQL identifiers.
     public final char identifierQuote;
 
+    /// Whether unrecognized types are allowed without error.
     protected final boolean unrecognizedTypeAllowed;
 
     final boolean supportSingleUpdateAlias;
@@ -580,12 +586,19 @@ abstract non-sealed class ArmyParser implements DialectParser {
     abstract char identifierDelimitedQuote();
 
 
+    /// Returns the child update mode for this dialect.
+    ///
+    /// @return the child update mode
     protected abstract ChildUpdateMode childUpdateMode();
 
 
     protected abstract void validateUnionType(_UnionType unionType);
 
 
+    /// Creates a mapping handler for type conversion within this dialect.
+    ///
+    /// @param env the dialect environment
+    /// @return the mapping handler
     protected MappingHandler createTypeMappingHandler(DialectEnv env) {
         throw new UnsupportedOperationException();
     }
@@ -735,12 +748,18 @@ abstract non-sealed class ArmyParser implements DialectParser {
     }
 
 
+    /// Appends the type name for an array of the given dimension.
+    ///
+    /// @param dimension  the array dimension
+    /// @param sqlBuilder the builder to append to
     protected void arrayTypeName(int dimension, StringBuilder sqlBuilder) {
         String m = String.format("%s don't support array", this.dialectDatabase.name());
         throw new MetaException(m);
     }
 
 
+    /// Creates the DDL parser for this dialect.
+    /// @return the DDL parser
     protected abstract DdlParser createDdlDialect();
 
     /// @param childStmt not {@link StandardInsert}
@@ -750,25 +769,40 @@ abstract non-sealed class ArmyParser implements DialectParser {
     protected abstract CriteriaException supportChildInsert(_Insert._ChildInsert childStmt, Visible visible);
 
 
+    /// Asserts that this dialect supports the given insert statement.
+    ///
+    /// @param insert the insert statement to validate
     protected void assertInsert(InsertStatement insert) {
         throw standardParserDontSupportDialect(this.dialect);
     }
 
+    /// Asserts that this dialect supports update syntax.
     /// @see #update(UpdateStatement, boolean, SessionSpec)
+    /// @param update the update statement to validate
     protected void assertUpdate(UpdateStatement update) {
         throw standardParserDontSupportDialect(this.dialect);
     }
 
 
+    /// Formats the generated SQL for readability.
+    ///
+    /// @param sql      the raw SQL string
+    /// @param appender the consumer to receive the beautified SQL
     protected void beautifySql(String sql, Consumer<String> appender) {
         //currently, dont' support beatify sql
         appender.accept(sql);
     }
 
+    /// Asserts that this dialect supports the given delete statement.
+    ///
+    /// @param delete the delete statement to validate
     protected void assertDelete(DeleteStatement delete) {
         throw standardParserDontSupportDialect(this.dialect);
     }
 
+    /// Asserts that this dialect supports the given row set query.
+    ///
+    /// @param query the row set query to validate
     protected void assertRowSet(RowSet query) {
         throw standardParserDontSupportDialect(this.dialect);
     }
@@ -889,37 +923,78 @@ abstract non-sealed class ArmyParser implements DialectParser {
     }
 
 
+    /// Creates a single-table update context.
+    ///
+    /// @param outerContext the outer SQL context, or null
+    /// @param stmt         the single update statement
+    /// @param sessionSpec  the session specification
+    /// @return the single update context
     protected final _SingleUpdateContext createSingleUpdateContext(final @Nullable _SqlContext outerContext,
                                                                    final _SingleUpdate stmt, final SessionSpec sessionSpec) {
         return SingleUpdateContext.create(outerContext, stmt, this, sessionSpec);
     }
 
 
+    /// Creates a joinable update context for CTE usage.
+    ///
+    /// @param withContext the WITH clause context
+    /// @param stmt        the single update statement
+    /// @return the joinable update context
     protected final _SingleUpdateContext createJoinableUpdateContextForCte(_SqlContext withContext, _SingleUpdate stmt) {
         return SingleJoinableUpdateContext.forCte(withContext, stmt);
     }
 
 
+    /// Creates a joinable delete context for CTE usage.
+    ///
+    /// @param withContext the WITH clause context
+    /// @param stmt        the single delete statement
+    /// @return the joinable delete context
     protected final _SingleDeleteContext createJoinableDeleteContextForCte(_SqlContext withContext, _SingleDelete stmt) {
         return SingleJoinableDeleteContext.forCte(withContext, stmt);
     }
 
+    /// Creates a multi-table update context for child relationships.
+    ///
+    /// @param outerContext the outer SQL context, or null
+    /// @param stmt         the single update statement
+    /// @param sessionSpec  the session specification
+    /// @return the multi update context
     protected final _MultiUpdateContext createMultiUpdateContext(final @Nullable _SqlContext outerContext
             , final _SingleUpdate stmt, final SessionSpec sessionSpec) {
         return MultiUpdateContext.forChild(outerContext, stmt, this, sessionSpec);
     }
 
+    /// Creates a multi-table delete context for child relationships.
+    ///
+    /// @param outerContext the outer SQL context, or null
+    /// @param stmt         the single delete statement
+    /// @param sessionSpec  the session specification
+    /// @return the multi delete context
     protected final _MultiDeleteContext createMultiDeleteContext(final @Nullable _SqlContext outerContext
             , final _SingleDelete stmt, final SessionSpec sessionSpec) {
         return MultiDeleteContext.forChild(outerContext, stmt, this, sessionSpec);
     }
 
+    /// Creates a context for other DML statements found during expansion.
+    ///
+    /// @param outerContext the outer SQL context, or null
+    /// @param predicate    a filter predicate for field selection
+    /// @param sessionSpec  the session specification
+    /// @return the other DML context
     protected final _OtherDmlContext createOtherDmlContext(final @Nullable _SqlContext outerContext,
                                                            final Predicate<FieldMeta<?>> predicate,
                                                            final SessionSpec sessionSpec) {
         return OtherDmlContext.create(outerContext, predicate, this, sessionSpec);
     }
 
+    /// Creates a context for other DQL statements found during expansion.
+    ///
+    /// @param outerContext   the outer SQL context, or null
+    /// @param selectionList  the list of selections
+    /// @param predicate      a filter predicate for field selection
+    /// @param sessionSpec    the session specification
+    /// @return the other DQL context
     protected final _OtherDqlContext createOtherDqlContext(@Nullable _SqlContext outerContext,
                                                            List<? extends Selection> selectionList,
                                                            Predicate<FieldMeta<?>> predicate,
@@ -928,16 +1003,34 @@ abstract non-sealed class ArmyParser implements DialectParser {
     }
 
 
+    /// Creates a context for DECLARE CURSOR statements.
+    ///
+    /// @param outerContext the outer SQL context, or null
+    /// @param stmt         the DECLARE CURSOR statement
+    /// @param sessionSpec  the session specification
+    /// @return the cursor statement context
     protected final _CursorStmtContext createDeclareCursorContext(@Nullable _SqlContext outerContext, _DeclareCursor stmt,
                                                                   SessionSpec sessionSpec) {
         return DeclareCursorContext.create(outerContext, stmt, this, sessionSpec);
     }
 
+    /// Creates a joinable MERGE context.
+    ///
+    /// @param outerContext the outer SQL context, or null
+    /// @param stmt         the MERGE statement
+    /// @param sessionSpec  the session specification
+    /// @return the joinable merge context
     protected final _JoinableMergeContext createJoinableMergeContext(@Nullable _SqlContext outerContext, _Merge stmt,
                                                                      SessionSpec sessionSpec) {
         return JoinableMergeContext.create(outerContext, stmt, this, sessionSpec);
     }
 
+    /// Creates a child DML context inheriting from a parent.
+    ///
+    /// @param outerContext  the outer SQL context, or null
+    /// @param predicate     a filter predicate for field selection
+    /// @param parentContext the parent DML context
+    /// @return the child DML context
     protected final _OtherDmlContext createOtherDmlContext(final @Nullable _SqlContext outerContext,
                                                            final Predicate<FieldMeta<?>> predicate,
                                                            final _OtherDmlContext parentContext) {
@@ -970,6 +1063,11 @@ abstract non-sealed class ArmyParser implements DialectParser {
     }
 
 
+    /// Appends the SET clause for ON CONFLICT (or equivalent) in INSERT statements.
+    ///
+    /// @param context       the insert context
+    /// @param conflictWords the conflict resolution keywords (e.g. ON CONFLICT / ON DUPLICATE KEY)
+    /// @param itemPairList  the list of column=value pairs to set on conflict
     protected final void appendInsertConflictSetClause(final _InsertContext context, final String conflictWords,
                                                        final List<_ItemPair> itemPairList) {
         final int pairSize;
@@ -1603,6 +1701,12 @@ abstract non-sealed class ArmyParser implements DialectParser {
     }
 
 
+    /// Appends the join condition linking a child table to its parent.
+    ///
+    /// @param safeParentTableAlias the safe alias for the parent table
+    /// @param builder              the SQL builder to append to
+    /// @param safeChildTableAlias  the safe alias for the child table
+    /// @param child                the child table metadata
     protected final void appendChildJoinParent(String safeParentTableAlias, final StringBuilder builder,
                                                final String safeChildTableAlias, final ChildTableMeta<?> child) {
         final ParentTableMeta<?> parent = child.parentMeta();
@@ -1885,6 +1989,9 @@ abstract non-sealed class ArmyParser implements DialectParser {
 
     }
 
+    /// Appends the WHERE clause for domain CTE child tables.
+    ///
+    /// @param predicateList the list of predicates to append
     /// @param context must be instance of {@link DomainDmlStmtContext}
     protected final void childDomainCteWhereClause(final List<_Predicate> predicateList,
                                                    final _DmlContext context) {
@@ -1944,6 +2051,9 @@ abstract non-sealed class ArmyParser implements DialectParser {
         return count;
     }
 
+    /// Appends a WHERE clause that filters by parent key for child tables.
+    ///
+    /// @param childContext the child table context
     protected final void appendParentVisible(final _SingleTableContext childContext) {
         assert this.childUpdateMode == ChildUpdateMode.WITH_ID;
 
@@ -1969,6 +2079,12 @@ abstract non-sealed class ArmyParser implements DialectParser {
     }
 
 
+    /// Appends SET clauses for update_time and version columns.
+    ///
+    /// @param table           the table metadata
+    /// @param safeTableAlias  the safe table alias, or null
+    /// @param context         the update context
+    /// @param firstItem       whether this is the first SET item (controls comma insertion)
     /// @see #singleTableSetClause(List, _SingleUpdateContext)
     /// @see #multiTableSetClause(_MultiUpdate, _MultiUpdateContext)
     /// @see #parseDomainParentUpdateWithId(_DomainUpdate, _Predicate, DomainUpdateContext)

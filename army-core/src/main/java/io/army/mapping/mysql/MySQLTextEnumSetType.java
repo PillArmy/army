@@ -33,7 +33,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-/// @see <a href="https://dev.mysql.com/doc/refman/9.7/en/set.html">SET</a>
+/// MySQL text-based ENUM/SET mapping type.
+///
+/// @see [MySQL SET type](https://dev.mysql.com/doc/refman/9.7/en/set.html)
 @SuppressWarnings("unused")
 public final class MySQLTextEnumSetType extends _ArmyBuildInType implements UnaryGenericsMapping {
 

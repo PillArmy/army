@@ -22,6 +22,7 @@ public interface TypeInfer extends Item {
 
 
     /// Returns the type metadata for this inferable expression.
+    /// @return the type metadata, never null
     TypeMeta typeMeta();
 
 

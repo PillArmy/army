@@ -22,6 +22,7 @@ import java.util.List;
 public interface _AliasDerivedBlock extends _TabularBlock, _SelectionMap {
 
     /// Returns the list of column aliases for this derived block.
+    /// @return the list of column aliases, never null
     List<String> columnAliasList();
 
 }

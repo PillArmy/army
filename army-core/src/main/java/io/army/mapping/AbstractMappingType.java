@@ -562,6 +562,10 @@ abstract sealed class AbstractMappingType implements MappingType
 
     /*-------------------below static methods -------------------*/
 
+    /// Creates a MetaException when array element type does not match underlying type.
+    ///
+    /// @param type the mapping type whose array element and underlying types disagree
+    /// @return a MetaException describing the mismatch
     public static MetaException arrayUnderlyingTypeElementTypeNotMatch(final MappingType type) {
         final Class<?> elementType, underlyingType;
         elementType = ((UnaryGenericsMapping) type).genericsType();
@@ -576,6 +580,11 @@ abstract sealed class AbstractMappingType implements MappingType
 
 
     /// Creates a NoMatchMappingException when compatible mapping is not found.
+    ///
+    /// @param type         the mapping type that could not be matched
+    /// @param dataType     the SQL data type being matched
+    /// @param targetJavaType the target Java type that was requested
+    /// @return a NoMatchMappingException describing the mismatch
     protected static NoMatchMappingException noMatchCompatibleMapping(MappingType type, DataType dataType, Class<?> targetJavaType) {
         String m = String.format("%s not found match %s for DataType[%s] javaType[%s]", type, MappingType.class.getName(),
                 dataType.typeName(), targetJavaType.getName());
@@ -583,6 +592,9 @@ abstract sealed class AbstractMappingType implements MappingType
     }
 
     /// Creates a CriteriaException indicating this type does not support array types.
+    ///
+    /// @param type the mapping type that does not support arrays
+    /// @return a CriteriaException with the error details
     protected static CriteriaException dontSupportArrayType(MappingType type) {
         String m = String.format("%s don't support array type.", type);
         return new CriteriaException(m);
@@ -590,6 +602,9 @@ abstract sealed class AbstractMappingType implements MappingType
 
 
     /// Creates an UnsupportedDialectException for missing server mapping (deprecated).
+    ///
+    /// @param serverMeta the server metadata for which no mapping exists
+    /// @return a new exception for the missing mapping
     @Deprecated
     protected final UnsupportedDialectException noMappingError(ServerMeta serverMeta) {
         String m = String.format("No mapping from java type[%s] to Server[%s]", javaType(), serverMeta);
@@ -597,6 +612,10 @@ abstract sealed class AbstractMappingType implements MappingType
     }
 
     /// Creates an IllegalArgumentException for unsupported Java type.
+    ///
+    /// @param mappingMetaClass the mapping meta class that does not support the type
+    /// @param javaType         the unsupported Java type
+    /// @return an IllegalArgumentException with the error details
     protected static IllegalArgumentException errorJavaType(
             Class<? extends MappingType> mappingMetaClass, Class<?> javaType) {
         return new IllegalArgumentException(
@@ -609,6 +628,12 @@ abstract sealed class AbstractMappingType implements MappingType
     }
 
     /// Creates a CriteriaException for parameter binding errors.
+    ///
+    /// @param type     the mapping type that encountered the error
+    /// @param dataType the SQL data type involved (unused, reserved for future use)
+    /// @param source   the source value that caused the error
+    /// @param cause    the underlying cause, or null
+    /// @return a CriteriaException describing the parameter error
     public static CriteriaException paramError(final MappingType type, DataType dataType,
                                                final Object source, final @Nullable Throwable cause) {
         final CriteriaException e;
@@ -622,6 +647,12 @@ abstract sealed class AbstractMappingType implements MappingType
 
 
     /// Creates a DataAccessException for data access errors.
+    ///
+    /// @param type     the mapping type that encountered the error
+    /// @param dataType the SQL data type involved (unused, reserved for future use)
+    /// @param source   the source value that caused the error
+    /// @param cause    the underlying cause, or null
+    /// @return a DataAccessException describing the error
     public static DataAccessException dataAccessError(final MappingType type, DataType dataType,
                                                       final Object source, final @Nullable Throwable cause) {
         final DataAccessException e;
@@ -638,6 +669,10 @@ abstract sealed class AbstractMappingType implements MappingType
     }
 
     /// Creates an UnsupportedDialectException for unsupported mapping type.
+    ///
+    /// @param type the mapping type that is not supported
+    /// @param meta the server metadata for which the type is unsupported
+    /// @return a new exception for the unsupported mapping
     public static UnsupportedDialectException mapError(final MappingType type, final ServerMeta meta) {
         String m = String.format("%s don't support %s", type, meta);
         return new UnsupportedDialectException(m);

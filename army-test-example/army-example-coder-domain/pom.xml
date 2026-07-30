@@ -9,6 +9,12 @@
         <version>0.6.7</version><!--Army maven version-->
     </parent>
 
+    <name>army-example-coder-domain</name>
+
+    <properties>
+        <central.publishing.skip>true</central.publishing.skip>
+    </properties>
+
     <artifactId>army-example-coder-domain</artifactId>
 
     <dependencies>
@@ -60,6 +66,14 @@
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <configuration>
                             <skip>true</skip>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <configuration>
+                            <skipPublishing>true</skipPublishing>
                         </configuration>
                     </plugin>
 

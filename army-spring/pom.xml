@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>army-spring</name>
     <artifactId>army-spring</artifactId>
 
     <description>Army spring module for integrating spring framework</description>

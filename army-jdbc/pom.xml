@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>army-jdbc</name>
     <artifactId>army-jdbc</artifactId>
 
     <description>Army jdbc module,provide jdbc executor.</description>

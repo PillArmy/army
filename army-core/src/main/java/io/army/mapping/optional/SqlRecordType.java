@@ -38,8 +38,7 @@ import java.util.Objects;
 
 /// This class mapping List to database record (for example : postgre record ,oid : 2249)
 /// @see io.army.type.SqlRecord
-/// @see io.army.mapping.array.SqlRecordArrayType
-/// @see <a href="https://www.postgresql.org/docs/current/catalog-pg-type.html">Postgre pg_type table ,oid : 2249</a>
+/// @see [Postgre pg_type table ,oid : 2249](https://www.postgresql.org/docs/current/catalog-pg-type.html)
 public final class SqlRecordType extends _SqlRecordSupport implements MappingType.SqlRecord {
 
     public static SqlRecordType fromColumn(final MappingType columnType) {

@@ -9,6 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>army-example</name>
+
+    <properties>
+        <central.publishing.skip>true</central.publishing.skip>
+    </properties>
+
     <artifactId>army-example</artifactId>
 
 
@@ -235,12 +241,13 @@
                     </plugin>
 
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
                         <configuration>
-                            <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+                            <skipPublishing>true</skipPublishing>
                         </configuration>
                     </plugin>
+
                 </plugins>
             </build>
         </profile>

@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>army-sync</name>
     <artifactId>army-sync</artifactId>
 
     <description>Army blocking session module</description>

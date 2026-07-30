@@ -16,6 +16,7 @@
 
 package io.army.mapping;
 
+/// Structured mapping type for SQL XML fields.
 /// @see io.army.meta.XmlFieldMeta
 public non-sealed interface XmlMappingType extends StructMappingType, MappingType.SqlXml {
 }

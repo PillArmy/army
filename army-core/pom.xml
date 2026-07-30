@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>army-core</name>
     <artifactId>army-core</artifactId>
 
     <description>Army code module,provide standard criteria api etc.</description>

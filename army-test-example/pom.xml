@@ -9,6 +9,13 @@
         <version>0.6.7</version><!--Army maven version-->
     </parent>
 
+    <name>army-test-example</name>
+
+    <properties>
+        <central.publishing.skip>true</central.publishing.skip>
+        <agentscope.version>2.0.0</agentscope.version>
+    </properties>
+
     <artifactId>army-test-example</artifactId>
     <packaging>pom</packaging>
     <modules>
@@ -19,10 +26,6 @@
         <module>army-example-coder-domain</module>
         <module>army-example-coder-data</module>
     </modules>
-
-    <properties>
-        <agentscope.version>2.0.0</agentscope.version>
-    </properties>
 
 
     <dependencyManagement>
@@ -57,5 +60,21 @@
         </dependencies>
     </dependencyManagement>
 
+    <profiles>
+        <profile>
+            <id>ossrh-army</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <configuration>
+                            <skipPublishing>true</skipPublishing>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

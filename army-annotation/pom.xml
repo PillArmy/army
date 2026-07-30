@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>army-annotation</name>
     <artifactId>army-annotation</artifactId>
 
     <description>Army annotation module,provide io.army.modelgen.ArmyMetaModelDomainProcessor etc.</description>

@@ -111,9 +111,13 @@ public sealed interface DialectParser permits ArmyParser {
 
     String identifier(String identifier);
 
+    /// Quotes an object name for safe use in SQL.
+    ///
     /// @param object one of below:
     /// - {@link io.army.meta.CompositeField}
     /// - {@link io.army.sqltype.DataType}
+    /// @param builder the target builder to append the bounded name to
+    /// @return the same builder instance for chaining
     StringBuilder safeBoundedObjectName(DatabaseObject object, StringBuilder builder);
 
     void typeName(MappingType type, StringBuilder sqlBuilder);

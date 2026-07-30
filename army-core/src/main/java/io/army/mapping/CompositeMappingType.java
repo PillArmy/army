@@ -16,9 +16,10 @@
 
 package io.army.mapping;
 
-/// @see <a href="https://www.postgresql.org/docs/current/rowtypes.html">Composite Types</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-createtype.html">CREATE TYPE</a>
-/// @see <a href="https://www.postgresql.org/docs/current/sql-altertype.html">ALTER TYPE</a>
+/// Structured mapping type for PostgreSQL composite (row) types.
+/// @see [Composite Types](https://www.postgresql.org/docs/current/rowtypes.html)
+/// @see [CREATE TYPE](https://www.postgresql.org/docs/current/sql-createtype.html)
+/// @see [ALTER TYPE](https://www.postgresql.org/docs/current/sql-altertype.html)
 /// @see io.army.meta.CompositeFieldMeta
 public non-sealed interface CompositeMappingType extends StructMappingType, MappingType.SqlComposite {
 

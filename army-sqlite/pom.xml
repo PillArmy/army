@@ -9,6 +9,7 @@
         <version>0.6.7</version><!--Army maven version-->
     </parent>
 
+    <name>army-sqlite</name>
     <artifactId>army-sqlite</artifactId>
 
     <description>Army sqlite module,provide sqlite dialect api and dialect parser.</description>

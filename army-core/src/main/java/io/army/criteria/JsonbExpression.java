@@ -16,6 +16,7 @@
 
 package io.army.criteria;
 
+/// Expression type for JSONB fields in criteria building.
 /// @see JsonExpression
 public interface JsonbExpression extends TypedExpression {
 

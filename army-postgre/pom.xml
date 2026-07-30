@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>army-postgre</name>
     <artifactId>army-postgre</artifactId>
     <description>Army postgre module,provide postgre dialect api and dialect parser.</description>
     <url>https://github.com/PillArmy/army</url>

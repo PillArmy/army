@@ -19,6 +19,10 @@ package io.army.dialect;
 /// Base class for dialect-specific SQL parsers extending {@link ArmyParser}.
 public abstract class _ArmyDialectParser extends ArmyParser {
 
+    /// Protected constructor accepting dialect environment and dialect.
+    ///
+    /// @param dialectEnv the dialect environment
+    /// @param dialect    the dialect instance
    protected _ArmyDialectParser(DialectEnv dialectEnv, Dialect dialect) {
        super(dialectEnv, dialect);
        assert this.getClass().getPackage().getName().startsWith("io.army.dialect");

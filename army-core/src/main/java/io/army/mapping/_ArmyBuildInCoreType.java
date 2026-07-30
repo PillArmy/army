@@ -23,8 +23,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/// Internal base class for core mapping types.
 public abstract class _ArmyBuildInCoreType extends _ArmyBuildInType {
 
+    /// Protected constructor; verifies subclass is in the allowed package.
     protected _ArmyBuildInCoreType() {
 
         final String thisPackageName = this.getClass().getPackageName();
@@ -45,23 +47,43 @@ public abstract class _ArmyBuildInCoreType extends _ArmyBuildInType {
     private static final ConcurrentMap<Class<?>, TeClassFunc> fromTypeArgsFuncMap = new ConcurrentHashMap<>();
 
 
+    /// Registers a single-arg function for creating array types.
+    ///
+    /// @param javaType the mapping type class
+    /// @param function the factory function
     protected static void addArrayFromFunc(Class<? extends MappingType> javaType, Function<Class<?>, MappingType> function) {
         fromMap.put(javaType, function);
     }
 
+    /// Registers a two-arg (class, string param) function for creating array types.
+    ///
+    /// @param javaType the mapping type class
+    /// @param function the factory function
     protected static void addArrayFromParamFunc(Class<? extends MappingType> javaType, BiFunction<Class<?>, String, MappingType> function) {
         fromParamFuncMap.put(javaType, function);
     }
 
+    /// Registers a two-arg (class, type-arg) function for creating array types.
+    ///
+    /// @param javaType the mapping type class
+    /// @param function the factory function
     protected static void addArrayFromTypeArgFunc(Class<? extends MappingType> javaType, BiFunction<Class<?>, Class<?>, MappingType> function) {
         fromTypeArgFuncMap.put(javaType, function);
     }
 
+    /// Registers a multi-type-arg function for creating array types.
+    ///
+    /// @param javaType the mapping type class
+    /// @param function the factory function
     protected static void addArrayFromTypeArgsFunc(Class<? extends MappingType> javaType, TeClassFunc function) {
         fromTypeArgsFuncMap.put(javaType, function);
     }
 
 
+    /// Removes and returns the single-arg array factory function for the given type.
+    ///
+    /// @param javaType the mapping type class
+    /// @return the factory function, or a null-returning fallback
     protected static Function<Class<?>, MappingType> removeArrayFromFunc(Class<? extends MappingType> javaType) {
         Function<Class<?>, MappingType> function;
         function = doRemoveFunc(javaType, fromMap, "from");
@@ -71,6 +93,10 @@ public abstract class _ArmyBuildInCoreType extends _ArmyBuildInType {
         return function;
     }
 
+    /// Removes and returns the two-arg (class, param) array factory function for the given type.
+    ///
+    /// @param javaType the mapping type class
+    /// @return the factory function, or a null-returning fallback
     protected static BiFunction<Class<?>, String, MappingType> removeArrayFromParamFunc(Class<? extends MappingType> javaType) {
         BiFunction<Class<?>, String, MappingType> function;
         function = doRemoveFunc(javaType, fromParamFuncMap, "fromParam");
@@ -80,6 +106,10 @@ public abstract class _ArmyBuildInCoreType extends _ArmyBuildInType {
         return function;
     }
 
+    /// Removes and returns the two-arg (class, type-arg) array factory function for the given type.
+    ///
+    /// @param javaType the mapping type class
+    /// @return the factory function, or a null-returning fallback
     protected static BiFunction<Class<?>, Class<?>, MappingType> removeArrayFromTypeArgFunc(Class<? extends MappingType> javaType) {
         BiFunction<Class<?>, Class<?>, MappingType> function;
         function = doRemoveFunc(javaType, fromTypeArgFuncMap, "fromTypeArg");
@@ -89,6 +119,10 @@ public abstract class _ArmyBuildInCoreType extends _ArmyBuildInType {
         return function;
     }
 
+    /// Removes and returns the multi-type-arg array factory function for the given type.
+    ///
+    /// @param javaType the mapping type class
+    /// @return the factory function, or a null-returning fallback
     protected static TeClassFunc removeArrayFromTypeArgsFunc(Class<? extends MappingType> javaType) {
         TeClassFunc function;
         function = doRemoveFunc(javaType, fromTypeArgsFuncMap, "fromTypeArgs");
@@ -151,8 +185,15 @@ public abstract class _ArmyBuildInCoreType extends _ArmyBuildInType {
     }
 
 
+    /// Functional interface for multi-type-arg array type creation.
     protected interface TeClassFunc {
 
+        /// Creates a mapping type from the given type arguments.
+        ///
+        /// @param javaType   the element type class
+        /// @param keyClass   the key type class (for map-like types)
+        /// @param valueClass the value type class (for map-like types)
+        /// @return the mapping type
         MappingType apply(final Class<?> javaType, final Class<?> keyClass, final Class<?> valueClass);
     }
 

@@ -19,6 +19,9 @@ package io.army.meta;
 import io.army.criteria.XmlExpression;
 import io.army.mapping.XmlMappingType;
 
+/// Field metadata for SQL XML type columns.
+///
+/// @param <T> the Java type of the field value
 /// @see XmlMappingType
 public interface XmlFieldMeta<T> extends FieldMeta<T>, XmlExpression {
 
