@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.qinarmy</groupId>
         <artifactId>army</artifactId>
-        <version>0.6.7</version><!--Army maven version-->
+        <version>0.6.8-SNAPSHOT</version><!--Army maven version-->
     </parent>
 
     <name>army-array</name>

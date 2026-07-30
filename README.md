@@ -1,7 +1,7 @@
 # Army
 
-[![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/s01.oss.sonatype.org/io.qinarmy/army.svg)](https://s01.oss.sonatype.org/content/repositories/snapshots/io/qinarmy/army/)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.qinarmy/army/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.qinarmy/army)
+[![Last SNAPSHOT](https://img.shields.io/nexus/snapshots/https/oss.sonatype.org/io.qinarmy/army?label=latest%20snapshot)](https://oss.sonatype.org/content/repositories/snapshots/io/qinarmy/army/)
+[![Maven Central](https://img.shields.io/maven-central/v/io.qinarmy/army?logo=apache-maven&logoColor=white)](https://search.maven.org/artifact/io.qinarmy/army)
 [![Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Java support](https://img.shields.io/badge/Java-25+-green?logo=java&logoColor=white)](https://openjdk.java.net/)
 
@@ -38,12 +38,12 @@ If you already know SQL and want a framework that respects that, Army is for you
     <dependency>
         <groupId>io.qinarmy</groupId>
         <artifactId>army-jdbc</artifactId>
-        <version>0.6.6</version>
+        <version>0.6.7</version>
     </dependency>
     <dependency>
         <groupId>io.qinarmy</groupId>
         <artifactId>army-postgre</artifactId>
-        <version>0.6.6</version>
+        <version>0.6.7</version>
     </dependency>
 </dependencies>
 ```

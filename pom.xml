@@ -8,25 +8,25 @@
     <groupId>io.qinarmy</groupId>
     <artifactId>army</artifactId>
     <packaging>pom</packaging>
-    <version>0.6.7</version><!--Army maven version-->
+    <version>0.6.8-SNAPSHOT</version><!--Army maven version-->
     <!-- SNAPSHOT  -->
     <modules>
         <module>army-core</module>
+        <module>army-annotation</module>
+        <module>army-array</module>
         <module>army-struct</module>
         <module>army-spring</module>
-        <module>army-mysql</module>
-        <module>army-sync</module>
-        <module>army-oracle</module>
         <module>army-jdbc</module>
-        <module>army-annotation</module>
-        <module>army-example</module>
+        <module>army-mysql</module>
         <module>army-postgre</module>
         <module>army-sqlite</module>
-        <module>army-test-example</module>
+        <module>army-oracle</module>
+        <module>army-sync</module>
+        <module>army-guava</module>
         <module>army-spring-ai-model-chat-memory</module>
         <module>army-spring-ai-vector-store</module>
-        <module>army-guava</module>
-        <module>army-array</module>
+        <module>army-example</module>
+        <module>army-test-example</module>
     </modules>
 
     <name>army</name>
@@ -545,13 +545,16 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
+
         </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.5.0</version>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -560,6 +563,7 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -568,6 +572,7 @@
                     <argLine>-Dfile.encoding=UTF-8</argLine>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -582,6 +587,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -596,6 +602,7 @@
                     </archive>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 
@@ -614,13 +621,6 @@
                         <version>3.12.0</version>
                         <configuration>
                             <doclint>-missing,-reference</doclint>
-                            <additionalDependencies>
-                                <additionalDependency>
-                                    <groupId>io.qinarmy</groupId>
-                                    <artifactId>army-array</artifactId>
-                                    <version>${project.version}</version>
-                                </additionalDependency>
-                            </additionalDependencies>
                         </configuration>
                         <executions>
                             <execution>
