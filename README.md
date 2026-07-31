@@ -1,6 +1,5 @@
 # Army
 
-[![Last SNAPSHOT](https://img.shields.io/nexus/snapshots/https/oss.sonatype.org/io.qinarmy/army?label=latest%20snapshot)](https://oss.sonatype.org/content/repositories/snapshots/io/qinarmy/army/)
 [![Maven Central](https://img.shields.io/maven-central/v/io.qinarmy/army?logo=apache-maven&logoColor=white)](https://search.maven.org/artifact/io.qinarmy/army)
 [![Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Java support](https://img.shields.io/badge/Java-25+-green?logo=java&logoColor=white)](https://openjdk.java.net/)
@@ -12,6 +11,10 @@
 
 ---
 
+## Army convention
+
+1. The interface( or class) that start with underline is army framework private interface( or class)
+
 ## Summary
 
 Army gives you a type-safe, composable, dialect-aware API for writing SQL. It doesn't manage
@@ -21,10 +24,6 @@ does one thing: turns your domain model into correct, safe, readable SQL queries
 If you know SQL and want a framework that respects that, Army might be for you.
 
 If you already know SQL and want a framework that respects that, Army is for you.
-
-## Army convention
-
-1. The interface( or class) that start with underline is army framework private interface( or class)
 
 ### [Army document](https://pillarmy.github.io/army/ "Army document pages")
 
@@ -186,6 +185,90 @@ List<StockSummary> results = session.queryObjectList(stmt, StockSummary::new);
 ```
 
 A query that reads like SQL and returns your POJO.
+
+### Domain-Specific DAO
+
+Extend the base DAO to implement domain-specific queries using Army's Criteria API:
+
+```java
+
+@Repository("stockChatConversationDao")
+public class StockChatConversationDaoImpl extends ArmyStockBaseDao
+        implements StockChatConversationDao {
+
+    public StockChatConversationDaoImpl(SyncSessionContext sessionContext) {
+        super(sessionContext);
+    }
+
+    @Override
+    public List<StockChatConversation> queryUserConversation(long userId) {
+        final Select stmt = SQLs.query()
+                .select("t", PERIOD, StockChatConversation_.T)
+                .from(StockChatConversation_.T, AS, "t")
+                .where(StockChatConversation_.userId.equal(userId))
+                .orderBy(StockChatConversation_.id.desc())
+                .asQuery();
+        return this.sessionContext.currentSession()
+                .queryObjectList(stmt, StockChatConversation::new);
+    }
+
+    @Override
+    public long deleteConversation(long userId, long conversationId) {
+        final String w1 = "w1";
+        final Delete stmt = Postgres.singleDelete()
+                .with(w1).as(ws -> ws.deleteFrom(StockChatConversation_.T, AS, "t")
+                        .where(StockChatConversation_.userId.equal(userId))
+                        .and(StockChatConversation_.id.equal(conversationId))
+                        .returning(StockChatConversation_.id)
+                        .asReturningDelete()
+                ).space()
+                .deleteFrom(StockChatMemory_.T, AS, "t")
+                .using(w1)
+                .where(StockChatMemory_.conversationId.equal(refField(w1, StockChatConversation_.ID)))
+                .asDelete();
+        return this.sessionContext.currentSession().update(stmt);
+    }
+}
+```
+
+### Domain-Specific Service
+
+Extend `ArmySyncBaseService` to implement domain-specific operations:
+
+```java
+
+@Service("stockChatConversationService")
+public class StockChatConversationServiceImpl extends AbstractStockBaseService
+        implements StockChatConversationService {
+
+    private final StockChatConversationDao stockChatConversationDao;
+
+    public StockChatConversationServiceImpl(TransactionTemplate transactionTemplate,
+                                            StockChatConversationDao stockChatConversationDao) {
+        super(transactionTemplate);
+        this.stockChatConversationDao = stockChatConversationDao;
+    }
+
+    @Override
+    public List<StockChatConversation> queryUserConversation(long userId) {
+        return this.transactionTemplate.executeNoNull(true,
+                _ -> this.stockChatConversationDao.queryUserConversation(userId)
+        );
+    }
+
+    @Override
+    public long deleteConversation(long userId, long conversationId) {
+        return this.transactionTemplate.executeNoNull(Isolation.READ_COMMITTED, false,
+                _ -> this.stockChatConversationDao.deleteConversation(userId, conversationId)
+        );
+    }
+
+    @Override
+    protected StockBaseDao getDao() {
+        return this.stockChatConversationDao;
+    }
+}
+```
 
 ---
 
