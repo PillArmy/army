@@ -147,7 +147,7 @@ abstract class FieldValuesGenerators implements FieldValueGenerator {
         if (generatorType == null && wrapper.isNullValueParam(field)) {
             throw _Exceptions.nonNullField(field);
         }
-        if (generatorType == GeneratorType.POST) {
+        if (generatorType == GeneratorType.POST && !field.javaType().isPrimitive()) {
             wrapper.set(field, null);
         }
 
