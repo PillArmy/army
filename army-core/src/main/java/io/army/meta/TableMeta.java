@@ -18,22 +18,29 @@ package io.army.meta;
 
 import io.army.criteria.TabularItem;
 import io.army.lang.Nullable;
+import io.army.modelgen._MetaBridge;
 import io.army.util.SQLStmts;
 
 import java.util.List;
 
 /// Metadata representing a database table.
+///
 /// @param <T> the domain entity type representing this table
 /// @see SchemaMeta
 /// @see FieldMeta
 /// @see IndexMeta
 /// @see IndexFieldMeta
-public interface TableMeta<T> extends TabularItem, DatabaseTypeObject {
+public interface TableMeta<T> extends TabularItem, DatabaseTypeObject, Meta {
 
+    String ID = _MetaBridge.ID;
+    String CREATE_TIME = _MetaBridge.CREATE_TIME;
+    String UPDATE_TIME = _MetaBridge.UPDATE_TIME;
+    String VISIBLE = _MetaBridge.VISIBLE;
+    String VERSION = _MetaBridge.VERSION;
 
     Class<T> javaType();
 
-    /// 
+    ///
     /// Table name,Equivalence : {@link  FieldMeta#objectName()}
     String tableName();
 
