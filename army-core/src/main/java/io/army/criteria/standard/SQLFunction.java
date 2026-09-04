@@ -41,8 +41,9 @@ public interface SQLFunction extends Item {
 
     interface _CaseEndClause {
 
-        Expression end(TypeInfer type);
+        TypedExpression end(TypeInfer type);
 
+        Expression end();
     }
 
     interface _CaseElseClause extends _CaseEndClause {

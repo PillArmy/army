@@ -31,7 +31,6 @@ import io.army.meta.TypeMeta;
 import io.army.sqltype.DataType;
 import io.army.sqltype.MySQLType;
 import io.army.util._Collections;
-import io.army.util._Exceptions;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -170,6 +169,87 @@ abstract class LiteralFunctions {
 
     static SQLFunction._CaseFuncWhenClause caseFunc(final @Nullable Object caseValue) {
         return new CaseFunction(caseValue);
+    }
+
+
+    /// @see TypedCaseExpression#appendSql(StringBuilder, _SqlContext)
+    /// @see CaseFunction#appendSql(StringBuilder, _SqlContext)
+    private static void appendCaseFunc(StringBuilder sqlBuilder, _SqlContext context,
+                                       @Nullable Object caseValue, @Nullable List<_Pair<Object, Object>> expPairList,
+                                       @Nullable Object elseExpression) {
+        final int pairSize;
+        if (expPairList == null || (pairSize = expPairList.size()) == 0) {
+            throw ContextStack.clearStackAndCastCriteriaApi();
+        }
+
+        final String funcName = "CASE";
+
+        context.appendFuncName(true, funcName);
+
+        if (caseValue != null) {
+            FuncExpUtils.appendLiteral(funcName, caseValue, sqlBuilder, context);
+        }
+        _Pair<Object, Object> pair;
+        for (int i = 0; i < pairSize; i++) {
+            pair = expPairList.get(i);
+
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("WHEN");
+            FuncExpUtils.appendLiteral(funcName, pair.first, sqlBuilder, context);
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("THEN");
+            FuncExpUtils.appendLiteral(funcName, pair.second, sqlBuilder, context);
+
+        }
+
+        if (elseExpression != null) {
+            sqlBuilder.append(_Constant.SPACE)
+                    .append("ELSE");
+            FuncExpUtils.appendLiteral(funcName, elseExpression, sqlBuilder, context);
+        }
+
+        sqlBuilder.append(_Constant.SPACE)
+                .append("END");
+
+    }
+
+    /// @see TypedCaseExpression#toString()
+    /// @see CaseFunction#toString()
+    private static String toStringCaeFunc(@Nullable Object caseValue,
+                                          @Nullable List<_Pair<Object, Object>> expPairList,
+                                          @Nullable Object elseExpression) {
+        final int pairSize;
+        if (expPairList == null || (pairSize = expPairList.size()) == 0) {
+            throw new RuntimeException("bug");
+        }
+        final StringBuilder builder = new StringBuilder();
+        builder.append(_Constant.SPACE)
+                .append("CASE");
+
+        if (caseValue != null) {
+            builder.append(caseValue);
+        }
+        _Pair<Object, Object> pair;
+        for (int i = 0; i < pairSize; i++) {
+            pair = expPairList.get(i);
+
+            builder.append(_Constant.SPACE)
+                    .append("WHEN")
+                    .append(pair.first)
+                    .append(_Constant.SPACE)
+                    .append("THEN")
+                    .append(pair.second);
+
+        }
+
+        if (elseExpression != null) {
+            builder.append(_Constant.SPACE)
+                    .append("ELSE")
+                    .append(elseExpression);
+        }
+        return builder.append(_Constant.SPACE)
+                .append("END")
+                .toString();
     }
 
 
@@ -541,7 +621,6 @@ abstract class LiteralFunctions {
 
         private final Object caseValue;
 
-        private final CriteriaContext outerContext;
 
         private List<_Pair<Object, Object>> expPairList;
 
@@ -549,13 +628,10 @@ abstract class LiteralFunctions {
 
         private Object elseExpression;
 
-        private TypeMeta returnType;
-
         private boolean dynamicWhenSpace;
 
         private CaseFunction(@Nullable Object caseValue) {
             this.caseValue = caseValue;
-            this.outerContext = ContextStack.peek();
         }
 
         @Override
@@ -564,76 +640,14 @@ abstract class LiteralFunctions {
         }
 
 
-
         @Override
         public void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
-            final int pairSize;
-            final List<_Pair<Object, Object>> expPairList = this.expPairList;
-            if (expPairList == null || (pairSize = expPairList.size()) == 0) {
-                throw ContextStack.clearStackAndCastCriteriaApi();
-            }
-
-            final String funcName = "CASE";
-
-            context.appendFuncName(true, funcName);
-
-            final Object caseValue = this.caseValue;
-            if (caseValue != null) {
-                FuncExpUtils.appendLiteral(funcName, caseValue, sqlBuilder, context);
-            }
-            _Pair<Object, Object> pair;
-            for (int i = 0; i < pairSize; i++) {
-                pair = expPairList.get(i);
-
-                sqlBuilder.append(" WHEN");
-                FuncExpUtils.appendLiteral(funcName, pair.first, sqlBuilder, context);
-                sqlBuilder.append(" THEN");
-                FuncExpUtils.appendLiteral(funcName, pair.second, sqlBuilder, context);
-
-            }
-
-            final Object elseExpression = this.elseExpression;
-            if (elseExpression != null) {
-                sqlBuilder.append(" ELSE");
-                FuncExpUtils.appendLiteral(funcName, elseExpression, sqlBuilder, context);
-            }
-
-            sqlBuilder.append(" END");
-
+            appendCaseFunc(sqlBuilder, context, this.caseValue, this.expPairList, this.elseExpression);
         }
 
         @Override
         public String toString() {
-            final StringBuilder builder = new StringBuilder();
-            final int pairSize;
-            final List<_Pair<Object, Object>> expPairList = this.expPairList;
-            if (expPairList == null || (pairSize = expPairList.size()) == 0) {
-                return super.toString();
-            }
-            builder.append(" CASE");
-
-            final Object caseValue = this.caseValue;
-            if (caseValue != null) {
-                builder.append(caseValue);
-            }
-            _Pair<Object, Object> pair;
-            for (int i = 0; i < pairSize; i++) {
-                pair = expPairList.get(i);
-
-                builder.append(" WHEN")
-                        .append(pair.first)
-                        .append(" THEN")
-                        .append(pair.second);
-
-            }
-
-            final Object elseExpression = this.elseExpression;
-            if (elseExpression != null) {
-                builder.append(" ELSE")
-                        .append(elseExpression);
-            }
-            return builder.append(" END")
-                    .toString();
+            return toStringCaeFunc(this.caseValue, this.expPairList, this.elseExpression);
         }
 
         @Override
@@ -645,9 +659,9 @@ abstract class LiteralFunctions {
         @Override
         public CaseFunction when(final @Nullable Object expression) {
             if (this.whenExpression != null) {
-                throw ContextStack.criteriaError(this.outerContext, "last when clause not end.");
+                throw ContextStack.clearStackAndCriteriaError("last when clause not end.");
             } else if (expression == null) {
-                throw ContextStack.nullPointer(this.outerContext);
+                throw ContextStack.clearStackAndNullPointer();
             }
             this.whenExpression = expression;
             return this;
@@ -697,7 +711,7 @@ abstract class LiteralFunctions {
         @Override
         public _SqlCaseThenClause space(Object expression) {
             if (!this.dynamicWhenSpace) {
-                throw ContextStack.criteriaError(this.outerContext, "duplication ifWhen space.");
+                throw ContextStack.clearStackAndCriteriaError("duplication ifWhen space.");
             }
             this.dynamicWhenSpace = false;
             return this.when(expression);
@@ -741,9 +755,9 @@ abstract class LiteralFunctions {
         public CaseFunction then(final @Nullable Object expression) {
             final Object whenExp = this.whenExpression;
             if (whenExp == null) {
-                throw ContextStack.criteriaError(this.outerContext, "no when clause");
+                throw ContextStack.clearStackAndCriteriaError("no when clause");
             } else if (expression == null) {
-                throw ContextStack.nullPointer(this.outerContext);
+                throw ContextStack.clearStackAndNullPointer();
             }
             List<_Pair<Object, Object>> pairList = this.expPairList;
             if (pairList == null) {
@@ -785,9 +799,9 @@ abstract class LiteralFunctions {
             } else if (this.whenExpression != null) {
                 throw lastWhenClauseNotEnd();
             } else if (this.elseExpression != null) {
-                throw ContextStack.criteriaError(this.outerContext, "duplicate else clause.");
+                throw ContextStack.clearStackAndCriteriaError("duplicate else clause.");
             } else if (expression == null) {
-                throw ContextStack.nullPointer(this.outerContext);
+                throw ContextStack.clearStackAndNullPointer();
             }
             this.elseExpression = expression;
             return this;
@@ -867,26 +881,28 @@ abstract class LiteralFunctions {
         }
 
 
-
         @Override
-        public Expression end(final @Nullable TypeInfer type) {
+        public TypedExpression end(final @Nullable TypeInfer type) {
             if (type == null) {
-                throw ContextStack.nullPointer(this.outerContext);
+                throw ContextStack.clearStackAndNullPointer();
             }
-            MappingType resultType;
+
+            // firstly ,end()
+            end();
+
+            final MappingType resultType;
             if (type instanceof MappingType) {
                 resultType = (MappingType) type;
             } else {
                 resultType = type.typeMeta().mappingType();
             }
-            return this.endCaseFunction(resultType);
+            return new TypedCaseExpression(this, resultType);
         }
 
-        private Expression endCaseFunction(final MappingType type) {
+        @Override
+        public Expression end() {
             if (this.whenExpression != null) {
                 throw lastWhenClauseNotEnd();
-            } else if (this.returnType != null) {
-                throw ContextStack.clearStackAnd(_Exceptions::castCriteriaApi);
             }
 
             final List<_Pair<Object, Object>> expPairList = this.expPairList;
@@ -897,20 +913,60 @@ abstract class LiteralFunctions {
             } else {
                 throw ContextStack.clearStackAndCastCriteriaApi();
             }
-            this.returnType = type;
             return this;
         }
 
+
         private CriteriaException noWhenClause() {
-            return ContextStack.criteriaError(this.outerContext, "Not found any when clause.");
+            return ContextStack.clearStackAndCriteriaError("Not found any when clause.");
         }
 
         private CriteriaException lastWhenClauseNotEnd() {
-            return ContextStack.criteriaError(this.outerContext, "current when clause not end");
+            return ContextStack.clearStackAndCriteriaError("current when clause not end");
         }
 
 
     }//CaseFunc
+
+    private static final class TypedCaseExpression extends OperationExpression.OperationTypedExpression
+            implements ArmySQLFunction {
+
+        private final Object caseValue;
+
+        private final List<_Pair<Object, Object>> expPairList;
+
+        private final Object elseExpression;
+
+        private final MappingType returnType;
+
+        TypedCaseExpression(CaseFunction func, MappingType returnType) {
+            this.caseValue = func.caseValue;
+            this.expPairList = func.expPairList;
+            this.elseExpression = func.elseExpression;
+            this.returnType = returnType;
+        }
+
+        @Override
+        public TypeMeta typeMeta() {
+            return this.returnType;
+        }
+
+        @Override
+        public void appendSql(StringBuilder sqlBuilder, _SqlContext context) {
+            appendCaseFunc(sqlBuilder, context, this.caseValue, this.expPairList, this.elseExpression);
+        }
+
+        @Override
+        public String toString() {
+            return toStringCaeFunc(this.caseValue, this.expPairList, this.elseExpression);
+        }
+
+        @Override
+        public String name() {
+            return "CASE";
+        }
+
+    } // TypedCaseExpression
 
 
     private static final class NoParensFunctionExpression extends OperationExpression.SqlFunctionExpression
@@ -951,7 +1007,6 @@ abstract class LiteralFunctions {
 
             sqlBuilder.append(_Constant.SPACE_AS_SPACE);
             // TODO check me
-
 
 
         }
