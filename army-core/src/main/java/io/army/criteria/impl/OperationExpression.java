@@ -33,7 +33,7 @@ import java.util.function.BiFunction;
 
 /// this class is base class of most implementation of {@link Expression}
 /// @since 0.6.0
-abstract class OperationExpression implements ArmyExpression {
+abstract class OperationExpression implements ArmyExpression, FunctionArg.SingleFunctionArg {
 
 
     /// 
