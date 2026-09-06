@@ -5980,12 +5980,12 @@ Extends `IPredicate` without adding any additional methods.
 - `LogicalPredicate` — a predicate resulting from a **logical operator** like `NOT`
 or dialect-specific operators.
 Extends both `IPredicate` and `SimplePredicate`.
-- `CompoundPredicate` — a predicate that is a **compound** of multiple sub-predicates (e.g. `AND`/`OR` chains).
+- `CompoundPredicate` — a predicate that is a **compound** of multiple sub-predicates (e.g. `AND`/`R` chains).
 Extends `IPredicate`.
 
 ===== or
 
-Combine two predicates with `OR`. `or(Function, T)` is the lambda form — the function receives `T` and returns an `IPredicate`.
+Combine two predicates with `R`. `or(Function, T)` is the lambda form — the function receives `T` and returns an `IPredicate`.
 
 [source,java]
 ----
@@ -6076,7 +6076,7 @@ Stock_.code.equal("000001")
 
 ===== ifOr
 
-Conditional `OR` — if the supplied value (or supplier result) is `null`, the original predicate is returned unchanged.
+Conditional `R` — if the supplied value (or supplier result) is `null`, the original predicate is returned unchanged.
 
 [source,java]
 ----
@@ -6226,7 +6226,7 @@ SQLs.not(SQLs.bracket(
 
 [TIP]
 ====
-Unlike `orGroup` which adds `OR` to the _current_ predicate, `bracket()` is a standalone wrapper.
+Unlike `orGroup` which adds `R` to the _current_ predicate, `bracket()` is a standalone wrapper.
 Use `bracket()` when you need explicit parentheses (e.g. already inside an `orGroup` callback or for visual clarity in complex expressions).
 ====
 
@@ -7003,7 +7003,7 @@ The `columnSize()` returns the element count.
 
 **When to use `rowParam` over multiple `param` calls**:
 - You have a `Collection`/`List` of values for `IN`/`NOT IN`
-- You want a single expression representing multiple placeholders (not manually chaining `OR`) - Method reference `SQLs::rowParam` is shorter and cleaner than `SQLs::param` with `IN`
+- You want a single expression representing multiple placeholders (not manually chaining `R`) - Method reference `SQLs::rowParam` is shorter and cleaner than `SQLs::param` with `IN`
 
 ===== namedRowParam()
 

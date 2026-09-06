@@ -33,7 +33,6 @@ import io.army.util._Exceptions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -1360,23 +1359,12 @@ abstract class SimpleQueries<Q extends Item, B extends CteBuilderSpec, WE extend
             return (LW) this;
         }
 
-        @Override
-        public final LW ifNoWait(BooleanSupplier predicate) {
-            if (this.clauseEnd) {
-                throw ContextStack.clearStackAndCastCriteriaApi();
-            } else if (predicate.getAsBoolean()) {
-                this.lockWaitOption = LockWaitOption.NOWAIT;
-            } else {
-                this.lockWaitOption = null;
-            }
-            return (LW) this;
-        }
 
         @Override
-        public final LW ifSkipLocked(BooleanSupplier predicate) {
+        public final LW ifSkipLocked(boolean predicate) {
             if (this.clauseEnd) {
                 throw ContextStack.clearStackAndCastCriteriaApi();
-            } else if (predicate.getAsBoolean()) {
+            } else if (predicate) {
                 this.lockWaitOption = LockWaitOption.SKIP_LOCKED;
             } else {
                 this.lockWaitOption = null;

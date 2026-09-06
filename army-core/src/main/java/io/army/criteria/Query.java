@@ -310,9 +310,7 @@ public interface Query extends RowSet {
 
         WR ifNoWait(boolean yes);
 
-        WR ifNoWait(BooleanSupplier predicate);
-
-        WR ifSkipLocked(BooleanSupplier predicate);
+        WR ifSkipLocked(boolean predicate);
 
     }
 

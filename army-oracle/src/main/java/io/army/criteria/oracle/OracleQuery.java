@@ -19,45 +19,57 @@ package io.army.criteria.oracle;
 import io.army.criteria.Expression;
 import io.army.criteria.Item;
 import io.army.criteria.Query;
-import io.army.criteria.TableField;
 import io.army.criteria.dialect.SortNullItems;
 import io.army.criteria.dialect.Window;
+import io.army.criteria.impl.Oracles;
+import io.army.lang.Nullable;
 
+import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 
-/// 
+///
 /// This interface representing Oracle SELECT syntax.
-/// * @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6">Oracle SELECT syntax</a>
+///
+/// @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html">Oracle SELECT syntax</a>
 /// @since 0.6.0
 public interface OracleQuery extends Query, OracleStatement {
 
-    /// @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6">Lock wait syntax</a>
-    interface _OracleLockWaitOptionClause<LR> extends _MinLockStrengthClause<LR> {
+    /// @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6__I2126016">Lock wait syntax</a>
+    interface _LockWaitClause<R> extends _MinLockWaitOptionClause<R> {
 
-        LR wait(int seconds);
+        R wait(int seconds);
 
-        LR wait(Supplier<Integer> supplier);
+        R waitForever();
 
-        LR ifWait(Supplier<Integer> supplier);
+        R wait(int seconds, @Nullable Oracles.WaitUnit unit);
+
+        R ifWait(@Nullable Integer seconds);
+
+        R ifWaitForever(boolean predicate);
+
+        R wait(@Nullable Integer integer, @Nullable Oracles.WaitUnit unit);
     }
 
 
     /// @see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html#GUID-CFA006CA-6FF1-4972-821E-6996142A51C6">Lock of colunn syntax</a>
-    interface _OracleLockOfColumnClause<OR> {
+    interface _OracleLockOfColumnClause<R> {
 
-        OR of(TableField field);
+        R of(Expression field);
 
-        OR of(TableField field1, TableField field2);
+        R of(Expression field1, Expression field2);
 
-        OR of(TableField field1, TableField field2, TableField field3);
+        R of(Expression field1, Expression field2, Expression field3);
 
-        OR of(TableField field1, TableField field2, TableField field3, TableField field4);
+        R of(Expression field1, Expression field2, Expression field3, Expression field4);
 
-        OR of(Consumer<Consumer<TableField>> consumer);
+        R of(List<? extends Expression> fieldList);
 
-        OR ifOf(Consumer<Consumer<TableField>> consumer);
+        R of(Consumer<Consumer<Expression>> consumer);
+
+        R ifOf(Consumer<Consumer<Expression>> consumer);
+
+        R ifOf(List<? extends Expression> fieldList);
 
     }
 
@@ -86,16 +98,13 @@ public interface OracleQuery extends Query, OracleStatement {
     }
 
 
-
-
-
     interface _WindowAsClause<I extends Item> {
 
     }
 
 
     interface _UnionLockWaitOptionSpec<I extends Item>
-            extends _OracleLockWaitOptionClause<_AsQueryClause<I>>, _AsQueryClause<I> {
+            extends _LockWaitClause<_AsQueryClause<I>>, _AsQueryClause<I> {
 
     }
 
@@ -148,7 +157,7 @@ public interface OracleQuery extends Query, OracleStatement {
 
 
     interface _LockWaitOptionSpec<I extends Item>
-            extends _OracleLockWaitOptionClause<_AsQueryClause<I>>, _AsQueryClause<I> {
+            extends _LockWaitClause<_AsQueryClause<I>>, _AsQueryClause<I> {
 
     }
 
@@ -194,8 +203,6 @@ public interface OracleQuery extends Query, OracleStatement {
             , _OrderBySpec<I> {
 
     }
-
-
 
 
     interface _MinWithSpec<I extends Item> extends Item {
