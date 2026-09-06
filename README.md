@@ -294,23 +294,27 @@ Select stmt = SQLs.query()
 
 Conditions are `Expression` objects — inline by default, extractable when you need them.
 
-#### 2. Three-layer type system — dialects are first-class, not an afterthought
+#### 2. `DataType` + `MappingType` — dialects are first-class, not an afterthought
 
 Most frameworks flatten type mapping into a single step: database type name → Java class.
 This breaks as soon as you need cross-dialect support.
 
-Army separates the mapping into three orthogonal layers:
+Army keeps two concepts and adds no third layer on top of SQL:
 
-| Layer           | Question                         | Examples                                                  |
-|-----------------|----------------------------------|-----------------------------------------------------------|
-| **SQLType**     | What does THIS database call it? | `PgType.BIGINT` → `("BIGINT", Long.class)`                |
-|                 |                                  | `MySQLType.INT_UNSIGNED` → `("INT UNSIGNED", Long.class)` |
-|                 |                                  | `PgType.INT4RANGE` → `("INT4RANGE", Range.class)`         |
-| **ArmyType**    | What does this type MEAN?        | `BIGINT` — 64-bit signed integer                          |
-|                 |                                  | `INTEGER_UNSIGNED` — 32-bit unsigned (not signed)         |
-|                 |                                  | `DIALECT_TYPE` — exists only in some databases            |
-| **MappingType** | How does Java talk to JDBC?      | `beforeBind(Java)` → JDBC-compatible value                |
-|                 |                                  | `afterGet(JDBC)` → Java value                             |
+| Concept           | Question                    | Examples                                                  |
+|-------------------|-----------------------------|-----------------------------------------------------------|
+| **`DataType`**    | What is THIS database type? | `PgType.BIGINT` → `("BIGINT", Long.class)`                |
+|                   |                             | `MySQLType.INT_UNSIGNED` → `("INT UNSIGNED", Long.class)` |
+|                   |                             | `PgType.INT4RANGE` → `("INT4RANGE", Range.class)`         |
+| **`MappingType`** | How does Java talk to JDBC? | `map(ServerMeta)` → resolves matching `DataType`          |
+|                   |                             | `beforeBind(Java)` → JDBC-compatible value                |
+|                   |                             | `afterGet(JDBC)` → Java value                             |
+
+A database type is a **`DataType`**: every dialect type enum (`PgType`, `MySQLType`, `SQLiteType`, `OracleType`,
+`H2Type`) implements it, and each `DataType` carries a cross-dialect semantic tag via `armyType()`
+(e.g. `BIGINT`, `INTEGER_UNSIGNED`, `DIALECT_TYPE`). What Java does with that type is a separate concern,
+handled by a **`MappingType`** — `map(ServerMeta)` resolves the matching `DataType` for the current
+database, while `beforeBind` / `afterGet` convert values between Java and JDBC.
 
 **Why this matters:**
 
