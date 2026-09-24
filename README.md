@@ -18,8 +18,8 @@
 ## Summary
 
 Army gives you a type-safe, composable, dialect-aware API for writing SQL. It doesn't manage
-sessions, cascade deletes, or generate schemas — other tools already do those things well. Army
-does one thing: turns your domain model into correct, safe, readable SQL queries.
+connection pools, ORM cascades, or schema migrations — other tools already do those things well.
+Army does one thing: turns your domain model into correct, safe, readable SQL queries.
 
 If you know SQL and want a framework that respects that, Army might be for you.
 
@@ -348,10 +348,15 @@ You can serialize it, cache it, pass it across threads — it's just data.
 
 **Army deliberately does NOT manage:**
 
-- Database connections → use your preferred connection pool
-- Transactions → use Spring `@Transactional` or JTA
+- Database connections → use your preferred connection pool (HikariCP, Druid, etc.)
+- ORM cascades → no lazy-loading, no attached/detached lifecycle, results are plain POJOs
 - Caches → use Redis, Caffeine, or your own
 - Schema migrations → use Flyway or Liquibase
+
+Army **does** manage sessions and transactions — `SyncSession` / `SyncLocalSession` /
+`SyncRmSession` provide local and XA transaction lifecycle (`startTransaction`, `commit`,
+`rollback`, savepoints, isolation levels), and `ArmySyncLocalTransactionManager` integrates
+seamlessly with Spring's `@Transactional`.
 
 It's a type-safe SQL API. It does one thing and gets out of your way.
 
