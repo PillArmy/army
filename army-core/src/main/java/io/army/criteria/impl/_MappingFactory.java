@@ -132,11 +132,11 @@ public abstract class _MappingFactory {
         } else if ((mappingClass = mapping.type()) == void.class) {
             type = getMappingTypeFromValue(domainClass, field, mapping, context);
         } else if (MappingType.class.isAssignableFrom(mappingClass)) {
+            type = mapType(domainClass, field, context, mappingClass, mapping);
+        } else {
             String m = String.format("Mapping type[%s] of %s.%s isn't sub class of %s .", mappingClass.getName(),
                     domainClass.getName(), field.getName(), MappingType.class.getName());
             throw new MetaException(m);
-        } else {
-            type = mapType(domainClass, field, context, mappingClass, mapping);
         }
         return type;
     }
