@@ -27,6 +27,7 @@
         <module>army-spring-ai-vector-store</module>
         <module>army-example</module>
         <module>army-test-example</module>
+        <module>army-agentscope-agentstate</module>
     </modules>
 
     <name>army</name>
@@ -113,6 +114,7 @@
         <jooq.version>3.21.5</jooq.version>
 
         <nacos.version>3.2.0</nacos.version>
+        <agentscope.version>2.0.4</agentscope.version>
     </properties>
 
     <dependencyManagement>
@@ -205,6 +207,12 @@
 
             <dependency>
                 <groupId>io.qinarmy</groupId>
+                <artifactId>army-agentscope-agentstate</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.qinarmy</groupId>
                 <artifactId>army-guava</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -282,9 +290,39 @@
             <dependency>
                 <groupId>io.agentscope</groupId>
                 <artifactId>agentscope-dependencies-bom</artifactId>
-                <version>2.0.0-RC5</version>
+                <version>${agentscope.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-core</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-harness</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-model-openai</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-postgresql</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-mysql</artifactId>
+                <version>${agentscope.version}</version>
             </dependency>
 
             <dependency>

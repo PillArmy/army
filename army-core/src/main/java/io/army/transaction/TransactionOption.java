@@ -47,6 +47,18 @@ public interface TransactionOption extends TransactionSpec {
         return ArmyTransactionOption.option(isolation, readOnly);
     }
 
+    static TransactionOption readCommitted(){
+        return ArmyTransactionOption.option(Isolation.READ_COMMITTED, false);
+    }
+
+    static TransactionOption repeatableRead(){
+        return ArmyTransactionOption.option(Isolation.REPEATABLE_READ, false);
+    }
+
+    static TransactionOption serializable(){
+        return ArmyTransactionOption.option(Isolation.SERIALIZABLE, false);
+    }
+
     static Builder builder() {
         return ArmyTransactionOption.optionBuilder();
     }
