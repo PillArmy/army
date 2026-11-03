@@ -25,6 +25,7 @@ import io.army.dialect._SqlContext;
 import io.army.function.TeNamedParamsFunc;
 import io.army.lang.Nullable;
 import io.army.mapping.*;
+import io.army.meta.TypeMeta;
 import io.army.util._StringUtils;
 
 import java.util.Collection;
@@ -32,12 +33,14 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 /// this class is base class of most implementation of {@link Expression}
+///
 /// @since 0.6.0
 abstract class OperationExpression implements ArmyExpression, FunctionArg.SingleFunctionArg {
 
 
-    /// 
+    ///
     /// Private constructor
+    ///
     /// @see OperationSimpleExpression#OperationSimpleExpression()
     /// @see OperationCompoundExpression#OperationCompoundExpression()
     /// @see PredicateExpression#PredicateExpression()
@@ -644,7 +647,7 @@ abstract class OperationExpression implements ArmyExpression, FunctionArg.Single
     }
 
 
-    /// 
+    ///
     /// @see OperationExpression#space(SQLs.BiOperator, Object, SQLToken, Object)
     /// @see OperationTypedExpression#space(SQLs.BiOperator, BiFunction, Object, SQLToken, Object)
     final IPredicate similarToPredicate(SQLs.BiOperator operator, Object right, SQLToken modifier, Object optionalExp) {
@@ -1005,6 +1008,91 @@ abstract class OperationExpression implements ArmyExpression, FunctionArg.Single
     } // OperationDefiniteExpression
 
 
+    static abstract class TypedFunctionExpression extends OperationTypedExpression
+            implements ArmySQLFunction,ArmySimpleExpression {
+
+        final String name;
+
+        private final boolean buildIn;
+
+        private final MappingType returnType;
+
+        /// package constructor
+        TypedFunctionExpression(String name, boolean buildIn, MappingType returnType) {
+            this.name = name;
+            this.buildIn = buildIn;
+            this.returnType = returnType;
+        }
+
+
+        public final MappingType returnType() {
+            return this.returnType;
+        }
+
+        @Override
+        public TypeMeta typeMeta() {
+            return this.returnType;
+        }
+
+        @Override
+        public final String name() {
+            return this.name;
+        }
+
+
+        @Override
+        public final void appendSql(final StringBuilder sqlBuilder, final _SqlContext context) {
+
+            context.appendFuncName(this.buildIn, this.name);
+
+            if (this instanceof FunctionUtils.NoParensFunction) {
+                return;
+            }
+            if (this instanceof FunctionUtils.NoArgFunction) {
+                sqlBuilder.append(_Constant.PARENS);
+            } else {
+                sqlBuilder.append(_Constant.LEFT_PAREN);
+                this.appendArg(sqlBuilder, context);
+                sqlBuilder.append(_Constant.SPACE_RIGHT_PAREN);
+            }
+
+            if (this instanceof FunctionUtils.FunctionOuterClause) {
+                ((FunctionUtils.FunctionOuterClause) this).appendFuncRest(sqlBuilder, context);
+            }
+
+        }
+
+
+        @Override
+        public final String toString() {
+            final StringBuilder builder = new StringBuilder();
+
+            builder.append(_Constant.SPACE)
+                    .append(this.name); // function name
+            if (!(this instanceof FunctionUtils.NoParensFunction)) {
+                if (this instanceof FunctionUtils.NoArgFunction) {
+                    builder.append(_Constant.RIGHT_PAREN);
+                } else {
+                    builder.append(_Constant.LEFT_PAREN);
+                    argToString(builder);
+                    builder.append(_Constant.SPACE_RIGHT_PAREN);
+                }
+            }
+            if (this instanceof FunctionUtils.FunctionOuterClause) {
+                ((FunctionUtils.FunctionOuterClause) this).funcRestToString(builder);
+            }
+            return builder.toString();
+        }
+
+        abstract void appendArg(StringBuilder sqlBuilder, _SqlContext context);
+
+
+        abstract void argToString(StringBuilder builder);
+
+
+    } // TypedFunctionExpression
+
+
     static abstract class SqlFunctionExpression extends OperationSimpleExpression
             implements ArmySQLFunction {
 
@@ -1113,8 +1201,9 @@ abstract class OperationExpression implements ArmyExpression, FunctionArg.Single
 
         private final ArmyExpression expression;
 
-        /// 
+        ///
         /// **Private constructor**
+        ///
         /// @see #bracketExp(Expression)
         private BracketsExpression(ArmyExpression expression) {
             this.expression = expression;

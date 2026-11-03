@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Properties;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -47,21 +46,6 @@ abstract class Expressions {
     private static final Logger LOG = LoggerFactory.getLogger(Expressions.class);
 
     private static final String RIGHT_REQUIRED = "right operand is required";
-
-    private static final LiteralMode LITERAL_MODE;
-
-    static {
-        try {
-            final Properties properties;
-            properties = _ResourceUtils.loadArmyProperties(Expressions.class.getSimpleName());
-            final String key = "expression.literal.mode";
-            final String modeValue;
-            modeValue = properties.getProperty(key, LiteralMode.DEFAULT.name());
-            LITERAL_MODE = LiteralMode.valueOf(modeValue);
-        } catch (Exception e) {
-            throw new RuntimeException("expression config load failure", e);
-        }
-    }
 
 
     private Expressions() {
@@ -147,7 +131,7 @@ abstract class Expressions {
     /// @see #wrapEscape(Object)
     static ArmyExpression wrapValue(final TypeInfer infer, final @Nullable Object value) {
         final Expression valueExp;
-        switch (LITERAL_MODE) {
+        switch (CriteriaConfig.LITERAL_MODE) {
             case DEFAULT:
                 valueExp = SQLs.param(infer, value);
                 break;
@@ -175,7 +159,7 @@ abstract class Expressions {
             }
             break;
             default:
-                throw _Exceptions.unexpectedEnum(LITERAL_MODE);
+                throw _Exceptions.unexpectedEnum(CriteriaConfig.LITERAL_MODE);
         }
         return (ArmyExpression) valueExp;
     }
@@ -191,7 +175,7 @@ abstract class Expressions {
     }
 
     static void writeNonNull(MappingType type, final Object value, final StringBuilder sqlBuilder, final _SqlContext context) {
-        switch (LITERAL_MODE) {
+        switch (CriteriaConfig.LITERAL_MODE) {
             case DEFAULT:
                 context.appendParam(SQLs.param(type, value));
                 break;
@@ -209,7 +193,7 @@ abstract class Expressions {
                 }
                 break;
             default:
-                throw _Exceptions.unexpectedEnum(LITERAL_MODE);
+                throw _Exceptions.unexpectedEnum(CriteriaConfig.LITERAL_MODE);
         }
     }
 

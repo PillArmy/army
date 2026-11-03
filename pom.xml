@@ -27,7 +27,7 @@
         <module>army-spring-ai-vector-store</module>
         <module>army-example</module>
         <module>army-test-example</module>
-        <module>army-agentscope-agentstate</module>
+        <module>army-agentscope</module>
     </modules>
 
     <name>army</name>
@@ -207,7 +207,7 @@
 
             <dependency>
                 <groupId>io.qinarmy</groupId>
-                <artifactId>army-agentscope-agentstate</artifactId>
+                <artifactId>army-agentscope</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

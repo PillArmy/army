@@ -28,17 +28,21 @@ import io.army.criteria.impl.Postgres;
 import io.army.criteria.impl.SQLs;
 import io.army.executor.DriverException;
 import io.army.mapping.MappingType;
-import io.army.meta.*;
+import io.army.meta.FieldMeta;
+import io.army.meta.PrimaryFieldMeta;
+import io.army.meta.SimpleTableMeta;
+import io.army.meta.TableMeta;
 import io.army.pojo.ObjectAccessorFactory;
 import io.army.result.CurrentRecord;
 import io.army.result.OptimisticLockException;
+import io.army.session.SyncLocalSession;
 import io.army.session.SyncSession;
-import io.army.session.SyncSessionContext;
+import io.army.session.SyncSessionFactory;
 import io.army.transaction.TransactionOption;
+import io.army.util.ValidateUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -58,13 +62,13 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
     private static final int SINGLE_STATE_INDEX = 0;
 
 
-    private final SyncSessionContext sessionContext;
+    private final SyncSessionFactory sessionFactory;
 
     private final SimpleTableMeta<D> tableMeta;
 
     private final PrimaryFieldMeta<D> id;
 
-    private final FieldMeta<D> version;
+    private final FieldMeta<D> valueVersion;
 
     private final FieldMeta<D> userId;
 
@@ -89,11 +93,11 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
 
 
     private ArmyAgentStateStore(Builder<D> builder) {
-        this.sessionContext = builder.sessionContext;
+        this.sessionFactory = builder.sessionFactory;
         this.tableMeta = builder.tableMeta;
 
         this.id = this.tableMeta.id();
-        this.version = this.tableMeta.version();
+        this.valueVersion = this.tableMeta.field("valueVersion");
         this.userId = this.tableMeta.field("userId");
         this.sessionId = this.tableMeta.field("sessionId");
 
@@ -122,7 +126,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
 
 
     @Override
-    public long saveIfVersion(String userId, String sessionId, String key, State value, long expectedVersion) {
+    public long saveIfVersion(String userId, String sessionId, String key, State value, final long expectedVersion) {
         if (expectedVersion == UNVERSIONED) {
             return saveSingleItem(userId, sessionId, key, value, true);
         }
@@ -130,21 +134,37 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
         final String finalUserId;
         finalUserId = validateIdStrings(userId, sessionId, key, true);
 
-        final Function<SyncSession, Long> function;
-        function = session -> {
-            final long newVersion;
-            if (expectedVersion != 0L) {
-                newVersion = updateItem(session, finalUserId, sessionId, key, value, expectedVersion);
-            } else if (insertIfAbsent(session, finalUserId, sessionId, key, value) == UNVERSIONED) {
-                newVersion = updateItem(session, finalUserId, sessionId, key, value, 0L);
-            } else {
-                newVersion = queryVersion(session, finalUserId, sessionId, key);
-            }
-            return newVersion;
-        };
-
         final String sessionName = getClass().getName() + '.' + "saveIfVersion";
-        return this.sessionContext.executeNonNullInTransaction(sessionName, TransactionOption::readCommitted, function);
+        try (SyncLocalSession session = this.sessionFactory.localSession(sessionName, false)) {
+
+            final boolean needTransaction = expectedVersion == 0L;
+
+            if (needTransaction) {
+                session.startTransaction(TransactionOption.readCommitted());
+            }
+
+            try {
+                final long newVersion;
+                if (expectedVersion != 0L) {
+                    newVersion = updateItem(session, finalUserId, sessionId, key, value, expectedVersion);
+                } else if (insertIfAbsent(session, finalUserId, sessionId, key, value) == UNVERSIONED) {
+                    newVersion = updateItem(session, finalUserId, sessionId, key, value, 0L);
+                } else {
+                    newVersion = queryVersion(session, finalUserId, sessionId, key);
+                }
+
+                if (needTransaction) {
+                    session.commit();
+                }
+                return newVersion;
+            } catch (Throwable e) {
+                if (needTransaction) {
+                    session.rollback();
+                }
+                throw e;
+            }
+        }
+
     }
 
     @Override
@@ -156,46 +176,53 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
             return;
         }
 
+        final String sessionName = getClass().getName() + '.' + "saveList";
+        try (SyncLocalSession session = this.sessionFactory.localSession(sessionName, false)) {
 
-        final Consumer<SyncSession> function;
-        function = session -> {
+            session.startTransaction(TransactionOption.readCommitted());
 
-            final String hashKey, currentHash, storedHash;
-            hashKey = key + HASH_KEY_SUFFIX;
-            currentHash = ListHashUtil.computeHash(values);
-            storedHash = queryStateValue(session, finalUserId, sessionId, hashKey, SINGLE_STATE_INDEX);
+            try {
 
-            final int existingCount;
-            existingCount = queryListCount(session, finalUserId, sessionId, key);
+                final String hashKey, currentHash, storedHash;
+                hashKey = key + HASH_KEY_SUFFIX;
+                currentHash = ListHashUtil.computeHash(values);
+                storedHash = queryStateValue(session, finalUserId, sessionId, hashKey, SINGLE_STATE_INDEX);
 
-            final boolean needsFullRewrite;
-            needsFullRewrite = ListHashUtil.needsFullRewrite(values, storedHash, existingCount);
+                final int existingCount;
+                existingCount = queryListCount(session, finalUserId, sessionId, key);
 
-            final D domainForHash;
-            domainForHash = createStateDomain(finalUserId, sessionId, key, currentHash, SINGLE_STATE_INDEX);
+                final boolean needsFullRewrite;
+                needsFullRewrite = ListHashUtil.needsFullRewrite(values, storedHash, existingCount);
 
-            final List<D> domainList;
-            if (needsFullRewrite) {
-                deleteListItems(session, finalUserId, sessionId, key);
+                final D domainForHash;
+                domainForHash = createStateDomain(finalUserId, sessionId, key, currentHash, SINGLE_STATE_INDEX);
 
-                domainList = createStateDomainList(finalUserId, sessionId, key, values, 0);
-                saveStateList(session, domainList);
+                final List<D> domainList;
+                if (needsFullRewrite) {
+                    deleteListItems(session, finalUserId, sessionId, key);
 
-                saveStateList(session, List.of(domainForHash));
-            } else if (values.size() > existingCount) {
-                final List<? extends State> newItems = values.subList(existingCount, values.size());
+                    domainList = createStateDomainList(finalUserId, sessionId, key, values, 0);
+                    saveStateList(session, domainList);
 
-                domainList = createStateDomainList(finalUserId, sessionId, key, newItems, existingCount);
-                saveStateList(session, domainList);
+                    saveStateList(session, List.of(domainForHash));
+                } else if (values.size() > existingCount) {
+                    final List<? extends State> newItems = values.subList(existingCount, values.size());
 
-                saveStateList(session, List.of(domainForHash));
+                    domainList = createStateDomainList(finalUserId, sessionId, key, newItems, existingCount);
+                    saveStateList(session, domainList);
+
+                    saveStateList(session, List.of(domainForHash));
+                }
+
+                session.commit();
+
+            } catch (Throwable e) {
+                session.rollback();
+                throw e;
             }
 
+        }
 
-        };
-
-        final String sessionName = getClass().getName() + '.' + "saveList";
-        this.sessionContext.executeVoid(sessionName, false, function);
 
     }
 
@@ -204,21 +231,22 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
         final String finalUserId;
         finalUserId = validateIdStrings(userId, sessionId, key, true);
 
-        final Function<SyncSession, String> function;
-        function = session -> queryStateValue(session, finalUserId, sessionId, key, SINGLE_STATE_INDEX);
-
         final String sessionName = getClass().getName() + '.' + "get";
 
-        final String stateValue;
-        stateValue = this.sessionContext.execute(sessionName, true, function);
+        try (SyncSession session = this.sessionFactory.localSession(sessionName, true)) {
+            final String stateValue;
+            stateValue = queryStateValue(session, finalUserId, sessionId, key, SINGLE_STATE_INDEX);
 
-        final Optional<T> optional;
-        if (stateValue == null) {
-            optional = Optional.empty();
-        } else {
-            optional = Optional.of(JsonUtils.getJsonCodec().fromJson(stateValue, type));
+            final Optional<T> optional;
+            if (stateValue == null) {
+                optional = Optional.empty();
+            } else {
+                optional = Optional.of(JsonUtils.getJsonCodec().fromJson(stateValue, type));
+            }
+            return optional;
         }
-        return optional;
+
+
     }
 
     @Override
@@ -226,8 +254,9 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
         final String finalUserId;
         finalUserId = validateIdStrings(userId, sessionId, key, true);
 
-        final Function<SyncSession, VersionedState<T>> function;
-        function = session -> {
+        final String sessionName = getClass().getName() + '.' + "getVersioned";
+
+        try (SyncSession session = this.sessionFactory.localSession(sessionName, true)) {
             final Select stmt;
             stmt = queryStateValueStmt(finalUserId, sessionId, key, SINGLE_STATE_INDEX, true);
 
@@ -238,17 +267,15 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
                 return new VersionedState<>(value, record.getNonNull(1, Long.class));
             };
 
-            return session.queryOneRecord(stmt, mapFunc);
-        };
-
-        final String sessionName = getClass().getName() + '.' + "getVersioned";
-
-        VersionedState<T> versionedState;
-        versionedState =  this.sessionContext.execute(sessionName, true, function);
-        if(versionedState == null){
-            versionedState = new VersionedState<>(null, 0L);
+            VersionedState<T> versionedState;
+            versionedState = session.queryOneRecord(stmt, mapFunc);
+            if (versionedState == null) {
+                versionedState = new VersionedState<>(null, 0L);
+            }
+            return versionedState;
         }
-        return versionedState;
+
+
     }
 
 
@@ -257,8 +284,8 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
         final String finalUserId;
         finalUserId = validateIdStrings(userId, sessionId, key, true);
 
-        final Function<SyncSession, List<T>> function;
-        function = session -> {
+        final String sessionName = getClass().getName() + '.' + "getList";
+        try (SyncSession session = this.sessionFactory.localSession(sessionName, true)) {
             final Select stmt;
             stmt = queryStateValueStmt(finalUserId, sessionId, key, null, false);
 
@@ -266,11 +293,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
             mapFunc = record -> JsonUtils.getJsonCodec().fromJson(record.getNonNull(0, String.class), itemType);
 
             return session.queryRecordList(stmt, mapFunc);
-        };
-
-        final String sessionName = getClass().getName() + '.' + "getList";
-
-        return this.sessionContext.execute(sessionName, true, function);
+        }
     }
 
 
@@ -278,21 +301,19 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
     public boolean exists(String userId, String sessionId) {
         userId = validateIdStrings(userId, sessionId, null, false);
 
-        final Select stmt;
-        stmt = SQLs.query()
-                .select(this.id)
-                .from(this.tableMeta, AS, "t")
-                .where(this.userId.equal(userId))
-                .and(this.sessionId.equal(sessionId))
-                .limit(CONST_1)
-                .asQuery();
-
-        final Function<SyncSession, Object> function;
-        function = session -> session.queryOne(stmt, Object.class);
-
         final String sessionName = getClass().getName() + '.' + "exists";
+        try (SyncSession session = this.sessionFactory.localSession(sessionName, true)) {
+            final Select stmt;
+            stmt = SQLs.query()
+                    .select(this.id)
+                    .from(this.tableMeta, AS, "t")
+                    .where(this.userId.equal(userId))
+                    .and(this.sessionId.equal(sessionId))
+                    .limit(CONST_1)
+                    .asQuery();
 
-        return sessionContext.execute(sessionName, true, function) != null;
+            return session.queryOne(stmt, Object.class) != null;
+        }
     }
 
     @Override
@@ -317,44 +338,30 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
         }
         validateIdString(this.userId, userId);
 
-        final Select stmt;
-        stmt = SQLs.query()
-                .select(this.sessionId)
-                .from(this.tableMeta, AS, "t")
-                .where(this.userId.equal(userId))
-                .groupBy(this.sessionId)
-                .asQuery();
-
-        final Function<SyncSession, List<String>> function;
-        function = session -> session.queryList(stmt, String.class);
-
         final String sessionName = getClass().getName() + '.' + "listSessionIds";
+        try (SyncSession session = this.sessionFactory.localSession(sessionName, true)) {
+            final Select stmt;
+            stmt = SQLs.query()
+                    .select(this.sessionId)
+                    .from(this.tableMeta, AS, "t")
+                    .where(this.userId.equal(userId))
+                    .groupBy(this.sessionId)
+                    .asQuery();
 
-        final List<String> sessionList;
-        sessionList = this.sessionContext.executeNotNull(sessionName, true, function);
+            final List<String> sessionList;
+            sessionList = session.queryList(stmt, String.class);
 
-        return new HashSet<>(sessionList);
+            return new HashSet<>(sessionList);
+        }
     }
 
 
-    private long saveSingleItem(String userId, String sessionId, String key, State value, boolean needVersion) {
+    private long saveSingleItem(String userId, String sessionId, String key, State value, final boolean needVersion) {
         final String finalUserId;
         finalUserId = validateIdStrings(userId, sessionId, key, true);
 
         final D o = createStateDomain(finalUserId, sessionId, key,
                 JsonUtils.getJsonCodec().toJson(value), SINGLE_STATE_INDEX);
-
-        final Function<SyncSession, Long> function;
-        function = session -> {
-            saveStateList(session, List.of(o));
-            final long version;
-            if (needVersion) {
-                version = queryVersion(session, finalUserId, sessionId, key);
-            } else {
-                version = 0L;
-            }
-            return version;
-        };
 
         String sessionName = getClass().getName() + '.';
         if (needVersion) {
@@ -363,20 +370,40 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
             sessionName += "save";
         }
 
-        final long version;
-        if (needVersion) {
-            version = this.sessionContext.executeNonNullInTransaction(sessionName, TransactionOption::readCommitted, function);
-        } else {
-            version = this.sessionContext.executeNotNull(sessionName, false, function);
+        try (SyncLocalSession session = this.sessionFactory.localSession(sessionName, false)) {
+
+            if (needVersion) {
+                session.startTransaction(TransactionOption.readCommitted());
+            }
+
+            try {
+                saveStateList(session, List.of(o));
+                final long version;
+                if (needVersion) {
+                    version = queryVersion(session, finalUserId, sessionId, key);
+                } else {
+                    version = 0L;
+                }
+
+                if (needVersion) {
+                    session.commit();
+                }
+                return version;
+            } catch (Throwable e) {
+                if (needVersion) {
+                    session.rollback();
+                }
+                throw e;
+            }
         }
-        return version;
+
     }
 
 
     private long queryVersion(SyncSession session, String userId, String sessionId, String key) {
         final Select stmt;
         stmt = SQLs.query()
-                .select(this.version)
+                .select(this.valueVersion)
                 .from(this.tableMeta, AS, "t")
                 .where(this.userId.equal(userId))
                 .and(this.sessionId.equal(sessionId))
@@ -451,11 +478,12 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
         stmt = SQLs.singleUpdate()
                 .update(this.tableMeta, AS, "t")
                 .set(this.stateValue, JsonUtils.getJsonCodec().toJson(value))
+                .set(this.valueVersion, SQLs::plusEqual, CONST_1)
                 .where(this.userId.equal(userId))
                 .and(this.sessionId.equal(sessionId))
                 .and(this.stateKey.equal(key))
                 .and(this.itemIndex.equal(SINGLE_STATE_INDEX))
-                .and(this.version.equal(expectedVersion))
+                .and(this.valueVersion.equal(expectedVersion))
                 .asUpdate();
 
         try {
@@ -502,6 +530,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
                 )
                 .doUpdate()
                 .set(this.stateValue, Postgres.excluded(this.stateValue))
+                .set(this.valueVersion, SQLs::plusEqual, CONST_1)
                 .asInsert();
     }
 
@@ -515,6 +544,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
                 .as(rowAlias)
                 .onDuplicateKey()
                 .update(this.stateValue, SQLs.field(rowAlias, this.stateValue))
+                .comma(this.valueVersion, SQLs::plusEqual, CONST_1)
                 .asInsert();
     }
 
@@ -532,7 +562,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
                 .selects(s -> {
                     s.selection(this.stateValue);
                     if (version) {
-                        s.selection(this.version);
+                        s.selection(this.valueVersion);
                     }
                 })
                 .from(this.tableMeta, AS, "t")
@@ -565,19 +595,20 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
 
 
     private void doDelete(String methodName, String userId, String sessionId, @Nullable String stateKey) {
-        final Delete stmt;
-        stmt = SQLs.singleDelete()
-                .deleteFrom(this.tableMeta, AS, "t")
-                .where(this.userId.equal(userId))
-                .and(this.sessionId.equal(sessionId))
-                .ifAnd(this.stateKey::equal, stateKey)
-                .asDelete();
-
-        final Consumer<SyncSession> function;
-        function = session -> session.update(stmt);
-
         final String sessionName = getClass().getName() + '.' + methodName;
-        this.sessionContext.executeVoid(sessionName, false, function);
+
+        try (SyncSession session = this.sessionFactory.localSession(sessionName, false)) {
+            final Delete stmt;
+            stmt = SQLs.singleDelete()
+                    .deleteFrom(this.tableMeta, AS, "t")
+                    .where(this.userId.equal(userId))
+                    .and(this.sessionId.equal(sessionId))
+                    .ifAnd(this.stateKey::equal, stateKey)
+                    .asDelete();
+
+            session.update(stmt);
+        }
+
     }
 
     private void deleteListItems(SyncSession session, String userId, String sessionId, String stateKey) {
@@ -612,6 +643,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
                 .setStateKey(key)
                 .setItemIndex(itemIndex)
                 .setStateValue(value)
+                .setValueVersion(1L)
         ;
         return o;
     }
@@ -660,7 +692,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
 
         private final SimpleTableMeta<T> tableMeta;
 
-        private SyncSessionContext sessionContext;
+        private SyncSessionFactory sessionFactory;
 
 
         private Supplier<String> anonymousUserIdSupplier;
@@ -675,8 +707,8 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
             this.tableMeta = tableMeta;
         }
 
-        public Builder<T> sessionContext(SyncSessionContext sessionContext) {
-            this.sessionContext = sessionContext;
+        public Builder<T> sessionFactory(SyncSessionFactory sessionFactory) {
+            this.sessionFactory = sessionFactory;
             return this;
         }
 
@@ -699,7 +731,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
         public ArmyAgentStateStore<T> build() {
             final TableMeta<T> tableMeta = this.tableMeta;
 
-            if (this.sessionContext == null) {
+            if (this.sessionFactory == null) {
                 throw missingConfig("sessionContext");
             } else if (tableMeta == null) {
                 throw missingConfig("tableMeta");
@@ -707,7 +739,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
                 throw missingConfig("anonymousUserIdSupplier");
             }
 
-            validateIndex(tableMeta);
+            ValidateUtils.assertExistsIndex(this.tableMeta, true, List.of("userId", "sessionId", "stateKey", "itemIndex"));
 
 
             if (this.nullMode == null) {
@@ -719,55 +751,6 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
             }
 
             return new ArmyAgentStateStore<>(this);
-        }
-
-
-        private void validateIndex(TableMeta<T> tableMeta) {
-            List<FieldMeta<T>> fieldList;
-
-            final int expectedMatchCount = 4;
-
-            int fieldCount, matchCount = 0;
-            for (IndexMeta<T> indexMeta : tableMeta.indexList()) {
-                fieldList = indexMeta.fieldList();
-                fieldCount = fieldList.size();
-
-                if (fieldCount != expectedMatchCount) {
-                    continue;
-                }
-
-                matchCount = 0;
-
-                for (FieldMeta<T> field : fieldList) {
-                    if (field.fieldName().equals("userId")) {
-                        matchCount++;
-                    } else if (field.fieldName().equals("sessionId")) {
-                        matchCount++;
-                    } else if (field.fieldName().equals("stateKey")) {
-                        matchCount++;
-                    } else if (field.fieldName().equals("itemIndex")) {
-                        matchCount++;
-                    }
-
-                } // inner loop
-
-                if (matchCount != fieldCount) {
-                    continue;
-                }
-
-                if (indexMeta.isUnique()) {
-                    break;
-                } else {
-                    matchCount = 0;
-                }
-
-
-            } // outer loop
-
-            if (matchCount != expectedMatchCount) {
-                throw new IllegalArgumentException("AgentStateStore index must have 4 fields: userId, sessionId, stateKey, itemIndex and be unique");
-            }
-
         }
 
         private static IllegalStateException missingConfig(String configName) {

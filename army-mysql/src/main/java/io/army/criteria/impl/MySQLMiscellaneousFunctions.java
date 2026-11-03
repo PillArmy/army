@@ -66,8 +66,8 @@ abstract class MySQLMiscellaneousFunctions extends MySQLSpatialFunctions {
     /// @param str non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/locking-functions.html#function_get-lock">GET_LOCK(str,timeout)</a>
-    public static SimpleExpression getLock(final Expression str, final Expression timeout) {
-        return FunctionUtils.twoArgFunc("GET_LOCK", str, timeout);
+    public static Expression getLock(final Object str, final Object timeout) {
+        return TypedFunctions.twoArgFunc("GET_LOCK",BooleanType.INSTANCE, str, timeout);
     }
 
     /// 
@@ -101,8 +101,8 @@ abstract class MySQLMiscellaneousFunctions extends MySQLSpatialFunctions {
     /// @param str non-null
     /// @throws CriteriaException throw when invoking this method in non-statement context.
     /// @see <a href="https://dev.mysql.com/doc/refman/8.0/en/locking-functions.html#function_release-lock">RELEASE_LOCK(str)</a>
-    public static SimpleExpression releaseLock(final Expression str) {
-        return FunctionUtils.oneArgFunc("RELEASE_LOCK", str);
+    public static Expression releaseLock(final Object str) {
+        return TypedFunctions.oneArgFunc("RELEASE_LOCK",BooleanType.INSTANCE, str);
     }
 
 

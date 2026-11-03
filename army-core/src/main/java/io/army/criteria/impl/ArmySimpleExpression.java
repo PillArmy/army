@@ -16,7 +16,9 @@
 
 package io.army.criteria.impl;
 
-/// 
+import io.army.criteria.SimpleExpression;
+
+///
 /// Package interface. This interface is base interface of below:
 /// 
 /// - {@link OperationExpression.OperationSimpleExpression}
@@ -29,7 +31,7 @@ package io.army.criteria.impl;
 /// - {@link  OperationPredicate.OperationSimplePredicate}
 /// 
 /// * @since 0.6.0
-interface ArmySimpleExpression extends ArmyExpression {
+interface ArmySimpleExpression extends ArmyExpression , SimpleExpression {
 
 
 }

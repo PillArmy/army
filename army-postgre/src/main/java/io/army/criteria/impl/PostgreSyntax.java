@@ -34,7 +34,7 @@ import java.util.function.Function;
 /// Package class
 /// @since 0.6.0
 @SuppressWarnings("unused")
-abstract class PostgreSyntax extends PostgreWindowFunctions {
+abstract class PostgreSyntax extends PostgreSystemFunctions {
 
     /// Package constructor
     PostgreSyntax() {

@@ -27,14 +27,15 @@ public abstract class AgentScopeSessions {
     @Column(name = "${DEFAULT}", precision = Column.DEFAULT_EXP, scale = Column.DEFAULT_EXP)
     private String id;
 
-    @Column
+    @Column(name = "${DEFAULT}",comment = "${DEFAULT}")
     private LocalDateTime createTime;
 
-    @Column
+    @Column(name = "${DEFAULT}",comment = "${DEFAULT}")
     private LocalDateTime updateTime;
 
-    @Column
-    private Long version;
+    /// don't use version ,because it is 1-based
+    @Column(name = "${DEFAULT}",defaultValue = "1", comment = "${DEFAULT}")
+    private Long valueVersion;
 
     @Column(name = "${DEFAULT}", notNull = true, updatable = false, precision = Column.DEFAULT_EXP,comment = "${DEFAULT}")
     @Mapping("${DEFAULT}")
@@ -48,7 +49,7 @@ public abstract class AgentScopeSessions {
     @Mapping("${DEFAULT}")
     private String stateKey;
 
-    @Column(name = "${DEFAULT}", notNull = true, defaultValue = "${DEFAULT}", comment = "${DEFAULT}")
+    @Column(name = "${DEFAULT}", notNull = true, updatable = false,defaultValue = "${DEFAULT}", comment = "${DEFAULT}")
     private Integer itemIndex;
 
     @Column(name = "${DEFAULT}", notNull = true, comment = "${DEFAULT}")
@@ -82,12 +83,12 @@ public abstract class AgentScopeSessions {
         return this;
     }
 
-    public Long getVersion() {
-        return version;
+    public Long getValueVersion() {
+        return valueVersion;
     }
 
-    public AgentScopeSessions setVersion(Long version) {
-        this.version = version;
+    public AgentScopeSessions setValueVersion(Long valueVersion) {
+        this.valueVersion = valueVersion;
         return this;
     }
 
