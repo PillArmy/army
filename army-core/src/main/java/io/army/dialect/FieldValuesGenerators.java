@@ -168,14 +168,13 @@ abstract class FieldValuesGenerators implements FieldValueGenerator {
         if (field != null) {
             final Class<?> javaType = field.javaType();
             if (javaType == Integer.class || javaType == int.class) {
-                wrapper.set(field, 0);
+                wrapper.set(field, nonChild.versionDefault());
             } else if (javaType == Long.class || javaType == long.class) {
-                wrapper.set(field, 0L);
+                wrapper.set(field, nonChild.versionDefault());
             } else if (javaType == BigInteger.class) {
-                wrapper.set(field, BigInteger.ZERO);
+                wrapper.set(field, nonChild.versionDefault());
             } else {
-                String m = String.format("%s not support java type[%s]", field, javaType.getName());
-                throw new MetaException(m);
+                throw _Exceptions.fieldJavaTypeNotSupport(field);
             }
         }
         //5. visible

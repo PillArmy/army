@@ -20,6 +20,16 @@ import io.army.annotation.*;
 
 import java.time.LocalDateTime;
 
+/// Base domain for {@link io.agentscope.core.state.AgentStateStore} persistence.
+///
+/// Subclass this, add @Table, and declare exactly one unique index over
+/// (userId, sessionId, stateKey, itemIndex). One row is one state item: itemIndex is 0 for a
+/// single value and the list position for list values. A list additionally stores a hash row
+/// under stateKey + ":_hash".
+///
+/// Reserved fields id, createTime, updateTime and version are managed by Army. version starts
+/// at 1 (defaultValue) and is incremented by the framework on each update. stateValue holds the
+/// state object as JSON and is fixed to io.army.mapping.PreferredJsonbType.
 @MappedSuperclass
 public abstract class AgentScopeSessions {
 
@@ -33,9 +43,8 @@ public abstract class AgentScopeSessions {
     @Column(name = "${DEFAULT}",comment = "${DEFAULT}")
     private LocalDateTime updateTime;
 
-    /// don't use version ,because it is 1-based
-    @Column(name = "${DEFAULT}",defaultValue = "1", comment = "${DEFAULT}")
-    private Long valueVersion;
+    @Column(name = "${DEFAULT}",notNull = true, defaultValue = "1", comment = "${DEFAULT}")
+    private Long version;
 
     @Column(name = "${DEFAULT}", notNull = true, updatable = false, precision = Column.DEFAULT_EXP,comment = "${DEFAULT}")
     @Mapping("${DEFAULT}")
@@ -83,12 +92,12 @@ public abstract class AgentScopeSessions {
         return this;
     }
 
-    public Long getValueVersion() {
-        return valueVersion;
+    public Long getVersion() {
+        return version;
     }
 
-    public AgentScopeSessions setValueVersion(Long valueVersion) {
-        this.valueVersion = valueVersion;
+    public AgentScopeSessions setVersion(Long version) {
+        this.version = version;
         return this;
     }
 

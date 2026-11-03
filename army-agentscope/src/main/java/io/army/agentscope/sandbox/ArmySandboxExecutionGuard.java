@@ -35,12 +35,19 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.function.Supplier;
 
-/// Army-backed {@link SandboxExecutionGuard}.
+/// Army-backed {@link SandboxExecutionGuard} using the database's native lock facility.
+/// No table and no entity are required.
 ///
-/// <p>Uses a dedicated table ({@code army_agentscope_sandbox_lock}) with a unique index on
-/// {@code lockKey} to provide insert-if-absent CAS semantics. PostgreSQL uses
-/// {@code ON CONFLICT DO NOTHING}; MySQL catches the duplicate-key exception. The lease
-/// simply deletes the row on close.</p>
+/// - PostgreSQL: pg_try_advisory_lock / pg_advisory_unlock on a 64-bit key, the first long of the
+///   MurmurHash3 128-bit hash of keyPrefix + scope + : + value.
+/// - MySQL: GET_LOCK / RELEASE_LOCK on keyPrefix + scope + : + value, limited to 64 characters;
+///   longer names are truncated and suffixed with a hash.
+///
+/// The lock functions are issued as Army dialect expressions (Postgres.pgTryAdvisoryLock,
+/// MySQLs.getLock, MySQLs.releaseLock) in a SELECT. tryEnter polls until the lock is acquired or
+/// lockTimeoutSeconds elapses, then throws InterruptedException. One SyncSession is held for the
+/// whole lease lifetime, because both lock facilities are bound to the database session;
+/// SandboxLease.close() issues the unlock statement and closes the session.
 ///
 /// Only PostgreSQL and MySQL are supported.
 public final class ArmySandboxExecutionGuard implements SandboxExecutionGuard {
@@ -53,11 +60,14 @@ public final class ArmySandboxExecutionGuard implements SandboxExecutionGuard {
 
     private final int lockTimeoutSeconds;
 
+    private final long waitIntervalMillis;
+
 
     private ArmySandboxExecutionGuard(final Builder builder) {
         this.sessionFactory = builder.sessionFactory;
         this.keyPrefix = builder.keyPrefix;
         this.lockTimeoutSeconds = builder.lockTimeoutSeconds;
+        this.waitIntervalMillis = builder.waitIntervalMillis;
     }
 
 
@@ -98,7 +108,7 @@ public final class ArmySandboxExecutionGuard implements SandboxExecutionGuard {
                     throw tryTimeoutInterrupt(sessionName);
                 }
 
-                Thread.onSpinWait(); // Spin wait
+                Thread.sleep(this.waitIntervalMillis);
 
             } // loop
 
@@ -219,11 +229,15 @@ public final class ArmySandboxExecutionGuard implements SandboxExecutionGuard {
 
         private static final int DEFAULT_LOCK_TIMEOUT_SECONDS = 1800; // 30 minutes
 
+        private static final long DEFAULT_WAIT_INTERVAL_MILLIS = 100; // 100ms
+
         private SyncSessionFactory sessionFactory;
 
         private String keyPrefix = DEFAULT_KEY_PREFIX;
 
         private int lockTimeoutSeconds = DEFAULT_LOCK_TIMEOUT_SECONDS;
+
+        private long waitIntervalMillis = DEFAULT_WAIT_INTERVAL_MILLIS;
 
         private Builder() {
         }
@@ -243,13 +257,28 @@ public final class ArmySandboxExecutionGuard implements SandboxExecutionGuard {
             return this;
         }
 
+        public Builder waitIntervalMillis(final long waitIntervalMillis) {
+            this.waitIntervalMillis = waitIntervalMillis;
+            return this;
+        }
+
         public ArmySandboxExecutionGuard build() {
             if (this.sessionFactory == null) {
                 throw new IllegalStateException("sessionFactory is required");
             }
+
+            if (this.lockTimeoutSeconds < 1L) {
+                this.lockTimeoutSeconds = DEFAULT_LOCK_TIMEOUT_SECONDS;
+            }
+
+            if (this.waitIntervalMillis < 1L) {
+                this.waitIntervalMillis = DEFAULT_WAIT_INTERVAL_MILLIS;
+            }
+
             if (this.keyPrefix == null) {
                 this.keyPrefix = DEFAULT_KEY_PREFIX;
             }
+
             return new ArmySandboxExecutionGuard(this);
         }
 

@@ -49,16 +49,24 @@ import java.util.function.Supplier;
 import static io.army.criteria.impl.SQLs.AS;
 import static io.army.criteria.impl.SQLs.CONST_1;
 
+/// Army Criteria API implementation of {@link io.agentscope.core.state.AgentStateStore}.
+///
+/// Subclass {@link AgentScopeSessions} with @Table and a unique index over
+/// (userId, sessionId, stateKey, itemIndex), then pass the generated SimpleTableMeta to
+/// {@link #builder(SimpleTableMeta)}.
+///
+/// supportsVersioning() returns true. save is a dialect upsert (PostgreSQL ON CONFLICT DO UPDATE,
+/// MySQL ON DUPLICATE KEY UPDATE). saveIfVersion is a CAS write on the Army reserved version
+/// field: expectedVersion 0 means create-if-absent, UNVERSIONED means unconditional overwrite,
+/// any other value requires an exact version match.
+///
+/// Only PostgreSQL and MySQL are supported.
 public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements AgentStateStore {
 
-    /**
-     * Suffix for hash storage keys.
-     */
+    /// Suffix for hash storage keys.
     private static final String HASH_KEY_SUFFIX = ":_hash";
 
-    /**
-     * item_index value for single state values.
-     */
+    /// item_index value for single state values.
     private static final int SINGLE_STATE_INDEX = 0;
 
 
@@ -68,7 +76,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
 
     private final PrimaryFieldMeta<D> id;
 
-    private final FieldMeta<D> valueVersion;
+    private final FieldMeta<D> version;
 
     private final FieldMeta<D> userId;
 
@@ -97,7 +105,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
         this.tableMeta = builder.tableMeta;
 
         this.id = this.tableMeta.id();
-        this.valueVersion = this.tableMeta.field("valueVersion");
+        this.version = this.tableMeta.version();
         this.userId = this.tableMeta.field("userId");
         this.sessionId = this.tableMeta.field("sessionId");
 
@@ -403,7 +411,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
     private long queryVersion(SyncSession session, String userId, String sessionId, String key) {
         final Select stmt;
         stmt = SQLs.query()
-                .select(this.valueVersion)
+                .select(this.version)
                 .from(this.tableMeta, AS, "t")
                 .where(this.userId.equal(userId))
                 .and(this.sessionId.equal(sessionId))
@@ -478,12 +486,11 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
         stmt = SQLs.singleUpdate()
                 .update(this.tableMeta, AS, "t")
                 .set(this.stateValue, JsonUtils.getJsonCodec().toJson(value))
-                .set(this.valueVersion, SQLs::plusEqual, CONST_1)
                 .where(this.userId.equal(userId))
                 .and(this.sessionId.equal(sessionId))
                 .and(this.stateKey.equal(key))
                 .and(this.itemIndex.equal(SINGLE_STATE_INDEX))
-                .and(this.valueVersion.equal(expectedVersion))
+                .and(this.version.equal(expectedVersion))
                 .asUpdate();
 
         try {
@@ -530,7 +537,6 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
                 )
                 .doUpdate()
                 .set(this.stateValue, Postgres.excluded(this.stateValue))
-                .set(this.valueVersion, SQLs::plusEqual, CONST_1)
                 .asInsert();
     }
 
@@ -544,7 +550,6 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
                 .as(rowAlias)
                 .onDuplicateKey()
                 .update(this.stateValue, SQLs.field(rowAlias, this.stateValue))
-                .comma(this.valueVersion, SQLs::plusEqual, CONST_1)
                 .asInsert();
     }
 
@@ -557,12 +562,12 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
     }
 
 
-    private Select queryStateValueStmt(String userId, String sessionId, String stateKey, @Nullable Integer itemIndex, boolean version) {
+    private Select queryStateValueStmt(String userId, String sessionId, String stateKey, @Nullable Integer itemIndex, boolean needVersion) {
         return SQLs.query()
                 .selects(s -> {
                     s.selection(this.stateValue);
-                    if (version) {
-                        s.selection(this.valueVersion);
+                    if (needVersion) {
+                        s.selection(this.version);
                     }
                 })
                 .from(this.tableMeta, AS, "t")
@@ -643,7 +648,6 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
                 .setStateKey(key)
                 .setItemIndex(itemIndex)
                 .setStateValue(value)
-                .setValueVersion(1L)
         ;
         return o;
     }
@@ -732,7 +736,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
             final TableMeta<T> tableMeta = this.tableMeta;
 
             if (this.sessionFactory == null) {
-                throw missingConfig("sessionContext");
+                throw missingConfig("sessionFactory");
             } else if (tableMeta == null) {
                 throw missingConfig("tableMeta");
             } else if (this.anonymousUserIdSupplier == null) {

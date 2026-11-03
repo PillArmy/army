@@ -28,6 +28,7 @@ import io.army.util.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.math.BigInteger;
 import java.util.*;
 
 
@@ -665,6 +666,32 @@ abstract class TableMetaUtils {
         return Map.copyOf(map);
     }
 
+    static <T> Object versionDefault(TableMeta<T> tableMeta) {
+        final FieldMeta<?> field = tableMeta.version();
+        final Class<?> javaType = field.javaType();
+        final String str;
+        str = field.defaultValue();
+
+        Object value;
+        try {
+            if (!_StringUtils.hasText(str)) {
+                value = versionValue(field, javaType);
+            } else if (javaType == Integer.class || javaType == int.class) {
+                value = Integer.parseInt(str);
+            } else if (javaType == Long.class || javaType == long.class) {
+                value = Long.parseLong(str);
+            } else if (javaType == BigInteger.class) {
+                value = new BigInteger(str);
+            } else {
+                throw _Exceptions.fieldJavaTypeNotSupport(field);
+            }
+        } catch (NumberFormatException e) {
+            value = versionValue(field, javaType);
+        }
+
+        return value;
+    }
+
 
     /// Creates the **index metadata list** for a table based on `@Index` annotations.
     ///
@@ -835,6 +862,20 @@ abstract class TableMetaUtils {
             } // default
         } // switch
         return finalIndexName;
+    }
+
+    private static Object versionValue(FieldMeta<?> field, Class<?> javaType) {
+        final Object zeroValue;
+        if (javaType == Integer.class || javaType == int.class) {
+            zeroValue = 0;
+        } else if (javaType == Long.class || javaType == long.class) {
+            zeroValue = 0L;
+        } else if (javaType == BigInteger.class) {
+            zeroValue = BigInteger.ZERO;
+        } else {
+            throw _Exceptions.fieldJavaTypeNotSupport(field);
+        }
+        return zeroValue;
     }
 
 

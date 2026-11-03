@@ -200,6 +200,8 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
     private final List<FieldMeta<?>> generatorChain;
 
+    private final Object versionDefault;
+
     private DefaultTableMeta(final Class<T> domainClass, final MetaContext context) {
         this.javaType = domainClass;
         try {
@@ -230,6 +232,11 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
             this.indexMetaList = List.copyOf(TableMetaUtils.createIndexList(this, context, this.fieldNameToFields));
             this.generatorChain = List.copyOf(TableMetaUtils.createGeneratorChain(this.fieldNameToFields));
 
+            if (this.fieldNameToFields.get(_MetaBridge.VERSION) == null) {
+                this.versionDefault = null;
+            } else {
+                this.versionDefault = TableMetaUtils.versionDefault(this);
+            }
         } catch (ArmyException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -341,6 +348,12 @@ abstract class DefaultTableMeta<T> implements TableMeta<T> {
             throw new IllegalArgumentException(m);
         }
         return (JsonbFieldMeta<T>) fieldMeta;
+    }
+
+    @Nullable
+    @Override
+    public final Object versionDefault() {
+        return this.versionDefault;
     }
 
     @Override

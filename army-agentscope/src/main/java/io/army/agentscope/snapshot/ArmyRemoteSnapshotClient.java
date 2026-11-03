@@ -44,11 +44,14 @@ import static io.army.criteria.impl.SQLs.AS;
 
 /// Army-backed {@link RemoteSnapshotClient}.
 ///
-/// <p>Subclass {@link AgentScopeSnapshot} with @Table, then pass its meta to
-/// {@link #builder}.</p>
+/// Subclass {@link AgentScopeSnapshot} with @Table, then pass the generated SimpleTableMeta to
+/// {@link #builder(SimpleTableMeta)}.
 ///
-/// <p>Upload is an upsert — re-uploading the same snapshot replaces the archive atomically.
-/// Only PostgreSQL and MySQL are supported.</p>
+/// upload is an upsert — re-uploading the same snapshot ID replaces the archive atomically
+/// (PostgreSQL ON CONFLICT DO UPDATE, MySQL ON DUPLICATE KEY UPDATE). download throws
+/// RuntimeException when the snapshot ID is absent.
+///
+/// Only PostgreSQL and MySQL are supported.
 public final class ArmyRemoteSnapshotClient<D extends AgentScopeSnapshot> implements RemoteSnapshotClient {
 
 

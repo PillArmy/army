@@ -26,10 +26,15 @@ import java.time.LocalDateTime;
 
 /// Base domain for {@link io.agentscope.harness.agent.filesystem.remote.store.BaseStore} persistence.
 ///
-/// <p>Subclass this, add @Table, and optionally extra business columns. The logical unique key
-/// is (namespaceHash, itemKeyHash) — SHA-256 digests because MySQL limits the byte length of
-/// a unique index on utf8mb4 columns. The original namespacePath and itemKey are stored
-/// verbatim for the search prefix query.</p>
+/// Subclass this, add @Table, and declare exactly one unique index over (namespacePath, itemKey).
+/// namespacePath is the namespace segments joined with the unit separator 0x1F, trailing
+/// separator included, max 512 characters; it supports the search prefix query. itemKey is the
+/// key within the namespace, max 255 characters. valueJson holds the value as JSON and is fixed
+/// to io.army.mapping.PreferredJsonbType.
+///
+/// Reserved fields id, createTime, updateTime and version are managed by Army. version starts
+/// at 1 (defaultValue) and is incremented by the framework on each update; it serves as the CAS
+/// counter of putIfVersion.
 @MappedSuperclass
 public abstract class AgentScopeStore {
 
@@ -43,9 +48,8 @@ public abstract class AgentScopeStore {
     @Column(name = "${DEFAULT}", comment = "${DEFAULT}")
     private LocalDateTime updateTime;
 
-    /// don't use version ,because it is 1-based
     @Column(name = "${DEFAULT}", defaultValue = "1", comment = "${DEFAULT}")
-    private Long valueVersion;
+    private Long version;
 
     @Column(name = "${DEFAULT}", notNull = true, updatable = false, precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
     private String namespacePath;
@@ -84,12 +88,12 @@ public abstract class AgentScopeStore {
         return this;
     }
 
-    public Long getValueVersion() {
-        return valueVersion;
+    public Long getVersion() {
+        return version;
     }
 
-    public AgentScopeStore setValueVersion(Long valueVersion) {
-        this.valueVersion = valueVersion;
+    public AgentScopeStore setVersion(Long version) {
+        this.version = version;
         return this;
     }
 

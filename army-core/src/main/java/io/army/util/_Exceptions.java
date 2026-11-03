@@ -464,6 +464,11 @@ public abstract class _Exceptions {
         return function.apply(m);
     }
 
+    public static MetaException fieldJavaTypeNotSupport(FieldMeta<?> field) {
+        String m = String.format("%s not support java type[%s]", field, field.javaType().getName());
+        return new MetaException(m);
+    }
+
     public static IllegalTwoStmtModeException illegalTwoStmtMode() {
         return new IllegalTwoStmtModeException("illegal two statement mode,first statement exists returning clause and second statement not exists returning clause.");
     }

@@ -80,6 +80,12 @@ public interface TableMeta<T> extends TabularItem, DatabaseTypeObject, Meta {
     @Nullable
     FieldMeta<? super T> tryVisible();
 
+    /// version field default value, if exists version field.
+    ///
+    /// version default value should be constant, like 0 or 1,if not specified, default is 0.
+    @Nullable
+    Object versionDefault();
+
 
     PrimaryFieldMeta<? super T> nonChildId();
 

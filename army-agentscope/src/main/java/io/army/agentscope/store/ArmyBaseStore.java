@@ -47,13 +47,15 @@ import static io.army.criteria.impl.SQLs.field;
 
 /// Army Criteria API implementation of {@link io.agentscope.harness.agent.filesystem.remote.store.BaseStore}.
 ///
-/// <p>Subclass {@link AgentScopeStore} with @Table, then pass its meta to
-/// {@link #builder}.</p>
+/// Subclass {@link AgentScopeStore} with @Table and a unique index over (namespacePath, itemKey),
+/// then pass the generated SimpleTableMeta to {@link #builder(SimpleTableMeta)}.
 ///
-/// <p>Army's reserved version field is reused as the CAS counter; the database starts it at
-/// 0, while StoreItem#version() is exposed as 1-based by adding one on read.</p>
+/// put is a dialect upsert (PostgreSQL ON CONFLICT DO UPDATE, MySQL ON DUPLICATE KEY UPDATE).
+/// putIfVersion with expectedVersion 0 creates the row if absent; any positive value is a CAS
+/// update with WHERE version = expectedVersion. The version exposed through StoreItem is the Army
+/// reserved version field as-is.
 ///
-/// <p>Only PostgreSQL and MySQL are supported.</p>
+/// Only PostgreSQL and MySQL are supported.
 public final class ArmyBaseStore<D extends AgentScopeStore> implements BaseStore {
 
     private static final int MAX_NAMESPACE_PATH_LENGTH = 512;
@@ -77,7 +79,7 @@ public final class ArmyBaseStore<D extends AgentScopeStore> implements BaseStore
 
     private final FieldMeta<D> valueJson;
 
-    private final FieldMeta<D> valueVersion;
+    private final FieldMeta<D> version;
 
     private final Supplier<D> constructor;
 
@@ -95,7 +97,7 @@ public final class ArmyBaseStore<D extends AgentScopeStore> implements BaseStore
         this.namespacePath = this.tableMeta.field("namespacePath");
         this.itemKey = this.tableMeta.field("itemKey");
         this.valueJson = this.tableMeta.field("valueJson");
-        this.valueVersion = this.tableMeta.field("valueVersion");
+        this.version = this.tableMeta.version();
 
         this.nullMode = builder.nullMode;
         this.literalMode = builder.literalMode;
@@ -115,7 +117,7 @@ public final class ArmyBaseStore<D extends AgentScopeStore> implements BaseStore
 
             final Select stmt;
             stmt = SQLs.query()
-                    .select(this.valueJson, this.valueVersion)
+                    .select(this.valueJson, this.version)
                     .from(this.tableMeta, AS, "t")
                     .where(this.namespacePath.equal(namespacePath))
                     .and(this.itemKey.equal(key))
@@ -206,7 +208,7 @@ public final class ArmyBaseStore<D extends AgentScopeStore> implements BaseStore
 
             final Select stmt;
             stmt = SQLs.query()
-                    .select(this.itemKey, this.valueJson, this.valueVersion)
+                    .select(this.itemKey, this.valueJson, this.version)
                     .from(this.tableMeta, AS, "t")
                     .where(this.namespacePath.like(pattern, SQLs.ESCAPE, '!'))
                     .orderBy(this.itemKey)
@@ -270,10 +272,9 @@ public final class ArmyBaseStore<D extends AgentScopeStore> implements BaseStore
         stmt = SQLs.singleUpdate()
                 .update(this.tableMeta, AS, "t")
                 .set(this.valueJson, JsonUtils.getJsonCodec().toJson(value))
-                .set(this.valueVersion, SQLs::plusEqual, SQLs.CONST_1)
                 .where(this.namespacePath.equal(namespaceHash))
                 .and(this.itemKey.equal(itemKey))
-                .and(this.valueVersion.equal(expectedVersion))
+                .and(this.version.equal(expectedVersion))
                 .asUpdate();
 
         return session.update(stmt);
@@ -425,6 +426,21 @@ public final class ArmyBaseStore<D extends AgentScopeStore> implements BaseStore
 
         private Builder(final SimpleTableMeta<D> tableMeta) {
             this.tableMeta = tableMeta;
+        }
+
+        public Builder<D> sessionFactory(final SyncSessionFactory sessionFactory) {
+            this.sessionFactory = sessionFactory;
+            return this;
+        }
+
+        public Builder<D> nullMode(final NullMode nullMode) {
+            this.nullMode = nullMode;
+            return this;
+        }
+
+        public Builder<D> literalMode(final LiteralMode literalMode) {
+            this.literalMode = literalMode;
+            return this;
         }
 
         public ArmyBaseStore<D> build() {

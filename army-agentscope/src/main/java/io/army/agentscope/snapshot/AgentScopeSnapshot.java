@@ -20,12 +20,14 @@ import io.army.annotation.*;
 
 import java.time.LocalDateTime;
 
-/// Base domain for sandbox snapshot archive persistence.
+/// Base domain for {@link io.agentscope.harness.agent.sandbox.snapshot.RemoteSnapshotClient} persistence.
 ///
-/// <p>Subclass this, add @Table, and optionally extra business columns.
-/// snapshotId is the logical unique key. data uses
-/// io.army.mapping.LongBlobType which maps to bytea on PostgreSQL and
-/// LONGBLOB on MySQL.</p>
+/// Subclass this, add @Table, and optionally extra business columns. The primary key id is the
+/// snapshot ID itself: no generator is declared, upload assigns it. data holds the snapshot tar
+/// archive and is fixed to io.army.mapping.LongBlobType, which maps to bytea on PostgreSQL and
+/// LONGBLOB on MySQL.
+///
+/// Reserved fields createTime, updateTime and version are managed by Army.
 @MappedSuperclass
 public abstract class AgentScopeSnapshot {
 
@@ -38,7 +40,7 @@ public abstract class AgentScopeSnapshot {
     @Column(name = "${DEFAULT}", comment = "${DEFAULT}")
     private LocalDateTime updateTime;
 
-    @Column(name = "${DEFAULT}", comment = "${DEFAULT}")
+    @Column(name = "${DEFAULT}",defaultValue = "1", comment = "${DEFAULT}")
     private Long version;
 
     @Column(name = "${DEFAULT}", notNull = true, comment = "Snapshot tar archive")
