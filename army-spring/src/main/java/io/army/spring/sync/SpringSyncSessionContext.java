@@ -145,7 +145,7 @@ final class SpringSyncSessionContext implements SyncSessionContext {
             if (newTransaction) {
                 ((SyncLocalSession) session).commit();
             }
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             if (newTransaction) {
                 ((SyncLocalSession) session).rollback();
             } else {

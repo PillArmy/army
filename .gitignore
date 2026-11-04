@@ -9,6 +9,7 @@
 **/my-local/
 /classes/
 .mvn
+.dsh/
 
 /.project
 **/~$*.xlsx
