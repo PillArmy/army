@@ -10,6 +10,8 @@
 /classes/
 .mvn
 .dsh/
+.codebuddy/
+.trae/
 
 /.project
 **/~$*.xlsx
