@@ -62,12 +62,5 @@ public interface SyncSessionContext extends SessionContext {
 
     void executeVoidInTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Consumer<SyncSession> consumer);
 
-    @Nullable
-    <T> T executeInNewTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Function<SyncSession, T> function);
-
-    <T> T executeNonNullInNewTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Function<SyncSession, T> function);
-
-    void executeVoidInNewTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Consumer<SyncSession> consumer);
-
 
 }

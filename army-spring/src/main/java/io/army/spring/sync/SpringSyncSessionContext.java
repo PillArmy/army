@@ -178,42 +178,6 @@ final class SpringSyncSessionContext implements SyncSessionContext {
         executeInTransaction(name, optionSupplier, createCallback(consumer));
     }
 
-    @Override
-    public <T> T executeInNewTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Function<SyncSession, T> function) {
-
-        final TransactionOption option = optionSupplier.get();
-
-        try (SyncLocalSession session = this.factory.localSession(name, option.isReadOnly())) {
-
-            session.startTransaction(option);
-
-            final T result;
-            try {
-                result = function.apply(session);
-                session.commit();
-            } catch (Throwable e) {
-                session.rollback();
-                throw e;
-            }
-
-            return result;
-        }
-
-
-    }
-
-    @Override
-    public <T> T executeNonNullInNewTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Function<SyncSession, T> function) {
-        final T result;
-        result = executeInNewTransaction(name, optionSupplier, function);
-        return Objects.requireNonNull(result, "function must not return null");
-    }
-
-    @Override
-    public void executeVoidInNewTransaction(@Nullable String name, Supplier<TransactionOption> optionSupplier, Consumer<SyncSession> consumer) {
-        executeInNewTransaction(name, optionSupplier, createCallback(consumer));
-    }
-
     private static Function<SyncSession, Void> createCallback(Consumer<SyncSession> action) {
         return status -> {
             action.accept(status);
