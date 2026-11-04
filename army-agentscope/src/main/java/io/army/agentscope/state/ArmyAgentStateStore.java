@@ -155,7 +155,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
                 final long newVersion;
                 if (expectedVersion != 0L) {
                     newVersion = updateItem(session, finalUserId, sessionId, key, value, expectedVersion);
-                } else if (insertIfAbsent(session, finalUserId, sessionId, key, value) == UNVERSIONED) {
+                } else if (insertIfAbsent(session, finalUserId, sessionId, key, value) == 0L) {
                     newVersion = updateItem(session, finalUserId, sessionId, key, value, 0L);
                 } else {
                     newVersion = queryVersion(session, finalUserId, sessionId, key);
@@ -364,6 +364,7 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
     }
 
 
+    /// @see #save(String, String, String, State)
     private long saveSingleItem(String userId, String sessionId, String key, State value, final boolean needVersion) {
         final String finalUserId;
         finalUserId = validateIdStrings(userId, sessionId, key, true);
@@ -438,6 +439,8 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
     }
 
 
+    /// @return row affected
+    /// @see #saveIfVersion(String, String, String, State, long)
     private long insertIfAbsent(SyncSession session, String userId, String sessionId, String key, State value) {
         final D o = createStateDomain(userId, sessionId, key,
                 JsonUtils.getJsonCodec().toJson(value), SINGLE_STATE_INDEX);
@@ -460,24 +463,17 @@ public final class ArmyAgentStateStore<D extends AgentScopeSessions> implements 
                 throw new IllegalStateException(String.format("%s is supported", session.dialectDatabase()));
         }
 
-        long currentVersion;
+        long rowAffected;
         try {
-            final long rowAffected;
             rowAffected = session.update(stmt);
-            if (rowAffected == 0L) {
-                currentVersion = UNVERSIONED;
-            } else {
-                currentVersion = 0L;
-            }
         } catch (DriverException e) {
             if (Objects.equals(e.getSqlState(), "23000")) {
-                currentVersion = UNVERSIONED;
+                rowAffected = 0L;
             } else {
                 throw e;
             }
         }
-
-        return currentVersion;
+        return rowAffected;
     }
 
     /// @return the new version after update.

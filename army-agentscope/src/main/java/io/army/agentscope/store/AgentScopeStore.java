@@ -40,6 +40,7 @@ public abstract class AgentScopeStore {
 
     @Generator(type = GeneratorType.DEFAULT)
     @Column(name = "${DEFAULT}", precision = Column.DEFAULT_EXP, scale = Column.DEFAULT_EXP)
+    @Mapping("${DEFAULT}")
     private String id;
 
     @Column(name = "${DEFAULT}", comment = "${DEFAULT}")
@@ -52,9 +53,11 @@ public abstract class AgentScopeStore {
     private Long version;
 
     @Column(name = "${DEFAULT}", notNull = true, updatable = false, precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
+    @Mapping("${DEFAULT}")
     private String namespacePath;
 
     @Column(name = "${DEFAULT}", notNull = true, updatable = false, precision = Column.DEFAULT_EXP, comment = "${DEFAULT}")
+    @Mapping("${DEFAULT}")
     private String itemKey;
 
     @Column(name = "${DEFAULT}", notNull = true, comment = "${DEFAULT}")

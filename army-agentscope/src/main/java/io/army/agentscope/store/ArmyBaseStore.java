@@ -266,13 +266,13 @@ public final class ArmyBaseStore<D extends AgentScopeStore> implements BaseStore
         return sb.toString();
     }
 
-    private long updateItem(final SyncSession session, final String namespaceHash, String itemKey,
+    private long updateItem(final SyncSession session, final String namespacePath, String itemKey,
                             final Map<String, Object> value, final long expectedVersion) {
         final Update stmt;
         stmt = SQLs.singleUpdate()
                 .update(this.tableMeta, AS, "t")
                 .set(this.valueJson, JsonUtils.getJsonCodec().toJson(value))
-                .where(this.namespacePath.equal(namespaceHash))
+                .where(this.namespacePath.equal(namespacePath))
                 .and(this.itemKey.equal(itemKey))
                 .and(this.version.equal(expectedVersion))
                 .asUpdate();

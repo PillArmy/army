@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 public abstract class AgentScopeSnapshot {
 
     @Column(name = "${DEFAULT}", precision = Column.DEFAULT_EXP, scale = Column.DEFAULT_EXP, comment = "${DEFAULT}")
+    @Mapping("${DEFAULT}")
     private String id;
 
     @Column(name = "${DEFAULT}", comment = "${DEFAULT}")

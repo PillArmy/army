@@ -341,6 +341,9 @@ abstract class TableMetaUtils {
                 };
             }
             break;
+            case DEFAULT_VALUE_EXP:
+                finalName = _MetaBridge.camelToLowerCase(domainClass.getSimpleName(), context.tempBuilderAndClear());
+                break;
             case OPTIONAL_EXP: {
                 String m = String.format("%s in %s %s.%s is unsupported", tableName, domainClass.getName(),
                         "Table", "name");
@@ -395,6 +398,9 @@ abstract class TableMetaUtils {
                 };
             }
             break;
+            case DEFAULT_VALUE_EXP:
+                finalComment = _MetaBridge.camelToComment(domainClass.getSimpleName(), context.tempBuilderAndClear());
+                break;
             case OPTIONAL_EXP: {
                 String m = String.format("%s in %s %s.%s is unsupported", comment, domainClass.getName(),
                         "Table", "comment");

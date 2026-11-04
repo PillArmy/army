@@ -33,6 +33,7 @@ import io.army.session.SyncSession;
 import io.army.session.SyncSessionFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
@@ -110,7 +111,7 @@ public final class ArmyRemoteSnapshotClient<D extends AgentScopeSnapshot> implem
     }
 
     @Override
-    public InputStream download(final String snapshotId) {
+    public InputStream download(final String snapshotId) throws Exception {
         Objects.requireNonNull(snapshotId, "snapshotId");
 
         final String sessionName = getClass().getName() + '.' + "download";
@@ -127,7 +128,7 @@ public final class ArmyRemoteSnapshotClient<D extends AgentScopeSnapshot> implem
             bytes = session.queryOne(stmt, byte[].class);
             if (bytes == null) {
                 String m = String.format("Snapshot %s not found", snapshotId);
-                throw new RuntimeException(m);
+                throw new FileNotFoundException(m);
             }
             return new ByteArrayInputStream(bytes);
         }
@@ -208,6 +209,16 @@ public final class ArmyRemoteSnapshotClient<D extends AgentScopeSnapshot> implem
 
         public Builder<D> sessionFactory(SyncSessionFactory sessionFactory) {
             this.sessionFactory = sessionFactory;
+            return this;
+        }
+
+        public Builder<D> literalMode(LiteralMode literalMode) {
+            this.literalMode = literalMode;
+            return this;
+        }
+
+        public Builder<D> nullMode(NullMode nullMode) {
+            this.nullMode = nullMode;
             return this;
         }
 

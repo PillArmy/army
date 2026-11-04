@@ -35,6 +35,7 @@ public abstract class AgentScopeSessions {
 
     @Generator(type = GeneratorType.DEFAULT)
     @Column(name = "${DEFAULT}", precision = Column.DEFAULT_EXP, scale = Column.DEFAULT_EXP)
+    @Mapping("${DEFAULT}")
     private String id;
 
     @Column(name = "${DEFAULT}",comment = "${DEFAULT}")
@@ -59,6 +60,7 @@ public abstract class AgentScopeSessions {
     private String stateKey;
 
     @Column(name = "${DEFAULT}", notNull = true, updatable = false,defaultValue = "${DEFAULT}", comment = "${DEFAULT}")
+    @Mapping("${DEFAULT}")
     private Integer itemIndex;
 
     @Column(name = "${DEFAULT}", notNull = true, comment = "${DEFAULT}")
