@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentMap;
 /// @since 0.6.0
 abstract class DefaultTableMeta<T> implements TableMeta<T> {
 
-    static final Class<?> LOCK = DefaultTableMeta.class;
+    static final Object LOCK = new Object();
 
 
     private static final ConcurrentMap<Class<?>, DefaultTableMeta<?>> INSTANCE_MAP = new ConcurrentHashMap<>();
