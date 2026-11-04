@@ -62,5 +62,16 @@ abstract class SqlFunctions {
 
     }
 
+    static void argListToString(List<?> argList, StringBuilder builder) {
+        final int size;
+        size = argList.size();
+        for (int i = 0; i < size; i++) {
+            if (i > 0) {
+                builder.append(_Constant.COMMA);
+            }
+            builder.append(argList.get(i));
+        }
+    }
+
 
 }
