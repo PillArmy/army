@@ -34,14 +34,14 @@ abstract class PostgreSystemFunctions extends PostgreWindowFunctions {
         return TypedFunctions.twoArgFunc("pg_try_advisory_lock", BooleanType.INSTANCE, key1, key2);
     }
 
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-admin.html">pg_try_advisory_unlock</a>
-    public static Expression pgTryAdvisoryUnlock(Object key) {
-        return TypedFunctions.oneArgFunc("pg_try_advisory_unlock", BooleanType.INSTANCE, key);
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-admin.html">pg_advisory_unlock</a>
+    public static Expression pgAdvisoryUnlock(Object key) {
+        return TypedFunctions.oneArgFunc("pg_advisory_unlock", BooleanType.INSTANCE, key);
     }
 
-    /// @see <a href="https://www.postgresql.org/docs/current/functions-admin.html">pg_try_advisory_unlock</a>
-    public static Expression pgTryAdvisoryUnlock(Object key1, Object key2) {
-        return TypedFunctions.twoArgFunc("pg_try_advisory_unlock", BooleanType.INSTANCE, key1, key2);
+    /// @see <a href="https://www.postgresql.org/docs/current/functions-admin.html">pg_advisory_unlock</a>
+    public static Expression pgAdvisoryUnlock(Object key1, Object key2) {
+        return TypedFunctions.twoArgFunc("pg_advisory_unlock", BooleanType.INSTANCE, key1, key2);
     }
 
 

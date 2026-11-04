@@ -141,7 +141,7 @@ public final class ArmySandboxExecutionGuard implements SandboxExecutionGuard {
 
     private Expression unlockExpression(Database database, Object lockKey) {
         return switch (database) {
-            case PostgreSQL -> Postgres.pgTryAdvisoryUnlock(lockKey);
+            case PostgreSQL -> Postgres.pgAdvisoryUnlock(lockKey);
             case MySQL -> MySQLs.releaseLock(lockKey);
             default -> throw new UnsupportedOperationException(String.format("Unsupported database: %s", database));
         };
